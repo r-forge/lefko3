@@ -516,7 +516,29 @@ where $t$ refers to a specific time and $T$ refers to the number of times simula
 
 where $\mathbf{A_t}$ refers to the A matrix corresponding to time *t*. Stochastic sensitivities for hMPMs may be converted to historically-corrected format as in the deterministic case, and stochastic elasticities may be summed as before.
   
-  <p style="text-indent: 20px">Users working with elasticities, whether deterministic or stochastic, may find the `summary.lefkoElas` function useful. If an elasticity analysis is conducted on a `lefkoMat` object, then the information in that object can be used to summarize summed elasticity according to different sorts of transitions. In the ahistorical case, elasticities are sorted by growth, stasis, shrinkage, and fecundity. In the historical case, they are sorted by transition pairs across three times (e.g. stasis followed growth vs. shrinkage followed by stasis vs. growth followed by reproduction).</p>
+  <p style="text-indent: 20px">Users working with elasticities, whether deterministic or stochastic, may find the `summary.lefkoElas()` function useful. If an elasticity analysis is conducted on a `lefkoMat` object, then the information in that object can be used to summarize summed elasticity according to different sorts of transitions. In the ahistorical case, elasticities are sorted by growth, stasis, shrinkage, and fecundity. In the historical case, they are sorted by transition pairs across three times (e.g. stasis followed growth vs. shrinkage followed by stasis vs. growth followed by reproduction).</p>
+
+#### Life table response experiments (LTREs)
+
+  <p style="text-indent: 20px">MPMs are very useful tools to describe and explore population dynamics. However, sometimes we may wish to know how specific factors or treatments impact the population growth rate, and through what elements and vital rates those impacts are achieved. Life table response experiments (LTREs) provide the means to evaluate these impacts via methodologies that compare matrices for their impacts on the growth rate of some reference matrix or set of matrices.</p>
+  
+  <p style="text-indent: 20px">Several forms of LTRE exist. The simplest and earliest developed is the fixed, one-way LTRE, which evaluates the impact of a single factor on the asymptotic population growth rate $\lambda$. Imagine two matrices, the first a matrix derived from some treatment such as a particular management regime, $\mathbf{A^m}$, and a reference matrix from a control regime, $\mathbf{A^R}$. Per Caswell [-@caswell_matrix_2001], if we estimate a matrix $\mathbf{A^{(m+R)/2}}$ that is the element-wise arithmetic mean matrix of $\mathbf{A^m}$ and $\mathbf{A^R}$, then:</p>
+  
+  \begin{equation}
+  \tag{20}
+  \Delta \lambda = \lambda^m - \lambda^R \approx \sum_{ji} ((a_{ji}^m - a_{ji}^K) (\frac{\partial \lambda}{\partial a_ji}) | _\mathbf{A^{(m+R)/2}})
+  \end{equation}
+  
+  <p style="text-indent: 20px">Since 2010, several stochastic life table response experiment (sLTREs) methodologies have also been developed. sLTREs measure the impact of one or more treatments on the log stochastic growth rate, $a = \text{log} \lambda _{S}$. However, the treatment and reference here are not single matrices, but sets of matrices that vary randomly across time. Here, we assume that $a^{m}$ and $a^{R}$ are the log stochastic growth rates of the treatment MPM and the reference MPM, respectively. Package `lefko3` currently implements the Davison et al. [-@davison_demographic_2010] simulated sLTRE, where:</p>
+  
+  \begin{equation}
+  \tag{21}
+  \Delta A = a^{m} - a^{R} \approx \sum_{ji} [log \mu_{ji}^{m} - log \mu_{ji}^{K}] E_{ji}^{\mu} + [log \sigma_{ji}^{m} - log \sigma_{ji}^{K}] E_{ji}^{\sigma}
+  \end{equation}
+  
+In the above equation, $E_{ji}^{\mu}$ and $E_{ji}^{\sigma}$ are the stochastic elasticities of the log stochastic growth rate to changes in the mean and standard deviation, respectively, of the element at row $j$ and column $i$ in the reference matrix set.
+  
+  <p style="text-indent: 20px">Davison et al. [-@davison_contributions_2013] presented an analytical solution to the sLTRE, and we are currently working to implement this version in `lefko3` as well.</p>
 
 #### Further analyses
 
