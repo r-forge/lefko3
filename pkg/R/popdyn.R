@@ -101,15 +101,15 @@
 #'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
 #'   NRasRep = TRUE)
 #' 
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
@@ -291,22 +291,22 @@ lmean <- function(mats, matsout = "all") {
 #'   NRasRep = TRUE)
 #' 
 #' # Here we use supplemental() to provide overwrite and reproductive info
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
 #'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
 #'   size = c("size3added", "size2added"), supplement = cypsupp2r,
 #'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
-#'                        
+#' 
 #' lambda3(cypmatrix2r)
 #' 
 #' @export
@@ -416,22 +416,22 @@ lambda3 <- function(mats, ...) UseMethod("lambda3")
 #'   NRasRep = TRUE)
 #' 
 #' # Here we use supplemental() to provide overwrite and reproductive info
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
 #'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
 #'   size = c("size3added", "size2added"), supplement = cypsupp2r,
 #'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
-#'                        
+#' 
 #' lambda3(cypmatrix2r)
 #' 
 #' @export
@@ -484,7 +484,7 @@ lambda3.lefkoMat <- function(mats, sparse = "auto", ...) {
 #' (\code{"yes"}) or dense matrix encoding (\code{"no"}). Defaults to
 #' \code{"auto"}.
 #' @param ... Other parameters.
-#'
+#' 
 #' @return This function returns the dominant eigenvalue of the matrix.
 #' 
 #' @section Notes:
@@ -572,22 +572,22 @@ lambda3.lefkoMat <- function(mats, sparse = "auto", ...) {
 #'   NRasRep = TRUE)
 #' 
 #' # Here we use supplemental() to provide overwrite and reproductive info
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
 #'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
 #'   size = c("size3added", "size2added"), supplement = cypsupp2r,
 #'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
-#'                        
+#' 
 #' lambda3(cypmatrix2r$A[[1]])
 #' 
 #' @export
@@ -702,22 +702,22 @@ lambda3.matrix <- function(mats, sparse = "auto", ...)
 #'   NRasRep = TRUE)
 #' 
 #' # Here we use supplemental() to provide overwrite and reproductive info
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
 #'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
 #'   size = c("size3added", "size2added"), supplement = cypsupp2r,
 #'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
-#'                        
+#' 
 #' stablestage3(cypmatrix2r, stochastic = TRUE)
 #' 
 #' @export
@@ -863,22 +863,22 @@ stablestage3 <- function(mats, ...) UseMethod("stablestage3")
 #'   NRasRep = TRUE)
 #' 
 #' # Here we use supplemental() to provide overwrite and reproductive info
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
 #'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
 #'   size = c("size3added", "size2added"), supplement = cypsupp2r,
 #'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
-#'                        
+#' 
 #' stablestage3(cypmatrix2r, stochastic = TRUE)
 #' 
 #' @export
@@ -1139,22 +1139,22 @@ stablestage3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
 #'   NRasRep = TRUE)
 #' 
 #' # Here we use supplemental() to provide overwrite and reproductive info
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
 #'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
 #'   size = c("size3added", "size2added"), supplement = cypsupp2r,
 #'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
-#'                        
+#' 
 #' stablestage3(cypmatrix2r$A[[1]])
 #' 
 #' @export
@@ -1269,22 +1269,22 @@ stablestage3.matrix <- function(mats, sparse = "auto", ...)
 #'   NRasRep = TRUE)
 #' 
 #' # Here we use supplemental() to provide overwrite and reproductive info
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
 #'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
 #'   size = c("size3added", "size2added"), supplement = cypsupp2r,
 #'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
-#'                        
+#' 
 #' repvalue3(cypmatrix2r, stochastic = TRUE)
 #' 
 #' @export
@@ -1432,22 +1432,22 @@ repvalue3 <- function(mats, ...) UseMethod("repvalue3")
 #'   NRasRep = TRUE)
 #' 
 #' # Here we use supplemental() to provide overwrite and reproductive info
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
 #'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
 #'   size = c("size3added", "size2added"), supplement = cypsupp2r,
 #'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
-#'                        
+#' 
 #' repvalue3(cypmatrix2r, stochastic = TRUE)
 #' 
 #' @export
@@ -1810,22 +1810,22 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
 #'   NRasRep = TRUE)
 #' 
 #' # Here we use supplemental() to provide overwrite and reproductive info
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
 #'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
 #'   size = c("size3added", "size2added"), supplement = cypsupp2r,
 #'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
-#'                        
+#' 
 #' repvalue3(cypmatrix2r$A[[1]])
 #' 
 #' @export
@@ -1940,15 +1940,15 @@ repvalue3.matrix <- function(mats, sparse = "auto", ...)
 #'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
 #'   NRasRep = TRUE)
 #' 
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
@@ -2080,15 +2080,15 @@ sensitivity3 <- function(mats, ...) UseMethod("sensitivity3")
 #'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
 #'   NRasRep = TRUE)
 #' 
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
@@ -2294,15 +2294,15 @@ sensitivity3.lefkoMat <- function(mats, stochastic = FALSE, steps = 10000,
 #'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
 #'   NRasRep = TRUE)
 #' 
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
@@ -2454,15 +2454,15 @@ sensitivity3.matrix <- function(mats, sparse = "auto", ...)
 #'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
 #'   NRasRep = TRUE)
 #' 
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
@@ -2633,15 +2633,15 @@ sensitivity3.list <- function(mats, stochastic = FALSE, steps = 10000,
 #'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
 #'   NRasRep = TRUE)
 #' 
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
@@ -2778,15 +2778,15 @@ elasticity3 <- function(mats, ...) UseMethod("elasticity3")
 #'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
 #'   NRasRep = TRUE)
 #' 
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
@@ -2990,15 +2990,15 @@ elasticity3.lefkoMat <- function(mats, stochastic = FALSE, steps = 10000,
 #'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
 #'   NRasRep = TRUE)
 #' 
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
@@ -3142,15 +3142,15 @@ elasticity3.matrix <- function(mats, sparse = "auto", ...)
 #'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
 #'   NRasRep = TRUE)
 #' 
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
@@ -3327,15 +3327,15 @@ elasticity3.list <- function(mats, stochastic = FALSE, steps = 10000,
 #'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
 #'   NRasRep = TRUE)
 #' 
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
@@ -3481,15 +3481,15 @@ ltre3 <- function(mats, refmats, ...) UseMethod("ltre3")
 #'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
 #'   NRasRep = TRUE)
 #' 
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
@@ -3649,9 +3649,12 @@ ltre3.lefkoMat <- function(mats, refmats = NA, ref = NA, stochastic = FALSE,
       }
     }
     
+    alabels <- mats$labels[,c("pop", "patch")]
+    alabels <- unique(alabels)
+    
     output <- list(ltre_mean = baldrick$cont_mean, ltre_sd = baldrick$cont_sd,
       ahstages = mats$ahstages, agestages = mats$agestages,
-      hstages = mats$hstages, labels = mats$labels)
+      hstages = mats$hstages, labels = alabels)
   }
   
   if (append_mats) {
@@ -3749,7 +3752,25 @@ summary.lefkoElas <- function(object, ...) {
   used_iterations <- if(num_h_mats > 0) num_h_mats else num_ah_mats
   
   if (num_h_mats == 0) {
-    indices <- bambi2(elasmats$ah_stages)
+    if (!all(is.null(elasmats$agestages))) {
+      if (!all(is.na(elasmats$agestages))) {
+        if (is.element("stage_id", names(elasmats$agestages))) {
+          new_ahstages_list <- apply(as.matrix(c(1:length(elasmats$agestages$stage_id))), 
+            1, function(X) {
+              return(elasmats$ah_stages[which(elasmats$ah_stages$stage_id == elasmats$agestages$stage_id[X]),])
+            })
+          new_ahstages <- do.call("rbind.data.frame", new_ahstages_list)
+          indices <- bambi2(new_ahstages)
+        } else {
+          indices <- bambi2(elasmats$ah_stages)
+        }
+      } else {
+        indices <- bambi2(elasmats$ah_stages)
+      }
+    } else {
+      indices <- bambi2(elasmats$ah_stages)
+    }
+    
   } else {
     indices <- bambi3(elasmats$ah_stages, elasmats$h_stages)
   }
@@ -3887,7 +3908,24 @@ summary.lefkoLTRE <- function(object, ...) {
   }
   
   if (!historical) {
-    indices <- bambi2(object$ahstages)
+    if (!all(is.null(object$agestages))) {
+      if (!all(is.na(object$agestages))) {
+        if (is.element("stage_id", names(object$agestages))) {
+          new_ahstages_list <- apply(as.matrix(c(1:length(object$agestages$stage_id))), 
+            1, function(X) {
+              return(object$ahstages[which(object$ahstages$stage_id == object$agestages$stage_id[X]),])
+            })
+          new_ahstages <- do.call("rbind.data.frame", new_ahstages_list)
+          indices <- bambi2(new_ahstages)
+        } else {
+          indices <- bambi2(object$ahstages)
+        }
+      } else {
+        indices <- bambi2(object$ahstages)
+      }
+    } else {
+      indices <- bambi2(object$ahstages)
+    }
   } else {
     indices <- bambi3(object$ahstages, object$hstages)
   }

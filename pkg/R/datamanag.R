@@ -379,15 +379,15 @@
 #'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
 #'   NRasRep = TRUE)
 #' 
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
@@ -426,15 +426,15 @@
 #'   fecacol = "Pod.04", stageassign = cypframe_raw, stagesize = "sizeadded",
 #'   NAas0 = TRUE, NRasRep = TRUE)
 #' 
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
@@ -1316,15 +1316,15 @@ verticalize3 <- function(data, noyears, firstyear = 1, popidcol = 0,
 #'   stageassign = cypframe_raw, stagesize = "sizeadded", censorcol = "censor",
 #'   censor = FALSE, NAas0 = TRUE, NRasRep = TRUE, reduce = TRUE)
 #'   
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v2, stageframe = cypframe_raw, 
@@ -2112,7 +2112,9 @@ historicalize3 <- function(data, popidcol = 0, patchidcol = 0, individcol,
 #' \code{mats} as object \code{A}, their U and F decompositions in objects
 #' \code{U} and \code{F} (if requested), the provided stageframe as object
 #' \code{ahstages}, the order of historical stages as object \code{hstages} (if
-#' \code{historical = TRUE}), and the order of matrices as object \code{labels}.
+#' \code{historical = TRUE}), the order of matrices as object \code{labels}, and
+#' a short quality control section used by the \code{\link{summary.lefkoMat}()}
+#' function.
 #' 
 #' @section Notes:
 #' This function does not currently handle age-by-stage matrices.
@@ -2384,6 +2386,8 @@ create_lM <- function(mats, stageframe, hstages = NA, historical = FALSE,
     }
   }
   
+  matrixqc <- c(NA, NA, mat_length)
+  
   if (UFdecomp) {
     if (!historical) {
       rep_from <- which(stageframe$repstatus == 1)
@@ -2412,9 +2416,27 @@ create_lM <- function(mats, stageframe, hstages = NA, historical = FALSE,
         return(newmat)
       })
     }
+    
+    Utrans <- sum(apply(as.matrix(c(1:mat_length)), 1, function(X) {
+      length(which(U[[X]] > 0))
+    }))
+    
+    Ftrans <- sum(apply(as.matrix(c(1:mat_length)), 1, function(X) {
+      length(which(F[[X]] > 0))
+    }))
+    
+    matrixqc[1] <- Utrans
+    matrixqc[2] <- Ftrans
+    
   } else {
     U <- NA
     F <- NA
+    
+    Atrans <- sum(apply(as.matrix(c(1:mat_length)), 1, function(X) {
+      length(which(mats[[X]] > 0))
+    }))
+    
+    matrixqc[1] <- Atrans
   }
   
   if (is.element("size", names(stageframe))) {
@@ -2428,7 +2450,7 @@ create_lM <- function(mats, stageframe, hstages = NA, historical = FALSE,
   
   output <- list(A = mats, U = U, F = F, hstages = hstages, agestages = NA,
     ahstages = cbind.data.frame(stage_id = c(1:numstages), stageframe),
-    labels = labels)
+    labels = labels, matrixqc = matrixqc)
   class(output) <- "lefkoMat"
   
   return(output)

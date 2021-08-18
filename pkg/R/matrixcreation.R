@@ -168,8 +168,9 @@
 #' developed internally and can be used for erroc checking. Defaults to FALSE.
 #'
 #' @return If all inputs are properly formatted, then this function will return
-#' an object of class \code{lefkoMat}, which is a list with the following
-#' elements:
+#' an object of class \code{lefkoMat}, which is a list that holds the matrix
+#' projection model and all of its metadata. Its structure is a list with the
+#' following elements:
 #' 
 #' \item{A}{A list of full projection matrices in order of sorted patches and
 #' years. All matrices output in the \code{matrix} class.}
@@ -179,8 +180,8 @@
 #' output in the \code{matrix} class.}
 #' \item{hstages}{A data frame matrix showing the pairing of ahistorical stages
 #' used to create historical stage pairs.}
-#' \item{agestages}{Set to NA. Only used in output to function
-#' \code{aflefko2}().}
+#' \item{agestages}{A data frame showing age-stage pairs. In this function, it
+#' is set to NA. Only used in output to function \code{aflefko2}().}
 #' \item{ahstages}{A data frame detailing the characteristics of associated
 #' ahistorical stages, in the form of a modified stageframe that includes
 #' status as an entry stage through reproduction.}
@@ -807,7 +808,9 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NA,
 #' rate probabilities associated with each matrix. Defaults to FALSE.
 #'
 #' @return If all inputs are properly formatted, then this function will return
-#' either an object of class \code{lefkoMat}. Output includes:
+#' an object of class \code{lefkoMat}, which is a list that holds the matrix
+#' projection model and all of its metadata. Its structure is a list with the
+#' following elements:
 #'
 #' \item{A}{A list of full projection matrices in order of sorted patches and
 #' years. All matrices output in the \code{matrix} class.}
@@ -815,9 +818,10 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NA,
 #' matrices output in the \code{matrix} class.}
 #' \item{F}{A list of fecundity matrices sorted as in \code{A}. All matrices 
 #' output in the \code{matrix} class.}
-#' \item{hstages}{Set to NA for ahistorical matrices.}
-#' \item{agestages}{Set to NA. Only used in output to function
-#' \code{aflefko2}().}
+#' \item{hstages}{A data frame matrix showing the pairing of ahistorical stages
+#' used to create historical stage pairs. Set to NA for ahistorical matrices.}
+#' \item{agestages}{A data frame showing age-stage pairs. In this function, it
+#' is set to NA. Only used in output to function \code{aflefko2}().}
 #' \item{ahstages}{A data frame detailing the characteristics of associated
 #' ahistorical stages, in the form of a modified stageframe that includes
 #' status as an entry stage through reproduction.}
@@ -1358,7 +1362,9 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NA,
 #' development debugging purposes.
 #'
 #' @return If all inputs are properly formatted, then this function will return
-#' either an object of class \code{lefkoMat}. Output includes:
+#' an object of class \code{lefkoMat}, which is a list that holds the matrix
+#' projection model and all of its metadata. Its structure is a list with the
+#' following elements:
 #'
 #' \item{A}{A list of full projection matrices in order of sorted populations,
 #' patches, and years. All matrices output in the \code{matrix} class.}
@@ -1368,8 +1374,8 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NA,
 #' output in the \code{matrix} class.}
 #' \item{hstages}{A data frame matrix showing the pairing of ahistorical stages
 #' used to create historical stage pairs.}
-#' \item{agestages}{Set to NA. Only used in output to function
-#' \code{aflefko2}().}
+#' \item{agestages}{A data frame showing age-stage pairs. In this function, it
+#' is set to NA. Only used in output to function \code{aflefko2}().}
 #' \item{ahstages}{A data frame detailing the characteristics of associated
 #' ahistorical stages, in the form of a modified stageframe that includes
 #' status as an entry stage through reproduction.}
@@ -1479,24 +1485,23 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NA,
 #'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
 #'   NRasRep = TRUE)
 #' 
-#' cypsupp3r <- supplemental(stage3 = c("SD", "SD", "P1", "P1", "P2", "P3",
-#'     "SL", "SL", "SL", "D", "XSm", "Sm", "D", "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL",
-#'     "SL", "SL", "SL", "SL", "SL", "rep", "rep"),
-#'   stage1 = c("SD", "rep", "SD", "rep", "SD", "P1", "P2", "P3", "SL", "P3",
-#'     "P3", "P3", "SL", "SL", "SL", "all", "all"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", "D",
-#'     "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm",
-#'     "XSm", "XSm", "XSm", NA, NA),
-#'   eststage1 = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm",
-#'     "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.25, 0.4, 0.4, NA, NA, NA, NA,
-#'     NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-#'     0.5, 0.5),
-#'   type = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
-#'   type_t12 = c(1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+#' cypsupp3r <- supplemental(stage3 = c("SD", "SD", "P1", "P1", "P2", "P3", "SL",
+#'     "D", "XSm", "Sm", "D", "XSm", "Sm", "SD", "P1"),
+#'   stage2 = c("SD", "SD", "SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL",
+#'     "SL", "SL", "rep", "rep"),
+#'   stage1 = c("SD", "rep", "SD", "rep", "SD", "P1", "P2", "P3", "P3", "P3",
+#'     "SL", "SL", "SL", "mat", "mat"),
+#'   eststage3 = c(NA, NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", "D", "XSm", "Sm",
+#'     NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", "XSm", "XSm",
+#'     "XSm", NA, NA),
+#'   eststage1 = c(NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", "XSm", "XSm",
+#'     "XSm", NA, NA),
+#'   givenrate = c(0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.25, NA, NA, NA, NA, NA, NA,
+#'     NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   type_t12 = c(1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
 #'   stageframe = cypframe_raw, historical = TRUE)
 #' 
 #' cypmatrix3r <- rlefko3(data = cypraw_v1, stageframe = cypframe_raw,
@@ -2133,7 +2138,9 @@ rlefko3 <- function(data, stageframe, year = "all", pop = NA, patch = NA,
 #' column sums in ALL matrices estimated equal 0. Defaults to FALSE.
 #' 
 #' @return If all inputs are properly formatted, then this function will return
-#' an object of class \code{lefkoMat}. This includes:
+#' an object of class \code{lefkoMat}, which is a list that holds the matrix
+#' projection model and all of its metadata. Its structure is a list with the
+#' following elements:
 #' 
 #' \item{A}{A list of full projection matrices in order of sorted populations,
 #' patches, and years. All matrices output in the \code{matrix} class.}
@@ -2141,9 +2148,10 @@ rlefko3 <- function(data, stageframe, year = "all", pop = NA, patch = NA,
 #' matrices output in the \code{matrix} class.}
 #' \item{F}{A list of fecundity matrices sorted as in \code{A}. All matrices 
 #' output in the \code{matrix} class.}
-#' \item{hstages}{Set to NA for ahistorical matrices.}
-#' \item{agestages}{Set to NA. Only used in output to function
-#' \code{aflefko2}().}
+#' \item{hstages}{A data frame matrix showing the pairing of ahistorical stages
+#' used to create historical stage pairs. Set to NA for ahistorical matrices.}
+#' \item{agestages}{A data frame showing age-stage pairs. In this function, it
+#' is set to NA. Only used in output to function \code{aflefko2}().}
 #' \item{ahstages}{A data frame detailing the characteristics of associated
 #' ahistorical stages, in the form of a modified stageframe that includes
 #' status as an entry stage through reproduction.}
@@ -2247,22 +2255,22 @@ rlefko3 <- function(data, stageframe, year = "all", pop = NA, patch = NA,
 #'   NRasRep = TRUE)
 #' 
 #' # Here we use supplemental() to provide overwrite and reproductive info
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
 #'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
 #'   size = c("size3added", "size2added"), supplement = cypsupp2r,
 #'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
-#'                        
+#' 
 #' cypmatrix2r$A[[1]]
 #' 
 #' @export
@@ -2843,13 +2851,16 @@ rlefko2 <- function(data, stageframe, year = "all", pop = NA, patch = NA,
 #' rate probabilities associated with each matrix. Defaults to FALSE.
 #'
 #' @return If all inputs are properly formatted, then this function will return
-#' an object of class \code{lefkoMat}. Output includes:
+#' an object of class \code{lefkoMat}, which is a list that holds the matrix
+#' projection model and all of its metadata. Its structure is a list with the
+#' following elements:
 #'
 #' \item{A}{A list of full projection matrices in order of sorted patches and
 #' years.}
 #' \item{U}{A list of survival transition matrices sorted as in \code{A}.}
 #' \item{F}{A list of fecundity matrices sorted as in \code{A}.}
-#' \item{hstages}{Null for ahistorical matrices.}
+#' \item{hstages}{A data frame matrix showing the pairing of ahistorical stages
+#' used to create historical stage pairs. Set to NA for ahistorical matrices.}
 #' \item{agestages}{A data frame showing the stage number and stage name
 #' corresponding to \code{ahstages}, as well as the associated age, of each
 #' actual row in each age-by-stage matrix.}
@@ -3278,6 +3289,9 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NA,
 #' \code{\link{flefko2}()}, \code{\link{rlefko3}()}, and \code{\link{rlefko2}()}.
 #' 
 #' @param object An object of class \code{lefkoMat}.
+#' @param colsums A logical value indicating whether column sums should be shown
+#' for U matrices, allowing users to check stage survival probabilities.
+#' Defaults to TRUE.
 #' @param ... Other parameters.
 #' 
 #' @return A summary of the object, showing the number of each type of matrix,
@@ -3313,15 +3327,15 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NA,
 #'   NRasRep = TRUE)
 #' 
 #' # Here we use supplemental() to provide overwrite and reproductive info
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "SL", "D", 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", "rep",
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
 #'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
 #' 
 #' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
@@ -3332,7 +3346,7 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NA,
 #' summary(cypmatrix2r)
 #' 
 #' @export
-summary.lefkoMat <- function(object, ...) {
+summary.lefkoMat <- function(object, colsums = TRUE, ...) {
   
   matrices <- object
   
@@ -3348,22 +3362,31 @@ summary.lefkoMat <- function(object, ...) {
     histmark <- "ahistorical"
   }
   
+  if (mqcc == 1) {
+    writeLines(paste0("\nThis ", histmark, " lefkoMat object contains ", mqcc,
+        " matrix."))
+  } else {
+    writeLines(paste0("\nThis ", histmark, " lefkoMat object contains ", mqcc,
+        " matrices."))
+  }
+  writeLines(paste0("\nEach matrix is a square matrix with ", matdim,
+    " rows and columns, and a total of ", matdim*matdim, " elements."))
+  
   mqac <- mqca / mqcc
   if (mqac != floor(mqac)) mqac <- round(mqac, digits = 3)
-
-  mqbc <- mqcb / mqcc
-  if (mqbc != floor(mqbc)) mqbc <- round(mqbc, digits = 3)
   
-  if (mqcc == 1) {
-    writeLines(paste0("\nThis ", histmark, " lefkoMat object contains ", mqcc, " matrix."))
+  if (!all(is.na(mqac))) {
+    mqbc <- mqcb / mqcc
+    if (mqbc != floor(mqbc)) mqbc <- round(mqbc, digits = 3)
+    
+    writeLines(paste0("A total of ", mqca, " survival transitions were estimated, with ", 
+        mqac, " per matrix."))
+    writeLines(paste0("A total of ", mqcb, " fecundity transitions were estimated, with ", 
+        mqbc, " per matrix."))
   } else {
-    writeLines(paste0("\nThis ", histmark, " lefkoMat object contains ", mqcc, " matrices."))
+    writeLines(paste0("A total of ", mqca, " transitions were estimated, with ", 
+        mqac, " per matrix. Positions of survival vs fecundity transitions are not known."))
   }
-  writeLines(paste0("\nEach matrix is a square matrix with ", matdim, " rows and columns, and a total of ", matdim*matdim, " elements."))
-  writeLines(paste0("A total of ", mqca, " survival transitions were estimated, with ", 
-                    mqac, " per matrix."))
-  writeLines(paste0("A total of ", mqcb, " fecundity transitions were estimated, with ", 
-                    mqbc, " per matrix."))
   
   if (is.element("dataqc", names(matrices))) {
     dqca <- matrices$dataqc[1]
@@ -3450,11 +3473,22 @@ summary.lefkoMat <- function(object, ...) {
     }
   }
   
-  writeLines("\nSurvival probability sum check (each matrix represented by column in order):")
+  dethonthetoilet <- apply(as.matrix(c(1:length(matrices$U))), 1,
+      function(X) {summary(colSums(matrices$U[[X]]))}
+  )
   
-  dethontoilt <- apply(as.matrix(c(1:length(matrices$U))), 1,
-    function(X) {summary(colSums(matrices$U[[X]]))})
-  print(dethontoilt, digits = 3)
+  if (colsums) {
+    writeLines("\nSurvival probability sum check (each matrix represented by column in order):")
+    print(dethonthetoilet, digits = 3)
+  }
+  
+  if (max(dethonthetoilet) > 1) {
+    warning("Some matrices include stages with survival probability greater than 1.0.", call. = FALSE)
+  }
+  
+  if (min(dethonthetoilet) < 0) {
+    warning("Some matrices include stages with survival probability less than 0.0.", call. = FALSE)
+  }
   
   return()
 }

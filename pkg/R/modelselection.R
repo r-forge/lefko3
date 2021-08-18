@@ -66,11 +66,11 @@
 #' @param sizedist The probability distribution used to model size. Options
 #' include \code{gaussian} for the Normal distribution (default), \code{poisson}
 #' for the Poisson distribution, and \code{negbin} for the negative binomial
-#' distribution.
+#' distribution (quadratic parameterization).
 #' @param fecdist The probability distribution used to model fecundity. Options
 #' include \code{gaussian} for the Normal distribution (default), \code{poisson}
 #' for the Poisson distribution, and \code{negbin} for the negative binomial
-#' distribution.
+#' distribution (quadratic parameterization).
 #' @param size.zero A logical variable indicating whether size distribution 
 #' should be zero-inflated. Only applies to Poisson and negative binomial 
 #' distributions. Defaults to FALSE.
