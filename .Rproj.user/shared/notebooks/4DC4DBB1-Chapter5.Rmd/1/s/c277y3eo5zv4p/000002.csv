@@ -1,0 +1,2 @@
+"0","hist(subset(vertdata, repstatus2 == 1)$feca2, main = ""Fecundity in occasion t"", "
+"0","  xlab = ""Number of fruit pods in occasion t"")"

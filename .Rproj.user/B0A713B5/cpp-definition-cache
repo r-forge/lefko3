@@ -1,359 +1,5 @@
 [
     {
-        "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/DataManagement.cpp",
-        "file_last_write": 1628635299.0,
-        "definitions": [
-            {
-                "usr": "c:@F@ovreplace#$@N@arma@S@Col>#d#S0_#S0_#S0_#S0_#S0_#S0_#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "ovreplace(arma::vec, arma::vec, arma::vec, arma::vec, arma::vec, arma::vec, arma::vec)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/DataManagement.cpp",
-                "line": 31,
-                "column": 11
-            },
-            {
-                "usr": "c:@F@pfj#$@N@Rcpp@S@DataFrame_Impl>#@N@Rcpp@ST>1#T@PreserveStorage#S0_#I#I#I#I#I#I#$@N@arma@S@Col>#I#S1_#S1_#S1_#S1_#S1_#S1_#S1_#S1_#S1_#S1_#S1_#S1_#S1_#S1_#S1_#S1_#S1_#S1_#d#d#b#b#b#b#I#d#b#b#b#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "pfj(Rcpp::DataFrame, Rcpp::DataFrame, int, int, int, int, int, int, arma::ivec, arma::ivec, arma::ivec, arma::ivec, arma::ivec, arma::ivec, arma::ivec, arma::ivec, arma::ivec, arma::ivec, arma::ivec, arma::ivec, arma::ivec, arma::ivec, arma::ivec, arma::ivec, arma::ivec, arma::ivec, arma::ivec, double, double, bool, bool, bool, bool, int, double, bool, bool, bool)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/DataManagement.cpp",
-                "line": 157,
-                "column": 12
-            },
-            {
-                "usr": "c:@F@jpf#$@N@Rcpp@S@DataFrame_Impl>#@N@Rcpp@ST>1#T@PreserveStorage#S0_#I#I#I#I#I#I#I#I#I#I#I#I#I#I#I#I#I#I#I#I#I#I#I#I#I#I#I#I#I#I#I#I#I#I#I#I#I#d#d#I#I#I#b#b#b#I#d#b#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "jpf(Rcpp::DataFrame, Rcpp::DataFrame, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, double, double, int, int, int, bool, bool, bool, int, double, bool)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/DataManagement.cpp",
-                "line": 1636,
-                "column": 12
-            },
-            {
-                "usr": "c:@F@theoldpizzle#$@N@Rcpp@S@DataFrame_Impl>#@N@Rcpp@ST>1#T@PreserveStorage#S0_#$@N@arma@S@Mat>#d#I#I#I#I#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "theoldpizzle(Rcpp::DataFrame, Rcpp::DataFrame, arma::mat, int, int, int, int)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/DataManagement.cpp",
-                "line": 2736,
-                "column": 12
-            }
-        ]
-    },
-    {
-        "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/ErrorChecks.cpp",
-        "file_last_write": 1628635299.0,
-        "definitions": [
-            {
-                "usr": "c:@F@hoffmannofstuttgart#$@N@arma@S@Mat>#d#$@N@Rcpp@S@DataFrame_Impl>#@N@Rcpp@ST>1#T@PreserveStorage#I#$@N@Rcpp@S@Vector>#VI16#@N@Rcpp@ST>1#T@PreserveStorage#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "hoffmannofstuttgart(arma::mat, Rcpp::DataFrame, int, Rcpp::StringVector)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/ErrorChecks.cpp",
-                "line": 24,
-                "column": 6
-            },
-            {
-                "usr": "c:@F@cond_hmpm#$@N@Rcpp@S@Vector>#VI19#@N@Rcpp@ST>1#T@PreserveStorage#$@N@Rcpp@S@Nullable>#$@N@Rcpp@S@Vector>#VI16#@N@Rcpp@ST>1#T@PreserveStorage#$@N@Rcpp@S@Nullable>#$@N@Rcpp@S@Vector>#VI10#@N@Rcpp@ST>1#T@PreserveStorage#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "cond_hmpm(Rcpp::List, Nullable<Rcpp::CharacterVector>, Nullable<Rcpp::LogicalVector>)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/ErrorChecks.cpp",
-                "line": 148,
-                "column": 12
-            }
-        ]
-    },
-    {
-        "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/MatrixEstimators.cpp",
-        "file_last_write": 1628635299.0,
-        "definitions": [
-            {
-                "usr": "c:@F@specialpatrolgroup#$@N@Rcpp@S@DataFrame_Impl>#@N@Rcpp@ST>1#T@PreserveStorage#S0_#S0_#S0_#I#I#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "specialpatrolgroup(Rcpp::DataFrame, Rcpp::DataFrame, Rcpp::DataFrame, Rcpp::DataFrame, int, int)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/MatrixEstimators.cpp",
-                "line": 34,
-                "column": 6
-            },
-            {
-                "usr": "c:@F@normalpatrolgroup#$@N@Rcpp@S@DataFrame_Impl>#@N@Rcpp@ST>1#T@PreserveStorage#S0_#S0_#S0_#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "normalpatrolgroup(Rcpp::DataFrame, Rcpp::DataFrame, Rcpp::DataFrame, Rcpp::DataFrame)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/MatrixEstimators.cpp",
-                "line": 297,
-                "column": 6
-            },
-            {
-                "usr": "c:@F@jerzeibalowski#$@N@Rcpp@S@DataFrame_Impl>#@N@Rcpp@ST>1#T@PreserveStorage#S0_#S0_#I#$@N@Rcpp@S@Vector>#VI19#@N@Rcpp@ST>1#T@PreserveStorage#S1_#S1_#S1_#S1_#S1_#S1_#S1_#S1_#d#d#d#d#d#d#d#d#d#d#d#d#d#d#d#d#d#d#i#I#I#b#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "jerzeibalowski(Rcpp::DataFrame, Rcpp::DataFrame, Rcpp::DataFrame, int, Rcpp::List, Rcpp::List, Rcpp::List, Rcpp::List, Rcpp::List, Rcpp::List, Rcpp::List, Rcpp::List, Rcpp::List, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, unsigned int, int, int, bool)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/MatrixEstimators.cpp",
-                "line": 517,
-                "column": 6
-            }
-        ]
-    },
-    {
-        "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/ModelSelection.cpp",
-        "file_last_write": 1628635299.0,
-        "definitions": [
-            {
-                "usr": "c:@F@stovokor#$@N@Rcpp@S@Vector>#VI16#@N@Rcpp@ST>1#T@PreserveStorage#S0_#S0_#S0_#S0_#S0_#b#$@N@Rcpp@S@String#S1_#S1_#S1_#b#S1_#S0_#S0_#S0_#S1_#S1_#S1_#b#b#I#b#b#b#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "stovokor(Rcpp::StringVector, Rcpp::StringVector, Rcpp::StringVector, Rcpp::StringVector, Rcpp::StringVector, Rcpp::StringVector, bool, Rcpp::String, Rcpp::String, Rcpp::String, Rcpp::String, bool, Rcpp::String, Rcpp::StringVector, Rcpp::StringVector, Rcpp::StringVector, Rcpp::String, Rcpp::String, Rcpp::String, bool, bool, int, bool, bool, bool)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/ModelSelection.cpp",
-                "line": 74,
-                "column": 6
-            }
-        ]
-    },
-    {
-        "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-        "file_last_write": 1628635299.0,
-        "definitions": [
-            {
-                "usr": "c:@F@flagrantcrap#$@N@arma@S@Mat>#d#$@N@arma@S@Col>#i#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "flagrantcrap(arma::mat, arma::uvec)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 22,
-                "column": 11
-            },
-            {
-                "usr": "c:@F@moreflagrantcrap#$@N@arma@S@Mat>#d#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "moreflagrantcrap(arma::mat)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 41,
-                "column": 11
-            },
-            {
-                "usr": "c:@F@spmat_log#$@N@arma@S@SpMat>#d#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "spmat_log(arma::sp_mat)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 64,
-                "column": 14
-            },
-            {
-                "usr": "c:@F@turbogeodiesel#$@N@Rcpp@S@DataFrame_Impl>#@N@Rcpp@ST>1#T@PreserveStorage#$@N@Rcpp@S@Vector>#VI19#@N@Rcpp@ST>1#T@PreserveStorage#S1_#S0_#S0_#S0_#b#b#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "turbogeodiesel(Rcpp::DataFrame, Rcpp::List, Rcpp::List, Rcpp::DataFrame, Rcpp::DataFrame, Rcpp::DataFrame, bool, bool)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 122,
-                "column": 6
-            },
-            {
-                "usr": "c:@F@geodiesel#$@N@Rcpp@S@DataFrame_Impl>#@N@Rcpp@ST>1#T@PreserveStorage#$@N@Rcpp@S@Vector>#VI19#@N@Rcpp@ST>1#T@PreserveStorage#S1_#S0_#S0_#b#b#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "geodiesel(Rcpp::DataFrame, Rcpp::List, Rcpp::List, Rcpp::DataFrame, Rcpp::DataFrame, bool, bool)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 418,
-                "column": 6
-            },
-            {
-                "usr": "c:@F@decomp3#$@N@arma@S@Mat>#d#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "decomp3(arma::mat)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 661,
-                "column": 6
-            },
-            {
-                "usr": "c:@F@decomp3sp#$@N@arma@S@Mat>#d#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "decomp3sp(arma::mat)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 690,
-                "column": 6
-            },
-            {
-                "usr": "c:@F@decomp3sp_inp#$@N@arma@S@SpMat>#d#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "decomp3sp_inp(arma::sp_mat)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 730,
-                "column": 6
-            },
-            {
-                "usr": "c:@F@lambda3matrix#$@N@arma@S@Mat>#d#b#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "lambda3matrix(arma::mat, bool)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 766,
-                "column": 8
-            },
-            {
-                "usr": "c:@F@ss3matrix#$@N@arma@S@Mat>#d#b#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "ss3matrix(arma::mat, bool)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 805,
-                "column": 11
-            },
-            {
-                "usr": "c:@F@rv3matrix#$@N@arma@S@Mat>#d#b#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "rv3matrix(arma::mat, bool)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 850,
-                "column": 11
-            },
-            {
-                "usr": "c:@F@sens3matrix#$@N@arma@S@Mat>#d#b#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "sens3matrix(arma::mat, bool)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 891,
-                "column": 11
-            },
-            {
-                "usr": "c:@F@sens3sp_matrix#$@N@arma@S@SpMat>#d#S0_#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "sens3sp_matrix(arma::sp_mat, arma::sp_mat)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 960,
-                "column": 14
-            },
-            {
-                "usr": "c:@F@sens3hlefko#$@N@arma@S@Mat>#d#$@N@Rcpp@S@DataFrame_Impl>#@N@Rcpp@ST>1#T@PreserveStorage#S1_#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "sens3hlefko(arma::mat, Rcpp::DataFrame, Rcpp::DataFrame)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 1028,
-                "column": 6
-            },
-            {
-                "usr": "c:@F@elas3matrix#$@N@arma@S@Mat>#d#b#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "elas3matrix(arma::mat, bool)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 1136,
-                "column": 11
-            },
-            {
-                "usr": "c:@F@elas3hlefko#$@N@arma@S@Mat>#d#$@N@Rcpp@S@DataFrame_Impl>#@N@Rcpp@ST>1#T@PreserveStorage#S1_#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "elas3hlefko(arma::mat, Rcpp::DataFrame, Rcpp::DataFrame)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 1207,
-                "column": 6
-            },
-            {
-                "usr": "c:@F@proj3#$@N@arma@S@Col>#d#$@N@Rcpp@S@Vector>#VI19#@N@Rcpp@ST>1#T@PreserveStorage#$@N@arma@S@Col>#i#b#b#b#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "proj3(arma::vec, Rcpp::List, arma::uvec, bool, bool, bool)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 1298,
-                "column": 11
-            },
-            {
-                "usr": "c:@F@proj3sp#$@N@arma@S@Col>#d#$@N@Rcpp@S@Vector>#VI19#@N@Rcpp@ST>1#T@PreserveStorage#$@N@arma@S@Col>#i#b#b#b#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "proj3sp(arma::vec, Rcpp::List, arma::uvec, bool, bool, bool)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 1463,
-                "column": 11
-            },
-            {
-                "usr": "c:@F@projection3#$@N@Rcpp@S@Vector>#VI19#@N@Rcpp@ST>1#T@PreserveStorage#I#b#b#b#b#$@N@Rcpp@S@Nullable>#$@N@Rcpp@S@Vector>#VI14#@N@Rcpp@ST>1#T@PreserveStorage#S1_#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "projection3(Rcpp::List, int, bool, bool, bool, bool, Nullable<Rcpp::NumericVector>, Nullable<Rcpp::NumericVector>)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 1688,
-                "column": 12
-            },
-            {
-                "usr": "c:@F@slambda3#$@N@Rcpp@S@Vector>#VI19#@N@Rcpp@ST>1#T@PreserveStorage#I#$@N@Rcpp@S@Nullable>#$@N@Rcpp@S@Vector>#VI14#@N@Rcpp@ST>1#T@PreserveStorage#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "slambda3(Rcpp::List, int, Nullable<Rcpp::NumericVector>)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 2154,
-                "column": 11
-            },
-            {
-                "usr": "c:@F@stoch_senselas#$@N@Rcpp@S@Vector>#VI19#@N@Rcpp@ST>1#T@PreserveStorage#I#I#$@N@Rcpp@S@Nullable>#$@N@Rcpp@S@Vector>#VI14#@N@Rcpp@ST>1#T@PreserveStorage#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "stoch_senselas(Rcpp::List, int, int, Nullable<Rcpp::NumericVector>)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 2532,
-                "column": 12
-            },
-            {
-                "usr": "c:@F@bambi3#$@N@Rcpp@S@DataFrame_Impl>#@N@Rcpp@ST>1#T@PreserveStorage#S0_#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "bambi3(Rcpp::DataFrame, Rcpp::DataFrame)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 3082,
-                "column": 11
-            },
-            {
-                "usr": "c:@F@bambi2#$@N@Rcpp@S@DataFrame_Impl>#@N@Rcpp@ST>1#T@PreserveStorage#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "bambi2(Rcpp::DataFrame)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 3316,
-                "column": 11
-            },
-            {
-                "usr": "c:@F@demolition3#$@N@arma@S@Mat>#d#$@N@Rcpp@S@DataFrame_Impl>#@N@Rcpp@ST>1#T@PreserveStorage#$@N@Rcpp@S@Nullable>#$@N@Rcpp@S@Vector>#VI14#@N@Rcpp@ST>1#T@PreserveStorage#S2_#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "demolition3(arma::mat, Rcpp::DataFrame, Nullable<Rcpp::NumericVector>, Nullable<Rcpp::NumericVector>)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 3440,
-                "column": 6
-            },
-            {
-                "usr": "c:@F@ltre3matrix#$@N@Rcpp@S@Vector>#VI19#@N@Rcpp@ST>1#T@PreserveStorage#$@N@Rcpp@S@Vector>#VI13#@N@Rcpp@ST>1#T@PreserveStorage#$@N@Rcpp@S@Nullable>#S0_#b#b#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "ltre3matrix(Rcpp::List, Rcpp::IntegerVector, Nullable<Rcpp::List>, bool, bool)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 4306,
-                "column": 12
-            },
-            {
-                "usr": "c:@F@sltre3matrix#$@N@Rcpp@S@Vector>#VI19#@N@Rcpp@ST>1#T@PreserveStorage#$@N@Rcpp@S@DataFrame_Impl>#@N@Rcpp@ST>1#T@PreserveStorage#$@N@Rcpp@S@Vector>#VI13#@N@Rcpp@ST>1#T@PreserveStorage#$@N@Rcpp@S@Nullable>#S0_#$@N@Rcpp@S@Nullable>#$@N@arma@S@Col>#d#I#I#b#",
-                "kind": 6,
-                "parent_name": "",
-                "name": "sltre3matrix(Rcpp::List, Rcpp::DataFrame, Rcpp::IntegerVector, Nullable<Rcpp::List>, Nullable<arma::vec>, int, int, bool)",
-                "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/branches/src/popdynamics.cpp",
-                "line": 4440,
-                "column": 12
-            }
-        ]
-    },
-    {
         "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/pkg/src/DataManagement.cpp",
         "file_last_write": 1628635291.0,
         "definitions": [
@@ -421,7 +67,7 @@
     },
     {
         "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/pkg/src/MatrixEstimators.cpp",
-        "file_last_write": 1628635291.0,
+        "file_last_write": 1629148511.0,
         "definitions": [
             {
                 "usr": "c:@F@specialpatrolgroup#$@N@Rcpp@S@DataFrame_Impl>#@N@Rcpp@ST>1#T@PreserveStorage#S0_#S0_#S0_#I#I#",
@@ -469,7 +115,7 @@
     },
     {
         "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/pkg/src/popdynamics.cpp",
-        "file_last_write": 1628635291.0,
+        "file_last_write": 1629245818.0,
         "definitions": [
             {
                 "usr": "c:@F@flagrantcrap#$@N@arma@S@Mat>#d#$@N@arma@S@Col>#i#",
@@ -630,7 +276,7 @@
                 "parent_name": "",
                 "name": "proj3sp(arma::vec, Rcpp::List, arma::uvec, bool, bool, bool)",
                 "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/pkg/src/popdynamics.cpp",
-                "line": 1463,
+                "line": 1465,
                 "column": 11
             },
             {
@@ -648,7 +294,7 @@
                 "parent_name": "",
                 "name": "slambda3(Rcpp::List, int, Nullable<Rcpp::NumericVector>)",
                 "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/pkg/src/popdynamics.cpp",
-                "line": 2154,
+                "line": 2153,
                 "column": 11
             },
             {
@@ -657,7 +303,7 @@
                 "parent_name": "",
                 "name": "stoch_senselas(Rcpp::List, int, int, Nullable<Rcpp::NumericVector>)",
                 "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/pkg/src/popdynamics.cpp",
-                "line": 2532,
+                "line": 2531,
                 "column": 12
             },
             {
@@ -666,7 +312,7 @@
                 "parent_name": "",
                 "name": "bambi3(Rcpp::DataFrame, Rcpp::DataFrame)",
                 "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/pkg/src/popdynamics.cpp",
-                "line": 3082,
+                "line": 3081,
                 "column": 11
             },
             {
@@ -675,7 +321,7 @@
                 "parent_name": "",
                 "name": "bambi2(Rcpp::DataFrame)",
                 "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/pkg/src/popdynamics.cpp",
-                "line": 3316,
+                "line": 3315,
                 "column": 11
             },
             {
@@ -684,7 +330,7 @@
                 "parent_name": "",
                 "name": "demolition3(arma::mat, Rcpp::DataFrame, Nullable<Rcpp::NumericVector>, Nullable<Rcpp::NumericVector>)",
                 "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/pkg/src/popdynamics.cpp",
-                "line": 3440,
+                "line": 3439,
                 "column": 6
             },
             {
@@ -693,7 +339,7 @@
                 "parent_name": "",
                 "name": "ltre3matrix(Rcpp::List, Rcpp::IntegerVector, Nullable<Rcpp::List>, bool, bool)",
                 "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/pkg/src/popdynamics.cpp",
-                "line": 4306,
+                "line": 4305,
                 "column": 12
             },
             {
@@ -702,7 +348,7 @@
                 "parent_name": "",
                 "name": "sltre3matrix(Rcpp::List, Rcpp::DataFrame, Rcpp::IntegerVector, Nullable<Rcpp::List>, Nullable<arma::vec>, int, int, bool)",
                 "file": "/Users/richshefferson/Dropbox/Rpackages/lefko3/pkg/src/popdynamics.cpp",
-                "line": 4440,
+                "line": 4439,
                 "column": 12
             }
         ]

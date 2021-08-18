@@ -1,0 +1,2 @@
+"0","text(cex=0.5, y = -0.007, x = seq(from = 0, to = 2.98*length(rownames(elas_put_together)),"
+"0","  by = 3), rownames(elas_put_together), xpd=TRUE, srt=45)"

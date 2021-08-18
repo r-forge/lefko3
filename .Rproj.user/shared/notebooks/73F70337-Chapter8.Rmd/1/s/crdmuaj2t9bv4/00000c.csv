@@ -1,0 +1,2 @@
+"0","plot(density(c(lathyrus$lnVol88, lathyrus$lnVol89, lathyrus$lnVol90,"
+"0","    lathyrus$lnVol91), na.rm = TRUE), main = """", xlab = ""Log volume"", bty = ""n"")"

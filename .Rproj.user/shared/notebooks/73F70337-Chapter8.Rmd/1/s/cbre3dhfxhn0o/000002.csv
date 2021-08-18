@@ -1,0 +1,20 @@
+"0","writeLines(paste0(""Total length of variable corresponding to fecundity in year t+1: "", length(lathvertln$feca3)))"
+"1","Total length of variable corresponding to fecundity in year t+1: 2527
+"
+"0","writeLines(paste0(""Total non-integer entries in fecundity in year t+1: "", length(which(lathvertln$feca3 != round(lathvertln$feca3)))))"
+"1","Total non-integer entries in fecundity in year t+1: 0
+"
+"0","writeLines(paste0(""\nTotal length of variable corresponding to fecundity in year t: "", length(lathvertln$feca2)))"
+"1","
+Total length of variable corresponding to fecundity in year t: 2527
+"
+"0","writeLines(paste0(""Total non-integer entries in fecundity in year t: "", length(which(lathvertln$feca2 != round(lathvertln$feca2)))))"
+"1","Total non-integer entries in fecundity in year t: 6
+"
+"0","writeLines(paste0(""\nTotal length of variable corresponding to fecundity in year t-1: "", length(lathvertln$feca1)))"
+"1","
+Total length of variable corresponding to fecundity in year t-1: 2527
+"
+"0","writeLines(paste0(""Total non-integer entries in fecundity in year t-1: "", length(which(lathvertln$feca1 != round(lathvertln$feca1)))))"
+"1","Total non-integer entries in fecundity in year t-1: 6
+"

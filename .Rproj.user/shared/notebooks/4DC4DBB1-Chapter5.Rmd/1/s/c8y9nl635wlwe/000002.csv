@@ -1,0 +1,17 @@
+"0","cypmodels3 <- modelsearch(vertdata, historical = TRUE, approach = ""mixed"", "
+"0","  vitalrates = c(""surv"", ""obs"", ""size"", ""repst"", ""fec""), sizedist = ""negbin"", "
+"0","  size.trunc = TRUE, fecdist = ""poisson"", fec.zero = TRUE, suite = ""full"", "
+"0","  size = c(""size3added"", ""size2added"", ""size1added""), quiet = TRUE)"
+"2","boundary (singular) fit: see ?isSingular
+"
+"2","Warning in checkConv(attr(opt, ""derivs""), opt$par, ctrl = control$checkConv,  :"
+"2","
+ "
+"2"," Model failed to converge with max|grad| = 0.00275551 (tol = 0.002, component 1)
+"
+"2","Warning in checkConv(attr(opt, ""derivs""), opt$par, ctrl = control$checkConv,  :"
+"2","
+ "
+"2"," Model failed to converge with max|grad| = 0.0099624 (tol = 0.002, component 1)
+"
+"0","#summary(cypmodels3)"

@@ -1,0 +1,2 @@
+"0","legend(""bottomright"", c(""det annual"", ""det mean"", ""stochastic""), lty = c(1, 2, 2),"
+"0","  col = c(""black"", ""orangered"", ""darkred""), lwd = c(2, 2, 3), bty = ""n"")"

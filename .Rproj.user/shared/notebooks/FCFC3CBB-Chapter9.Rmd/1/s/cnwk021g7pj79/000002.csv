@@ -1,0 +1,8 @@
+"0","trialltre_det <- ltre3(anth_lefkoMat, refmats = NA, stochastic = FALSE,"
+"0","  steps = 10000, time_weights = NA, sparse = ""auto"")"
+"2","Warning:"
+"2"," Matrices input as mats will also be used as reference matrices.
+"
+"2","Using all refmats matrices as reference matrices.
+"
+"0","#trialltre_det"

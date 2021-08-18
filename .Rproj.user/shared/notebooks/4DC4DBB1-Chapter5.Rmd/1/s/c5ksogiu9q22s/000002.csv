@@ -1,0 +1,10 @@
+"0","cypmodels2 <- modelsearch(vertdata, historical = FALSE, approach = ""mixed"", "
+"0","  vitalrates = c(""surv"", ""obs"", ""size"", ""repst"", ""fec""), sizedist = ""negbin"", "
+"0","  size.trunc = TRUE, fecdist = ""poisson"", fec.zero = TRUE, suite = ""full"", "
+"0","  size = c(""size3added"", ""size2added""), quiet = TRUE)"
+"2","Warning in checkConv(attr(opt, ""derivs""), opt$par, ctrl = control$checkConv,  :"
+"2","
+ "
+"2"," Model failed to converge with max|grad| = 0.0330464 (tol = 0.002, component 1)
+"
+"0","#summary(cypmodels2)"

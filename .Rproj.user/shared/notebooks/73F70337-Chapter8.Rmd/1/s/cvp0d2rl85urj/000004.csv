@@ -1,0 +1,2 @@
+"0","text(cex=0.5, y = -0.06, x = seq(from = 0, to = 2.98*length(rownames(ss_props)),"
+"0","  by = 3), rownames(ss_props), xpd=TRUE, srt=45)"

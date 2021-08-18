@@ -1,0 +1,8 @@
+"0","lathvertln <- verticalize3(lathyrus, noyears = 4, firstyear = 1988,"
+"0","  patchidcol = ""SUBPLOT"", individcol = ""GENET"", blocksize = 9,"
+"0","  juvcol = ""Seedling1988"", sizeacol = ""lnVol88"", repstracol = ""FCODE88"","
+"0","  fecacol = ""Intactseed88"", deadacol = ""Dead1988"","
+"0","  nonobsacol = ""Dormant1988"", stageassign = lathframeln,"
+"0","  stagesize = ""sizea"", censorcol = ""Missing1988"", censorkeep = NA,"
+"0","  NAas0 = TRUE, censor = TRUE)"
+"0","#summary(lathvertln)"

@@ -1,0 +1,26 @@
+"0","sf_distrib(lathvertln, size2 = ""sizea2"", fec = ""feca2"", repst = ""repstatus2"")"
+"1","
+Mean fecundity is 4.791
+"
+"1","The variance in fecundity is 70.14
+"
+"1","The probability of this dispersion level by chance assuming the true mean fecundity = variance in fecundity, and an alternative hypothesis of overdispersion, is 0
+"
+"1","
+Fecundity is significantly overdispersed.
+
+"
+"1","
+Mean lambda is 0.008302
+"
+"1","The actual number of 0s in fecundity is 334
+"
+"1","The expected number of 0s in fecundity under the null hypothesis is 4.973
+"
+"1","The probability of this deviation in 0s is 0
+"
+"1","
+Fecundity is significantly zero-inflated.
+"
+"1","NULL
+"

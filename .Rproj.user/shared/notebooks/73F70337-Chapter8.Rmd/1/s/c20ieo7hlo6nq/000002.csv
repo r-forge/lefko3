@@ -1,0 +1,31 @@
+"0","lathmodelsln2 <- modelsearch(lathvertln, historical = FALSE,"
+"0","  approach = ""mixed"", suite = ""main"","
+"0","  vitalrates = c(""surv"", ""obs"", ""size"", ""repst"", ""fec""), juvestimate = ""Sdl"","
+"0","  bestfit = ""AICc&k"", sizedist = ""gaussian"", fecdist = ""negbin"","
+"0","  indiv = ""individ"", year = ""year2"", age = ""obsage"", year.as.random = TRUE,"
+"0","  patch.as.random = TRUE, show.model.tables = TRUE, fec.zero = TRUE, quiet = TRUE)"
+"2","boundary (singular) fit: see ?isSingular
+"
+"2","boundary (singular) fit: see ?isSingular
+"
+"2","boundary (singular) fit: see ?isSingular
+"
+"0","lathmodelsln2p <- modelsearch(lathvertln, historical = FALSE,"
+"0","  approach = ""mixed"", suite = ""main"","
+"0","  vitalrates = c(""surv"", ""obs"", ""size"", ""repst"", ""fec""), juvestimate = ""Sdl"","
+"0","  bestfit = ""AICc&k"", sizedist = ""gaussian"", fecdist = ""negbin"","
+"0","  indiv = ""individ"", patch = ""patchid"", year = ""year2"", age = ""obsage"","
+"0","  year.as.random = TRUE, patch.as.random = TRUE, show.model.tables = TRUE,"
+"0","  fec.zero = TRUE, quiet = TRUE)"
+"2","boundary (singular) fit: see ?isSingular
+"
+"2","boundary (singular) fit: see ?isSingular
+"
+"2","boundary (singular) fit: see ?isSingular
+"
+"2","boundary (singular) fit: see ?isSingular
+"
+"2","boundary (singular) fit: see ?isSingular
+"
+"0","#summary(lathmodelsln2)"
+"0","#summary(lathmodelsln2p)"

@@ -1,0 +1,2 @@
+"0","legend(""bottomleft"", c(""patch det mean"", ""pop det mean"", ""pop sto""), lty = c(1, 2, 2),"
+"0","  col = c(""black"", ""orangered"", ""darkred""), lwd = 2, bty = ""n"")"

@@ -1,0 +1,38 @@
+"0","sf_distrib(vertdata, size3 = ""size3added"", size2 = ""size2added"","
+"0","  obs3 = ""obsstatus3"", fec = ""feca2"", repst = ""repstatus2"", zisize = FALSE)"
+"1","The mean size is 3.653
+"
+"1","
+The variance in size is 13.41
+"
+"1","
+The probability of this dispersion level by chance assuming the true mean size = variance in size, and an alternative hypothesis of overdispersion, is 3.721e-138
+"
+"1","
+Size is significantly overdispersed.
+"
+"1","
+Mean fecundity is 0.7881
+"
+"1","The variance in fecundity is 1.536
+"
+"1","The probability of this dispersion level by chance assuming the true mean fecundity = variance in fecundity, and an alternative hypothesis of overdispersion, is 0.1193
+"
+"1","
+Dispersion in fecundity matches expectation.
+
+"
+"1","
+Mean lambda is 0.4547
+"
+"1","The actual number of 0s in fecundity is 68
+"
+"1","The expected number of 0s in fecundity under the null hypothesis is 53.65
+"
+"1","The probability of this deviation in 0s is 5.904e-06
+"
+"1","
+Fecundity is significantly zero-inflated.
+"
+"1","NULL
+"

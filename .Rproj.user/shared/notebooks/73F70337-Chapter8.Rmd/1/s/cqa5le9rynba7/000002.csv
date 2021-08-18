@@ -1,0 +1,16 @@
+"0","lathmat2m_ltre <- ltre3(lathmat2pmean)"
+"2","Warning:"
+"2"," Matrices input as mats will also be used as reference matrices.
+"
+"2","Using all refmats matrices as reference matrices.
+"
+"0","lathmat2m_sltre <- ltre3(lathmat2agep, stochastic = TRUE, rseed = 42)"
+"2","Warning:"
+"2"," Matrices input as mats will also be used as reference matrices.
+"
+"2","Using all refmats matrices as reference matrices.
+"
+"0","summary(lathmat2m_ltre)"
+"2","Error in do.call(""rbind.data.frame"", new_ahstages_list) : 
+  second argument must be a list
+"
