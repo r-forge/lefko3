@@ -247,13 +247,16 @@ rate probabilities associated with each matrix. Defaults to FALSE.}
 }
 \value{
 If all inputs are properly formatted, then this function will return
-an object of class \code{lefkoMat}. Output includes:
+an object of class \code{lefkoMat}, which is a list that holds the matrix
+projection model and all of its metadata. Its structure is a list with the
+following elements:
 
 \item{A}{A list of full projection matrices in order of sorted patches and
 years.}
 \item{U}{A list of survival transition matrices sorted as in \code{A}.}
 \item{F}{A list of fecundity matrices sorted as in \code{A}.}
-\item{hstages}{Null for ahistorical matrices.}
+\item{hstages}{A data frame matrix showing the pairing of ahistorical stages
+used to create historical stage pairs. Set to NA for ahistorical matrices.}
 \item{agestages}{A data frame showing the stage number and stage name
 corresponding to \code{ahstages}, as well as the associated age, of each
 actual row in each age-by-stage matrix.}

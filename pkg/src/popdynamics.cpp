@@ -1372,6 +1372,8 @@ arma::mat proj3(arma::vec start_vec, List core_list, arma::uvec mat_order,
   } else {
     // Sparse matrix projection
     
+    arma::sp_mat sparse_seventhson = arma::sp_mat(theseventhson);
+    
     int matlist_length = core_list.size();
     arma::mat first_mat = core_list(0);
     arma::sp_mat new_sparse = arma::sp_mat(first_mat);
@@ -1389,26 +1391,26 @@ arma::mat proj3(arma::vec start_vec, List core_list, arma::uvec mat_order,
     for (int i = 0; i < theclairvoyant; i++) {
       sparse_prophecy = as<arma::sp_mat>(sparse_list[(mat_order(i))]);
       
-      theseventhson = sparse_prophecy * theseventhson;
+      sparse_seventhson = sparse_prophecy * sparse_seventhson;
       if (integeronly) {
-        theseventhson = floor(theseventhson);
+        sparse_seventhson = floor(sparse_seventhson);
       }
-      popproj.col(i+1) = theseventhson;
+      popproj.col(i+1) = arma::vec(arma::mat(sparse_seventhson));
       
-      if (!growthonly) Rvecmat(i+1) = sum(theseventhson);
+      if (!growthonly) Rvecmat(i+1) = sum(popproj.col(i+1));
       
       if (standardize) {
-        theseventhson = theseventhson / sum(theseventhson);
+        sparse_seventhson = sparse_seventhson / sum(popproj.col(i+1));
       }
       
       if (!growthonly) {
-        wpopproj.col(i+1) = theseventhson;
+        wpopproj.col(i+1) = arma::vec(arma::mat(sparse_seventhson));
         
         sparse_secondprophecy = as<arma::sp_mat>(sparse_list[(mat_order(theclairvoyant - (i+1)))]);
         theseventhgrandson = theseventhgrandson * sparse_secondprophecy;
         
         double seventhgrandsum = sum(theseventhgrandson);
-        arma::vec  midwife = theseventhgrandson.as_col() / seventhgrandsum;
+        arma::vec midwife = theseventhgrandson.as_col() / seventhgrandsum;
         
         theseventhgrandson = theseventhgrandson / seventhgrandsum;
         
@@ -1482,6 +1484,8 @@ arma::mat proj3sp(arma::vec start_vec, List core_list, arma::uvec mat_order,
   theseventhson = start_vec;
   theseventhgrandson = start_vec.as_row();
   
+  arma::sp_mat sparse_seventhson = arma::sp_mat(theseventhson);
+    
   arma::mat finaloutput;
   
   // Now the projection
@@ -1498,20 +1502,20 @@ arma::mat proj3sp(arma::vec start_vec, List core_list, arma::uvec mat_order,
   for (int i = 0; i < theclairvoyant; i++) {
     sparse_prophecy = as<arma::sp_mat>(core_list[(mat_order(i))]);
       
-    theseventhson = sparse_prophecy * theseventhson;
+    sparse_seventhson = sparse_prophecy * sparse_seventhson;
     if (integeronly) {
-      theseventhson = floor(theseventhson);
+      sparse_seventhson = floor(sparse_seventhson);
     }
-    popproj.col(i+1) = theseventhson;
+    popproj.col(i+1) = arma::vec(arma::mat(sparse_seventhson));
     
-    if (!growthonly) Rvecmat(i+1) = sum(theseventhson);
+    if (!growthonly) Rvecmat(i+1) = sum(popproj.col(i+1));
     
     if (standardize) {
-      theseventhson = theseventhson / sum(theseventhson);
+      sparse_seventhson = sparse_seventhson / sum(popproj.col(i+1));
     }
     
     if (!growthonly) {
-      wpopproj.col(i+1) = theseventhson;
+      wpopproj.col(i+1) = arma::vec(arma::mat(sparse_seventhson));
       
       sparse_secondprophecy = as<arma::sp_mat>(core_list[(mat_order(theclairvoyant - (i+1)))]);
       theseventhgrandson = theseventhgrandson * sparse_secondprophecy;
@@ -1652,33 +1656,29 @@ arma::mat proj3sp(arma::vec start_vec, List core_list, arma::uvec mat_order,
 //'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE, 
 //'   NRasRep = TRUE)
 //' 
-//' rep_cyp_raw <- matrix(0, 11, 11)
-//' rep_cyp_raw[1:2,7:11] <- 0.5
-//' 
-//' cypsupp3r <- supplemental(stage3 = c("SD", "SD", "P1", "P1", "P2", "P3",
-//'     "SL", "SL", "SL", "D", "XSm", "Sm", "D", "XSm", "Sm", "SD", "P1"),
-//'   stage2 = c("SD", "SD", "SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL",
-//'     "SL", "SL", "SL", "SL", "SL", "rep", "rep"),
-//'   stage1 = c("SD", "rep", "SD", "rep", "SD", "P1", "P2", "P3", "SL", "P3",
-//'     "P3", "P3", "SL", "SL", "SL", "all", "all"),
-//'   eststage3 = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", "D",
-//'     "XSm", "Sm", NA, NA),
-//'   eststage2 = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm",
-//'     "XSm", "XSm", "XSm", NA, NA),
-//'   eststage1 = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm",
-//'     "XSm", "XSm", "XSm", NA, NA),
-//'   givenrate = c(0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.25, 0.4, 0.4, NA, NA, NA, NA,
-//'     NA, NA, NA, NA),
-//'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-//'     0.5, 0.5),
-//'   type = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
-//'   type_t12 = c(1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+//' cypsupp3r <- supplemental(stage3 = c("SD", "SD", "P1", "P1", "P2", "P3", "SL",
+//'     "D", "XSm", "Sm", "D", "XSm", "Sm", "SD", "P1"),
+//'   stage2 = c("SD", "SD", "SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL",
+//'     "SL", "SL", "rep", "rep"),
+//'   stage1 = c("SD", "rep", "SD", "rep", "SD", "P1", "P2", "P3", "P3", "P3",
+//'     "SL", "SL", "SL", "mat", "mat"),
+//'   eststage3 = c(NA, NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", "D", "XSm", "Sm",
+//'     NA, NA),
+//'   eststage2 = c(NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", "XSm", "XSm",
+//'     "XSm", NA, NA),
+//'   eststage1 = c(NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", "XSm", "XSm",
+//'     "XSm", NA, NA),
+//'   givenrate = c(0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.25, NA, NA, NA, NA, NA, NA,
+//'     NA, NA),
+//'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+//'   type = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+//'   type_t12 = c(1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
 //'   stageframe = cypframe_raw, historical = TRUE)
 //' 
 //' cypmatrix3r <- rlefko3(data = cypraw_v1, stageframe = cypframe_raw, 
 //'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
 //'   size = c("size3added", "size2added", "size1added"), 
-//'   repmatrix = rep_cyp_raw, supplement = cypsupp3r, yearcol = "year2", 
+//'   supplement = cypsupp3r, yearcol = "year2", 
 //'   patchcol = "patchid", indivcol = "individ")
 //' 
 //' cypstoch <- projection3(cypmatrix3r, stochastic = TRUE)
@@ -2120,30 +2120,29 @@ Rcpp::List projection3(List mpm, int times = 10000, bool stochastic = false,
 //'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE, 
 //'   NRasRep = TRUE)
 //' 
-//' rep_cyp_raw <- matrix(0, 11, 11)
-//' rep_cyp_raw[1:2,7:11] <- 0.5
-//' 
-//' cypover3r <- overwrite(stage3 = c("SD", "SD", "P1", "P1", "P2", "P3", "SL", 
-//'     "SL", "SL", "D", "XSm", "Sm", "D", "XSm", "Sm"), 
-//'   stage2 = c("SD", "SD", "SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", 
-//'     "SL", "SL", "SL", "SL", "SL"),
-//'   stage1 = c("SD", "rep", "SD", "rep", "SD", "P1", "P2", "P3", "SL", "P3", 
-//'     "P3", "P3", "SL", "SL", "SL"),
-//'   eststage3 = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", "D", 
-//'     "XSm", "Sm"), 
-//'   eststage2 = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", 
-//'     "XSm", "XSm", "XSm"), 
-//'   eststage1 = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", 
-//'     "XSm", "XSm", "XSm"), 
-//'   givenrate = c(0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.25, 0.4, 0.4, NA, NA, NA, 
-//'     NA, NA, NA), 
-//'   type = c("S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", 
-//'     "S", "S"))
+//' cypsupp3r <- supplemental(stage3 = c("SD", "SD", "P1", "P1", "P2", "P3", "SL",
+//'     "D", "XSm", "Sm", "D", "XSm", "Sm", "SD", "P1"),
+//'   stage2 = c("SD", "SD", "SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL",
+//'     "SL", "SL", "rep", "rep"),
+//'   stage1 = c("SD", "rep", "SD", "rep", "SD", "P1", "P2", "P3", "P3", "P3",
+//'     "SL", "SL", "SL", "mat", "mat"),
+//'   eststage3 = c(NA, NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", "D", "XSm", "Sm",
+//'     NA, NA),
+//'   eststage2 = c(NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", "XSm", "XSm",
+//'     "XSm", NA, NA),
+//'   eststage1 = c(NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", "XSm", "XSm",
+//'     "XSm", NA, NA),
+//'   givenrate = c(0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.25, NA, NA, NA, NA, NA, NA,
+//'     NA, NA),
+//'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+//'   type = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+//'   type_t12 = c(1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+//'   stageframe = cypframe_raw, historical = TRUE)
 //' 
 //' cypmatrix3r <- rlefko3(data = cypraw_v1, stageframe = cypframe_raw, 
 //'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
 //'   size = c("size3added", "size2added", "size1added"), 
-//'   repmatrix = rep_cyp_raw, overwrite = cypover3r, yearcol = "year2", 
+//'   supplement = cypsupp3r, yearcol = "year2", 
 //'   patchcol = "patchid", indivcol = "individ")
 //' 
 //' cypstoch <- slambda3(cypmatrix3r)
@@ -4740,13 +4739,13 @@ Rcpp::List sltre3matrix(List Amats, DataFrame loy, Rcpp::IntegerVector refnum,
       // In Davison's original code, all elements equal to 0 in the reference
       // matrices must also be 0s in the difference matrices
       
-      if (i == 0) {
+      /*if (i == 0) {
         diff_meanmat = List::create(diffmean1);
         diff_sdmat = List::create(diffsd1);
       } else {
         diff_meanmat.push_back(diffmean1);
         diff_sdmat.push_back(diffsd1);
-      }
+      }*/
       
       // Now the contributions
       diffmean1 = diffmean1 % as<arma::mat>(elas_mean(0));
@@ -4997,24 +4996,24 @@ Rcpp::List sltre3matrix(List Amats, DataFrame loy, Rcpp::IntegerVector refnum,
       diffmean1 = as<arma::sp_mat>(poppatch_meanmat(i)) - ref_matmean;
       diffsd1 = as<arma::sp_mat>(poppatch_sdmat(i)) - ref_matsd;
       
-      if (i == 0) {
+      /*if (i == 0) {
         diff_meanmat = List::create(diffmean1);
         diff_sdmat = List::create(diffsd1);
       } else {
         diff_meanmat.push_back(diffmean1);
         diff_sdmat.push_back(diffsd1);
-      }
+      }*/
       
       // Now the contributions
       diffmean1 = diffmean1 % as<arma::sp_mat>(elas_mean(0));
       diffsd1 = diffsd1 % as<arma::sp_mat>(elas_sd(0));
       
       if (i == 0) {
-        cont_meanmat = List::create(diffmean1);
-        cont_sdmat = List::create(diffsd1);
+        cont_meanmat = List::create(arma::mat(diffmean1));
+        cont_sdmat = List::create(arma::mat(diffsd1));
       } else {
-        cont_meanmat.push_back(diffmean1);
-        cont_sdmat.push_back(diffsd1);
+        cont_meanmat.push_back(arma::mat(diffmean1));
+        cont_sdmat.push_back(arma::mat(diffsd1));
       }
     }
   }

@@ -148,7 +148,9 @@ development debugging purposes.}
 }
 \value{
 If all inputs are properly formatted, then this function will return
-either an object of class \code{lefkoMat}. Output includes:
+an object of class \code{lefkoMat}, which is a list that holds the matrix
+projection model and all of its metadata. Its structure is a list with the
+following elements:
 
 \item{A}{A list of full projection matrices in order of sorted populations,
 patches, and years. All matrices output in the \code{matrix} class.}
@@ -158,8 +160,8 @@ matrices output in the \code{matrix} class.}
 output in the \code{matrix} class.}
 \item{hstages}{A data frame matrix showing the pairing of ahistorical stages
 used to create historical stage pairs.}
-\item{agestages}{Set to NA. Only used in output to function
-\code{aflefko2}().}
+\item{agestages}{A data frame showing age-stage pairs. In this function, it
+is set to NA. Only used in output to function \code{aflefko2}().}
 \item{ahstages}{A data frame detailing the characteristics of associated
 ahistorical stages, in the form of a modified stageframe that includes
 status as an entry stage through reproduction.}
@@ -277,24 +279,23 @@ cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
   NRasRep = TRUE)
 
-cypsupp3r <- supplemental(stage3 = c("SD", "SD", "P1", "P1", "P2", "P3",
-    "SL", "SL", "SL", "D", "XSm", "Sm", "D", "XSm", "Sm", "SD", "P1"),
-  stage2 = c("SD", "SD", "SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL",
-    "SL", "SL", "SL", "SL", "SL", "rep", "rep"),
-  stage1 = c("SD", "rep", "SD", "rep", "SD", "P1", "P2", "P3", "SL", "P3",
-    "P3", "P3", "SL", "SL", "SL", "all", "all"),
-  eststage3 = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", "D",
-    "XSm", "Sm", NA, NA),
-  eststage2 = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm",
-    "XSm", "XSm", "XSm", NA, NA),
-  eststage1 = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm",
-    "XSm", "XSm", "XSm", NA, NA),
-  givenrate = c(0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.25, 0.4, 0.4, NA, NA, NA, NA,
-    NA, NA, NA, NA),
-  multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-    0.5, 0.5),
-  type = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
-  type_t12 = c(1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+cypsupp3r <- supplemental(stage3 = c("SD", "SD", "P1", "P1", "P2", "P3", "SL",
+    "D", "XSm", "Sm", "D", "XSm", "Sm", "SD", "P1"),
+  stage2 = c("SD", "SD", "SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL",
+    "SL", "SL", "rep", "rep"),
+  stage1 = c("SD", "rep", "SD", "rep", "SD", "P1", "P2", "P3", "P3", "P3",
+    "SL", "SL", "SL", "mat", "mat"),
+  eststage3 = c(NA, NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", "D", "XSm", "Sm",
+    NA, NA),
+  eststage2 = c(NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", "XSm", "XSm",
+    "XSm", NA, NA),
+  eststage1 = c(NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", "XSm", "XSm",
+    "XSm", NA, NA),
+  givenrate = c(0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.25, NA, NA, NA, NA, NA, NA,
+    NA, NA),
+  multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+  type = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+  type_t12 = c(1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
   stageframe = cypframe_raw, historical = TRUE)
 
 cypmatrix3r <- rlefko3(data = cypraw_v1, stageframe = cypframe_raw,

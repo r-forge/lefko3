@@ -238,7 +238,9 @@ rate probabilities associated with each matrix. Defaults to FALSE.}
 }
 \value{
 If all inputs are properly formatted, then this function will return
-either an object of class \code{lefkoMat}. Output includes:
+an object of class \code{lefkoMat}, which is a list that holds the matrix
+projection model and all of its metadata. Its structure is a list with the
+following elements:
 
 \item{A}{A list of full projection matrices in order of sorted patches and
 years. All matrices output in the \code{matrix} class.}
@@ -246,9 +248,10 @@ years. All matrices output in the \code{matrix} class.}
 matrices output in the \code{matrix} class.}
 \item{F}{A list of fecundity matrices sorted as in \code{A}. All matrices 
 output in the \code{matrix} class.}
-\item{hstages}{Set to NA for ahistorical matrices.}
-\item{agestages}{Set to NA. Only used in output to function
-\code{aflefko2}().}
+\item{hstages}{A data frame matrix showing the pairing of ahistorical stages
+used to create historical stage pairs. Set to NA for ahistorical matrices.}
+\item{agestages}{A data frame showing age-stage pairs. In this function, it
+is set to NA. Only used in output to function \code{aflefko2}().}
 \item{ahstages}{A data frame detailing the characteristics of associated
 ahistorical stages, in the form of a modified stageframe that includes
 status as an entry stage through reproduction.}

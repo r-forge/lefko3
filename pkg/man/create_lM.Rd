@@ -53,7 +53,9 @@ A \code{lefkoMat} object incorporating the matrices input in object
 \code{mats} as object \code{A}, their U and F decompositions in objects
 \code{U} and \code{F} (if requested), the provided stageframe as object
 \code{ahstages}, the order of historical stages as object \code{hstages} (if
-\code{historical = TRUE}), and the order of matrices as object \code{labels}.
+\code{historical = TRUE}), the order of matrices as object \code{labels}, and
+a short quality control section used by the \code{\link{summary.lefkoMat}()}
+function.
 }
 \description{
 Function \code{create_lM()} creates lefkoMat objects from supplied matrices

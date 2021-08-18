@@ -248,8 +248,9 @@ developed internally and can be used for erroc checking. Defaults to FALSE.}
 }
 \value{
 If all inputs are properly formatted, then this function will return
-an object of class \code{lefkoMat}, which is a list with the following
-elements:
+an object of class \code{lefkoMat}, which is a list that holds the matrix
+projection model and all of its metadata. Its structure is a list with the
+following elements:
 
 \item{A}{A list of full projection matrices in order of sorted patches and
 years. All matrices output in the \code{matrix} class.}
@@ -259,8 +260,8 @@ matrices output in the \code{matrix} class.}
 output in the \code{matrix} class.}
 \item{hstages}{A data frame matrix showing the pairing of ahistorical stages
 used to create historical stage pairs.}
-\item{agestages}{Set to NA. Only used in output to function
-\code{aflefko2}().}
+\item{agestages}{A data frame showing age-stage pairs. In this function, it
+is set to NA. Only used in output to function \code{aflefko2}().}
 \item{ahstages}{A data frame detailing the characteristics of associated
 ahistorical stages, in the form of a modified stageframe that includes
 status as an entry stage through reproduction.}
