@@ -1,3 +1,0 @@
-"0","rep.assumptions <- matrix(0, 54, 54)"
-"0","rep.assumptions[1:2,31:54] <- 0.5"
-"0","#rep.assumptions"

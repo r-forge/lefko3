@@ -1,6 +1,0 @@
-"0","ehrlen2rv <- repvalue3(lathmat2mean)"
-"0","ehrlen2rv_s <- repvalue3(lathmat2age, stochastic = TRUE, seed = 42)"
-"0",""
-"0","barplot(t(cbind.data.frame(ehrlen2rv$rep_value, ehrlen2rv_s$rep_value)),"
-"0","  beside = T, ylab = ""Relative rep value"", xlab = ""Age-Stage"", ylim = c(0, 1.3),"
-"0","  col = c(""black"", ""red""), bty = ""n"")"

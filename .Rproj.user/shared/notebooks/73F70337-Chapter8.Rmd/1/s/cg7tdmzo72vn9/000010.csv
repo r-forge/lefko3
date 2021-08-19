@@ -1,2 +1,0 @@
-"0","text(cex=1, x=seq(from = 0.5, to = 3 * length(lathframeln$stage), by = 3),"
-"0","  y=-0.025, lathframeln$stage, xpd=TRUE, srt=45)"

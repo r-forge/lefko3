@@ -1,3 +1,0 @@
-"0",""
-"0","plot(lambda ~ patch, data = lambda2mp[1:6,], ylim = c(0.92, 0.98), xlab = ""Patch"","
-"0","  ylab = expression(lambda), type = ""l"", lty= 1, lwd = 2, bty = ""n"")"

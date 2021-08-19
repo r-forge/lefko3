@@ -1,7 +1,0 @@
-"0","lathmat2m_sltre <- ltre3(lathmat2agep, stochastic = TRUE, rseed = 42)"
-"2","Warning:"
-"2"," Matrices input as mats will also be used as reference matrices.
-"
-"2","Using all refmats matrices as reference matrices.
-"
-"0","#lathmat2m_sltre"

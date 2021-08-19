@@ -1,3 +1,0 @@
-"0","rm(list=ls(all=TRUE))"
-"0","library(lefko3)"
-"0","data(cypdata)"

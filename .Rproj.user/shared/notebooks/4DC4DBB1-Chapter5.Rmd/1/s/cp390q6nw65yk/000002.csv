@@ -1,6 +1,0 @@
-"0","vertdata <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004, "
-"0","  patchidcol = ""patch"", individcol = ""plantid"", blocksize = 4, "
-"0","  sizeacol = ""Inf2.04"", sizebcol = ""Inf.04"", sizeccol = ""Veg.04"", "
-"0","  repstracol = ""Inf.04"", repstrbcol = ""Inf2.04"", fecacol = ""Pod.04"", "
-"0","  stageassign = cypframe, stagesize = ""sizeadded"", NAas0 = TRUE)"
-"0","#summary(vertdata)"

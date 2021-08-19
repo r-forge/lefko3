@@ -1,6 +1,0 @@
-"0","lathsupp2 <- supplemental(stage3 = c(""Sd"", ""Sdl"", ""Sd"", ""Sdl""), "
-"0","  stage2 = c(""Sd"", ""Sd"", ""rep"", ""rep""),"
-"0","  givenrate = c(0.345, 0.054, NA, NA),"
-"0","  multiplier = c(NA, NA, 0.345, 0.054),"
-"0","  type = c(1, 1, 3, 3), stageframe = lathframeln, historical = FALSE)"
-"0","#lathsupp2"
