@@ -1903,7 +1903,7 @@ overwrite <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
   return(shrubbery)
 }
 
-#' Create an Data Frame of Supplemental Data for MPM Development
+#' Create a Data Frame of Supplemental Data for MPM Development
 #' 
 #' \code{supplemental()} provides all necessary supplemental data for matrix
 #' estimation, particularly bringing together data on proxy rates, data to 

@@ -1,5 +1,21 @@
 {
     "debugBreakpointsState": {
-        "breakpoints": []
+        "breakpoints": [
+            {
+                "id": 0,
+                "path": "~/Dropbox/Rpackages/lefko3/pkg/R/popchar.R",
+                "line_number": 1903,
+                "function_steps": "",
+                "function_name": ".overwrite_reassess",
+                "state": 2,
+                "editor_state": 2,
+                "editor_line_number": 1903,
+                "is_pending_debug_completion": false,
+                "needs_updated_steps": false,
+                "type": 0,
+                "is_package_breakpoint": true,
+                "package_name": "lefko3"
+            }
+        ]
     }
 }
