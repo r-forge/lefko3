@@ -1671,6 +1671,8 @@ rlefko3 <- function(data, stageframe, year = "all", pop = NA, patch = NA,
     
     if (length(listofyears) > 1) {
       listofyears <- do.call(rbind.data.frame, listofyears)
+    } else {
+      listofyears <- listofyears[[1]]
     }
   } else if (!all(is.na(pop)) & all(is.na(patch))) {
     if (is.na(popcol)) {stop("Need population designation variable to proceed.", call. = FALSE)}
@@ -1691,6 +1693,8 @@ rlefko3 <- function(data, stageframe, year = "all", pop = NA, patch = NA,
     
     if (length(listofyears) > 1) {
       listofyears <- do.call(rbind.data.frame, listofyears)
+    } else {
+      listofyears <- listofyears[[1]]
     }
   } else if (all(is.na(pop)) & all(is.na(patch))) {
     listofyears <- cbind.data.frame("1", "1", year, stringsAsFactors = FALSE)
@@ -2421,6 +2425,8 @@ rlefko2 <- function(data, stageframe, year = "all", pop = NA, patch = NA,
     
     if (length(listofyears) > 1) {
       listofyears <- do.call(rbind.data.frame, listofyears)
+    } else {
+      listofyears <- listofyears[[1]]
     }
   } else if (!all(is.na(pop)) & all(is.na(patch))) {
     if (is.na(popcol)) {
@@ -2442,6 +2448,8 @@ rlefko2 <- function(data, stageframe, year = "all", pop = NA, patch = NA,
     
     if (length(listofyears) > 1) {
       listofyears <- do.call(rbind.data.frame, listofyears)
+    } else {
+      listofyears <- listofyears[[1]]
     }
   } else if (all(is.na(pop)) & all(is.na(patch))) {
     listofyears <- cbind.data.frame("1", "1", year, stringsAsFactors = FALSE)

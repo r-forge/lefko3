@@ -1,6 +1,20 @@
 LEFKO3 NEWS
 -----------
 
+CHANGES IN VERSION 3.8.0 (2021-XX-XX)
+-------------------------------------
+  NEW FEATURES
+    1. Function projection3() now includes the ability to produce replicate
+       simulations.
+    
+  USER-VISIBLE CHANGES
+    1. Sensitivity and elasticity descriptions corrected in vignettes.
+    
+  BUG FIXES
+    1. Fixed issue that could lead rlefko2() and rlefko3() to stop processing
+       matrices if specific years or patches are called.
+
+
 CHANGES IN VERSION 3.7.0 (2021-08-18)
 -------------------------------------
   NEW FEATURES
