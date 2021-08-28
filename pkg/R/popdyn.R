@@ -1476,10 +1476,10 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
       
     } else if (class(mats$A) == "list") {
       final <- unlist(lapply(mats$A, function(X) {
-            almost_final <- rv3matrix(X, sparsemethod)
-            return(almost_final/almost_final[which(almost_final == (almost_final[which(almost_final > 0)])[1])])
-          }
-        )
+        almost_final <- rv3matrix(X, sparsemethod)
+        return(almost_final/almost_final[which(almost_final == (almost_final[which(almost_final > 0)])[1])])
+      }
+      )
       )
     } else {
       stop("Input not recognized.")
@@ -1508,7 +1508,7 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
             used_weights <- tweights[used_slots] / sum(tweights[used_slots])
           } else {
             stop("Option tweights must be either NA, or a numeric vector equal to the number of years supplied or matrices supplied.",
-            call. = FALSE)
+                 call. = FALSE)
           }
         } else {
           used_weights <- tweights / sum(tweights)
@@ -1585,7 +1585,7 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
     
     if (!stochastic) {
       modlabels <- cbind.data.frame(as.matrix(rep(c(1:multiplier), each = dim(labels)[1])), 
-        do.call("rbind.data.frame", apply(as.matrix(c(1:multiplier)), 1, function(X) return(labels))))
+                                    do.call("rbind.data.frame", apply(as.matrix(c(1:multiplier)), 1, function(X) return(labels))))
       output <- cbind.data.frame(modlabels, baldrick)
       if (is.element("age", names(labels))) {
         names(output) <- c("matrix", "age", "stage_id", "stage", "agestage_id", "agestage", "rep_value")
@@ -1594,7 +1594,7 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
       }
     } else {
       modlabels <- cbind.data.frame(as.matrix(rep(unlist(used_poppatches), each = dim(labels)[1])), 
-        do.call("rbind.data.frame", apply(as.matrix(c(1:multiplier)), 1, function(X) return(labels))))
+                                    do.call("rbind.data.frame", apply(as.matrix(c(1:multiplier)), 1, function(X) return(labels))))
       output <- cbind.data.frame(modlabels, baldrick[(mat_dims+1):(2*mat_dims)])
       if (is.element("age", names(labels))) {
         names(output) <- c("poppatch", "age", "stage_id", "stage", "agestage_id", "agestage", "rep_value")
@@ -1614,7 +1614,7 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
       rhist <-ss3$hist
       rhist$ss3sum <- apply(as.matrix(c(1:dim(rhist)[1])), 1, function(X) {
         rahist$ss_prop[intersect(which(rahist$stage_id == rhist$stage_id_2[X]), 
-          which(rahist$matrix == rhist$matrix[X]))]
+                                 which(rahist$matrix == rhist$matrix[X]))]
       })
       rhist$sscorr <- rhist$ss_prop / rhist$ss3sum
       rhist$sscorr[which(is.na(rhist$sscorr))] <- 0
@@ -1632,7 +1632,7 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
         })
       })))
       outputah <- cbind.data.frame(rep(c(1:multiplier), each = length(ahlabels[,1])),
-        rep(ahlabels[,1], multiplier), rep(ahlabels[,2], multiplier), rv2)
+                                   rep(ahlabels[,1], multiplier), rep(ahlabels[,2], multiplier), rv2)
       names(outputah) <- c("matrix", "stage_id", "stage", "rep_value_unc")
       
       outputah$rep_value <- apply(as.matrix(c(1:dim(outputah)[1])), 1, function(X) {
@@ -1655,26 +1655,26 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
       
       ss_sums <- apply(as.matrix(c(1:multiplier)), 1, function(X) {
         sum_vecs <- apply(as.matrix(mats$hstages$stage_id_2), 1, function(Y) {
-          sum(ss_unlisted[(which(mats$hstages$stage_id_2 == Y)) + ((X - 1) * dim(mats$hstages)[1]), 1])
+          sum(ss_unlisted[(which(mats$hstages$stage_id_2 == Y)) + ((X - 1) * dim(mats$hstages)[1])])
         })
         return(sum_vecs)
       })
       
       ahistsize <- length(mats$ahstages$stage_id)
       histsize <- length(mats$hstages$stage_id_2)
-      rahist <- cbind.data.frame(poppatch = (rep(unlist(used_poppatches), each = ahistsize, times = multiplier)), 
-        stage_id = rep(mats$ahstages$stage_id, times = multiplier), stage = rep(mats$ahstages$stage, times = multiplier))
-      rhist <- cbind.data.frame(poppatch = (rep(unlist(used_poppatches), each = histsize, times = multiplier)),
-        stage_id_2 = rep(mats$hstages$stage_id_2, times = multiplier),
-        stage_id_1 = rep(mats$hstages$stage_id_1, times = multiplier),
-        stage_2 = rep(mats$hstages$stage_2, times = multiplier),
-        stage_1 = rep(mats$hstages$stage_1, times = multiplier))
+      rahist <- cbind.data.frame(poppatch = (rep(unlist(used_poppatches), each = ahistsize)), 
+                                 stage_id = rep(mats$ahstages$stage_id, times = multiplier), stage = rep(mats$ahstages$stage, times = multiplier))
+      rhist <- cbind.data.frame(poppatch = (rep(unlist(used_poppatches), each = histsize)),
+                                stage_id_2 = rep(mats$hstages$stage_id_2, times = multiplier),
+                                stage_id_1 = rep(mats$hstages$stage_id_1, times = multiplier),
+                                stage_2 = rep(mats$hstages$stage_2, times = multiplier),
+                                stage_1 = rep(mats$hstages$stage_1, times = multiplier))
       
-      rhist$ss_prop <- ss_unlisted
-      rhist$ss3sum <- ss_sums
+      rhist$ss_prop <- as.vector(ss_unlisted)
+      rhist$ss3sum <- as.vector(ss_sums)
       rhist$sscorr <- rhist$ss_prop / rhist$ss3sum
       rhist$sscorr[which(is.na(rhist$sscorr))] <- 0
-      rhist$rep_value <- rv_unlisted
+      rhist$rep_value <- as.vector(rv_unlisted)
       
       rhist$rv3raw <- rhist$sscorr * rhist$rep_value
       
@@ -1688,13 +1688,16 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
         })
       })))
       outputah <- cbind.data.frame(rep(c(1:multiplier), each = length(ahlabels[,1])),
-        rep(ahlabels[,1], multiplier), rep(ahlabels[,2], multiplier), rv2)
+                                   rep(ahlabels[,1], multiplier), rep(ahlabels[,2], multiplier), rv2)
       names(outputah) <- c("poppatch", "stage_id", "stage", "rep_value_unc")
       
       outputah$rep_value <- apply(as.matrix(c(1:dim(outputah)[1])), 1, function(X) {
         matsub <- subset(outputah, poppatch == outputah$poppatch[X])
-        entrystage <- min(which(abs(matsub$rep_value_unc) > 0))
-        return(outputah$rep_value_unc[X] / matsub$rep_value_unc[entrystage])
+        
+        if (!all(matsub$rep_value_unc == 0)) {
+          entrystage <- min(which(abs(matsub$rep_value_unc) > 0))
+          return(outputah$rep_value_unc[X] / matsub$rep_value_unc[entrystage])
+        } else return(0)
       })
       
       outputah <- outputah[,c("poppatch", "stage_id", "stage", "rep_value")]

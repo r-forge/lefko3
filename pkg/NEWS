@@ -13,6 +13,8 @@ CHANGES IN VERSION 3.8.0 (2021-XX-XX)
   BUG FIXES
     1. Fixed issue that could lead rlefko2() and rlefko3() to stop processing
        matrices if specific years or patches are called.
+    2. Fixed issue affecting stochastic reproductive value estimation in
+       historical lefkoMat objects.
 
 
 CHANGES IN VERSION 3.7.0 (2021-08-18)
