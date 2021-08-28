@@ -70,7 +70,7 @@ div.csl-indent {
 
 
 
-<p>This document was built in Markdown in R 4.1.1 and compiled on 18 August 2021. It covers package <code>lefko3</code> version 3.7.0.</p>
+<p>This document was built in Markdown in R 4.1.1 and compiled on 28 August 2021. It covers package <code>lefko3</code> version 3.7.0.9000.</p>
 <div id="introduction-to-package-lefko3" class="section level2">
 <h2>INTRODUCTION TO PACKAGE <code>LEFKO3</code></h2>
 <p style="text-indent: 20px">
@@ -562,7 +562,7 @@ In the hMPM case, the basic method is essentially the same as in equation 16, al
   \end{equation}\]</span></p>
 <p>Here, <span class="math inline">\(k\)</span> is stage in occasion <em>t</em>+1, <span class="math inline">\(j\)</span> is stage in occasion <em>t</em>, <span class="math inline">\(l\)</span> is stage in occasion <em>t</em>-1, <span class="math inline">\(kj\)</span> refers both to the stage pair in occasions <em>t</em>+1 and <em>t</em> as well as the corresponding row in the historical matrix, and <span class="math inline">\(jl\)</span> refers both to the stage pair in occasions <em>t</em> and <em>t</em>-1 as well as the corresponding column in the historical matrix. Historically-corrected sensitivities may also be estimated for the basic stages of the life history model using the historically-corrected stable stage distributions and reproductive values given in equations 11 and 12 as input in equation 16.</p>
 <p style="text-indent: 20px">
-Sensitivities show how much a small change in a matrix element can alter <span class="math inline">\(\lambda\)</span>, but do so by estimating the local slope of <span class="math inline">\(\lambda\)</span> given in terms of the matrix element <span class="citation">(Caswell 2001)</span>. This makes it difficult to compare the sensitivities of transition probabilities to fecundity rates, because they are given on different scales. Sensitivities are also typically non-zero even for impossible transitions represented by 0s in the matrix. Elasticities avoid these problems by showing the influence of a proportional change in a matrix element on <span class="math inline">\(\lambda\)</span>. In the ahistorical case, the elasticity, <span class="math inline">\(e _{kj}\)</span>, of <span class="math inline">\(\lambda\)</span> to change in a matrix element <span class="math inline">\(a _{kj}\)</span> is given as
+Sensitivities show how much a small, additive change in a matrix element can alter <span class="math inline">\(\lambda\)</span>, but do so by estimating the local slope of <span class="math inline">\(\lambda\)</span> given in terms of the matrix element <span class="citation">(Caswell 2001)</span>. Sensitivities are also typically non-zero even for impossible transitions represented by 0s in the matrix. Elasticities, in contrast, show the influence of a small, proportional change in a matrix element on <span class="math inline">\(\lambda\)</span>, essentially given as the local slope <span class="math inline">\(log \lambda\)</span> given in terms of the log of the matrix element. This results in impossible transitions yielding elasticities of 0. In the ahistorical case, the elasticity, <span class="math inline">\(e _{kj}\)</span>, of <span class="math inline">\(\lambda\)</span> to change in a matrix element <span class="math inline">\(a _{kj}\)</span> is given as
 </p>
 <p><span class="math display">\[\begin{equation}
   \tag{18}
@@ -665,7 +665,7 @@ Caswell, Hal. 2001. <em>Matrix Population Models: Construction, Analysis, and In
 ———. 2019. <em>Sensitivity Analysis: Matrix Methods in Demography and Ecology</em>. Demographic <span>Research</span> <span>Methods</span>. Cham, Switerland: Springer Nature. <a href="https://doi.org/10.1007/978-3-030-10534-1">https://doi.org/10.1007/978-3-030-10534-1</a>.
 </div>
 <div id="ref-cole_does_2014" class="csl-entry">
-Cole, Diana J., Byron J. T. Morgan, Rachel S. McCrea, Roger Pradel, Olivier Gimenez, and Remi Choquet. 2014. <span>“Does Your Species Have Memory? <span>Analyzing</span> Capture<span>2013</span>recapture Data with Memory Models.”</span> <em>Ecology and Evolution</em> 4 (11): 2124–33. <a href="https://doi.org/10.1002/ece3.1037">https://doi.org/10.1002/ece3.1037</a>.
+Cole, Diana J., Byron J. T. Morgan, Rachel S. McCrea, Roger Pradel, Olivier Gimenez, and Remi Choquet. 2014. <span>“Does Your Species Have Memory? <span>Analyzing</span> Capture-Recapture Data with Memory Models.”</span> <em>Ecology and Evolution</em> 4 (11): 2124–33. <a href="https://doi.org/10.1002/ece3.1037">https://doi.org/10.1002/ece3.1037</a>.
 </div>
 <div id="ref-davison_demographic_2010" class="csl-entry">
 Davison, Raziel, Hans Jacquemyn, Dries Adriaens, Olivier Honnay, Hans de Kroon, and Shripad Tuljapurkar. 2010. <span>“Demographic Effects of Extreme Weather Events on a Short-Lived Calcareous Grassland Species: Stochastic Life Table Response Experiments.”</span> <em>Journal of Ecology</em> 98 (2): 255–67. <a href="https://doi.org/10.1111/j.1365-2745.2009.01611.x">https://doi.org/10.1111/j.1365-2745.2009.01611.x</a>.

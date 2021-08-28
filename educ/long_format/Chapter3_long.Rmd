@@ -648,9 +648,9 @@ summary(cyp3f_mean)
   
 #### Step 4b. Issues in modeling MPMs.
 
-  <p style="text-indent: 20px">In this section, we wish to look at 2 issues that have arisen in MPM building so far - the use of supplemental tables vs. overwrite tables and reproductive matrices, and the importance of proper parameterization of size and fecundity. Let's start with the former issue.</p>
+  <p style="text-indent: 20px">In this section, we wish to look at 4 issues that have arisen in MPM building so far - the use of supplement tables vs. overwrite tables and reproductive matrices, the importance of proper parameterization of size and fecundity, matrix dimensionality reduction, and Ehrlén format vs. deVries format. Let's start with the first issue - supplement tables vs. overwrite tables and reproductive matrices.</p>
   
-  <p style="text-indent: 20px">All of the MPMs that we have built so far have utilized supplemental tables to provide our matrix building functions with the extra information not supplied in the demographic dataset itself to properly parameterize MPMs. The supplemental table is a very powerful of achieving this aim. However, the firs publicly available versions of `lefko3` utilized a different approach based on some existing methods used in other packages - the overwrite table combined with a reproductive matrix. We do not advocate their use, mostly because properly parameterizing fecundity in particular is more difficult with this approach, but all matrix building functions retain the ability to utilize this method. Here we show a call to create a new, function-based ahMPM using the previously developed overwrite table and reproductive matrix instead of the correct supplemental table. We then compare the summaries.</p>
+  <p style="text-indent: 20px">All of the MPMs that we have built so far have utilized supplement tables to provide our matrix building functions with the extra information not supplied in the demographic dataset itself to properly parameterize MPMs. The supplement table is a very powerful of achieving this aim. However, the first publicly available versions of `lefko3` utilized a different approach based on some existing methods used in other packages - the overwrite table combined with a reproductive matrix. We do not advocate their use, mostly because properly parameterizing fecundity in particular is more difficult with this approach, but all matrix building functions retain the ability to utilize this method. Here we show a call to create a new, function-based ahMPM using the previously developed overwrite table and reproductive matrix instead of the correct supplemental table. We then compare the summaries.</p>
 ```{r Ch3L.35}
 cypmatrix2f_overwrite <- flefko2(stageframe = cypframe_fb,
   overwrite = cypover2_fb, repmatrix = rep.assumptions_fb,
@@ -677,24 +677,38 @@ cypmatrix2f_wrong <- flefko2(stageframe = cypframe_fb, supplement = cypsupp2_fb,
 summary(cypmatrix2f_wrong)
 ```
   
-  <p style="text-indent: 20px">We will come back to this set later.</p>
+  <p style="text-indent: 20px">We will come back to this set later in our analyses.</p>
+  
+  <p style="text-indent: 20px">The third issue is matrix dimensionality reduction. One issue that comes up particularly when creating historical matrices is that occasionally stage-pairs exist that are not associated with any transitions. The result is that the rows and columns associated with such a stage pair are completely full of 0s. In such a situation, the matrix can be reduced by eliminating the stage-pair altogether. The result is a set of smaller matrices, which is useful considering that historical MPMs are generally large and can take up lots of memory. We can tell R to develop reduced MPMs by using the `reduce = TRUE` option in the matrix generating function that we are using. Note that this option is available in ALL matrix generating functions, even for those creating ahistorical MPMs. Here, we create a reduced function-based hMPM, and then compare it to the unreduced function-based hMPM.</p>
+```{r Ch3L.37}
+cypmatrix3f_red <- flefko3(stageframe = cypframe_fb, supplement = cypsupp3_fb, 
+  modelsuite = cypmodels3, data = cypfb_v1, yearcol = "year2",
+  year.as.random = TRUE, reduce = TRUE)
 
+summary(cypmatrix3f_red)
+summary(cypmatrix3f)
+```
+  
+  <p style="text-indent: 20px">Our new hMPM has matrices with 2459 rows and columns, while the original unreduced hMPM has matrices with 2916 rows and columns. This is a reduction of 457 rows and columns, with an overall reduction in the size of the matrix by 8,503,056 - 6,046,681 = 2,456,375 elements. In memory, the unreduced hMPM takes up 3.1GB while the reduced hMPM takes up 2.2GB. So, clearly this reduced set is preferable to the unreduced set.</p>
+  
+  <p style="text-indent: 20px">Finally, we should consider the issue of the format of the hMPM. By default, we use Ehrlén format, which we find more intuitive and simpler to use. However, some prefer the format outlined in deVries & Caswell [-@de_vries_demography_2018]. There is only one real difference between these formats, and that is the treatment of an individual that newly recruits in time *t*. deVries & Caswell [-@de_vries_demography_2018] argued that it is not logical to consider maternal state as the stage in time *t*-1 for an individual transitioning from newborn in time *t* to whatever its next stage is in time *t*+1. They therefore suggested that a prior "not yet born" stage should be added to the matrix to deal with issue. Thus, any individuals that is newly-born in time *t* is treated as having been in this extra stage in time *t*-1 (note that this stage is not considered as a part of the fecundity transition, but is instead counted ONLY in survival transitions for individuals new to the population in time *t*). This extra stage yields more stage-pairs in the hMPM, and causes some transitions to be split that would otherwise not be split in Ehrlén format. In any case, analyses using deVries format are not expected to yield any differences analytically from Ehrlén format, but the different matrix dimensions and small differences in treatment of some transitions will liekly yield small differences overall here and there. Functions `rlefko3()` and `flefko3()` both produce Ehrlén format matrices by default, but users can also produce deVries format matrices by setting `format = "deVries"`, as below.</p>
+```{r Ch3L.38}
+cypmatrix3f_dev <- flefko3(stageframe = cypframe_fb, supplement = cypsupp3_fb, 
+  modelsuite = cypmodels3, data = cypfb_v1, yearcol = "year2",
+  year.as.random = TRUE, format = "deVries")
 
+summary(cypmatrix3f_dev)
+summary(cypmatrix3f)
 
-
-
-
-
-
-
-
-
+```
+  
+  <p style="text-indent: 20px">Our new matrices have 54 more rows and columns, and over 300,000 more elements. To see what is different, compare the `hstages` element in each on your own, and you will see the inclusion of some new stage pairs with the `AlmostBorn` stage. Some transitions were split, as well, yielding more transitions that were estimated, though only by avout 3000 elements or so.</p>
 
 
 #### Step 5. MPM analysis
 
   <p style="text-indent: 20px">Now let's estimate the asymptotic deterministic population growth rate for each of the four sets of MPMs. We will start by looking at the annual population growth rate estimated from the raw analyses.</p>
-```{r Ch3L.37, fig.cap = "Figure 3L.6. Ahistorical vs. historical, raw lambda"}
+```{r Ch3L.39, fig.cap = "Figure 3L.6. Ahistorical vs. historical, raw lambda"}
 cyp2r_lam <- lambda3(cypmatrix2r)
 cyp2f_lam <- lambda3(cypmatrix2f)
 cyp3r_lam <- lambda3(cypmatrix3r)
@@ -718,7 +732,7 @@ legend("bottomleft", c("A ahistorical", "B ahistorical", "C ahistorical",
 ```
   
   <p style="text-indent: 20px">Here we see that $lambda$ is a little different between the ahistorical and historical cases in the raw MPMs. Let's compare the results above to the asymptotic deterministic population growth rate in the historical set.</p>
-```{r Ch3L.38, fig.cap = "Figure 3L.7. Ahistorical vs. historical, function-based lambda"}
+```{r Ch3L.40, fig.cap = "Figure 3L.7. Ahistorical vs. historical, function-based lambda"}
 plot(lambda ~ year2, data = subset(cyp2f_lam, patch == "A"),
   ylim = c(0.90, 1.00), type = "l", lwd = 2, bty = "n")
 lines(lambda ~ year2, data = subset(cyp2f_lam, patch == "B"), type = "l",
@@ -733,10 +747,10 @@ lines(lambda ~ year2, data = subset(cyp3f_lam, patch == "C"), type = "l",
   lwd = 2, lty = 3, col = "red")
 ```
   
-  <p style="text-indent: 20px">Note that we see very different predictions from the function-based MPMs than from the raw MPMs here. The reason for this is that raw MPMs are parameterized by the actual transitions that were documented during the study. In a sufficiently small dataset, many transitions will be lacking because there are too few individual to propagate all transition estimates. The function-based approach, in contrast, is parameterized by vital rate models that use the dataset as a whole to identify trends, rather than being susceptible to the seemingly random nature in which individuals contribute to transitions. Note, however, that smaller datasets will also affect function-based MPMs by yielding vital rate models that are less variable and less influenced by tested factors. Regardless, we advocate the use of function-based MPMs over raw MPMs, as they are more powerful overall.</p>
+  <p style="text-indent: 20px">Note that we see very different predictions from the function-based MPMs than from the raw MPMs here. The reason for this is that raw MPMs are parameterized by the actual transitions that were documented during the study, while the function-based MPMs are parameterized with the vital rate models, which represent process variance and exclude error that cannot be attributed to the modeled factors. In a sufficiently small dataset, many transitions will be lacking in the raw MPMs because there are too few individual to propagate all transition estimates. The function-based approach, in contrast, is parameterized by vital rate models that use the dataset as a whole to identify trends, rather than being susceptible to the seemingly random nature in which individuals contribute to transitions. Note, however, that smaller datasets will also affect function-based MPMs by yielding vital rate models that are less variable and less influenced by tested factors, as a result of lost statistical power. The literature has steadily given preference to function-based models like IPMs over the years, but which approach is more appropriate is actually a difficult question that is likely to vary by study.</p>
   
   <p style="text-indent: 20px">Now let's compare the overall $\lambda$ of the arithmetic mean matrices, and the stochastic log growth rate, $a = \text{log} \lambda _{S}$. To make sure that our stochastic growth rate esimates equal yours, we will use the `set.seed()` function prior to each stochastic run. We will also use the defaults, which include estimation via 10,000 time steps and equivalent time weights.</p>
-```{r Ch3L.39}
+```{r Ch3L.41}
 writeLines("Raw ahistorical lambda:")
 lambda3(cyp2r_mean)
 writeLines("\nRaw historical lambda:")
@@ -762,10 +776,263 @@ slambda3(cypmatrix3f)
 
   <p style="text-indent: 20px">The $\lambda$ values for the function-based MPMs are similar to one another, as are estimates of $a = \text{log} \lambda _{S}$, although we see some variability among the ahistorical and historical raw MPMs. Overall, trends appear more robust than the temporal estimates of the deterministic growth rate.</p>
   
+  <p style="text-indent: 20px">As a comparison, we might wish to see what our growth rate estimates are when we assume the wrong distributions for size and fecundity.</p>
+```{r Ch3L.42}
+wrong_mean <- lmean(cypmatrix2f_wrong)
+lambda3(wrong_mean)
+
+set.seed(42)
+slambda3(cypmatrix2f_wrong)
+```
+  
+  <p style="text-indent: 20px">Notice that our estimates are lower than for the other function-based MPMs. The fact that they are lower is not necessarily expected - only that they are different.</p>
+  
+  <p style="text-indent: 20px">Now let's take a look at the stable stage distributions. We will look at deterministic and stochastic versions of the raw ahistorical and historical MPMs first. We will make life a little easier for ourselves by focusing only on patch `A`, which is the first patch.</p>
+```{r Ch3L.43, fig.cap = "Figure 3L.8. Ahistorical vs. historically-corrected stable and long-run mean stage distribution, raw MPMs"}
+tm2ss_r <- stablestage3(cyp2r_mean)
+tm3ss_r <- stablestage3(cyp3r_mean)
+tm2ss_rs <- stablestage3(cypmatrix2r, stochastic = TRUE, seed = 42)
+tm3ss_rs <- stablestage3(cypmatrix3r, stochastic = TRUE, seed = 42)
+
+ss_put_together <- cbind.data.frame(subset(tm2ss_r, matrix == 1)$ss_prop,
+  subset(tm3ss_r$ahist, matrix == 1)$ss_prop,
+  subset(tm2ss_rs, poppatch == "1 A")$ss_prop,
+  subset(tm3ss_rs$ahist, matrix == 1)$ss_prop)
+names(ss_put_together) <- c("det ahist", "det hist", "sto ahist", "sto hist")
+rownames(ss_put_together) <- subset(tm2ss_r, matrix == 1)$stage_id
+
+barplot(t(ss_put_together), beside=T, ylab = "Proportion", xlab = "Stage", 
+  ylim = c(0, 0.55), col = c("black", "orangered", "grey", "darkred"), bty = "n")
+legend("topright", c("det ahist", "det hist", "sto ahist", "sto hist"),
+  col = c("black", "orangered", "grey", "darkred"), pch = 15, bty = "n")
+```
+  
+  <p style="text-indent: 20px">Overall, these are very similar patterns. Whether ahistorical or historical, deterministic or stochastic, our analyses suggest that small and extra-small adults take up the greatest share of the stable stage structure, with dormant seed and 1st-year protocorms coming next, and then reproductive adults. The main differences appear to be a decreased presence of protocorms and increased presence of flowering adults in historical analysis. Stochastic analyses also reduce the importance of most stages with high proportions, while increasing the importance of rarer stages.</p>
+  
+  <p style="text-indent: 20px">Let's now compare to the results from the function-based analyses.</p>
+```{r Ch3L.44, fig.cap = "Figure 3L.9. Ahistorical vs. historically-corrected stable and long-run mean stage distribution, function-based MPMs"}
+tm2ss_f <- stablestage3(cyp2f_mean)
+tm3ss_f <- stablestage3(cyp3f_mean)
+tm2ss_fs <- stablestage3(cypmatrix2f, stochastic = TRUE, seed = 42)
+tm3ss_fs <- stablestage3(cypmatrix3f, stochastic = TRUE, seed = 42)
+
+ss_put_together <- cbind.data.frame(subset(tm2ss_f, matrix == 1)$ss_prop,
+  subset(tm3ss_f$ahist, matrix == 1)$ss_prop,
+  subset(tm2ss_fs, poppatch == "1 A")$ss_prop,
+  subset(tm3ss_fs$ahist, matrix == 1)$ss_prop)
+names(ss_put_together) <- c("det ahist", "det hist", "sto ahist", "sto hist")
+rownames(ss_put_together) <- subset(tm2ss_f, matrix == 1)$stage_id
+
+barplot(t(ss_put_together), beside=T, ylab = "Proportion", xlab = "Stage", 
+  ylim = c(0, 0.20), col = c("black", "orangered", "grey", "darkred"), bty = "n")
+legend("topright", c("det ahist", "det hist", "sto ahist", "sto hist"),
+  col = c("black", "orangered", "grey", "darkred"), pch = 15, bty = "n")
+```
+  
+  <p style="text-indent: 20px">If we look over the stageframe used for these MPMs (see the `ahstages` element of any of the function-based MPMs), we can see that at equilibrium, the population should be composed of the same stages shown to dominate in the raw case - the smallest adults. The real difference seems to be that the function-based MPMs imply a greater proportion of the population should be composed of juvenile stages than the raw MPMs suggest.</p>
+  
+  Finally, let's look over the predicted stable stage distribution if we use the wrong size and fecundity distributions.
+```{r Ch3L.45, fig.cap = "Figure 3L.10. Ahistorical stable and long-run mean stage distribution, function-based MPMs with wrong size and fecundity distributions"}
+tm2w_f <- stablestage3(lmean(cypmatrix2f_wrong))
+tm2w_fs <- stablestage3(cypmatrix2f_wrong, stochastic = TRUE, seed = 42)
+
+ss_put_together <- cbind.data.frame(subset(tm2w_f, matrix == 1)$ss_prop,
+  subset(tm2w_fs, poppatch == "1 A")$ss_prop)
+names(ss_put_together) <- c("det ahist", "sto ahist")
+rownames(ss_put_together) <- subset(tm2w_f, matrix == 1)$stage_id
+
+barplot(t(ss_put_together), beside=T, ylab = "Proportion", xlab = "Stage", 
+  ylim = c(0, 0.20), col = c("black", "grey"), bty = "n")
+legend("topright", c("det ahist", "sto ahist"),
+  col = c("black", "grey"), pch = 15, bty = "n")
+```
+  
+  <p style="text-indent: 20px">A comparison with the previous graphs shows a prediction for stronger domination by juvenile stages, and with slightly larger adults of both reproductive and non-reproductive status predicted to be as dominant as dormant seeds and first-year protocorms.</p>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <p style="text-indent: 20px">Next let's look at the reproductive values associated with both ahistorical and historical approaches. We will standardize against the maximum value in each case to make these comparable.</p>
+```{r Ch5.26, fig.cap = "Figure 5.8. Ahistorical vs. historically-corrected deterministic and stochastic reproductive values"}
+tm2rv <- repvalue3(tmeans2r)
+tm3rv <- repvalue3(tmeans3r)
+tm2rv_s <- repvalue3(cypmatrix2, stochastic = TRUE, seed = 42)
+tm3rv_s <- repvalue3(cypmatrix3, stochastic = TRUE, seed = 42)
+
+rv_put_together <- cbind.data.frame((tm2rv$rep_value / max(tm2rv$rep_value)),
+  (tm3rv$ahist$rep_value / max(tm3rv$ahist$rep_value)),
+  (tm2rv_s$rep_value / max(tm2rv_s$rep_value)),
+  (tm3rv_s$ahist$rep_value / max(tm3rv_s$ahist$rep_value)))
+names(rv_put_together) <- c("det ahist", "det hist", "sto ahist", "sto hist")
+rownames(rv_put_together) <- tm2rv$stage_id
+
+barplot(t(rv_put_together), beside=T, ylab = "Relative rep value", xlab = "Stage",
+  ylim = c(0, 1.3), col = c("black", "orangered", "grey", "darkred"), bty = "n")
+legend("topleft", c("det ahist", "det hist", "sto ahist", "sto hist"),
+  col = c("black", "orangered", "grey", "darkred"), pch = 15, bty = "n")
+```
+
+  <p style="text-indent: 20px">We see some big differences here. In the deterministic analyses, the historical case predicts a greater importance of small and medium-sized flowering adults, and a lower importance of all other stages than the ahistorical case. In the stochastic analyses, the highest reproductive values are in the largest flowering adults. So, both history and temporal stochasticity have large effects here. Interesting results in need of further study!</p>
+  
+  <p style="text-indent: 20px">Let's now do a sensitivity analysis, again using both deterministic and stochastic approaches. First we will look at the ahistorical MPM.</p>
+```{r Ch5.27}
+tm2sens <- sensitivity3(tmeans2r)
+set.seed(42)
+tm2sens_s <- sensitivity3(cypmatrix2, stochastic = TRUE)
+
+writeLines("\nThe highest deterministic sensitivity value: ")
+max(tm2sens$ah_sensmats[[1]][which(tmeans2r$A[[1]] > 0)])
+writeLines("\nThis value is associated with element: ")
+which(tm2sens$ah_sensmats[[1]] == max(tm2sens$ah_sensmats[[1]][which(tmeans2r$A[[1]] > 0)]))
+
+writeLines("\nThe highest stochastic sensitivity value: ")
+max(tm2sens_s$ah_sensmats[[1]][which(tmeans2r$A[[1]] > 0)])
+writeLines("\nThis value is associated with element: ")
+which(tm2sens_s$ah_sensmats[[1]] == max(tm2sens_s$ah_sensmats[[1]][which(tmeans2r$A[[1]] > 0)]))
+```
+
+  <p style="text-indent: 20px">The highest sensitivity value in both cases appears to be associated with the transition from 1-sprouted non-flowering adult to the largest flowering adult (element 378, which is in the 7th column and 54th row). Inspecting each sensitivity matrix also shows that transitions near that element in both matrices are also associated with rather high sensitivities.</p>
+
+  <p style="text-indent: 20px">Now let's compare with the historical case. We will compare both the full historical sensitivity matrices, and also look at the historically-corrected deterministic sensitivities.</p>
+```{r Ch5.28}
+tm3sens <- sensitivity3(tmeans3r)
+set.seed(42)
+tm3sens_s <- sensitivity3(cypmatrix3, stochastic = TRUE)
+
+writeLines("\nThe highest deterministic sensitivity value: ")
+max(tm3sens$h_sensmats[[1]][which(tmeans3r$A[[1]] > 0)])
+writeLines("\nThis value is associated with element: ")
+which(tm3sens$h_sensmats[[1]] == max(tm3sens$h_sensmats[[1]][which(tmeans3r$A[[1]] > 0)]))
+writeLines("\nThe highest stochastic sensitivity value: ")
+max(tm3sens_s$h_sensmats[[1]][which(tmeans3r$A[[1]] > 0)])
+writeLines("\nThis value is associated with element: ")
+which(tm3sens_s$h_sensmats[[1]] == max(tm3sens_s$h_sensmats[[1]][which(tmeans3r$A[[1]] > 0)]))
+
+writeLines("\nThe highest deterministic sensitivity value (historically-corrected): ")
+max(tm3sens$ah_sensmats[[1]][which(tmeans2r$A[[1]] > 0)])
+writeLines("\nThis value is associated with element: ")
+which(tm3sens$ah_sensmats[[1]] == max(tm3sens$ah_sensmats[[1]][which(tmeans2r$A[[1]] > 0)]))
+writeLines("\nThe highest stochastic sensitivity value (historically-corrected): ")
+max(tm3sens_s$ah_sensmats[[1]][which(tmeans2r$A[[1]] > 0)])
+writeLines("\nThis value is associated with element: ")
+which(tm3sens_s$ah_sensmats[[1]] == max(tm3sens_s$ah_sensmats[[1]][which(tmeans2r$A[[1]] > 0)]))
+```
+
+  <p style="text-indent: 20px">Here, we see both deterministic and stochastic sensitivity analyses supporting the transition from 1-sprouted vegetative adult in occasions *t*-1 and *t* to the largest flowering adult in occasion *t*+1. The highest historically-corrected deterministic sensitivity value is associated with the transition from 1-sprouted non-flowering adult to 20-sprouted flowering adults (element 374), while the historically-corrected stochastic sensitivity value is associated with the transitions from 1-sprouted non-flowering adult to the largest flowering adult stage (element 378). Thus, our results generally reinforce the results of the ahistorical case.</p>
+
+  <p style="text-indent: 20px">Let's now assess the elasticity of $\lambda$ to matrix elements, comparing the ahistorical to the historically-corrected case in both deterministic and stochastic analyses.</p>
+```{r Ch5.29}
+tm2elas <- elasticity3(tmeans2r)
+tm3elas <- elasticity3(tmeans3r)
+set.seed(42)
+tm2elas_s <- elasticity3(cypmatrix2, stochastic = TRUE)
+set.seed(42)
+tm3elas_s <- elasticity3(cypmatrix3, stochastic = TRUE)
+
+writeLines("\nThe largest ahistorical deterministic elasticity is associated with element: ")
+which(tm2elas$ah_elasmats[[1]] == max(tm2elas$ah_elasmats[[1]]))
+writeLines("\nThe largest historically-corrected deterministic elasticity is associated with element: ")
+which(tm3elas$ah_elasmats[[1]] == max(tm3elas$ah_elasmats[[1]]))
+writeLines("\nThe largest historical deterministic elasticity is associated with element: ")
+which(tm3elas$h_elasmats[[1]] == max(tm3elas$h_elasmats[[1]]))
+
+writeLines("\nThe largest ahistorical stochastic elasticity is associated with element: ")
+which(tm2elas_s$ah_elasmats[[1]] == max(tm2elas_s$ah_elasmats[[1]]))
+writeLines("\nThe largest historically-corrected stochastic elasticity is associated with element: ")
+which(tm3elas_s$ah_elasmats[[1]] == max(tm3elas_s$ah_elasmats[[1]]))
+writeLines("\nThe largest historical stochastic elasticity is associated with element: ")
+which(tm3elas_s$h_elasmats[[1]] == max(tm3elas_s$h_elasmats[[1]]))
+```
+  
+  <p style="text-indent: 20px">Ahistorical and historical, deterministic and stochastic analyses suggest that population growth rate is most elastic in response to stasis as 1-sprouted non-flowering adult (element 331). This is a remarkably consistent result, reinforcing the importance of this stage as seen in sensitivity analyses.</p>
+  
+  <p style="text-indent: 20px">Now let's compare the elasticity of population growth rate in relation to the core life history stages, via a barplot comparison.</p>
+```{r Ch5.30, fig.cap = "Figure 5.9. Ahistorical vs. historically-corrected deterministic and stochastic elasticity to stage"}
+elas_put_together <- cbind.data.frame(colSums(tm2elas$ah_elasmats[[1]]),
+  colSums(tm3elas$ah_elasmats[[1]]), colSums(tm2elas_s$ah_elasmats[[1]]),
+  colSums(tm3elas_s$ah_elasmats[[1]]))
+names(elas_put_together) <- c("det ahist", "det hist", "sto ahist", "sto hist")
+rownames(elas_put_together) <- tm2elas$ah_stages$stage_id
+
+barplot(t(elas_put_together), beside=T, ylab = "Elasticity", xlab = "Stage",
+  col = c("black", "orangered", "grey", "darkred"), bty = "n")
+legend("topright", c("det ahist", "det hist", "sto ahist", "sto hist"),
+  col = c("black", "orangered", "grey", "darkred"), pch = 15, bty = "n")
+```
+
+  <p style="text-indent: 20px">Elasticity analyses in these plots look fairly similar, with most of the differences appearing to lie in elasticity of small non-flowering vs. flowering adults in the ahistorical vs. historical comparison.</p>
+
+  <p style="text-indent: 20px">Finally, let's take a look at how the importance of different kinds of transitions changes, by looking at elasticity sums.</p>
+```{r Ch5.31, fig.cap = "Figure 5.10. Ahistorical vs. historically-corrected elasticity of lambda to transitions"}
+tm2elas_sums <- summary(tm2elas)
+tm3elas_sums <- summary(tm3elas)
+tm2elas_s_sums <- summary(tm2elas_s)
+tm3elas_s_sums <- summary(tm3elas_s)
+
+elas_sums_together <- cbind.data.frame(tm2elas_sums$ahist[,2],
+  tm3elas_sums$ahist[,2], tm2elas_s_sums$ahist[,2], tm3elas_s_sums$ahist[,2])
+names(elas_sums_together) <- c("det ahist", "det hist", "sto ahist", "sto hist")
+rownames(elas_sums_together) <- tm2elas_sums$ahist$category
+
+barplot(t(elas_sums_together), beside=T, ylab = "Elasticity", xlab = "Transition",
+  col = c("black", "orangered", "grey", "darkred"), bty = "n")
+legend("topright", c("det ahist", "det hist", "sto ahist", "sto hist"),
+  col = c("black", "orangered", "grey", "darkred"), pch = 15, bty = "n")
+```
+  
+  <p style="text-indent: 20px">Fecundity makes little difference in all cases, but the importance of stasis transitions drops a bit in historical analysis, while growth transitions increase a bit in importance. Next, we can see which historical transitions are most important.</p>
+```{r Ch5.32, fig.cap = "Figure 5.11. Elasticity of lambda to historical transitions"}
+elas_hist2plot <- cbind.data.frame(tm3elas_sums$hist[,2], tm3elas_s_sums$hist[,2])
+names(elas_hist2plot) <- c("det hist", "sto hist")
+rownames(elas_hist2plot) <- tm3elas_sums$hist$category
+
+par(mar = c(7, 4, 2, 2) + 0.2)
+barplot(t(elas_hist2plot), beside = T, ylab = "Elasticity", xlab = "", xaxt = "n",
+  col = c("orangered", "darkred"), bty = "n")
+text(cex=1, x=seq(from = -0.5, to = 2.8*length(tm3elas_sums$hist$category), by = 2.85),
+  y=-0.07, tm3elas_sums$hist$category, xpd=TRUE, srt=45)
+legend("topright", c("det ahist", "det hist", "sto ahist", "sto hist"),
+  col = c("orangered", "darkred"), pch = 15, bty = "n")
+```
+  <p style="text-indent: 20px">We can see that growth from occasion *t*-1 to *t* followed by shrinkage to occasion *t*+1 is associated with the greatest summed elasticities, while the inverse, shrinkage from occasion *t*-1 to *t* followed by growth to occasion *t*+1 is the next most important. Transitions associated with fecundity are associated with the lowest summed elasticities.</p>
 
 
 
 
+Reproductive value
+
+
+
+
+
+Sensitivity
+
+
+
+
+
+
+
+Elasticity
+
+
+
+
+
+LTRE
+
+
+
+
+
+
+sLTRE
 
 
 

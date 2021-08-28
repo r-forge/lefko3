@@ -1598,7 +1598,7 @@ arma::mat proj3sp(arma::vec start_vec, List core_list, arma::uvec mat_order,
 //' weightings used will be based on the proportion per element of the sum of
 //' elements in the user-supplied vector.
 //' 
-//' The resulting data frames in element \coce{projection} are separated by
+//' The resulting data frames in element \code{projection} are separated by
 //' pop-patch according to the order provided in element \code{labels}, but the
 //' matrices for each element of \code{projection} have the result of each
 //' replicate stacked in order on top of one another without any break or

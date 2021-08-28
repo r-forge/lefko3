@@ -2,10 +2,11 @@
 % Please edit documentation in R/RcppExports.R
 \name{projection3}
 \alias{projection3}
-\title{Estimate Stochastic Population Growth Rate}
+\title{Conduct Population Projection Simulations}
 \usage{
 projection3(
   mpm,
+  nreps = 1L,
   times = 10000L,
   stochastic = FALSE,
   standardize = FALSE,
@@ -19,7 +20,10 @@ projection3(
 \item{mpm}{A matrix projection model of class \code{lefkoMat}, or a list of
 full matrix projection matrices.}
 
-\item{times}{Number of occasions to iterate. Defaults to 10,000.}
+\item{nreps}{The number of replicate projections.}
+
+\item{times}{Number of occasions to iterate per replicate. Defaults to
+10,000.}
 
 \item{stochastic}{A logical value denoting whether to conduct a stochastic
 projection or a deterministic / cyclical projection.}
@@ -44,20 +48,32 @@ stage.}
 weightings of annual matrices. Defaults to equal weighting among occasions.}
 }
 \value{
-A list with two elements:
+A list of class \code{lefkoProj}, which always includes the first
+three elements of the following, and also includes the remaiing elements
+below when a \code{lefkoMat} object is used as input:
 \item{projection}{A list of matrices showing the total number of individuals
 per stage per occasion, or showing the former with the projected stage 
 distribution and reproductive value per stage per occasion followed by
-the total population size per occasion (all row-bound in order).}
+the total population size per occasion (all row-bound in order). Each matrix
+corresponds to a different patch or population. If more than 1 replicate is
+projected, then the results from these replicates will be stacked within the
+same data frame.}
 \item{labels}{A data frame showing the order of populations and patches in
 item \code{projection}.}
+\item{control}{A short vector indicating the number of replicates and the
+number of occasions projected per replicate.}
+\item{ahstages}{The original stageframe used in the study.}
+\item{hstages}{A data frame showing the order of historical stage pairs.}
+\item{agestages}{A data frame showing the order of age-stage pairs.}
 }
 \description{
-Function \code{projection3()} projects the population forward in time by
-a user-defined number of occasions. Projections may be deterministic or
+Function \code{projection3()} runs projection simulations. It projects the
+population forward in time by a user-defined number of occasions, and can
+perform these projections as replicates. Projections may be deterministic or
 stochastic. If deterministic, then projections will be cyclical if matrices
-exist covering multiple occasions for each population or patch. If stochastic,
-then annual matrices will be shuffled within patches and populations.
+exist covering multiple occasions for each population or patch. If
+stochastic, then annual matrices will be shuffled within patches and
+populations. There is no limit to the number of replicates.
 }
 \section{Notes}{
 
@@ -68,6 +84,14 @@ data frame with 0 entries for patch designation.
 Weightings given in \code{tweights} do not need to sum to 1. Final
 weightings used will be based on the proportion per element of the sum of
 elements in the user-supplied vector.
+
+The resulting data frames in element \code{projection} are separated by
+pop-patch according to the order provided in element \code{labels}, but the
+matrices for each element of \code{projection} have the result of each
+replicate stacked in order on top of one another without any break or
+indication. Results for each replicate must be separated using the
+information provided in elements \code{control} and the 3 stage
+descriptor elements.
 }
 
 \examples{
@@ -113,7 +137,7 @@ ehrlen3 <- rlefko3(data = lathvert, stageframe = lathframe,
   repmatrix = lathrepm, supplement = lathsupp3, yearcol = "year2",
   indivcol = "individ")
 
-lathproj <- projection3(ehrlen3, stochastic = TRUE)
+lathproj <- projection3(ehrlen3, nreps = 5, stochastic = TRUE)
 
 # Cypripedium example
 rm(list = ls(all=TRUE))
@@ -167,6 +191,6 @@ cypmatrix3r <- rlefko3(data = cypraw_v1, stageframe = cypframe_raw,
   supplement = cypsupp3r, yearcol = "year2", 
   patchcol = "patchid", indivcol = "individ")
 
-cypstoch <- projection3(cypmatrix3r, stochastic = TRUE)
+cypstoch <- projection3(cypmatrix3r, nreps = 5, stochastic = TRUE)
 
 }

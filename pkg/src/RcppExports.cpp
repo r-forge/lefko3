@@ -523,12 +523,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // projection3
-Rcpp::List projection3(List mpm, int times, bool stochastic, bool standardize, bool growthonly, bool integeronly, Nullable<NumericVector> start_vec, Nullable<NumericVector> tweights);
-RcppExport SEXP _lefko3_projection3(SEXP mpmSEXP, SEXP timesSEXP, SEXP stochasticSEXP, SEXP standardizeSEXP, SEXP growthonlySEXP, SEXP integeronlySEXP, SEXP start_vecSEXP, SEXP tweightsSEXP) {
+Rcpp::List projection3(List mpm, int nreps, int times, bool stochastic, bool standardize, bool growthonly, bool integeronly, Nullable<NumericVector> start_vec, Nullable<NumericVector> tweights);
+RcppExport SEXP _lefko3_projection3(SEXP mpmSEXP, SEXP nrepsSEXP, SEXP timesSEXP, SEXP stochasticSEXP, SEXP standardizeSEXP, SEXP growthonlySEXP, SEXP integeronlySEXP, SEXP start_vecSEXP, SEXP tweightsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type mpm(mpmSEXP);
+    Rcpp::traits::input_parameter< int >::type nreps(nrepsSEXP);
     Rcpp::traits::input_parameter< int >::type times(timesSEXP);
     Rcpp::traits::input_parameter< bool >::type stochastic(stochasticSEXP);
     Rcpp::traits::input_parameter< bool >::type standardize(standardizeSEXP);
@@ -536,7 +537,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type integeronly(integeronlySEXP);
     Rcpp::traits::input_parameter< Nullable<NumericVector> >::type start_vec(start_vecSEXP);
     Rcpp::traits::input_parameter< Nullable<NumericVector> >::type tweights(tweightsSEXP);
-    rcpp_result_gen = Rcpp::wrap(projection3(mpm, times, stochastic, standardize, growthonly, integeronly, start_vec, tweights));
+    rcpp_result_gen = Rcpp::wrap(projection3(mpm, nreps, times, stochastic, standardize, growthonly, integeronly, start_vec, tweights));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -667,7 +668,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_lefko3_elas3hlefko", (DL_FUNC) &_lefko3_elas3hlefko, 3},
     {"_lefko3_proj3", (DL_FUNC) &_lefko3_proj3, 6},
     {"_lefko3_proj3sp", (DL_FUNC) &_lefko3_proj3sp, 6},
-    {"_lefko3_projection3", (DL_FUNC) &_lefko3_projection3, 8},
+    {"_lefko3_projection3", (DL_FUNC) &_lefko3_projection3, 9},
     {"_lefko3_slambda3", (DL_FUNC) &_lefko3_slambda3, 3},
     {"_lefko3_stoch_senselas", (DL_FUNC) &_lefko3_stoch_senselas, 4},
     {"_lefko3_bambi3", (DL_FUNC) &_lefko3_bambi3, 2},
