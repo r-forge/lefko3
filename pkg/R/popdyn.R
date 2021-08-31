@@ -1477,7 +1477,7 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
     } else if (class(mats$A) == "list") {
       final <- unlist(lapply(mats$A, function(X) {
         almost_final <- rv3matrix(X, sparsemethod)
-        return(almost_final/almost_final[which(almost_final == (almost_final[which(almost_final > 0)])[1])])
+        return(almost_final/almost_final[which(almost_final == min(almost_final[which(almost_final > 0)])[1])])
       }
       )
       )

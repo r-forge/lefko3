@@ -15,6 +15,9 @@ CHANGES IN VERSION 3.8.0 (2021-XX-XX)
        matrices if specific years or patches are called.
     2. Fixed issue affecting stochastic reproductive value estimation in
        historical lefkoMat objects.
+    3. Fixed issue affecting some deterministic reproductive value estimates,
+       particularly in large historical MPMs, where a base reference value for
+       standardization cannot be determined.
 
 
 CHANGES IN VERSION 3.7.0 (2021-08-18)
