@@ -1111,7 +1111,7 @@ par(mar = c(7, 4, 2, 2) + 0.2)
 barplot(t(elas_hist2plot), beside = T, ylab = "Elasticity", xlab = "", xaxt = "n",
   col = c("orangered", "darkred"), bty = "n")
 text(cex=0.75, x=seq(from = -0.5, to = 2.8*length(tm3elas_f_sums$hist$category), by = 2.85),
-  y=-0.11, tm3elas_f_sums$hist$category, xpd=TRUE, srt=45)
+  y=-0.08, tm3elas_f_sums$hist$category, xpd=TRUE, srt=45)
 legend("topright", c("det ahist", "det hist", "sto ahist", "sto hist"),
   col = c("orangered", "darkred"), pch = 15, bty = "n")
 ```
@@ -1167,7 +1167,7 @@ apply(as.matrix(c(2:100)), 1, function(X) {
   <p style="text-indent: 20px">In the above plot, we show the results of each population projection for the first 15 projected times. All 100 replicates go to extinction, of course. If our MPM had higher population growth rates, then we might have had only some go to extinction. In that case, we could see the number of replicates with surviving individuals at particular points in time, and estimate the time to extinction. For example, if 95% of replicates have died out by 100 times, then this analysis would suggest extinction within a hundred times. Quasi-extinction analysis would use this number against another series of replicates set up under a different set of assumptions to assess extinction. For example, we could run another analysis of data from the same population but a different patch that has been subjected to a different management regime, and compare the time to extinction in each. If the management regime is associated with increased population lifespan, then the probability of extinction is considered lower under the management scenario.</p>
   
   <p style="text-indent: 20px">As a comparison point, let's also look at a projection of the historical MPM and compare it. We will not project out 10,000 time steps, but only 200, to limit the amount of time needed for analysis. Then, we will plot our results as before.</p>
-```{r Ch3L.65, , fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.17. Projected population size across time over 100 replicates and 10,000 time steps for the historical function-based MPM"}
+```{r Ch3L.65, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.17. Projected population size across time over 100 replicates and 10,000 time steps for the historical function-based MPM"}
 set.seed(42)
 cypproj_3f <- projection3(cypmatrix3f, nreps = 100, times = 200,
   stochastic = TRUE, integeronly = TRUE)
@@ -1181,9 +1181,72 @@ apply(as.matrix(c(2:100)), 1, function(X) {
 })
 ```
   
-  <p style="text-indent: 20px">The historical analysis also suggests inevitable extinction, and quite quickly. In this case, we start with a higher number of individuals because the population projections start either with 1 individual per stage (in ahistorical analysis), or 1 individual per stage-pair (in historical analysis). So, we started with about 3,000 individuals here but only 50 or so in the ahistorical case. Nonetheless, extinction is quite quick, and leaves us to wonder how to boost the growth rate. Perhaps some of our previous results can address this question, or a life table response experiment (LTRE) comparing management strategies.</p>
+  <p style="text-indent: 20px">The historical analysis also suggests inevitable extinction, and quite quickly. In this case, we start with a higher number of individuals because the population projections start either with 1 individual per stage (in ahistorical analysis), or 1 individual per stage-pair (in historical analysis). So, we started with about 3,000 individuals here but only 50 or so in the ahistorical case. Nonetheless, extinction is quite quick, and leaves us to wonder how to boost the growth rate.</p>
   
-  <p style="text-indent: 20px">we do not include LTRE and sLTRE analysis within this vignette, but offer another vignette packaged within the official CRAN-available version of lefko3 for that purpose.</p>
+  <p style="text-indent: 20px">As a final analysis, we might try a comparison of our population under the current conditions against a scenario where we somehow boost fecundity by 50%. To do this analysis, we need to create a new set of MPMs under this new assumption. First, we will set up a new supplement table using this assumption, using the hMPM approach. Then we will take a look at it relative to the original supplement table.</p>
+```{r Ch3L.66}
+cypsupp3_fb_50 <- supplemental(stage3 = c("SD", "SD", "P1", "P1", "P2", "P3", "SL",
+    "SL", "SL", "D", "V1", "V2", "V3", "D", "V1", "V2", "V3", "SD", "P1"), 
+  stage2 = c("SD", "SD", "SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", 
+    "SL", "SL", "SL", "SL", "SL", "SL", "rep", "rep"), 
+  stage1 = c("SD", "rep", "SD", "rep", "SD", "P1", "P2", "P3", "SL", "P3", "P3",
+    "P3", "P3", "SL", "SL", "SL", "SL", "mat", "mat"), 
+  eststage3 = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, "D", "V1", "V2", "V3", "D",
+    "V1", "V2", "V3", NA, NA), 
+  eststage2 = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, "D", "D", "D", "D", "D", 
+    "D", "D", "D", NA, NA), 
+  eststage1 = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, "D", "D", "D", "D", "D", 
+    "D", "D", "D", NA, NA), 
+  givenrate = c(0.08, 0.08, 0.1, 0.1, 0.1, 0.1, 0.125, 0.2, 0.2, NA, NA, NA, NA, 
+    NA, NA, NA, NA, NA, NA),
+  multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+    NA, 0.75, 0.75),
+  type = c("S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S",
+    "S", "S", "S", "R", "R"), 
+  type_t12 = c("S", "F", "S", "F", "S", "S", "S", "S", "S", "S", "S", "S", "S",
+    "S", "S", "S", "S", "S", "S"), stageframe = cypframe_fb)
+
+cypsupp3_fb_50
+cypsupp3_fb
+```
+  
+  <p style="text-indent: 20px">The primary difference here is in the last two lines. In the original supplement table, we split fecunsdity evenly between dormant seeds and first-year protocorms. Now, we boost each of these fecundity estimators by 50%, up to 0.75 each.</p>
+  
+  <p style="text-indent: 20px">Now let's create the new hMPMs.</p>
+```{r Ch3L.67}
+cypmatrix3f_50 <- flefko3(stageframe = cypframe_fb, supplement = cypsupp3_fb_50, 
+  modelsuite = cypmodels3, data = cypfb_v1, yearcol = "year2",
+  year.as.random = TRUE)
+
+summary(cypmatrix3f_50)
+```
+  
+  <p style="text-indent: 20px">Let's take a quick look at our $\lambda$ estimates to see if the population growth rare has increased.</p>
+```{r Ch3L.68}
+lambda3(cypmatrix3f_50)
+```
+  
+  <p style="text-indent: 20px">Although we do see a likely increase, it does not appear to avoid extincton. In any case, let's conduct our new projections, and then plot them against the original hMPM projections.</p>
+```{r Ch3L.69, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.18. Projected population comparison of hMPMs with original fecundity vs 50% fecundity boost"}
+set.seed(42)
+cypproj_3f_50 <- projection3(cypmatrix3f_50, nreps = 100, times = 200,
+  stochastic = TRUE, integeronly = TRUE)
+
+proj_sums3_50 <- summary(cypproj_3f_50, sums_out = TRUE)
+
+plot(proj_sums3$mat_sums[[1]][1,c(1:100)], ylim = c(0, 3500), type = "l", lwd = 2,
+  lty = 2, xlab = "Time", ylab = "Projected N")
+apply(as.matrix(c(2:100)), 1, function(X) {
+  lines(proj_sums3$mat_sums[[1]][X,c(1:100)], lwd = 2, lty = 2)
+})
+
+apply(as.matrix(c(1:100)), 1, function(X) {
+  lines(proj_sums3_50$mat_sums[[1]][X,c(1:100)], lwd = 2, lty = 2, col = "red")
+})
+
+```
+  
+  <p style="text-indent: 20px">We do see a small improvement in the lifespan of the population with boosted fecundity (shown in red). However, the improvement is quite small - extinction still seems nearly certain. Perhaps some of our previous results can address the question of how to save this population, or a life table response experiment (LTRE) comparing management strategies might also work. We do not include LTRE and sLTRE analysis within this vignette, but offer another vignette packaged within the official CRAN-available version of lefko3 for that purpose.</p>
 
 
 ## Acknowledgements
