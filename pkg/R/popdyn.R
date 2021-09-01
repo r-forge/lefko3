@@ -4023,8 +4023,8 @@ summary.lefkoLTRE <- function(object, ...) {
 #' @param ... Other parameters.
 #' 
 #' @return If \code{sums_out = FALSE}, then there is no output beyond written
-#' statements describing the projection. If \code{sums_out = TRUE}, then a list
-#' two elements:
+#' statements describing the projection. If \code{sums_out = TRUE}, then the
+#' output is a list with two elements:
 #' \item{mat_sums}{}
 #' \item{milepost_sums}{}
 #' 
@@ -4175,13 +4175,13 @@ summary.lefkoProj <- function(object, threshold = 1,
   milepost_sums <- if (nreps > 1) {
     apply(as.matrix(c(1:poppatches)), 1, function (X) {
       apply(as.matrix(mat_sums[[X]][,milepost]), 2, function(Y) {
-        length(which(as.vector(Y) < threshold))
+        length(which(as.vector(Y) >= threshold))
       })
     })
   } else {
     apply(as.matrix(c(1:poppatches)), 1, function (X) {
       apply(as.matrix(mat_sums[[X]][,milepost]), 1, function(Y) {
-        length(which(as.vector(Y) < threshold))
+        length(which(as.vector(Y) >= threshold))
       })
     })
   }
@@ -4207,7 +4207,10 @@ summary.lefkoProj <- function(object, threshold = 1,
   print(milepost_sums, digits = 3)
   
   if (sums_out) {
-    return (list(mat_sums, milepost_sums))
+    output_list <- list(mat_sums, milepost_sums)
+    names(output_list) <- c("mat_sums", "milepost_sums")
+    
+    return (output_list)
   } else {
     return(NULL)
   }

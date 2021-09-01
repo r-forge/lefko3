@@ -6,6 +6,8 @@ CHANGES IN VERSION 3.8.0 (2021-XX-XX)
   NEW FEATURES
     1. Function projection3() now includes the ability to produce replicate
        simulations.
+    2. Function summary.lefkoProj() created to summarize the results of
+       population projection using function projection3().
     
   USER-VISIBLE CHANGES
     1. Sensitivity and elasticity descriptions corrected in vignettes.

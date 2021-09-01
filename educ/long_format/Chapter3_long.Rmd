@@ -1117,6 +1117,73 @@ legend("topright", c("det ahist", "det hist", "sto ahist", "sto hist"),
 ```
   
   <p style="text-indent: 20px">We can see that growth from occasion *t*-1 to *t* followed by shrinkage to occasion *t*+1 is associated with the greatest summed elasticities, while the inverse, shrinkage from occasion *t*-1 to *t* followed by growth to occasion *t*+1 is the next most important. Transitions associated with fecundity are associated with the lowest summed elasticities.</p>
+  
+#### Advanced and upcoming analysis
+  
+  <p style="text-indent: 20px">The most recent versions of lefko3 incorporate a basic projection function, projection3(). Originally, this function was developed to create simple deterministic and stochastic projections of varying lengths and complexity, with output including growth rate, stage structure, and reproductive value per time step, with a number of options designed to streamline analysis. We are adding further power to this function with each new version of lefko3(), and beginning with the development version 3.7.0.9000, we have included replication.</p>
+  
+  <p style="text-indent: 20px">We will demonstrate by using this function to conduct a quasi-extinction analysis. Let's use the function-based ahistorical MPM to illustrate this, using this function to create 100 stochastic replicates of a population projection.</p>
+```{r Ch3L.58}
+set.seed(42)
+cypproj_2f <- projection3(cypmatrix2f, nreps = 100, stochastic = TRUE, integeronly = TRUE)
+```
+  
+  <p style="text-indent: 20px">Now let's take a look at the resulting object, which is a list of class `lefkoProj`. We will not output the whole object because it is quite long. Instead, let's first look at the elements that constitute it.</p>
+```{r Ch3L.59}
+names(cypproj_2f)
+```
+  
+  <p style="text-indent: 20px">We see 6 elements, with 4 seemingly familiar - `ahstages` is the stage frame from the input MPM, `hstages` is a data frame showing the order of historical stage pairs (only provided if an hMPM is used as input), and `agestages` is a data frame showing the order of age-stages (only provided if an age-by-stage MPM is used as input). The element named `control` is a short vector giving the number of replicates followed by the number of time steps projected. And the most important element is `projection`, which is a matrix showing the stage structure in each of the 100 replicates that we created. The dimensions of this matrix will make the matter clearer:</p>
+```{r Ch3L.60}
+dim(cypproj_2f$projection[[1]])
+```
+  
+  <p style="text-indent: 20px">We see that there are 5400 rows and 10001 columns. The columns correspond to the discrete times that we have projected. The rows correspond to the 54 stages in each of the 100 replicates, with each replicate together. Thus, the first 54 rows correspond to the numbers of individuals in each stage at each time in replicate 1. Rows 55-108 correspond to the numbers of individuals in each stage at each time in replicate 2. Lets's take a look at the first few time steps of replicate 1.</p>
+```{r Ch3L.61}
+cypproj_2f$projection[[1]][1:54,1:10]
+```
+  
+  <p style="text-indent: 20px">You may notice that the population seems to be declining here. This is not a shock - all of our MPMs suggest a declining population. Let's use the summary.lefkoProj() function to get a better handle on this.</p>
+```{r Ch3L.62}
+summary(cypproj_2f)
+```
+  
+  <p style="text-indent: 20px">This summary gives us some basic information about our projection, and also shows us the number of replicates with more than 1 individual projected alive at a series of projected times (times 1, 2501, 5001, 7501, and 10001). We can change these milepost times, using either proportions or explicit times.</p>
+```{r Ch3L.63}
+summary(cypproj_2f, milepost = c(1, 3, 5, 8, 9, 10, 100, 10001))
+```
+  
+  <p style="text-indent: 20px">The output above gives us a sense that the population is generally declining. The summary function can also be used to output population sizes projected under each replicate, so that we can plot the results. We can use the `sums_out` option for this purpose. Here is an example.</p>
+```{r Ch3L.64, , fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.16. Projected population size across time over 100 replicates and 10,000 time steps for the ahistorical function-based MPM"}
+proj_sums <- summary(cypproj_2f, sums_out = TRUE)
+
+plot(proj_sums$mat_sums[[1]][1,c(1:15)], ylim = c(0, 65), type = "l", lwd = 2,
+  lty = 2, xlab = "Time", ylab = "Projected N")
+apply(as.matrix(c(2:100)), 1, function(X) {
+  lines(proj_sums$mat_sums[[1]][X,c(1:15)], lwd = 2, lty = 2)
+})
+```
+  
+  <p style="text-indent: 20px">In the above plot, we show the results of each population projection for the first 15 projected times. All 100 replicates go to extinction, of course. If our MPM had higher population growth rates, then we might have had only some go to extinction. In that case, we could see the number of replicates with surviving individuals at particular points in time, and estimate the time to extinction. For example, if 95% of replicates have died out by 100 times, then this analysis would suggest extinction within a hundred times. Quasi-extinction analysis would use this number against another series of replicates set up under a different set of assumptions to assess extinction. For example, we could run another analysis of data from the same population but a different patch that has been subjected to a different management regime, and compare the time to extinction in each. If the management regime is associated with increased population lifespan, then the probability of extinction is considered lower under the management scenario.</p>
+  
+  <p style="text-indent: 20px">As a comparison point, let's also look at a projection of the historical MPM and compare it. We will not project out 10,000 time steps, but only 200, to limit the amount of time needed for analysis. Then, we will plot our results as before.</p>
+```{r Ch3L.65, , fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.17. Projected population size across time over 100 replicates and 10,000 time steps for the historical function-based MPM"}
+set.seed(42)
+cypproj_3f <- projection3(cypmatrix3f, nreps = 100, times = 200,
+  stochastic = TRUE, integeronly = TRUE)
+
+proj_sums3 <- summary(cypproj_3f, sums_out = TRUE)
+
+plot(proj_sums3$mat_sums[[1]][1,c(1:100)], ylim = c(0, 3000), type = "l", lwd = 2,
+  lty = 2, xlab = "Time", ylab = "Projected N")
+apply(as.matrix(c(2:100)), 1, function(X) {
+  lines(proj_sums3$mat_sums[[1]][X,c(1:100)], lwd = 2, lty = 2)
+})
+```
+  
+  <p style="text-indent: 20px">The historical analysis also suggests inevitable extinction, and quite quickly. In this case, we start with a higher number of individuals because the population projections start either with 1 individual per stage (in ahistorical analysis), or 1 individual per stage-pair (in historical analysis). So, we started with about 3,000 individuals here but only 50 or so in the ahistorical case. Nonetheless, extinction is quite quick, and leaves us to wonder how to boost the growth rate. Perhaps some of our previous results can address this question, or a life table response experiment (LTRE) comparing management strategies.</p>
+  
+  <p style="text-indent: 20px">we do not include LTRE and sLTRE analysis within this vignette, but offer another vignette packaged within the official CRAN-available version of lefko3 for that purpose.</p>
 
 
 ## Acknowledgements

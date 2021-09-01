@@ -33,8 +33,8 @@ to replicate. Defaults to FALSE}
 }
 \value{
 If \code{sums_out = FALSE}, then there is no output beyond written
-statements describing the projection. If \code{sums_out = TRUE}, then a list
-two elements:
+statements describing the projection. If \code{sums_out = TRUE}, then the
+output is a list with two elements:
 \item{mat_sums}{}
 \item{milepost_sums}{}
 }
