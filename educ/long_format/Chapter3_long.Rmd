@@ -41,7 +41,8 @@ data(cypvert)
   
   <p style="text-indent: 20px">The dataset `cypdata` is organized in horizontal format, meaning that rows correspond to unique individuals and columns correspond to stage in particular years. Looking at the original Excel spreadsheet (below), you will note a repeating pattern in the names of the columns. Package `lefko3` includes functions to handle data in horizontal format, as well as functions to handle vertically formatted data (i.e. data for individuals is broken up across rows, where each row is a unique combination of individual and year in time *t*).</p>
   
-<img src = "cypscreen1.png" width = "700"></img>
+<img src = "cypscreen1.png" width = "700"></img>  
+
 **Figure 3L.1.** Organization of the *Cypripedium candidum* horizontal dataset, as viewed in Microsoft Excel.
   
   <p style="text-indent: 20px">When we imported the dataset into R, we utilized this structure, and R handles the variables accordingly. We can see this in the summary for the dataset, as below (we also use `dim()` to calculate the dimensions of the dataset).</p>
@@ -54,7 +55,8 @@ summary(cypdata)
   
   <p style="text-indent: 20px">Although this dataset is in horizontal structure, many demographers prefer to keep their data in a vertical structure. Data `cypvert` is essentially the same dataset as `cypdata`, but supplied in vertical structure. Let's look at a screenshot of the Excel spreadsheet.</p>
 
-<img src = "cypscreen2.png" width = "700"></img>
+<img src = "cypscreen2.png" width = "700"></img>  
+
 **Figure 3L.2.** Organization of the *Cypripedium candidum* vertical dataset, as viewed in Microsoft Excel.
   
   <p style="text-indent: 20px">We can see a number of key differences from the horizontal dataset. One key difference is that each row includes not just identifying information for the individual, but also there is a column identifying the year that each datum was recorded. Here. the column `year2` represents the monitoring occasion in time *t*. Some demographers include a single year of data per row, while others include two years in order to use the dataset directly in matrix estimation. Package `lefko3` can handle all of these variations.</p>
@@ -91,7 +93,8 @@ summary(c(size.04, size.05, size.06, size.07, size.08, size.09))
   
   <p style="text-indent: 20px">The summary shows that the smallest recorded size is a single sprout, and the largest is 24 sprouts. The 97 NAs are a combination of vegetative dormancy and instances of individuals being dead or simply not alive (i.e. not yet born). Given this, we might utilize the following life history model for our function-based MPMs.</p>
   
-<img src = "lifhist1.png" width = "700"></img>
+<img src = "lifhist1.png" width = "700"></img>  
+
 **Figure 3L.3.** Life history model of *Cypripedium candidum* for use in function-based MPMs.
   
   <p style="text-indent: 20px">We can see a variety of transitions within this figure. The juvenile stages have fairly simple transitions. New recruits may enter the population directly from germination of a seed produced the previous year, in which case they start in the protocorm 1 stage, or they may begin as dormant seed. Dormant seed may remain dormant, die, or germinate into the protocorm 1 stage. Protocorms exist for up to 3 years, yielding the protocorm 1, 2, and 3 stages, without any possibility of staying within each of these stages for more than a single year. Protocorm 3 leads to a seedling stage, in which the plant may persist for many years before becoming mature. Here, maturity does not really refer to reproduction *per se*, but rather to a morphology indistinguishable from a reproductive plant except for the lack of a flower. The first mature stage is usually either vegetative dormancy (dorm), during which time the plant does not sprout, or a small, non-flowering adult (1V). Once in this portion of the life history, the plant may transition among 49 mature stages, including vegetative dormancy, 1-24 shoots without flowers, or 1-24 shoots with at least one flower.</p>
@@ -181,7 +184,8 @@ cypframe_raw
   
   <p style="text-indent: 20px">The life history model corresponding to this stageframe is different than in the previous case, primarily in that it has fewer adult stages. Further, all adult stages are now treated as reproductive, whereas we could separate reproductive and non-reproductive stages in the function-based case. Here is our new life history model:</p>
   
-<img src = "lifhist2.png" width = "700"></img>
+<img src = "lifhist2.png" width = "700"></img>  
+
 **Figure 3L.5.** Life history model of *Cypripedium candidum* for use in raw-based MPMs.
   
   <p style="text-indent: 20px">Now that we have our life history models for our raw MPM and function-based MPM analyses, we can create our standardized datasets. We will standardize these datasets using our stageframes, and so we need to create two standardized datasets - one for the raw MPM and another for the function-based MPM. Let's first standardize the vertical dataset for the raw MPM. For this purpose, we will utilize the `verticalize3()` function. Because we are lumping reproductive and non-reproductive individuals into the non-dormant adult classes, we need to set `NRasRep = TRUE`. Otherwise, `verticalize3()` will attempt to use the reproductive status of individuals in classification, and will fail due to the presence of non-reproductive adults. We also need to set `NAas0 = TRUE` to make sure that NA values in size are turned into 0 entries where necessary, and so aid in the assignment of the vegetative dormancy stage. Finally, note that we set up three different size variables here, not as `sizea`, `sizeb`, and `sizec`, and that we tell R that we want overall size to be the sum of these (`stagesize = "sizeadded"`).</p>
@@ -564,8 +568,16 @@ cypmatrix2rp
   
   **matrixqc**: a short vector used in `summary` statements to describe the overall quality of each matrix
   
-  **dataqc**: a short vector used in `summary` statements to describe key sampling aspects of the dataset
+  **dataqc**: a short vector used in `summary` statements to describe key sampling aspects of the dataset (in raw MPMs)
   
+  **modelqc**: a short vector used in `summary` statements to describe the vital rate models (in function-based MPMs)
+  
+  <p style="text-indent: 20px">Calling particular values and elements within `lefkoMat` objects is not complicated, once you know the structure. The figure below illustrates how to call a particular element from one of the A matrices, for example.</p>
+  
+<img src = "lMatObj.png" width = "700"></img>  
+
+**Figure 3L.6.** Organization of a `lefkoMat` object, and how to call a specific element.
+
   <p style="text-indent: 20px">Objects of class `lefkoMat` have their own `summary` statements, which we can use to understand more about them.</p>
 ```{r Ch3L.25}
 summary(cypmatrix2rp)
@@ -757,7 +769,7 @@ summary(cypmatrix3f)
 #### Step 5. MPM analysis
 
   <p style="text-indent: 20px">Now let's estimate the asymptotic deterministic population growth rate for each of the four sets of patch-level MPMs. We will start by looking at the annual population growth rate estimated from the raw analyses.</p>
-```{r Ch3L.41, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.6. Ahistorical vs. historical, raw lambda"}
+```{r Ch3L.41, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.7. Ahistorical vs. historical, raw lambda"}
 cyp2rp_lam <- lambda3(cypmatrix2rp)
 cyp2fp_lam <- lambda3(cypmatrix2fp)
 cyp3rp_lam <- lambda3(cypmatrix3rp)
@@ -782,7 +794,7 @@ legend("bottomleft", c("A ahistorical", "B ahistorical", "C ahistorical",
 ```
   
   <p style="text-indent: 20px">Here we see that $lambda$ is a little different between the ahistorical and historical cases in the raw MPMs. Let's compare the results above to the asymptotic deterministic population growth rate in the historical set.</p>
-```{r Ch3L.42, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.7. Ahistorical vs. historical, function-based lambda"}
+```{r Ch3L.42, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.8. Ahistorical vs. historical, function-based lambda"}
 plot(lambda ~ year2, data = subset(cyp2fp_lam, patch == "A"),
   ylim = c(0.75, 1.00), type = "l", lwd = 2, bty = "n")
 lines(lambda ~ year2, data = subset(cyp2fp_lam, patch == "B"), type = "l",
@@ -842,7 +854,7 @@ slambda3(cypmatrix2fp_wrong)
   <p style="text-indent: 20px">Notice that our estimates are a little lower than for the other function-based MPMs. The fact that they are lower is not necessarily expected - only that they are different.</p>
   
   <p style="text-indent: 20px">Now let's take a look at the stable stage distributions at the population level. We will look at deterministic and stochastic versions of the raw ahistorical and historical MPMs first. We will make life a little easier for ourselves by focusing only on patch `A`, which is the first patch.</p>
-```{r Ch3L.45, fig.height = 3, fig.width = 5, fig.cap = "Figure 3L.8. Ahistorical vs. historically-corrected stable and long-run mean stage distribution, raw MPMs"}
+```{r Ch3L.45, fig.height = 3, fig.width = 5, fig.cap = "Figure 3L.9. Ahistorical vs. historically-corrected stable and long-run mean stage distribution, raw MPMs"}
 tm2ss_r <- stablestage3(cyp2r_mean)
 tm3ss_r <- stablestage3(cyp3r_mean)
 tm2ss_rs <- stablestage3(cypmatrix2r, stochastic = TRUE, seed = 42)
@@ -862,7 +874,7 @@ legend("topright", c("det ahist", "det hist", "sto ahist", "sto hist"),
   <p style="text-indent: 20px">Overall, these are very similar patterns. Whether ahistorical or historical, deterministic or stochastic, our analyses suggest that small and extra-small adults take up the greatest share of the stable stage structure, with dormant seed and 1st-year protocorms coming next, and then reproductive adults. The main differences between the different styles of analysis appear to be a decreased presence of protocorms and increased presence of flowering adults in historical analysis. Stochastic analyses also reduce the importance of most stages with high proportions, while increasing the importance of rarer stages.</p>
   
   <p style="text-indent: 20px">Let's now compare to the results from the function-based analyses.</p>
-```{r Ch3L.46, fig.height = 3, fig.width = 5, fig.cap = "Figure 3L.9. Ahistorical vs. historically-corrected stable and long-run mean stage distribution, function-based MPMs"}
+```{r Ch3L.46, fig.height = 3, fig.width = 5, fig.cap = "Figure 3L.10. Ahistorical vs. historically-corrected stable and long-run mean stage distribution, function-based MPMs"}
 tm2ss_f <- stablestage3(cyp2f_mean)
 tm3ss_f <- stablestage3(cyp3f_mean)
 tm2ss_fs <- stablestage3(cypmatrix2f, stochastic = TRUE, seed = 42)
@@ -882,7 +894,7 @@ legend("topright", c("det ahist", "det hist", "sto ahist", "sto hist"),
   <p style="text-indent: 20px">If we look over the stageframe used for these MPMs (see the `ahstages` element of any of the function-based MPMs), we can see that at equilibrium, the population should be composed of the same stages shown to dominate in the raw case - the smallest adults. The real differences seems to be that the function-based MPMs imply a greater proportion of the population should be composed of small non-reproductive adults, and dormant seeds and 1st year protocorms than the raw MPMs suggest.</p>
   
   Finally, let's look over the predicted stable stage distribution if we use the wrong size and fecundity distributions.
-```{r Ch3L.47, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.10. Ahistorical stable and long-run mean stage distribution, function-based MPMs with wrong size and fecundity distributions"}
+```{r Ch3L.47, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.11. Ahistorical stable and long-run mean stage distribution, function-based MPMs with wrong size and fecundity distributions"}
 tm2w_f <- stablestage3(lmean(cypmatrix2f_wrong))
 tm2w_fs <- stablestage3(cypmatrix2f_wrong, stochastic = TRUE, seed = 42)
 
@@ -899,7 +911,7 @@ legend("topright", c("det ahist", "sto ahist"),
   <p style="text-indent: 20px">A comparison with the previous graphs shows a prediction for stronger domination by juvenile stages, and with slightly larger adults of both reproductive and non-reproductive status predicted to be as dominant as dormant seeds and first-year protocorms.</p>
   
   <p style="text-indent: 20px">Next let's look at the reproductive values associated with both ahistorical and historical approaches, starting with raw MPMs. We will standardize against the maximum value in each case to make these comparable (note that this is NOT standard practice - we only do it here because of the strong difference in scale across the analyses).</p>
-```{r Ch3L.48, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.11. Ahistorical vs. historically-corrected deterministic and stochastic reproductive values, raw MPMs"}
+```{r Ch3L.48, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.12. Ahistorical vs. historically-corrected deterministic and stochastic reproductive values, raw MPMs"}
 tm2rv_r <- repvalue3(cyp2r_mean)
 tm3rv_r <- repvalue3(cyp3r_mean)
 tm2rv_rs <- repvalue3(cypmatrix2r, stochastic = TRUE, seed = 42)
@@ -921,7 +933,7 @@ legend("topleft", c("det ahist", "det hist", "sto ahist", "sto hist"),
   <p style="text-indent: 20px">We see some big differences here, particularly between ahistorical and historical analyses. Indeed, in the ahistorical case, all adult stages and seedlings have roughly equivalent reproductive value. In contrast, in the historical case, the greatest reproductive values by far are associated with small and medium adults. So, history appears to have large effects here. Interesting results in need of further study!</p>
   
   <p style="text-indent: 20px">Now let's compare with the function-based case.</p>
-```{r Ch3L.49, fig.height = 4.5, fig.width = 7, fig.cap = "Figure 3L.12. Ahistorical vs. historically-corrected deterministic and stochastic reproductive values, function-based MPMs"}
+```{r Ch3L.49, fig.height = 4.5, fig.width = 7, fig.cap = "Figure 3L.13. Ahistorical vs. historically-corrected deterministic and stochastic reproductive values, function-based MPMs"}
 tm2rv_f <- repvalue3(cyp2f_mean)
 tm3rv_f <- repvalue3(cyp3f_mean)
 tm2rv_fs <- repvalue3(cypmatrix2f, stochastic = TRUE, seed = 42)
@@ -952,12 +964,12 @@ tm2sens_rs <- sensitivity3(cypmatrix2r, stochastic = TRUE)
 writeLines("\nThe highest deterministic sensitivity value: ")
 max(tm2sens_r$ah_sensmats[[1]][which(cyp2r_mean$A[[1]] > 0)])
 writeLines("\nThis value is associated with element: ")
-which(tm2sens_r$ah_sensmats[[1]] == max(tm2sens_r$ah_sensmats[[1]][which(cyp2r_mean$A[[1]] > 0)]))
+intersect(which(tm2sens_r$ah_sensmats[[1]] == max(tm2sens_r$ah_sensmats[[1]][which(cyp2r_mean$A[[1]] > 0)])), which(cyp2r_mean$A[[1]] > 0))
 
 writeLines("\nThe highest stochastic sensitivity value: ")
 max(tm2sens_rs$ah_sensmats[[1]][which(cyp2r_mean$A[[1]] > 0)])
 writeLines("\nThis value is associated with element: ")
-which(tm2sens_rs$ah_sensmats[[1]] == max(tm2sens_rs$ah_sensmats[[1]][which(cyp2r_mean$A[[1]] > 0)]))
+intersect(which(tm2sens_rs$ah_sensmats[[1]] == max(tm2sens_rs$ah_sensmats[[1]][which(cyp2r_mean$A[[1]] > 0)])), which(cyp2r_mean$A[[1]] > 0))
 ```
   
   <p style="text-indent: 20px">The highest sensitivity value appears to be associated with element 87 in both deterministic and stochastic cases. Since there are 11 stages in the stageframe, this means that $\lambda$ and $log \lambda$ are most sensitive to the transition associated from the 8th stage (Small adult) to the 10th stage (Large adult). Let's compare this to the historical case.</p>
@@ -969,18 +981,31 @@ tm3sens_rs <- sensitivity3(cypmatrix3r, stochastic = TRUE)
 writeLines("\nThe highest deterministic sensitivity value: ")
 max(tm3sens_r$h_sensmats[[1]][which(cyp3r_mean$A[[1]] > 0)])
 writeLines("\nThis value is associated with element: ")
-which(tm3sens_r$h_sensmats[[1]] == max(tm3sens_r$h_sensmats[[1]][which(cyp3r_mean$A[[1]] > 0)]))
+intersect(which(tm3sens_r$h_sensmats[[1]] == max(tm3sens_r$h_sensmats[[1]][which(cyp3r_mean$A[[1]] > 0)])), which(cyp3r_mean$A[[1]] > 0))
 
 writeLines("\nThe highest stochastic sensitivity value: ")
 max(tm3sens_rs$h_sensmats[[1]][which(cyp3r_mean$A[[1]] > 0)])
 writeLines("\nThis value is associated with element: ")
-which(tm3sens_rs$h_sensmats[[1]] == max(tm3sens_rs$h_sensmats[[1]][which(cyp3r_mean$A[[1]] > 0)]))
+intersect(which(tm3sens_rs$h_sensmats[[1]] == max(tm3sens_rs$h_sensmats[[1]][which(cyp3r_mean$A[[1]] > 0)])), which(cyp3r_mean$A[[1]] > 0))
 ```  
   
   <p style="text-indent: 20px">Here we find that $\lambda$ and $log \lambda$ are both most sensitive to element 10249. Looking over the `hstages` portion, this corresponds to the the transition from the 85th stage pair (Small adult in times *t*-1 and *t*), to the 85th stage pair (Small adult in times *t* and *t*+1). So, once again, stasis as a Small adult.</p>
   
-  <p style="text-indent: 20px">Let's now compare to the function-based case. We will run both ahistorical and historical portions at the same time.</p>
+  <p style="text-indent: 20px">Here is some simple code to help determine the exact stages for a specific element.</p>
 ```{r Ch3L.52}
+# For element 87 in the ahistorical case
+writeLines(paste0("Element 87 in cyp2r_mean is associated with row ",
+  ceiling(87 / dim(cyp2r_mean$ahstages)[1]), " and column ",
+  (87 %% dim(cyp2r_mean$ahstages)[1])))
+
+# For element 10249 in the historical case
+writeLines(paste0("Element 87 in cyp3r_mean is associated with row ",
+  ceiling(10249 / dim(cyp3r_mean$hstages)[1]), " and column ",
+  (10249 %% dim(cyp3r_mean$hstages)[1])))
+```
+  
+  <p style="text-indent: 20px">Let's now compare to the function-based case. We will run both ahistorical and historical portions at the same time.</p>
+```{r Ch3L.53}
 tm2sens_f <- sensitivity3(cyp2f_mean)
 set.seed(42)
 tm2sens_fs <- sensitivity3(cypmatrix2f, stochastic = TRUE)
@@ -992,28 +1017,28 @@ tm3sens_fs <- sensitivity3(cypmatrix3f, stochastic = TRUE, steps = 500)
 writeLines("\nThe highest deterministic ahistorical sensitivity value: ")
 max(tm2sens_f$ah_sensmats[[1]][which(cyp2f_mean$A[[1]] > 0)])
 writeLines("\nThis value is associated with element: ")
-which(tm2sens_f$ah_sensmats[[1]] == max(tm2sens_f$ah_sensmats[[1]][which(cyp2f_mean$A[[1]] > 0)]))
+intersect(which(tm2sens_f$ah_sensmats[[1]] == max(tm2sens_f$ah_sensmats[[1]][which(cyp2f_mean$A[[1]] > 0)])), which(cyp2f_mean$A[[1]] > 0))
 
 writeLines("\nThe highest stochastic ahistorical sensitivity value: ")
 max(tm2sens_fs$ah_sensmats[[1]][which(cyp2f_mean$A[[1]] > 0)])
 writeLines("\nThis value is associated with element: ")
-which(tm2sens_fs$ah_sensmats[[1]] == max(tm2sens_fs$ah_sensmats[[1]][which(cyp2f_mean$A[[1]] > 0)]))
+intersect(which(tm2sens_fs$ah_sensmats[[1]] == max(tm2sens_fs$ah_sensmats[[1]][which(cyp2f_mean$A[[1]] > 0)])), which(cyp2f_mean$A[[1]] > 0))
 
 writeLines("\nThe highest deterministic historical sensitivity value: ")
 max(tm3sens_f$h_sensmats[[1]][which(cyp3f_mean$A[[1]] > 0)])
 writeLines("\nThis value is associated with element: ")
-which(tm3sens_f$h_sensmats[[1]] == max(tm3sens_f$h_sensmats[[1]][which(cyp3f_mean$A[[1]] > 0)]))
+intersect(which(tm3sens_f$h_sensmats[[1]] == max(tm3sens_f$h_sensmats[[1]][which(cyp3f_mean$A[[1]] > 0)])), which(cyp3f_mean$A[[1]] > 0))
 
 writeLines("\nThe highest stochastic historical sensitivity value: ")
 max(tm3sens_fs$h_sensmats[[1]][which(cyp3f_mean$A[[1]] > 0)])
 writeLines("\nThis value is associated with element: ")
-which(tm3sens_fs$h_sensmats[[1]] == max(tm3sens_fs$h_sensmats[[1]][which(cyp3f_mean$A[[1]] > 0)]))
+intersect(which(tm3sens_fs$h_sensmats[[1]] == max(tm3sens_fs$h_sensmats[[1]][which(cyp3f_mean$A[[1]] > 0)])), which(cyp3f_mean$A[[1]] > 0))
 ```  
   
-  <p style="text-indent: 20px">The highest sensitivity value in both deterministic and stochastic ahistorical cases appears to be associated with the transition from 1-sprouted non-flowering adult to the largest flowering adult (element 378, which is in the 7th column and 54th row). Inspecting each sensitivity matrix also shows that transitions near that element in both matrices are also associated with rather high sensitivities. In contrast, both deterministic and stochastic historical analyses suggest the strongest sensitivity in response to several elements indexed in the 960,000s. An example is element 962658, which corresponds to the transition from one-sprouted vegetative in times *t*-1 and *t* to 24-sprouted flowering in time *t*+1. The other elements should be near this element within the matrix. For example, element 965196 is full stasis as a one-sprouted vegetative adult.</p>
+  <p style="text-indent: 20px">The highest sensitivity value in both deterministic and stochastic ahistorical cases appears to be associated with the transition from 1-sprouted non-flowering adult to the largest flowering adult (element 378, which is in the 7th column and 54th row). Inspecting each sensitivity matrix also shows that transitions near that element in both matrices are also associated with rather high sensitivities. Both deterministic and stochastic historical analyses suggest the strongest sensitivity in response to several elements 962634 and 962658. Element 962634 is the transition from 1-sprouted vegetative adult in times *t*-1 and *t* to 24-sprouted vegetative adult in tie *t*+1, while element 962658 is the transition from 1-sprouted vegetative adult in times *t*-1 and *t* to 24-sprouted flowering adult in time *t*+1. So, transitions from tiny adults to very large adults seem to exert strong potential influences on the population growth rate.</p>
   
   <p style="text-indent: 20px">Let's now assess the elasticity of $\lambda$ to matrix elements, comparing the ahistorical to the historically-corrected case in both deterministic and stochastic analyses.</p>
-```{r Ch3L.53}
+```{r Ch3L.54}
 tm2elas_r <- elasticity3(cyp2r_mean)
 tm3elas_r <- elasticity3(cyp3r_mean)
 
@@ -1040,7 +1065,7 @@ which(tm3elas_rs$h_elasmats[[1]] == max(tm3elas_rs$h_elasmats[[1]]))
   <p style="text-indent: 20px">Here we see that $\lambda$ is most elastic across the board to the ahistorical transition from Small adult in time *t* to time *t*+1, and historical stasis transition as Small adult in times *t*-1, *t*, and *t*+1. This matches our results from sensitivity analysis, although that is not necessarily expected.</p>
   
   <p style="text-indent: 20px">Let's now look at the function-based case.</p>
-```{r Ch3L.54}
+```{r Ch3L.55}
 tm2elas_f <- elasticity3(cyp2f_mean)
 tm3elas_f <- elasticity3(cyp3f_mean)
 
@@ -1067,7 +1092,7 @@ which(tm3elas_fs$h_elasmats[[1]] == max(tm3elas_fs$h_elasmats[[1]]))
   <p style="text-indent: 20px">Here we see a different set of elements to which population growth rate is most elastic to than predicted by sensitivity analysis. However, the transitions themselves are close to those suggested in the latter, suggesting that these results are still in line. Element 331 corresponds to the ahistorical stasis transition in one-sprouted vegetative, and element 962611 corresponds to the historical stasis transition in this stage. This is a remarkably consistent result, reinforcing the importance of this stage as seen in sensitivity analyses.</p>
   
   <p style="text-indent: 20px">Now let's compare the elasticity of population growth rate in relation to the core life history stages, via a barplot comparison.</p>
-```{r Ch3L.55, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.13. Ahistorical vs. historically-corrected deterministic and stochastic elasticity to stage, function-based"}
+```{r Ch3L.56, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.14. Ahistorical vs. historically-corrected deterministic and stochastic elasticity to stage, function-based"}
 elas_put_together <- cbind.data.frame(colSums(tm2elas_f$ah_elasmats[[1]]),
   colSums(tm3elas_f$ah_elasmats[[1]]), colSums(tm2elas_fs$ah_elasmats[[1]]),
   colSums(tm3elas_fs$ah_elasmats[[1]]))
@@ -1083,7 +1108,7 @@ legend("topright", c("det ahist", "det hist", "sto ahist", "sto hist"),
   <p style="text-indent: 20px">Elasticity analyses in these plots look fairly similar, with most of the differences appearing to lie in elasticity of small non-flowering vs. flowering adults in the ahistorical vs. historical comparison.</p>
 
   <p style="text-indent: 20px">Finally, let's take a look at how the importance of different kinds of transitions changes, by looking at elasticity sums.</p>
-```{r Ch3L.56, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.14. Ahistorical vs. historically-corrected elasticity of lambda to transitions, function-based"}
+```{r Ch3L.57, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.15. Ahistorical vs. historically-corrected elasticity of lambda to transitions, function-based"}
 tm2elas_f_sums <- summary(tm2elas_f)
 tm3elas_f_sums <- summary(tm3elas_f)
 tm2elas_fs_sums <- summary(tm2elas_fs)
@@ -1101,7 +1126,7 @@ legend("topright", c("det ahist", "det hist", "sto ahist", "sto hist"),
 ```
   
   <p style="text-indent: 20px">Fecundity makes little difference in all cases, but the importance of stasis transitions drops a bit in historical analysis, while growth transitions increase a bit in importance. Next, we can see which historical transitions are most important.</p>
-```{r Ch3L.57, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.15. Elasticity of lambda to historical transitions, function-based"}
+```{r Ch3L.58, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.16. Elasticity of lambda to historical transitions, function-based"}
 elas_hist2plot <- cbind.data.frame(tm3elas_f_sums$hist[,2],
   tm3elas_fs_sums$hist[,2])
 names(elas_hist2plot) <- c("det hist", "sto hist")
@@ -1123,38 +1148,38 @@ legend("topright", c("det ahist", "det hist", "sto ahist", "sto hist"),
   <p style="text-indent: 20px">The most recent versions of lefko3 incorporate a basic projection function, projection3(). Originally, this function was developed to create simple deterministic and stochastic projections of varying lengths and complexity, with output including growth rate, stage structure, and reproductive value per time step, with a number of options designed to streamline analysis. We are adding further power to this function with each new version of lefko3(), and beginning with the development version 3.7.0.9000, we have included replication.</p>
   
   <p style="text-indent: 20px">We will demonstrate by using this function to conduct a quasi-extinction analysis. Let's use the function-based ahistorical MPM to illustrate this, using this function to create 100 stochastic replicates of a population projection.</p>
-```{r Ch3L.58}
+```{r Ch3L.59}
 set.seed(42)
 cypproj_2f <- projection3(cypmatrix2f, nreps = 100, stochastic = TRUE, integeronly = TRUE)
 ```
   
   <p style="text-indent: 20px">Now let's take a look at the resulting object, which is a list of class `lefkoProj`. We will not output the whole object because it is quite long. Instead, let's first look at the elements that constitute it.</p>
-```{r Ch3L.59}
+```{r Ch3L.60}
 names(cypproj_2f)
 ```
   
   <p style="text-indent: 20px">We see 6 elements, with 4 seemingly familiar - `ahstages` is the stage frame from the input MPM, `hstages` is a data frame showing the order of historical stage pairs (only provided if an hMPM is used as input), and `agestages` is a data frame showing the order of age-stages (only provided if an age-by-stage MPM is used as input). The element named `control` is a short vector giving the number of replicates followed by the number of time steps projected. And the most important element is `projection`, which is a matrix showing the stage structure in each of the 100 replicates that we created. The dimensions of this matrix will make the matter clearer:</p>
-```{r Ch3L.60}
+```{r Ch3L.61}
 dim(cypproj_2f$projection[[1]])
 ```
   
   <p style="text-indent: 20px">We see that there are 5400 rows and 10001 columns. The columns correspond to the discrete times that we have projected. The rows correspond to the 54 stages in each of the 100 replicates, with each replicate together. Thus, the first 54 rows correspond to the numbers of individuals in each stage at each time in replicate 1. Rows 55-108 correspond to the numbers of individuals in each stage at each time in replicate 2. Lets's take a look at the first few time steps of replicate 1.</p>
-```{r Ch3L.61}
+```{r Ch3L.62}
 cypproj_2f$projection[[1]][1:54,1:10]
 ```
   
   <p style="text-indent: 20px">You may notice that the population seems to be declining here. This is not a shock - all of our MPMs suggest a declining population. Let's use the summary.lefkoProj() function to get a better handle on this.</p>
-```{r Ch3L.62}
+```{r Ch3L.63}
 summary(cypproj_2f)
 ```
   
   <p style="text-indent: 20px">This summary gives us some basic information about our projection, and also shows us the number of replicates with more than 1 individual projected alive at a series of projected times (times 1, 2501, 5001, 7501, and 10001). We can change these milepost times, using either proportions or explicit times.</p>
-```{r Ch3L.63}
+```{r Ch3L.64}
 summary(cypproj_2f, milepost = c(1, 3, 5, 8, 9, 10, 100, 10001))
 ```
   
   <p style="text-indent: 20px">The output above gives us a sense that the population is generally declining. The summary function can also be used to output population sizes projected under each replicate, so that we can plot the results. We can use the `sums_out` option for this purpose. Here is an example.</p>
-```{r Ch3L.64, , fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.16. Projected population size across time over 100 replicates and 10,000 time steps for the ahistorical function-based MPM"}
+```{r Ch3L.65, , fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.17. Projected population size across time over 100 replicates and 10,000 time steps for the ahistorical function-based MPM"}
 proj_sums <- summary(cypproj_2f, sums_out = TRUE)
 
 plot(proj_sums$mat_sums[[1]][1,c(1:15)], ylim = c(0, 65), type = "l", lwd = 2,
@@ -1167,7 +1192,7 @@ apply(as.matrix(c(2:100)), 1, function(X) {
   <p style="text-indent: 20px">In the above plot, we show the results of each population projection for the first 15 projected times. All 100 replicates go to extinction, of course. If our MPM had higher population growth rates, then we might have had only some go to extinction. In that case, we could see the number of replicates with surviving individuals at particular points in time, and estimate the time to extinction. For example, if 95% of replicates have died out by 100 times, then this analysis would suggest extinction within a hundred times. Quasi-extinction analysis would use this number against another series of replicates set up under a different set of assumptions to assess extinction. For example, we could run another analysis of data from the same population but a different patch that has been subjected to a different management regime, and compare the time to extinction in each. If the management regime is associated with increased population lifespan, then the probability of extinction is considered lower under the management scenario.</p>
   
   <p style="text-indent: 20px">As a comparison point, let's also look at a projection of the historical MPM and compare it. We will not project out 10,000 time steps, but only 200, to limit the amount of time needed for analysis. Then, we will plot our results as before.</p>
-```{r Ch3L.65, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.17. Projected population size across time over 100 replicates and 10,000 time steps for the historical function-based MPM"}
+```{r Ch3L.66, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.18. Projected population size across time over 100 replicates and 10,000 time steps for the historical function-based MPM"}
 set.seed(42)
 cypproj_3f <- projection3(cypmatrix3f, nreps = 100, times = 200,
   stochastic = TRUE, integeronly = TRUE)
@@ -1184,7 +1209,7 @@ apply(as.matrix(c(2:100)), 1, function(X) {
   <p style="text-indent: 20px">The historical analysis also suggests inevitable extinction, and quite quickly. In this case, we start with a higher number of individuals because the population projections start either with 1 individual per stage (in ahistorical analysis), or 1 individual per stage-pair (in historical analysis). So, we started with about 3,000 individuals here but only 50 or so in the ahistorical case. Nonetheless, extinction is quite quick, and leaves us to wonder how to boost the growth rate.</p>
   
   <p style="text-indent: 20px">As a final analysis, we might try a comparison of our population under the current conditions against a scenario where we somehow boost fecundity by 50%. To do this analysis, we need to create a new set of MPMs under this new assumption. First, we will set up a new supplement table using this assumption, using the hMPM approach. Then we will take a look at it relative to the original supplement table.</p>
-```{r Ch3L.66}
+```{r Ch3L.67}
 cypsupp3_fb_50 <- supplemental(stage3 = c("SD", "SD", "P1", "P1", "P2", "P3", "SL",
     "SL", "SL", "D", "V1", "V2", "V3", "D", "V1", "V2", "V3", "SD", "P1"), 
   stage2 = c("SD", "SD", "SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL", 
@@ -1213,7 +1238,7 @@ cypsupp3_fb
   <p style="text-indent: 20px">The primary difference here is in the last two lines. In the original supplement table, we split fecunsdity evenly between dormant seeds and first-year protocorms. Now, we boost each of these fecundity estimators by 50%, up to 0.75 each.</p>
   
   <p style="text-indent: 20px">Now let's create the new hMPMs.</p>
-```{r Ch3L.67}
+```{r Ch3L.68}
 cypmatrix3f_50 <- flefko3(stageframe = cypframe_fb, supplement = cypsupp3_fb_50, 
   modelsuite = cypmodels3, data = cypfb_v1, yearcol = "year2",
   year.as.random = TRUE)
@@ -1222,12 +1247,12 @@ summary(cypmatrix3f_50)
 ```
   
   <p style="text-indent: 20px">Let's take a quick look at our $\lambda$ estimates to see if the population growth rare has increased.</p>
-```{r Ch3L.68}
+```{r Ch3L.69}
 lambda3(cypmatrix3f_50)
 ```
   
   <p style="text-indent: 20px">Although we do see a likely increase, it does not appear to avoid extincton. In any case, let's conduct our new projections, and then plot them against the original hMPM projections.</p>
-```{r Ch3L.69, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.18. Projected population comparison of hMPMs with original fecundity vs 50% fecundity boost"}
+```{r Ch3L.70, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.19. Projected population comparison of hMPMs with original fecundity vs 50% fecundity boost"}
 set.seed(42)
 cypproj_3f_50 <- projection3(cypmatrix3f_50, nreps = 100, times = 200,
   stochastic = TRUE, integeronly = TRUE)

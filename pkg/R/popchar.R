@@ -2204,7 +2204,7 @@ supplemental <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
   return(output)
 }
 
-#' Test for overdispersion and zero inflation in size and fecundity
+#' Test Overdispersion and Zero Inflation in Size and Fecundity Distributions
 #' 
 #' Function \code{sf_distrib} takes a historically formatted vertical data as
 #' input and tests whether size and fecundity data are dispersed according to a

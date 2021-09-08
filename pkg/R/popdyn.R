@@ -317,7 +317,7 @@ lambda3 <- function(mats, ...) UseMethod("lambda3")
 #' \code{lambda3.lefkoMat()} returns the dominant eigenvalues of all projection
 #' matrices supplied within \code{lefkoMat} objects. This function can handle
 #' large and sparse matrices, and so can be used with large historical matrices,
-#' IPMs, age x stage matrices, as well as smaller ahistorical matrices.
+#' IPMs, age x stage matrices, as well as ahistorical matrices.
 #' 
 #' @param mats An object of class \code{lefkoMat}.
 #' @param sparse A text string indicating whether to use sparse matrix encoding
@@ -327,8 +327,8 @@ lambda3 <- function(mats, ...) UseMethod("lambda3")
 #' 
 #' @return This function returns the dominant eigenvalue of each \code{$A}
 #' matrix in \code{mats}. The output includes a data frame showing the
-#' population, patch, and lambda estimate for each \code{$A} matrix. Row names
-#' correspond to the order of the matrix within the \code{$A} element of
+#' population, patch, and lambda estimate for each \code{A} matrix. Row names
+#' correspond to the order of the matrix within the \code{A} element of
 #' \code{mats}.
 #' 
 #' @section Notes:
@@ -477,7 +477,7 @@ lambda3.lefkoMat <- function(mats, sparse = "auto", ...) {
 #' \code{lambda3.matrix()} returns the dominant eigenvalue of a single
 #' projection matrix. This function can handle large and sparse matrices, so can
 #' be used with large historical matrices, IPMs, age x stage matrices, as well
-#' as smaller ahistorical matrices.
+#' as ahistorical matrices.
 #' 
 #' @param mats A population projection matrix of class \code{matrix}.
 #' @param sparse A text string indicating whether to use sparse matrix encoding
@@ -492,7 +492,7 @@ lambda3.lefkoMat <- function(mats, sparse = "auto", ...) {
 #' of either dense or sparse matrix manipulation in order to speed up processing
 #' time and prevent memory shortages. Under the \code{auto} setting, the
 #' function will determine whether the matrix is sparse and act accordingly.
-#' For extremely largem sparse matrices, the user may simply set
+#' For extremely large sparse matrices, the user may simply set
 #' \code{sparse = "yes"} to save time further and force the use of sparse format
 #' in calculations.
 #' 
@@ -617,8 +617,8 @@ lambda3.matrix <- function(mats, sparse = "auto", ...)
 #' distribution for a population projection matrix or set of matrices. This
 #' function is made to handle very large and sparse matrices supplied as 
 #' \code{lefkoMat} objects or as individual matrices, and can be used with large
-#' historical matrices, IPMs, age x stage matrices, as well as smaller
-#' ahistorical matrices.
+#' historical matrices, IPMs, age x stage matrices, as well as ahistorical
+#' matrices.
 #' 
 #' @param mats A lefkoMat object, or population projection matrix, for which the
 #' stable stage distribution is desired.
@@ -726,11 +726,11 @@ stablestage3 <- function(mats, ...) UseMethod("stablestage3")
 #' Estimate Stable Stage Distribution of Matrices in lefkoMat Object
 #' 
 #' \code{stablestage3.lefkoMat()} returns the deterministic stable stage
-#' distributions of all \code{$A} matrices in an object of class
-#' \code{lefkoMat}, as well as the long-run projected mean stage distribution in
-#' stochastic analysis. This function can handle large and sparse matrices, and
-#' so can be used with large historical matrices, IPMs, age x stage matrices, as
-#' well as smaller ahistorical matrices.
+#' distributions of all \code{A} matrices in an object of class \code{lefkoMat},
+#' as well as the long-run projected mean stage distribution in stochastic
+#' analysis. This function can handle large and sparse matrices, and so can be
+#' used with large historical matrices, IPMs, age x stage matrices, as well as
+#' ahistorical matrices.
 #' 
 #' @param mats An object of class \code{lefkoMat}.
 #' @param stochastic A logical value indicating whether to use deterministic
@@ -753,25 +753,34 @@ stablestage3 <- function(mats, ...) UseMethod("stablestage3")
 #' 
 #' The output depends on whether the \code{lefkoMat} object used as input is
 #' ahistorical or historical, and whether the analysis is deterministic or
-#' stochastic. If ahistorical, then a single data frame is output, which
-#' includes the number of the matrix within the \code{$A} element of the input
-#' \code{lefkoMat} object, followed by the stage id (numeric and assigned
-#' through \code{\link{sf_create}()}), the stage name, and the estimated
-#' proportion of the stable stage distribution (\code{ss_prop}).
+#' stochastic. If deterministic and ahistorical, then a single data frame is
+#' output, which includes the number of the matrix within the \code{A} element
+#' of the input \code{lefkoMat} object, followed by the stage id (numeric and
+#' assigned through \code{\link{sf_create}()}), the stage name, and the
+#' estimated proportion of the stable stage distribution (\code{ss_prop}). If
+#' stochastic and ahistorical, then a single data frame is output starting with
+#' the number of the population-patch (\code{matrix_set}), a string
+#' concatenating the names of the population and the patch (\code{poppatch}),
+#' the assigned stage id number (\code{stage_id}), and the stage name
+#' (\code{stage}), and the long-run average stage distribution (\code{ss_prop}).
 #' 
 #' If a historical matrix is used as input, then two data frames are output
-#' into a list object. The \code{$hist} element contains a data frame in which 
-#' the stable stage distribution is given in terms of across-year stage pairs.
-#' The structure includes the matrix number, the numeric stage designations for
-#' stages in occasions \emph{t} and \emph{t}-1, respectively, followed by the
-#' respective stage names, and ending with the estimated proportion of the
-#' stable stage distribution for that stage within its matrix (\code{ss_prop}).
-#' The \code{$ahist} element contains the stable stage distribution in stages
-#' as given in the original stageframe. It includes a data frame with the matrix 
-#' of origin, the numeric stage designation, stage name, and the stable stage
-#' distribution estimated as the sum of distribution elements from \code{$hist}
-#' corresponding to the equivalent stage in occasion \emph{t}, irrespective of
-#' stage in occasion \emph{t}-1.
+#' into a list object. The \code{hist} element describes the historical
+#' stage-pair distribution, while the \code{ahist} element describes the stage
+#' distribution. If deterministic, then \code{hist} contains a data frame
+#' including the matrix number (\code{matrix}), the numeric stage designations for
+#' stages in occasions \emph{t} and \emph{t}-1, (\code{stage_id_2} and
+#' \code{stage_id_1}, respectively), followed by the respective stage names (
+#' \code{stage_2} and \code{stage_1}), and ending with the estimated stable
+#' stage-pair distribution. The associated \code{ahist} element is as before. If
+#' stochastic, then the \code{hist} element contains a single data frame with
+#' the number of the population-patch (\code{matrix_set}), a string
+#' concatenating the names of the population and the patch (\code{poppatch}),
+#' the assigned stage id numbers in times \emph{t} and \emph{t}-1 (
+#' \code{stage_id_2} and \code{stage_id_2}, respectively), and the associated
+#' stage names (\code{stage_2} and \code{stage_1}, respectively), and the
+#' long-run average stage distribution (\code{ss_prop}). The associated
+#' \code{ahist} element is as before in the ahistorical, stochastic case.
 #'
 #' In addition to the data frames noted above, stochastic analysis will result
 #' in the additional output of a list of matrices containing the actual
@@ -885,6 +894,8 @@ stablestage3 <- function(mats, ...) UseMethod("stablestage3")
 stablestage3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
   tweights = NA, seed = NA, sparse = "auto", ...) {
   
+  matrix_set <- NULL
+  
   if (is.element(tolower(sparse), c("y", "yes", "yea", "yeah", "t", "true"))) {
     sparsemethod <- 1
   } else if (is.element(tolower(sparse), c("n", "no", "non", "nah", "f", "false"))) {
@@ -931,7 +942,7 @@ stablestage3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
             used_weights <- tweights[used_slots] / sum(tweights[used_slots])
           } else {
             stop("Option tweights must be either NA, or a numeric vector equal to the number of years supplied or matrices supplied.",
-            call. = FALSE)
+              call. = FALSE)
           }
         } else {
           used_weights <- tweights / sum(tweights)
@@ -1008,34 +1019,76 @@ stablestage3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
     } else {
       modlabels <- cbind.data.frame(as.matrix(rep(unlist(used_poppatches), each = dim(labels)[1])), 
         do.call("rbind.data.frame", apply(as.matrix(c(1:multiplier)), 1, function(X) return(labels))))
-      output <- cbind.data.frame(modlabels, baldrick)
+      unipoppatches <- unique(modlabels[,1])
+      
+      modnums <- apply(as.matrix(modlabels[,1]), 1, function(X) {
+        return(which(unipoppatches == X))
+      })
+      
+      output <- cbind.data.frame(modnums, modlabels, baldrick)
       if (is.element("age", names(labels))) {
-        names(output) <- c("poppatch", "age", "stage_id", "stage", "agestage_id", "agestage", "ss_prop")
+        names(output) <- c("matrix_set", "poppatch", "age", "stage_id", "stage",
+          "agestage_id", "agestage", "ss_prop")
       } else {
-        names(output) <- c("poppatch", "stage_id", "stage", "ss_prop")
+        names(output) <- c("matrix_set", "poppatch", "stage_id", "stage",
+          "ss_prop")
       }
     }
     rownames(output) <- c(1:dim(output)[1])
   } else {
     labels <- mats$hstages
     
-    modlabels <- cbind.data.frame(as.matrix(rep(c(1:multiplier), each = dim(labels)[1])), 
-      do.call("rbind.data.frame", apply(as.matrix(c(1:multiplier)), 1, function(X) return(labels))))
+    if (!stochastic) {
+      modlabels <- cbind.data.frame(as.matrix(rep(c(1:multiplier), each = dim(labels)[1])), 
+        do.call("rbind.data.frame", apply(as.matrix(c(1:multiplier)), 1, function(X) return(labels))))
+      
+      outputh <- cbind.data.frame(modlabels, baldrick)
+      
+      names(outputh) <- c("matrix", "stage_id_2", "stage_id_1", "stage_2",
+        "stage_1", "ss_prop")
+    } else {
+      modlabels <- cbind.data.frame(as.matrix(rep(unlist(used_poppatches), each = dim(labels)[1])), 
+        do.call("rbind.data.frame", apply(as.matrix(c(1:multiplier)), 1, function(X) return(labels))))
+      unipoppatches <- unique(modlabels[,1])
+      
+      modnums <- apply(as.matrix(modlabels[,1]), 1, function(X) {
+        return(which(unipoppatches == X))
+      })
+      
+      outputh <- cbind.data.frame(modnums, modlabels, baldrick)
+      names(outputh) <- c("matrix_set", "poppatch", "stage_id_2", "stage_id_1",
+        "stage_2", "stage_1", "ss_prop")
+    }
     
-    outputh <- cbind.data.frame(modlabels, baldrick)
-    names(outputh) <- c("matrix", "stage_id_2", "stage_id_1", "stage_2", "stage_1", "ss_prop")
     rownames(outputh) <- c(1:dim(outputh)[1])
     
     ahlabels <- mats$ahstages[,c("stage_id", "stage")]
     ss2 <- c(apply(as.matrix(c(1:multiplier)), 1, function(X) {
-      rightset <- subset(outputh, matrix == X)
+      rightset <- if (!stochastic) {
+        subset(outputh, matrix == X)
+      } else {
+        subset(outputh, matrix_set == X)
+      }
       apply(as.matrix(ahlabels[,1]), 1, function(Y) {
         sum(rightset$ss_prop[which(rightset$stage_id_2 == Y)])
       })
     }))
-    outputah <- cbind.data.frame(rep(c(1:multiplier), each = length(ahlabels[,1])), 
-      rep(ahlabels[,1], multiplier), rep(ahlabels[,2], multiplier), ss2)
-    names(outputah) <- c("matrix", "stage_id", "stage", "ss_prop")
+    
+    if (!stochastic) {
+      outputah <- cbind.data.frame(rep(c(1:multiplier), each = length(ahlabels[,1])), 
+        rep(ahlabels[,1], multiplier), rep(ahlabels[,2], multiplier), ss2)
+      names(outputah) <- c("matrix", "stage_id", "stage", "ss_prop")
+    } else {
+      modlabels <- cbind.data.frame(as.matrix(rep(unlist(used_poppatches), each = dim(ahlabels)[1])), 
+        do.call("rbind.data.frame", apply(as.matrix(c(1:multiplier)), 1, function(X) return(ahlabels))))
+      modnums <- apply(as.matrix(modlabels[,1]), 1, function(X) {
+        return(which(unipoppatches == X))
+      })
+      
+      outputah <- cbind.data.frame(modnums, modlabels, ss2)
+      names(outputah) <- c("matrix_set", "poppatch", "stage_id", "stage", "ss_prop")
+    }
+    
     rownames(outputah) <- c(1:dim(outputah)[1])
     
     if (!stochastic) {
@@ -1185,8 +1238,8 @@ stablestage3.matrix <- function(mats, sparse = "auto", ...)
 #' matrices. The specifics of estimation vary with the class of input object.
 #' This function is made to handle very large and sparse matrices supplied as
 #' \code{lefkoMat} objects or as individual matrices, and can be used with large
-#' historical matrices, IPMs, age x stage matrices, as well as smaller
-#' ahistorical matrices.
+#' historical matrices, IPMs, age x stage matrices, as well as ahistorical
+#' matrices.
 #' 
 #' @param mats A lefkoMat object, or population projection matrix.
 #' @param ... Other parameters.
@@ -1295,8 +1348,8 @@ repvalue3 <- function(mats, ...) UseMethod("repvalue3")
 #' \code{repvalue3.lefkoMat()} returns the reproductive values for stages in a
 #' set of population projection matrices provided as a \code{lefkoMat} object.
 #' This function can handle large and sparse matrices, and so can be used with
-#' large historical matrices, IPMs, age x stage matrices, as well as smaller
-#' ahistorical matrices.
+#' large historical matrices, IPMs, age x stage matrices, as well as ahistorical
+#' matrices.
 #' 
 #' @param mats An object of class \code{lefkoMat} object.
 #' @param stochastic A logical value indicating whether to use deterministic
@@ -1314,33 +1367,40 @@ repvalue3 <- function(mats, ...) UseMethod("repvalue3")
 #' @param ... Other parameters.
 #' 
 #' @return This function returns the asymptotic reproductive value vectors if
-#' deterministic analysis chosen, and long-run mean reproductive value vectors
-#' if stochastic analysis was chosen.
+#' deterministic analysis is chosen, and long-run mean reproductive value
+#' vectors if stochastic analysis is chosen.
 #' 
 #' The output depends on whether the \code{lefkoMat} object used as input is
 #' ahistorical or historical, and whether the analysis is deterministic or
-#' stochastic. If ahistorical, then a single data frame is output, which
-#' includes the number of the matrix within the \code{$A} element of the input
-#' \code{lefkoMat} object, followed by the stage id (numeric and assigned
-#' through \code{\link{sf_create}()}), the stage name, and the estimated
-#' reproductive value (\code{rep_value}). Reproductive values are scaled by the
-#' first non-zero value.
+#' stochastic. If deterministic and ahistorical, then a single data frame is
+#' output, which includes the number of the matrix within the \code{A} element
+#' of the input \code{lefkoMat} object, followed by the stage id (numeric and
+#' assigned through \code{\link{sf_create}()}), the stage name, and the
+#' estimated proportion of the reproductive value vector (\code{rep_value}). If
+#' stochastic and ahistorical, then a single data frame is output starting with
+#' the number of the population-patch (\code{matrix_set}), a string
+#' concatenating the names of the population and the patch (\code{poppatch}),
+#' the assigned stage id number (\code{stage_id}), and the stage name
+#' (\code{stage}), and the long-run mean reproductive value vector
+#' (\code{rep_value}).
 #' 
 #' If a historical matrix is used as input, then two data frames are output
-#' into a list object. The \code{$hist} element contains a data frame in which 
-#' the stable stage distribution is given in terms of across-year stage pairs.
-#' The structure includes the matrix number, the numeric stage designations for
-#' stages in occasions \emph{t} and \emph{t}-1, respectively, followed by the
-#' respective stage names, and ending with the estimated reproductive value for
-#' that stage within its matrix (\code{rep_value}). The \code{$ahist} element is
-#' a data frame showing the reproductive values of the basic stages in the
-#' associated stageframe. The reproductive values in this second data frame are
-#' estimated via the approach developed in Ehrlen (2000), in which each
-#' ahistorical stage's reproductive value is the average of the RVs summed by
-#' stage at occasion \emph{t} weighted by the proportion of that stage pair
-#' within the historical stable stage distribution associated with the matrix.
-#' Both historical and ahistorical reproductive values are scaled to the first
-#' non-zero reproductive value in each case.
+#' into a list object. The \code{hist} element describes the historical
+#' stage-pair reproductive values, while the \code{ahist} element describes the
+#' stage reproductive values. If deterministic, then \code{hist} contains a data
+#' frame including the matrix number (\code{matrix}), the numeric stage
+#' designations for stages in occasions \emph{t} and \emph{t}-1,
+#' (\code{stage_id_2} and \code{stage_id_1}, respectively), followed by the
+#' respective stage names (\code{stage_2} and \code{stage_1}), and ending with
+#' the estimated reproductive values (\code{rep_value}). The associated
+#' \code{ahist} element is as before. If stochastic, then the \code{hist}
+#' element contains a single data frame with the number of the population-patch
+#' (\code{matrix_set}), a string concatenating the names of the population and
+#' the patch (\code{poppatch}), the assigned stage id numbers in times \emph{t}
+#' and \emph{t}-1 (\code{stage_id_2} and \code{stage_id_2}, respectively), and
+#' the associated stage names (\code{stage_2} and \code{stage_1}, respectively),
+#' and the long-run mean reproductive values (\code{rep_value}). The associated
+#' \code{ahist} element is as before in the ahistorical, stochastic case.
 #'
 #' In addition to the data frames noted above, stochastic analysis will result
 #' in the additional output of a list of matrices containing the actual
@@ -1454,7 +1514,7 @@ repvalue3 <- function(mats, ...) UseMethod("repvalue3")
 repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
   tweights = NA, seed = NA, sparse = "auto", ...) {
   
-  poppatch <- NULL
+  matrix_set <- poppatch <- NULL
   
   if (is.element(tolower(sparse), c("y", "yes", "yea", "yeah", "t", "true"))) {
     sparsemethod <- 1
@@ -1478,9 +1538,7 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
       final <- unlist(lapply(mats$A, function(X) {
         almost_final <- rv3matrix(X, sparsemethod)
         return(almost_final/almost_final[which(almost_final == min(almost_final[which(almost_final > 0)])[1])])
-      }
-      )
-      )
+      }))
     } else {
       stop("Input not recognized.")
     }
@@ -1508,7 +1566,7 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
             used_weights <- tweights[used_slots] / sum(tweights[used_slots])
           } else {
             stop("Option tweights must be either NA, or a numeric vector equal to the number of years supplied or matrices supplied.",
-                 call. = FALSE)
+              call. = FALSE)
           }
         } else {
           used_weights <- tweights / sum(tweights)
@@ -1585,7 +1643,7 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
     
     if (!stochastic) {
       modlabels <- cbind.data.frame(as.matrix(rep(c(1:multiplier), each = dim(labels)[1])), 
-                                    do.call("rbind.data.frame", apply(as.matrix(c(1:multiplier)), 1, function(X) return(labels))))
+        do.call("rbind.data.frame", apply(as.matrix(c(1:multiplier)), 1, function(X) return(labels))))
       output <- cbind.data.frame(modlabels, baldrick)
       if (is.element("age", names(labels))) {
         names(output) <- c("matrix", "age", "stage_id", "stage", "agestage_id", "agestage", "rep_value")
@@ -1594,12 +1652,17 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
       }
     } else {
       modlabels <- cbind.data.frame(as.matrix(rep(unlist(used_poppatches), each = dim(labels)[1])), 
-                                    do.call("rbind.data.frame", apply(as.matrix(c(1:multiplier)), 1, function(X) return(labels))))
-      output <- cbind.data.frame(modlabels, baldrick[(mat_dims+1):(2*mat_dims)])
+        do.call("rbind.data.frame", apply(as.matrix(c(1:multiplier)), 1, function(X) return(labels))))
+      unipoppatches <- unique(modlabels[,1])
+      
+      modnums <- apply(as.matrix(modlabels[,1]), 1, function(X) {
+        return(which(unipoppatches == X))
+      })
+      output <- cbind.data.frame(modnums, modlabels, baldrick[(mat_dims+1):(2*mat_dims)])
       if (is.element("age", names(labels))) {
-        names(output) <- c("poppatch", "age", "stage_id", "stage", "agestage_id", "agestage", "rep_value")
+        names(output) <- c("matrix_set", "poppatch", "age", "stage_id", "stage", "agestage_id", "agestage", "rep_value")
       } else {
-        names(output) <- c("poppatch", "stage_id", "stage", "rep_value")
+        names(output) <- c("matrix_set", "poppatch", "stage_id", "stage", "rep_value")
       }
     }
     
@@ -1614,7 +1677,7 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
       rhist <-ss3$hist
       rhist$ss3sum <- apply(as.matrix(c(1:dim(rhist)[1])), 1, function(X) {
         rahist$ss_prop[intersect(which(rahist$stage_id == rhist$stage_id_2[X]), 
-                                 which(rahist$matrix == rhist$matrix[X]))]
+          which(rahist$matrix == rhist$matrix[X]))]
       })
       rhist$sscorr <- rhist$ss_prop / rhist$ss3sum
       rhist$sscorr[which(is.na(rhist$sscorr))] <- 0
@@ -1622,7 +1685,7 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
       
       rhist$rv3raw <- rhist$sscorr * rhist$rep_value
       
-      outputh <- rhist[,c("matrix", "stage_2", "stage_1", "stage_id_2", "stage_id_1", "rep_value")]
+      outputh <- rhist[,c("matrix", "stage_id_2", "stage_id_1", "stage_2", "stage_1", "rep_value")]
       
       ahlabels <- mats$ahstages[,c("stage_id", "stage")]
       rv2 <- Re(c(apply(as.matrix(c(1:multiplier)), 1, function(X) {
@@ -1632,7 +1695,7 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
         })
       })))
       outputah <- cbind.data.frame(rep(c(1:multiplier), each = length(ahlabels[,1])),
-                                   rep(ahlabels[,1], multiplier), rep(ahlabels[,2], multiplier), rv2)
+        rep(ahlabels[,1], multiplier), rep(ahlabels[,2], multiplier), rv2)
       names(outputah) <- c("matrix", "stage_id", "stage", "rep_value_unc")
       
       outputah$rep_value <- apply(as.matrix(c(1:dim(outputah)[1])), 1, function(X) {
@@ -1662,13 +1725,27 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
       
       ahistsize <- length(mats$ahstages$stage_id)
       histsize <- length(mats$hstages$stage_id_2)
-      rahist <- cbind.data.frame(poppatch = (rep(unlist(used_poppatches), each = ahistsize)), 
-                                 stage_id = rep(mats$ahstages$stage_id, times = multiplier), stage = rep(mats$ahstages$stage, times = multiplier))
-      rhist <- cbind.data.frame(poppatch = (rep(unlist(used_poppatches), each = histsize)),
-                                stage_id_2 = rep(mats$hstages$stage_id_2, times = multiplier),
-                                stage_id_1 = rep(mats$hstages$stage_id_1, times = multiplier),
-                                stage_2 = rep(mats$hstages$stage_2, times = multiplier),
-                                stage_1 = rep(mats$hstages$stage_1, times = multiplier))
+      
+      poppatchcol <- rep(unlist(used_poppatches), each = ahistsize)
+      unipoppatches <- unique(poppatchcol)
+      poppatchnum <- apply(as.matrix(poppatchcol), 1, function(X) {
+        return(which(unipoppatches == X))
+      })
+      
+      rahist <- cbind.data.frame(matrix_set = poppatchnum, poppatch = poppatchcol, 
+        stage_id = rep(mats$ahstages$stage_id, times = multiplier),
+        stage = rep(mats$ahstages$stage, times = multiplier))
+      
+      poppatchcol <- rep(unlist(used_poppatches), each = histsize)
+      poppatchnum <- apply(as.matrix(poppatchcol), 1, function(X) {
+        return(which(unipoppatches == X))
+      })
+      
+      rhist <- cbind.data.frame(matrix_set = poppatchnum, poppatch = poppatchcol,
+        stage_id_2 = rep(mats$hstages$stage_id_2, times = multiplier),
+        stage_id_1 = rep(mats$hstages$stage_id_1, times = multiplier),
+        stage_2 = rep(mats$hstages$stage_2, times = multiplier),
+        stage_1 = rep(mats$hstages$stage_1, times = multiplier))
       
       rhist$ss_prop <- as.vector(ss_unlisted)
       rhist$ss3sum <- as.vector(ss_sums)
@@ -1678,7 +1755,8 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
       
       rhist$rv3raw <- rhist$sscorr * rhist$rep_value
       
-      outputh <- rhist[,c("poppatch", "stage_2", "stage_1", "stage_id_2", "stage_id_1", "rep_value")]
+      outputh <- rhist[,c("matrix_set", "poppatch", "stage_id_2", "stage_id_1",
+        "stage_2", "stage_1", "rep_value")]
       
       ahlabels <- mats$ahstages[,c("stage_id", "stage")]
       rv2 <- Re(c(apply(as.matrix(unlist(used_poppatches)), 1, function(X) {
@@ -1687,9 +1765,13 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
           sum(rightset$rv3raw[which(rightset$stage_id_2 == Y)])
         })
       })))
+      
+      poppatchcol <- rep(unlist(used_poppatches), each = ahistsize)
+      
       outputah <- cbind.data.frame(rep(c(1:multiplier), each = length(ahlabels[,1])),
-                                   rep(ahlabels[,1], multiplier), rep(ahlabels[,2], multiplier), rv2)
-      names(outputah) <- c("poppatch", "stage_id", "stage", "rep_value_unc")
+        poppatchcol, rep(ahlabels[,1], multiplier), rep(ahlabels[,2], multiplier), rv2)
+      names(outputah) <- c("matrix_set", "poppatch", "stage_id", "stage",
+        "rep_value_unc")
       
       outputah$rep_value <- apply(as.matrix(c(1:dim(outputah)[1])), 1, function(X) {
         matsub <- subset(outputah, poppatch == outputah$poppatch[X])
@@ -1700,7 +1782,7 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
         } else return(0)
       })
       
-      outputah <- outputah[,c("poppatch", "stage_id", "stage", "rep_value")]
+      outputah <- outputah[,c("matrix_set", "poppatch", "stage_id", "stage", "rep_value")]
       rownames(outputah) <- c(1:dim(outputah)[1])
     }
     
@@ -3665,6 +3747,9 @@ ltre3.lefkoMat <- function(mats, refmats = NA, ref = NA, stochastic = FALSE,
     output$U <- mats$U
     output$F <- mats$F
   }
+  
+  rownames(output$labels) <- c(1:length(output$labels$patch))
+  
   class(output) <- "lefkoLTRE"
   
   return(output)

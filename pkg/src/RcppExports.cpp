@@ -153,6 +153,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// density3
+arma::vec density3(Rcpp::DataFrame data, int xcol, int ycol, int yearcol, double spacing);
+RcppExport SEXP _lefko3_density3(SEXP dataSEXP, SEXP xcolSEXP, SEXP ycolSEXP, SEXP yearcolSEXP, SEXP spacingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::DataFrame >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< int >::type xcol(xcolSEXP);
+    Rcpp::traits::input_parameter< int >::type ycol(ycolSEXP);
+    Rcpp::traits::input_parameter< int >::type yearcol(yearcolSEXP);
+    Rcpp::traits::input_parameter< double >::type spacing(spacingSEXP);
+    rcpp_result_gen = Rcpp::wrap(density3(data, xcol, ycol, yearcol, spacing));
+    return rcpp_result_gen;
+END_RCPP
+}
 // hoffmannofstuttgart
 List hoffmannofstuttgart(arma::mat mainmat, DataFrame indices, int ahstages, StringVector stagenames);
 RcppExport SEXP _lefko3_hoffmannofstuttgart(SEXP mainmatSEXP, SEXP indicesSEXP, SEXP ahstagesSEXP, SEXP stagenamesSEXP) {
@@ -644,6 +659,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_lefko3_pfj", (DL_FUNC) &_lefko3_pfj, 38},
     {"_lefko3_jpf", (DL_FUNC) &_lefko3_jpf, 50},
     {"_lefko3_theoldpizzle", (DL_FUNC) &_lefko3_theoldpizzle, 7},
+    {"_lefko3_density3", (DL_FUNC) &_lefko3_density3, 5},
     {"_lefko3_hoffmannofstuttgart", (DL_FUNC) &_lefko3_hoffmannofstuttgart, 4},
     {"_lefko3_cond_hmpm", (DL_FUNC) &_lefko3_cond_hmpm, 3},
     {"_lefko3_specialpatrolgroup", (DL_FUNC) &_lefko3_specialpatrolgroup, 6},

@@ -269,6 +269,40 @@ theoldpizzle <- function(StageFrame, OverWrite, repmatrix, finalage, format, sty
     .Call('_lefko3_theoldpizzle', PACKAGE = 'lefko3', StageFrame, OverWrite, repmatrix, finalage, format, style, cont)
 }
 
+#' Estimate Radial Density in Cartesian Space
+#' 
+#' \code{density3()} estimates radial density on the basis of Cartesian
+#' coordinates and spacing information supplied as input. It is used internally
+#' by \code{\link{historicalize3}()} and \code{\link{verticalize3}()}.
+#' 
+#' @param data Demographic dataset in historical vertical format.
+#' @param xcol Number of column in \code{data} corresponding to x position.
+#' @param ycol Number of column in \code{data} corresponding to y position.
+#' @param yearcol Number of column in \code{data} corresponding to occasion
+#' \emph{t}.
+#' @param spacing Resolution of density estimation, as a scalar numeric.
+#' 
+#' @return This function returns a vector counting the number of individuals
+#' within the specified distance of each individual in the historically
+#' formatted vertical dataset.
+#' 
+#' @section Notes:
+#' The process used to estimate density is one in which the distances between
+#' all pairs of individuals are calculated via the Pythagorean theorem, and
+#' then individual density equals the number of these individuals with
+#' distances within the number input as \code{spacing}, respectively for each
+#' individual.
+#' 
+#' This function assumes that all individuals are alive in time \emph{t}, and
+#' so data should be filtered appropriately beforehand. Any rows with NA in X
+#' or Y will not be counted, and density is estimated specific to time \emph{t}.
+#' 
+#' @keywords internal
+#' @noRd
+density3 <- function(data, xcol, ycol, yearcol, spacing) {
+    .Call('_lefko3_density3', PACKAGE = 'lefko3', data, xcol, ycol, yearcol, spacing)
+}
+
 #' Core Engine for cond_hmpm()
 #' 
 #' Creates a list of conditional ahistorical matrices in the style noted in
