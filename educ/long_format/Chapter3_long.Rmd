@@ -152,7 +152,7 @@ cypframe_fb
   <p style="text-indent: 20px">How does the life history model differ if we wish to develop a raw MPM? The key difference is that we need to consider how large our dataset is, and to create only as many stages as can be routinely transitioned to and from based on the data. The life history model above in Fig. 3L.4, for example, is not useable for raw MPMs because we have cut the size bins too finely - it is likely that in a typical year, only some of these stages will have individuals actually transitioning between them. The impact of this is that we will end up with many 0s for transitions that, in a sufficiently large population, should not equal 0.</p> 
   
   <p style="text-indent: 20px">To deal with this problem, we need to explore the dataset to determine a reasonable number of life history stages and on where the breaks should occur between these stages. A number of means exist to do this, and users should see Caswell [-@caswell_matrix_2001] and Kendall et al. [-@kendall_persistent_2019] for good discussions of the topic. Here, we suggest plotting a size distribution and assessing a series of numbers of natural breaks using the Jenks natural breaks algorithm [@jenks_data_1967], or another such algorithm. Let's take a look at a distribution plot of size.</p>
-```{r Ch3L.5, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.5. Distribution of size in Cypripedium candidum"}
+```{r Ch3L.5, fig.height = 4.5, fig.width = 7, fig.cap = "Figure 3L.5. Distribution of size in Cypripedium candidum"}
 plot(density(c(size.04, size.05, size.06, size.07, size.08, size.09), na.rm = TRUE), 
   main = "", xlab = "Size (# of sprouts)", bty = "n")
 ```
@@ -842,7 +842,7 @@ writeLines(paste0("Overall fecundity model accuracy: ", fec_accuracy))
 #### Step 5. MPM analysis
 
   <p style="text-indent: 20px">Now let's estimate the asymptotic deterministic population growth rate for each of the four sets of patch-level MPMs. We will start by looking at the annual population growth rate estimated from the raw analyses.</p>
-```{r Ch3L.43, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.8. Ahistorical vs. historical, raw lambda"}
+```{r Ch3L.43, fig.height = 4.5, fig.width = 7, fig.cap = "Figure 3L.8. Ahistorical vs. historical, raw lambda"}
 cyp2rp_lam <- lambda3(cypmatrix2rp)
 cyp2fp_lam <- lambda3(cypmatrix2fp)
 cyp3rp_lam <- lambda3(cypmatrix3rp)
@@ -867,9 +867,9 @@ legend("bottomleft", c("A ahistorical", "B ahistorical", "C ahistorical",
 ```
   
   <p style="text-indent: 20px">Here we see that $lambda$ is different between the ahistorical and historical cases in the raw MPMs. Let's compare the results above to the asymptotic deterministic population growth rate in the function-based MPMs.</p>
-```{r Ch3L.44, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.9. Ahistorical vs. historical, function-based lambda"}
+```{r Ch3L.44, fig.height = 4.5, fig.width = 7, fig.cap = "Figure 3L.9. Ahistorical vs. historical, function-based lambda"}
 plot(lambda ~ year2, data = subset(cyp2fp_lam, patch == "A"),
-  ylim = c(0.75, 1.00), type = "l", lwd = 2, bty = "n")
+  ylim = c(0.75, 1.20), type = "l", lwd = 2, bty = "n")
 lines(lambda ~ year2, data = subset(cyp2fp_lam, patch == "B"), type = "l",
   lwd = 2, lty = 2)
 lines(lambda ~ year2, data = subset(cyp2fp_lam, patch == "C"), type = "l",
@@ -935,7 +935,7 @@ slambda3(cypmatrix2fp_wrong)
   <p style="text-indent: 20px">Notice that our estimates are a little lower than here than for the other function-based MPMs. The fact that they are lower is not necessarily expected - only that they are different.</p>
   
   <p style="text-indent: 20px">Now let's take a look at the stable stage distributions at the population level. We will look at deterministic and stochastic versions of the raw ahistorical and historical MPMs first.</p>
-```{r Ch3L.47, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.10. Ahistorical vs. historically-corrected stable and long-run mean stage distribution, raw MPMs"}
+```{r Ch3L.47, fig.height = 4.5, fig.width = 7, fig.cap = "Figure 3L.10. Ahistorical vs. historically-corrected stable and long-run mean stage distribution, raw MPMs"}
 tm2ss_r <- stablestage3(cyp2r_mean)
 tm3ss_r <- stablestage3(cyp3r_mean)
 tm2ss_rs <- stablestage3(cypmatrix2r, stochastic = TRUE, seed = 42)
@@ -955,7 +955,7 @@ legend("topright", c("det ahist", "det hist", "sto ahist", "sto hist"),
   <p style="text-indent: 20px">Overall, these are generally similar patterns but with some very key differences. Whether ahistorical or historical, deterministic or stochastic, our analyses suggest that dormant seeds and 1st year protocorms take up the greatest share of the stable stage structure, with 2nd year protocorms coming next. Adults contribute little to the stable stage structure.</p>
   
   <p style="text-indent: 20px">Let's now compare to the results from the function-based analyses.</p>
-```{r Ch3L.48, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.11. Ahistorical vs. historically-corrected stable and long-run mean stage distribution, function-based MPMs"}
+```{r Ch3L.48, fig.height = 4.5, fig.width = 7, fig.cap = "Figure 3L.11. Ahistorical vs. historically-corrected stable and long-run mean stage distribution, function-based MPMs"}
 tm2ss_f <- stablestage3(cyp2f_mean)
 tm3ss_f <- stablestage3(cyp3f_mean)
 tm2ss_fs <- stablestage3(cypmatrix2f, stochastic = TRUE, seed = 42)
@@ -975,7 +975,7 @@ legend("topright", c("det ahist", "det hist", "sto ahist", "sto hist"),
   <p style="text-indent: 20px">If we look over the stageframe used for these MPMs (see the `ahstages` element of any of the function-based MPMs), we can see that at equilibrium, the population should be composed of the same stages shown to dominate in the raw case - 1st year protocorms and dormant seeds.</p>
   
   <p style="text-indent: 20px">Finally, let's look over the predicted stable stage distribution if we use the wrong size and fecundity distributions.
-```{r Ch3L.49, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.12. Ahistorical stable and long-run mean stage distribution, function-based MPMs with wrong size and fecundity distributions"}
+```{r Ch3L.49, fig.height = 4.5, fig.width = 7, fig.cap = "Figure 3L.12. Ahistorical stable and long-run mean stage distribution, function-based MPMs with wrong size and fecundity distributions"}
 tm2w_f <- stablestage3(lmean(cypmatrix2f_wrong))
 tm2w_fs <- stablestage3(cypmatrix2f_wrong, stochastic = TRUE, seed = 42)
 tm3w_f <- stablestage3(lmean(cypmatrix3f_wrong))
@@ -996,7 +996,7 @@ legend("topright", c("det ahist", "det hist", "sto ahist", "sto hist"),
   <p style="text-indent: 20px">A comparison with the previous graphs shows little difference for now.</p>
   
   <p style="text-indent: 20px">Next let's look at the reproductive values associated with both ahistorical and historical approaches, starting with raw MPMs. We will standardize against the maximum value in each case to make these comparable (note that this is NOT standard practice - we only do it here because of the strong difference in scale across the analyses).</p>
-```{r Ch3L.50, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.13. Ahistorical vs. historically-corrected deterministic and stochastic reproductive values, raw MPMs"}
+```{r Ch3L.50, fig.height = 4.5, fig.width = 7, fig.cap = "Figure 3L.13. Ahistorical vs. historically-corrected deterministic and stochastic reproductive values, raw MPMs"}
 tm2rv_r <- repvalue3(cyp2r_mean)
 tm3rv_r <- repvalue3(cyp3r_mean)
 tm2rv_rs <- repvalue3(cypmatrix2r, stochastic = TRUE, seed = 42)
@@ -1176,7 +1176,7 @@ which(tm3elas_fs$h_elasmats[[1]] == max(tm3elas_fs$h_elasmats[[1]]))
   <p style="text-indent: 20px">Element 57 is the transition from 1st year to 2nd year protocorm. In contrast, element 331 corresponds to the ahistorical stasis transition in one-sprouted vegetative adults, and element 962611 corresponds to the historical stasis transition in this stage. So, here we see that historical analyses generally favor the adult stages, while ahistorical analyses emphasize the early stages.</p>
   
   <p style="text-indent: 20px">Now let's compare the elasticity of population growth rate in relation to the core life history stages, via a barplot comparison.</p>
-```{r Ch3L.58, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.15. Ahistorical vs. historically-corrected deterministic and stochastic elasticity to stage, function-based"}
+```{r Ch3L.58, fig.height = 4.5, fig.width = 7, fig.cap = "Figure 3L.15. Ahistorical vs. historically-corrected deterministic and stochastic elasticity to stage, function-based"}
 elas_put_together <- cbind.data.frame(colSums(tm2elas_f$ah_elasmats[[1]]),
   colSums(tm3elas_f$ah_elasmats[[1]]), colSums(tm2elas_fs$ah_elasmats[[1]]),
   colSums(tm3elas_fs$ah_elasmats[[1]]))
@@ -1192,7 +1192,7 @@ legend("topright", c("det ahist", "det hist", "sto ahist", "sto hist"),
   <p style="text-indent: 20px">Elasticity analyses in these plots look quite different. The ahistorical analyses show that $\lambda$ and $\text{log} \lambda _{S}$ should be most elastic in response to shifts in transitions from the juvenile stages. In contrast, historical analyses show that $\lambda$ and $\text{log} \lambda _{S}$ should be most elastic in response to transitions from small adult stages, especially non-flowering ones. We tend to side with the historical interpretation, but leave it up to the user to make their own determination.</p>
 
   <p style="text-indent: 20px">Finally, let's take a look at how the importance of different kinds of transitions changes, by looking at elasticity sums.</p>
-```{r Ch3L.59, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.16. Ahistorical vs. historically-corrected elasticity of lambda to transitions, function-based"}
+```{r Ch3L.59, fig.height = 4.5, fig.width = 7, fig.cap = "Figure 3L.16. Ahistorical vs. historically-corrected elasticity of lambda to transitions, function-based"}
 tm2elas_f_sums <- summary(tm2elas_f)
 tm3elas_f_sums <- summary(tm3elas_f)
 tm2elas_fs_sums <- summary(tm2elas_fs)
@@ -1210,7 +1210,7 @@ legend("topright", c("det ahist", "det hist", "sto ahist", "sto hist"),
 ```
   
   <p style="text-indent: 20px">Fecundity makes least difference in all cases, although it does influence ahistorical analysis a reasonable amount. Growth, in contrast, appears to be among the most important transition types across the board. Stasis is more important in ahistorical than in historical analyses, and shrinkage shows the reverse pattern. Next, we can see which historical transitions are most important.</p>
-```{r Ch3L.60, fig.height = 4, fig.width = 6, fig.cap = "Figure 3L.17. Elasticity of lambda to historical transitions, function-based"}
+```{r Ch3L.60, fig.height = 4.5, fig.width = 7, fig.cap = "Figure 3L.17. Elasticity of lambda to historical transitions, function-based"}
 elas_hist2plot <- cbind.data.frame(tm3elas_f_sums$hist[,2],
   tm3elas_fs_sums$hist[,2])
 names(elas_hist2plot) <- c("det hist", "sto hist")
@@ -1220,7 +1220,7 @@ par(mar = c(7, 4, 2, 2) + 0.2)
 barplot(t(elas_hist2plot), beside = T, ylab = "Elasticity", xlab = "", xaxt = "n",
   col = c("orangered", "darkred"), bty = "n")
 text(cex=0.75, x=seq(from = 0.2, to = 2.9*length(tm3elas_f_sums$hist$category), by = 2.95),
-  y=-0.03, tm3elas_f_sums$hist$category, xpd=TRUE, srt=45)
+  y=-0.06, tm3elas_f_sums$hist$category, xpd=TRUE, srt=45)
 legend("topright", c("det hist", "sto hist"),
   col = c("orangered", "darkred"), pch = 15, bty = "n")
 ```
