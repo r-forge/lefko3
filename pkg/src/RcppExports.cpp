@@ -537,9 +537,26 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// proj3dens
+arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order, bool growthonly, bool integeronly, Rcpp::DataFrame dens_input, Rcpp::List dens_index);
+RcppExport SEXP _lefko3_proj3dens(SEXP start_vecSEXP, SEXP core_listSEXP, SEXP mat_orderSEXP, SEXP growthonlySEXP, SEXP integeronlySEXP, SEXP dens_inputSEXP, SEXP dens_indexSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type start_vec(start_vecSEXP);
+    Rcpp::traits::input_parameter< List >::type core_list(core_listSEXP);
+    Rcpp::traits::input_parameter< arma::uvec >::type mat_order(mat_orderSEXP);
+    Rcpp::traits::input_parameter< bool >::type growthonly(growthonlySEXP);
+    Rcpp::traits::input_parameter< bool >::type integeronly(integeronlySEXP);
+    Rcpp::traits::input_parameter< Rcpp::DataFrame >::type dens_input(dens_inputSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type dens_index(dens_indexSEXP);
+    rcpp_result_gen = Rcpp::wrap(proj3dens(start_vec, core_list, mat_order, growthonly, integeronly, dens_input, dens_index));
+    return rcpp_result_gen;
+END_RCPP
+}
 // projection3
-Rcpp::List projection3(List mpm, int nreps, int times, bool stochastic, bool standardize, bool growthonly, bool integeronly, Nullable<NumericVector> start_vec, Nullable<NumericVector> tweights);
-RcppExport SEXP _lefko3_projection3(SEXP mpmSEXP, SEXP nrepsSEXP, SEXP timesSEXP, SEXP stochasticSEXP, SEXP standardizeSEXP, SEXP growthonlySEXP, SEXP integeronlySEXP, SEXP start_vecSEXP, SEXP tweightsSEXP) {
+Rcpp::List projection3(List mpm, int nreps, int times, bool stochastic, bool standardize, bool growthonly, bool integeronly, Nullable<NumericVector> start_vec, Nullable<DataFrame> start_frame, Nullable<NumericVector> tweights, Nullable<DataFrame> density);
+RcppExport SEXP _lefko3_projection3(SEXP mpmSEXP, SEXP nrepsSEXP, SEXP timesSEXP, SEXP stochasticSEXP, SEXP standardizeSEXP, SEXP growthonlySEXP, SEXP integeronlySEXP, SEXP start_vecSEXP, SEXP start_frameSEXP, SEXP tweightsSEXP, SEXP densitySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -551,8 +568,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type growthonly(growthonlySEXP);
     Rcpp::traits::input_parameter< bool >::type integeronly(integeronlySEXP);
     Rcpp::traits::input_parameter< Nullable<NumericVector> >::type start_vec(start_vecSEXP);
+    Rcpp::traits::input_parameter< Nullable<DataFrame> >::type start_frame(start_frameSEXP);
     Rcpp::traits::input_parameter< Nullable<NumericVector> >::type tweights(tweightsSEXP);
-    rcpp_result_gen = Rcpp::wrap(projection3(mpm, nreps, times, stochastic, standardize, growthonly, integeronly, start_vec, tweights));
+    Rcpp::traits::input_parameter< Nullable<DataFrame> >::type density(densitySEXP);
+    rcpp_result_gen = Rcpp::wrap(projection3(mpm, nreps, times, stochastic, standardize, growthonly, integeronly, start_vec, start_frame, tweights, density));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -684,7 +703,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_lefko3_elas3hlefko", (DL_FUNC) &_lefko3_elas3hlefko, 3},
     {"_lefko3_proj3", (DL_FUNC) &_lefko3_proj3, 6},
     {"_lefko3_proj3sp", (DL_FUNC) &_lefko3_proj3sp, 6},
-    {"_lefko3_projection3", (DL_FUNC) &_lefko3_projection3, 9},
+    {"_lefko3_proj3dens", (DL_FUNC) &_lefko3_proj3dens, 7},
+    {"_lefko3_projection3", (DL_FUNC) &_lefko3_projection3, 11},
     {"_lefko3_slambda3", (DL_FUNC) &_lefko3_slambda3, 3},
     {"_lefko3_stoch_senselas", (DL_FUNC) &_lefko3_stoch_senselas, 4},
     {"_lefko3_bambi3", (DL_FUNC) &_lefko3_bambi3, 2},

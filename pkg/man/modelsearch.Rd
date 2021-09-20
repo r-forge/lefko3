@@ -259,14 +259,18 @@ probability.}
 reproduction probability.}
 \item{criterion}{Character variable denoting the criterion used to determine
 the best-fit model.}
-\item{qc}{Data frame with three variables: 1) Name of vital rate, 2) number
-of individuals used to model that vital rate, and 3) number of individual
-transitions used to model that vital rate.}
+\item{qc}{Data frame with four variables: 1) Name of vital rate, 2) number
+of individuals used to model that vital rate, 3) number of individual
+transitions used to model that vital rate, and 4) accuracy of model expressed
+as percent of predicted responses equal to actual responses (only in binomial
+models).}
 }
 \description{
-Function \code{modelsearch()} returns both a best-fit model for each vital
-rate, and a model table showing all models tested. The final output can be
-used as input in other functions within this package.
+Function \code{modelsearch()} runs exhaustive model building and selection
+exercises for each vital rate needed to estimate a function-based MPM. It
+returns both a best-fit model for each vital rate, and a model table showing
+all models tested. The final output can be used as input in other functions
+within this package.
 }
 \section{Notes}{
 

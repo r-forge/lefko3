@@ -70,11 +70,11 @@ div.csl-indent {
 
 
 
-<p>This document was built in Markdown in R 4.1.1 and compiled on 08 September 2021. It covers package <code>lefko3</code> version 3.8.0.</p>
+<p>This document was built in Markdown in R 4.1.1 and compiled on 20 September 2021. It covers package <code>lefko3</code> version 3.8.0.9000.</p>
 <div id="introduction-to-package-lefko3" class="section level2">
 <h2>INTRODUCTION TO PACKAGE <code>LEFKO3</code></h2>
 <p style="text-indent: 20px">
-R package <code>lefko3</code> is devoted to the analysis of demographic data through matrix projection models (MPMs) <span class="citation">(Shefferson, Kurokawa, and Ehrlén 2021)</span>. It is intended to serve as a one-stop destination for the construction of size-classified Lefkovitch MPMs, which divide the life of an individual into different life stages rather than ages. It was originally developed specifically to estimate and analyze <em>historical</em> matrix projection models (hMPMs), which are matrices designed to include not only current state but also past history in terms of previous states. Such matrices are large, typically having dimensions higher than their standard, ahistorical counterparts (the latter will be hereafter referred to as ahistorical MPMs, or ahMPMs, while the acronym MPM will be used to refer to all matrix projection models, whether historical or not). As this package has developed, we have prioritized the development of core algorithms and methods to construct these matrices quickly, efficiently, and at least relatively painlessly. To make comparison possible and straightforward, the package contains methods covering the estimation of both ahistorical and historical MPMs, using both raw matrix and function-based formats. It can also be used to create integral projection models (IPMs) and age × stage matrices, both of which are available in function-based formats.
+R package <code>lefko3</code> is devoted to the analysis of demographic data through matrix projection models (MPMs) <span class="citation">(Shefferson, Kurokawa, and Ehrln 2021)</span>. It is intended to serve as a one-stop destination for the construction of size-classified Lefkovitch MPMs, which divide the life of an individual into different life stages rather than ages. It was originally developed specifically to estimate and analyze <em>historical</em> matrix projection models (hMPMs), which are matrices designed to include not only current state but also past history in terms of previous states. Such matrices are large, typically having dimensions higher than their standard, ahistorical counterparts (the latter will be hereafter referred to as ahistorical MPMs, or ahMPMs, while the acronym MPM will be used to refer to all matrix projection models, whether historical or not). As this package has developed, we have prioritized the development of core algorithms and methods to construct these matrices quickly, efficiently, and at least relatively painlessly. To make comparison possible and straightforward, the package contains methods covering the estimation of both ahistorical and historical MPMs, using both raw matrix and function-based formats. It can also be used to create integral projection models (IPMs) and age × stage matrices, both of which are available in function-based formats.
 </p>
 <p style="text-indent: 20px">
 Package <code>lefko3</code> introduces a complete suite of functions covering the MPM workflow, from dataset management to the construction of MPMs to their analysis. Dataset management functions standardize demographic datasets from the dominant formats into a format that facilitates hMPM estimation while accounting for individual identity and other parameters. Demographic vital rate models may be estimated using demographic datasets with this standardized format, and these models take the form of generalized linear or mixed linear models using a variety of response distributions. Matrix estimation functions produce all necessary matrices from a single dataset, including all times, patches, and populations in a single shot, and do so quickly through core binaries engineered for speed and accuracy.
@@ -143,7 +143,7 @@ The matrix shown in figure 1 can be used to project population dynamics by predi
 The independence of consecutive stage-pairs reflects a central assumption in ahMPM analysis: the stage of an individual in the next occasion is influenced only by its current stage. Conceptually, if an organism’s stage in the next occasion is entirely determined by its current stage, then its previous states do not influence these transitions. Thus, standard ahMPMs are two dimensional and reflect only the current and next immediate stage of individuals, given by the columns and rows, respectively. This is ultimately an extension of the <em>iid</em> assumption in statistics - that the states of individuals are independent and originate from identically-distributed random variables.
 </p>
 <p style="text-indent: 20px">
-MPMs have been estimated since the 1940s <span class="citation">(Caswell 2001)</span>. We have never done a meta-analysis of all of these studies, but nonetheless it is safe to say that studies considering individual history are rare. The typical MPM study uses ahMPMs, and so assumes independence of stage transitions across time even from the same individual. In fact, at the time of writing, we are aware of only 5 examples of studies breaking these assumptions and using a <strong>historical</strong> approach, meaning that they incorporated some degree of individual history into matrix estimation and analysis <span class="citation">(Ehrlén 2000; Shefferson, Warren II, and Pulliam 2014; Shefferson, Mizuta, and Hutchings 2017; Shefferson et al. 2018; Vries and Caswell 2018)</span>.
+MPMs have been estimated since the 1940s <span class="citation">(Caswell 2001)</span>. We have never done a meta-analysis of all of these studies, but nonetheless it is safe to say that studies considering individual history are rare. The typical MPM study uses ahMPMs, and so assumes independence of stage transitions across time even from the same individual. In fact, at the time of writing, we are aware of only 5 examples of studies breaking these assumptions and using a <strong>historical</strong> approach, meaning that they incorporated some degree of individual history into matrix estimation and analysis <span class="citation">(Ehrln 2000; Shefferson, Warren II, and Pulliam 2014; Shefferson, Mizuta, and Hutchings 2017; Shefferson et al. 2018; Vries and Caswell 2018)</span>.
 </p>
 <p style="text-indent: 20px">
 The <strong>historical MPM</strong> (hMPM) is an extension of the matrix projection model that incorporates information on one previous occasion into the determination of vital rates. Thus, the expected survival-transition probability of an individual in stage <em>j</em> at occasion <em>t</em> to stage <em>k</em> at occasion <em>t</em>+1 depends not only on its stage in occasion <em>t</em> but also on its stage in occasion <em>t</em>-1. Population ecologists considering this problem analytically might be inclined to add an extra dimension to the matrix to deal with this, thus creating a 3d array or cube. However, this is mathematically intractable, with many analyses becoming impossible <span class="citation">(Vries and Caswell 2018)</span>. Instead, we utilize the approach developed by Ehrlén <span class="citation">(2000)</span>, in which rows and columns represent life history stages paired in consecutive occasions. Thus, columns now represent the <strong>From</strong> pair of stages (stage in occasions <em>t</em> and <em>t</em>-1), and rows now represent the <strong>To</strong> pair of stages (stage in occasions <em>t</em> and <em>t</em>+1), as in Figure 2. This model is equivalent to the second-order model proposed by de Vries and Caswell <span class="citation">(2018)</span>, although the latter incorporates more history into transitions involving individuals just born (we explain the difference further in this vignette).
@@ -498,7 +498,7 @@ Function <code>modelsearch()</code> handles the entire modeling process using an
 <li><p><strong>Variable names</strong> - The names of all relevant variables in the dataset need to be specified. Note that the default behavior assumes variable names produced via the <code>historicalize3()</code> or <code>verticalize3()</code> functions, which produce standardized historically-formatted vertical (<b>hfv</b> format) datasets.</p></li>
 </ol>
 <p style="text-indent: 20px">
-Once all decisions are made and associated input terms are provided, <code>modelsearch()</code> goes to work. The result is a <code>lefkoMod</code> object, which is a list in which the first 9 elements are the best-fit models developed for each vital rate. These are followed by an equivalent number of elements showing the full model tables developed and tested, followed by an element detailing the best-fit criterion used, and ending on quality control data showing the number of individuals and the number of unique transitions used in the estimation of each model. Depending on user choices, linear modeling is handled through the <code>lm()</code> and <code>glm()</code> functions in the <code>stats</code> package, the <code>lmer()</code> and <code>glmer()</code> functions in <code>lme4</code>, the <code>glmmTMB()</code> function in <code>glmmTMB</code>, the <code>glm.nb()</code> function in package <code>MASS</code>, the <code>vglm()</code> function in package <code>VGAM</code>, or the <code>zeroinfl()</code> function in package <code>pscl</code>. Exhaustive model building proceeds through the <code>dredge()</code> function in package <code>MuMIn</code> <span class="citation">(Bartoń 2014)</span>. Model selection is handled through assessment of AICc and the number of parameters estimated per model (see 6. <strong>Best-fit criterion</strong> above).
+Once all decisions are made and associated input terms are provided, <code>modelsearch()</code> goes to work. The result is a <code>lefkoMod</code> object, which is a list in which the first 9 elements are the best-fit models developed for each vital rate. These are followed by an equivalent number of elements showing the full model tables developed and tested, followed by an element detailing the best-fit criterion used, and ending on quality control data showing the number of individuals and the number of unique transitions used in the estimation of each model. Depending on user choices, linear modeling is handled through the <code>lm()</code> and <code>glm()</code> functions in the <code>stats</code> package, the <code>lmer()</code> and <code>glmer()</code> functions in <code>lme4</code>, the <code>glmmTMB()</code> function in <code>glmmTMB</code>, the <code>glm.nb()</code> function in package <code>MASS</code>, the <code>vglm()</code> function in package <code>VGAM</code>, or the <code>zeroinfl()</code> function in package <code>pscl</code>. Exhaustive model building proceeds through the <code>dredge()</code> function in package <code>MuMIn</code> <span class="citation">(Barto 2014)</span>. Model selection is handled through assessment of AICc and the number of parameters estimated per model (see 6. <strong>Best-fit criterion</strong> above).
 </p>
 <p style="text-indent: 20px">
 If <code>modelsearch()</code> is set for historical analysis (<code>historical = TRUE</code>, the default), then the decision of whether to develop a historical MPM can be made on the basis of whether any best-fit vital rate model includes size or reproductive status in occasion <em>t</em>-1. If at least one vital rate does, then a historical MPM is justified. Otherwise, it is not. Regardless, the output can be used to create a function-based MPM in the next step.
@@ -532,11 +532,70 @@ The output for each of these functions is a <code>lefkoMat</code> object, which 
 Users wishing to check the output MPMs for errors or simply understand more about them may utilize functions <code>summary()</code> and <code>cond_hmpm()</code>. Function <code>summary()</code> summarizes each <code>lefkoMat</code> object used as input, and also checks the survival of stages, stage-pairs, or age-stages by assessing the column sums for each <code>U</code> matrix and providing warnings if any survival probabilities fall below 0 or are greater than 1. Function <code>cond_hmpm()</code> decomposes hMPMs into MPMs showing transitions from occasion <em>t</em> to occasion <em>t</em>+1, but conditioned on the same stage at occasion <em>t</em>-1. Thus, a single hMPM with 5 stages and 25 stage pairs would be broken down into 5 conditional MPMs, one for each stage at occasion <em>t</em>-1, with 5 columns and 5 rows denoting stage at occasions <em>t</em> and <em>t</em>+1, respectively. These can be examined individually, and the survival of stages from occasion <em>t</em> to occasion <em>t</em>+1 can be assessed as a function of stage in occasion <em>t</em>-1 by taking the associated column sums of these conditional matrices.
 </p>
 </div>
+<div id="step-4a.-importing-matrices" class="section level3">
+<h3>Step 4a. Importing matrices</h3>
+<p style="text-indent: 20px">
+Some population ecologists will wish to utilize the power and functionality of <code>lefko3</code> on already existing matrices. Although many analytical functions work with simple lists of matrices, users may import sets of matrices as <code>lefkoMat</code> objects in order to utilize the most powerful analyses. The <code>create_lM()</code> function allows users to take a list of square matrices of equal size, and import them into a <code>lefkoMat</code> object. Users wishing to do this will also need to develop a stageframe, and to input the order of populations, patches, and years associated with the order of matrices in the input list. Function <code>create_lM</code> runs several quality checks on the input data, and, assuming that there are no obvious inconsistencies, yields the final <code>lefkoMat</code> object for further use in analysis.
+</p>
+</div>
 <div id="step-5.-mpm-analyses" class="section level3">
 <h3>Step 5. MPM analyses</h3>
 <p style="text-indent: 20px">
 Package <code>lefko3</code> includes a number of functions to aid analysis once matrices are created. These may be of greater utility in some circumstances than established functions such as <code>eigen()</code>, because our functions are made to handle even extremely large, sparse matrices. Currently, we include functions to estimate element-wise arithmetic mean matrices, discrete and stochastic population growth rate, stable stage structure, reproductive value, deterministic and stochastic sensitivity and elasticity, and deterministic and stochastic life table response experiments (LTRE and sLTRE). We also include a basic projection function that can show the expected numbers of individuals in each stage forward in time under deterministic or stochastic assumptions. Plans are in the works for further analysis functions in the future.
 </p>
+<div id="deterministic-vs.-stochastic-analysis" class="section level4">
+<h4>Deterministic vs. stochastic analysis</h4>
+<p style="text-indent: 20px">
+Population ecologists most typically run deterministic projection analyses. These analyses take single matrices, and project them infinite numbers of times. In most cases, such an infinite projection yields a set of asymptotic properties that are measurable using eigen analysis. For example, the long-run population growth rate should asymptotically approach the largest real part of the dominant eigen value.
+</p>
+<p style="text-indent: 20px">
+Ecologists wishing to assess the influence of environmental variability may instead wish to assume temporal environmental stochasticity. Under this assumption, the population is projected into the future by randomly shuffling with resampling all matrices associated with that specific population. Several theora predict that such a long-run projection will typically yield roughly stable characteristics, including the long-run mean population growth rate and the long-run average stage structure, and that these characteristics may differ strongly from those predicted under deterministic analysis.
+</p>
+<p style="text-indent: 20px">
+Package <code>lefko3</code> contains functions that quickly assess deterministic and stochastic properties. In addition, users may use the <code>projection3()</code> function to conduct user-defined projections of various sorts, including even cyclical and unequally weighted stochastic projections.
+</p>
+</div>
+<div id="density-independent-vs.-density-dependence-analysis" class="section level4">
+<h4>Density independent vs. density dependence analysis</h4>
+<p style="text-indent: 20px">
+Package <code>lefko3</code> also provides the ability to conduct density dependent projections. Readers of the density dependence literature will know that there are many forms of density dependent functions that can be applied to matrix projection. The oldest forms typically applied a function such as the logistic function to all matrix elements, generally by multiplying each matrix element by some function of density <span class="citation">(e.g., Leslie 1959)</span>. More recent forms incorporate complex approaches, often separating density dependent functions by vital rate <span class="citation">(e.g., Jensen 1995)</span>.
+</p>
+<p style="text-indent: 20px">
+To provide the greatest flexibility, <code>lefko3</code> currently implements density dependence using the <code>density_input()</code> function, which allows users to list all matrix elements that should be subject to density dependence, and to stipulate the characteristics of the density dependence. Shorthand abbreviations can be used, such as <code>all</code> for all stages, <code>rep</code> for reproductive stages, <code>nrep</code> for mature but non-reproductive stages, etc. A default time delay of 1 time step is applied, and this can be set to any positive integer. Currently, <code>lefko3</code> includes 4 density dependence functions that can be chosen, with projections capable of including multiple functions and time delays. The first is the Ricker function, which is given as
+</p>
+<p><span class="math display">\[\begin{equation}
+  \tag{11}
+  \phi_{t+1} = \phi_t \times \alpha e^{-\beta n_t}
+  \end{equation}\]</span></p>
+<p>where <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> are the density dependence parameters, and <span class="math inline">\(\beta\)</span> in particular gives the strength of density dependence. This equation is among the most interesting in the density dependence literature, because it is capable of producing oscillations, even multi-period oscillations, and chaos.</p>
+<p style="text-indent: 20px">
+The second density dependence function applied in <code>lefko3</code> is the Beverton-Holt equation, which is given as
+</p>
+<p><span class="math display">\[\begin{equation}
+  \tag{12}
+  \phi_{t+1} = \frac{\phi_t \times \alpha}{1 + \beta n_t}
+  \end{equation}\]</span></p>
+<p>where <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> are, once again, the density dependence parameters, and <span class="math inline">\(\beta\)</span> in particular gives the strength of density dependence. This function generally asymptotes at an equilibrium density, and so is not capable of producing the complex patterns that the Ricker model is capable of.</p>
+<p style="text-indent: 20px">
+The third function implemented in <code>lefko3</code> is the Usher function, given as
+</p>
+<p><span class="math display">\[\begin{equation}
+  \tag{13}
+  \phi_{t+1} = \phi_t \times \frac{1}{1 + e^{\alpha N + \beta}}
+  \end{equation}\]</span></p>
+<p>where both <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> give the strength of density dependence, though the former via an interaction with density and the latter via an addition to the exponential effect.</p>
+<p style="text-indent: 20px">
+Finally, <code>lefko3</code> also implements a form of the logistic equation, here given as
+</p>
+<p><span class="math display">\[\begin{equation}
+  \tag{14}
+  \phi_{t+1} = \phi_t \times (1 - \frac{n}{K})
+  \end{equation}\]</span></p>
+<p>where only one parameter, <span class="math inline">\(K\)</span>, is needed.</p>
+<p style="text-indent: 20px">
+Package <code>lefko3</code> currently implements these analyses via the <code>projection3()</code> function. We are currently developing functions to analyze projection resuls, including sensitivity and analyses.
+</p>
+</div>
 <div id="population-growth-rate" class="section level4">
 <h4>Population growth rate</h4>
 <p style="text-indent: 20px">
@@ -546,7 +605,7 @@ Package <code>lefko3</code> allows the estimation of both the deterministic and 
 The function <code>slambda3()</code> estimates the log stochastic population growth rate in its instantaneous form (<span class="math inline">\(a = \text{log} \lambda _{S}\)</span>). This is estimated as the mean log discrete population growth rate across a user-specified number of random draws of the supplied annual matrices:
 </p>
 <p><span class="math display">\[\begin{equation}
-  \tag{11}
+  \tag{15}
   a = \text{log} \lambda _{S} = \frac{1}{T} \sum _{t=1}^{T} \text{log} \frac{N _{t}}{N _{t-1}}
   \end{equation}\]</span></p>
 <p>where <span class="math inline">\(N _t\)</span> is the population size in occasion <span class="math inline">\(t\)</span>, and <span class="math inline">\(T\)</span> is the number of occasions projected forward, set to 10,000 by default. Function <code>slambda3()</code> does not shuffle across patches or populations, instead shuffling within patches, or shuffling annual matrices calculated as element-wise means of patch matrices within the same population and the same time. The methodology is based on Morris and Doak <span class="citation">(2002)</span>, though accounts for spatial averaging of patches and can easily handle large and sparse matrices.</p>
@@ -560,12 +619,12 @@ In ahistorical analysis, the stable stage distribution and the reproductive valu
 The methods mentioned above apply to historical matrices as well. However, as described, they only provide the stable stage distribution and reproductive values of stage pairs. We provide two functions, <code>stablestage3()</code> and <code>repvalue3()</code> to allow the estimation of these vectors for both ahistorical and historical MPMs. When provided with a historical MPM, these functions also estimate <strong>historically-corrected</strong> stable stage distributions and reproductive value vectors, which correspond to the original stages in the associated life history model rather than the stage pairs, and so are comparable against the ahistorical stable stage distributions and reproductive value vectors. The historically-corrected stable stage proportion for stage <em>j</em> is estimated as the sum of all stable stage proportions for stage <em>j</em> in occasion <em>t</em> across all stages in occasion <em>t</em>-1, as in:
 </p>
 <p><span class="math display">\[\begin{equation}
-  \tag{12}
+  \tag{16}
   SS _j = \sum _{l=1}^{m} w _{jl}
   \end{equation}\]</span></p>
-<p>where <span class="math inline">\(l\)</span> is stage in occasion <em>t</em>-1, <span class="math inline">\(m\)</span> is the number of stages, <span class="math inline">\(SS_j\)</span> is the stable stage proportion of stage <em>j</em>, and <span class="math inline">\(w _{jl}\)</span> is the stable stage proportion of stage pair <span class="math inline">\(jl\)</span> given as the standardized right eigenvector corresponding to the dominant eigenvalue of the hMPM. The historically-corrected reproductive value of stage <em>j</em> is calculated as the sum of all reproductive values for stage <em>j</em> in occasion <em>t</em> across all stages in occasion <em>t</em>-1, weighted by the stable stage proportion of the respective stage pair divided by the stable stage proportion of stage <span class="math inline">\(j\)</span> at occasion <em>t</em> <span class="citation">(Ehrlén 2000)</span>, as in:</p>
+<p>where <span class="math inline">\(l\)</span> is stage in occasion <em>t</em>-1, <span class="math inline">\(m\)</span> is the number of stages, <span class="math inline">\(SS_j\)</span> is the stable stage proportion of stage <em>j</em>, and <span class="math inline">\(w _{jl}\)</span> is the stable stage proportion of stage pair <span class="math inline">\(jl\)</span> given as the standardized right eigenvector corresponding to the dominant eigenvalue of the hMPM. The historically-corrected reproductive value of stage <em>j</em> is calculated as the sum of all reproductive values for stage <em>j</em> in occasion <em>t</em> across all stages in occasion <em>t</em>-1, weighted by the stable stage proportion of the respective stage pair divided by the stable stage proportion of stage <span class="math inline">\(j\)</span> at occasion <em>t</em> <span class="citation">(Ehrln 2000)</span>, as in:</p>
 <p><span class="math display">\[\begin{equation}
-  \tag{13}
+  \tag{17}
   RV _j = \sum _{l=1}^{m} v _{jl} (w _{jl} /  SS _{j})
   \end{equation}\]</span></p>
 where <span class="math inline">\(RV _j\)</span> refers to reproductive value of stage <span class="math inline">\(j\)</span>, and <span class="math inline">\(v _{jl}\)</span> refers to the reproductive value of the stage pair as given by the standardized left eigenvector of the dominant eigenvalue of the historical MPM. The influence of history can make these numbers differ quite dramatically from those produced by ahistorical matrices.
@@ -577,17 +636,17 @@ Package <code>lefko3</code> also handles the estimation of stochastic stable sta
 The stochastic reproductive value is more complicated. Imagine a vector, <span class="math inline">\(\mathbf{x}(t)\)</span>, which includes the expected number of offspring produced by each stage in occasion <em>t</em>+1. This is referred to as the <em>undiscounted reproductive value vector</em> because it is not standardized, and so is likely to eventually move to an extreme value such as infinity. It turns out that <span class="math inline">\(\mathbf{x}(t)\)</span> is related to other occasions in this projection via:
 </p>
 <p><span class="math display">\[\begin{equation}
-  \tag{14}
+  \tag{18}
   \mathbf{x}^\top(t) = \mathbf{x}^\top(t+1)\mathbf{A}_t
   \end{equation}\]</span></p>
 <p>Standardizing leads to the <em>discounted reproductive value vector</em>, as below:</p>
 <p><span class="math display">\[\begin{equation}
-  \tag{15}
+  \tag{19}
   \mathbf{v}(t) = \frac{\mathbf{x}(t)}{\lVert \mathbf{x}(t) \rVert}
   \end{equation}\]</span></p>
 <p>This reproductive value vector can then be projected as well, as in</p>
 <p><span class="math display">\[\begin{equation}
-  \tag{16}
+  \tag{20}
   \mathbf{v}(t) = \frac{\mathbf{v}^\top(t+1)\mathbf{A}_t}{\lVert \mathbf{v}^\top(t+1)\mathbf{A}_t \rVert}
   \end{equation}\]</span></p>
 <p>The reproductive value is projected backwards in time, and package <code>lefko3</code> takes its average in the final one or two thousand portions of the backward projection.</p>
@@ -601,28 +660,28 @@ Package <code>lefko3</code> contains functions allowing users to conduct determi
 The sensitivity of <span class="math inline">\(\lambda\)</span>, the deterministic population growth rate, to a specific element in a projection matrix can be calculated using eigen analysis as
 </p>
 <p><span class="math display">\[\begin{equation}
-  \tag{17}
+  \tag{21}
   \frac{\partial \lambda}{\partial a _{kj}} = \frac{\bar{v} _{k} w _{j}}{&lt;\mathbf{w}, \mathbf{v}&gt;}
   \end{equation}\]</span></p>
 <p>Here, <span class="math inline">\(\mathbf{w}\)</span> is the stable stage distribution vector calculated as the right eigenvector of the dominant eigenvalue of the matrix (standardized to sum to 1.0), <span class="math inline">\(\mathbf{v}\)</span> is the reproductive value vector calculated as the associated left eigenvector (standardized by dividing by the value of the first non-zero value), and <span class="math inline">\(\bar{v} _{k}\)</span> is the complex conjugate of element <span class="math inline">\(k\)</span> of <span class="math inline">\(\mathbf{v}\)</span>. <span class="math inline">\(k\)</span> is also the stage in occasion <em>t</em>+1 and in the ahMPM refers to the corresponding row, while <span class="math inline">\(j\)</span> refers to stage in occasion <em>t</em> and in an ahMPM refers to the corresponding column. The term <span class="math inline">\(&lt;\mathbf{w}, \mathbf{v}&gt;\)</span> refers to the scalar product of these vectors.</p>
 <p style="text-indent: 20px">
-In the hMPM case, the basic method is essentially the same as in equation 17, although the equation itself changes somewhat, with the sensitivity of <span class="math inline">\(\lambda\)</span> to each matrix element given as
+In the hMPM case, the basic method is essentially the same as in equation 21, although the equation itself changes somewhat, with the sensitivity of <span class="math inline">\(\lambda\)</span> to each matrix element given as
 </p>
 <p><span class="math display">\[\begin{equation}
-  \tag{18}
+  \tag{22}
   \frac{\partial \lambda}{\partial a _{kjl}} = \frac{\bar{v} _{kj} w _{jl}}{&lt;\mathbf{w}, \mathbf{v}&gt;}
   \end{equation}\]</span></p>
-<p>Here, <span class="math inline">\(k\)</span> is stage in occasion <em>t</em>+1, <span class="math inline">\(j\)</span> is stage in occasion <em>t</em>, <span class="math inline">\(l\)</span> is stage in occasion <em>t</em>-1, <span class="math inline">\(kj\)</span> refers both to the stage pair in occasions <em>t</em>+1 and <em>t</em> as well as the corresponding row in the historical matrix, and <span class="math inline">\(jl\)</span> refers both to the stage pair in occasions <em>t</em> and <em>t</em>-1 as well as the corresponding column in the historical matrix. Historically-corrected sensitivities may also be estimated for the basic stages of the life history model using the historically-corrected stable stage distributions and reproductive values given in equations 12 and 13 as input in equation 17.</p>
+<p>Here, <span class="math inline">\(k\)</span> is stage in occasion <em>t</em>+1, <span class="math inline">\(j\)</span> is stage in occasion <em>t</em>, <span class="math inline">\(l\)</span> is stage in occasion <em>t</em>-1, <span class="math inline">\(kj\)</span> refers both to the stage pair in occasions <em>t</em>+1 and <em>t</em> as well as the corresponding row in the historical matrix, and <span class="math inline">\(jl\)</span> refers both to the stage pair in occasions <em>t</em> and <em>t</em>-1 as well as the corresponding column in the historical matrix. Historically-corrected sensitivities may also be estimated for the basic stages of the life history model using the historically-corrected stable stage distributions and reproductive values given in equations 16 and 17 as input in equation 21.</p>
 <p style="text-indent: 20px">
 Sensitivities show how much a small, additive change in a matrix element can alter <span class="math inline">\(\lambda\)</span>, but do so by estimating the local slope of <span class="math inline">\(\lambda\)</span> given in terms of the matrix element <span class="citation">(Caswell 2001)</span>. Sensitivities are also typically non-zero even for impossible transitions represented by 0s in the matrix. Elasticities, in contrast, show the influence of a small, proportional change in a matrix element on <span class="math inline">\(\lambda\)</span>, essentially given as the local slope of <span class="math inline">\(log \lambda\)</span> given in terms of the log of the matrix element. This results in impossible transitions yielding elasticities of 0. In the ahistorical case, the elasticity, <span class="math inline">\(e _{kj}\)</span>, of <span class="math inline">\(\lambda\)</span> to change in a matrix element <span class="math inline">\(a _{kj}\)</span> is given as
 </p>
 <p><span class="math display">\[\begin{equation}
-  \tag{19}
+  \tag{23}
   e _{kj} = \frac{a _{kj}}{\lambda} \frac{\partial \lambda}{\partial a _{kj}}
   \end{equation}\]</span></p>
 <p>The historical case is just an extension of the above.</p>
 <p><span class="math display">\[\begin{equation}
-  \tag{20}
+  \tag{24}
   e _{kjl} = \frac{a _{kjl}}{\lambda} \frac{\partial \lambda}{\partial a _{kjl}}
   \end{equation}\]</span></p>
 <p>Here, we use row and column definitions equivalent to those used in the historical sensitivity case. This makes the elasticity a function of the sensitivity of <span class="math inline">\(\lambda\)</span> to the matrix element, as well as of the value of the matrix element itself. Thus, structural 0s in the hMPM must have elasticity equal to 0, although it is entirely possible that they have non-zero sensitivities.</p>
@@ -630,7 +689,7 @@ Sensitivities show how much a small, additive change in a matrix element can alt
 Elasticities calculated for hMPMs can be compared to those calculated in ahMPMs easily because elasticities may be added by stage or transition type, with all elasticities corresponding to a specific matrix necessarily summing to 1.0. Thus, we can calculate the stage pair elasticities resulting from a historical MPM analysis as
 </p>
 <p><span class="math display">\[\begin{equation}
-  \tag{21}
+  \tag{25}
   e _{kj} = \sum_{i=1}^{m} e _{kji}
   \end{equation}\]</span></p>
 <p>with all symbol definitions as before. We have provided a <code>summary()</code> function for elasticity output in <code>lefko3</code> that automatically groups the resulting elasticities by the kind of ahistorical or historical transition.</p>
@@ -638,12 +697,12 @@ Elasticities calculated for hMPMs can be compared to those calculated in ahMPMs 
 Stochastic sensitivity and elasticity analysis are also available. Per Caswell <span class="citation">(2001)</span>, the sensitivity of <span class="math inline">\(a = \text{log} \lambda _{S}\)</span> to changes in a specific element is given as:
 </p>
 <p><span class="math display">\[\begin{equation}
-  \tag{22}
+  \tag{26}
   \frac{\partial \text{log} \lambda _S}{\partial a _{kj}} = \lim_{T \to \infty} \frac{1}{T} \sum_{t=0}^{T-1} \frac{\mathbf{v}(t+1) \mathbf{w}^\top(t)}{\mathbf{v}^\top(t+1) \mathbf{w}(t+1)}
   \end{equation}\]</span></p>
 <p>where <span class="math inline">\(t\)</span> refers to a specific monitoring occasion and <span class="math inline">\(T\)</span> refers to the number of occasions projected forward. Similarly, the stochastic elasticity of <span class="math inline">\(a = \text{log} \lambda _{S}\)</span> to changes in a specific element is given as:</p>
 <p><span class="math display">\[\begin{equation}
-  \tag{23}
+  \tag{27}
   \frac{\partial \text{log} \lambda _S}{\partial \text{log} a _{kj}} = \lim_{T \to \infty} \frac{1}{T} \sum_{t=0}^{T-1} \frac{\bigl(\mathbf{v}(t+1) \mathbf{w}^\top(t) \bigr) \circ \mathbf{A_t}}{\mathbf{v}^\top(t+1) \mathbf{w}(t+1)}
   \end{equation}\]</span></p>
 <p>where <span class="math inline">\(\mathbf{A_t}\)</span> refers to the A matrix corresponding to occasion <em>t</em>. Stochastic sensitivities for hMPMs may be converted to historically-corrected format as in the deterministic case, and stochastic elasticities may be summed as before.</p>
@@ -660,14 +719,14 @@ MPMs are very useful tools to describe and explore population dynamics. However,
 Several forms of LTRE exist. The simplest and earliest developed is the fixed, one-way LTRE, which evaluates the impact of a single factor on the asymptotic population growth rate <span class="math inline">\(\lambda\)</span>. Imagine two matrices, the first a matrix derived from some treatment such as a particular management regime, <span class="math inline">\(\mathbf{A^{(m)}}\)</span>, and a reference matrix from a control regime, <span class="math inline">\(\mathbf{A^{(R)}}\)</span>. Per Caswell <span class="citation">(2001)</span>, if we estimate a matrix <span class="math inline">\(\mathbf{A^{(m+R)/2}}\)</span> that is the element-wise arithmetic mean matrix of <span class="math inline">\(\mathbf{A^{(m)}}\)</span> and <span class="math inline">\(\mathbf{A^{(R)}}\)</span>, then:
 </p>
 <p><span class="math display">\[\begin{equation}
-  \tag{24}
+  \tag{28}
   \Delta \lambda = \lambda^{(m)} - \lambda^{(R)} \approx \sum_{j,i} ((a_{ji}^{(m)} - a_{ji}^{(R)}) (\frac{\partial \lambda}{\partial a_{ji}})) | _\mathbf{A^{(m+R)/2}}
   \end{equation}\]</span></p>
 <p style="text-indent: 20px">
 Since 2010, several stochastic life table response experiment (sLTREs) methodologies have also been developed. sLTREs measure the impact of one or more treatments on the log stochastic growth rate, <span class="math inline">\(a = \text{log} \lambda _{S}\)</span>. However, the treatment and reference here are not single matrices, but sets of matrices that vary randomly across time. Here, we assume that <span class="math inline">\(log\lambda^{(m)}\)</span> and <span class="math inline">\(log\lambda^{(R)}\)</span> are the log stochastic growth rates of the treatment MPM and the reference MPM, respectively. Package <code>lefko3</code> currently implements the Davison et al. <span class="citation">(2010)</span> simulated sLTRE, where:
 </p>
 <p><span class="math display">\[\begin{equation}
-  \tag{25}
+  \tag{29}
   \Delta \text{log} \lambda _{S} = log\lambda^{(m)} - log\lambda^{(R)} \approx \sum_{j,i} [log \mu_{ji}^{(m)} - log \mu_{ji}^{(R)}] E_{ji}^{\mu} + [log \sigma_{ji}^{(m)} - log \sigma_{ji}^{(R)}] E_{ji}^{\sigma}
   \end{equation}\]</span></p>
 <p>In the above equation, <span class="math inline">\(E_{ji}^{\mu}\)</span> and <span class="math inline">\(E_{ji}^{\sigma}\)</span> are the stochastic elasticities of the log stochastic growth rate to changes in the mean and standard deviation, respectively, of the element at row <span class="math inline">\(j\)</span> and column <span class="math inline">\(i\)</span> in the reference matrix set. Function <code>ltre3()</code> handles all of these calculations.</p>
@@ -693,19 +752,19 @@ We are grateful to two anonymous reviewers whose scrutiny improved the quality o
 <h2>Literature cited</h2>
 <div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-barton_mumin_2014" class="csl-entry">
-Bartoń, Kamil A. 2014. <span>“<span>MuMIn</span>: Multi-Model Inference.”</span> <a href="https://CRAN.R-project.org/package=MuMIn">https://CRAN.R-project.org/package=MuMIn</a>.
+Barto, Kamil A. 2014. <span>“<span>MuMIn</span>: Multi-Model Inference.”</span> <a href="https://CRAN.R-project.org/package=MuMIn">https://CRAN.R-project.org/package=MuMIn</a>.
 </div>
 <div id="ref-bates_fitting_2015" class="csl-entry">
 Bates, Douglas, Martin Maechler, Ben Bolker, and Steve Walker. 2015. <span>“Fitting Linear Mixed-Effects Models Using <em>Lme4</em>.”</span> <em>Journal of Statistical Software</em> 67 (1): 1–48. <a href="https://doi.org/10.18637/jss.v067.i01">https://doi.org/10.18637/jss.v067.i01</a>.
 </div>
 <div id="ref-beamonte-barrientos_senescence_2010" class="csl-entry">
-Beamonte-Barrientos, René, Alberto Velando, Hugh Drummond, and Roxana Torres. 2010. <span>“Senescence of Maternal Effects: Aging Influences Egg Quality and Rearing Capacities of a Long-Lived Bird.”</span> <em>The American Naturalist</em> 175 (4): 469–80. <a href="https://doi.org/10.1086/650726">https://doi.org/10.1086/650726</a>.
+Beamonte-Barrientos, Ren, Alberto Velando, Hugh Drummond, and Roxana Torres. 2010. <span>“Senescence of Maternal Effects: Aging Influences Egg Quality and Rearing Capacities of a Long-Lived Bird.”</span> <em>The American Naturalist</em> 175 (4): 469–80. <a href="https://doi.org/10.1086/650726">https://doi.org/10.1086/650726</a>.
 </div>
 <div id="ref-beissinger_use_1998" class="csl-entry">
 Beissinger, Steven R., and Michael Ian Westphal. 1998. <span>“On the Use of Demographic Models of Population Viability in Endangered Species Management.”</span> <em>Journal of Wildlife Management</em> 62 (3): 821–41. <a href="https://doi.org/10.2307/3802534">https://doi.org/10.2307/3802534</a>.
 </div>
 <div id="ref-brooks_glmmtmb_2017" class="csl-entry">
-Brooks, Mollie E., Kasper Kristensen, Koen J. van Benthem, Arni Magnusson, Casper W. Berg, Anders Nielsen, Hans J. Skaug, Martin Mächler, and Benjamin M. Bolker. 2017. <span>“<span class="nocase">glmmTMB</span> Balances Speed and Flexibility Among Packages for Zero-Inflated Generalized Linear Mixed Modeling.”</span> <em>The R Journal</em> 9 (2): 378–400. <a href="https://doi.org/10.32614/RJ-2017-066">https://doi.org/10.32614/RJ-2017-066</a>.
+Brooks, Mollie E., Kasper Kristensen, Koen J. van Benthem, Arni Magnusson, Casper W. Berg, Anders Nielsen, Hans J. Skaug, Martin Mchler, and Benjamin M. Bolker. 2017. <span>“<span class="nocase">glmmTMB</span> Balances Speed and Flexibility Among Packages for Zero-Inflated Generalized Linear Mixed Modeling.”</span> <em>The R Journal</em> 9 (2): 378–400. <a href="https://doi.org/10.32614/RJ-2017-066">https://doi.org/10.32614/RJ-2017-066</a>.
 </div>
 <div id="ref-brownie_capture-recapture_1993" class="csl-entry">
 Brownie, C., James E. Hines, James D. Nichols, Kenneth H. Pollock, and Jay B. Hestbeck. 1993. <span>“Capture-Recapture Studies for Multiple Strata Including Non-<span>Markovian</span> Transitions.”</span> <em>Biometrics</em> 49 (4): 1173–87. <a href="https://doi.org/10.2307/2532259">https://doi.org/10.2307/2532259</a>.
@@ -723,16 +782,16 @@ Cole, Diana J., Byron J. T. Morgan, Rachel S. McCrea, Roger Pradel, Olivier Gime
 Davison, Raziel, Hans Jacquemyn, Dries Adriaens, Olivier Honnay, Hans de Kroon, and Shripad Tuljapurkar. 2010. <span>“Demographic Effects of Extreme Weather Events on a Short-Lived Calcareous Grassland Species: Stochastic Life Table Response Experiments.”</span> <em>Journal of Ecology</em> 98 (2): 255–67. <a href="https://doi.org/10.1111/j.1365-2745.2009.01611.x">https://doi.org/10.1111/j.1365-2745.2009.01611.x</a>.
 </div>
 <div id="ref-davison_contributions_2013" class="csl-entry">
-Davison, Raziel, Florence Nicolé, Hans Jacquemyn, and Shripad Tuljapurkar. 2013. <span>“Contributions of Covariance: Decomposing the Components of Stochastic Population Growth in <em><span>Cypripedium</span> Calceolus</em>.”</span> <em>The American Naturalist</em> 181 (3): 410–20. <a href="https://doi.org/10.1086/669155">https://doi.org/10.1086/669155</a>.
+Davison, Raziel, Florence Nicol, Hans Jacquemyn, and Shripad Tuljapurkar. 2013. <span>“Contributions of Covariance: Decomposing the Components of Stochastic Population Growth in <em><span>Cypripedium</span> Calceolus</em>.”</span> <em>The American Naturalist</em> 181 (3): 410–20. <a href="https://doi.org/10.1086/669155">https://doi.org/10.1086/669155</a>.
 </div>
 <div id="ref-descamps_age-specific_2008" class="csl-entry">
-Descamps, Sébastien, Stan Boutin, Dominique Berteaux, and Jean-Michel Gaillard. 2008. <span>“Age-Specific Variation in Survival, Reproductive Success and Offspring Quality in Red Squirrels: Evidence of Senescence.”</span> <em>Oikos</em> 117 (9): 1406–16. <a href="http://dx.doi.org/10.1111/j.0030-1299.2008.16545.x">http://dx.doi.org/10.1111/j.0030-1299.2008.16545.x</a>.
+Descamps, Sbastien, Stan Boutin, Dominique Berteaux, and Jean-Michel Gaillard. 2008. <span>“Age-Specific Variation in Survival, Reproductive Success and Offspring Quality in Red Squirrels: Evidence of Senescence.”</span> <em>Oikos</em> 117 (9): 1406–16. <a href="http://dx.doi.org/10.1111/j.0030-1299.2008.16545.x">http://dx.doi.org/10.1111/j.0030-1299.2008.16545.x</a>.
 </div>
 <div id="ref-dogra_defining_2019" class="csl-entry">
 Dogra, Harshita, and K. G. Srikanta Dani. 2019. <span>“Defining Features of Age-Specific Fertility and Seed Quality in Senescing Indeterminate Annuals.”</span> <em>American Journal of Botany</em> 106 (0): 604–10. <a href="https://doi.org/10.1002/ajb2.1265">https://doi.org/10.1002/ajb2.1265</a>.
 </div>
 <div id="ref-ehrlen_dynamics_2000" class="csl-entry">
-Ehrlén, Johan. 2000. <span>“The Dynamics of Plant Populations: Does the History of Individuals Matter?”</span> <em>Ecology</em> 81 (6): 1675–84. <a href="https://doi.org/10.1890/0012-9658(2000)081[1675:TDOPPD]2.0.CO;2">https://doi.org/10.1890/0012-9658(2000)081[1675:TDOPPD]2.0.CO;2</a>.
+Ehrln, Johan. 2000. <span>“The Dynamics of Plant Populations: Does the History of Individuals Matter?”</span> <em>Ecology</em> 81 (6): 1675–84. <a href="https://doi.org/10.1890/0012-9658(2000)081[1675:TDOPPD]2.0.CO;2">https://doi.org/10.1890/0012-9658(2000)081[1675:TDOPPD]2.0.CO;2</a>.
 </div>
 <div id="ref-ellner_integral_2006" class="csl-entry">
 Ellner, Stephen P., and Mark Rees. 2006. <span>“Integral Projection Models for Species with Complex Demography.”</span> <em>American Naturalist</em> 167 (3): 410–28. <a href="https://doi.org/10.1086/499438">https://doi.org/10.1086/499438</a>.
@@ -740,8 +799,14 @@ Ellner, Stephen P., and Mark Rees. 2006. <span>“Integral Projection Models for
 <div id="ref-jenks_data_1967" class="csl-entry">
 Jenks, George F. 1967. <span>“The Data Model Concept in Statistical Mapping.”</span> <em>International Yearbook of Cartography</em> 7: 186–90.
 </div>
+<div id="ref-jensen_simple_1995" class="csl-entry">
+Jensen, A. L. 1995. <span>“Simple Density-Dependent Matrix Model for Population Projection.”</span> <em>Ecological Modelling</em> 77 (1): 43–48. <a href="https://doi.org/10.1016/0304-3800(93)E0081-D">https://doi.org/10.1016/0304-3800(93)E0081-D</a>.
+</div>
 <div id="ref-kendall_persistent_2019" class="csl-entry">
-Kendall, Bruce E., Masami Fujiwara, Jasmin Diaz-Lopez, Sandra Schneider, Jakob Voigt, and Sören Wiesner. 2019. <span>“Persistent Problems in the Construction of Matrix Population Models.”</span> <em>Ecological Modelling</em> 406 (August): 33–43. <a href="https://doi.org/10.1016/j.ecolmodel.2019.03.011">https://doi.org/10.1016/j.ecolmodel.2019.03.011</a>.
+Kendall, Bruce E., Masami Fujiwara, Jasmin Diaz-Lopez, Sandra Schneider, Jakob Voigt, and Sren Wiesner. 2019. <span>“Persistent Problems in the Construction of Matrix Population Models.”</span> <em>Ecological Modelling</em> 406 (August): 33–43. <a href="https://doi.org/10.1016/j.ecolmodel.2019.03.011">https://doi.org/10.1016/j.ecolmodel.2019.03.011</a>.
+</div>
+<div id="ref-leslie_properties_1959" class="csl-entry">
+Leslie, P. H. 1959. <span>“The Properties of a Certain Lag Type of Population Growth and the Influence of an External Random Factor on a Number of Such Populations.”</span> <em>Physiological Zoology</em> 32 (3): 151–59. <a href="https://doi.org/10.1086/physzool.32.3.30152218">https://doi.org/10.1086/physzool.32.3.30152218</a>.
 </div>
 <div id="ref-morris_quantitative_2002" class="csl-entry">
 Morris, William F., and Daniel F. Doak. 2002. <em>Quantitative Conservation Biology: Theory and Practice of Population Viability Analysis</em>. Sunderland, Massachusetts, USA: Sinauer Associates, Inc.
@@ -753,13 +818,13 @@ Pinheiro, Jose, Douglas Bates, Saikat Debroy, Deepyan Sarkar, and R Core Team. 2
 Pradel, Roger, C. Wintrebert, and O. Gimenez. 2003. <span>“A Proposal for a Goodness-of-Fit Test to the <span>Arnason</span>-<span>Schwarz</span> Multisite Capture-Recapture Model.”</span> <em>Biometrics</em> 59: 43–53. <a href="https://doi.org/10.1111/1541-0420.00006">https://doi.org/10.1111/1541-0420.00006</a>.
 </div>
 <div id="ref-salguero-gomez_keeping_2010" class="csl-entry">
-Salguero-Gómez, Roberto, and Brenda B. Casper. 2010. <span>“Keeping Plant Shrinkage in the Demographic Loop.”</span> <em>Journal of Ecology</em> 98: 312–23. <a href="https://doi.org/10.1111/j.1365-2745.2009.01616.x">https://doi.org/10.1111/j.1365-2745.2009.01616.x</a>.
+Salguero-Gmez, Roberto, and Brenda B. Casper. 2010. <span>“Keeping Plant Shrinkage in the Demographic Loop.”</span> <em>Journal of Ecology</em> 98: 312–23. <a href="https://doi.org/10.1111/j.1365-2745.2009.01616.x">https://doi.org/10.1111/j.1365-2745.2009.01616.x</a>.
 </div>
 <div id="ref-shefferson_drivers_2018" class="csl-entry">
 Shefferson, Richard P., Tiiu Kull, Michael J. Hutchings, Marc-Andre Selosse, Hans Jacquemyn, Kimberly M. Kellett, Eric S. Menges, et al. 2018. <span>“Drivers of Vegetative Dormancy Across Herbaceous Perennial Plant Species.”</span> <em>Ecology Letters</em> 21 (5): 724–33. <a href="https://doi.org/10.1111/ele.12940">https://doi.org/10.1111/ele.12940</a>.
 </div>
 <div id="ref-shefferson_lefko3_2021" class="csl-entry">
-Shefferson, Richard P., Shun Kurokawa, and Johan Ehrlén. 2021. <span>“<em>Lefko3</em>: Analysing Individual History Through Size-Classified Matrix Population Models.”</span> <em>Methods in Ecology and Evolution</em> 12 (2): 378–82. <a href="https://doi.org/10.1111/2041-210X.13526">https://doi.org/10.1111/2041-210X.13526</a>.
+Shefferson, Richard P., Shun Kurokawa, and Johan Ehrln. 2021. <span>“<em>Lefko3</em>: Analysing Individual History Through Size-Classified Matrix Population Models.”</span> <em>Methods in Ecology and Evolution</em> 12 (2): 378–82. <a href="https://doi.org/10.1111/2041-210X.13526">https://doi.org/10.1111/2041-210X.13526</a>.
 </div>
 <div id="ref-shefferson_predicting_2017" class="csl-entry">
 Shefferson, Richard P., Ryo Mizuta, and Michael J. Hutchings. 2017. <span>“Predicting Evolution in Response to Climate Change: The Example of Sprouting Probability in Three Dormancy-Prone Orchid Species.”</span> <em>Royal Society Open Science</em> 4 (1): 160647. <a href="https://doi.org/10.1098/rsos.160647">https://doi.org/10.1098/rsos.160647</a>.

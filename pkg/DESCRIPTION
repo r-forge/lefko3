@@ -1,8 +1,8 @@
 Package: lefko3
 Type: Package
 Title: Historical and Ahistorical Population Projection Matrix Analysis
-Version: 3.8.0
-Date: 2021-09-08
+Version: 3.8.0.9000
+Date: 2021-09-20
 Authors@R: c(person(given = "Richard P.", family = "Shefferson",
              email = "cdorm@g.ecc.u-tokyo.ac.jp", role = c("aut", "cre"),
              comment=c(ORCID="0000-0002-5234-3131")),
@@ -22,6 +22,7 @@ Imports: Rcpp (>= 1.0.5),
     glmmTMB,
     lme4,
     MASS,
+    mathjaxr,
     MuMIn,
     pscl,
     SparseM,
@@ -30,9 +31,10 @@ Imports: Rcpp (>= 1.0.5),
     VGAM
 LinkingTo: Rcpp, RcppArmadillo
 LazyData: true
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Suggests: 
     knitr,
     popbio,
-    rmarkdown
+    rmarkdown,
+RdMacros: mathjaxr
 VignetteBuilder: knitr

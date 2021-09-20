@@ -327,7 +327,7 @@ anth_finallM$labels
 #### Step 5. MPM analysis
 
   <p style="text-indent: 20px">First, we will develop an arithmetic mean matrix, and then we will assess the population growth rate. We will assess both the annual deterministic $\lambda$, as well as stochastic $\lambda$ (note that the stochastic growth rate is generally given in logarithmic terms - we will take its natural exponent to make it comparable to $\lambda$).</p>
-```{r Ch9.12, fig.cap = "Figure 9.2. Deterministic vs. stochastic lambda"}
+```{r Ch9.12, fig.height = 4, fig.width = 6, fig.cap = "Figure 9.2. Deterministic vs. stochastic lambda"}
 anth_lmean <- lmean(anth_finallM)
 
 lambda2 <- lambda3(anth_finallM)
@@ -417,7 +417,7 @@ sum(trialltre_sto$ltre_sd[[1]][which(trialltre_sto$ltre_sd[[1]] < 0)])
   <p style="text-indent: 20px">The output for the deterministic LTRE shows that element 4, which is the growth transition from seedling to large flowering adult (column 1, row 4), has the strongest influence. This contribution is negative, so it reduces $\lambda$. The most positive contribution to $\lambda$ is from element 2, which is the growth transition from seedling to vegetative adult (column 1, row 2). We also see the most positive contribution from shifts in mean elements in the sLTRE is from element 3 (transition from seedling to small flowering adult), but the overall greatest impact is a negative contribution from element 13, which is the fecundity transition from large flowering adult to seedling (column 4, row 1). Variability in elements also contributes to shifts in $\text{log} \lambda$, though less so than shifts in mean elements. The strongest positive contribution is from variation in the fecundity transition from large flowering adult to seedling (element 13 in column 4, row 1), while the most negative contribution is from stasis as a large flowering adult (element 16 in row and column 4).</p>
   
   <p style="text-indent: 20px">Second, we will identify which stages exert the strongest impact on the population growth rate.</p>
-```{r Ch9.16, fig.cap = "Figure 9.3. LTRE contributions by stage in population C"}
+```{r Ch9.16, fig.height = 4, fig.width = 6, fig.cap = "Figure 9.3. LTRE contributions by stage in population C"}
 ltre_pos <- trialltre_det$ltre_det[[1]]
 ltre_neg <- trialltre_det$ltre_det[[1]]
 ltre_pos[which(ltre_pos < 0)] <- 0
@@ -451,7 +451,7 @@ legend("bottomleft", c("deterministic", "stochastic mean", "stochastic SD"),
   <p style="text-indent: 20px">The output above shows that large flowering adults exert the strongest influence on both $\lambda$ and $\text{log} \lambda$, with the latter influence being through the impact of shifts in the mean. This impact is overwhelmingly negative. The next largest impact comes from seedlings in the deterministic case, and from small flowering adults in the stochastic case, in both cases the influence being negative on the whole.</p>
   
   <p style="text-indent: 20px">Finally, we will assess what transition types exert the greatest impact on population growth rate.</p>
-```{r Ch9.17, fig.cap = "Figure 9.4. LTRE contributions by transition type in population C"}
+```{r Ch9.17, fig.height = 4, fig.width = 6, fig.cap = "Figure 9.4. LTRE contributions by transition type in population C"}
 det_ltre_summary <- summary(trialltre_det)
 sto_ltre_summary <- summary(trialltre_sto)
 
@@ -499,7 +499,7 @@ sltre_sdneg_toplot <- sltre_sdneg_toplot[c(4, 3, 1, 2),]
 ```
   
   <p style="text-indent: 20px">Now let's plot the contributions of shifts in the mean. Remember that all of these comparisons are against a grand mean matrix representing all populations. Note that in the code below, we use the `barplot()` function twice to produce a single plot - the `add = TRUE` setting in the second call allows us to overlay the negative contributions on the plot produced in the first call.</p>
-```{r Ch9.19, fig.cap = "Figure 9.5. Mean element sLTRE contributions by transition type"}
+```{r Ch9.19, fig.height = 4, fig.width = 6, fig.cap = "Figure 9.5. Mean element sLTRE contributions by transition type"}
 barplot(as.matrix(sltre_meanpos_toplot), main = "sLTRE impacts of shifts in mean", 
   xlab = "Population", ylab = "Contribution to stochastic growth rate",
   ylim = c(-0.8, 0.6), col = c("darkblue", "cyan", "yellow", "darkred"),
@@ -513,7 +513,7 @@ abline(0, 0, lty = 2)
   <p style="text-indent: 20px">Shifts in the mean appear to be strongly influential in some patches. In particular, it seems that populations L and Q, and perhaps R and F, have large impacts from the different transitions. It also appears that fecundity and growth have typically large impacts, and that these impacts are typically negative, while shifts in stasis and shrinkage transitions have little effect.</p>
   
   <p style="text-indent: 20px">Let's now compare with shifts in the standard deviations of matrix elements.</p>
-```{r Ch9.20, fig.cap = "Figure 9.6. Element SD sLTRE contributions by transition type"}
+```{r Ch9.20, fig.height = 4, fig.width = 6, fig.cap = "Figure 9.6. Element SD sLTRE contributions by transition type"}
 barplot(as.matrix(sltre_sdpos_toplot), main = "sLTRE impacts of shifts in SD", 
   xlab = "Population", ylab = "Contribution to stochastic growth rate",
   ylim = c(-0.06, 0.13), col = c("darkblue", "cyan", "yellow", "darkred"),

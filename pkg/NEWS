@@ -1,6 +1,26 @@
 LEFKO3 NEWS
 -----------
 
+CHANGES IN VERSION 3.9.0 (2021-XX-XX)
+-------------------------------------
+  NEW FEATURES
+    1. Function projection3() can now run density dependent projections using
+       the Ricker, Beverton-Holt, Usher, and logistic functions.
+    2. Functions start_input() and density_input() have been created to describe
+       starting vectors and density dependence in the simplest format possible.
+    3. Function modelsearch() now also calculates the accuracy of binomial
+       models and adds the output to the QC section of the output. Function
+       summary.lefkoMod() reports this output.
+    
+  USER-VISIBLE CHANGES
+    1. Corrected some figure dimensions in vignettes.
+    2. 
+    
+  BUG FIXES
+    1. Corrected bug causing code "npr" to yield propagule stages in time t+1
+       in supplement and overwrite tables.
+
+
 CHANGES IN VERSION 3.8.0 (2021-09-08)
 -------------------------------------
   NEW FEATURES

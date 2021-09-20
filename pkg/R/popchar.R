@@ -245,50 +245,61 @@ sf_create <- function(sizes, stagenames = NA, repstatus = 1, obsstatus = 1,
   
   #Here we check for illegal inputs and stop where necessary
   if (length(stagenames) != matsize) {
-    stop("Stagename option must be either equal NA or 'ipm', or be a vector of the same length as the sizes vector.", call. = FALSE)
+    stop("Stagename option must be either equal NA or 'ipm', or be a vector of
+      the same length as the sizes vector.", call. = FALSE)
   }
   
   if (length(repstatus) != matsize) {
-    stop("Repstatus option must either equal 0 or 1, or be a vector of 1's and 0's of the same length as the sizes vector.", call. = FALSE)
+    stop("Repstatus option must either equal 0 or 1, or be a vector of 1's and
+      0's of the same length as the sizes vector.", call. = FALSE)
   }
   
   if (length(obsstatus) != matsize) {
-    stop("Obsstatus option must either equal 0 or 1, or be a vector of 1's and 0's of the same length as the sizes vector.", call. = FALSE)
+    stop("Obsstatus option must either equal 0 or 1, or be a vector of 1's and
+      0's of the same length as the sizes vector.", call. = FALSE)
   }
   
   if (length(matstatus) != matsize) {
-    stop("Matstatus option must either equal 0 or 1, or be a vector of 1's and 0's of the same length as the sizes vector.", call. = FALSE)
+    stop("Matstatus option must either equal 0 or 1, or be a vector of 1's and
+      0's of the same length as the sizes vector.", call. = FALSE)
   }
   
   if (length(immstatus) != matsize) {
-    stop("Immstatus option must either equal NA or be a vector of the same length as the sizes vector.", call. = FALSE)
+    stop("Immstatus option must either equal NA or be a vector of the same
+      length as the sizes vector.", call. = FALSE)
   }
   
   if (length(propstatus) != matsize) {
-    stop("Propstatus option must either equal NA or be a vector of the same length as the sizes vector.", call. = FALSE)
+    stop("Propstatus option must either equal NA or be a vector of the same
+      length as the sizes vector.", call. = FALSE)
   }
   
   if (length(indataset) != matsize) {
-    stop("Indataset option must either equal NA or be a vector of 1's and 0's of the same length as the sizes vector.", call. = FALSE)
+    stop("Indataset option must either equal NA or be a vector of 1's and 0's of
+      the same length as the sizes vector.", call. = FALSE)
   }
   
   if (length(binhalfwidth) != matsize) {
-    stop("Binhalfwidth option must either equal a single number or be a numeric vector of the same length as the sizes vector.", call. = FALSE)
+    stop("Binhalfwidth option must either equal a single number or be a numeric
+      vector of the same length as the sizes vector.", call. = FALSE)
   }
   
   if (any(!is.numeric(sizes))) {
-    warning("Size should be numeric if matrices will be created with flefko2() or flefko3().")
+    warning("Size should be numeric if matrices will be created with flefko2()
+      or flefko3().")
   }
   
   if (ipmbins != as.integer(ipmbins) | ipmbins < 2) {
     stop("Please enter a valid integer greater than 1 for ipmbins option.", call. = FALSE)
   } else if (ipmbins > 100) {
-    warning("High ipmbin numbers may lead to dramatic decreases in statistical power and overparameterized matrices.")
+    warning("High ipmbin numbers may lead to dramatic decreases in statistical
+      power and overparameterized matrices.")
   }
   
   if (!all(is.na(comments))) {
     if (length(comments) != matsize) {
-      stop("Comments field must be either NA or a vector of the same length as the sizes vector.", call. = FALSE)
+      stop("Comments field must be either NA or a vector of the same length as
+        the sizes vector.", call. = FALSE)
     }
   } else {
     comments <- rep("No description", matsize)
@@ -312,19 +323,25 @@ sf_create <- function(sizes, stagenames = NA, repstatus = 1, obsstatus = 1,
   # Here we take care of IPM coding
   if (any(tolower(stagenames) == "ipm")) {
     if ((length(which(tolower(stagenames) == "ipm")) %% 2) != 0) {
-      stop("Pairs of stages must be marked as 'ipm' in stagenames, corresponding to the upper and lower size limits for ipm size class and bin calculation for each pair.", call. = FALSE)
+      stop("Pairs of stages must be marked as 'ipm' in stagenames, corresponding
+        to the upper and lower size limits for ipm size class and bin
+        calculation for each pair.", call. = FALSE)
     }
     
     if (any(matstatus[which(tolower(stagenames) == "ipm")] != 1)) {
-      stop("Size classes used as bases for function-based stages must be mature classes. Please reassign all such class to mature status.", call. = FALSE)
+      stop("Size classes used as bases for function-based stages must be mature
+        classes. Please reassign all such class to mature status.",
+        call. = FALSE)
     }
     
     if ((length(unique(sizes[(which(tolower(stagenames) == "ipm"))])) %% 2) != 0) {
-      stop("Stages marked 'ipm' must differ in size within pairs.", call. = FALSE)
+      stop("Stages marked 'ipm' must differ in size within pairs.",
+        call. = FALSE)
     }
     
     if (any(indataset[(which(tolower(stagenames) == "ipm"))] == 0)) {
-      stop("All stages used to develop function-based stages must exist within the vertical dataset.", call. = FALSE)
+      stop("All stages used to develop function-based stages must exist within
+        the vertical dataset.", call. = FALSE)
     }
     
     ipmbase <- which(tolower(stagenames) == "ipm")
@@ -409,16 +426,23 @@ sf_create <- function(sizes, stagenames = NA, repstatus = 1, obsstatus = 1,
   loipmborder <- isx[1]
   hiipmborder <- isx[2]
   
-  if (ipmdata$repstatus[loipmborder] != ipmdata$repstatus[hiipmborder] | ipmdata$obsstatus[loipmborder] != ipmdata$obsstatus[hiipmborder]) {
-    stop("All input characteristics of stages used for IPM stage development must be equal.", call. = FALSE)
+  if (ipmdata$repstatus[loipmborder] != ipmdata$repstatus[hiipmborder] |
+      ipmdata$obsstatus[loipmborder] != ipmdata$obsstatus[hiipmborder]) {
+    
+    stop("All input characteristics of stages used for IPM stage development
+      must be equal.", call. = FALSE)
   }
   
-  if (ipmdata$matstatus[loipmborder] != ipmdata$matstatus[hiipmborder] | ipmdata$immstatus[loipmborder] != ipmdata$immstatus[hiipmborder]) {
-    stop("All input characteristics of stages used for IPM stage development must be equal.", call. = FALSE)
+  if (ipmdata$matstatus[loipmborder] != ipmdata$matstatus[hiipmborder] |
+      ipmdata$immstatus[loipmborder] != ipmdata$immstatus[hiipmborder]) {
+    
+    stop("All input characteristics of stages used for IPM stage development
+      must be equal.", call. = FALSE)
   }
   
   if (ipmdata$propstatus[loipmborder] != ipmdata$propstatus[hiipmborder]) {
-    stop("All input characteristics of stages used for IPM stage development must be equal.", call. = FALSE)
+    stop("All input characteristics of stages used for IPM stage development
+      must be equal.", call. = FALSE)
   }
   
   if (no_age == FALSE) {
@@ -433,7 +457,8 @@ sf_create <- function(sizes, stagenames = NA, repstatus = 1, obsstatus = 1,
     if (is.na(himaxagetest)) {himaxagetest <- 1001}
     
     if (lominagetest != himinagetest | lomaxagetest != himaxagetest) {
-      stop("All input characteristics of stages used for IPM stage development must be equal.", call. = FALSE)
+      stop("All input characteristics of stages used for IPM stage development
+        must be equal.", call. = FALSE)
     }
   }
   
@@ -473,11 +498,12 @@ sf_create <- function(sizes, stagenames = NA, repstatus = 1, obsstatus = 1,
 
 #' Standardize Stageframe For MPM Analysis
 #' 
-#' \code{.sfreassess()} takes a stageframe as input, and uses information
-#' supplied there and through the supplement, reproduction and overwrite tables
-#' to rearrange this into a format usable by the matrix creation functions,
-#' \code{\link{flefko3}()}, \code{\link{flefko2}()}, \code{\link{rlefko3}()},
-#' and \code{\link{rlefko2}()}.
+#' Function \code{.sf_reassess()} takes a stageframe as input, and uses
+#' information supplied there and through the supplement, reproduction and
+#' overwrite tables to rearrange this into a format usable by the matrix
+#' creation functions, \code{\link{flefko3}()}, \code{\link{flefko2}()},
+#' \code{\link{aflefko2}()}, \code{\link{rlefko3}()}, and
+#' \code{\link{rlefko2}()}.
 #' 
 #' @param stageframe The original stageframe.
 #' @param supplement Thje original supplemental data input
@@ -873,70 +899,83 @@ sf_create <- function(sizes, stagenames = NA, repstatus = 1, obsstatus = 1,
   stageframe.reassessed$comments <- com.vec.r
   
   if(any(duplicated(stageframe.reassessed$stage) == TRUE)) {
-    stop("All stage names provided in stageframe must be unique.", call. = FALSE)
+    stop("All stage names provided in stageframe must be unique.",
+      call. = FALSE)
   }
   
   if(!all(is.na(overwrite))) {
     if (length(setdiff(unique(na.omit(tolower(overwrite$stage3))),
         tolower(c(stageframe.reassessed$stage, "rep", "immat", "mat", "prop", "all")))) > 0) {
-      stop("Stage names in overwrite table (stage3) must match stages in stageframe.", call. = FALSE)
+      stop("Stage names in overwrite table (stage3) must match stages in
+        stageframe.", call. = FALSE)
     }
     
     if (length(setdiff(unique(na.omit(tolower(overwrite$stage2))),
         tolower(c(stageframe.reassessed$stage, "rep", "immat", "mat", "prop", "all")))) > 0) {
-      stop("Stage names in overwrite table (stage2) must match stages in stageframe.", call. = FALSE)
+      stop("Stage names in overwrite table (stage2) must match stages in
+        stageframe.", call. = FALSE)
     }
     
     if (length(setdiff(unique(na.omit(tolower(overwrite$stage1))),
         tolower(c(stageframe.reassessed$stage, "rep", "immat", "mat", "prop", "all")))) > 0) {
-      stop("Stage names in overwrite table (stage1) must match stages in stageframe.", call. = FALSE)
+      stop("Stage names in overwrite table (stage1) must match stages in
+        stageframe.", call. = FALSE)
     }
     
     if (length(setdiff(unique(na.omit(tolower(overwrite$eststage3))),
         tolower(c(stageframe.reassessed$stage, "rep", "immat", "mat", "prop", "all")))) > 0) {
-      stop("Stage names in overwrite table (eststage3) must match stages in stageframe.", call. = FALSE)
+      stop("Stage names in overwrite table (eststage3) must match stages in
+        stageframe.", call. = FALSE)
     }
     
     if (length(setdiff(unique(na.omit(tolower(overwrite$eststage2))),
         tolower(c(stageframe.reassessed$stage, "rep", "immat", "mat", "prop", "all")))) > 0) {
-      stop("Stage names in overwrite table (eststage2) must match stages in stageframe.", call. = FALSE)
+      stop("Stage names in overwrite table (eststage2) must match stages in
+        stageframe.", call. = FALSE)
     }
     
     if (length(setdiff(unique(na.omit(tolower(overwrite$eststage1))),
         tolower(c(stageframe.reassessed$stage, "rep", "immat", "mat", "prop", "all")))) > 0) {
-      stop("Stage names in overwrite table (eststage1) must match stages in stageframe.", call. = FALSE)
+      stop("Stage names in overwrite table (eststage1) must match stages in
+        stageframe.", call. = FALSE)
     }
   }
   
   if(!all(is.na(supplement))) {
     if (length(setdiff(unique(na.omit(tolower(supplement$stage3))), 
         c(tolower(stageframe.reassessed$stage), "rep", "immat", "mat", "prop", "npr", "all"))) > 0) {
-      stop("Stage names in supplement table (stage3) must match stages in stageframe.", call. = FALSE)
+      stop("Stage names in supplement table (stage3) must match stages in
+        stageframe.", call. = FALSE)
     }
     
     if (length(setdiff(unique(na.omit(tolower(supplement$stage2))),
         c(tolower(stageframe.reassessed$stage), "rep", "immat", "mat", "prop", "npr", "all"))) > 0) {
-      stop("Stage names in supplement table (stage2) must match stages in stageframe.", call. = FALSE)
+      stop("Stage names in supplement table (stage2) must match stages in
+        stageframe.", call. = FALSE)
     }
     
     if (length(setdiff(unique(na.omit(tolower(supplement$stage1))),
         c(tolower(stageframe.reassessed$stage), "rep", "immat", "mat", "prop", "all", "npr"))) > 0) {
-      stop("Stage names in supplement table (stage1) must match stages in stageframe.", call. = FALSE)
+      stop("Stage names in supplement table (stage1) must match stages in
+        stageframe.", call. = FALSE)
     }
     
     if (length(setdiff(unique(na.omit(tolower(supplement$eststage3))),
         c(tolower(stageframe.reassessed$stage), "rep", "immat", "mat", "prop", "all", "npr"))) > 0) {
-      stop("Stage names in supplement table (eststage3) must match stages in stageframe.", call. = FALSE)
+      stop("Stage names in supplement table (eststage3) must match stages in
+        stageframe.", call. = FALSE)
     }
     
     if (length(setdiff(unique(na.omit(tolower(supplement$eststage2))),
         c(tolower(stageframe.reassessed$stage), "rep", "immat", "mat", "prop", "all", "npr"))) > 0) {
-      stop("Stage names in supplement table (eststage2) must match stages in stageframe.", call. = FALSE)
+      stop("Stage names in supplement table (eststage2) must match stages in
+        stageframe.", call. = FALSE)
     }
     
     if (length(setdiff(unique(na.omit(tolower(supplement$eststage1))),
         c(tolower(stageframe.reassessed$stage), "rep", "immat", "mat", "prop", "all", "npr", "notalive"))) > 0) {
-      stop("Stage names in supplement table (eststage1) must match stages in stageframe.", call. = FALSE)
+      stop("Stage names in supplement table (eststage1) must match stages in
+        stageframe.", call. = FALSE)
     }
   }
   
@@ -955,13 +994,13 @@ sf_create <- function(sizes, stagenames = NA, repstatus = 1, obsstatus = 1,
 #' transitions.
 #'
 #' @param stage3 The name of the stage in occasion \emph{t}+1 in the transition
-#' to be replaced.
+#' to be replaced. Abbreviations for groups of stages are also allowed
+#' (see Notes).
 #' @param stage2 The name of the stage in occasion \emph{t} in the transition to
-#' be replaced.
+#' be replaced. Abbreviations for groups of stages are also allowed (see Notes).
 #' @param stage1 The name of the stage in occasion \emph{t}-1 in the transition
-#' to be replaced. Only needed if a historical matrix is to be produced. Use
-#' \code{rep} if all reproductive stages are to be used, and leave empty or use
-#' \code{all} if all stages in stageframe are to be used.
+#' to be replaced. Only needed if a historical matrix is to be produced.
+#' Abbreviations for groups of stages are also allowed (see Notes).
 #' @param eststage3 The name of the stage to replace \code{stage3}. Only needed
 #' if a transition will be replaced by another estimated transition.
 #' @param eststage2 The name of the stage to replace \code{stage2}. Only needed
@@ -1007,6 +1046,15 @@ sf_create <- function(sizes, stagenames = NA, repstatus = 1, obsstatus = 1,
 #' \emph{t}-1 to occasion \emph{t} is a survival transition probability (1), a
 #' fecundity rate (2).}
 #' 
+#' @section Notes:
+#' Entries in \code{stage3}, \code{stage2}, and \code{stage1} can include
+#' abbreviations for groups of stages. Use \code{rep} if all reproductive stages
+#' are to be used, \code{nrep} if all mature but non-reproductive stages are to
+#' be used, \code{mat} if all mature stages are to be used, \code{immat} if all
+#' immature stages are to be used, \code{prop} if all propagule stages are to be
+#' used, \code{npr} if all non-propagule stages are to be used, and leave empty
+#' or use \code{all} if all stages in stageframe are to be used.
+#' 
 #' @examples
 #' cypover2r <- overwrite(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
 #'     "XSm", "Sm"),
@@ -1040,8 +1088,8 @@ overwrite <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
   eststage2 = NA, eststage1 = NA, givenrate = NA, type = NA, type_t12 = NA) {
   
   if (length(stage3) != length(stage2)) {
-    stop("All transitions to overwrite require information at least for stage2 and stage3. These inputs must also be of equal length.",
-         call. = FALSE)
+    stop("All transitions to overwrite require information at least for stage2
+      and stage3. These inputs must also be of equal length.", call. = FALSE)
   }
   
   fulllength <- max(length(stage3), length(stage2), length(stage1), length(eststage3), 
@@ -1104,9 +1152,9 @@ overwrite <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
 
 #' Check and Reorganize Overwrite Table Into Usable Format
 #' 
-#' \code{.overwrite_reassess()} takes a supplement table as supplied by the
-#' \code{\link{supplement}()} function and an overwrite table as supplied by the
-#' \code{\link{overwrite}()} function, and checks and rearranges them into a
+#' Function \code{.overwrite_reassess()} takes a supplement table as supplied by
+#' the \code{\link{supplement}()} function and an overwrite table as supplied by
+#' the \code{\link{overwrite}()} function, and checks and rearranges them into a
 #' single common supplement table. This makes them usable by the MPM estimation
 #' functions \code{\link{flefko3}()}, \code{\link{flefko2}()},
 #' \code{\link{rlefko3}()}, \code{\link{rlefko2}()}, and
@@ -1135,7 +1183,11 @@ overwrite <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
     shrubbery <- unique(rbind(supplement, overwritetable))
     
     if(any(duplicated(shrubbery[,1:3]))) {
-      stop("Multiple entries with different values for the same stage transition are not allowed in the supplemental or overwrite table. If modifying a historical table to perform an ahistorical analysis, then this may be due to different given rates of substitutions caused by dropping stage at occasion t-1. Please eliminate duplicate transitions.",
+      stop("Multiple entries with different values for the same stage transition
+        are not allowed in the supplemental or overwrite table. If modifying a
+        historical table to perform an ahistorical analysis, then this may be
+        due to different given rates of substitutions caused by dropping stage
+        at occasion t-1. Please eliminate duplicate transitions.",
         call. = FALSE)
     }
     
@@ -1145,8 +1197,11 @@ overwrite <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
     shrubbery$multiplier <- NA
     
     if(any(duplicated(shrubbery[,1:3]))) {
-      stop("Multiple entries with different values for the same stage transition are not allowed in the overwrite table. If modifying a historical table to perform an ahistorical analysis, then this may be due to different given rates of substitutions caused by dropping stage at occasion t-1. Please eliminate duplicate transitions.",
-        call. = FALSE)
+      stop("Multiple entries with different values for the same stage transition
+        are not allowed in the overwrite table. If modifying a historical table
+        to perform an ahistorical analysis, then this may be due to different
+        given rates of substitutions caused by dropping stage at occasion t-1.
+        Please eliminate duplicate transitions.", call. = FALSE)
     }
     
   } else if (!all(is.na(supplement))) {
@@ -1154,8 +1209,11 @@ overwrite <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
     shrubbery <- unique(supplement)
     
     if(any(duplicated(shrubbery[,1:3]))) {
-      stop("Multiple entries with different values for the same stage transition are not allowed in the supplemental table. If modifying a historical table to perform an ahistorical analysis, then this may be due to different given rates of substitutions caused by dropping stage at occasion t-1. Please eliminate duplicate transitions.",
-        call. = FALSE)
+      stop("Multiple entries with different values for the same stage transition
+        are not allowed in the supplemental table. If modifying a historical
+        table to perform an ahistorical analysis, then this may be due to
+        different given rates of substitutions caused by dropping stage at
+        occasion t-1. Please eliminate duplicate transitions.", call. = FALSE)
     }
     
   } else {
@@ -1177,7 +1235,8 @@ overwrite <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
       checkna2vec <- c(shrubbery[X, "stage3"], shrubbery[X, "stage2"])
       
       if (!all(!is.na(checkna2vec))) {
-        stop("All entries for stage2 and stage3 in supplemental table must refer to possible life history stages and cannot include NAs.",
+        stop("All entries for stage2 and stage3 in supplemental table must refer
+          to possible life history stages and cannot include NAs.",
           call. = FALSE)
       }
       
@@ -1855,7 +1914,7 @@ overwrite <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
           return(shrubbery.small)
           
         } else if (shrubbery[X, "stage3"] == "npr") {
-          shrubbery.small <- cbind.data.frame(stage3 = stageframe$stage[which(stageframe$propstatus == 1)], 
+          shrubbery.small <- cbind.data.frame(stage3 = stageframe$stage[which(stageframe$propstatus == 0)], 
             stage2 = shrubbery[X, "stage2"], stage1 = shrubbery[X, "stage1"], 
             eststage3 = shrubbery[X, "eststage3"], eststage2 = shrubbery[X, "eststage2"], 
             eststage1 = shrubbery[X, "eststage1"], givenrate = shrubbery[X, "givenrate"],
@@ -2080,16 +2139,18 @@ supplemental <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
   type_t12 = NA, stageframe, historical = TRUE) {
   
   if (all(class(stageframe) != "stageframe")) {
-    stop("A regular stageframe, as output from the sf_create() function, is required for function supplemental().", call. = FALSE)
+    stop("A regular stageframe, as output from the sf_create() function, is
+      required for function supplemental().", call. = FALSE)
   }
   
   if (!is.element("stage", names(stageframe))) {
-    stop("Stageframe appears to be modified. Please make sure that a $stage column exists holding stage names.", call. = FALSE)
+    stop("Stageframe appears to be modified. Please make sure that a stage
+      column exists holding stage names.", call. = FALSE)
   }
   
   if (length(stage3) != length(stage2)) {
-    stop("All transitions to overwrite require information at least for stage2 and stage3. These inputs must also be of equal length.",
-         call. = FALSE)
+    stop("All transitions to overwrite require information at least for stage2
+      and stage3. These inputs must also be of equal length.", call. = FALSE)
   }
   
   fulllength <- max(length(stage3), length(stage2), length(stage1),
@@ -2136,12 +2197,14 @@ supplemental <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
   ltype <- tolower(type)
   typeall <- unique(ltype)
   if (!all(is.element(typeall, c(NA, "1", "2", "3", "f", "r", "s")))) {
-    stop("Variable type must include only 1, 2, 3, s, r, and f. All other entries are not allowed.", call. = FALSE)
+    stop("Variable type must include only 1, 2, 3, s, r, and f. All other
+      entries are not allowed.", call. = FALSE)
   }
   ltype_t12 <- tolower(type_t12)
   typeall_t12 <- unique(ltype_t12)
   if (!all(is.element(typeall_t12, c(NA, "1", "2", "f", "s")))) {
-    stop("Variable type_t12 must include only 1, 2, s, and f. All other entries are not allowed.", call. = FALSE)
+    stop("Variable type_t12 must include only 1, 2, s, and f. All other entries
+      are not allowed.", call. = FALSE)
   }
   
   convtype <- rep(1, length(type))
@@ -2167,13 +2230,14 @@ supplemental <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
           c("all", "rep", "nrep", "mat", "immat", "prop", "npr", "notalive")))]
     
     if (!all(is.element(extrastuff, c("all", "rep", "nrep", "mat", "immat", "prop", "npr", "notalive")))) {
-      stop(paste("The following stage names input in supplemental() do not match the stageframe:", 
-        paste(unaccountedfor, collapse = ' ')), call. = FALSE)
+      stop(paste("The following stage names input in supplemental() do not match
+        the stageframe:", paste(unaccountedfor, collapse = ' ')), call. = FALSE)
     }
   }
   
   if (is.element("notalive", tolower(c(stage1, stage2, stage3, eststage2, eststage3)))) {
-    stop("Stage NotAlive is only allowed in the input for eststage1.", call. = FALSE)
+    stop("Stage NotAlive is only allowed in the input for eststage1.",
+      call. = FALSE)
   }
   
   output <- cbind.data.frame(stage3, stage2, stage1, eststage3, eststage2,
@@ -2192,12 +2256,13 @@ supplemental <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
     
     givens <- unique(union(givenests, givengivens))
     if (length(givens) < length(all12s)) {
-      stop("Some given rates or proxy transitions do not appear to be given. Please correct.", call. = FALSE)
+      stop("Some given rates or proxy transitions do not appear to be given.",
+        call. = FALSE)
     }
   }
   if (length(all3s) > 0) {
     if (any(is.na(multiplier[all3s]))) {
-      stop("Some fecundity multipliers appear to be NAs. Please correct.", call. = FALSE)
+      stop("Some fecundity multipliers appear to be NAs.", call. = FALSE)
     }
   }
   
@@ -2330,22 +2395,23 @@ sf_distrib <- function(data, size3 = NA, size2 = NA, obs3 = NA, fec = NA,
   alive3 <- NULL
   
   if (!any(class(data) == "hfvdata")) {
-    stop("Function sf_distrib requires an object of class hfvdata as input.", call. = FALSE)
+    stop("Function sf_distrib requires an object of class hfvdata as input.",
+      call. = FALSE)
   }
   
   if (is.na(size3) & is.na(fec)) {
-    stop("Function sf_distrib requires a size and/or fecundity variable to test. Please designate at least one such variable",
-         call. = FALSE)
+    stop("Function sf_distrib requires a size and/or fecundity variable to test.
+      Please designate at least one such variable", call. = FALSE)
   }
   
   if (!is.na(fec) & is.na(repst)) {
-    stop("Function sf_distrib requires a reproductive status variable (repst) in order to test the distribution underlying fecundity.",
-         call. = FALSE)
+    stop("Function sf_distrib requires a reproductive status variable (repst) in
+      order to test the distribution underlying fecundity.", call. = FALSE)
   }
   
   if (is.na(size2)) {
-    stop("Function sf_distrib requires size in occasion t to function. Please designate this variable",
-         call. = FALSE)
+    stop("Function sf_distrib requires size in occasion t to function. Please
+      designate this variable", call. = FALSE)
   }
   
   sdata <- subset(data, alive3 == 1)
@@ -2353,7 +2419,8 @@ sf_distrib <- function(data, size3 = NA, size2 = NA, obs3 = NA, fec = NA,
   if (!is.na(obs3)) {
     if (is.numeric(obs3)) {
       if (obs3 > dim(sdata)[2]) {
-        stop("Obs3 variable seems to represent column number, but column number is out of bounds.", call. = FALSE)
+        stop("Obs3 variable seems to represent column number, but column number
+          is out of bounds.", call. = FALSE)
       } else {
         sdata <- sdata[which(sdata[,obs3] == 1),]
       }
@@ -2364,9 +2431,11 @@ sf_distrib <- function(data, size3 = NA, size2 = NA, obs3 = NA, fec = NA,
       obs3proxy <- grep(obs3low, datanames, fixed = TRUE)
       
       if (length(obs3proxy) == 0) {
-        stop("Name of obs3 variable does not match any variable in dataset.", call. = FALSE)
+        stop("Name of obs3 variable does not match any variable in dataset.",
+          call. = FALSE)
       } else if (length(obs3proxy) > 1) {
-        stop("Obs3 variable name appears to match several variable names in dataset.", call. = FALSE)
+        stop("Obs3 variable name appears to match several variable names in
+          dataset.", call. = FALSE)
       }
       
       sdata <- sdata[which(sdata[,obs3proxy] == 1),]
@@ -2376,7 +2445,8 @@ sf_distrib <- function(data, size3 = NA, size2 = NA, obs3 = NA, fec = NA,
   if (!is.na(size3)) {
     if (is.numeric(size3)) {
       if (size3 > dim(sdata)[2]) {
-        stop("Size3 variable seems to represent column number, but column number is out of bounds.", call. = FALSE)
+        stop("Size3 variable seems to represent column number, but column number
+          is out of bounds.", call. = FALSE)
       } else {
         size3data <- sdata[, size3]
       }
@@ -2387,9 +2457,11 @@ sf_distrib <- function(data, size3 = NA, size2 = NA, obs3 = NA, fec = NA,
       size3proxy <- grep(size3low, datanames, fixed = TRUE)
       
       if (length(size3proxy) == 0) {
-        stop("Name of size3 variable does not match any variable in dataset.", call. = FALSE)
+        stop("Name of size3 variable does not match any variable in dataset.",
+          call. = FALSE)
       } else if (length(size3proxy) > 1) {
-        stop("Size3 variable name appears to match several variable names in dataset.", call. = FALSE)
+        stop("Size3 variable name appears to match several variable names in
+          dataset.", call. = FALSE)
       }
       
       size3data <- sdata[, size3proxy]
@@ -2397,7 +2469,8 @@ sf_distrib <- function(data, size3 = NA, size2 = NA, obs3 = NA, fec = NA,
     
     if (is.numeric(size2)) {
       if (size2 > dim(sdata)[2]) {
-        stop("Size2 variable seems to represent column number, but column number is out of bounds.", call. = FALSE)
+        stop("Size2 variable seems to represent column number, but column number
+          is out of bounds.", call. = FALSE)
       } else {
         size2data <- sdata[, size2]
       }
@@ -2408,9 +2481,11 @@ sf_distrib <- function(data, size3 = NA, size2 = NA, obs3 = NA, fec = NA,
       size2proxy <- grep(size2low, datanames, fixed = TRUE)
       
       if (length(size2proxy) == 0) {
-        stop("Name of size2 variable does not match any variable in dataset.", call. = FALSE)
+        stop("Name of size2 variable does not match any variable in dataset.",
+          call. = FALSE)
       } else if (length(size2proxy) > 1) {
-        stop("Size3 variable name appears to match several variable names in dataset.", call. = FALSE)
+        stop("Size3 variable name appears to match several variable names in
+          dataset.", call. = FALSE)
       }
       
       size2data <- sdata[, size2proxy]
@@ -2472,7 +2547,8 @@ sf_distrib <- function(data, size3 = NA, size2 = NA, obs3 = NA, fec = NA,
   if (!is.na(fec)) {
     if (is.numeric(size2)) {
       if (size2 > dim(sdata)[2]) {
-        stop("Size2 variable seems to represent column number, but column number is out of bounds.", call. = FALSE)
+        stop("Size2 variable seems to represent column number, but column number
+          is out of bounds.", call. = FALSE)
       } else {
         size2data <- data[, size2]
       }
@@ -2483,9 +2559,11 @@ sf_distrib <- function(data, size3 = NA, size2 = NA, obs3 = NA, fec = NA,
       size2proxy <- grep(size2low, datanames, fixed = TRUE)
       
       if (length(size2proxy) == 0) {
-        stop("Name of size2 variable does not match any variable in dataset.", call. = FALSE)
+        stop("Name of size2 variable does not match any variable in dataset.",
+          call. = FALSE)
       } else if (length(size2proxy) > 1) {
-        stop("Size2 variable name appears to match several variable names in dataset.", call. = FALSE)
+        stop("Size2 variable name appears to match several variable names in
+          dataset.", call. = FALSE)
       }
       
       size2data <- data[, size2proxy]
@@ -2493,11 +2571,12 @@ sf_distrib <- function(data, size3 = NA, size2 = NA, obs3 = NA, fec = NA,
     
     if (is.numeric(repst)) {
       if (repst > dim(data)[2]) {
-        stop("\nReproductive status variable seems to represent column number, but column number is out of bounds.", 
-             call. = FALSE)
+        stop("\nReproductive status variable seems to represent column number,
+          but column number is out of bounds.", call. = FALSE)
       } else {
         if (any(!is.element(data[, repst], c(0,1)))) {
-          stop("\nReproductive status variable used should be binomial.", call. = FALSE)
+          stop("\nReproductive status variable used should be binomial.",
+            call. = FALSE)
         }
         repstdata <- data[which(data[,repst] == 1),]
         size2data <- size2data[which(data[,repst] == 1)]
@@ -2509,9 +2588,11 @@ sf_distrib <- function(data, size3 = NA, size2 = NA, obs3 = NA, fec = NA,
       repstproxy <- grep(repstlow, datanames, fixed = TRUE)
       
       if (length(repstproxy) == 0) {
-        stop("\nName of reproducdtive status variable does not match any variable in dataset.", call. = FALSE)
+        stop("\nName of reproducdtive status variable does not match any
+          variable in dataset.", call. = FALSE)
       } else if (length(repstproxy) > 1) {
-        stop("\nReproductive status variable name appears to match several variable names in dataset.", call. = FALSE)
+        stop("\nReproductive status variable name appears to match several
+          variable names in dataset.", call. = FALSE)
       }
       
       repstdata <- data[which(data[,repstproxy] == 1),]
@@ -2522,8 +2603,8 @@ sf_distrib <- function(data, size3 = NA, size2 = NA, obs3 = NA, fec = NA,
     
     if (is.numeric(fec)) {
       if (fec > dim(data)[2]) {
-        stop("\nFecundity variable seems to represent column number, but column number is out of bounds.", 
-             call. = FALSE)
+        stop("\nFecundity variable seems to represent column number, but column
+          number is out of bounds.", call. = FALSE)
       } else {
         fecdata <- repstdata[, fec]
       }
@@ -2534,9 +2615,11 @@ sf_distrib <- function(data, size3 = NA, size2 = NA, obs3 = NA, fec = NA,
       fecproxy <- grep(feclow, datanames, fixed = TRUE)
       
       if (length(fecproxy) == 0) {
-        stop("\nName of fecundity variable does not match any variable in dataset.", call. = FALSE)
+        stop("\nName of fecundity variable does not match any variable in
+          dataset.", call. = FALSE)
       } else if (length(fecproxy) > 1) {
-        stop("\nFecundity variable name appears to match several variable names in dataset.", call. = FALSE)
+        stop("\nFecundity variable name appears to match several variable names
+          in dataset.", call. = FALSE)
       }
       
       fecdata <- repstdata[, fecproxy]
@@ -2592,5 +2675,1279 @@ sf_distrib <- function(data, size3 = NA, size2 = NA, obs3 = NA, fec = NA,
   }
   
   return(NULL)
+}
+
+#' Create a Data Frame of Elements Subject to Density Dependence
+#' 
+#' Function \code{density_input()} provides all necessary data to incorporate
+#' density dependence into a \code{lefkoMat} object, a list of matrices, or a
+#' single matrix. Three forms of density dependence are allowed, including the
+#' Ricker function, the Beverton-Holt function, the Usher function, and the
+#' logistic function. In each case, density must have an effect with at least a
+#' one time-step delay (see Notes). \loadmathjax
+#'
+#' @param mpm The \code{lefkoMat} object that will be subject to density
+#' dependent projection.
+#' @param stage3 A vector showing the name or number of the stage in occasion
+#' \emph{t}+1 in the transitions to be affected by density. Abbreviations for
+#' groups of stages are also usable (see Notes).
+#' @param stage2 A vector showing the name or number of the stage in occasion
+#' \emph{t} in the transition to be affected by density. Abbreviations for
+#' groups of stages are also usable (see Notes).
+#' @param stage1 A vector showing the name or number of the stage in occasion
+#' \emph{t}-1 in the transition to be affected by density. Only needed if a
+#' historical MPM is used. Abbreviations for groups of stages are also usable
+#' (see Notes).
+#' @param age2 A vector showing the age of the stage in occasion \emph{t} in the
+#' transition to be affected by density. Only needed if an age-by-stage MPM is
+#' used.
+#' @param style A vector coding for the style of density dependence on each
+#' transition subject to density dependence. Options include \code{1},
+#' \code{ricker}, \code{ric}, or \code{r} for the Ricker function; \code{2},
+#' \code{beverton}, \code{bev}, and \code{b} for the Beverton-Holt function;
+#' \code{3}, \code{usher}, \code{ush}, and \code{u} for the Usher function; and
+#' \code{4}, \code{logistic}, \code{log}, and \code{l} for the logistic
+#' function. If only a single code is provided, then all noted transitions are
+#' assumed to be subject to this style of density dependence. Defaults to
+#' \code{ricker}.
+#' @param time_delay A vector indicating the number of occasions back on which
+#' density dependence operates. Defaults to 1, and may not equal any number less
+#' than 1. If a single number is input, then all noted transitions are assumed
+#' to be subject to this time delay.
+#' @param alpha A vector indicating the numeric values to use as the
+#' \mjeqn{\alpha}{alpha} term in the two parameter Ricker, Beverton-Holt, or
+#' Usher function, or the value of the carrying capacity \emph{K} to use in
+#' the logistic equation (see \code{Notes} section for more on this term). If a
+#' single number is provided, then all noted transitions are assumed to be
+#' subject to this value of \mjeqn{\alpha}{alpha}.
+#' @param beta A vector indicating the numeric values to use as the
+#' \mjeqn{\beta}{beta} term in the two parameter Ricker, Beverton-Holt, or Usher
+#' function. Not used in the logistic equation. If a single number is provided,
+#' then all noted transitions are assumed to be subject to this value of
+#' \mjeqn{\beta}{beta}.
+#' @param type A vector denoting the kind of transition between occasions
+#' \emph{t} and \emph{t}+1 to be replaced. This should be entered as \code{1},
+#' \code{S}, or \code{s} for the replacement of a survival transition; or 
+#' \code{2}, \code{F}, or \code{f} for the replacement of a fecundity
+#' transition. If empty or not provided, then defaults to \code{1} for survival
+#' transition.
+#' @param type_t12 An optional vector denoting the kind of transition between
+#' occasions \emph{t}-1 and \emph{t}. Only necessary if a historical MPM in
+#' deVries format is desired. This should be entered as \code{1}, \code{S}, or
+#' \code{s} for a survival transition; or \code{2}, \code{F}, or \code{f} for a
+#' fecundity transitions. Defaults to \code{1} for survival transition, with
+#' impacts only on the construction of deVries-format hMPMs.
+#' 
+#' @return A data frame of class \code{lefkoDens}. This object can be used as
+#' input in function \code{\link{projection3}()}.
+#' 
+#' Variables in this object include the following:
+#' \item{stage3}{Stage at occasion \emph{t}+1 in the transition to be replaced.}
+#' \item{stage2}{Stage at occasion \emph{t} in the transition to be replaced.}
+#' \item{stage1}{Stage at occasion \emph{t}-1 in the transition to be replaced,
+#' if applicable.}
+#' \item{age2}{Age at occasion \emph{t} in the transition to be replaced, if
+#' applicable.}
+#' \item{style}{Style of density dependence, coded as 1, 2, 3, or 4 for the
+#' Ricker, Beverton-Holt, Usher, or logistic function, respectively.}
+#' \item{time_delay}{The time delay on density dependence, in time steps.}
+#' \item{alpha}{The value of \mjeqn{\alpha}{alpha} in the Ricker, Beverton-Holt,
+#' or Usher function, or the value of carrying capacity, \emph{K}, in the
+#' logistic function.}
+#' \item{beta}{The value of \mjeqn{\beta}{beta} in the Ricker, Beverton-Holt, or
+#' Usher function.}
+#' \item{type}{Designates whether the transition from occasion \emph{t} to
+#' occasion \emph{t}+1 is a survival transition probability (1), or a fecundity
+#' rate (2).}
+#' \item{type_t12}{Designates whether the transition from occasion \emph{t}-1 to
+#' occasion \emph{t} is a survival transition probability (1), a fecundity rate
+#' (2).}
+#' 
+#' @section Notes:
+#' The parameters \code{alpha} and \code{beta} are applied according to the
+#' two-parameter Ricker function, the two-parameter Beverton-Holt function, the
+#' two-parameter Usher function, or the one-parameter logistic function. The
+#' Ricker function is given as
+#' 
+#' \mjeqn{\phi_{t+1} = \phi_t \times \alpha e^{-\beta n_t}}{phi_{t+1} = phi_t
+#' * alpha * e^(-beta * n_t)}
+#' 
+#' where \mjeqn{\phi_t}{phi_t} is the parameter or
+#' matrix element in time \mjeqn{t}{t} to be modified, and \mjeqn{n_t}{n_t} is
+#' the population size in time \mjeqn{t}{t}. The Beverton-Holt function is given
+#' as
+#' 
+#' \mjeqn{\phi_{t+1} = \frac{\phi_t \times \alpha}{1 + \beta n_t}}{phi_{t+1} =
+#' phi_t * alpha / (1 + beta * n_t)}
+#' 
+#' In both cases, the \mjeqn{\beta}{beta} term denotes the strength of density
+#' dependence. Density dependence can also be introduced using the Usher
+#' function, given as
+#' 
+#' \mjeqn{\phi_{t+1} = \phi_t \times \frac{1}{1 + e^{\alpha N + \beta}}}{
+#' phi_{t+1} = phi_t * 1 / (1 + exp(aN_t+beta))}
+#' 
+#' If the form of density dependence chosen is the logistic function, then
+#' parameter \code{alpha} should be set to the appropriate value of
+#' \mjeqn{K}{K}, the carrying capacity, where
+#' 
+#' \mjeqn{\phi_{t+1} = \phi_t \times (1 - \frac{n}{K})}{phi_{t+1} = phi_t * 
+#' (1 - (n_t)/K)}
+#' 
+#' and \code{beta} is not used. Although the default is that
+#' \mjeqn{\phi_{t+1}}{phi_{t+1}} is a function of \mjeqn{\phi_t}{phi_t} (i.e. a
+#' 1 time step delay is assumed), greater time delays can be set through the
+#' \code{time_delay} option.
+#' 
+#' Entries in \code{stage3}, \code{stage2}, and \code{stage1} can include
+#' abbreviations for groups of stages. Use \code{rep} if all reproductive stages
+#' are to be used, \code{nrep} if all mature but non-reproductive stages are to
+#' be used, \code{mat} if all mature stages are to be used, \code{immat} if all
+#' immature stages are to be used, \code{prop} if all propagule stages are to be
+#' used, \code{npr} if all non-propagule stages are to be used, and leave empty
+#' or use \code{all} if all stages in stageframe are to be used.
+#' 
+#' @seealso \code{\link{start_input}()}
+#' @seealso \code{\link{projection3}()}
+#' 
+#' @examples
+#' # Lathyrus example
+#' data(lathyrus)
+#' 
+#' sizevector <- c(0, 100, 13, 127, 3730, 3800, 0)
+#' stagevector <- c("Sd", "Sdl", "VSm", "Sm", "VLa", "Flo", "Dorm")
+#' repvector <- c(0, 0, 0, 0, 0, 1, 0)
+#' obsvector <- c(0, 1, 1, 1, 1, 1, 0)
+#' matvector <- c(0, 0, 1, 1, 1, 1, 1)
+#' immvector <- c(1, 1, 0, 0, 0, 0, 0)
+#' propvector <- c(1, 0, 0, 0, 0, 0, 0)
+#' indataset <- c(0, 1, 1, 1, 1, 1, 1)
+#' binvec <- c(0, 100, 11, 103, 3500, 3800, 0.5)
+#' 
+#' lathframe <- sf_create(sizes = sizevector, stagenames = stagevector,
+#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
+#'   immstatus = immvector, indataset = indataset, binhalfwidth = binvec,
+#'   propstatus = propvector)
+#' 
+#' lathvert <- verticalize3(lathyrus, noyears = 4, firstyear = 1988,
+#'   patchidcol = "SUBPLOT", individcol = "GENET", blocksize = 9,
+#'   juvcol = "Seedling1988", sizeacol = "Volume88", repstracol = "FCODE88",
+#'   fecacol = "Intactseed88", deadacol = "Dead1988",
+#'   nonobsacol = "Dormant1988", stageassign = lathframe, stagesize = "sizea",
+#'   censorcol = "Missing1988", censorkeep = NA, censor = TRUE)
+#' 
+#' lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "Sd", "Sdl", "mat"),
+#'   stage2 = c("Sd", "Sd", "Sd", "Sd", "rep", "rep", "Sdl"),
+#'   stage1 = c("Sd", "rep", "Sd", "rep", "npr", "npr", "Sd"),
+#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "mat"),
+#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "Sdl"),
+#'   eststage1 = c(NA, NA, NA, NA, NA, NA, "NotAlive"),
+#'   givenrate = c(0.345, 0.345, 0.054, 0.054, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, 0.345, 0.054, NA),
+#'   type = c(1, 1, 1, 1, 3, 3, 1), type_t12 = c(1, 2, 1, 2, 1, 1, 1),
+#'   stageframe = lathframe, historical = TRUE)
+#' 
+#' ehrlen3 <- rlefko3(data = lathvert, stageframe = lathframe, year = "all", 
+#'   stages = c("stage3", "stage2", "stage1"), supplement = lathsupp3,
+#'   yearcol = "year2", indivcol = "individ")
+#' 
+#' ehrlen3mean <- lmean(ehrlen3)
+#' 
+#' e3d <- density_input(ehrlen3mean, stage3 = c("Sd", "Sdl"),
+#'   stage2 = c("rep", "rep"), stage1 = c("all", "all"), style = 1,
+#'   time_delay = 1, alpha = 1, beta = 0, type = c(2, 2), type_t12 = c(1, 1))
+#' 
+#' @export
+density_input <- function(mpm, stage3, stage2, stage1 = NA, age2 = NA,
+  style = 1, time_delay = 1, alpha = NA, beta = NA, type = NA, type_t12 = NA) {
+  
+  lstyle <- ltype <- ltype_t12 <- NULL
+  
+  if (!is.element("lefkoMat", class(mpm))) {
+    stop("This function requires a lefkoMat object as input.", call. = FALSE)
+  }
+  
+  stageframe <- mpm$ahstages
+  
+  if (all(is.na(mpm$hstages))) {
+    historical <- FALSE
+  } else {
+    historical <- TRUE
+  }
+  if (all(is.na(mpm$agestages))) {
+    agebystage <- FALSE
+  } else {
+    agebystage <- TRUE
+  }
+  
+  if (agebystage & all(is.na(age2))) {
+    stop("Density inputs for age-by-stage MPMs require the ages in time t of
+      all transitions subject to density.", call. = FALSE)
+  } else if (!agebystage & !all(is.na(age2))) {
+    stop("Please use the age2 option only for age-by-stage MPMs.", call. = FALSE)
+  }
+  
+  if (all(is.na(stageframe))) {
+    stop("The input lefkoMat object does not appear to have a stageframe,
+      which should be included as element ahstages.", call. = FALSE)
+  }
+  
+  if (!is.element("stage", names(stageframe))) {
+    stop("Stageframe appears to be modified. Please make sure that a stage
+      column exists holding stage names.", call. = FALSE)
+  }
+  
+  if (length(stage3) != length(stage2)) {
+    stop("All transitions to modify require information at least for stage2 and
+      stage3. These inputs must also be of equal length.", call. = FALSE)
+  }
+  
+  if (historical & all(is.na(stage1))) {
+    stop("Historical projection analysis requires that stage in time t-1 be
+      designated for all density dependent transitions.", call. = FALSE)
+  } else if (!historical & !all(is.na(stage1))) {
+    stop("Ahistorical projection analysis cannot include designated stages in
+      time t-1.", call. = FALSE)
+  }
+  if (historical & any(is.na(type_t12))) {
+    stop("Historical projection analysis requires the kind of transition
+      occurring between times t-1 and t to be described in option type_t12.",
+      call. = FALSE)
+  } else if (!historical & !all(is.na(type_t12))) {
+    stop("Ahistorical projection analysis cannot include historical transitions.
+      Please leave option type_t12 empty.", call. = FALSE)
+  }
+  
+  full_length <- max(length(stage3), length(stage2), length(stage1),
+    length(age2), length(style), length(time_delay), length(alpha),
+    length(beta), length(type), length(type_t12))
+  
+  if (length(stage1) == 1 & full_length > 1) {
+    stage1 <- rep(stage1, full_length)
+  }
+  
+  if (length(age2) == 1 & full_length > 1) {
+    age2 <- rep(age2, full_length)
+  }
+  
+  if (length(style) == 1 & full_length > 1) {
+    style <- rep(style, full_length)
+  }
+  
+  if (length(time_delay) == 1 & full_length > 1) {
+    time_delay <- rep(time_delay, full_length)
+  }
+  
+  if (length(alpha) == 1 & full_length > 1) {
+    alpha <- rep(alpha, full_length)
+  }
+  
+  if (length(beta) == 1 & full_length > 1) {
+    beta <- rep(beta, full_length)
+  }
+  
+  if (length(type) == 1 & full_length > 1) {
+    type <- rep(type, full_length)
+  }
+  
+  if (length(type_t12) == 1 & full_length > 1) {
+    type_t12 <- rep(type_t12, full_length)
+  }
+  
+  if (length(stage3) != full_length) {
+    stop("Please provide all input vectors in the same order.", call. = FALSE)
+  }
+  
+  if (all(is.character(style))) {
+    style <- tolower(style)
+    
+    ricker_style <- c("1", "ricker", "ricke", "rick", "ric", "ri", "r")
+    beverton_style <- c("2", "beverton", "beverto", "bevert", "bever", "beve",
+      "bev", "be", "b", "holt", "hol", "ho", "h")
+    usher_style <- c("3", "usher", "ushe", "ush", "us", "u")
+    logistic_style <- c("4", "logistic", "logisti", "logist", "logis", "logi",
+      "log", "lo", "l")
+    
+    unknown_style <- which(!is.element(style, c(ricker_style, beverton_style, logistic_style)))
+    if (length(unknown_style) > 0) {
+      stop(paste0("Unknown style code used: ", style[unknown_style], ". Cannot
+        process."), call. = FALSE)
+    }
+    
+    lstyle <- rep(1, full_length)
+    lstyle[which(is.element(style, beverton_style))] <- 2
+    lstyle[which(is.element(style, usher_style))] <- 3
+    lstyle[which(is.element(style, logistic_style))] <- 4
+    
+    style <- lstyle
+  } else if (all(is.numeric(style))) {
+    if (any(style > 4) | any(style < 1)) {
+      stop("Unknown style code used. Please only use numbers 1, 2, 3, or 4.",
+        call. = FALSE)
+    }
+  } else {
+    stop("Input style codes do not conform to accepted inputs.", call. = FALSE)
+  }
+  
+  if (!all(as.integer(time_delay) == time_delay)) {
+    stop("Input for time_delay must be integer.", call. = FALSE)
+  } else if (any(time_delay < 1)) {
+    stop("Input for time_delay must be an integer no smaller than 1.",
+      call. = FALSE)
+  }
+  
+  if (any(!is.numeric(alpha)) & !all(is.na(alpha))) {
+    stop("Option alpha must be either NA or a numeric value.", call. = FALSE)
+  }
+  if (any(!is.numeric(beta)) & !all(is.na(beta))) {
+    stop("Option beta must be either NA or a numeric value.", call. = FALSE)
+  }
+  
+  if (any(is.character(type))) {
+    type <- tolower(type)
+    
+    if (!all(is.element(type, c(NA, "1", "2", "f", "s")))) {
+      stop("Variable type must include only 1, 2, s, and f. All other entries
+        are not allowed.", call. = FALSE)
+    }
+    ltype <- rep(1, full_length)
+    ltype[which(is.element(type, c("2", "f")))] <- 2
+    
+    type <- ltype
+  } else if (all(is.numeric(type))) {
+    if (!all(is.element(type, c(NA, 1, 2)))) {
+      stop("Variable type must include only 1, 2, s, and f. All other entries
+        are not allowed.", call. = FALSE)
+    }
+  }
+  if (any(is.character(type_t12))) {
+    type_t12 <- tolower(type_t12)
+    
+    if (!all(is.element(type_t12, c(NA, "1", "2", "f", "s")))) {
+      stop("Variable type_t12 must include only 1, 2, s, and f. All other
+        entries are not allowed.", call. = FALSE)
+    }
+    ltype_t12 <- rep(1, full_length)
+    ltype_t12[which(is.element(type_t12, c("2", "f")))] <- 2
+    
+    type_t12 <- ltype_t12
+  } else if (all(is.numeric(type_t12))) {
+    if (!all(is.element(type_t12, c(NA, 1, 2)))) {
+      stop("Variable type_t12 must include only 1, 2, s, and f. All other
+        entries are not allowed.", call. = FALSE)
+    }
+  }
+  
+  if (length(stage1) < full_length) {
+    stop("Vector stage1 must be of the same length as stage 2 and stage3.",
+      call. = FALSE)
+  }
+  if (length(age2) < full_length) {
+    stop("Vector age2 must be of the same length as stage 2 and stage 3.",
+      call. = FALSE)
+  }
+  if (length(alpha) < full_length) {
+    stop("Vector alpha must be of the same length as stage 2 and stage3.",
+      call. = FALSE)
+  }
+  if (length(beta) < full_length) {    
+    stop("Vector beta must be of the same length as stage 2 and stage3.",
+      call. = FALSE)
+  }
+  if (length(style) < full_length) {
+    stop("Vector style must be of the same length as stage 2 and stage3.",
+      call. = FALSE)
+  }
+  if (length(time_delay) < full_length) {
+    stop("Vector time_delay must be of the same length as stage 2 and stage3.",
+      call. = FALSE)
+  }
+  if (length(type) < full_length) {
+    stop("Vector type must be of the same length as stage 2 and stage3.",
+      call. = FALSE)
+  }
+  if (length(type_t12) < full_length) {
+    stop("Vector type_t12 must be of the same length as stage 2 and stage3.",
+      call. = FALSE)
+  }
+  
+  all.stages.inp <- unique(c(stage3, stage2, stage1))
+  
+  mismatches <- !is.element(all.stages.inp, c(stageframe$stage, NA))
+  
+  if (length(which(mismatches)) > 0) {
+    extrastuff <- tolower(all.stages.inp[which(mismatches)])
+    
+    unaccountedfor <- extrastuff[which(!is.element(extrastuff, 
+          c("all", "rep", "nrep", "mat", "immat", "prop", "npr", "notalive")))]
+    
+    if (!all(is.element(extrastuff, c("all", "rep", "nrep", "mat", "immat",
+          "prop", "npr", "notalive")))) {
+      stop(paste("The following stage names input in supplemental() do not match
+          the stageframe:", paste(unaccountedfor, collapse = ' ')),
+        call. = FALSE)
+    }
+  }
+  
+  if (is.element("notalive", tolower(c(stage1, stage2, stage3)))) {
+    stop("Stage NotAlive is not allowed.", call. = FALSE)
+  }
+  
+  output_tab <- cbind.data.frame(stage3, stage2, stage1, age2, style,
+    time_delay, alpha, beta, type, type_t12, stringsAsFactors = FALSE)
+  
+  output <- .density_reassess(stageframe, mpm$agestages, output_tab, historical,
+    agebystage)
+  
+  if (!historical & !agebystage) {
+    out_check <- unique(output[,c("stage3", "stage2")])
+  } else if (historical & !agebystage) {
+    out_check <- unique(output[,c("stage3", "stage2", "stage1")])
+  } else if (!historical & agebystage) {
+    out_check <- unique(output[,c("stage3", "stage2", "age2")])
+  }
+  if (dim(out_check)[1] < dim(output)[1]) {
+    warning("Some transitions appear to be listed multiple times. This may cause
+      errors in analysis.", call. = FALSE)
+  }
+  
+  class(output) <- append(class(output), "lefkoDens")
+  
+  return(output)
+}
+
+#' Check and Reorganize Density Input Table Into Usable Format
+#' 
+#' Function \code{.density_reassess()} takes a density input table as supplied
+#' by the \code{\link{density_input}()} function, and checks and rearranges it
+#' into a single, complete density input table.
+#' 
+#' @param stageframe The correct stageframe, already modified by
+#' \code{\link{.sf_reassess}()}.
+#' @param agestages The agestages element from the used \code{lefkoMat} object.
+#' @param dens_inp The density input data frame as is toward the end of
+#' \code{\link{density_input}()}.
+#' @param historical A logical value denoting whether MPM is historical.
+#' @param agebystage A logical value denoting whether MPM is age-by-stage.
+#' 
+#' @return A corrected overwrite table, usable in MPM creation.
+#' 
+#' @keywords internal
+#' @noRd
+.density_reassess <- function(stageframe, agestages, dens_inp, historical, agebystage) {
+  
+  if (!all(is.na(dens_inp))) {
+    shrubbery <- unique(dens_inp)
+    
+    if(any(duplicated(shrubbery[,1:4]))) {
+      stop("Multiple entries with different values for the same stage transition
+        are not allowed in the density input table. If modifying a historical
+        table to perform an ahistorical analysis, then this may be due to
+        different given rates of substitutions caused by dropping stage at
+        occasion t-1. Please eliminate duplicate transitions.", call. = FALSE)
+    }
+    
+  } else {
+    stop("No recognized density data was input.", call. = FALSE)
+  }
+  
+  if (!all(is.na(shrubbery))) {
+    #First we make sure that the data is in the right format  
+    shrubbery$stage3 <- as.character(shrubbery$stage3)
+    shrubbery$stage2 <- as.character(shrubbery$stage2)
+    shrubbery$stage1 <- as.character(shrubbery$stage1)
+    shrubbery$age2 <- as.character(shrubbery$age2)
+    
+    #Stage at occasion t-1
+    reassessed <- apply(as.matrix(c(1:dim(shrubbery)[1])), 1, function(X) {
+      checkna2vec <- c(shrubbery[X, "stage3"], shrubbery[X, "stage2"])
+      
+      if (!all(!is.na(checkna2vec))) {
+        stop("All entries for stage2 and stage3 in density input table must
+          refer to possible life history stages and cannot include NAs.",
+          call. = FALSE)
+      }
+      
+      if (!is.na(shrubbery[X, "stage1"])) {
+        if (is.element(shrubbery[X, "stage1"], stageframe$stage)) {
+          return(shrubbery[X,])
+        } else if (is.element(shrubbery[X, "stage1"], as.character(stageframe$stage_id))) {
+          shrubbery.small <- cbind.data.frame(
+            stage3 = shrubbery[X, "stage3"], stage2 = shrubbery[X, "stage1"],
+            stage1 = stageframe$stage[which(as.character(stageframe$stage_id) == shrubbery[X, "stage1"])],
+            age2 = shrubbery[X, "age2"], style = shrubbery[X, "style"],
+            alpha = shrubbery[X, "alpha"], beta = shrubbery[X, "beta"],
+            time_delay = shrubbery[X, "time_delay"], type = shrubbery[X, "type"],
+            type_t12 = shrubbery[X, "type_t12"],
+            stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage1"] == "rep") {
+          shrubbery.small <- cbind.data.frame(stage3 = shrubbery[X, "stage3"], 
+            stage2 = shrubbery[X, "stage2"], stage1 = stageframe$stage[which(stageframe$repstatus == 1)], 
+            age2 = shrubbery[X, "age2"], style = shrubbery[X, "style"], 
+            alpha = shrubbery[X, "alpha"], beta = shrubbery[X, "beta"],
+            time_delay = shrubbery[X, "time_delay"], type = shrubbery[X, "type"],
+            type_t12 = shrubbery[X, "type_t12"], stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage1"] == "nrep") {
+          shrubbery.small <- cbind.data.frame(stage3 = shrubbery[X, "stage3"], 
+            stage2 = shrubbery[X, "stage2"], 
+            stage1 = stageframe$stage[intersect(which(stageframe$repstatus == 0),
+                which(stageframe$matstatus == 1))], age2 = shrubbery[X, "age2"],
+            style = shrubbery[X, "style"], alpha = shrubbery[X, "alpha"],
+            beta = shrubbery[X, "beta"], time_delay = shrubbery[X, "time_delay"],
+            type = shrubbery[X, "type"], type_t12 = shrubbery[X, "type_t12"],
+            stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage1"] == "immat") {
+          shrubbery.small <- cbind.data.frame(stage3 = shrubbery[X, "stage3"], 
+            stage2 = shrubbery[X, "stage2"], stage1 = stageframe$stage[which(stageframe$immstatus == 1)], 
+            age2 = shrubbery[X, "age2"], style = shrubbery[X, "style"],
+            alpha = shrubbery[X, "alpha"], beta = shrubbery[X, "beta"],
+            time_delay = shrubbery[X, "time_delay"], type = shrubbery[X, "type"],
+            type_t12 = shrubbery[X, "type_t12"], stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage1"] == "mat") {
+          shrubbery.small <- cbind.data.frame(stage3 = shrubbery[X, "stage3"], 
+            stage2 = shrubbery[X, "stage2"], stage1 = stageframe$stage[which(stageframe$matstatus == 1)], 
+            age2 = shrubbery[X, "age2"], style = shrubbery[X, "style"],
+            alpha = shrubbery[X, "alpha"], beta = shrubbery[X, "beta"],
+            time_delay = shrubbery[X, "time_delay"], type = shrubbery[X, "type"],
+            type_t12 = shrubbery[X, "type_t12"], stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage1"] == "prop") {
+          shrubbery.small <- cbind.data.frame(stage3 = shrubbery[X, "stage3"], 
+            stage2 = shrubbery[X, "stage2"], stage1 = stageframe$stage[which(stageframe$propstatus == 1)], 
+            age2 = shrubbery[X, "age2"], style = shrubbery[X, "style"],
+            alpha = shrubbery[X, "alpha"], beta = shrubbery[X, "beta"],
+            time_delay = shrubbery[X, "time_delay"], type = shrubbery[X, "type"],
+            type_t12 = shrubbery[X, "type_t12"], stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage1"] == "npr") {
+          shrubbery.small <- cbind.data.frame(stage3 = shrubbery[X, "stage3"], 
+            stage2 = shrubbery[X, "stage2"], stage1 = stageframe$stage[which(stageframe$propstatus == 0)], 
+            age2 = shrubbery[X, "age2"], style = shrubbery[X, "style"],
+            alpha = shrubbery[X, "alpha"], beta = shrubbery[X, "beta"],
+            time_delay = shrubbery[X, "time_delay"], type = shrubbery[X, "type"],
+            type_t12 = shrubbery[X, "type_t12"], stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage1"] == "all") {
+          shrubbery.small <- cbind.data.frame(stage3 = shrubbery[X, "stage3"], 
+            stage2 = shrubbery[X, "stage2"], stage1 = stageframe$stage, 
+            age2 = shrubbery[X, "age2"], style = shrubbery[X, "style"],
+            alpha = shrubbery[X, "alpha"], beta = shrubbery[X, "beta"],
+            time_delay = shrubbery[X, "time_delay"], type = shrubbery[X, "type"],
+            type_t12 = shrubbery[X, "type_t12"], stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+        }
+      } else {
+        return(shrubbery[X,])
+      }
+    })
+    shrubbery <- do.call(rbind.data.frame, reassessed)
+    
+    #Stage at occasion t
+    reassessed <- apply(as.matrix(c(1:dim(shrubbery)[1])), 1, function(X) {
+      if (!is.na(shrubbery[X, "stage2"])) {
+        if (is.element(shrubbery[X, "stage2"], stageframe$stage)) {
+          return(shrubbery[X,])
+        } else if (is.element(shrubbery[X, "stage2"], as.character(stageframe$stage_id))) {
+          shrubbery.small <- cbind.data.frame(
+            stage3 = shrubbery[X, "stage3"], 
+            stage2 = stageframe$stage[which(as.character(stageframe$stage_id) == shrubbery[X, "stage2"])],
+            stage1 = shrubbery[X, "stage1"], age2 = shrubbery[X, "age2"],
+            style = shrubbery[X, "style"], alpha = shrubbery[X, "alpha"],
+            beta = shrubbery[X, "beta"], time_delay = shrubbery[X, "time_delay"],
+            type = shrubbery[X, "type"], type_t12 = shrubbery[X, "type_t12"],
+            stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage2"] == "rep") {
+          shrubbery.small <- cbind.data.frame(stage3 = shrubbery[X, "stage3"], 
+            stage2 = stageframe$stage[which(stageframe$repstatus == 1)],
+            stage1 = shrubbery[X, "stage1"], age2 = shrubbery[X, "age2"],
+            style = shrubbery[X, "style"], alpha = shrubbery[X, "alpha"],
+            beta = shrubbery[X, "beta"], time_delay = shrubbery[X, "time_delay"],
+            type = shrubbery[X, "type"], type_t12 = shrubbery[X, "type_t12"],
+            stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage2"] == "nrep") {
+          shrubbery.small <- cbind.data.frame(stage3 = shrubbery[X, "stage3"], 
+            stage2 = stageframe$stage[intersect(which(stageframe$repstatus == 0),
+                which(stageframe$matstatus == 1))], stage1 = shrubbery[X, "stage1"], 
+            age2 = shrubbery[X, "age2"], style = shrubbery[X, "style"],
+            alpha = shrubbery[X, "alpha"], beta = shrubbery[X, "beta"],
+            time_delay = shrubbery[X, "time_delay"], type = shrubbery[X, "type"],
+            type_t12 = shrubbery[X, "type_t12"], stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage2"] == "immat") {
+          shrubbery.small <- cbind.data.frame(stage3 = shrubbery[X, "stage3"], 
+            stage2 = stageframe$stage[which(stageframe$immstatus == 1)],
+            stage1 = shrubbery[X, "stage1"], age2 = shrubbery[X, "age2"],
+            style = shrubbery[X, "style"], alpha = shrubbery[X, "alpha"],
+            beta = shrubbery[X, "beta"], time_delay = shrubbery[X, "time_delay"],
+            type = shrubbery[X, "type"], type_t12 = shrubbery[X, "type_t12"],
+            stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage2"] == "mat") {
+          shrubbery.small <- cbind.data.frame(stage3 = shrubbery[X, "stage3"], 
+            stage2 = stageframe$stage[which(stageframe$matstatus == 1)],
+            stage1 = shrubbery[X, "stage1"], age2 = shrubbery[X, "age2"],
+            style = shrubbery[X, "style"], alpha = shrubbery[X, "alpha"],
+            beta = shrubbery[X, "beta"], time_delay = shrubbery[X, "time_delay"],
+            type = shrubbery[X, "type"], type_t12 = shrubbery[X, "type_t12"],
+            stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage2"] == "prop") {
+          shrubbery.small <- cbind.data.frame(stage3 = shrubbery[X, "stage3"], 
+            stage2 = stageframe$stage[which(stageframe$propstatus == 1)],
+            stage1 = shrubbery[X, "stage1"], age2 = shrubbery[X, "age2"],
+            style = shrubbery[X, "style"], alpha = shrubbery[X, "alpha"],
+            beta = shrubbery[X, "beta"], time_delay = shrubbery[X, "time_delay"],
+            type = shrubbery[X, "type"], type_t12 = shrubbery[X, "type_t12"],
+            stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage2"] == "npr") {
+          shrubbery.small <- cbind.data.frame(stage3 = shrubbery[X, "stage3"], 
+            stage2 = stageframe$stage[which(stageframe$propstatus == 0)],
+            stage1 = shrubbery[X, "stage1"], age2 = shrubbery[X, "age2"],
+            style = shrubbery[X, "style"], alpha = shrubbery[X, "alpha"],
+            beta = shrubbery[X, "beta"], time_delay = shrubbery[X, "time_delay"],
+            type = shrubbery[X, "type"], type_t12 = shrubbery[X, "type_t12"],
+            stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage2"] == "all") {
+          shrubbery.small <- cbind.data.frame(stage3 = shrubbery[X, "stage3"], 
+            stage2 = stageframe$stage, stage1 = shrubbery[X, "stage1"], 
+            age2 = shrubbery[X, "age2"], style = shrubbery[X, "style"],
+            alpha = shrubbery[X, "alpha"], beta = shrubbery[X, "beta"],
+            time_delay = shrubbery[X, "time_delay"], type = shrubbery[X, "type"],
+            type_t12 = shrubbery[X, "type_t12"], stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+        }
+      } else {
+        return(shrubbery[X,])
+      }
+    })
+    shrubbery <- do.call(rbind.data.frame, reassessed)
+    
+    #Stage at occasion t+1
+    reassessed <- apply(as.matrix(c(1:dim(shrubbery)[1])), 1, function(X) {
+      if (!is.na(shrubbery[X, "stage3"])) {
+        if (is.element(shrubbery[X, "stage3"], stageframe$stage)) {
+          return(shrubbery[X,])
+        } else if (is.element(shrubbery[X, "stage3"], as.character(stageframe$stage_id))) {
+          shrubbery.small <- cbind.data.frame(
+            stage3 = stageframe$stage[which(as.character(stageframe$stage_id) == shrubbery[X, "stage3"])], 
+            stage2 = shrubbery[X, "stage2"], stage1 = shrubbery[X, "stage1"], 
+            age2 = shrubbery[X, "age2"], style = shrubbery[X, "style"],
+            alpha = shrubbery[X, "alpha"], beta = shrubbery[X, "beta"],
+            time_delay = shrubbery[X, "time_delay"], type = shrubbery[X, "type"],
+            type_t12 = shrubbery[X, "type_t12"], stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage3"] == "rep") {
+          shrubbery.small <- cbind.data.frame(stage3 = stageframe$stage[which(stageframe$repstatus == 1)], 
+            stage2 = shrubbery[X, "stage2"], stage1 = shrubbery[X, "stage1"], 
+            age2 = shrubbery[X, "age2"], style = shrubbery[X, "style"],
+            alpha = shrubbery[X, "alpha"], beta = shrubbery[X, "beta"],
+            time_delay = shrubbery[X, "time_delay"], type = shrubbery[X, "type"],
+            type_t12 = shrubbery[X, "type_t12"], stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage3"] == "nrep") {
+          shrubbery.small <- cbind.data.frame(stage3 = stageframe$stage[intersect(which(stageframe$repstatus == 0),
+                which(stageframe$matstatus == 1))], 
+            stage2 = shrubbery[X, "stage2"], stage1 = shrubbery[X, "stage1"], 
+            age2 = shrubbery[X, "age2"], style = shrubbery[X, "style"],
+            alpha = shrubbery[X, "alpha"], beta = shrubbery[X, "beta"],
+            time_delay = shrubbery[X, "time_delay"], type = shrubbery[X, "type"],
+            type_t12 = shrubbery[X, "type_t12"], stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage3"] == "immat") {
+          shrubbery.small <- cbind.data.frame(stage3 = stageframe$stage[which(stageframe$immstatus == 1)], 
+            stage2 = shrubbery[X, "stage2"], stage1 = shrubbery[X, "stage1"], 
+            age2 = shrubbery[X, "age2"], style = shrubbery[X, "style"],
+            alpha = shrubbery[X, "alpha"], beta = shrubbery[X, "beta"],
+            time_delay = shrubbery[X, "time_delay"], type = shrubbery[X, "type"],
+            type_t12 = shrubbery[X, "type_t12"], stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage3"] == "mat") {
+          shrubbery.small <- cbind.data.frame(stage3 = stageframe$stage[which(stageframe$matstatus == 1)], 
+            stage2 = shrubbery[X, "stage2"], stage1 = shrubbery[X, "stage1"], 
+            age2 = shrubbery[X, "age2"], style = shrubbery[X, "style"],
+            alpha = shrubbery[X, "alpha"], beta = shrubbery[X, "beta"],
+            time_delay = shrubbery[X, "time_delay"], type = shrubbery[X, "type"],
+            type_t12 = shrubbery[X, "type_t12"], stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage3"] == "prop") {
+          shrubbery.small <- cbind.data.frame(stage3 = stageframe$stage[which(stageframe$propstatus == 1)], 
+            stage2 = shrubbery[X, "stage2"], stage1 = shrubbery[X, "stage1"], 
+            age2 = shrubbery[X, "age2"], style = shrubbery[X, "style"],
+            alpha = shrubbery[X, "alpha"], beta = shrubbery[X, "beta"],
+            time_delay = shrubbery[X, "time_delay"], type = shrubbery[X, "type"],
+            type_t12 = shrubbery[X, "type_t12"], stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage3"] == "npr") {
+          shrubbery.small <- cbind.data.frame(stage3 = stageframe$stage[which(stageframe$propstatus == 0)], 
+            stage2 = shrubbery[X, "stage2"], stage1 = shrubbery[X, "stage1"], 
+            age2 = shrubbery[X, "age2"], style = shrubbery[X, "style"],
+            alpha = shrubbery[X, "alpha"], beta = shrubbery[X, "beta"],
+            time_delay = shrubbery[X, "time_delay"], type = shrubbery[X, "type"],
+            type_t12 = shrubbery[X, "type_t12"], stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage3"] == "all") {
+          shrubbery.small <- cbind.data.frame(stage3 = stageframe$stage, 
+            stage2 = shrubbery[X, "stage2"], stage1 = shrubbery[X, "stage1"], 
+            age2 = shrubbery[X, "age2"], style = shrubbery[X, "style"],
+            alpha = shrubbery[X, "alpha"], beta = shrubbery[X, "beta"],
+            time_delay = shrubbery[X, "time_delay"], type = shrubbery[X, "type"],
+            type_t12 = shrubbery[X, "type_t12"], stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        }
+      } else {
+        return(shrubbery[X,])
+      }
+    })
+    shrubbery <- do.call(rbind.data.frame, reassessed)
+    
+    if (agebystage) {
+      #Age at occasion t
+      reassessed <- apply(as.matrix(c(1:dim(shrubbery)[1])), 1, function(X) {
+        if (!is.na(shrubbery[X, "age2"])) {
+          if (is.element(shrubbery[X, "age2"], agestages$age)) {
+            return(shrubbery[X,])
+          } else if (shrubbery[X, "age2"] == "all") {
+            identified_ages <- agestages$age[which(agestages$stage == shrubbery[X, "stage2"])]
+            
+            if (length(identified_ages > 0)) {
+              shrubbery.small <- cbind.data.frame(stage3 = shrubbery[X, "stage3"], 
+                stage2 = shrubbery[X, "stage2"], stage1 = shrubbery[X, "stage1"], 
+                age2 = identified_ages, style = shrubbery[X, "style"],
+                alpha = shrubbery[X, "alpha"], beta = shrubbery[X, "beta"],
+                time_delay = shrubbery[X, "time_delay"], type = shrubbery[X, "type"],
+                type_t12 = shrubbery[X, "type_t12"], stringsAsFactors = FALSE)
+            } else {
+              shrubbery.small <- shrubbery
+            }
+            return(shrubbery.small)
+          }
+        } else {
+          return(shrubbery[X,])
+        }
+      })
+      shrubbery <- do.call(rbind.data.frame, reassessed)
+    }
+    
+    #Now a bit of a check to remove entries that are not allowed
+    stufftoremove <- unique(c(which(shrubbery$stage1 == "Dead"),
+      which(shrubbery$stage2 == "Dead"), which(shrubbery$stage3 == "Dead")))
+    
+    if (length(stufftoremove) > 0) {
+      if (stufftoremove[1] > 0) {
+        shrubbery <- shrubbery[-stufftoremove,]
+      }
+    }
+  }
+  
+  return(shrubbery)
+}
+
+#' Create a Starting Vector for Population Projection
+#' 
+#' Function \code{start_input()} creates a data frame summarizing the non-zero
+#' elements of the start vector for use in population projection analysis via
+#' function \code{\link{projection3}()}.
+#'
+#' @param mpm The lefkoMat object to be used in projection analysis.
+#' @param stage2 A vector showing the name or number of a stage in occasion
+#' \emph{t} that should be set to a positive number of individuals in the start
+#' vector. Abbreviations for groups of stages are also usable (see Notes).
+#' This input is required and has no default input.
+#' @param stage1 A vector showing the name or number of a stage in occasion
+#' \emph{t}-1 that should be set to a positive number of individuals in the
+#' start vector. Abbreviations for groups of stages are also usable (see Notes).
+#' This is only used for historical MPMs, since the rows of hMPMs correspond to
+#' stage-pairs in times \emph{t} and \emph{t}-1 together. Only required for
+#' historical MPMs, and will result in errors if otherwise used.
+#' @param age2 A vector showing the age of each respective stage in occasion
+#' \emph{t} that should be set to a positie number of individuals in the start
+#' vector. Only used for age-by-stage MPMs. Defaults to NA.
+#' @param value A vector showing the values, in order, of the number of
+#' individuals set for the stage or stage-pair in question. Defaults to 1.
+#' 
+#' @return A list of class \code{lefkoStart}, with 4 objects, which can be used
+#' as input in function \code{\link{projection3}()}. The last three include the
+#' \code{ahstages}, \code{hstages}, and \code{agestages} objects from the
+#' \code{lefkoMat} object supplied in \code{mpm}. The first element in the list
+#' is a data frame with the following variables:
+#' 
+#' \item{stage2}{Stage at occasion \emph{t}.}
+#' \item{stage_id_2}{The stage number associated with \code{stage2}.}
+#' \item{stage1}{Stage at occasion \emph{t}-1, if historical. Otherwise NA.}
+#' \item{stage_id_1}{The stage number associated with \code{stage1}.}
+#' \item{age2}{The age of individuals in \code{stage2} and, if applicable,
+#' \code{stage1}. Only used in age-by-stage MPMs.}
+#' \item{row_num}{A number indicating the respective starting vector element.}
+#' \item{value}{Number of individuals in corresponding stage or stage-pair.}
+#' 
+#' @section Notes:
+#' Entries in \code{stage2}, and \code{stage1} can include abbreviations for
+#' groups of stages. Use \code{rep} if all reproductive stages are to be used,
+#' \code{nrep} if all mature but non-reproductive stages are to be used,
+#' \code{mat} if all mature stages are to be used, \code{immat} if all immature
+#' stages are to be used, \code{prop} if all propagule stages are to be used,
+#' \code{npr} if all non-propagule stages are to be used, and leave empty or use
+#' \code{all} if all stages in stageframe are to be used.
+#' 
+#' @seealso \code{\link{density_input}()}
+#' @seealso \code{\link{projection3}()}
+#' 
+#' @examples
+#' # Lathyrus example
+#' data(lathyrus)
+#' 
+#' sizevector <- c(0, 100, 13, 127, 3730, 3800, 0)
+#' stagevector <- c("Sd", "Sdl", "VSm", "Sm", "VLa", "Flo", "Dorm")
+#' repvector <- c(0, 0, 0, 0, 0, 1, 0)
+#' obsvector <- c(0, 1, 1, 1, 1, 1, 0)
+#' matvector <- c(0, 0, 1, 1, 1, 1, 1)
+#' immvector <- c(1, 1, 0, 0, 0, 0, 0)
+#' propvector <- c(1, 0, 0, 0, 0, 0, 0)
+#' indataset <- c(0, 1, 1, 1, 1, 1, 1)
+#' binvec <- c(0, 100, 11, 103, 3500, 3800, 0.5)
+#' 
+#' lathframe <- sf_create(sizes = sizevector, stagenames = stagevector,
+#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
+#'   immstatus = immvector, indataset = indataset, binhalfwidth = binvec,
+#'   propstatus = propvector)
+#' 
+#' lathvert <- verticalize3(lathyrus, noyears = 4, firstyear = 1988,
+#'   patchidcol = "SUBPLOT", individcol = "GENET", blocksize = 9,
+#'   juvcol = "Seedling1988", sizeacol = "Volume88", repstracol = "FCODE88",
+#'   fecacol = "Intactseed88", deadacol = "Dead1988",
+#'   nonobsacol = "Dormant1988", stageassign = lathframe, stagesize = "sizea",
+#'   censorcol = "Missing1988", censorkeep = NA, censor = TRUE)
+#' 
+#' lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "Sd", "Sdl", "mat"),
+#'   stage2 = c("Sd", "Sd", "Sd", "Sd", "rep", "rep", "Sdl"),
+#'   stage1 = c("Sd", "rep", "Sd", "rep", "npr", "npr", "Sd"),
+#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "mat"),
+#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "Sdl"),
+#'   eststage1 = c(NA, NA, NA, NA, NA, NA, "NotAlive"),
+#'   givenrate = c(0.345, 0.345, 0.054, 0.054, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, 0.345, 0.054, NA),
+#'   type = c(1, 1, 1, 1, 3, 3, 1), type_t12 = c(1, 2, 1, 2, 1, 1, 1),
+#'   stageframe = lathframe, historical = TRUE)
+#' 
+#' ehrlen3 <- rlefko3(data = lathvert, stageframe = lathframe, year = "all", 
+#'   stages = c("stage3", "stage2", "stage1"), supplement = lathsupp3,
+#'   yearcol = "year2", indivcol = "individ")
+#' 
+#' ehrlen3mean <- lmean(ehrlen3)
+#' 
+#' e3m_sv <- start_input(ehrlen3mean, stage2 = "Sd", stage1 = "Sd", value = 1000)
+#' 
+#' @export
+start_input <- function(mpm, stage2, stage1 = NA, age2 = NA, value = 1) {
+  
+  mpmrows <- stage2_id <- stage1_id <- start_vec <- NULL
+  
+  if (all(class(mpm) != "lefkoMat")) {
+    stop("A regular lefkoMat object is required as input.", call. = FALSE)
+  }
+  
+  if (!is.element("stage", names(mpm$ahstages))) {
+    stop("Stageframe appears to be modified. Please make sure that a stage
+      column exists holding stage names.", call. = FALSE)
+  }
+  
+  if (all(is.na(mpm$hstages)) | all(is.null(mpm$hstages))) {
+    historical <- FALSE
+  } else {
+    historical <- TRUE
+  }
+  if (all(is.na(mpm$agestages)) | all(is.null(mpm$agestages))) {
+    agebystage <- FALSE
+  } else {
+    agebystage <- TRUE
+  }
+  
+  if (historical & all(is.na(stage1))) {
+    stop("Historical projection analysis requires that stage in time t-1 be
+      designated for all stage pairs.", call. = FALSE)
+  } else if (!historical & !all(is.na(stage1))) {
+    stop("Ahistorical projection analysis cannot include designated stages in
+      time t-1.", call. = FALSE)
+  }
+  
+  full_length <- max(length(stage2), length(stage1), length(age2), length(value))
+  
+  if (length(value) == 1 & full_length > 1) {
+    value <- rep(value, full_length)
+  }
+  
+  if (length(stage1) == 1 & full_length > 1) {
+    stage1 <- rep(stage1, full_length)
+  }
+  
+  if (length(age2) == 1 & full_length > 1) {
+    age2 <- rep(age2, full_length)
+  }
+  
+  if (length(stage2) != full_length) {
+    stop("Option stage2 is required for all stages or stage-pairs to set to
+      non-zero values.", call. = FALSE)
+  }
+  
+  if (all(is.character(stage2))) {
+    
+    unknown_stage2 <- which(!is.element(tolower(stage2), c(tolower(mpm$ahstages$stage),
+        c("all", "rep", "nrep", "mat", "immat", "prop", "npr"))))
+    if (length(unknown_stage2) > 0) {
+      stop(paste0("Unknown stage designations used in stage2: ",
+        stage2[unknown_stage2]), call. = FALSE)
+    }
+    
+    reassessed <- apply(as.matrix(c(1:length(stage2))), 1, function(X) {
+      if (!is.na(stage2[X])) {
+        if (is.element(stage2[X], mpm$ahstages$stage)) {
+          shrubbery.small <- cbind.data.frame(stage2 = stage2[X], stage1 = stage1[X],
+            age2 = age2[X], value = value[X], stringsAsFactors = FALSE)
+          return(shrubbery.small)
+        } else if (is.element(stage2[X], as.character(mpm$ahstages$stage_id))) {
+          shrubbery.small <- cbind.data.frame(stage2 = as.numeric(stage2[X]),
+            stage1 = stage1[X], age2 = age2[X], value = value[X],
+            stringsAsFactors = FALSE)
+          return(shrubbery.small)
+        } else if (tolower(stage2[X]) == "rep") {
+          shrubbery.small <- cbind.data.frame(stage2 = mpm$ahstages$stage[which(mpm$ahstages$repstatus == 1)],
+            stage1 = stage1[X], age2 = age2[X], value = value[X],
+            stringsAsFactors = FALSE)
+            
+          return(shrubbery.small)
+        } else if (tolower(stage2[X]) == "all") {
+          shrubbery.small <- cbind.data.frame(stage2 = mpm$ahstages$stage,
+            stage1 = stage1[X], age2 = age2[X], value = value[X],
+            stringsAsFactors = FALSE)
+            
+          return(shrubbery.small)
+        } else if (tolower(stage2[X]) == "nrep") {
+          shrubbery.small <- cbind.data.frame(
+            stage2 = mpm$ahstages$stage[intersect(which(mpm$ahstages$repstatus == 0),
+                which(mpm$ahstages$matstatus == 1))],
+            stage1 = stage1[X], age2 = age2[X], value = value[X],
+            stringsAsFactors = FALSE)
+            
+          return(shrubbery.small)
+        } else if (tolower(stage2[X]) =="mat") {
+          shrubbery.small <- cbind.data.frame(stage2 = mpm$ahstages$stage[which(mpm$ahstages$matstatus == 1)],
+            stage1 = stage1[X], age2 = age2[X], value = value[X],
+            stringsAsFactors = FALSE)
+            
+          return(shrubbery.small)
+        } else if (tolower(stage2[X]) == "immat") {
+          shrubbery.small <- cbind.data.frame(stage2 = mpm$ahstages$stage[which(mpm$ahstages$immstatus == 1)],
+            stage1 = stage1[X], age2 = age2[X], value = value[X],
+            stringsAsFactors = FALSE)
+            
+          return(shrubbery.small)
+        } else if (tolower(stage2[X]) == "prop") {
+          shrubbery.small <- cbind.data.frame(stage2 = mpm$ahstages$stage[which(mpm$ahstages$propstatus == 1)],
+            stage1 = stage1[X], age2 = age2[X], value = value[X],
+            stringsAsFactors = FALSE)
+            
+          return(shrubbery.small)
+        } else if (tolower(stage2[X]) == "npr") {
+          shrubbery.small <- cbind.data.frame(stage2 = mpm$ahstages$stage[which(mpm$ahstages$propstatus == 0)],
+            stage1 = stage1[X], age2 = age2[X], value = value[X],
+            stringsAsFactors = FALSE)
+            
+          return(shrubbery.small)
+        }
+      }
+    })
+    
+    shrubbery <- do.call(rbind.data.frame, reassessed)
+  } else if (all(is.numeric(stage2)) & !any(is.na(stage2))) {
+    stage2_id <- stage2
+    
+    if (any(stage2_id > max(mpm$ahstages$stage_id)) | any(stage2_id < min(mpm$ahstages$stage_id))) {
+      stop("Unknown stage2 codes used.", call. = FALSE)
+    }
+    
+    stage2 <- apply(as.matrix(stage2_id), 1, function(X) {
+      return(mpm$ahstages$stage[X])
+    })
+    
+    shrubbery <- cbind.data.frame(stage2 = stage2, stage1 = stage1, age2 = age2,
+      value = value, stringsAsFactors = FALSE)
+  } else {
+    stop("Input stage2 codes do not conform to accepted inputs.", call. = FALSE)
+  }
+  
+  if (historical) {
+    if (all(is.character(shrubbery$stage1)) & !all(is.na(shrubbery$stage1))) {
+      
+      unknown_stage1 <- which(!is.element(tolower(stage1), c(tolower(mpm$ahstages$stage),
+          c("all", "rep", "nrep", "mat", "immat", "prop", "npr", "almostborn"))))
+      if (length(unknown_stage1) > 0) {
+      stop(paste0("Unknown stage designations used in stage1: ",
+        stage1[unknown_stage1]), call. = FALSE)
+      }
+      
+      reassessed <- apply(as.matrix(c(1:length(shrubbery$stage2))), 1, function(X) {
+        if (!is.na(shrubbery$stage1[X])) {
+          if (is.element(shrubbery$stage1[X], mpm$ahstages$stage)) {
+            shrubbery.small <- cbind.data.frame(stage2 = shrubbery$stage2[X],
+              stage1 = shrubbery$stage1[X], age2 = shrubbery$age2[X],
+              value = shrubbery$value[X], stringsAsFactors = FALSE)
+            return(shrubbery.small)
+          } else if (is.element(stage1[X], as.character(mpm$ahstages$stage_id))) {
+            shrubbery.small <- cbind.data.frame(stage2 = shrubbery$stage2[X],
+              stage1 = as.numeric(shrubbery$stage1[X]), age2 = age2[X],
+              value = value[X], stringsAsFactors = FALSE)
+            return(shrubbery.small)
+          } else if (tolower(shrubbery$stage1[X]) == "rep") {
+            shrubbery.small <- cbind.data.frame(stage2 = shrubbery$stage2[X],
+              stage1 = mpm$ahstages$stage[which(mpm$ahstages$repstatus == 1)],
+              age2 = shrubbery$age2[X], value = shrubbery$value[X],
+              stringsAsFactors = FALSE)
+              
+            return(shrubbery.small)
+          } else if (tolower(shrubbery$stage1[X]) == "all") {
+            shrubbery.small <- cbind.data.frame(stage2 = shrubbery$stage2[X],
+              stage1 = mpm$ahstages$stage, age2 = shrubbery$age2[X],
+              value = shrubbery$value[X], stringsAsFactors = FALSE)
+              
+            return(shrubbery.small)
+          } else if (tolower(shrubbery$stage1[X]) == "nrep") {
+            shrubbery.small <- cbind.data.frame(stage2 = shrubbery$stage2[X],
+              stage1 = mpm$ahstages$stage[intersect(which(mpm$ahstages$repstatus == 0),
+                  which(mpm$ahstages$matstatus == 1))],
+              age2 = shrubbery$age2[X], value = shrubbery$value[X],
+              stringsAsFactors = FALSE)
+              
+            return(shrubbery.small)
+          } else if (tolower(shrubbery$stage1[X]) =="mat") {
+            shrubbery.small <- cbind.data.frame(stage2 = shrubbery$stage2[X],
+              stage1 = mpm$ahstages$stage[which(mpm$ahstages$matstatus == 1)],
+              age2 = shrubbery$age2[X], value = shrubbery$value[X],
+              stringsAsFactors = FALSE)
+              
+            return(shrubbery.small)
+          } else if (tolower(shrubbery$stage1[X]) == "immat") {
+            shrubbery.small <- cbind.data.frame(stage2 = shrubbery$stage2[X],
+              stage1 = mpm$ahstages$stage[which(mpm$ahstages$immstatus == 1)],
+              age2 = shrubbery$age2[X], value = shrubbery$value[X],
+              stringsAsFactors = FALSE)
+              
+            return(shrubbery.small)
+          } else if (tolower(shrubbery$stage1[X]) == "prop") {
+            shrubbery.small <- cbind.data.frame(stage2 = shrubbery$stage2[X],
+              stage1 = mpm$ahstages$stage[which(mpm$ahstages$propstatus == 1)],
+              age2 = shrubbery$age2[X], value = shrubbery$value[X],
+              stringsAsFactors = FALSE)
+              
+            return(shrubbery.small)
+          } else if (tolower(shrubbery$stage1[X]) == "npr") {
+            shrubbery.small <- cbind.data.frame(stage2 = shrubbery$stage2[X],
+              stage1 = mpm$ahstages$stage[which(mpm$ahstages$propstatus == 0)],
+              age2 = shrubbery$age2[X], value = shrubbery$value[X],
+              stringsAsFactors = FALSE)
+              
+            return(shrubbery.small)
+          }
+        }
+      })
+      
+      shrubbery <- do.call(rbind.data.frame, reassessed)
+      
+    } else if (all(is.numeric(shrubbery$stage1)) & !any(is.na(shrubbery$stage1))) {
+      stage1_id <- shrubbery$stage1
+      
+      if (any(stage1_id > max(mpm$ahstages$stage_id)) | any(stage1_id < min(mpm$ahstages$stage_id))) {
+        stop("Unknown stage1 codes used.", call. = FALSE)
+      }
+      
+      stage1 <- apply(as.matrix(stage1_id), 1, function(X) {
+        return(mpm$ahstages$stage[X])
+      })
+      shrubbery <- cbind.data.frame(stage2 = shrubbery$stage2, stage1 = stage1,
+        age2 = shrubbery$age2, value = shrubbery$value, stringsAsFactors = FALSE)
+    } else {
+      stop("Input stage1 codes do not conform to accepted inputs.", call. = FALSE)
+    }
+  }
+  
+  if (agebystage) {
+    if (all(is.character(shrubbery$age2)) & !all(is.na(shrubbery$age2))) {
+      
+      unknown_age2 <- which(!is.element(tolower(age2), c(tolower(mpm$agestages$age),
+          "all")))
+      if (length(unknown_age2) > 0) {
+        stop(paste0("Unknown age designations used in age2: ",
+          stage1[unknown_age2]), call. = FALSE)
+      }
+      
+      reassessed <- apply(as.matrix(c(1:length(shrubbery$stage2))), 1, function(X) {
+        if (!is.na(shrubbery$age2[X])) {
+          common_ages <- unique(mpm$agestages$age[which(mpm$agestages$stage == shrubbery$stage2[X])])
+          
+          if (is.element(shrubbery$age2[X], as.character(common_ages))) {
+            shrubbery.small <- cbind.data.frame(stage2 = shrubbery$stage2[X],
+              stage1 = shrubbery$stage1[X], age2 = as.numeric(shrubbery$age2[X]),
+              value = shrubbery$value[X], stringsAsFactors = FALSE)
+            return(shrubbery.small)
+          } else if (tolower(shrubbery$age2[X]) == "all") {
+            shrubbery.small <- cbind.data.frame(stage2 = shrubbery$stage2[X],
+              stage1 = shrubbery$stage1[X], age2 = common_ages,
+              value = shrubbery$value[X], stringsAsFactors = FALSE)
+              
+            return(shrubbery.small)
+          }
+        }
+      }) 
+      
+      shrubbery <- do.call(rbind.data.frame, reassessed)
+    } else if (all(is.numeric(shrubbery$age2)) & !any(is.na(shrubbery$age2))) {
+      if (any(shrubbery$age2 > max(mpm$agestages$age)) | any(shrubbery$age2 < min(mpm$agestages$age))) {
+        stop("Unknown age2 values used.", call. = FALSE)
+      }
+      
+      shrubbery <- cbind.data.frame(stage2 = shrubbery$stage2, stage1 = shrubbery$stage1,
+        age2 = shrubbery$age2, value = shrubbery$value, stringsAsFactors = FALSE)
+    } else {
+      stop("Input stage1 codes do not conform to accepted inputs.", call. = FALSE)
+    }
+  }
+  
+  if (!all(is.numeric(value))) {
+    stop("Object value must be composed only of valid numbers.", call. = FALSE)
+  }
+  
+  shrubbery$stage2_id <- apply(as.matrix(shrubbery$stage2), 1, function(X) {
+    return(mpm$ahstages$stage_id[which(mpm$ahstages$stage == X)])
+  })
+  shrubbery$stage1_id <- apply(as.matrix(shrubbery$stage1), 1, function(X) {
+    possible_option <- mpm$ahstages$stage_id[which(mpm$ahstages$stage == X)]
+    if (length(possible_option) > 0) return(possible_option) else return(NA)
+  })
+  
+  full_length <- dim(shrubbery)[1]
+  
+  if (!historical & !agebystage) {
+    if (dim(mpm$A[[1]])[1] != dim(mpm$ahstages)[1]) {
+      stop("This ahistorical mpm includes matrices with dimensions that do not
+        match expectation.", call. = FALSE)
+    }
+    
+    start_vec <- shrubbery$stage2_id
+    
+  } else if (agebystage & !historical) {
+    if (dim(mpm$A[[1]])[1] != dim(mpm$agestages)[1]) {
+      stop("This age-by-stage mpm includes matrices with dimensions that do not
+        match expectation.", call. = FALSE)
+    }
+    
+    if (any(is.na(shrubbery$age2)) | any(!is.numeric(shrubbery$age2))) {
+      stop("Option age2 must include only numbers for age-by-stage MPMs.",
+        call. = FALSE)
+    }
+    
+    if (any(shrubbery$age2 < min(mpm$agestages$age)) | any(shrubbery$age2 > max(mpm$agestages$age))) {
+      stop("Option age2 can only take ages shown in element agestages within the input MPM.",
+        call. = FALSE)
+    }
+    
+    start_vec <- apply(as.matrix(c(1:full_length)), 1, function(X) {
+      vec2 <- which(mpm$agestages$stage_id == shrubbery$stage2_id[X])
+      vec1 <- which(mpm$agestages$age == shrubbery$age2[X])
+      
+      return(intersect(vec2, vec1)[1])
+    })
+    
+  } else if (historical & !agebystage) {
+    if (dim(mpm$A[[1]])[1] != dim(mpm$hstages)[1]) {
+      stop("This historical mpm includes matrices with dimensions that do not
+        match expectation.", call. = FALSE)
+    }
+    
+    start_vec <- apply(as.matrix(c(1:full_length)), 1, function(X) {
+      vec2 <- which(mpm$hstages$stage_id_2 == shrubbery$stage2_id[X])
+      vec1 <- which(mpm$hstages$stage_id_1 == shrubbery$stage1_id[X])
+      
+      return(intersect(vec2, vec1)[1])
+    })
+    
+  } else {
+    stop("Format of mpm not recognized.", call. = FALSE)
+  }
+  
+  output_tab <- cbind.data.frame(shrubbery$stage2, shrubbery$stage2_id,
+    shrubbery$stage1, shrubbery$stage1_id, shrubbery$age2, start_vec,
+    shrubbery$value, stringsAsFactors = FALSE)
+  
+  names(output_tab) <- c("stage2", "stage_id_2", "stage1", "stage_id_1", "age2",
+    "row_num", "value")
+  
+  if (!historical & !agebystage) {
+    out_check <- unique(output_tab[,c("stage2", "stage_id_2")])
+  } else if (historical & !agebystage) {
+    out_check <- unique(output_tab[,c("stage2", "stage_id_2", "stage1", "stage_id_1")])
+  } else if (!historical & agebystage) {
+    out_check <- unique(output_tab[,c("stage2", "stage_id_2", "age2")])
+  }
+  if (dim(out_check)[1] < dim(output_tab)[1]) {
+    warning("Some stages, stage-pairs, or age-stages appear to be listed
+      multiple times. This may cause errors in analysis.", call. = FALSE)
+  }
+
+  class(output_tab) <- append(class(output_tab), "lefkoSV")
+  
+  return(output_tab)
 }
 

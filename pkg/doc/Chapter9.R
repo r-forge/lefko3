@@ -250,7 +250,7 @@ summary(anth_finallM)
 ## ----Ch9.11-------------------------------------------------------------------
 anth_finallM$labels
 
-## ----Ch9.12, fig.cap = "Figure 9.2. Deterministic vs. stochastic lambda"------
+## ----Ch9.12, fig.height = 4, fig.width = 6, fig.cap = "Figure 9.2. Deterministic vs. stochastic lambda"----
 anth_lmean <- lmean(anth_finallM)
 
 lambda2 <- lambda3(anth_finallM)
@@ -326,7 +326,7 @@ sum(trialltre_sto$ltre_sd[[1]][which(trialltre_sto$ltre_sd[[1]] > 0)])
 writeLines("Total negative contribution of shifts in stochastic SD LTRE contributions: ")
 sum(trialltre_sto$ltre_sd[[1]][which(trialltre_sto$ltre_sd[[1]] < 0)])
 
-## ----Ch9.16, fig.cap = "Figure 9.3. LTRE contributions by stage in population C"----
+## ----Ch9.16, fig.height = 4, fig.width = 6, fig.cap = "Figure 9.3. LTRE contributions by stage in population C"----
 ltre_pos <- trialltre_det$ltre_det[[1]]
 ltre_neg <- trialltre_det$ltre_det[[1]]
 ltre_pos[which(ltre_pos < 0)] <- 0
@@ -356,7 +356,7 @@ text(cex=1, y = -0.45, x = seq(from = 2, to = 3.98*length(ltre_as_names),
 legend("bottomleft", c("deterministic", "stochastic mean", "stochastic SD"),
   col = c("black", "grey", "red"), pch = 15, bty = "n")
 
-## ----Ch9.17, fig.cap = "Figure 9.4. LTRE contributions by transition type in population C"----
+## ----Ch9.17, fig.height = 4, fig.width = 6, fig.cap = "Figure 9.4. LTRE contributions by transition type in population C"----
 det_ltre_summary <- summary(trialltre_det)
 sto_ltre_summary <- summary(trialltre_sto)
 
@@ -398,7 +398,7 @@ sltre_meanneg_toplot <- sltre_meanneg_toplot[c(4, 3, 1, 2),]
 sltre_sdpos_toplot <- sltre_sdpos_toplot[c(4, 3, 1, 2),]
 sltre_sdneg_toplot <- sltre_sdneg_toplot[c(4, 3, 1, 2),]
 
-## ----Ch9.19, fig.cap = "Figure 9.5. Mean element sLTRE contributions by transition type"----
+## ----Ch9.19, fig.height = 4, fig.width = 6, fig.cap = "Figure 9.5. Mean element sLTRE contributions by transition type"----
 barplot(as.matrix(sltre_meanpos_toplot), main = "sLTRE impacts of shifts in mean", 
   xlab = "Population", ylab = "Contribution to stochastic growth rate",
   ylim = c(-0.8, 0.6), col = c("darkblue", "cyan", "yellow", "darkred"),
@@ -408,7 +408,7 @@ barplot(as.matrix(sltre_meanneg_toplot), main = "sLTRE impacts of shifts in mean
   beside = FALSE)
 abline(0, 0, lty = 2)
 
-## ----Ch9.20, fig.cap = "Figure 9.6. Element SD sLTRE contributions by transition type"----
+## ----Ch9.20, fig.height = 4, fig.width = 6, fig.cap = "Figure 9.6. Element SD sLTRE contributions by transition type"----
 barplot(as.matrix(sltre_sdpos_toplot), main = "sLTRE impacts of shifts in SD", 
   xlab = "Population", ylab = "Contribution to stochastic growth rate",
   ylim = c(-0.06, 0.13), col = c("darkblue", "cyan", "yellow", "darkred"),
