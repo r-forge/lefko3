@@ -556,9 +556,9 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
     matrixdim = nostages * (finalage + 1);
   }
   
-  bool sizezero = FALSE;
-  bool feczero = FALSE;
-  bool jsizezero = FALSE;
+  bool sizezero = false;
+  bool feczero = false;
+  bool jsizezero = false;
   double sizezerosum {0};
   double feczerosum {0};
   double jsizezerosum {0};
@@ -634,9 +634,9 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   arma::vec fecyearzi = fecproxy["zeroyear"];
   arma::vec jsizeyearzi = jsizeproxy["zeroyear"];
   
-  if (!NumericVector::is_na(sizeyearzi(0)) && sizezerosum != 0) sizezero = TRUE;
-  if (!NumericVector::is_na(fecyearzi(0)) && feczerosum != 0) feczero = TRUE;
-  if (!NumericVector::is_na(jsizeyearzi(0)) && jsizezerosum != 0) jsizezero = TRUE;
+  if (!NumericVector::is_na(sizeyearzi(0)) && sizezerosum != 0) sizezero = true;
+  if (!NumericVector::is_na(fecyearzi(0)) && feczerosum != 0) feczero = true;
+  if (!NumericVector::is_na(jsizeyearzi(0)) && jsizezerosum != 0) jsizezero = true;
   
   if (NumericVector::is_na(sizeyearzi(0))) {sizeyearzi(0) = 0;}
   if (NumericVector::is_na(fecyearzi(0))) {fecyearzi(0) = 0;}
@@ -811,7 +811,7 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
             if (sizedist == 0) {
               // Poisson size distribution
               
-              if (sizezero == TRUE && sz3(i) == 0) {
+              if (sizezero && sz3(i) == 0) {
                 lambda_preexp = (sizecoefs(46) + (sizecoefs(47) * fl1(i)) + 
                   (sizecoefs(48) * fl2n(i)) + (sizecoefs(49) * sz1(i)) +
                   (sizecoefs(50) * sz2o(i)) + (sizecoefs(51) * fl2n(i) * fl1(i)) +
@@ -842,7 +842,10 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
                 out(i, 3) = (lambda) / (1 + (lambda));
                 
               } else {
-                double sizefac = sz3(i) * tgamma(sz3(i));
+                double sizefac {1};
+                if (sz3(i) > 0) {
+                  sizefac = sz3(i) * tgamma(sz3(i));
+                }
                 lambda_preexp = (sizecoefs(0) + (sizecoefs(1) * fl1(i)) + 
                   (sizecoefs(2) * fl2n(i)) + (sizecoefs(3) * sz1(i)) +
                   (sizecoefs(4) * sz2o(i)) + (sizecoefs(5) * fl2n(i) * fl1(i)) + 
@@ -882,7 +885,7 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
             } else if (sizedist == 1) {
               // Negative binomial size distribution
               
-              if (sizezero == TRUE && sz3(i) == 0) {
+              if (sizezero && sz3(i) == 0) {
                 mu_preexp = (sizecoefs(46) + (sizecoefs(47) * fl1(i)) + 
                   (sizecoefs(48) * fl2n(i)) + (sizecoefs(49) * sz1(i)) +
                   (sizecoefs(50) * sz2o(i)) + (sizecoefs(51) * fl2n(i) * fl1(i)) + 
@@ -1093,7 +1096,7 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
             if (sizedist == 0) {
               // Poisson size distribution
               
-              if (jsizezero == TRUE && sz3(i) == 0) {
+              if (jsizezero && sz3(i) == 0) {
                 lambda_preexp = (jsizecoefs(46) + jsizepatchzi(patchnumber) + 
                   jsizeyearzi(yearnumber) + jsizedev + (jsummedvars / 2));
                 
@@ -1104,7 +1107,10 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
                 out(i, 3) = (lambda) / (1 + (lambda));
                 
               } else {
-                double sizefac = sz3(i) * tgamma(sz3(i));
+                double sizefac {1};
+                if (sz3(i) > 0) {
+                  sizefac = sz3(i) * tgamma(sz3(i));
+                }
                 lambda_preexp = (jsizecoefs(0) + jsizepatch(patchnumber) + 
                   jsizeyear(yearnumber) + jsizedev + (jsummedvars / 2));
                 
@@ -1121,7 +1127,7 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
             } else if (sizedist == 1) {
               // Negative binomial size distribution
               
-              if (jsizezero == TRUE && sz3(i) == 0) {
+              if (jsizezero && sz3(i) == 0) {
                 mu_preexp = (jsizecoefs(46) + jsizepatchzi(patchnumber) + jsizeyearzi(yearnumber) + jsizedev);
                 
                 if (mu_preexp > 500) {
@@ -1223,7 +1229,7 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
         
         if (matrixformat != 2) {
           if (fecdist < 3 && fecl > 1) {
-            if (feczero == TRUE && sz3(i) == 0) {
+            if (feczero && sz3(i) == 0) {
               
               preoutx = (feccoefs(46) + (feccoefs(47) * fl1(i)) + (feccoefs(48) * fl2n(i)) +
                 (feccoefs(49) * sz1(i)) + (feccoefs(50) * sz2o(i)) + 
@@ -1279,7 +1285,7 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
             if (fecdist != 2) {
               // Poisson and negative binomial fecundity
               
-              if (feczero == TRUE && sz3(i) == 0) {
+              if (feczero && sz3(i) == 0) {
                 
                 if (preoutx > 500) preoutx = 500;
                 
@@ -1310,7 +1316,7 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
         } else if (stage2n(i) == (nostages+1)) {
           // This propagates fecundity in deVries-formatted hMPMs
           if (fecdist < 3 && fecl > 1) {
-            if (feczero == TRUE && sz3(i) == 0) {
+            if (feczero && sz3(i) == 0) {
               
               preoutx = (feccoefs(46) + (feccoefs(47) * fl1(i)) + (feccoefs(48) * fl2o(i)) +
                 (feccoefs(49) * sz1(i)) + (feccoefs(50) * sz2o(i)) + 
@@ -1366,7 +1372,7 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
             if (fecdist != 2) {
               // Poisson and negative binomial fecundity
               
-              if (feczero == TRUE && sz3(i) == 0) {
+              if (feczero && sz3(i) == 0) {
                 
                 if (preoutx > 500) preoutx = 500;
                 

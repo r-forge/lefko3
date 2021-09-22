@@ -19,6 +19,9 @@ CHANGES IN VERSION 3.9.0 (2021-XX-XX)
   BUG FIXES
     1. Corrected bug causing code "npr" to yield propagule stages in time t+1
        in supplement and overwrite tables.
+    2. Fixed issue preventing estimation of size transition into observable
+       classes with size 0 under the Poisson distribution in flefko3() and
+       flefko2().
 
 
 CHANGES IN VERSION 3.8.0 (2021-09-08)
