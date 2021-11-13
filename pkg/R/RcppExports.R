@@ -3,7 +3,7 @@
 
 #' Re-index Projection Matrix On Basis of Overwrite Table
 #' 
-#' This function takes matrix indices provided by functions
+#' Function \code{.ovreplace()} takes matrix indices provided by functions
 #' \code{\link{rlefko3}()}, \code{\link{rlefko2}()}, \code{\link{flefko3}()},
 #' \code{\link{flefko2}()}, and \code{\link{aflefko2}()} and updates them with
 #' information provided in the overwrite table used as input in that function.
@@ -19,18 +19,24 @@
 #' @param gvnrate Vector of replacement transition values.
 #' @param multipl Vector of fecundity multipliers.
 #' 
-#' @return Vector of updated matrix indices and, where appropriate, replacement
-#' matrix element values.
+#' @return A matrix. Column 1 is the given rate for a survival transitions,
+#' Column 2 is the proxy transition to be used to estimate that transition.
+#' Column 3 is the given rate for a fecundity transitions. Column 4 is the
+#' proxy transition to be used to estimate that transition. Column 5 is a
+#' vector of fecundity multipliers, in cases where no given rate or proxy is to
+#' be used but fecundity is to be multiplied by some value. Column 6 is a
+#' vector of survival transition multipliers. Column 7 is a vector of fecundity
+#' transition multipliers.
 #' 
 #' @keywords internal
 #' @noRd
-ovreplace <- function(allst321, idx321old, idx321new, convtype, eststag3, gvnrate, multipl) {
+.ovreplace <- function(allst321, idx321old, idx321new, convtype, eststag3, gvnrate, multipl) {
     .Call('_lefko3_ovreplace', PACKAGE = 'lefko3', allst321, idx321old, idx321new, convtype, eststag3, gvnrate, multipl)
 }
 
 #' Create Vertical Structure for Horizontal Data Frame Input
 #' 
-#' Function \code{pfj()} powers the R function \code{\link{verticalize3}()},
+#' Function \code{.pfj()} powers the R function \code{\link{verticalize3}()},
 #' creating the vertical structure and rearranging the data in that shape.
 #' 
 #' @param data The horizontal data file.
@@ -101,8 +107,8 @@ ovreplace <- function(allst321, idx321old, idx321new, convtype, eststag3, gvnrat
 #' if and only if they are reproductive. Otherwise, all individuals with size 0
 #' are treated as not observed.
 #' @param stassign A logical value indicating whether to assign stages.
-#' @param stszcol Column number describing which size variable to use in stage 
-#' estimation.
+#' @param stszcol Integer describing which size variable or combination of size
+#' variables to use in stage estimation.
 #' @param censorkeep The value of the censoring variable identifying data
 #' that should be included in analysis. Defaults to 0, but may take any numeric
 #' value including NA.
@@ -119,15 +125,15 @@ ovreplace <- function(allst321, idx321old, idx321new, convtype, eststag3, gvnrat
 #' 
 #' @keywords internal
 #' @noRd
-pfj <- function(data, stageframe, noyears, firstyear, popidcol, patchidcol, individcol, blocksize, xcol, ycol, juvcol, sizeacol, sizebcol, sizeccol, repstracol, repstrbcol, fecacol, fecbcol, indcovacol, indcovbcol, indcovccol, aliveacol, deadacol, obsacol, nonobsacol, censorcol, stagecol, repstrrel, fecrel, NAas0, NRasRep, RepasObs, stassign, stszcol, censorkeep, censbool, censrepeat, coordsrepeat) {
+.pfj <- function(data, stageframe, noyears, firstyear, popidcol, patchidcol, individcol, blocksize, xcol, ycol, juvcol, sizeacol, sizebcol, sizeccol, repstracol, repstrbcol, fecacol, fecbcol, indcovacol, indcovbcol, indcovccol, aliveacol, deadacol, obsacol, nonobsacol, censorcol, stagecol, repstrrel, fecrel, NAas0, NRasRep, RepasObs, stassign, stszcol, censorkeep, censbool, censrepeat, coordsrepeat) {
     .Call('_lefko3_pfj', PACKAGE = 'lefko3', data, stageframe, noyears, firstyear, popidcol, patchidcol, individcol, blocksize, xcol, ycol, juvcol, sizeacol, sizebcol, sizeccol, repstracol, repstrbcol, fecacol, fecbcol, indcovacol, indcovbcol, indcovccol, aliveacol, deadacol, obsacol, nonobsacol, censorcol, stagecol, repstrrel, fecrel, NAas0, NRasRep, RepasObs, stassign, stszcol, censorkeep, censbool, censrepeat, coordsrepeat)
 }
 
 #' Create Historical Vertical Structure for Ahistorical Vertical Data Frame
 #' 
-#' Function \code{jpf()} powers the R function \code{\link{historicalize3}()},
-#' creating the historical, vertical structure and rearranging the data in that
-#' shape.
+#' Function \code{.jpf()} is the core kernel for function
+#' \code{\link{historicalize3}()}, creating the historical, vertical structure
+#' and rearranging the data in that shape.
 #'
 #' @param data The horizontal data file.
 #' @param stageframe The stageframe object identifying the life history model
@@ -138,8 +144,8 @@ pfj <- function(data, stageframe, noyears, firstyear, popidcol, patchidcol, indi
 #' for each individual.
 #' @param individcol Column number corresponding to the identity of each 
 #' individual.
-#' @param year2col Column number of year or time step in time \emph{t}.
-#' @param year3col Column number of year or time step in time \emph{t}+1.
+#' @param year2col Column number of year or occasion in time \emph{t}.
+#' @param year3col Column number of year or occasion in time \emph{t}+1.
 #' @param xcol Column number corresponding to the x coordinate of each
 #' individual in Cartesian space.
 #' @param ycol Column number corresponding to the y coordinate of each
@@ -161,14 +167,16 @@ pfj <- function(data, stageframe, noyears, firstyear, popidcol, patchidcol, indi
 #' @param sizec3col Column number corresponding to the tertiary size variable
 #' in time \emph{t}+1.
 #' @param repstra2col Column number corresponding to the main variable coding
-#' the production of reproductive structures, such as flowers, in time \emph{t}.
+#' for the production of reproductive structures, such as flowers, in time
+#' \emph{t}.
 #' @param repstra3col Column number corresponding to the main variable coding
-#' the production of reproductive structures, such as flowers, in time
+#' for the production of reproductive structures, such as flowers, in time
 #' \emph{t}+1.
 #' @param repstrb2col Column number corresponding to a second variable coding
-#' the production of reproductive structures, such as flowers, in time \emph{t}.
+#' for the production of reproductive structures, such as flowers, in time
+#' \emph{t}.
 #' @param repstrb3col Column number corresponding to a second variable coding
-#' the production of reproductive structures, such as flowers, in time
+#' for the production of reproductive structures, such as flowers, in time
 #' \emph{t}+1.
 #' @param feca2col Column number corresponding to the main variable coding for
 #' fecundity in time \emph{t}.
@@ -178,18 +186,18 @@ pfj <- function(data, stageframe, noyears, firstyear, popidcol, patchidcol, indi
 #' fecundity in time \emph{t}.
 #' @param fecb3col Column number corresponding to a second variable coding for
 #' fecundity in time \emph{t}+1.
-#' @param indcova2col Column number corresponding to an individual covariate
-#' in time \emph{t}.
-#' @param indcova3col Column number corresponding to an individual covariate
-#' in time \emph{t}+1.
-#' @param indcovb2col Column number corresponding to an individual covariate
-#' in time \emph{t}.
-#' @param indcovb3col Column number corresponding to an individual covariate
-#' in time \emph{t}+1.
-#' @param indcovc2col Column number corresponding to an individual covariate
-#' in time \emph{t}.
-#' @param indcovc3col Column number corresponding to an individual covariate
-#' in time \emph{t}+1.
+#' @param indcova2col Column number corresponding to an individual covariate in
+#' time \emph{t}.
+#' @param indcova3col Column number corresponding to an individual covariate in
+#' time \emph{t}+1.
+#' @param indcovb2col Column number corresponding to an individual covariate in
+#' time \emph{t}.
+#' @param indcovb3col Column number corresponding to an individual covariate in
+#' time \emph{t}+1.
+#' @param indcovc2col Column number corresponding to an individual covariate in
+#' time \emph{t}.
+#' @param indcovc3col Column number corresponding to an individual covariate in
+#' time \emph{t}+1.
 #' @param alive2col Column number detailing whether an individual is alive in 
 #' time \emph{t}.
 #' @param alive3col Column number detailing whether an individual is alive in 
@@ -201,14 +209,14 @@ pfj <- function(data, stageframe, noyears, firstyear, popidcol, patchidcol, indi
 #' @param obs2col Column number detailing whether an individual is in an
 #' observable stage in time \emph{t}.
 #' @param obs3col Column number detailing whether an individual is in an
-#' unobservable stage in time \emph{t}.
+#' observable stage in time \emph{t}+1.
 #' @param nonobs2col Column number detailing whether an individual is in an
 #' unobservable stage in time \emph{t}.
 #' @param nonobs3col Column number detailing whether an individual is in an
 #' unobservable stage in time \emph{t}+1.
-#' @param repstrrel This is a scalar modifier for that makes the variable in
+#' @param repstrrel This is a scalar multiplier for that makes the variable in
 #' \code{repstrb2col} equivalent to \code{repstra2col}.
-#' @param fecrel This is a scalar modifier for that makes the variable in
+#' @param fecrel This is a scalar multiplier for that makes the variable in
 #' \code{fecb2col} equivalent to \code{feca2col}.
 #' @param stage2col Column number corresponding to life history stage in time
 #' \emph{t}.
@@ -216,34 +224,34 @@ pfj <- function(data, stageframe, noyears, firstyear, popidcol, patchidcol, indi
 #' \emph{t}+1.
 #' @param censorcol Column number corresponding to a censor variable within the
 #' dataset.
-#' @param NAas0 If TRUE, then all NA entries for size and fecundity variables
-#' will be set to 0.
-#' @param NRasRep If TRUE, then will treat non-reproductive but mature
-#' individuals as reproductive during stage assignment.
+#' @param NAas0 If \code{TRUE}, then all \code{NA} entries for size and
+#' fecundity variables will be set to 0.
+#' @param NRasRep If \code{TRUE}, then non-reproductive but mature individuals
+#' will be treated as reproductive during stage assignment.
 #' @param stassign A logical value indicating whether to assign stages.
-#' @param stszcol Column number describing which size variable to use in stage 
-#' estimation.
+#' @param stszcol Integer describing which size variable to use in stage 
+#' estimation. Numbers 1 through 8 are possible.
 #' @param censorkeep Numeric value of censor variable, denoting elements to
-#' keep. If NA is to be used, then set this variable to 0 and set
+#' keep. If \code{NA} is to be used, then set this variable to \code{0} and set
 #' \code{censbool = TRUE}.
-#' @param censbool A logical variable determining whether NA denotes the value
-#' of the censoring variable identifying data to keep.
+#' @param censbool A logical variable determining whether \code{NA} denotes the
+#' value of the censoring variable identifying data to keep.
 #' 
-#' @return The output is currently a 7 element list, where each element is a
-#' data frame with the same number of rows.
+#' @return The output is currently a list coerced into the data frame class,
+#' and is read as a data frame by R. It is secondarily in class \code{hfvdata}.
 #' 
 #' @keywords internal
 #' @noRd
-jpf <- function(data, stageframe, popidcol, patchidcol, individcol, year2col, year3col, xcol, ycol, juv2col, juv3col, sizea2col, sizea3col, sizeb2col, sizeb3col, sizec2col, sizec3col, repstra2col, repstra3col, repstrb2col, repstrb3col, feca2col, feca3col, fecb2col, fecb3col, indcova2col, indcova3col, indcovb2col, indcovb3col, indcovc2col, indcovc3col, alive2col, alive3col, dead2col, dead3col, obs2col, obs3col, nonobs2col, nonobs3col, repstrrel, fecrel, stage2col, stage3col, censorcol, NAas0, NRasRep, stassign, stszcol, censorkeep, censbool) {
+.jpf <- function(data, stageframe, popidcol, patchidcol, individcol, year2col, year3col, xcol, ycol, juv2col, juv3col, sizea2col, sizea3col, sizeb2col, sizeb3col, sizec2col, sizec3col, repstra2col, repstra3col, repstrb2col, repstrb3col, feca2col, feca3col, fecb2col, fecb3col, indcova2col, indcova3col, indcovb2col, indcovb3col, indcovc2col, indcovc3col, alive2col, alive3col, dead2col, dead3col, obs2col, obs3col, nonobs2col, nonobs3col, repstrrel, fecrel, stage2col, stage3col, censorcol, NAas0, NRasRep, stassign, stszcol, censorkeep, censbool) {
     .Call('_lefko3_jpf', PACKAGE = 'lefko3', data, stageframe, popidcol, patchidcol, individcol, year2col, year3col, xcol, ycol, juv2col, juv3col, sizea2col, sizea3col, sizeb2col, sizeb3col, sizec2col, sizec3col, repstra2col, repstra3col, repstrb2col, repstrb3col, feca2col, feca3col, fecb2col, fecb3col, indcova2col, indcova3col, indcovb2col, indcovb3col, indcovc2col, indcovc3col, alive2col, alive3col, dead2col, dead3col, obs2col, obs3col, nonobs2col, nonobs3col, repstrrel, fecrel, stage2col, stage3col, censorcol, NAas0, NRasRep, stassign, stszcol, censorkeep, censbool)
 }
 
 #' Create Element Index for Matrix Estimation
 #' 
-#' Function \code{theoldpizzle()} create a data frame object spread across
-#' three 20-element long list objects that is used by \code{jerzeibalowski()}
-#' to estimate function-derived matrices, and also provides the element map for
-#' raw matrices.
+#' Function \code{.theoldpizzle()} creates a data frame object used by 
+#' functions \code{\link{.specialpatrolgroup}()},
+#' \code{\link{.normalpatrolgroup}()}, and \code{.jerzeibalowski()} to estimate
+#' raw and function-derived matrices.
 #'
 #' @param StageFrame The stageframe object identifying the life history model
 #' being operationalized.
@@ -258,22 +266,21 @@ jpf <- function(data, stageframe, popidcol, patchidcol, individcol, year2col, ye
 #' and 2 is age-by-stage.
 #' @param cont Denotes whether age-by-stage matrix continues past the final age.
 #' 
-#' @return The output is currently a three element list, where each element is
-#' a data frame with the same number of rows. These are combined into one data
-#' frame by \code{\link{flefko3}()}, \code{\link{flefko2}()}, and
-#' \code{\link{aflefko2}()}.
+#' @return The output is a large data frame describing every element to be
+#' estimated in matrices.
 #' 
 #' @keywords internal
 #' @noRd
-theoldpizzle <- function(StageFrame, OverWrite, repmatrix, finalage, format, style, cont) {
+.theoldpizzle <- function(StageFrame, OverWrite, repmatrix, finalage, format, style, cont) {
     .Call('_lefko3_theoldpizzle', PACKAGE = 'lefko3', StageFrame, OverWrite, repmatrix, finalage, format, style, cont)
 }
 
 #' Estimate Radial Density in Cartesian Space
 #' 
-#' \code{density3()} estimates radial density on the basis of Cartesian
-#' coordinates and spacing information supplied as input. It is used internally
-#' by \code{\link{historicalize3}()} and \code{\link{verticalize3}()}.
+#' Function \code{.density3()} estimates radial density on the basis of
+#' Cartesian coordinates and spacing information supplied as input. It is used
+#' internally by \code{\link{historicalize3}()} and
+#' \code{\link{verticalize3}()}.
 #' 
 #' @param data Demographic dataset in historical vertical format.
 #' @param xcol Number of column in \code{data} corresponding to x position.
@@ -299,7 +306,7 @@ theoldpizzle <- function(StageFrame, OverWrite, repmatrix, finalage, format, sty
 #' 
 #' @keywords internal
 #' @noRd
-density3 <- function(data, xcol, ycol, yearcol, spacing) {
+.density3 <- function(data, xcol, ycol, yearcol, spacing) {
     .Call('_lefko3_density3', PACKAGE = 'lefko3', data, xcol, ycol, yearcol, spacing)
 }
 
@@ -411,9 +418,269 @@ cond_hmpm <- function(hmpm, matchoice = NULL, err_check = NULL) {
     .Call('_lefko3_cond_hmpm', PACKAGE = 'lefko3', hmpm, matchoice, err_check)
 }
 
+#' Estimate All Elements of Raw Historical Matrix
+#' 
+#' Function \code{.specialpatrolgroup()} swiftly calculates matrix transitions
+#' in raw historical matrices, and serves as the core workhorse function behind
+#' \code{\link{rlefko3}()}.
+#' 
+#' @param sge9l The Allstages data frame developed for \code{rlefko3()}
+#' covering stage pairs across times \emph{t}+1, \emph{t} and \emph{t}-1.
+#' Generally termed \code{stageexpansion9}.
+#' @param sge3 The data frame covering all stages in times \emph{t} and
+#' \emph{t}-1. Generally termed \code{stageexpansion3}.
+#' @param MainData The demographic dataset modified to hold \code{usedfec}
+#' columns.
+#' @param StageFrame The full stageframe for the analysis.
+#' @param repmatrix The modified repmatrix used in the course of computation.
+#' This is used particularly when deVries-format hMPMs are desired.
+#' @param format Indicates whether to output Ehrlen-format hMPMs (1) or
+#' deVries-format hMPMs (2).
+#' @param err_switch If set to 1, then will also output probsrates and
+#' stage2fec.
+#' 
+#' @return List of three matrices, including the survival-transition (U)
+#' matrix, the fecundity matrix (F), and the sum (A) matrix, with A first.
+#' 
+#' @keywords internal
+#' @noRd
+.specialpatrolgroup <- function(sge9l, sge3, MainData, StageFrame, format, err_switch) {
+    .Call('_lefko3_specialpatrolgroup', PACKAGE = 'lefko3', sge9l, sge3, MainData, StageFrame, format, err_switch)
+}
+
+#' Estimate All Elements of Raw Ahistorical Population Projection Matrix
+#' 
+#' Function \code{.normalpatrolgroup()} swiftly calculates matrix transitions
+#' in raw ahistorical matrices, and serves as the core workhorse function
+#' behind \code{\link{rlefko2}()}.
+#' 
+#' @param sge3 The Allstages data frame developed for \code{rlefko2()} covering
+#' stage pairs across times \emph{t}+1 and \emph{t}. Generally termed
+#' \code{stageexpansion3}.
+#' @param sge2 The data frame covering all stages in time \emph{t}. Generally
+#' termed \code{stageexpansion2}.
+#' @param MainData The demographic dataset modified to hold \code{usedfec} and
+#' \code{usedstage} columns.
+#' @param StageFrame The full stageframe for the analysis.
+#' 
+#' @return List of three matrices, including the survival-transition (U)
+#' matrix, the fecundity matrix (F), and the sum (A) matrix, with A first.
+#' 
+#' @keywords internal
+#' @noRd
+.normalpatrolgroup <- function(sge3, sge2, MainData, StageFrame) {
+    .Call('_lefko3_normalpatrolgroup', PACKAGE = 'lefko3', sge3, sge2, MainData, StageFrame)
+}
+
+#' Creates Matrices of Year and Patch Terms in Models
+#' 
+#' Function \code{.revelations()} creates a matrix holding either the year or
+#' patch coefficients from all vital rate models. This reduces memory load in
+#' function \code{\link{.jerzeibalowski}()}, which may be important in some
+#' systems or compilers.
+#' 
+#' @param survproxy The proxy vital rate model covering survival from the main
+#' matrix estimator function.
+#' @param obsproxy The proxy vital rate model covering observation status from
+#' the main matrix estimator function.
+#' @param sizeproxy The proxy vital rate model covering primary size from the
+#' main matrix estimator function.
+#' @param sizebproxy The proxy vital rate model covering secondary size from
+#' the main matrix estimator function.
+#' @param sizecproxy The proxy vital rate model covering tertiary size from the
+#' main matrix estimator function.
+#' @param repstproxy The proxy vital rate model covering reproductive status
+#' from the main matrix estimator function.
+#' @param fecproxy The proxy vital rate model covering fecundity from the main
+#' matrix estimator function.
+#' @param jsurvproxy The proxy vital rate model covering juvenile survival from
+#' the main matrix estimator function.
+#' @param jobsproxy The proxy vital rate model covering juvenile observation
+#' status from the main matrix estimator function.
+#' @param jsizeproxy The proxy vital rate model covering juvenile primary size
+#' from the main matrix estimator function.
+#' @param jsizebproxy The proxy vital rate model covering juvenile secondary
+#' size from the main matrix estimator function.
+#' @param jsizecproxy The proxy vital rate model covering juvenile tertiary
+#' size from the main matrix estimator function.
+#' @param repstproxy The proxy vital rate model covering juvenile reproductive
+#' status from the main matrix estimator function.
+#' @param mat_switch An integer coding for year (\code{1}) or patch (\code{2}).
+#' 
+#' @return A matrix with 13 columns corresponding to the number of vital rates
+#' and number of columns equal to the number of year or patches.
+#' 
+#' @keywords internal
+#' @noRd
+.revelations <- function(survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, mat_switch) {
+    .Call('_lefko3_revelations', PACKAGE = 'lefko3', survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, mat_switch)
+}
+
+#' Creates a Summation of Most Terms Needed in Vital Rate Calculation
+#' 
+#' Function \code{.rimeotam()} provides the majority of the work in creating the
+#' linear model sum to be used in vital rate estimation in the MPM. Works
+#' specifically with function \code{\link{jerzeibalowski}()}.
+#' 
+#' @param maincoefs The coefficients portion of the vital rate model proxy.
+#' @param fl1_i Reproductive status in time *t*-1.
+#' @param fl2n_i Reproductive status in time *t*.
+#' @param sz1_i Primary size in time *t*-1.
+#' @param sz2o_i Primary size in time *t*.
+#' @param szb1_i Secondary size in time *t*-1.
+#' @param szb2o_i Secondary size in time *t*.
+#' @param szc1_i Tertiary size in time *t*-1.
+#' @param szc2o_i Tertiary size in time *t*.
+#' @param aage2_i Used age in time *t*.
+#' @param inda_1 Value of numeric individual covariate a in time *t*-1.
+#' @param inda_2 Value of numeric individual covariate a in time *t*.
+#' @param indb_1 Value of numeric individual covariate b in time *t*-1.
+#' @param indb_2 Value of numeric individual covariate b in time *t*.
+#' @param indc_1 Value of numeric individual covariate c in time *t*-1.
+#' @param indc_2 Value of numeric individual covariate c in time *t*.
+#' @param used_dens Density value used.
+#' @param zi A logical value indicating whether model coefficients refer to the
+#' zero inflation portion of a model.
+#' 
+#' @return A single numeric value giving the sum of the products of the linear
+#' coefficients and the used status values.
+#' 
+#' @keywords internal
+#' @noRd
+.rimeotam <- function(maincoefs, fl1_i, fl2n_i, sz1_i, sz2o_i, szb1_i, szb2o_i, szc1_i, szc2o_i, aage2_i, inda_1, inda_2, indb_1, indb_2, indc_1, indc_2, used_dens, zi) {
+    .Call('_lefko3_rimeotam', PACKAGE = 'lefko3', maincoefs, fl1_i, fl2n_i, sz1_i, sz2o_i, szb1_i, szb2o_i, szc1_i, szc2o_i, aage2_i, inda_1, inda_2, indb_1, indb_2, indc_1, indc_2, used_dens, zi)
+}
+
+#' Counts Numbers of Elements in Each Random Individual Covariate Portion of
+#' Model
+#' 
+#' Function \code{.foi_counter} counts the number of elements in each random
+#' individual covariate and returns that as a vector.
+#' 
+#' @param modelproxy A list holding the contents of a model processed with
+#' function \code{\link{.modelextract}()}
+#' @param zi A logical value indicating whether to focus on the zero-inflation
+#' parameters.
+#' 
+#' @return A 6 element vector holding the numbers of elements in each random
+#' individual covariate in a model (either the cont portion or the zi portion).
+#' 
+#' @keywords internal
+#' @noRd
+.foi_counter <- function(modelproxy, zi) {
+    .Call('_lefko3_foi_counter', PACKAGE = 'lefko3', modelproxy, zi)
+}
+
+#' Create Vector of Random Individual Covariate Terms
+#' 
+#' Function \code{.flightoficarus()} creates vectorss of random covariate
+#' terms.
+#' 
+#' @param modelproxy A model proxy list extracted with function
+#' \code{\link{.modelextract}()}.
+#' 
+#' @return A vector of numeric values for random categorical terms. The order
+#' is: 1) cov a time 2, 2) cov a time 1, 3) cov b time 2, 4) cov b time 1,
+#' 5) cov c time 2, and 6) cov c time 1. Rows may vary, but must be the same
+#' length for each model.
+#' 
+#' @keywords internal
+#' @noRd
+.flightoficarus <- function(modelproxy) {
+    .Call('_lefko3_flightoficarus', PACKAGE = 'lefko3', modelproxy)
+}
+
+#' Create Concatenated Vector of Random Individual Covariate Term Names
+#' 
+#' Function \code{.bootson()} creates a concatenated string vector holding all
+#' covariate term names.
+#' 
+#' @param modelproxy A model proxy list extracted with function
+#' \code{\link{.modelextract}()}.
+#' 
+#' @return A vector holding all covariate name terms. The order is: 1) cov a
+#' time 2, 2) cov a time 1, 3) cov b time 2, 4) cov b time 1, 5) cov c time 2,
+#' and 6) cov c time 1. Note that the element order is the same as in function
+#' \code{\link{.flightoficarus}()}.
+#' 
+#' @keywords internal
+#' @noRd
+.bootson <- function(modelproxy) {
+    .Call('_lefko3_bootson', PACKAGE = 'lefko3', modelproxy)
+}
+
+#' Create Vector of Random Individual Covariate Terms for Zero-Inflated Models
+#' 
+#' Function \code{.zero_flightoficarus()} creates vectors of random covariate
+#' terms from the binomial portion of a zero-inflated model.
+#' 
+#' @param modelproxy A model proxy list extracted with function
+#' \code{\link{.modelextract}()}.
+#' 
+#' @return A vector of numeric values for random categorical terms. The order
+#' is: 1) cov a time 2, 2) cov a time 1, 3) cov b time 2, 4) cov b time 1,
+#' 5) cov c time 2, and 6) cov c time 1. Rows may vary, but must be the same
+#' length for each model.
+#' 
+#' @keywords internal
+#' @noRd
+.zero_flightoficarus <- function(modelproxy) {
+    .Call('_lefko3_zero_flightoficarus', PACKAGE = 'lefko3', modelproxy)
+}
+
+#' Create Concatenated Vector of Random Individual Covariate Term Names from
+#' a Zero-Inflated Model
+#' 
+#' Function \code{.zero_bootson()} creates a concatenated string vector holding
+#' all covariate term names from the binomial portion of a zero-inflated model.
+#' 
+#' @param modelproxy A model proxy list extracted with function
+#' \code{\link{.modelextract}()}.
+#' 
+#' @return A vector holding all covariate name terms. The order is: 1) cov a
+#' time 2, 2) cov a time 1, 3) cov b time 2, 4) cov b time 1, 5) cov c time 2,
+#' and 6) cov c time 1. Note that the element order is the same as in function
+#' \code{\link{.zero_flightoficarus}()}.
+#' 
+#' @keywords internal
+#' @noRd
+.zero_bootson <- function(modelproxy) {
+    .Call('_lefko3_zero_bootson', PACKAGE = 'lefko3', modelproxy)
+}
+
+#' Create Index of Element Numbers for Random Individual Covariate Terms
+#' 
+#' Function \code{.foi_index} creates a matrix indexing the end points of each
+#' random individual covariate in the utilized vectors.
+#' 
+#' @param surv_proxy Adult survival model proxy.
+#' @param obs_proxy Adult observation status model proxy.
+#' @param size_proxy Adult primary size model proxy.
+#' @param sizeb_proxy Adult secondary size model proxy.
+#' @param sizec_proxy Adult tertiary size model proxy.
+#' @param repst_proxy Adult reproductive status model proxy.
+#' @param fec_proxy Adult fecundity model proxy.
+#' @param jsurv_proxy Juvenile survival model proxy.
+#' @param jobs_proxy Juvenile observation status model proxy.
+#' @param jsize_proxy Juvenile primary size model proxy.
+#' @param jsizeb_proxy Juvenile secondary size model proxy.
+#' @param jsizec_proxy Juvenile tertiary size model proxy.
+#' @param jrepst_proxy Juvenile reproductive status model proxy.
+#' 
+#' @return An integer matrix with 6 rows and 20 columns. The columns
+#' contain the number of elements in each random individual covariate term,
+#' with the row order being: 1) cov a t2, 2) cov a t1, 3) cov b t2,
+#' 4) cov b t1, 5) cov c t2, cov c t1.
+#' 
+#' @keywords internal
+#' @noRd
+.foi_index <- function(surv_proxy, obs_proxy, size_proxy, sizeb_proxy, sizec_proxy, repst_proxy, fec_proxy, jsurv_proxy, jobs_proxy, jsize_proxy, jsizeb_proxy, jsizec_proxy, jrepst_proxy) {
+    .Call('_lefko3_foi_index', PACKAGE = 'lefko3', surv_proxy, obs_proxy, size_proxy, sizeb_proxy, sizec_proxy, repst_proxy, fec_proxy, jsurv_proxy, jobs_proxy, jsize_proxy, jsizeb_proxy, jsizec_proxy, jrepst_proxy)
+}
+
 #' Estimate All Elements of Function-based Population Projection Matrix
 #' 
-#' Function \code{jerzeibalowski} swiftly calculates matrix elements in
+#' Function \code{.jerzeibalowski()} swiftly calculates matrix elements in
 #' function-based population projection matrices. Used in
 #' \code{\link{flefko3}()}, \code{\link{flefko2}()}, and
 #' \code{\link{aflefko2}()}.
@@ -440,37 +707,28 @@ cond_hmpm <- function(hmpm, matchoice = NULL, err_check = NULL) {
 #' @param jsizeproxy List of coefficients estimated in model of juvenile size.
 #' @param jrepstproxy List of coefficients estimated in model of juvenile
 #' reproductive status.
-#' @param inda A numeric value equal to the value of individual covariate a to
-#' be used in analysis.
-#' @param indb A numeric value equal to the value of individual covariate b to
-#' be used in analysis.
-#' @param indc A numeric value equal to the value of individual covariate c to
-#' be used in analysis.
-#' @param survdev Scalar value to be added to the y-intercept of the linear
-#' model of survival probability.
-#' @param obsdev Scalar value to be added to the y-intercept of the linear
-#' model of observation probability.
-#' @param sizedev Scalar value to be added to the y-intercept of the linear
-#' model of size transition.
-#' @param repstdev Scalar value to be added to the y-intercept of the linear
-#' model of reproduction probability.
-#' @param fecdev Scalar value to be added to the y-intercept of the linear
-#' model of fecundity.
-#' @param jsurvdev Scalar value to be added to the y-intercept of the linear
-#' model of juvenile survival probability.
-#' @param jobsdev Scalar value to be added to the y-intercept of the linear
-#' model of juvenile observation probability.
-#' @param jsizedev Scalar value to be added to the y-intercept of the linear
-#' model of juvenile size transition.
-#' @param jrepstdev Scalar value to be added to the y-intercept of the linear
-#' model of juvenile reproduction probability.
+#' @param inda A numeric vector of length equal to the number of years, holding
+#' values equal to the mean value of individual covariate \code{a} at each time
+#' to be used in analysis.
+#' @param indb A numeric vector of length equal to the number of years, holding
+#' values equal to the mean value of individual covariate \code{b} at each time
+#' to be used in analysis.
+#' @param indc A numeric vector of length equal to the number of years, holding
+#' values equal to the mean value of individual covariate \code{c} at each time
+#' to be used in analysis.
+#' @param dev_terms A numeric vector containing the deviations to the linear
+#' models input by the user. The order is: survival, observation status, size,
+#' size_b, size_c, reproductive status, fecundity, juvenile survival, juvenile
+#' observation status, juvenile size, juvenile size_b, juvenile size_c,
+#' and juvenile reproductive status.
+#' @param dens A numeric value equal to the density to be used in calculations.
 #' @param fecmod A scalar multiplier for fecundity.
-#' @param summedvars Summed variance-covariance terms in Poisson size
-#' distribution.
-#' @param sigma Standard deviation of Gaussian size distribution.
-#' @param jsummedvars Summed variance-covariance terms in Poisson juvenile size
-#' distribution.
-#' @param jsigma Standard deviation of Gaussian juvenile size distribution.
+#' @param svsigmas A vector of sigma and summedvar terms from vital rate
+#' models, in the order of: summedvars, sigma, summedvarsb, sigmab,
+#' summedvarsc, sigmac, jsummedvars, jsigma, jsummedvarsb, jsigmab,
+#' jsummedvarsc, and jsigmac. Summedvar terms are summed variance-covariance
+#' terms in Poisson and negative binomial size distributions, and sigma terms
+#' are standard deviations in the Gaussian size distribution.
 #' @param maxsize The maximum size to be used in element estimation.
 #' @param finalage The final age to be included in age-by-stage MPM estimation.
 #' @param sizedist Designates whether size is Gaussian (2), Poisson (0), or
@@ -478,78 +736,28 @@ cond_hmpm <- function(hmpm, matchoice = NULL, err_check = NULL) {
 #' @param fecdist Designates whether fecundity is Gaussian (2), Poisson (0), or
 #' negative binomial (1) distributed.
 #' @param negfec Logical value denoting whether to change negative estimated
-NULL
-
-#' Estimate All Elements of Raw Historical Matrix
-#' 
-#' Function \code{specialpatrolgroup} swiftly calculates matrix transitions in
-#' raw historical matrices, and serves as the core workhorse function behind
-#' \code{\link{rlefko3}()}.
-#' 
-#' @param sge9l The Allstages data frame developed for rlefko3() covering stage
-#' pairs across times \emph{t}+1, \emph{t} and \emph{t}-1. Generally termed
-#' \code{stageexpansion9}.
-#' @param sge3 The data frame covering all stages in times \emph{t} and
-#' \emph{t}-1. Generally termed \code{stageexpansion3}.
-#' @param MainData The demographic dataset modified to hold \code{usedfec}
-#' columns.
-#' @param StageFrame The full stageframe for the analysis.
-#' @param repmatrix The modified repmatrix used in the course of computation.
-#' This is used particularly when deVries-format hMPMs are desired.
-#' @param format Indicates whether to output Ehrlen-format hMPMs (1) or
-#' deVries-format hMPMs (2).
-#' @param err_switch If set to 1, then will also output probsrates and
-#' stage2fec.
-#' 
-#' @return List of three matrices, including the survival-transition (U)
-#' matrix, the fecundity matrix (F), and the sum (A) matrix, with A first.
-#' 
-#' @keywords internal
-#' @noRd
-specialpatrolgroup <- function(sge9l, sge3, MainData, StageFrame, format, err_switch) {
-    .Call('_lefko3_specialpatrolgroup', PACKAGE = 'lefko3', sge9l, sge3, MainData, StageFrame, format, err_switch)
-}
-
-#' Estimate All Elements of Raw Ahistorical Population Projection Matrix
-#' 
-#' Function \code{normalpatrolgroup} swiftly calculates matrix transitions in
-#' raw ahistorical matrices, and serves as the core workhorse function behind
-#' \code{\link{rlefko2}()}.
-#' 
-#' @param sge3 The Allstages data frame developed for rlefko2() covering stage
-#' pairs across times \emph{t}+1 and \emph{t}. Generally termed
-#' \code{stageexpansion3}.
-#' @param sge2 The data frame covering all stages in time \emph{t}. Generally
-#' termed \code{stageexpansion2}.
-#' @param MainData The demographic dataset modified to hold \code{usedfec}
-#' columns.
-#' @param StageFrame The full stageframe for the analysis.
-#' 
-#' @return List of three matrices, including the survival-transition (U)
-#' matrix, the fecundity matrix (F), and the sum (A) matrix, with A first.
-#' 
-#' @keywords internal
-#' @noRd
-normalpatrolgroup <- function(sge3, sge2, MainData, StageFrame) {
-    .Call('_lefko3_normalpatrolgroup', PACKAGE = 'lefko3', sge3, sge2, MainData, StageFrame)
-}
-
+#' fecundity to 0.
+#' @param exp_tol A numeric value indicating the maximum limit for the exp()
+#' function to be used in vital rate calculations. Defaults to \code{700.0}.
+#' @param theta_tol A numeric value indicating a maximum value for theta in
+#' negative binomial probability density estimation.
+#' Defaults to \code{100000000}.
 #' 
 #' @return A list of 3 matrices, including the main MPM (A), the survival-
-#' transition matrix (U), anf a fecundity matrix (F). With tweaking, can also
+#' transition matrix (U), and a fecundity matrix (F). With tweaking, can also
 #' produce a 4 column matrix showing survival probability, observation
 #' probability, reproduction probability, and size transition probability, for
 #' each element of the final MPM.
 #' 
 #' @keywords internal
 #' @noRd
-jerzeibalowski <- function(ppy, AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jrepstproxy, inda, indb, indc, survdev, obsdev, sizedev, repstdev, fecdev, jsurvdev, jobsdev, jsizedev, jrepstdev, fecmod, summedvars, sigma, jsummedvars, jsigma, maxsize, finalage, sizedist, fecdist, negfec) {
-    .Call('_lefko3_jerzeibalowski', PACKAGE = 'lefko3', ppy, AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jrepstproxy, inda, indb, indc, survdev, obsdev, sizedev, repstdev, fecdev, jsurvdev, jobsdev, jsizedev, jrepstdev, fecmod, summedvars, sigma, jsummedvars, jsigma, maxsize, finalage, sizedist, fecdist, negfec)
+.jerzeibalowski <- function(ppy, AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, svsigmas, maxsize, maxsizeb, maxsizec, finalage, sizedist, sizebdist, sizecdist, fecdist, negfec, exp_tol = 700.0, theta_tol = 100000000.0) {
+    .Call('_lefko3_jerzeibalowski', PACKAGE = 'lefko3', ppy, AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, svsigmas, maxsize, maxsizeb, maxsizec, finalage, sizedist, sizebdist, sizecdist, fecdist, negfec, exp_tol, theta_tol)
 }
 
-#' Main Formula Creation for \code{modelsearch()}
+#' Main Formula Creation for Function \code{modelsearch()}
 #'
-#' Function \code{stovokor()} creates formulae to be used as input in the
+#' Function \code{.stovokor()} creates formulae to be used as input in the
 #' global model calls used in function \code{\link{modelsearch}()}.
 #'
 #' @param surv A vector of strings indicating the names of the variables coding
@@ -557,7 +765,11 @@ jerzeibalowski <- function(ppy, AllStages, stageframe, matrixformat, survproxy, 
 #' @param obs A vector of strings indicating the names of the variables coding
 #' observation status.
 #' @param size A vector of strings indicating the names of the variables coding
-#' size.
+#' primary size.
+#' @param sizeb A vector of strings indicating the names of the variables
+#' coding secondary size.
+#' @param sizec A vector of strings indicating the names of the variables
+#' coding tertiary size.
 #' @param repst A vector of strings indicating the names of the variables
 #' coding reproductive status.
 #' @param fec A vector of strings indicating the names of the variables coding
@@ -571,10 +783,6 @@ jerzeibalowski <- function(ppy, AllStages, stageframe, matrixformat, survproxy, 
 #' \code{"size"}, \code{"rep"}, and \code{"const"}.
 #' @param approach A string indicating whether to use mixed model encoding 
 #' (\code{"mixed"}) or GLM encoding (\code{"glm"}).
-#' @param sizedist A string variable indicating the distribution to use to
-#' model size.
-#' @param fecdist A string variable indicating the distribution to use to
-#' model fecundity.
 #' @param nojuvs A logical value indicating that juvenile rates should be
 #' estimated (\code{FALSE}) or not (\code{TRUE}).
 #' @param age A string indicating the name of the variable coding age.
@@ -597,24 +805,397 @@ jerzeibalowski <- function(ppy, AllStages, stageframe, matrixformat, survproxy, 
 #' variable within mixed models.
 #' @param yasrand A logical value indicating whether to treat year as a random
 #' variable within mixed models.
+#' @param iaasrand A logical value indicating whether to treat indcova as
+#' random.
+#' @param ibasrand A logical value indicating whether to treat indcovb as
+#' random.
+#' @param icasrand A logical value indicating whether to treat indcovc as
+#' random.
 #' @param fectime An integer indicating whether to use reproductive output in
 #' time \emph{t} (2) or time \emph{t}+1 (3) as the response for fecundity.
 #' @param juvsize A logical value indicating whether to include size terms in
 #' juvenile models.
-#' @param size0 A logical value indicating whether size distribution should
-#' be zero-inflated. Only applies to Poisson and negative binomial
-#' distributions.
-#' @param fec0 A logical value indicating whether size distribution should
-#' be zero-inflated. Only applies to Poisson and negative binomial
-#' distributions.
+#' @param sizebused A logical value denoting if secondary size variables are to
+#' be used.
+#' @param sizecused A logical value denoting if tertiary size variables are to
+#' be used.
+#' @param grouptest A logical value indicating whether to test for group
+#' effect.
+#' @param densitycol The name of the density variable, or \code{"none"}.
+#' @param densityused A logical value indicating whether the density variable
+#' is to be used.
+#' @param indcovaused Logical value indicating whether individual covariate a
+#' is used.
+#' @param indcovbused Logical value indicating whether individual covariate b
+#' is used.
+#' @param indcovcused Logical value indicating whether individual covariate c
+#' is used.
 #' 
 #' @return Vector of 9 strings, each a formula to be used as input in function.
 #' \code{modelsearch()}.
 #'
 #' @keywords internal
 #' @noRd
-stovokor <- function(surv, obs, size, repst, fec, vitalrates, historical, suite, approach, sizedist, fecdist, nojuvs, age, indcova, indcovb, indcovc, indiv, patch, year, pasrand, yasrand, fectime, juvsize, size0, fec0) {
-    .Call('_lefko3_stovokor', PACKAGE = 'lefko3', surv, obs, size, repst, fec, vitalrates, historical, suite, approach, sizedist, fecdist, nojuvs, age, indcova, indcovb, indcovc, indiv, patch, year, pasrand, yasrand, fectime, juvsize, size0, fec0)
+.stovokor <- function(surv, obs, size, sizeb, sizec, repst, fec, vitalrates, historical, suite, approach, nojuvs, age, indcova, indcovb, indcovc, indiv, patch, year, pasrand, yasrand, iaasrand, ibasrand, icasrand, fectime, juvsize, sizebused, sizecused, grouptest, densitycol, densityused, indcovaused, indcovbused, indcovcused) {
+    .Call('_lefko3_stovokor', PACKAGE = 'lefko3', surv, obs, size, sizeb, sizec, repst, fec, vitalrates, historical, suite, approach, nojuvs, age, indcova, indcovb, indcovc, indiv, patch, year, pasrand, yasrand, iaasrand, ibasrand, icasrand, fectime, juvsize, sizebused, sizecused, grouptest, densitycol, densityused, indcovaused, indcovbused, indcovcused)
+}
+
+#' Append NumericVector to the End of Another NumericVector
+#' 
+#' This function appends one NumericVector fully to another.
+#' 
+#' @param A Any NumericVector.
+#' @param B Any other NumericVector.
+#' 
+#' @return Returns a new NumericVector with elements of vector A followed by
+#' elements of vector B.
+#'
+#' @keywords internal
+#' @noRd
+.concat_dbl <- function(x, y) {
+    .Call('_lefko3_concat_dbl', PACKAGE = 'lefko3', x, y)
+}
+
+#' Append IntegerVector to the End of Another IntegerVector
+#' 
+#' Returns a new IntegerVector with elements of vector A followed by
+#' elements of vector B.
+#' 
+#' @param A Any IntegerVector.
+#' @param B Any other IntegerVector.
+#' 
+#' @return Returns a new IntegerVector with elements of vector A followed by
+#' elements of vector B.
+#' 
+#'
+#' @keywords internal
+#' @noRd
+.concat_int <- function(x, y) {
+    .Call('_lefko3_concat_int', PACKAGE = 'lefko3', x, y)
+}
+
+#' Append StringVector to the End of Another StringVector
+#' 
+#' Returns a new StringVector with elements of vector A followed by
+#' elements of vector B.
+#' 
+#' @param A Any StringVector.
+#' @param B Any other StringVector.
+#' 
+#' @return Returns a new StringVector with elements of vector A followed by
+#' elements of vector B.
+#' 
+#'
+#' @keywords internal
+#' @noRd
+.concat_str <- function(x, y) {
+    .Call('_lefko3_concat_str', PACKAGE = 'lefko3', x, y)
+}
+
+#' Create Stageframe for Population Matrix Projection Analysis
+#' 
+#' Function \code{sf_create()} returns a data frame describing each ahistorical
+#' life history stage in the life history model. This data frame can be used as 
+#' input into MPM creation functions including \code{\link{flefko3}()}, 
+#' \code{\link{flefko2}()}, \code{\link{aflefko2}()}, \code{\link{rlefko3}()},
+#' and \code{\link{rlefko2}()}, in which it determines how each stage is
+#' treated during matrix estimation.
+#' 
+#' @param sizes A numeric vector of the typical or representative size of each
+#' life history stage. If making function-based MPMs, then this should be a
+#' vector composed of the midpoints of each size bin. If denoting the boundary
+#' of an automated size classification group, then should denote the absolute
+#' minimum size of that group, or the absolute size of that group (see Notes).
+#' @param stagenames A vector of stage names, in the same order as elements in
+#' sizes. Can also be set to \code{ipm} for automated size classification (see
+#' Notes section).
+#' @param sizesb An optional numeric vector for a second size metric for each
+#' life history stage. Only to be used if stages are defined by at least two
+#' size metrics in all cases. Same issues apply as in \code{sizes}.
+#' @param sizesc An optional numeric vector for a third size metric for each
+#' life history stage. Only to be used if stages are defined by at least three
+#' size metrics in all cases. Same issues apply as in \code{sizes}.
+#' @param repstatus A vector denoting the binomial reproductive status of each
+#' life history stage. Defaults to 1.
+#' @param obsstatus A vector denoting the binomial observation status of each
+#' life history stage. Defaults to 1, but may be changed for unobservable 
+#' stages.
+#' @param propstatus A vector denoting whether each life history stage is a 
+#' propagule. Such stages are generally only used in fecundity estimation. 
+#' Defaults to 0.
+#' @param matstatus A vector denoting whether each stage is mature. Must be
+#' composed of binomial values if given. Defaults to 1 for all stages defined 
+#' in \code{sizes}.
+#' @param immstatus A vector denoting whether each stage is immature. Must be
+#' composed of binomial values if given. Defaults to the complement of vector
+#' \code{matstatus}.
+#' @param minage An optional vector denoting the minimum age at which a stage
+#' can occur. Only used in age x stage matrix development. Defaults to NA.
+#' @param maxage An optional vector denoting the maximum age at which a stage
+#' should occur. Only used in age x stage matrix development. Defaults to NA.
+#' @param indataset A vector designating which stages are found within the 
+#' dataset. While \code{\link{rlefko2}()} and \code{\link{rlefko3}()} can use
+#' all stages in the input dataset, \code{\link{flefko3}()} and
+#' \code{\link{flefko2}()} can only handle size-classified stages with
+#' non-overlapping combinations of size and status variables. Stages that do
+#' not actually exist within the dataset should be marked as 0 in this vector.
+#' @param binhalfwidth A numeric vector giving the half-width of size bins.
+#' Required to classify individuals appropriately within size classes.
+#' Defaults to 0.5 for all sizes.
+#' @param binhalfwidthb A numeric vector giving the half-width of size bins
+#' used for the optional second size metric. Required to classify individuals
+#' appropriately with two or three size classes. Defaults to 0.5 for all sizes.
+#' @param binhalfwidthc A numeric vector giving the half-width of size bins
+#' used for the optional third size metric. Required to classify individuals
+#' appropriately with three size classes. Defaults to 0.5 for all sizes.
+#' @param group An integer vector providing information on each respective
+#' stage's size classification group. If used, then function-based MPM creation
+#' functions \code{\link{flefko2}()}, \code{\link{flefko3}()}, and
+#' \code{\link{aflefko2}()} will estimate transitions only within these groups
+#' and for allowed cross-group transitions noted within the supplement table.
+#' Defaults to 0.
+#' @param comments An optional vector of text entries holding useful text
+#' descriptions of all stages.
+#' @param roundsize This parameter sets the precision of size classification,
+#' and equals the number of digits used in rounding sizes. Defaults to 5.
+#' @param roundsizeb This parameter sets the precision of size classification
+#' in the optional second size metric, and equals the number of digits used in
+#' rounding sizes. Defaults to 5.
+#' @param roundsizec This parameter sets the precision of size classification
+#' in the optional third size metric, and equals the number of digits used in
+#' rounding sizes. Defaults to 5.
+#' @param ipmbins An integer giving the number of size bins to create using the
+#' primary size classification variable. This number is in addition to any
+#' stages that are not size classified. Defaults to 100, and numbers greater
+#' than this yield a warning about the loss of statistical power and increasing
+#' chance of matrix over-parameterization resulting from increasing numbers of
+#' stages.
+#' @param ipmbinsb An optional integer giving the number of size bins to create
+#' using the secondary size classification variable. This number is in addition
+#' to any stages that are not size classified, as well as in addition to any
+#' automated size classification using the primary and tertiary size variables.
+#' Defaults to NA, and must be set to a positive integer for automated size
+#' classification to progress.
+#' @param ipmbinsc An optional integer giving the number of size bins to create
+#' using the tertiary size classification variable. This number is in addition
+#' to any stages that are not size classified, as well as in addition to any
+#' automated size classification using the primary and secondary size
+#' variables. Defaults to NA, and must be set to a positive integer for
+#' automated size classification to progress.
+#' 
+#' @return A data frame of class \code{stageframe}, which includes information
+#' on the stage name, size, reproductive status, observation status, propagule 
+#' status, immaturity status, maturity status, presence within the core dataset, 
+#' stage group classification, raw bin half-width, and the minimum, 
+#' center, and maximum of each size bin, as well as its width. If minimum and
+#' maximum ages were specified, then these are also included. Also includes an 
+#' empty string variable that can be used to describe stages meaningfully. This
+#' object can be used as the \code{stageframe} input for \code{\link{flefko3}()} 
+#' \code{\link{flefko2}()}, \code{\link{rlefko3}()}, and \code{\link{rlefko2}()}.
+#' 
+#' Variables in this data frame include the following:
+#' \item{stage}{The unique names of the stages to be analyzed.}
+#' \item{size}{The typical or representative size at which each stage occurs.}
+#' \item{size_b}{Size at which each stage occurs in terms of a second size
+#' variable, if one exists.}
+#' \item{size_c}{Size at which each stage occurs in terms of a third size
+#' variable, if one exists.}
+#' \item{min_age}{The minimum age at which the stage may occur.}
+#' \item{max_age}{The maximum age at which the stage may occur.}
+#' \item{repstatus}{A binomial variable showing whether each stage is
+#' reproductive.}
+#' \item{obsstatus}{A binomial variable showing whether each stage is
+#' observable.}
+#' \item{propstatus}{A binomial variable showing whether each stage is a
+#' propagule.}
+#' \item{immstatus}{A binomial variable showing whether each stage can occur as
+#' immature.}
+#' \item{matstatus}{A binomial variable showing whether each stage occurs in
+#' maturity.}
+#' \item{indataset}{A binomial variable describing whether each stage occurs in
+#' the input dataset.}
+#' \item{binhalfwidth_raw}{The half-width of the size bin, as input.}
+#' \item{sizebin_min}{The minimum size at which the stage may occur.}
+#' \item{sizebin_max}{The maximum size at which the stage may occur.}
+#' \item{sizebin_center}{The midpoint of the size bin at which the stage may
+#' occur.}
+#' \item{sizebin_width}{The width of the size bin corresponding to the stage.}
+#' \item{binhalfwidthb_raw}{The half-width of the size bin of a second size
+#' variable, as input.}
+#' \item{sizebinb_min}{The minimum size at which the stage may occur.}
+#' \item{sizebinb_max}{The maximum size at which the stage may occur.}
+#' \item{sizebinb_center}{The midpoint of the size bin at which the stage may
+#' occur, in terms of a second size variable.}
+#' \item{sizebinb_width}{The width of the size bin corresponding to the stage,
+#' in terms of a second size variable.}
+#' \item{binhalfwidthc_raw}{The half-width of the size bin of a third size
+#' variable, as input.}
+#' \item{sizebinc_min}{The minimum size at which the stage may occur, in terms
+#' of a third size variable.}
+#' \item{sizebinc_max}{The maximum size at which the stage may occur, in terms
+#' of a third size variable.}
+#' \item{sizebinc_center}{The midpoint of the size bin at which the stage may
+#' occur, in terms of a third size variable.}
+#' \item{sizebinc_width}{The width of the size bin corresponding to the stage,
+#' in terms of a third size variable.}
+#' \item{group}{An integer denoting the size classification group that the
+#' stage falls within.}
+#' \item{comments}{A text field for stage descriptions.}
+#' 
+#' @section Notes:
+#' If an IPM or function-based matrix with automated size classification is
+#' desired, then two stages that occur within the dataset and represent the
+#' lower and upper size limits of the IPM must be marked with \code{ipm} in
+#' the stagenames vector. These stages should have all characteristics other
+#' than size equal, and the size input for whichever size will be classified
+#' automatically must include the minimum in one stage and the maximum in the
+#' other. The actual characteristics of the first stage encountered in the
+#' inputs will be used as the template for the creation of these sizes. Note
+#' that \code{ipm} refers to size classification with the primary size
+#' variable. To automate size classification with the secondary size variable,
+#' use \code{ipmb}, and to automate size classification with the tertiary size
+#' variable, use \code{ipmc}. To nest automated size classifications, use 
+#' \code{ipmab} for the primary and secondary size variables, \code{ipmac} for
+#' the primary and tertiary size variables, \code{ipmbc} for the secondary and
+#' tertiary size variables, and \code{ipmabc} for all three size variables.
+#' The primary size variable can also be set with \code{ipma}.
+#' 
+#' If two or more groups of stages, each with its own characteristics, are to
+#' be developed for an IPM or function-based MPM, then an even number of stages
+#' with two stages marking the minimum and maximum size of each group should be
+#' marked with the same code as given above, with all other characteristics
+#' equal within each group.
+#' 
+#' Stage classification groups set with the \code{group} variable create zones
+#' within function-based matrices in which survival transitions are estimated.
+#' These groups should not be set if transitions are possible between all
+#' stages regardless of group. To denote specific transitions as estimable
+#' between stage groups, use the \code{\link{supplemental}()} function.
+#' 
+#' @examples
+#' # Lathyrus example
+#' data(lathyrus)
+#' 
+#' sizevector <- c(0, 100, 13, 127, 3730, 3800, 0)
+#' stagevector <- c("Sd", "Sdl", "VSm", "Sm", "VLa", "Flo", "Dorm")
+#' repvector <- c(0, 0, 0, 0, 0, 1, 0)
+#' obsvector <- c(0, 1, 1, 1, 1, 1, 0)
+#' matvector <- c(0, 0, 1, 1, 1, 1, 1)
+#' immvector <- c(1, 1, 0, 0, 0, 0, 0)
+#' propvector <- c(1, 0, 0, 0, 0, 0, 0)
+#' indataset <- c(0, 1, 1, 1, 1, 1, 1)
+#' binvec <- c(0, 100, 11, 103, 3500, 3800, 0.5)
+#' 
+#' lathframe <- sf_create(sizes = sizevector, stagenames = stagevector,
+#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
+#'   immstatus = immvector, indataset = indataset, binhalfwidth = binvec,
+#'   propstatus = propvector)
+#' 
+#' lathvert <- verticalize3(lathyrus, noyears = 4, firstyear = 1988,
+#'   patchidcol = "SUBPLOT", individcol = "GENET", blocksize = 9,
+#'   juvcol = "Seedling1988", sizeacol = "Volume88", repstracol = "FCODE88",
+#'   fecacol = "Intactseed88", deadacol = "Dead1988",
+#'   nonobsacol = "Dormant1988", stageassign = lathframe, stagesize = "sizea",
+#'   censorcol = "Missing1988", censorkeep = NA, censor = TRUE)
+#' 
+#' lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "Sd", "Sdl", "mat"),
+#'   stage2 = c("Sd", "Sd", "Sd", "Sd", "rep", "rep", "Sdl"),
+#'   stage1 = c("Sd", "rep", "Sd", "rep", "npr", "npr", "Sd"),
+#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "mat"),
+#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "Sdl"),
+#'   eststage1 = c(NA, NA, NA, NA, NA, NA, "NotAlive"),
+#'   givenrate = c(0.345, 0.345, 0.054, 0.054, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, 0.345, 0.054, NA),
+#'   type = c(1, 1, 1, 1, 3, 3, 1), type_t12 = c(1, 2, 1, 2, 1, 1, 1),
+#'   stageframe = lathframe, historical = TRUE)
+#' 
+#' ehrlen3 <- rlefko3(data = lathvert, stageframe = lathframe, year = "all", 
+#'   stages = c("stage3", "stage2", "stage1"), supplement = lathsupp3,
+#'   yearcol = "year2", indivcol = "individ")
+#' 
+#' ehrlen3mean <- lmean(ehrlen3)
+#' ehrlen3mean$A[[1]]
+#' 
+#' # Cypripedium example
+#' data(cypdata)
+#' 
+#' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
+#' stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
+#'   "XLg")
+#' repvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
+#' obsvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
+#' matvector <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
+#' immvector <- c(0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
+#' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+#' indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
+#' binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 2.5, 7)
+#' 
+#' cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector,
+#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
+#'   propstatus = propvector, immstatus = immvector, indataset = indataset,
+#'   binhalfwidth = binvec)
+#' 
+#' cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
+#'   patchidcol = "patch", individcol = "plantid", blocksize = 4,
+#'   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04",
+#'   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
+#'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
+#'   NRasRep = TRUE)
+#' 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
+#'     "XSm", "Sm", "SD", "P1"),
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
+#'     "rep"),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   stageframe = cypframe_raw, historical = FALSE)
+#' 
+#' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
+#'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
+#'   size = c("size3added", "size2added"), supplement = cypsupp2r,
+#'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
+#'                        
+#' cyp2mean <- lmean(cypmatrix2r)
+#' cyp2mean
+#' 
+#' @export sf_create
+sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, repstatus = NULL, obsstatus = NULL, propstatus = NULL, matstatus = NULL, immstatus = NULL, minage = NULL, maxage = NULL, indataset = NULL, binhalfwidth = NULL, binhalfwidthb = NULL, binhalfwidthc = NULL, group = NULL, comments = NULL, roundsize = 5L, roundsizeb = 5L, roundsizec = 5L, ipmbins = 100L, ipmbinsb = NA_integer_, ipmbinsc = NA_integer_) {
+    .Call('_lefko3_sf_create', PACKAGE = 'lefko3', sizes, stagenames, sizesb, sizesc, repstatus, obsstatus, propstatus, matstatus, immstatus, minage, maxage, indataset, binhalfwidth, binhalfwidthb, binhalfwidthc, group, comments, roundsize, roundsizeb, roundsizec, ipmbins, ipmbinsb, ipmbinsc)
+}
+
+#' Standardize Stageframe For MPM Analysis
+#' 
+#' Function \code{.sf_reassess()} takes a stageframe as input, and uses
+#' information supplied there and through the supplement, reproduction and
+#' overwrite tables to rearrange this into a format usable by the matrix
+#' creation functions, \code{\link{flefko3}()}, \code{\link{flefko2}()},
+#' \code{\link{aflefko2}()}, \code{\link{rlefko3}()}, and
+#' \code{\link{rlefko2}()}.
+#' 
+#' @param stageframe The original stageframe.
+#' @param supplement The original supplemental data input
+#' (class \code{lefkoSD}). Can also equal NA.
+#' @param overwrite An overwrite table.
+#' @param repmatrix The original reproduction matrix. Can also equal NA or 0.
+#' @param agemat A logical value indicating whether MPM is age-by-stage.
+#' @param historical A logical value indicating whether MPM is historical.
+#' @param format An integer indicating whether matrices will be in Ehrlen format
+#' (if set to 1), or deVries format (if set to 2). Setting to deVries format
+#' adds one extra stage to account for the prior status of newborns.
+#' 
+#' @return This function returns a list with a modified stageframe usable in MPM
+#' construction, an associated reproduction matrix, and a general supplement
+#' table that takes over the input supplement and overwrite tables. Note that
+#' if a supplement is provided and a repmatrix is not, or if repmatrix is set
+#' to 0, then it will be assumed that a repmatrix should not be used.
+#' 
+#' @keywords internal
+#' @noRd
+.sf_reassess <- function(stageframe, supplement, overwrite, repmatrix, agemat = FALSE, historical = FALSE, format = 1L) {
+    .Call('_lefko3_sf_reassess', PACKAGE = 'lefko3', stageframe, supplement, overwrite, repmatrix, agemat, historical, format)
 }
 
 #' Vectorize Matrix for Historical Mean Matrix Estimation
@@ -630,7 +1211,7 @@ stovokor <- function(surv, obs, size, repst, fec, vitalrates, historical, suite,
 #' 
 #' @keywords internal
 #' @noRd
-flagrantcrap <- function(Xmat, allindices) {
+.flagrantcrap <- function(Xmat, allindices) {
     .Call('_lefko3_flagrantcrap', PACKAGE = 'lefko3', Xmat, allindices)
 }
 
@@ -645,7 +1226,7 @@ flagrantcrap <- function(Xmat, allindices) {
 #' 
 #' @keywords internal
 #' @noRd
-moreflagrantcrap <- function(Xmat) {
+.moreflagrantcrap <- function(Xmat) {
     .Call('_lefko3_moreflagrantcrap', PACKAGE = 'lefko3', Xmat)
 }
 
@@ -664,7 +1245,7 @@ moreflagrantcrap <- function(Xmat) {
 #' 
 #' @keywords internal
 #' @noRd
-spmat_log <- function(coremat) {
+.spmat_log <- function(coremat) {
     .Call('_lefko3_spmat_log', PACKAGE = 'lefko3', coremat)
 }
 
@@ -690,7 +1271,7 @@ spmat_log <- function(coremat) {
 #' 
 #' @keywords internal
 #' @noRd
-turbogeodiesel <- function(loy, Umats, Fmats, hstages, agestages, stages, patchmats, popmats) {
+.turbogeodiesel <- function(loy, Umats, Fmats, hstages, agestages, stages, patchmats, popmats) {
     .Call('_lefko3_turbogeodiesel', PACKAGE = 'lefko3', loy, Umats, Fmats, hstages, agestages, stages, patchmats, popmats)
 }
 
@@ -717,7 +1298,7 @@ turbogeodiesel <- function(loy, Umats, Fmats, hstages, agestages, stages, patchm
 #' 
 #' @keywords internal
 #' @noRd
-geodiesel <- function(loy, Umats, Fmats, agestages, stages, patchmats, popmats) {
+.geodiesel <- function(loy, Umats, Fmats, agestages, stages, patchmats, popmats) {
     .Call('_lefko3_geodiesel', PACKAGE = 'lefko3', loy, Umats, Fmats, agestages, stages, patchmats, popmats)
 }
 
@@ -735,7 +1316,7 @@ geodiesel <- function(loy, Umats, Fmats, agestages, stages, patchmats, popmats) 
 #' 
 #' @keywords internal
 #' @noRd
-decomp3 <- function(Amat) {
+.decomp3 <- function(Amat) {
     .Call('_lefko3_decomp3', PACKAGE = 'lefko3', Amat)
 }
 
@@ -753,7 +1334,7 @@ decomp3 <- function(Amat) {
 #' 
 #' @keywords internal
 #' @noRd
-decomp3sp <- function(Amat) {
+.decomp3sp <- function(Amat) {
     .Call('_lefko3_decomp3sp', PACKAGE = 'lefko3', Amat)
 }
 
@@ -776,7 +1357,7 @@ decomp3sp <- function(Amat) {
 #' 
 #' @keywords internal
 #' @noRd
-decomp3sp_inp <- function(spAmat) {
+.decomp3sp_inp <- function(spAmat) {
     .Call('_lefko3_decomp3sp_inp', PACKAGE = 'lefko3', spAmat)
 }
 
@@ -796,7 +1377,7 @@ decomp3sp_inp <- function(spAmat) {
 #' 
 #' @keywords internal
 #' @noRd
-lambda3matrix <- function(Amat, sparse) {
+.lambda3matrix <- function(Amat, sparse) {
     .Call('_lefko3_lambda3matrix', PACKAGE = 'lefko3', Amat, sparse)
 }
 
@@ -817,7 +1398,7 @@ lambda3matrix <- function(Amat, sparse) {
 #' 
 #' @keywords internal
 #' @noRd
-ss3matrix <- function(Amat, sparse) {
+.ss3matrix <- function(Amat, sparse) {
     .Call('_lefko3_ss3matrix', PACKAGE = 'lefko3', Amat, sparse)
 }
 
@@ -843,7 +1424,7 @@ ss3matrix <- function(Amat, sparse) {
 #' 
 #' @keywords internal
 #' @noRd
-rv3matrix <- function(Amat, sparse) {
+.rv3matrix <- function(Amat, sparse) {
     .Call('_lefko3_rv3matrix', PACKAGE = 'lefko3', Amat, sparse)
 }
 
@@ -862,7 +1443,7 @@ rv3matrix <- function(Amat, sparse) {
 #' 
 #' @keywords internal
 #' @noRd
-sens3matrix <- function(Amat, sparse) {
+.sens3matrix <- function(Amat, sparse) {
     .Call('_lefko3_sens3matrix', PACKAGE = 'lefko3', Amat, sparse)
 }
 
@@ -884,7 +1465,7 @@ sens3matrix <- function(Amat, sparse) {
 #' 
 #' @keywords internal
 #' @noRd
-sens3sp_matrix <- function(Aspmat, refmat) {
+.sens3sp_matrix <- function(Aspmat, refmat) {
     .Call('_lefko3_sens3sp_matrix', PACKAGE = 'lefko3', Aspmat, refmat)
 }
 
@@ -908,7 +1489,7 @@ sens3sp_matrix <- function(Aspmat, refmat) {
 #' 
 #' @keywords internal
 #' @noRd
-sens3hlefko <- function(Amat, ahstages, hstages) {
+.sens3hlefko <- function(Amat, ahstages, hstages) {
     .Call('_lefko3_sens3hlefko', PACKAGE = 'lefko3', Amat, ahstages, hstages)
 }
 
@@ -927,7 +1508,7 @@ sens3hlefko <- function(Amat, ahstages, hstages) {
 #' 
 #' @keywords internal
 #' @noRd
-elas3matrix <- function(Amat, sparse) {
+.elas3matrix <- function(Amat, sparse) {
     .Call('_lefko3_elas3matrix', PACKAGE = 'lefko3', Amat, sparse)
 }
 
@@ -950,7 +1531,7 @@ elas3matrix <- function(Amat, sparse) {
 #' 
 #' @keywords internal
 #' @noRd
-elas3hlefko <- function(Amat, ahstages, hstages) {
+.elas3hlefko <- function(Amat, ahstages, hstages) {
     .Call('_lefko3_elas3hlefko', PACKAGE = 'lefko3', Amat, ahstages, hstages)
 }
 
@@ -974,17 +1555,18 @@ elas3hlefko <- function(Amat, ahstages, hstages) {
 #' numbers of individuals to the nearest integer.
 #' 
 #' @return A matrix in which, if \code{growthonly = TRUE}, each row is the
-#' population vector at each projected occasion, and if \code{growthonly = FALSE},
-#' the top half of the matrix is the w projection (stage distribution) and the
-#' bottom half is the v projection (reproductive values) for use in estimation
-#' of stochastic sensitivities and elasticities (in addition, a further row is
-#' appended to the bottom, corresponding to the R vector, which is the
-#' sum of the unstandardized w vector resulting from each occasion's
-#' projection).
+#' population vector at each projected occasion, and if \code{growthonly =
+#' FALSE}, the top third of the matrix is the actual number of individuals in
+#' each stage across time, the second third is the w projection (stage
+#' distribution), and the bottom third is the v projection (reproductive
+#' values) for use in estimation of stochastic sensitivities and elasticities
+#' (in addition, a further row is appended to the bottom, corresponding to the
+#' \emph{R} vector, which is the sum of the unstandardized \emph{w} vector
+#' resulting from each occasion's projection).
 #' 
 #' @keywords internal
 #' @noRd
-proj3 <- function(start_vec, core_list, mat_order, standardize, growthonly, integeronly) {
+.proj3 <- function(start_vec, core_list, mat_order, standardize, growthonly, integeronly) {
     .Call('_lefko3_proj3', PACKAGE = 'lefko3', start_vec, core_list, mat_order, standardize, growthonly, integeronly)
 }
 
@@ -1010,17 +1592,18 @@ proj3 <- function(start_vec, core_list, mat_order, standardize, growthonly, inte
 #' numbers of individuals to the nearest integer.
 #' 
 #' @return A matrix in which, if \code{growthonly = TRUE}, each row is the
-#' population vector at each projected occasion, and if \code{growthonly = FALSE},
-#' the top half of the matrix is the w projection (stage distribution) and the
-#' bottom half is the v projection (reproductive values) for use in estimation
-#' of stochastic sensitivities and elasticities (in addition, a further row is
-#' appended to the bottom, corresponding to the R vector, which is the
-#' sum of the unstandardized w vector resulting from each occasion's
-#' projection).
+#' population vector at each projected occasion, and if \code{growthonly =
+#' FALSE}, the top third of the matrix is the actual number of individuals in
+#' each stage across time, the second third is the w projection (stage
+#' distribution), and the bottom third is the v projection (reproductive
+#' values) for use in estimation of stochastic sensitivities and elasticities
+#' (in addition, a further row is appended to the bottom, corresponding to the
+#' \emph{R} vector, which is the sum of the unstandardized \emph{w} vector
+#' resulting from each occasion's projection).
 #' 
 #' @keywords internal
 #' @noRd
-proj3sp <- function(start_vec, core_list, mat_order, standardize, growthonly, integeronly) {
+.proj3sp <- function(start_vec, core_list, mat_order, standardize, growthonly, integeronly) {
     .Call('_lefko3_proj3sp', PACKAGE = 'lefko3', start_vec, core_list, mat_order, standardize, growthonly, integeronly)
 }
 
@@ -1039,19 +1622,25 @@ proj3sp <- function(start_vec, core_list, mat_order, standardize, growthonly, in
 #' stage distribution estimation, and reproductive value estimation.
 #' @param integeronly A logical value indicating whether to round all projected
 #' numbers of individuals to the nearest integer.
+#' @param substoch An integer value indicating whether to force survival-
+#' transition matrices to be substochastic in density dependent simulations.
+#' Defaults to \code{0}, which does not force substochasticity. Alternatively,
+#' \code{1} forces all survival-transition elements to range from 0.0 to 1.0,
+#' and \code{2} forces all column rows to total no more than 1.0.
 #' @param dens_input The original \code{lefkoDens} data frame supplied through
 #' the \code{\link{density_input}()} function.
 #' @param dens_index A list giving the indices of elements in object
 #' \code{dens_input}.
 #' 
 #' @return A matrix in which, if \code{growthonly = TRUE}, each row is the
-#' population vector at each projected occasion, and if \code{growthonly = FALSE},
-#' the top half of the matrix is the w projection (stage distribution) and the
-#' bottom half is the v projection (reproductive values) for use in estimation
-#' of stochastic sensitivities and elasticities (in addition, a further row is
-#' appended to the bottom, corresponding to the \emph{R} vector, which is the
-#' sum of the unstandardized \emph{w} vector resulting from each occasion's
-#' projection).
+#' population vector at each projected occasion, and if \code{growthonly =
+#' FALSE}, the top third of the matrix is the actual number of individuals in
+#' each stage across time, the second third is the w projection (stage
+#' distribution), and the bottom third is the v projection (reproductive
+#' values) for use in estimation of stochastic sensitivities and elasticities
+#' (in addition, a further row is appended to the bottom, corresponding to the
+#' \emph{R} vector, which is the sum of the unstandardized \emph{w} vector
+#' resulting from each occasion's projection).
 #' 
 #' @section Notes:
 #' There is no option to standardize population vectors here, because density
@@ -1059,19 +1648,19 @@ proj3sp <- function(start_vec, core_list, mat_order, standardize, growthonly, in
 #' 
 #' @keywords internal
 #' @noRd
-proj3dens <- function(start_vec, core_list, mat_order, growthonly, integeronly, dens_input, dens_index) {
-    .Call('_lefko3_proj3dens', PACKAGE = 'lefko3', start_vec, core_list, mat_order, growthonly, integeronly, dens_input, dens_index)
+.proj3dens <- function(start_vec, core_list, mat_order, growthonly, integeronly, substoch, dens_input, dens_index) {
+    .Call('_lefko3_proj3dens', PACKAGE = 'lefko3', start_vec, core_list, mat_order, growthonly, integeronly, substoch, dens_input, dens_index)
 }
 
 #' Conduct Population Projection Simulations
 #' 
 #' Function \code{projection3()} runs projection simulations. It projects the
-#' population forward in time by a user-defined number of occasions, and can
-#' perform these projections as replicates. Projections may be deterministic or
-#' stochastic. If deterministic, then projections will be cyclical if matrices
-#' exist covering multiple occasions for each population or patch. If
+#' population an patches forward in time by a user-defined number of occasions.
+#' Projections may be deterministic or stochastic, and may be density
+#' dependent either way. If deterministic, then projections will be cyclical if
+#' matrices exist covering multiple occasions for each population or patch. If
 #' stochastic, then annual matrices will be shuffled within patches and
-#' populations. There is no limit to the number of replicates.
+#' populations. Replicates may also be requested.
 #' 
 #' @param mpm A matrix projection model of class \code{lefkoMat}, or a list of
 #' full matrix projection matrices.
@@ -1089,6 +1678,11 @@ proj3dens <- function(start_vec, core_list, mat_order, growthonly, integeronly, 
 #' @param integeronly A logical value indicating whether to round the number of
 #' individuals projected in each stage at each occasion to the nearest
 #' integer. Defaults to FALSE.
+#' @param substoch An integer value indicating whether to force survival-
+#' transition matrices to be substochastic in density dependent simulations.
+#' Defaults to \code{0}, which does not force substochasticity. Alternatively,
+#' \code{1} forces all survival-transition elements to range from 0.0 to 1.0,
+#' and \code{2} forces all column rows to total no more than 1.0.
 #' @param start_vec An optional numeric vector denoting the starting stage
 #' distribution for the projection. Defaults to a single individual of each
 #' stage.
@@ -1105,15 +1699,21 @@ proj3dens <- function(start_vec, core_list, mat_order, growthonly, integeronly, 
 #' \code{\link{density_input}()}.
 #' 
 #' @return A list of class \code{lefkoProj}, which always includes the first
-#' three elements of the following, and also includes the remaiing elements
+#' three elements of the following, and also includes the remaining elements
 #' below when a \code{lefkoMat} object is used as input:
-#' \item{projection}{A list of matrices showing the total number of individuals
-#' per stage per occasion, or showing the former with the projected stage 
-#' distribution and reproductive value per stage per occasion followed by
-#' the total population size per occasion (all row-bound in order). Each matrix
-#' corresponds to a different patch or population. If more than 1 replicate is
-#' projected, then the results from these replicates will be stacked within the
-#' same data frame.}
+#' \item{projection}{A list of lists of matrices showing the total number of
+#' individuals per stage per occasion. The first list corresponds to each
+#' pop-patch followed by each population. The inner list corresponds to
+#' replicates within each pop-patch or population.}
+#' \item{stage_dist}{A list of lists of the actual stage distribution in each
+#' occasion in each replicate in each pop-patch or population. The list order
+#' is the same as in \code{projection}.}
+#' \item{rep_value}{A list of lists of the actual reproductive value in each
+#' occasion in each replicate in each pop-patch or population. The list order
+#' is the same as in \code{projection}.}
+#' \item{pop_size}{A list of data frames showing the total population size in
+#' each occasion per replicate (row within data frame) per pop-patch or
+#' population (list element).}
 #' \item{labels}{A data frame showing the order of populations and patches in
 #' item \code{projection}.}
 #' \item{control}{A short vector indicating the number of replicates and the
@@ -1160,6 +1760,13 @@ proj3dens <- function(start_vec, core_list, mat_order, growthonly, integeronly, 
 #' independent projections will be set up. Note that currently, density
 #' dependent projections can only be performed with \code{lefkoMat} objects.
 #' 
+#' The stage distributions and reproductive values produced are not the
+#' asymptotic values as would be given by the standardized right and left
+#' eigenvectors associated with the dominant eigenvalue of a matrix, but are
+#' vectors describing these values at the specific points in time projected.
+#' See equations 14.86 and 14.88 and section 14.4 on Sensitivity and Elasticity
+#' Analysis under Environmental Stochasticity in Caswell (2001, Matrix
+#' Population Models, Sinauer Associates) for more details.
 #' 
 #' @seealso \code{\link{start_input}()}
 #' @seealso \code{\link{density_input}()}
@@ -1190,10 +1797,6 @@ proj3dens <- function(start_vec, core_list, mat_order, growthonly, integeronly, 
 #'   nonobsacol = "Dormant1988", stageassign = lathframe, stagesize = "sizea",
 #'   censorcol = "Missing1988", censorkeep = NA, censor = TRUE)
 #' 
-#' lathrepm <- matrix(0, 7, 7)
-#' lathrepm[1, 6] <- 0.345
-#' lathrepm[2, 6] <- 0.054
-#' 
 #' lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "Sd", "Sdl"), 
 #'   stage2 = c("Sd", "Sd", "Sd", "Sd", "rep", "rep"),
 #'   stage1 = c("Sd", "rep", "Sd", "rep", "all", "all"), 
@@ -1204,8 +1807,7 @@ proj3dens <- function(start_vec, core_list, mat_order, growthonly, integeronly, 
 #' 
 #' ehrlen3 <- rlefko3(data = lathvert, stageframe = lathframe,
 #'   year = c(1989, 1990), stages = c("stage3", "stage2", "stage1"),
-#'   repmatrix = lathrepm, supplement = lathsupp3, yearcol = "year2",
-#'   indivcol = "individ")
+#'   supplement = lathsupp3, yearcol = "year2", indivcol = "individ")
 #' 
 #' lathproj <- projection3(ehrlen3, nreps = 5, stochastic = TRUE)
 #' 
@@ -1264,8 +1866,8 @@ proj3dens <- function(start_vec, core_list, mat_order, growthonly, integeronly, 
 #' cypstoch <- projection3(cypmatrix3r, nreps = 5, stochastic = TRUE)
 #' 
 #' @export projection3
-projection3 <- function(mpm, nreps = 1L, times = 10000L, stochastic = FALSE, standardize = FALSE, growthonly = TRUE, integeronly = FALSE, start_vec = NULL, start_frame = NULL, tweights = NULL, density = NULL) {
-    .Call('_lefko3_projection3', PACKAGE = 'lefko3', mpm, nreps, times, stochastic, standardize, growthonly, integeronly, start_vec, start_frame, tweights, density)
+projection3 <- function(mpm, nreps = 1L, times = 10000L, stochastic = FALSE, standardize = FALSE, growthonly = TRUE, integeronly = FALSE, substoch = 0L, start_vec = NULL, start_frame = NULL, tweights = NULL, density = NULL) {
+    .Call('_lefko3_projection3', PACKAGE = 'lefko3', mpm, nreps, times, stochastic, standardize, growthonly, integeronly, substoch, start_vec, start_frame, tweights, density)
 }
 
 #' Estimate Stochastic Population Growth Rate
@@ -1329,18 +1931,17 @@ projection3 <- function(mpm, nreps = 1L, times = 10000L, stochastic = FALSE, sta
 #'   nonobsacol = "Dormant1988", stageassign = lathframe, stagesize = "sizea",
 #'   censorcol = "Missing1988", censorkeep = NA, censor = TRUE)
 #' 
-#' lathrepm <- matrix(0, 7, 7)
-#' lathrepm[1, 6] <- 0.345
-#' lathrepm[2, 6] <- 0.054
-#' 
-#' lathover3 <- overwrite(stage3 = c("Sd", "Sd", "Sdl"),
-#'   stage2 = c("Sd", "Sd", "Sd"), stage1 = c("Sd", "rep", "rep"),
-#'   givenrate = c(0.345, 0.345, 0.054))
+#' lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "Sd", "Sdl"), 
+#'   stage2 = c("Sd", "Sd", "Sd", "Sd", "rep", "rep"),
+#'   stage1 = c("Sd", "rep", "Sd", "rep", "all", "all"), 
+#'   givenrate = c(0.345, 0.345, 0.054, 0.054, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, 0.345, 0.054),
+#'   type = c(1, 1, 1, 1, 3, 3), type_t12 = c(1, 2, 1, 2, 1, 1),
+#'   stageframe = lathframe, historical = TRUE)
 #' 
 #' ehrlen3 <- rlefko3(data = lathvert, stageframe = lathframe,
 #'   year = c(1989, 1990), stages = c("stage3", "stage2", "stage1"),
-#'   repmatrix = lathrepm, overwrite = lathover3, yearcol = "year2",
-#'   indivcol = "individ")
+#'   supplement = lathsupp3, yearcol = "year2", indivcol = "individ")
 #' 
 #' slambda3(ehrlen3)
 #' 
@@ -1437,7 +2038,7 @@ slambda3 <- function(mpm, times = 10000L, tweights = NULL) {
 #'
 #' @keywords internal
 #' @noRd
-stoch_senselas <- function(mpm, times = 10000L, style = 1L, tweights = NULL) {
+.stoch_senselas <- function(mpm, times = 10000L, style = 1L, tweights = NULL) {
     .Call('_lefko3_stoch_senselas', PACKAGE = 'lefko3', mpm, times, style, tweights)
 }
 
@@ -1474,7 +2075,7 @@ stoch_senselas <- function(mpm, times = 10000L, style = 1L, tweights = NULL) {
 #' 
 #' @keywords internal
 #' @noRd
-bambi3 <- function(stages, hstages) {
+.bambi3 <- function(stages, hstages) {
     .Call('_lefko3_bambi3', PACKAGE = 'lefko3', stages, hstages)
 }
 
@@ -1503,7 +2104,7 @@ bambi3 <- function(stages, hstages) {
 #' 
 #' @keywords internal
 #' @noRd
-bambi2 <- function(stages) {
+.bambi2 <- function(stages) {
     .Call('_lefko3_bambi2', PACKAGE = 'lefko3', stages)
 }
 
@@ -1544,7 +2145,7 @@ bambi2 <- function(stages) {
 #' 
 #' @keywords internal
 #' @noRd
-demolition3 <- function(e_amat, bambesque, amat_ = NULL, fmat_ = NULL) {
+.demolition3 <- function(e_amat, bambesque, amat_ = NULL, fmat_ = NULL) {
     .Call('_lefko3_demolition3', PACKAGE = 'lefko3', e_amat, bambesque, amat_, fmat_)
 }
 
@@ -1568,7 +2169,7 @@ demolition3 <- function(e_amat, bambesque, amat_ = NULL, fmat_ = NULL) {
 #' 
 #' @keywords internal
 #' @noRd
-ltre3matrix <- function(Amats, refnum, refmats_ = NULL, mean = TRUE, sparse = FALSE) {
+.ltre3matrix <- function(Amats, refnum, refmats_ = NULL, mean = TRUE, sparse = FALSE) {
     .Call('_lefko3_ltre3matrix', PACKAGE = 'lefko3', Amats, refnum, refmats_, mean, sparse)
 }
 
@@ -1606,7 +2207,7 @@ ltre3matrix <- function(Amats, refnum, refmats_ = NULL, mean = TRUE, sparse = FA
 #' 
 #' @keywords internal
 #' @noRd
-sltre3matrix <- function(Amats, loy, refnum, refmats_ = NULL, tweights_ = NULL, steps = 10000L, burnin = 3000L, sparse = FALSE) {
+.sltre3matrix <- function(Amats, loy, refnum, refmats_ = NULL, tweights_ = NULL, steps = 10000L, burnin = 3000L, sparse = FALSE) {
     .Call('_lefko3_sltre3matrix', PACKAGE = 'lefko3', Amats, loy, refnum, refmats_, tweights_, steps, burnin, sparse)
 }
 

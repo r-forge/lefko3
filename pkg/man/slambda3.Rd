@@ -72,18 +72,17 @@ lathvert <- verticalize3(lathyrus, noyears = 4, firstyear = 1988,
   nonobsacol = "Dormant1988", stageassign = lathframe, stagesize = "sizea",
   censorcol = "Missing1988", censorkeep = NA, censor = TRUE)
 
-lathrepm <- matrix(0, 7, 7)
-lathrepm[1, 6] <- 0.345
-lathrepm[2, 6] <- 0.054
-
-lathover3 <- overwrite(stage3 = c("Sd", "Sd", "Sdl"),
-  stage2 = c("Sd", "Sd", "Sd"), stage1 = c("Sd", "rep", "rep"),
-  givenrate = c(0.345, 0.345, 0.054))
+lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "Sd", "Sdl"), 
+  stage2 = c("Sd", "Sd", "Sd", "Sd", "rep", "rep"),
+  stage1 = c("Sd", "rep", "Sd", "rep", "all", "all"), 
+  givenrate = c(0.345, 0.345, 0.054, 0.054, NA, NA),
+  multiplier = c(NA, NA, NA, NA, 0.345, 0.054),
+  type = c(1, 1, 1, 1, 3, 3), type_t12 = c(1, 2, 1, 2, 1, 1),
+  stageframe = lathframe, historical = TRUE)
 
 ehrlen3 <- rlefko3(data = lathvert, stageframe = lathframe,
   year = c(1989, 1990), stages = c("stage3", "stage2", "stage1"),
-  repmatrix = lathrepm, overwrite = lathover3, yearcol = "year2",
-  indivcol = "individ")
+  supplement = lathsupp3, yearcol = "year2", indivcol = "individ")
 
 slambda3(ehrlen3)
 
