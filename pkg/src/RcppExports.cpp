@@ -813,15 +813,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // slambda3
-DataFrame slambda3(List mpm, int times, Nullable<NumericVector> tweights);
-RcppExport SEXP _lefko3_slambda3(SEXP mpmSEXP, SEXP timesSEXP, SEXP tweightsSEXP) {
+DataFrame slambda3(List mpm, int times, bool dense_only, Nullable<NumericVector> tweights);
+RcppExport SEXP _lefko3_slambda3(SEXP mpmSEXP, SEXP timesSEXP, SEXP dense_onlySEXP, SEXP tweightsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type mpm(mpmSEXP);
     Rcpp::traits::input_parameter< int >::type times(timesSEXP);
+    Rcpp::traits::input_parameter< bool >::type dense_only(dense_onlySEXP);
     Rcpp::traits::input_parameter< Nullable<NumericVector> >::type tweights(tweightsSEXP);
-    rcpp_result_gen = Rcpp::wrap(slambda3(mpm, times, tweights));
+    rcpp_result_gen = Rcpp::wrap(slambda3(mpm, times, dense_only, tweights));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -955,7 +956,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_lefko3_proj3sp", (DL_FUNC) &_lefko3_proj3sp, 6},
     {"_lefko3_proj3dens", (DL_FUNC) &_lefko3_proj3dens, 8},
     {"_lefko3_projection3", (DL_FUNC) &_lefko3_projection3, 12},
-    {"_lefko3_slambda3", (DL_FUNC) &_lefko3_slambda3, 3},
+    {"_lefko3_slambda3", (DL_FUNC) &_lefko3_slambda3, 4},
     {"_lefko3_stoch_senselas", (DL_FUNC) &_lefko3_stoch_senselas, 4},
     {"_lefko3_bambi3", (DL_FUNC) &_lefko3_bambi3, 2},
     {"_lefko3_bambi2", (DL_FUNC) &_lefko3_bambi2, 1},

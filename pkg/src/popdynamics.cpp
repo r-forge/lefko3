@@ -695,7 +695,7 @@ List decomp3sp(arma::mat Amat) {
   arma::cx_mat Aeigvecl;
   arma::cx_mat Aeigvecr;
   
-  eigs_gen(Aeigval, Aeigvecr, spAmat, 1);
+  eigs_gen(Aeigval, Aeigvecr, spAmat, 1); // Identified as problem with valgrind
   
   eigs_gen(Aeigvall, Aeigvecl, t_spAmat, 1);
   
@@ -2809,6 +2809,9 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
 //' @param mpm A matrix projection model of class \code{lefkoMat}, or a list of
 //' full matrix projection matrices.
 //' @param times Number of occasions to iterate. Defaults to 10,000.
+//' @param dense_only A logical value indicating whether to force matrices to be
+//' run in dense format. Defaults to \code{FALSE}, and should only be used if
+//' errors occur when running under default conditions.
 //' @param tweights Numeric vector denoting the probabilistic weightings of
 //' annual matrices. Defaults to equal weighting among occasions.
 //' 
@@ -2922,12 +2925,12 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
 //'   supplement = cypsupp3r, yearcol = "year2", 
 //'   patchcol = "patchid", indivcol = "individ")
 //' 
-//' cypstoch <- slambda3(cypmatrix3r)
+//' cypstoch <- slambda3(cypmatrix3r, dense_only = TRUE)
 //' cypstoch
 //' 
 //' @export slambda3
 // [[Rcpp::export]]
-DataFrame slambda3(List mpm, int times = 10000, 
+DataFrame slambda3(List mpm, int times = 10000, bool dense_only = false,
   Nullable<NumericVector> tweights = R_NilValue) {
   
   int theclairvoyant {0};
@@ -2964,7 +2967,9 @@ DataFrame slambda3(List mpm, int times = 10000,
     if (sparse_check <= 0.5) {
       sparse_switch = 1;
     } else sparse_switch = 0;
-  
+    
+    if (dense_only) sparse_switch = 0;
+    
     if (labels.length() < 3) {
       throw Rcpp::exception("Function 'slambda3' requires annual matrices. This lefkoMat object appears to be a set of mean matrices, and lacks annual matrices.", false);
     }
@@ -3182,7 +3187,9 @@ DataFrame slambda3(List mpm, int times = 10000,
     if (sparse_check <= 0.5) {
       sparse_switch = 1;
     } else sparse_switch = 0;
-  
+    
+    if (dense_only) sparse_switch = 0;
+    
     int yl = amats.length();
     arma::mat firstmat = as<arma::mat>(amats[0]);
     int matrows = firstmat.n_rows;

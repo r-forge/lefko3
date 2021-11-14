@@ -1883,6 +1883,9 @@ projection3 <- function(mpm, nreps = 1L, times = 10000L, stochastic = FALSE, sta
 #' @param mpm A matrix projection model of class \code{lefkoMat}, or a list of
 #' full matrix projection matrices.
 #' @param times Number of occasions to iterate. Defaults to 10,000.
+#' @param dense_only A logical value indicating whether to force matrices to be
+#' run in dense format. Defaults to \code{FALSE}, and should only be used if
+#' errors occur when running under default conditions.
 #' @param tweights Numeric vector denoting the probabilistic weightings of
 #' annual matrices. Defaults to equal weighting among occasions.
 #' 
@@ -1996,12 +1999,12 @@ projection3 <- function(mpm, nreps = 1L, times = 10000L, stochastic = FALSE, sta
 #'   supplement = cypsupp3r, yearcol = "year2", 
 #'   patchcol = "patchid", indivcol = "individ")
 #' 
-#' cypstoch <- slambda3(cypmatrix3r)
+#' cypstoch <- slambda3(cypmatrix3r, dense_only = TRUE)
 #' cypstoch
 #' 
 #' @export slambda3
-slambda3 <- function(mpm, times = 10000L, tweights = NULL) {
-    .Call('_lefko3_slambda3', PACKAGE = 'lefko3', mpm, times, tweights)
+slambda3 <- function(mpm, times = 10000L, dense_only = FALSE, tweights = NULL) {
+    .Call('_lefko3_slambda3', PACKAGE = 'lefko3', mpm, times, dense_only, tweights)
 }
 
 #' Estimate Stochastic Sensitivity or Elasticity of Matrix Set

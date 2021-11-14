@@ -4,13 +4,17 @@
 \alias{slambda3}
 \title{Estimate Stochastic Population Growth Rate}
 \usage{
-slambda3(mpm, times = 10000L, tweights = NULL)
+slambda3(mpm, times = 10000L, dense_only = FALSE, tweights = NULL)
 }
 \arguments{
 \item{mpm}{A matrix projection model of class \code{lefkoMat}, or a list of
 full matrix projection matrices.}
 
 \item{times}{Number of occasions to iterate. Defaults to 10,000.}
+
+\item{dense_only}{A logical value indicating whether to force matrices to be
+run in dense format. Defaults to \code{FALSE}, and should only be used if
+errors occur when running under default conditions.}
 
 \item{tweights}{Numeric vector denoting the probabilistic weightings of
 annual matrices. Defaults to equal weighting among occasions.}
@@ -137,7 +141,7 @@ cypmatrix3r <- rlefko3(data = cypraw_v1, stageframe = cypframe_raw,
   supplement = cypsupp3r, yearcol = "year2", 
   patchcol = "patchid", indivcol = "individ")
 
-cypstoch <- slambda3(cypmatrix3r)
+cypstoch <- slambda3(cypmatrix3r, dense_only = TRUE)
 cypstoch
 
 }

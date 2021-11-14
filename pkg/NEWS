@@ -1,7 +1,7 @@
 LEFKO3 NEWS
 -----------
 
-CHANGES IN VERSION 4.0.0 (2021-11-13)
+CHANGES IN VERSION 4.0.0 (2021-11-14)
 -------------------------------------
   NEW FEATURES
     1. Function projection3() can now run density dependent projections using
@@ -49,6 +49,8 @@ CHANGES IN VERSION 4.0.0 (2021-11-13)
        changed to FALSE, in order to prevent overzealous censoring by default.
     7. Text output from summary functions and sf_distrib() has been altered to
        fit within standard output consoles, including typical page widths.
+    8. Added sparse matrix override to slambda3() in case of errors incurred in
+       eigen analysis.
     
   BUG FIXES
     1. Corrected bug causing code "npr" to yield propagule stages in time t+1
