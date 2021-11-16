@@ -106,6 +106,8 @@
 #' @param RepasObs If TRUE, then will treat individuals with size 0 as observed
 #' if and only if they are reproductive. Otherwise, all individuals with size 0
 #' are treated as not observed.
+#' @param NOasObs If TRUE, then will treat unobserved individuals as observed
+#' during stage assignment.
 #' @param stassign A logical value indicating whether to assign stages.
 #' @param stszcol Integer describing which size variable or combination of size
 #' variables to use in stage estimation.
@@ -119,14 +121,15 @@
 #' single static column, or whether censor variables repeat across blocks.
 #' @param coordsrepeat A logical value indicating whether coordinate variables
 #' are single static columns, or whether they repeat across blocks.
+#' @param quiet A logical value indicating whether to silense warnings.
 #' 
 #' @return The output is currently a 7 element list, where each element is a
 #' data frame with the same number of rows.
 #' 
 #' @keywords internal
 #' @noRd
-.pfj <- function(data, stageframe, noyears, firstyear, popidcol, patchidcol, individcol, blocksize, xcol, ycol, juvcol, sizeacol, sizebcol, sizeccol, repstracol, repstrbcol, fecacol, fecbcol, indcovacol, indcovbcol, indcovccol, aliveacol, deadacol, obsacol, nonobsacol, censorcol, stagecol, repstrrel, fecrel, NAas0, NRasRep, RepasObs, stassign, stszcol, censorkeep, censbool, censrepeat, coordsrepeat) {
-    .Call('_lefko3_pfj', PACKAGE = 'lefko3', data, stageframe, noyears, firstyear, popidcol, patchidcol, individcol, blocksize, xcol, ycol, juvcol, sizeacol, sizebcol, sizeccol, repstracol, repstrbcol, fecacol, fecbcol, indcovacol, indcovbcol, indcovccol, aliveacol, deadacol, obsacol, nonobsacol, censorcol, stagecol, repstrrel, fecrel, NAas0, NRasRep, RepasObs, stassign, stszcol, censorkeep, censbool, censrepeat, coordsrepeat)
+.pfj <- function(data, stageframe, noyears, firstyear, popidcol, patchidcol, individcol, blocksize, xcol, ycol, juvcol, sizeacol, sizebcol, sizeccol, repstracol, repstrbcol, fecacol, fecbcol, indcovacol, indcovbcol, indcovccol, aliveacol, deadacol, obsacol, nonobsacol, censorcol, stagecol, repstrrel, fecrel, NAas0, NRasRep, RepasObs, NOasObs, stassign, stszcol, censorkeep, censbool, censrepeat, coordsrepeat, quiet) {
+    .Call('_lefko3_pfj', PACKAGE = 'lefko3', data, stageframe, noyears, firstyear, popidcol, patchidcol, individcol, blocksize, xcol, ycol, juvcol, sizeacol, sizebcol, sizeccol, repstracol, repstrbcol, fecacol, fecbcol, indcovacol, indcovbcol, indcovccol, aliveacol, deadacol, obsacol, nonobsacol, censorcol, stagecol, repstrrel, fecrel, NAas0, NRasRep, RepasObs, NOasObs, stassign, stszcol, censorkeep, censbool, censrepeat, coordsrepeat, quiet)
 }
 
 #' Create Historical Vertical Structure for Ahistorical Vertical Data Frame
@@ -228,6 +231,8 @@
 #' fecundity variables will be set to 0.
 #' @param NRasRep If \code{TRUE}, then non-reproductive but mature individuals
 #' will be treated as reproductive during stage assignment.
+#' @param NOasObs If TRUE, then will treat unobserved individuals as observed
+#' during stage assignment.
 #' @param stassign A logical value indicating whether to assign stages.
 #' @param stszcol Integer describing which size variable to use in stage 
 #' estimation. Numbers 1 through 8 are possible.
@@ -236,14 +241,15 @@
 #' \code{censbool = TRUE}.
 #' @param censbool A logical variable determining whether \code{NA} denotes the
 #' value of the censoring variable identifying data to keep.
+#' @param quiet A logical value indicating whether to silense warnings.
 #' 
 #' @return The output is currently a list coerced into the data frame class,
 #' and is read as a data frame by R. It is secondarily in class \code{hfvdata}.
 #' 
 #' @keywords internal
 #' @noRd
-.jpf <- function(data, stageframe, popidcol, patchidcol, individcol, year2col, year3col, xcol, ycol, juv2col, juv3col, sizea2col, sizea3col, sizeb2col, sizeb3col, sizec2col, sizec3col, repstra2col, repstra3col, repstrb2col, repstrb3col, feca2col, feca3col, fecb2col, fecb3col, indcova2col, indcova3col, indcovb2col, indcovb3col, indcovc2col, indcovc3col, alive2col, alive3col, dead2col, dead3col, obs2col, obs3col, nonobs2col, nonobs3col, repstrrel, fecrel, stage2col, stage3col, censorcol, NAas0, NRasRep, stassign, stszcol, censorkeep, censbool) {
-    .Call('_lefko3_jpf', PACKAGE = 'lefko3', data, stageframe, popidcol, patchidcol, individcol, year2col, year3col, xcol, ycol, juv2col, juv3col, sizea2col, sizea3col, sizeb2col, sizeb3col, sizec2col, sizec3col, repstra2col, repstra3col, repstrb2col, repstrb3col, feca2col, feca3col, fecb2col, fecb3col, indcova2col, indcova3col, indcovb2col, indcovb3col, indcovc2col, indcovc3col, alive2col, alive3col, dead2col, dead3col, obs2col, obs3col, nonobs2col, nonobs3col, repstrrel, fecrel, stage2col, stage3col, censorcol, NAas0, NRasRep, stassign, stszcol, censorkeep, censbool)
+.jpf <- function(data, stageframe, popidcol, patchidcol, individcol, year2col, year3col, xcol, ycol, juv2col, juv3col, sizea2col, sizea3col, sizeb2col, sizeb3col, sizec2col, sizec3col, repstra2col, repstra3col, repstrb2col, repstrb3col, feca2col, feca3col, fecb2col, fecb3col, indcova2col, indcova3col, indcovb2col, indcovb3col, indcovc2col, indcovc3col, alive2col, alive3col, dead2col, dead3col, obs2col, obs3col, nonobs2col, nonobs3col, repstrrel, fecrel, stage2col, stage3col, censorcol, NAas0, NRasRep, NOasObs, stassign, stszcol, censorkeep, censbool, quiet) {
+    .Call('_lefko3_jpf', PACKAGE = 'lefko3', data, stageframe, popidcol, patchidcol, individcol, year2col, year3col, xcol, ycol, juv2col, juv3col, sizea2col, sizea3col, sizeb2col, sizeb3col, sizec2col, sizec3col, repstra2col, repstra3col, repstrb2col, repstrb3col, feca2col, feca3col, fecb2col, fecb3col, indcova2col, indcova3col, indcovb2col, indcovb3col, indcovc2col, indcovc3col, alive2col, alive3col, dead2col, dead3col, obs2col, obs3col, nonobs2col, nonobs3col, repstrrel, fecrel, stage2col, stage3col, censorcol, NAas0, NRasRep, NOasObs, stassign, stszcol, censorkeep, censbool, quiet)
 }
 
 #' Create Element Index for Matrix Estimation

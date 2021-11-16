@@ -170,9 +170,14 @@
 #' \code{FALSE}.
 #' @param NRasRep If \code{TRUE}, then will treat non-reproductive but mature 
 #' individuals as reproductive during stage assignment. This can be useful when
-#' a matrix is desired without separation of reproductive and non-reproductive
-#' but mature stages of the same size. Only used if \code{stageassign} is set
-#' to a stageframe. Defaults to \code{FALSE}.
+#' a MPM is desired without separation of reproductive and non-reproductive but
+#' mature stages of the same size. Only used if \code{stageassign} is set to a
+#' stageframe. Defaults to \code{FALSE}.
+#' @param NOasObs If \code{TRUE}, then will treat individuals that are
+#' interpreted as not observed in the dataset as though they were observed
+#' during stage assignment. This can be useful when a MPM is desired without
+#' separation of observable and unobservable stages. Only used if
+#' \code{stageassign} is set to a stageframe. Defaults to \code{FALSE}.
 #' @param reduce A logical variable determining whether unused variables and 
 #' some invariant state variables should be removed from the output dataset.
 #' Defaults to \code{TRUE}.
@@ -180,6 +185,8 @@
 #' living status at occasion \emph{t} equal to 0. Defaults to \code{FALSE}, and
 #' should be kept \code{FALSE} except to inspect potential errors in the
 #' dataset.
+#' @param quiet A logical variable indicating whether to silence warnings.
+#' Defaults to \code{FALSE}.
 #' 
 #' @return If all inputs are properly formatted, then this function will output
 #' a historical vertical data frame (class \code{hfvdata}), meaning that the
@@ -484,7 +491,7 @@ verticalize3 <- function(data, noyears, firstyear = 1, popidcol = 0,
   repstrrel = 1, fecrel = 1, stagecol = 0, stageassign = NA, stagesize = NA,
   censorkeep = 0, censorRepeat = FALSE, censor = FALSE,
   coordsRepeat = FALSE, spacing = NA, NAas0 = FALSE, NRasRep = FALSE,
-  reduce = TRUE, a2check = FALSE) {
+  NOasObs = FALSE, reduce = TRUE, a2check = FALSE, quiet = FALSE) {
   
   stassign <- rowid <- alive2 <- indataset <- censor1 <- censor2 <- NULL
   censor3 <- censbool <- NULL
@@ -503,6 +510,11 @@ verticalize3 <- function(data, noyears, firstyear = 1, popidcol = 0,
   
   if (is.na(blocksize)) {
     blocksize <- 0
+  }
+  
+  if (!all(is.logical(c(censorRepeat, censor, coordsRepeat, NAas0, NRasRep, 
+      NOasObs, reduce, a2check, quiet)))) {
+    stop("Some logical variables have been set to non-logical values.", call. = FALSE)
   }
   
   if (is.character(popidcol)) {
@@ -805,10 +817,14 @@ verticalize3 <- function(data, noyears, firstyear = 1, popidcol = 0,
     repcheck <- intersect(repcheck1, which(stageassign$obsstatus == 1))
     
     if (length(repcheck) > 0) {
-      message("Stageframe indicates the presence of an observeable, reproductive stage with a size of 0.")
+      if (!quiet) {
+        message("Stageframe indicates the presence of an observeable, reproductive stage with a size of 0.")
+      }
       RepasObs <- TRUE
     } else if (length(repcheck1) > 0) {
-      message("Stageframe indicates the presence of an unobserveable, reproductive stage with a size of 0.")
+      if (!quiet) {
+        message("Stageframe indicates the presence of an unobserveable, reproductive stage with a size of 0.")
+      }
     }
     
   } else {
@@ -866,8 +882,9 @@ verticalize3 <- function(data, noyears, firstyear = 1, popidcol = 0,
     (repstracol - 1), (repstrbcol - 1), (fecacol - 1), (fecbcol - 1),
     (indcovacol - 1), (indcovbcol - 1), (indcovccol - 1), (aliveacol - 1),
     (deadacol - 1), (obsacol - 1), (nonobsacol - 1), (censorcol - 1),
-    (stagecol - 1), repstrrel, fecrel, NAas0, NRasRep, RepasObs, stassign,
-    stagesizecol, censorkeep, censbool, censorRepeat, coordsRepeat)
+    (stagecol - 1), repstrrel, fecrel, NAas0, NRasRep, RepasObs, NOasObs,
+    stassign, stagesizecol, censorkeep, censbool, censorRepeat, coordsRepeat,
+    quiet)
   
   if (a2check) {    # This whole if-else statement was originally just the line stating: popdatareal <- subset(popdata, subset = (alive2 == 1))
     popdatareal <- popdata
@@ -1281,9 +1298,16 @@ verticalize3 <- function(data, noyears, firstyear = 1, popidcol = 0,
 #' reproductive and non-reproductive but mature stages of the same size. Only
 #' used if \code{stageassign} is set to a valid stageframe. Defaults to
 #' \code{FALSE}.
+#' @param NOasObs If \code{TRUE}, then will treat individuals that are
+#' interpreted as not observed in the dataset as though they were observed
+#' during stage assignment. This can be useful when a MPM is desired without
+#' separation of observable and unobservable stages. Only used if
+#' \code{stageassign} is set to a stageframe. Defaults to \code{FALSE}.
 #' @param reduce A logical variable determining whether unused variables and
 #' some invariant state variables should be removed from the output dataset.
 #' Defaults to \code{TRUE}.
+#' @param quiet A logical variable indicating whether to silence warnings.
+#' Defaults to \code{FALSE}.
 #'
 #' @return If all inputs are properly formatted, then this function will output
 #' a historical vertical data frame (class \code{hfvdata}), meaning that the
@@ -1462,9 +1486,14 @@ historicalize3 <- function(data, popidcol = 0, patchidcol = 0, individcol,
   nonobs2col = 0, nonobs3col = 0, repstrrel = 1, fecrel = 1, stage2col = 0,
   stage3col = 0, juv2col = 0, juv3col = 0, stageassign = NA, stagesize = NA,
   censor = FALSE, censorcol = 0, censorkeep = 0, spacing = NA, NAas0 = FALSE,
-  NRasRep = FALSE, reduce = TRUE) {
+  NRasRep = FALSE, NOasObs = FALSE, reduce = TRUE, quiet = FALSE) {
   
   alive2 <- indataset <- censor1 <- censor2 <- censor3 <- censbool <- NULL
+  
+  if (!all(is.logical(c(NAas0, NRasRep, NOasObs, reduce, quiet)))) {
+    stop("Some logical variables have been assigned non-logical values.",
+      call. = FALSE)
+  }
   
   if (is.na(individcol)) {
     stop("Individual ID variable is required.", call. = FALSE)
@@ -2001,8 +2030,8 @@ historicalize3 <- function(data, popidcol = 0, patchidcol = 0, individcol,
     (indcovc2col - 1), (indcovc3col - 1), (alive2col - 1), (alive3col - 1),
     (dead2col - 1), (dead3col - 1), (obs2col - 1), (obs3col - 1),
     (nonobs2col - 1), (nonobs3col - 1), repstrrel, fecrel, (stage2col - 1),
-    (stage3col - 1), (censorcol - 1), NAas0, NRasRep, stassign, stagesizecol,
-    censorkeep, censbool)
+    (stage3col - 1), (censorcol - 1), NAas0, NRasRep, NOasObs, stassign,
+    stagesizecol, censorkeep, censbool, quiet)
   
   popdata <- subset(popdata, alive2 == 1)
   

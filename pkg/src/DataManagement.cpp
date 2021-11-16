@@ -144,6 +144,8 @@ arma::mat ovreplace(arma::vec allst321, arma::vec idx321old,
 //' @param RepasObs If TRUE, then will treat individuals with size 0 as observed
 //' if and only if they are reproductive. Otherwise, all individuals with size 0
 //' are treated as not observed.
+//' @param NOasObs If TRUE, then will treat unobserved individuals as observed
+//' during stage assignment.
 //' @param stassign A logical value indicating whether to assign stages.
 //' @param stszcol Integer describing which size variable or combination of size
 //' variables to use in stage estimation.
@@ -157,6 +159,7 @@ arma::mat ovreplace(arma::vec allst321, arma::vec idx321old,
 //' single static column, or whether censor variables repeat across blocks.
 //' @param coordsrepeat A logical value indicating whether coordinate variables
 //' are single static columns, or whether they repeat across blocks.
+//' @param quiet A logical value indicating whether to silense warnings.
 //' 
 //' @return The output is currently a 7 element list, where each element is a
 //' data frame with the same number of rows.
@@ -172,8 +175,9 @@ Rcpp::List pfj(DataFrame data, DataFrame stageframe, int noyears, int firstyear,
   arma::ivec indcovbcol, arma::ivec indcovccol, arma::ivec aliveacol,
   arma::ivec deadacol, arma::ivec obsacol, arma::ivec nonobsacol,
   arma::ivec censorcol, arma::ivec stagecol, double repstrrel, double fecrel,
-  bool NAas0, bool NRasRep, bool RepasObs, bool stassign, int stszcol,
-  double censorkeep, bool censbool, bool censrepeat, bool coordsrepeat) {
+  bool NAas0, bool NRasRep, bool RepasObs, bool NOasObs, bool stassign,
+  int stszcol, double censorkeep, bool censbool, bool censrepeat,
+  bool coordsrepeat, bool quiet) {
   
   Rcpp::List output_longlist(81);
   
@@ -1544,9 +1548,13 @@ Rcpp::List pfj(DataFrame data, DataFrame stageframe, int noyears, int firstyear,
         stageobs = find(inobsstatarma == spryn2[(i + (j * noindivs))]);
         
         cs1 = intersect(stagemini2, stagemaxi2);
-        cs2 = intersect(stageobs, stagemat);
         
-        if (NRasRep) {
+        if (NRasRep && NOasObs) {
+          cs4 = cs1;
+        } else if (NOasObs) {
+          cs4 = intersect(stagerep, cs1);
+        } else if (NRasRep) {
+          cs2 = intersect(stageobs, stagemat);
           cs4 = intersect(cs1, cs2);
         } else {
           cs3 = intersect(stagerep, cs2);
@@ -1568,9 +1576,13 @@ Rcpp::List pfj(DataFrame data, DataFrame stageframe, int noyears, int firstyear,
         stageobs = find(inobsstatarma == spryn1[(i + (j * noindivs))]);
         
         cs1 = intersect(stagemini1, stagemaxi1);
-        cs2 = intersect(stageobs, stagemat);
         
-        if (NRasRep) {
+        if (NRasRep && NOasObs) {
+          cs4 = cs1;
+        } else if (NOasObs) {
+          cs4 = intersect(stagerep, cs1);
+        } else if (NRasRep) {
+          cs2 = intersect(stageobs, stagemat);
           cs4 = intersect(cs1, cs2);
         } else {
           cs3 = intersect(stagerep, cs2);
@@ -1593,9 +1605,13 @@ Rcpp::List pfj(DataFrame data, DataFrame stageframe, int noyears, int firstyear,
         stageobs = find(inobsstatarma == spryn3[(i + (j * noindivs))]);
         
         cs1 = intersect(stagemini3, stagemaxi3);
-        cs2 = intersect(stageobs, stagemat);
         
-        if (NRasRep) {
+        if (NRasRep && NOasObs) {
+          cs4 = cs1;
+        } else if (NOasObs) {
+          cs4 = intersect(stagerep, cs1);
+        } else if (NRasRep) {
+          cs2 = intersect(stageobs, stagemat);
           cs4 = intersect(cs1, cs2);
         } else {
           cs3 = intersect(stagerep, cs2);
@@ -1618,11 +1634,11 @@ Rcpp::List pfj(DataFrame data, DataFrame stageframe, int noyears, int firstyear,
           
           stage3[(i + (j * noindivs))] = "NoMatch";
           
-          Rf_warningcall(R_NilValue, "Some stages occurring in the dataset do not match any characteristics in the input stageframe.");
+          if (!quiet) Rf_warningcall(R_NilValue, "Some stages occurring in the dataset do not match any characteristics in the input stageframe.");
           
         } else if (cs4.n_elem > 1) {
           
-          Rf_warningcall(R_NilValue, "Some stages in the input stageframe appear to have the same description. Please make sure that all stages included in the stageframe are defined with unique sets of characteristics.");
+          if (!quiet) Rf_warningcall(R_NilValue, "Some stages in the input stageframe appear to have the same description. Please make sure that all stages included in the stageframe are defined with unique sets of characteristics.");
           
         } else {
           
@@ -1873,6 +1889,8 @@ Rcpp::List pfj(DataFrame data, DataFrame stageframe, int noyears, int firstyear,
 //' fecundity variables will be set to 0.
 //' @param NRasRep If \code{TRUE}, then non-reproductive but mature individuals
 //' will be treated as reproductive during stage assignment.
+//' @param NOasObs If TRUE, then will treat unobserved individuals as observed
+//' during stage assignment.
 //' @param stassign A logical value indicating whether to assign stages.
 //' @param stszcol Integer describing which size variable to use in stage 
 //' estimation. Numbers 1 through 8 are possible.
@@ -1881,6 +1899,7 @@ Rcpp::List pfj(DataFrame data, DataFrame stageframe, int noyears, int firstyear,
 //' \code{censbool = TRUE}.
 //' @param censbool A logical variable determining whether \code{NA} denotes the
 //' value of the censoring variable identifying data to keep.
+//' @param quiet A logical value indicating whether to silense warnings.
 //' 
 //' @return The output is currently a list coerced into the data frame class,
 //' and is read as a data frame by R. It is secondarily in class \code{hfvdata}.
@@ -1898,7 +1917,8 @@ Rcpp::List jpf(DataFrame data, DataFrame stageframe, int popidcol,
   int alive3col, int dead2col, int dead3col, int obs2col, int obs3col,
   int nonobs2col, int nonobs3col, double repstrrel, double fecrel,
   int stage2col, int stage3col, int censorcol, bool NAas0, bool NRasRep,
-  bool stassign, int stszcol, double censorkeep, bool censbool) {
+  bool NOasObs, bool stassign, int stszcol, double censorkeep, bool censbool,
+  bool quiet) {
   
   Rcpp::List output_longlist(81);
   
@@ -2963,9 +2983,13 @@ Rcpp::List jpf(DataFrame data, DataFrame stageframe, int popidcol,
         stageobs = find(inobsstatarma == obsstatus2[i]);
         
         cs1 = intersect(stagemini2, stagemaxi2);
-        cs2 = intersect(stageobs, stagemat);
         
-        if (NRasRep) {
+        if (NRasRep && NOasObs) {
+          cs4 = cs1;
+        } else if (NOasObs) {
+          cs4 = intersect(stagerep, cs1);
+        } else if (NRasRep) {
+          cs2 = intersect(stageobs, stagemat);
           cs4 = intersect(cs1, cs2);
         } else {
           cs3 = intersect(stagerep, cs2);
@@ -2980,12 +3004,12 @@ Rcpp::List jpf(DataFrame data, DataFrame stageframe, int popidcol,
         } else if (cs4.n_elem == 0 && alive2[i] == 1) {
           stage2[i] = "NoMatch";
           
-          Rf_warningcall(R_NilValue,
+          if (!quiet) Rf_warningcall(R_NilValue,
             "Some stages occurring in the dataset do not match any characteristics in the input stageframe.");
         } else if (alive2[i] != 1)  {
           stage2[i] = "NotAlive";
         } else if (cs4.n_elem > 1) {
-          Rf_warningcall(R_NilValue,
+          if (!quiet) Rf_warningcall(R_NilValue,
             "Some stages in the input stageframe appear to have the same description. Please make sure that all stages included in the stageframe are defined with unique sets of characteristics.");
           
         } else {
@@ -2998,9 +3022,13 @@ Rcpp::List jpf(DataFrame data, DataFrame stageframe, int popidcol,
         stageobs = find(inobsstatarma == obsstatus1[i]);
         
         cs1 = intersect(stagemini1, stagemaxi1);
-        cs2 = intersect(stageobs, stagemat);
         
-        if (NRasRep) {
+        if (NRasRep && NOasObs) {
+          cs4 = cs1;
+        } else if (NOasObs) {
+          cs4 = intersect(stagerep, cs1);
+        } else if (NRasRep) {
+          cs2 = intersect(stageobs, stagemat);
           cs4 = intersect(cs1, cs2);
         } else {
           cs3 = intersect(stagerep, cs2);
@@ -3015,13 +3043,13 @@ Rcpp::List jpf(DataFrame data, DataFrame stageframe, int popidcol,
         } else if (cs4.n_elem == 0 && alive1[i] == 1) {
           stage1[i] = "NoMatch";
           
-          Rf_warningcall(R_NilValue,
+          if (!quiet) Rf_warningcall(R_NilValue,
             "Some stages occurring in the dataset do not match any characteristics in the input stageframe.");
         } else if (alive1[i] != 1) {
           stage1[i] = "NotAlive";
           matstat1[i] = 0;
         } else if (cs4.n_elem > 1) {
-          Rf_warningcall(R_NilValue,
+          if (!quiet) Rf_warningcall(R_NilValue,
             "Some stages in the input stageframe appear to have the same description. Please make sure that all stages included in the stageframe are defined with unique sets of characteristics.");
           
         } else {
@@ -3034,9 +3062,13 @@ Rcpp::List jpf(DataFrame data, DataFrame stageframe, int popidcol,
         stageobs = find(inobsstatarma == obsstatus3[i]);
         
         cs1 = intersect(stagemini3, stagemaxi3);
-        cs2 = intersect(stageobs, stagemat);
         
-        if (NRasRep) {
+        if (NRasRep && NOasObs) {
+          cs4 = cs1;
+        } else if (NOasObs) {
+          cs4 = intersect(stagerep, cs1);
+        } else if (NRasRep) {
+          cs2 = intersect(stageobs, stagemat);
           cs4 = intersect(cs1, cs2);
         } else {
           cs3 = intersect(stagerep, cs2);
@@ -3054,10 +3086,10 @@ Rcpp::List jpf(DataFrame data, DataFrame stageframe, int popidcol,
         } else if (cs4.n_elem == 0) {
           stage3[i] = "NoMatch";
           
-          Rf_warningcall(R_NilValue,
+          if (!quiet) Rf_warningcall(R_NilValue,
             "Some stages occurring in the dataset do not match any characteristics in the input stageframe.");
         } else if (cs4.n_elem > 1) {
-          Rf_warningcall(R_NilValue,
+          if (!quiet) Rf_warningcall(R_NilValue,
             "Some stages in the input stageframe appear to have the same description. Please make sure that all stages included in the stageframe are defined with unique sets of characteristics.");
           
         } else {
@@ -4742,4 +4774,3 @@ Rcpp::NumericVector density3(Rcpp::DataFrame data, int xcol, int ycol, int yearc
   
   return Rcpp::NumericVector(density.begin(), density.end());
 }
-
