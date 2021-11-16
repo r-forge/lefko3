@@ -1,6 +1,14 @@
 LEFKO3 NEWS
 -----------
 
+CHANGES IN VERSION 4.0.1 (2021-11-15)
+-------------------------------------
+  BUG FIXES
+    1. Function aflefko2() now properly removes agestages rows when 
+       reduce = TRUE.
+    2. Problems with mathjaxr integration fixed.
+
+
 CHANGES IN VERSION 4.0.0 (2021-11-14)
 -------------------------------------
   NEW FEATURES

@@ -2236,8 +2236,10 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' Reduce Matrix Dimensions By Eliminating Empty Stages
 #' 
 #' \code{.reducer2()} identifies empty stages in a set of ahistorical matrices
-#' and removes themfrom all matrices. It is used within \code{\link{flefko2}()}
-#' and \code{\link{rlefko2}()}.
+#' and removes them from all matrices. It also removes the associated rows in
+#' the associated \code{ahstages} or \code{agestages} object. It is used within
+#' \code{\link{flefko2}()}, \code{\link{aflefko2}()}, and
+#' \code{\link{rlefko2}()}.
 #' 
 #' @param A List of population projection matrices, from a \code{lefkoMat}
 #' object.
@@ -2247,7 +2249,8 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' stages used to create matrices.
 #' 
 #' @return Returns a list of reduced \code{A}, \code{U}, and \code{F} matrices,
-#' plus the reduced \code{ahstages} object.
+#' plus the reduced \code{ahstages} object. Note that this can also work on
+#' \code{agestages}, if passed instead of \code{ahstages}.
 #' 
 #' @keywords internal
 #' @noRd
@@ -5037,17 +5040,12 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   if (is.element("qc", names(modelsuite))) {qcoutput2 <- modelsuite$qc}
   
   if (reduce == TRUE) {
-    drops <- .reducer2(a_list, u_list, f_list, ahstages)
-    
-    mismatched_stages <- which(!is.element(agestages$stage_id, ahstages$stage_id))
-    if (length(mismatched_stages > 0)) {
-      agestages <- agestages[-mismatched_stages,]
-    }
+    drops <- .reducer2(a_list, u_list, f_list, agestages)
     
     a_list <- drops$A
     u_list <- drops$U
     f_list <- drops$F
-    ahstages <- drops$ahstages
+    agestages <- drops$ahstages
   }
   
   if (!err_check) {

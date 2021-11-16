@@ -865,7 +865,7 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
 #' single matrix. Three forms of density dependence are allowed, including the
 #' Ricker function, the Beverton-Holt function, the Usher function, and the
 #' logistic function. In each case, density must have an effect with at least a
-#' one time-step delay (see Notes). \loadmathjax
+#' one time-step delay (see Notes).
 #'
 #' @param mpm The \code{lefkoMat} object that will be subject to density
 #' dependent projection.
@@ -896,16 +896,15 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
 #' than 1. If a single number is input, then all noted transitions are assumed
 #' to be subject to this time delay.
 #' @param alpha A vector indicating the numeric values to use as the
-#' \mjeqn{\alpha}{alpha} term in the two parameter Ricker, Beverton-Holt, or
-#' Usher function, or the value of the carrying capacity \emph{K} to use in
-#' the logistic equation (see \code{Notes} section for more on this term). If a
-#' single number is provided, then all noted transitions are assumed to be
-#' subject to this value of \mjeqn{\alpha}{alpha}.
-#' @param beta A vector indicating the numeric values to use as the
-#' \mjeqn{\beta}{beta} term in the two parameter Ricker, Beverton-Holt, or Usher
-#' function. Not used in the logistic equation. If a single number is provided,
-#' then all noted transitions are assumed to be subject to this value of
-#' \mjeqn{\beta}{beta}.
+#' alpha term in the two parameter Ricker, Beverton-Holt, or Usher function, or
+#' the value of the carrying capacity \emph{K} to use in the logistic equation
+#' (see \code{Notes} section for more on this term). If a single number is
+#' provided, then all noted transitions are assumed to be subject to this value
+#' of alpha.
+#' @param beta A vector indicating the numeric values to use as the beta term in
+#' the two parameter Ricker, Beverton-Holt, or Usher function. Not used in the
+#' logistic equation. If a single number is provided, then all noted transitions
+#' are assumed to be subject to this value of beta.
 #' @param type A vector denoting the kind of transition between occasions
 #' \emph{t} and \emph{t}+1 to be replaced. This should be entered as \code{1},
 #' \code{S}, or \code{s} for the replacement of a survival transition; or 
@@ -932,11 +931,11 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
 #' \item{style}{Style of density dependence, coded as 1, 2, 3, or 4 for the
 #' Ricker, Beverton-Holt, Usher, or logistic function, respectively.}
 #' \item{time_delay}{The time delay on density dependence, in time steps.}
-#' \item{alpha}{The value of \mjeqn{\alpha}{alpha} in the Ricker, Beverton-Holt,
-#' or Usher function, or the value of carrying capacity, \emph{K}, in the
-#' logistic function.}
-#' \item{beta}{The value of \mjeqn{\beta}{beta} in the Ricker, Beverton-Holt, or
-#' Usher function.}
+#' \item{alpha}{The value of alpha in the Ricker, Beverton-Holt, or Usher
+#' function, or the value of carrying capacity, \emph{K}, in the logistic
+#' function.}
+#' \item{beta}{The value of beta in the Ricker, Beverton-Holt, or Usher
+#' function.}
 #' \item{type}{Designates whether the transition from occasion \emph{t} to
 #' occasion \emph{t}+1 is a survival transition probability (1), or a fecundity
 #' rate (2).}
@@ -947,38 +946,9 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
 #' @section Notes:
 #' The parameters \code{alpha} and \code{beta} are applied according to the
 #' two-parameter Ricker function, the two-parameter Beverton-Holt function, the
-#' two-parameter Usher function, or the one-parameter logistic function. The
-#' Ricker function is given as
-#' 
-#' \mjeqn{\phi_{t+1} = \phi_t \times \alpha e^{-\beta n_t}}{phi_{t+1} = phi_t
-#' * alpha * e^(-beta * n_t)}
-#' 
-#' where \mjeqn{\phi_t}{phi_t} is the parameter or
-#' matrix element in time \mjeqn{t}{t} to be modified, and \mjeqn{n_t}{n_t} is
-#' the population size in time \mjeqn{t}{t}. The Beverton-Holt function is given
-#' as
-#' 
-#' \mjeqn{\phi_{t+1} = \frac{\phi_t \times \alpha}{1 + \beta n_t}}{phi_{t+1} =
-#' phi_t * alpha / (1 + beta * n_t)}
-#' 
-#' In both cases, the \mjeqn{\beta}{beta} term denotes the strength of density
-#' dependence. Density dependence can also be introduced using the Usher
-#' function, given as
-#' 
-#' \mjeqn{\phi_{t+1} = \phi_t \times \frac{1}{1 + e^{\alpha N + \beta}}}{
-#' phi_{t+1} = phi_t * 1 / (1 + exp(aN_t+beta))}
-#' 
-#' If the form of density dependence chosen is the logistic function, then
-#' parameter \code{alpha} should be set to the appropriate value of
-#' \mjeqn{K}{K}, the carrying capacity, where
-#' 
-#' \mjeqn{\phi_{t+1} = \phi_t \times (1 - \frac{n}{K})}{phi_{t+1} = phi_t * 
-#' (1 - (n_t)/K)}
-#' 
-#' and \code{beta} is not used. Although the default is that
-#' \mjeqn{\phi_{t+1}}{phi_{t+1}} is a function of \mjeqn{\phi_t}{phi_t} (i.e. a
-#' 1 time step delay is assumed), greater time delays can be set through the
-#' \code{time_delay} option.
+#' two-parameter Usher function, or the one-parameter logistic function.
+#' Although the default is that a 1 time step delay is assumed), greater time
+#' delays can be set through the \code{time_delay} option.
 #' 
 #' Entries in \code{stage3}, \code{stage2}, and \code{stage1} can include
 #' abbreviations for groups of stages. Use \code{rep} if all reproductive stages
