@@ -1557,6 +1557,7 @@ Rcpp::List pfj(DataFrame data, DataFrame stageframe, int noyears, int firstyear,
           cs2 = intersect(stageobs, stagemat);
           cs4 = intersect(cs1, cs2);
         } else {
+          cs2 = intersect(stageobs, stagemat);
           cs3 = intersect(stagerep, cs2);
           cs4 = intersect(cs1, cs3);
         }
@@ -1585,6 +1586,7 @@ Rcpp::List pfj(DataFrame data, DataFrame stageframe, int noyears, int firstyear,
           cs2 = intersect(stageobs, stagemat);
           cs4 = intersect(cs1, cs2);
         } else {
+          cs2 = intersect(stageobs, stagemat);
           cs3 = intersect(stagerep, cs2);
           cs4 = intersect(cs1, cs3);
         }
@@ -1614,6 +1616,7 @@ Rcpp::List pfj(DataFrame data, DataFrame stageframe, int noyears, int firstyear,
           cs2 = intersect(stageobs, stagemat);
           cs4 = intersect(cs1, cs2);
         } else {
+          cs2 = intersect(stageobs, stagemat);
           cs3 = intersect(stagerep, cs2);
           cs4 = intersect(cs1, cs3);
         }
@@ -2992,6 +2995,7 @@ Rcpp::List jpf(DataFrame data, DataFrame stageframe, int popidcol,
           cs2 = intersect(stageobs, stagemat);
           cs4 = intersect(cs1, cs2);
         } else {
+          cs2 = intersect(stageobs, stagemat);
           cs3 = intersect(stagerep, cs2);
           cs4 = intersect(cs1, cs3);
         }
@@ -3031,6 +3035,7 @@ Rcpp::List jpf(DataFrame data, DataFrame stageframe, int popidcol,
           cs2 = intersect(stageobs, stagemat);
           cs4 = intersect(cs1, cs2);
         } else {
+          cs2 = intersect(stageobs, stagemat);
           cs3 = intersect(stagerep, cs2);
           cs4 = intersect(cs1, cs3);
         }
@@ -3071,6 +3076,7 @@ Rcpp::List jpf(DataFrame data, DataFrame stageframe, int popidcol,
           cs2 = intersect(stageobs, stagemat);
           cs4 = intersect(cs1, cs2);
         } else {
+          cs2 = intersect(stageobs, stagemat);
           cs3 = intersect(stagerep, cs2);
           cs4 = intersect(cs1, cs3);
         }
