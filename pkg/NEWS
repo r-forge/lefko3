@@ -8,7 +8,9 @@ CHANGES IN VERSION 4.1.0 (2021-11-XX)
        verticalize3() and historicalize3().
     2. Included option to quiet all warnings in verticalize3() and
        historicalize3().
-
+    
+  BUG FIXES
+    1. Fixed incorrect time step calculation in summary.lefkoMat().
 
 CHANGES IN VERSION 4.0.1 (2021-11-15)
 -------------------------------------

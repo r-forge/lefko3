@@ -5175,7 +5175,7 @@ summary.lefkoMat <- function(object, colsums = TRUE, ...) {
   }
   
   writeLines(paste0("This lefkoMat object covers ", totalpops, " populations, ",
-      totalpatches, " patches, and ", (totalyears + 1), " time steps."))
+      totalpatches, " patches, and ", totalyears, " time steps."))
   
   if (is.element("dataqc", names(matrices))) {
     dqca <- matrices$dataqc[1]
