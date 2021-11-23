@@ -844,7 +844,7 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
       jvdbs <- (v0n0 - v0exp)^2 / (v0exp * (1 - v0est) - length(var3data) * jvmean * (v0est^2))
       jvzichip <- stats::pchisq(jvdbs, df = 1, lower.tail = FALSE)
       
-      if (v0n0 < v0est & jvzichip < 0.50) { #Correction for lower than expected numbers of 0s
+      if (v0n0 < v0exp & jvzichip < 0.50) { #Correction for lower than expected numbers of 0s
         jvzichip <- 1 - jvzichip
       }
       
