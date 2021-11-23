@@ -8,9 +8,13 @@ CHANGES IN VERSION 4.1.0 (2021-11-XX)
        verticalize3() and historicalize3().
     2. Included option to quiet all warnings in verticalize3() and
        historicalize3().
+    3. New options to prevent display of overdispersion and zero-inflation tests
+       in sf_distrib().
     
   BUG FIXES
     1. Fixed incorrect time step calculation in summary.lefkoMat().
+    2. Fixed incorrect P values for zero-inflation when fewer than expected 0s
+       found in sf_distrib().
 
 CHANGES IN VERSION 4.0.1 (2021-11-15)
 -------------------------------------

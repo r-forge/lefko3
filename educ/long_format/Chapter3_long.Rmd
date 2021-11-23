@@ -866,7 +866,7 @@ legend("bottomleft", c("A ahistorical", "B ahistorical", "C ahistorical",
   bty = "n")
 ```
   
-  <p style="text-indent: 20px">Here we see that $lambda$ is different between the ahistorical and historical cases in the raw MPMs. Let's compare the results above to the asymptotic deterministic population growth rate in the function-based MPMs.</p>
+  <p style="text-indent: 20px">Here we see that $\lambda$ is different between the ahistorical and historical cases in the raw MPMs. Let's compare the results above to the asymptotic deterministic population growth rate in the function-based MPMs.</p>
 ```{r Ch3L.44, fig.height = 4.5, fig.width = 7, fig.cap = "Figure 3L.9. Ahistorical vs. historical, function-based lambda"}
 plot(lambda ~ year2, data = subset(cyp2fp_lam, patch == "A"),
   ylim = c(0.75, 1.20), type = "l", lwd = 2, bty = "n")

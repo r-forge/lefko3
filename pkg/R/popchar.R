@@ -520,13 +520,13 @@ supplemental <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
 #' @param obs3 The name or column number of the variable corresponding to
 #' observation status in occasion *t+1*. This should be used if observation
 #' status will be used as a vital rate to absorb states of size = 0.
-#' @param fec The name or column number of the variable corresponding to
-#' fecundity. The name of the variable should correspond to the proper occasion,
-#' either occasion *t* or occasion *t*-1. Input only if \code{fec} is to be
-#' tested.
-#' @param repst The name or column number of the variable corresponding to
-#' reproductive status in occasion *t*. If not provided, then fecundity will be
-#' tested without subsetting to only reproductive individuals.
+#' @param fec A vector holding the names or column numbers of the variables
+#' corresponding to in occasions *t*+1 and *t*. Input only if \code{fec} is to
+#' be tested.
+#' @param repst A vector holding the names or column numbers of the variables
+#' corresponding to reproductive status in occasions *t*+1 and *t*. If not
+#' provided, then fecundity will be tested without subsetting to only
+#' reproductive individuals.
 #' @param zisizea A logical value indicating whether to conduct a test of zero
 #' inflation in primary size. Defaults to \code{TRUE}.
 #' @param zisizeb A logical value indicating whether to conduct a test of zero
@@ -537,6 +537,10 @@ supplemental <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
 #' inflation in fecundity. Defaults to TRUE.
 #' @param fectime An integer indicating whether to treat fecundity as occurring
 #' in time *t* (\code{2}) or time *t*+1 (\code{3}). Defaults to \code{2}.
+#' @param show.size A logical value indicating whether to show the output for
+#' tests of size. Defaults to \code{TRUE}.
+#' @param show.fec A logical value indicating whether to show the output for
+#' tests of fecundity. Defaults to \code{TRUE}.
 #'
 #' @return Produces text describing the degree and significance of difference
 #' from expected dispersion, and the degree and significance of zero inflation.
@@ -634,7 +638,7 @@ supplemental <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
 #' @export
 sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
   fec = NA, repst = NA, zisizea = TRUE, zisizeb = TRUE, zisizec = TRUE,
-  zifec = TRUE, fectime = 2) {
+  zifec = TRUE, fectime = 2, show.size = TRUE, show.fec = TRUE) {
   
   alive3 <- NULL
   
@@ -685,14 +689,14 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
   }
   
   sizeatest <- .knightswhosaynee(sdata, sizea, 1, zisizea, sizea, sizeb, sizec,
-    repst, fectime)
+    repst, fectime, show.size)
   sizebtest <- .knightswhosaynee(sdata, sizeb, 2, zisizeb, sizea, sizeb, sizec,
-    repst, fectime)
+    repst, fectime, show.size)
   sizectest <- .knightswhosaynee(sdata, sizec, 3, zisizec, sizea, sizeb, sizec,
-    repst, fectime)
+    repst, fectime, show.size)
   
   fectest <- .knightswhosaynee(sdata, fec, 4, zifec, sizea, sizeb, sizec, repst,
-    fectime)
+    fectime, show.fec)
 }
 
 #' Internal Test of Size and Fecundity For Overdispersion and Zero-Inflation
@@ -720,6 +724,8 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
 #' reproductive status (\code{repst}). Used in fecundity assessment.
 #' @param fectime An integer denoting whether fecundity is assessed in time
 #' *t*+1 (\code{3}) or time *t* (\code{2}). Used in fecundity assessment.
+#' @param show_var A logical variable indicating whether to show the results of
+#' tests for the particular variable in question.
 #' 
 #' @return This function produces text in the console giving the results of the
 #' tests of overdispersion and zero inflation. No specific object is returned.
@@ -727,7 +733,7 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
 #' @keywords internal
 #' @noRd
 .knightswhosaynee <- function(data_used, variable_vec, term_used, zi_state,
-  size_a, size_b, size_c, repst, fectime) {
+  size_a, size_b, size_c, repst, fectime, show_var) {
   
   var_used <- FALSE
   
@@ -811,18 +817,20 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
     
     jvodchip <- stats::pchisq(v_disp * v_df, v_df, lower = FALSE)
     
-    writeLines(paste0("Mean ", full_term[term_used]," is ", signif(jvmean, digits = 4)))
-    writeLines(paste0("\nThe variance in ", full_term[term_used]," is ", signif(jvvar, digits = 4)))
-    writeLines("\nThe probability of this dispersion level by chance assuming that")
-    writeLines(paste0("the true mean ", full_term[term_used]," = variance in ", full_term[term_used], ","))
-    writeLines(paste0("and an alternative hypothesis of overdispersion, is ", signif(jvodchip, digits = 4)))
-    
-    if (jvodchip <= 0.05 & jvvar > jvmean) {
-      writeLines(paste0("\n", full_inenglish[term_used]," is significantly overdispersed."))
-    } else if (jvodchip <= 0.05 & jvvar < jvmean) {
-      writeLines(paste0("\n", full_inenglish[term_used]," is significantly underdispersed."))
-    } else {
-      writeLines(paste0("\nDispersion level in ", full_inenglish_small[term_used]," matches expectation."))
+    if (show_var) {
+      writeLines(paste0("Mean ", full_term[term_used]," is ", signif(jvmean, digits = 4)))
+      writeLines(paste0("\nThe variance in ", full_term[term_used]," is ", signif(jvvar, digits = 4)))
+      writeLines("\nThe probability of this dispersion level by chance assuming that")
+      writeLines(paste0("the true mean ", full_term[term_used]," = variance in ", full_term[term_used], ","))
+      writeLines(paste0("and an alternative hypothesis of overdispersion, is ", signif(jvodchip, digits = 4)))
+      
+      if (jvodchip <= 0.05 & jvvar > jvmean) {
+        writeLines(paste0("\n", full_inenglish[term_used]," is significantly overdispersed."))
+      } else if (jvodchip <= 0.05 & jvvar < jvmean) {
+        writeLines(paste0("\n", full_inenglish[term_used]," is significantly underdispersed."))
+      } else {
+        writeLines(paste0("\nDispersion level in ", full_inenglish_small[term_used]," matches expectation."))
+      }
     }
     
     #Here is the test of zero inflation
@@ -836,24 +844,30 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
       jvdbs <- (v0n0 - v0exp)^2 / (v0exp * (1 - v0est) - length(var3data) * jvmean * (v0est^2))
       jvzichip <- stats::pchisq(jvdbs, df = 1, lower.tail = FALSE)
       
-      writeLines(paste0("\nMean lambda in ", full_term[term_used]," is ", signif(v0est, digits = 4)))
-      writeLines(paste0("The actual number of 0s in ", full_term[term_used]," is ", v0n0))
-      writeLines(paste0("The expected number of 0s in ", full_term[term_used]," under the null hypothesis is ", signif(v0exp, digits = 4)))
-      writeLines(paste0("The probability of this deviation in 0s from expectation by chance is ", signif(jvzichip, digits = 4)))
-      
-      if (jvzichip <= 0.05 & v0n0 > v0exp) {
-        writeLines(paste0("\n", full_inenglish[term_used]," is significantly zero-inflated.\n"))
-      } else {
-        writeLines(paste0("\n", full_inenglish[term_used]," is not significantly zero-inflated."))
-        
-        if (v0n0 == 0) {
-          writeLines(paste0(full_inenglish[term_used]," does not appear to include 0s, suggesting
-            that a zero-truncated distribution may be warranted."))
-        }
-        writeLines("\n")
+      if (v0n0 < v0est & jvzichip < 0.50) { #Correction for lower than expected numbers of 0s
+        jvzichip <- 1 - jvzichip
       }
       
-      writeLines("\n\n")
+      if (show_var) {
+        writeLines(paste0("\nMean lambda in ", full_term[term_used]," is ", signif(v0est, digits = 4)))
+        writeLines(paste0("The actual number of 0s in ", full_term[term_used]," is ", v0n0))
+        writeLines(paste0("The expected number of 0s in ", full_term[term_used]," under the null hypothesis is ", signif(v0exp, digits = 4)))
+        writeLines(paste0("The probability of this deviation in 0s from expectation by chance is ", signif(jvzichip, digits = 4)))
+        
+        if (jvzichip <= 0.05 & v0n0 > v0exp) {
+          writeLines(paste0("\n", full_inenglish[term_used]," is significantly zero-inflated.\n"))
+        } else {
+          writeLines(paste0("\n", full_inenglish[term_used]," is not significantly zero-inflated."))
+          
+          if (v0n0 == 0) {
+            writeLines(paste0(full_inenglish[term_used]," does not appear to include 0s, suggesting
+              that a zero-truncated distribution may be warranted."))
+          }
+          writeLines("\n")
+        }
+        
+        writeLines("\n\n")
+      }
     }
   }
 }
