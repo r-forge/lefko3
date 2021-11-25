@@ -15,6 +15,9 @@ CHANGES IN VERSION 4.1.0 (2021-11-XX)
     1. Fixed incorrect time step calculation in summary.lefkoMat().
     2. Fixed incorrect P values for zero-inflation when fewer than expected 0s
        found in sf_distrib().
+    3. Fixed fatal issue affecting certain kinds of proxy transitions in
+       function-based matrix estimation.
+
 
 CHANGES IN VERSION 4.0.1 (2021-11-15)
 -------------------------------------
