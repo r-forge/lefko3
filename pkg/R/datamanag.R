@@ -3855,3 +3855,100 @@ subset_lM <- function(lM, mat_num = NA, pop = NA, patch = NA, year = NA) {
   return(lM)
 }
 
+#' Create Historical MPMs Assuming No Influence of Individual History
+#' 
+#' Function \code{hist_null()} uses ahistorical MPMs to create the equivalent
+#' MPMs in the structure of historical MPMs. These MPMs have the same dimensions
+#' and stage structure of hMPMs but assume no influence of individual history,
+#' and so can be compared to actual hMPMs.
+#' 
+#' @param mpm An ahistorical MPM of class \code{lefkoMat}.
+#' @param format An integer stipulating whether historical matrices should be
+#' produced in Ehrlen format (\code{1}) or deVries format (\code{2}).
+#' 
+#' @return An object of class \code{lefkoMat}, with the same list structure as
+#' the input object, but with \code{A}, \code{U}, and \code{F} elements replaced
+#' with lists of historically-structured matrices, and with element
+#' \code{hstages} changed from \code{NA} to an index of stage pairs
+#' corresponding to the rows and columns of the new matrices.
+#' 
+#' @examples
+#' sizevector <- c(1, 1, 2, 3)
+#' stagevector <- c("Sdl", "Veg", "SmFlo", "LFlo")
+#' repvector <- c(0, 0, 1, 1)
+#' obsvector <- c(1, 1, 1, 1)
+#' matvector <- c(0, 1, 1, 1)
+#' immvector <- c(1, 0, 0, 0)
+#' propvector <- c(0, 0, 0, 0)
+#' indataset <- c(1, 1, 1, 1)
+#' binvec <- c(0.5, 0.5, 0.5, 0.5)
+#' 
+#' anthframe <- sf_create(sizes = sizevector, stagenames = stagevector,
+#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
+#'   immstatus = immvector, indataset = indataset, binhalfwidth = binvec,
+#'   propstatus = propvector)
+#' 
+#' # POPN C 2003-2004
+#' XC3 <- matrix(c(0, 0, 1.74, 1.74,
+#' 0.208333333, 0, 0, 0.057142857,
+#' 0.041666667, 0.076923077, 0, 0,
+#' 0.083333333, 0.076923077, 0.066666667, 0.028571429), 4, 4, byrow = TRUE)
+#' 
+#' # 2004-2005
+#' XC4 <- matrix(c(0, 0, 0.3, 0.6,
+#' 0.32183908, 0.142857143, 0, 0,
+#' 0.16091954, 0.285714286, 0, 0,
+#' 0.252873563, 0.285714286, 0.5, 0.6), 4, 4, byrow = TRUE)
+#' 
+#' mats_list <- list(XC3, XC4)
+#' yr_ord <- c(1, 2)
+#' pch_ord <- c(1, 1)
+#' 
+#' anth_lefkoMat <- create_lM(mats_list, anthframe, hstages = NA, historical = FALSE,
+#'   poporder = 1, patchorder = pch_ord, yearorder = yr_ord)
+#'   
+#' anth_lefkoMat
+#' 
+#' nullmodel1 <- hist_null(anth_lefkoMat, 1) # Ehrlen format
+#' nullmodel2 <- hist_null(anth_lefkoMat, 2) # deVries format
+#' 
+#' @export
+hist_null <- function(mpm, format = 1) {
+  if (!is.element("lefkoMat", class(mpm))) {
+    stop("Function hist_null requires an object of class lefkoMat as input.",
+      call. = FALSE)
+  }
+  if (!is.na(mpm$hstages)) {
+    stop("Input MPM must be ahistorical.", call. = FALSE)
+  }
+  if (!is.na(mpm$agestages)) {
+    stop("Input MPM must be ahistorical, and cannot be age-by-stage.", call. = FALSE)
+  }
+  
+  allstages <- .simplepizzle(mpm$ahstages, format)
+  
+  redone_mpms <- .thefifthhousemate(mpm, allstages$allstages, allstages$ahstages, format)
+  
+  if (is.element("dataqc", names(mpm)) & is.element("matrixqc", names(mpm))) {
+    new_mpm <- list(A = redone_mpms$A, U = redone_mpms$U, F = redone_mpms$F,
+      agestages = mpm$agestages, hstages = allstages$hstages,
+      ahstages = allstages$ahstages, labels = mpm$labels,
+      matrixqc = mpm$matrixqc, dataqc = mpm$dataqc)
+  } else if (is.element("matrixqc", names(mpm)) & is.element("modelqc", names(mpm))) {
+    new_mpm <- list(A = redone_mpms$A, U = redone_mpms$U, F = redone_mpms$F,
+      agestages = mpm$agestages, hstages = allstages$hstages,
+      ahstages = allstages$ahstages, labels = mpm$labels,
+      matrixqc = mpm$matrixqc, modelqc = mpm$modelqc)
+  } else if (is.element("matrixqc", names(mpm))) {
+    new_mpm <- list(A = redone_mpms$A, U = redone_mpms$U, F = redone_mpms$F,
+      agestages = mpm$agestages, hstages = allstages$hstages,
+      ahstages = allstages$ahstages, labels = mpm$labels, matrixqc = mpm$matrixqc)
+  } else {
+    new_mpm <- list(A = redone_mpms$A, U = redone_mpms$U, F = redone_mpms$F,
+      agestages = mpm$agestages, hstages = allstages$hstages,
+      ahstages = allstages$ahstages, labels = mpm$labels)
+  }
+  
+  return(new_mpm)
+}
+

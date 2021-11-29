@@ -10,6 +10,8 @@ CHANGES IN VERSION 4.1.0 (2021-11-XX)
        historicalize3().
     3. New options to prevent display of overdispersion and zero-inflation tests
        in sf_distrib().
+    4. Added hist_null() function to create historically-structured MPM to serve
+       as a null model MPM assuming no individual history.
     
   BUG FIXES
     1. Fixed incorrect time step calculation in summary.lefkoMat().
@@ -17,6 +19,8 @@ CHANGES IN VERSION 4.1.0 (2021-11-XX)
        found in sf_distrib().
     3. Fixed fatal issue affecting certain kinds of proxy transitions in
        function-based matrix estimation.
+    4. Fixed incorrect stage distribution calculation in stochastic
+       stablestage3() and projection3().
 
 
 CHANGES IN VERSION 4.0.1 (2021-11-15)

@@ -1880,11 +1880,8 @@ projection3 <- function(mpm, nreps = 1L, times = 10000L, stochastic = FALSE, sta
 #' 
 #' Function \code{slambda3()} estimates the stochastic population growth rate,
 #' \eqn{a}, defined as the long-term arithmetic mean of the log population 
-#' growth rate estimated per simulated occasion (as given in equation 2 in
-#' Tuljapurkar, Horvitz, and Pascarella 2003). This term is estimated via
-#' projection of randomly sampled matrices, similarly to the procedure outlined
-#' in Box 7.4 of Morris and Doak (2002). Can handle both lefkoMat objects and
-#' lists of full A matrices. 
+#' growth rate estimated per simulated occasion. This function can handle both
+#' lefkoMat objects and lists of full A matrices as input. 
 #' 
 #' @param mpm A matrix projection model of class \code{lefkoMat}, or a list of
 #' full matrix projection matrices.
@@ -1906,6 +1903,11 @@ projection3 <- function(mpm, nreps = 1L, times = 10000L, stochastic = FALSE, sta
 #' \item{se}{The standard error of a.}
 #'
 #' @section Notes:
+#' The log stochastic population growth rate, \eqn{a}, is as given in equation
+#' 2 of Tuljapurkar, Horvitz, and Pascarella 2003. This term is estimated via
+#' projection of randomly sampled matrices, similarly to the procedure outlined
+#' in Box 7.4 of Morris and Doak (2002).
+#'  
 #' Stochastic growth rate is estimated both at the patch level and at the
 #' population level. Population level estimates will be noted at the end of the
 #' data frame with 0 entries for patch designation.
