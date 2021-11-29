@@ -316,6 +316,31 @@
     .Call('_lefko3_density3', PACKAGE = 'lefko3', data, xcol, ycol, yearcol, spacing)
 }
 
+#' Create Element Index for Matrix Estimation
+#' 
+#' Function \code{.simplepizzle()} creates a data frame object used by function
+#' \code{\link{.hist_null}()} to provide an index for estimation of null
+#' historical matrices from ahistorical MPM inputs.
+#' 
+#' @param StageFrame The stageframe object identifying the life history model
+#' being operationalized.
+#' @param format Integer indicating whether historical matrices should be in
+#' (1) Ehrlen or (2) deVries format.
+#' 
+#' @return The output is composed of three elements:
+#' \item{ahstages}{A new stageframe, which only differs from the input
+#' stageframe in deVries format.}
+#' \item{hstages}{A new historical stage-pair index for the new historical
+#' matrices.}
+#' \item{allstages}{A large data frame describing every element to be estimated
+#' in the new historical matrices}.
+#' 
+#' @keywords internal
+#' @noRd
+.simplepizzle <- function(StageFrame, format) {
+    .Call('_lefko3_simplepizzle', PACKAGE = 'lefko3', StageFrame, format)
+}
+
 #' Core Engine for cond_hmpm()
 #' 
 #' Creates a list of conditional ahistorical matrices in the style noted in
@@ -759,6 +784,30 @@ cond_hmpm <- function(hmpm, matchoice = NULL, err_check = NULL) {
 #' @noRd
 .jerzeibalowski <- function(ppy, AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, svsigmas, maxsize, maxsizeb, maxsizec, finalage, sizedist, sizebdist, sizecdist, fecdist, negfec, exp_tol = 700.0, theta_tol = 100000000.0) {
     .Call('_lefko3_jerzeibalowski', PACKAGE = 'lefko3', ppy, AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, svsigmas, maxsize, maxsizeb, maxsizec, finalage, sizedist, sizebdist, sizecdist, fecdist, negfec, exp_tol, theta_tol)
+}
+
+#' Create Historically Structured Version of ahMPM
+#' 
+#' Function \code{thefifthhousemate()} takes an ahistorical MPM as input, and
+#' uses the \code{allstages} index to create a historically structured version
+#' of it.
+#' 
+#' @param mpm The original ahMPM, supplied as a \code{lefkoMat} object.
+#' @param allstages The index dataframe developed by
+#' \code{\link{.simplepizzle}()}.
+#' @param stageframe The ahistorical stageframe supplied by
+#' \code{\link{.simplepizzle}()}.
+#' @param format Integer indicating whether historical matrices should be in
+#' (1) Ehrlen or (2) deVries format.
+#' 
+#' @return This will return a list of lists. The first list is composed of all
+#' new \code{A} matrices. The second list is composed of all new \code{U}
+#' matrices. The third list is composed of all new \code{F} matrices.
+#' 
+#' @keywords internal
+#' @noRd
+.thefifthhousemate <- function(mpm, allstages, stageframe, format) {
+    .Call('_lefko3_thefifthhousemate', PACKAGE = 'lefko3', mpm, allstages, stageframe, format)
 }
 
 #' Main Formula Creation for Function \code{modelsearch()}

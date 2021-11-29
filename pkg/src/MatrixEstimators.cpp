@@ -3992,3 +3992,77 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
     _["F"] = fectransmat, _["out"] = out);
 }
 
+//' Create Historically Structured Version of ahMPM
+//' 
+//' Function \code{thefifthhousemate()} takes an ahistorical MPM as input, and
+//' uses the \code{allstages} index to create a historically structured version
+//' of it.
+//' 
+//' @param mpm The original ahMPM, supplied as a \code{lefkoMat} object.
+//' @param allstages The index dataframe developed by
+//' \code{\link{.simplepizzle}()}.
+//' @param stageframe The ahistorical stageframe supplied by
+//' \code{\link{.simplepizzle}()}.
+//' @param format Integer indicating whether historical matrices should be in
+//' (1) Ehrlen or (2) deVries format.
+//' 
+//' @return This will return a list of lists. The first list is composed of all
+//' new \code{A} matrices. The second list is composed of all new \code{U}
+//' matrices. The third list is composed of all new \code{F} matrices.
+//' 
+//' @keywords internal
+//' @noRd
+// [[Rcpp::export(.thefifthhousemate)]]
+Rcpp::List thefifthhousemate (List mpm, DataFrame allstages,
+  DataFrame stageframe, int format) {
+  Rcpp::List old_Umats = mpm["U"];
+  Rcpp::List old_Fmats = mpm["F"];
+  
+  Rcpp::IntegerVector stageid = stageframe["stage_id"];
+  int nostages = stageid.length();
+  int nocols = nostages * nostages;
+  
+  if (format == 2) nocols = (nostages -1) * nostages;
+  
+  Rcpp::IntegerVector old_index = allstages["index21"];
+  Rcpp::IntegerVector new_index = allstages["index321"];
+  
+  int num_mats = old_Umats.length();
+  int index_elems = new_index.length();
+  
+  Rcpp::List new_Umats(num_mats);
+  Rcpp::List new_Fmats(num_mats);
+  Rcpp::List new_Amats(num_mats);
+  
+  arma::mat new_U(nocols, nocols, fill::zeros);
+  arma::mat new_F(nocols, nocols, fill::zeros);
+  arma::mat new_A(nocols, nocols, fill::zeros);
+  arma::mat old_U(nostages, nostages, fill::zeros);
+  arma::mat old_F(nostages, nostages, fill::zeros);
+  
+  for (int i = 0; i < num_mats; i++) {
+    new_U.zeros();
+    new_F.zeros();
+    new_A.zeros();
+    old_U.zeros();
+    old_F.zeros();
+    
+    old_U = as<arma::mat>(old_Umats(i));
+    old_F = as<arma::mat>(old_Fmats(i));
+    
+    for (int j = 0; j < index_elems; j++) {
+      new_U(new_index(j)) = old_U(old_index(j));
+      new_F(new_index(j)) = old_F(old_index(j));
+    }
+    
+    new_A = new_U + new_F;
+    new_Umats(i) = new_U;
+    new_Fmats(i) = new_F;
+    new_Amats(i) = new_A;
+  }
+  
+  Rcpp::List output = List::create(Named("A") = new_Amats, _["U"] = new_Umats,
+    _["F"] = new_Fmats);
+  return output;
+}
+

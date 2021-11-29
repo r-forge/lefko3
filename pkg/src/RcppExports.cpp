@@ -172,6 +172,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// simplepizzle
+Rcpp::List simplepizzle(DataFrame StageFrame, int format);
+RcppExport SEXP _lefko3_simplepizzle(SEXP StageFrameSEXP, SEXP formatSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< DataFrame >::type StageFrame(StageFrameSEXP);
+    Rcpp::traits::input_parameter< int >::type format(formatSEXP);
+    rcpp_result_gen = Rcpp::wrap(simplepizzle(StageFrame, format));
+    return rcpp_result_gen;
+END_RCPP
+}
 // hoffmannofstuttgart
 List hoffmannofstuttgart(arma::mat mainmat, DataFrame indices, int ahstages, StringVector stagenames);
 RcppExport SEXP _lefko3_hoffmannofstuttgart(SEXP mainmatSEXP, SEXP indicesSEXP, SEXP ahstagesSEXP, SEXP stagenamesSEXP) {
@@ -411,6 +423,20 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type exp_tol(exp_tolSEXP);
     Rcpp::traits::input_parameter< double >::type theta_tol(theta_tolSEXP);
     rcpp_result_gen = Rcpp::wrap(jerzeibalowski(ppy, AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, svsigmas, maxsize, maxsizeb, maxsizec, finalage, sizedist, sizebdist, sizecdist, fecdist, negfec, exp_tol, theta_tol));
+    return rcpp_result_gen;
+END_RCPP
+}
+// thefifthhousemate
+Rcpp::List thefifthhousemate(List mpm, DataFrame allstages, DataFrame stageframe, int format);
+RcppExport SEXP _lefko3_thefifthhousemate(SEXP mpmSEXP, SEXP allstagesSEXP, SEXP stageframeSEXP, SEXP formatSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type mpm(mpmSEXP);
+    Rcpp::traits::input_parameter< DataFrame >::type allstages(allstagesSEXP);
+    Rcpp::traits::input_parameter< DataFrame >::type stageframe(stageframeSEXP);
+    Rcpp::traits::input_parameter< int >::type format(formatSEXP);
+    rcpp_result_gen = Rcpp::wrap(thefifthhousemate(mpm, allstages, stageframe, format));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -921,6 +947,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_lefko3_jpf", (DL_FUNC) &_lefko3_jpf, 52},
     {"_lefko3_theoldpizzle", (DL_FUNC) &_lefko3_theoldpizzle, 7},
     {"_lefko3_density3", (DL_FUNC) &_lefko3_density3, 5},
+    {"_lefko3_simplepizzle", (DL_FUNC) &_lefko3_simplepizzle, 2},
     {"_lefko3_hoffmannofstuttgart", (DL_FUNC) &_lefko3_hoffmannofstuttgart, 4},
     {"_lefko3_cond_hmpm", (DL_FUNC) &_lefko3_cond_hmpm, 3},
     {"_lefko3_specialpatrolgroup", (DL_FUNC) &_lefko3_specialpatrolgroup, 6},
@@ -934,6 +961,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_lefko3_zero_bootson", (DL_FUNC) &_lefko3_zero_bootson, 1},
     {"_lefko3_foi_index", (DL_FUNC) &_lefko3_foi_index, 13},
     {"_lefko3_jerzeibalowski", (DL_FUNC) &_lefko3_jerzeibalowski, 44},
+    {"_lefko3_thefifthhousemate", (DL_FUNC) &_lefko3_thefifthhousemate, 4},
     {"_lefko3_stovokor", (DL_FUNC) &_lefko3_stovokor, 34},
     {"_lefko3_concat_dbl", (DL_FUNC) &_lefko3_concat_dbl, 2},
     {"_lefko3_concat_int", (DL_FUNC) &_lefko3_concat_int, 2},
