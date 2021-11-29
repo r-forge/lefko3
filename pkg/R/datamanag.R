@@ -3949,6 +3949,8 @@ hist_null <- function(mpm, format = 1) {
       ahstages = allstages$ahstages, labels = mpm$labels)
   }
   
+  class(new_mpm) <- "lefkoMat"
+  
   return(new_mpm)
 }
 
