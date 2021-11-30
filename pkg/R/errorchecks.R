@@ -112,7 +112,7 @@
 #' @export
 summary.lefkoCondMat <- function(object, ...) {
   
-  histmatrices <- object$Acond
+  histmatrices <- object$Mcond
   condmatrices <- histmatrices[[1]]
   firstcondmat <- condmatrices[[1]]
   

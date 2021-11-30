@@ -21,6 +21,8 @@ CHANGES IN VERSION 4.1.0 (2021-11-XX)
        function-based matrix estimation.
     4. Fixed incorrect stage distribution calculation in stochastic
        stablestage3() and projection3().
+    5. Fixed fatal error in summary.lefkoProj() that occurred when summarizing
+       projections with single replicates.
 
 
 CHANGES IN VERSION 4.0.1 (2021-11-15)
