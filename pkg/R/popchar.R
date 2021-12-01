@@ -2116,3 +2116,193 @@ start_input <- function(mpm, stage2, stage1 = NA, age2 = NA, value = 1) {
   return(output_tab)
 }
 
+#' Calculate Actual Stage or Stage-Pair Distributions
+#' 
+#' Function \code{actualstage3()} shows the frequencies and proportions of
+#' each stage or stage pair in each year.
+#' 
+#' @param data A demographic dataset in hfv format.
+#' @param historical A logical value indicating whether the stage structure
+#' should be ahistorical (\code{FALSE}) or historical (\code{TRUE}). Defaults to
+#' \code{FALSE}.
+#' @param year2 A string value indicating the name of the variable coding for
+#' monitoring occasion at time \emph{t}.
+#' @param indices A vector of three strings, indicating the stage indices for
+#' times \emph{t}+1, \emph{t}, and \emph{t}-1, respectively, in \code{data}.
+#' Defaults to \code{c("stage3index", "stage2index", "stage1index")}.
+#' @param stagecol A vector of three strings, indicating the stage name columns
+#' for times \emph{t}+1, \emph{t}, and \emph{t}-1, respectively, in \code{data}.
+#' Defaults to \code{stagecol = c("stage3", "stage2", "stage1")}.
+#' 
+#' @return A data frame with five variables:
+#' \item{rowid}{A string identifier term, equal to the monitoring occasion in
+#' time \emph{t} and the stage index.}
+#' \item{stageindex}{The stageframe index of the stage.}
+#' \item{stage}{The name of each stage, or \code{NA}.}
+#' \item{year2}{Monitoring occasion in time \emph{t}.}
+#' \item{frequency}{The number of individuals in the respective stage and time.}
+#' \item{actual_prop}{The proportion of individuals alive in time \emph{t} in
+#' the respective stage.}
+#' 
+#' @section Notes:
+#' This function produces frequencies and proportions of stages in hfv formatted
+#' data using stage index variables rather than stage name variables, and so
+#' requires the former. The latter is only required if the user wants to know
+#' the associated stage names.
+#' 
+#' Frequencies and proportions will be calculated for all times, including the
+#' last time, which is generally found in the \code{stage3} columns of the last
+#' \code{year2} entry in object \code{data}. The default is to treat the
+#' \code{year2} entry for that time as \code{max(year2) + 1}.
+#' 
+#' Note that no stageframe is required for this function to operate. Stage
+#' names and their order are inferred directly from the object \code{data}.
+#' 
+#' @examples
+#' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 3, 6, 11, 19.5)
+#' stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
+#'   "XLg")
+#' repvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
+#' obsvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
+#' matvector <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
+#' immvector <- c(0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
+#' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+#' indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
+#' binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1.5, 1.5, 3.5, 5)
+#' comments <- c("Dormant seed", "1st yr protocorm", "2nd yr protocorm",
+#'   "3rd yr protocorm", "Seedling", "Dormant adult",
+#'   "Extra small adult (1 shoot)", "Small adult (2-4 shoots)",
+#'   "Medium adult (5-7 shoots)", "Large adult (8-14 shoots)",
+#'   "Extra large adult (>14 shoots)")
+#' cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector, 
+#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
+#'   propstatus = propvector, immstatus = immvector, indataset = indataset, 
+#'   binhalfwidth = binvec, comments = comments)
+#' 
+#' cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004, 
+#'   patchidcol = "patch", individcol = "plantid", blocksize = 4,
+#'   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04",
+#'   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
+#'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
+#'   NRasRep = TRUE)
+#' 
+#' all_stage_props <- actualstage3(cypraw_v1)
+#' all_stage_props
+#' 
+#' @export
+actualstage3 <- function(data, historical = FALSE, year2 = "year2",
+  indices = c("stage3index", "stage2index", "stage1index"),
+  stagecol = c("stage3", "stage2", "stage1")) {
+  
+  aaa.data <- ordered_stages <- ordered_indices <- NULL
+  stagenames <- FALSE
+  
+  if (length(indices) < 2) {
+    stop("Object indices must contain the names of 3 variables corresponding to stage index
+      in times t+1, t, and t-1, respectively", call. = FALSE)
+  }
+  if (!all(is.element(indices, names(data)))) {
+    stop("Object indices must contain the names of 3 variables corresponding to stage index
+      in times t+1, t, and t-1, respectively", call. = FALSE)
+  }
+  
+  if (all(is.element(stagecol, names(data)))) {
+    stagenames <- TRUE
+  }
+  
+  if (length(year2) != 1) {
+    stop("Object year2 must equal the name of the variable denoting monitoring occasion in time t",
+      call. = FALSE)
+  }
+  if (!is.element(year2, names(data))) {
+    stop("Object year2 must equal the name of the variable denoting monitoring occasion in time t",
+      call. = FALSE)
+  }
+  stage3index <- indices[1]
+  stage2index <- indices[2]
+  stage1index <- indices[3]
+  
+  names(data)[which(names(data) == stage3index)] <- "stage3index"
+  names(data)[which(names(data) == stage2index)] <- "stage2index"
+  names(data)[which(names(data) == stage1index)] <- "stage1index"
+  names(data)[which(names(data) == year2)] <- "year2"
+  
+  if (stagenames) {
+    stage3name <- stagecol[1]
+    stage2name <- stagecol[2]
+    stage1name <- stagecol[3]
+    names(data)[which(names(data) == stage3name)] <- "stage3"
+    names(data)[which(names(data) == stage2name)] <- "stage2"
+    names(data)[which(names(data) == stage1name)] <- "stage1"
+  }
+  
+  data <- data[, c("year2", "stage1", "stage2", "stage3", "stage1index", "stage2index", "stage3index")]
+  all_years <- sort(unique(data$year2), decreasing = TRUE)
+  bits_to_tack_on <- data[which(data$year2 == all_years[1]),]
+  bits_to_tack_on$stage1index <- bits_to_tack_on$stage2index
+  bits_to_tack_on$stage2index <- bits_to_tack_on$stage3index
+  bits_to_tack_on$stage1 <- bits_to_tack_on$stage2
+  bits_to_tack_on$stage2 <- bits_to_tack_on$stage3
+  bits_to_tack_on$year2 <- all_years[1] + 1
+  data <- rbind.data.frame(data, bits_to_tack_on)
+  
+  if (!historical) {
+    if (stagenames) {
+      data$stages <- data$stage2
+    }
+    data$stageindex <- data$stage2index
+    
+    aaa.data <- as.data.frame(xtabs(~ stage2index + year2, data), stringsAsFactors = FALSE)
+    names(aaa.data)[which(names(aaa.data) == "stage2index")] <- "stageindex"
+    
+    ordered_indices <- sort(unique(as.numeric(aaa.data$stageindex)))
+  } else {
+    data$stageindex <- apply(as.matrix(c(1:dim(data)[1])), 1, function(X) {
+      paste(data$stage1index[X], data$stage2index[X])
+    })
+    
+    if (stagenames) {
+      data$stages <- apply(as.matrix(c(1:dim(data)[1])), 1, function(X) {
+        paste(data$stage1[X], data$stage2[X])
+      })
+    }
+    
+    aaa.data <- as.data.frame(xtabs(~ stageindex + year2, data), stringsAsFactors = FALSE)
+    
+    ordered_indices <- sort(unique(aaa.data$stageindex))
+  }
+  
+  ordered_stages <- apply(as.matrix(ordered_indices), 1, function(X) {
+    acmecanning <- data$stages[which(data$stageindex == X)[1]]
+    if (length(acmecanning) < 1) {
+      acmecanning <- NA
+    }
+    return(acmecanning)
+  })
+  
+  totalr <- as.data.frame(xtabs(~ year2, data), stringsAsFactors = FALSE)
+  
+  aaa.data$actual_prop <- apply(as.matrix(c(1:dim(aaa.data)[1])), 1, function(X) {
+    a <- aaa.data$Freq[X] / totalr$Freq[which(totalr$year2 == aaa.data$year2[X])]
+    return(a)
+  })
+  
+  aaa.data$rowid <- apply(as.matrix(c(1:dim(aaa.data)[1])), 1, function(X) {
+    paste(aaa.data$year2[X], aaa.data$stageindex[X])
+  })
+  
+  if (stagenames) {
+    aaa.data$stage <- apply(as.matrix(aaa.data$stageindex), 1, function(X) {
+      return(ordered_stages[which(ordered_indices == X)])
+    })
+  } else {
+    aaa.data$stage <- NA
+  }
+  
+  aaa.data <- aaa.data[, c("rowid", "stageindex", "stage", "year2", "Freq",
+    "actual_prop")]
+  names(aaa.data)[which(names(aaa.data) == "Freq")] <- "frequency"
+  
+  return(aaa.data)
+}
+

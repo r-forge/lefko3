@@ -12,6 +12,13 @@ CHANGES IN VERSION 4.1.0 (2021-11-XX)
        in sf_distrib().
     4. Added hist_null() function to create historically-structured MPM to serve
        as a null model MPM assuming no individual history.
+    5. Created function diff_lM() that creates lefkoDiff objects, which are
+       MPM style objects that are actually matrix differences between
+       two lefkoMat objects with equivalent dimensions.
+    6. Added cond_diff() function to create conditional difference matrices
+       from supplied lefkoDiff objects.
+    7. Created actualstage3() function to calculate actual stage frequencies and
+       proportions from input hfv dataset.
     
   BUG FIXES
     1. Fixed incorrect time step calculation in summary.lefkoMat().

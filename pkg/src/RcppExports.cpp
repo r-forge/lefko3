@@ -211,6 +211,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cond_diff
+Rcpp::List cond_diff(List lDiff, int ref, Nullable<CharacterVector> matchoice, Nullable<LogicalVector> err_check);
+RcppExport SEXP _lefko3_cond_diff(SEXP lDiffSEXP, SEXP refSEXP, SEXP matchoiceSEXP, SEXP err_checkSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type lDiff(lDiffSEXP);
+    Rcpp::traits::input_parameter< int >::type ref(refSEXP);
+    Rcpp::traits::input_parameter< Nullable<CharacterVector> >::type matchoice(matchoiceSEXP);
+    Rcpp::traits::input_parameter< Nullable<LogicalVector> >::type err_check(err_checkSEXP);
+    rcpp_result_gen = Rcpp::wrap(cond_diff(lDiff, ref, matchoice, err_check));
+    return rcpp_result_gen;
+END_RCPP
+}
 // specialpatrolgroup
 List specialpatrolgroup(DataFrame sge9l, DataFrame sge3, DataFrame MainData, DataFrame StageFrame, int format, int err_switch);
 RcppExport SEXP _lefko3_specialpatrolgroup(SEXP sge9lSEXP, SEXP sge3SEXP, SEXP MainDataSEXP, SEXP StageFrameSEXP, SEXP formatSEXP, SEXP err_switchSEXP) {
@@ -950,6 +964,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_lefko3_simplepizzle", (DL_FUNC) &_lefko3_simplepizzle, 2},
     {"_lefko3_hoffmannofstuttgart", (DL_FUNC) &_lefko3_hoffmannofstuttgart, 4},
     {"_lefko3_cond_hmpm", (DL_FUNC) &_lefko3_cond_hmpm, 3},
+    {"_lefko3_cond_diff", (DL_FUNC) &_lefko3_cond_diff, 4},
     {"_lefko3_specialpatrolgroup", (DL_FUNC) &_lefko3_specialpatrolgroup, 6},
     {"_lefko3_normalpatrolgroup", (DL_FUNC) &_lefko3_normalpatrolgroup, 4},
     {"_lefko3_revelations", (DL_FUNC) &_lefko3_revelations, 14},
