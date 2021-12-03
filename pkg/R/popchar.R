@@ -730,6 +730,10 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
 #' @return This function produces text in the console giving the results of the
 #' tests of overdispersion and zero inflation. No specific object is returned.
 #' 
+#' @section Notes:
+#' This function will not test for overdispersion and zero inflation in
+#' non-integer variables.
+#' 
 #' @keywords internal
 #' @noRd
 .knightswhosaynee <- function(data_used, variable_vec, term_used, zi_state,
@@ -816,6 +820,14 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
     v_df <- summary(v_pmodel)$df.residual
     
     jvodchip <- stats::pchisq(v_disp * v_df, v_df, lower = FALSE)
+    
+    jvintcheck <- var3data%%1
+    if (length(which(jvintcheck != 0)) > 0) {
+      writeLines(paste0("Non-integer values detected, so will not test for overdispersion and zero-inflation in ",
+          full_term[term_used]))
+      show_var <- FALSE
+      zi_state <- FALSE
+    }
     
     if (show_var) {
       writeLines(paste0("Mean ", full_term[term_used]," is ", signif(jvmean, digits = 4)))

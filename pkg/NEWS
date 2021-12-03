@@ -19,7 +19,13 @@ CHANGES IN VERSION 4.1.0 (2021-11-XX)
        from supplied lefkoDiff objects.
     7. Created actualstage3() function to calculate actual stage frequencies and
        proportions from input hfv dataset.
+    8. Created create_pm() function to create a skeleton paramnames object for
+       users building vital rate models manually.
     
+  USER-VISIBLE CHANGES
+    1. Introduced an integer check in function sf_distrib() that stops tests on
+       non-integer variables.
+  
   BUG FIXES
     1. Fixed incorrect time step calculation in summary.lefkoMat().
     2. Fixed incorrect P values for zero-inflation when fewer than expected 0s
@@ -30,6 +36,9 @@ CHANGES IN VERSION 4.1.0 (2021-11-XX)
        stablestage3() and projection3().
     5. Fixed fatal error in summary.lefkoProj() that occurred when summarizing
        projections with single replicates.
+    6. Fixed fatal errors in flefko2(), flefko3(), aflefko2(), and
+       summary.lefkoMat() relating to the use of user-defined vital rate
+       functions.
 
 
 CHANGES IN VERSION 4.0.1 (2021-11-15)
