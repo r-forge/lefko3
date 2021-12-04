@@ -39,6 +39,8 @@ CHANGES IN VERSION 4.1.0 (2021-11-XX)
     6. Fixed fatal errors in flefko2(), flefko3(), aflefko2(), and
        summary.lefkoMat() relating to the use of user-defined vital rate
        functions.
+    7. Corrected incorrect assignment of stages in flefko3(), flefko2(), and
+       aflefko2() based on use of groups in supplement tables.
 
 
 CHANGES IN VERSION 4.0.1 (2021-11-15)
