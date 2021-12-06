@@ -1,7 +1,7 @@
 LEFKO3 NEWS
 -----------
 
-CHANGES IN VERSION 4.1.0 (2021-11-XX)
+CHANGES IN VERSION 4.1.0 (2021-12-06)
 -------------------------------------
   NEW FEATURES
     1. Included option to ignore observation status during stage assignment in
@@ -21,11 +21,12 @@ CHANGES IN VERSION 4.1.0 (2021-11-XX)
        proportions from input hfv dataset.
     8. Created create_pm() function to create a skeleton paramnames object for
        users building vital rate models manually.
-    
+
   USER-VISIBLE CHANGES
     1. Introduced an integer check in function sf_distrib() that stops tests on
        non-integer variables.
-  
+    2. All vignettes have been updated to the latest functions and results.
+
   BUG FIXES
     1. Fixed incorrect time step calculation in summary.lefkoMat().
     2. Fixed incorrect P values for zero-inflation when fewer than expected 0s
