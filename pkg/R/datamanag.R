@@ -1,5 +1,5 @@
 #' Create Historical Vertical Data Frame from Horizontal Data Frame
-#'
+#' 
 #' Function \code{verticalize3()} returns a vertically formatted demographic
 #' data frame organized to create historical projection matrices, given a
 #' horizontally formatted input data frame. It also handles stage assignments
@@ -1144,7 +1144,7 @@ verticalize3 <- function(data, noyears, firstyear = 1, popidcol = 0,
 #' vertically but ahistorically formatted data frame. This data frame is in
 #' standard \code{hfvdata} format and can be used in all functions in the
 #' package.
-#'
+#' 
 #' @param data The horizontal data file.
 #' @param popidcol A variable name or column number corresponding to the
 #' identity of the population for each individual.
@@ -1308,7 +1308,7 @@ verticalize3 <- function(data, noyears, firstyear = 1, popidcol = 0,
 #' Defaults to \code{TRUE}.
 #' @param quiet A logical variable indicating whether to silence warnings.
 #' Defaults to \code{FALSE}.
-#'
+#' 
 #' @return If all inputs are properly formatted, then this function will output
 #' a historical vertical data frame (class \code{hfvdata}), meaning that the
 #' output data frame will have three consecutive years of size and reproductive
@@ -3287,6 +3287,15 @@ add_lM <- function(lM, Amats = NA, Umats = NA, Fmats = NA, UFdecomp = FALSE,
   lM$U <- append(lM$U, Umats)
   lM$F <- append(lM$F, Fmats)
   
+  surv_additions <- sum(unlist(lapply(Umats, function(X) {
+    length(which(X > 0))
+  })))
+  fec_additions <- sum(unlist(lapply(Fmats, function(X) {
+    length(which(X > 0))
+  })))
+  
+  lM$matrixqc[1] <- lM$matrixqc[1] + surv_additions
+  lM$matrixqc[2] <- lM$matrixqc[2] + fec_additions
   lM$matrixqc[3] <- lM$matrixqc[3] + list_lengthA
   
   newlabels <- cbind.data.frame(pop = pop, patch = patch, year2 = year)
@@ -3306,8 +3315,8 @@ add_lM <- function(lM, Amats = NA, Umats = NA, Fmats = NA, UFdecomp = FALSE,
 #' \code{mat_num} is not given.
 #' @param patch The patch designation for matrices to remove. Only used if
 #' \code{mat_num} is not given.
-#' @param year The time *t* designation for matrices to remove. Only used if
-#' \code{mat_num} is not given.
+#' @param year The time \emph{t} designation for matrices to remove. Only used
+#' if \code{mat_num} is not given.
 #' 
 #' @return A \code{lefkoMat} object in which the matrices specified in \code{lM}
 #' have been removed. 
@@ -3566,6 +3575,15 @@ delete_lM <- function(lM, mat_num = NA, pop = NA, patch = NA, year = NA) {
   lM$U <- lM$U[-mat_num]
   lM$F <- lM$F[-mat_num]
   
+  surv_portions <- sum(unlist(lapply(lM$U, function(X) {
+    length(which(X > 0))
+  })))
+  fec_portions <- sum(unlist(lapply(lM$F, function(X) {
+    length(which(X > 0))
+  })))
+  
+  lM$matrixqc[1] <- surv_portions
+  lM$matrixqc[2] <- fec_portions
   lM$matrixqc[3] <- lM$matrixqc[3] - length(mat_num)
   
   lM$labels <- lM$labels[-mat_num,]
@@ -3847,6 +3865,15 @@ subset_lM <- function(lM, mat_num = NA, pop = NA, patch = NA, year = NA) {
   lM$U <- lM$U[mat_num]
   lM$F <- lM$F[mat_num]
   
+  surv_portions <- sum(unlist(lapply(lM$U, function(X) {
+    length(which(X > 0))
+  })))
+  fec_portions <- sum(unlist(lapply(lM$F, function(X) {
+    length(which(X > 0))
+  })))
+  
+  lM$matrixqc[1] <- surv_portions
+  lM$matrixqc[2] <- fec_portions
   lM$matrixqc[3] <- length(mat_num)
     
   lM$labels <- lM$labels[mat_num,]

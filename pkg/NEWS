@@ -1,6 +1,16 @@
 LEFKO3 NEWS
 -----------
 
+CHANGES IN VERSION 4.2.0 (2021-12-XX)
+-------------------------------------
+  USER-VISIBLE CHANGES
+    1. 
+
+  BUG FIXES
+    1. Matrix quality control summaries corrected when functions add_lM(),
+       delete_lM(), and subset_lM() are used.
+
+
 CHANGES IN VERSION 4.1.1 (2021-12-07)
 -------------------------------------
   BUG FIXES

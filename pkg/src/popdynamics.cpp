@@ -2329,7 +2329,7 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
     }
     
     if (labels.length() < 3) {
-      throw Rcpp::exception("Function 'projection3' requires annual matrices. This lefkoMat object appears to be a set of mean matrices, and lacks annual matrices.", false);
+      throw Rcpp::exception("This function generally takes annual matrices as input. This lefkoMat object appears to be a set of mean matrices, and may lack annual matrices.", false);
     }
     
     StringVector poporder = labels["pop"];
@@ -3361,7 +3361,7 @@ Rcpp::List stoch_senselas(List mpm, int times = 10000, int style = 1,
     }
     
     if (labels.length() < 3) {
-      Rf_warningcall(R_NilValue, "This function requires annual matrices as input. This lefkoMat object appears to be a set of mean matrices, and may lack annual matrices.");
+      Rf_warningcall(R_NilValue, "This function generally takes annual matrices as input. This lefkoMat object appears to be a set of mean matrices, and may lack annual matrices.");
     }
     
     StringVector poporder = labels["pop"];
