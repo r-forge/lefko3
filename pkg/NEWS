@@ -3,12 +3,21 @@ LEFKO3 NEWS
 
 CHANGES IN VERSION 4.2.0 (2021-12-XX)
 -------------------------------------
+  NEW FEATURES
+    1. Functions rleslie() and fleslie() created to estimate raw and 
+       function-based Leslie MPMs, respectively.
+
   USER-VISIBLE CHANGES
-    1. 
+    1. Functions rlefko2() and rlefko3() now provide warnings if individual
+       identity variable name or column number is not provided.
+    2. Function summary.lefkoMat() now provides appropriate descriptions of
+       data quality control sections with missing values.
 
   BUG FIXES
     1. Matrix quality control summaries corrected when functions add_lM(),
        delete_lM(), and subset_lM() are used.
+    2. Corrected errors in documentation regatding censoring variables used in
+       rlefko3() and rlefko2().
 
 
 CHANGES IN VERSION 4.1.1 (2021-12-07)

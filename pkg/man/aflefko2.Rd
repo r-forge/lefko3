@@ -310,7 +310,7 @@ will be age 0.}
 
 \item{continue}{A logical value designating whether to allow continued
 survival of individuals past the final age noted in the stageframe, using the 
-demographic characteristics of the final age.}
+demographic characteristics of the final age. Defaults to \code{TRUE}.}
 
 \item{randomseed}{A numeric value used as a seed to generate random estimates
 for missing occasion and patch coefficients, if either \code{year.as.random}
@@ -351,11 +351,11 @@ matrices output in R's \code{matrix} class.}
 \item{F}{A list of fecundity matrices sorted as in \code{A}. All matrices 
 output in R's \code{matrix} class.}
 \item{hstages}{A data frame matrix showing the pairing of ahistorical stages
-used to create historical stage pairs. Set to \code{NA} for ahistorical
-matrices.}
+used to create historical stage pairs. Set to \code{NA} for age-by-stage
+MPMs.}
 \item{agestages}{A data frame showing the stage number and stage name
 corresponding to \code{ahstages}, as well as the associated age, of each
-actual row in each age-by-stage matrix.}
+row in each age-by-stage matrix.}
 \item{ahstages}{A data frame detailing the characteristics of associated
 ahistorical stages, in the form of a modified stageframe that includes
 status as an entry stage through reproduction.}
@@ -381,8 +381,9 @@ patch and occasion time combinations corresponding to these matrices.
 }
 \section{Notes}{
 
-Unlike \code{\link{rlefko2}()} and \code{\link{rlefko3}()}, this function
-does not currently distinguish populations.
+Unlike \code{\link{rlefko2}()} \code{\link{rlefko3}()}, and
+\code{\link{rleslie}()}, this function does not currently distinguish
+populations.
 
 This function will yield incorrect estimates if the models utilized
 incorporate state in occasion \emph{t}-1. Only use models developed testing
@@ -424,11 +425,6 @@ characterizing a different vital rate. The product of each row yields an
 element in the associated \code{$U} matrix. The number and order of elements
 in each column of this matrix matches the associated matrix in column vector
 format. Use of this option is generally for the purposes of debugging code.
-
-Users may produce age-based (Leslie) MPMs using this function. In that case,
-stages must be defined as occurring serially within single ages in the
-\code{stageframe}, with the possible exception of the final stage (which
-sometimes involves a perpetual stasis transition)..
 }
 
 \examples{

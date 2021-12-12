@@ -435,11 +435,101 @@ List normalpatrolgroup(DataFrame sge3, DataFrame sge2, DataFrame MainData,
   return List::create(Named("A") = amatrix, _["U"] = tmatrix, _["F"] = fmatrix);
 }
 
+//' Estimate All Elements of Raw Ahistorical Population Projection Matrix
+//' 
+//' Function \code{.minorpatrolgroup()} swiftly calculates matrix transitions
+//' in raw Leslie MPMs, and is used internally in \code{\link{rleslie}()}.
+//' 
+//' @param MainData The demographic dataset modified internally to have needed
+//' variables for living status, reproduction status, and fecundity.
+//' @param StageFrame The full stageframe for the analysis.
+//' @param fectime An integer coding to estimate fecundity using time \emph{t}
+//' (\code{2}) or time \emph{t}+1 \code{(3)}.
+//' @param cont Should a self-loop transition be estimated for the final age.
+//' @param lastage An integer coding for the last age to use in matrix
+//' construction.
+//' 
+//' @return List of three matrices, including the survival-transition (U)
+//' matrix, the fecundity matrix (F), and the sum (A) matrix, with A first.
+//' 
+//' @keywords internal
+//' @noRd
+// [[Rcpp::export(.minorpatrolgroup)]]
+Rcpp::List minorpatrolgroup(DataFrame MainData, DataFrame StageFrame,
+  int fectime, bool cont, double fec_mod) {
+  
+  arma::ivec data_age = MainData["usedobsage"];
+  arma::vec data_alive2 = MainData["usedalive2"];
+  arma::vec data_alive3 = MainData["usedalive3"];
+  arma::vec data_usedfec = MainData["usedfec2"];
+  arma::vec data_usedfec3 = MainData["usedfec3"];
+  arma::vec data_usedrepst2 = MainData["usedrepst2"];
+  arma::vec data_usedrepst3 = MainData["usedrepst3"];
+
+  if (fectime == 3) {
+    data_usedfec = data_usedfec3;
+  }
+  
+  IntegerVector sf_minage = StageFrame["min_age"];
+  IntegerVector sf_maxage = StageFrame["max_age"];
+  IntegerVector sf_repstatus = StageFrame["repstatus"];
+  int noages = sf_minage.length();
+  
+  arma::vec probsrates0(noages, fill::zeros); // 1st vec = total indivs in t
+  arma::vec probsrates1(noages, fill::zeros); // 2nd vec = total indivs alive in t+1
+  arma::vec probsrates2(noages, fill::zeros); // 3rd vec = total fec
+  
+  arma::mat tmatrix(noages, noages, fill::zeros); // Main output U matrix
+  arma::mat fmatrix(noages, noages, fill::zeros); // Main output F matrix
+  
+  // This main loop counts individuals going through transitions and calculates
+  // survival and fecundity
+  arma::uvec data_allalive = find(data_alive2);
+  int survsum {0};
+  double fecsum {0};
+  
+  for (int i = 0; i < noages; i++) { 
+    
+    arma::uvec data_indices = find(data_age == sf_minage(i));
+    arma::uvec aget_alive = intersect(data_allalive, data_indices);
+    int num_aget_alive = aget_alive.n_elem;
+    
+    if (num_aget_alive > 0) {
+      for (int j = 0; j < num_aget_alive; j++) {
+        if (data_alive3(aget_alive(j)) > 0) survsum++;
+        fecsum = fecsum + data_usedfec(aget_alive(j));
+      }
+    }
+    
+    probsrates0(i) = num_aget_alive;
+    if (num_aget_alive > 0) {
+      probsrates1(i) = static_cast<double>(survsum) / static_cast<double>(num_aget_alive);
+      if (sf_repstatus(i) > 0) probsrates2(i) = fec_mod * fecsum / static_cast<double>(num_aget_alive);
+    } else {
+      probsrates1(i) = 0;
+      probsrates2(i) = 0;
+    }
+    
+    if (i < (noages - 1)) tmatrix(i+1, i) = probsrates1(i);
+    fmatrix(0, i) = probsrates2(i);
+    
+    survsum = 0;
+    fecsum = 0;
+  }
+  
+  tmatrix(find_nonfinite(tmatrix)).zeros();
+  fmatrix(find_nonfinite(fmatrix)).zeros();
+  
+  arma::mat amatrix = tmatrix + fmatrix; // Create the A matrix
+  
+  return List::create(Named("A") = amatrix, _["U"] = tmatrix, _["F"] = fmatrix);
+}
+
 //' Creates Matrices of Year and Patch Terms in Models
 //' 
 //' Function \code{.revelations()} creates a matrix holding either the year or
 //' patch coefficients from all vital rate models. This reduces memory load in
-//' function \code{\link{.jerzeibalowski}()}, which may be important in some
+//' functions \code{\link{.jerzeibalowski}()}, which may be important in some
 //' systems or compilers.
 //' 
 //' @param survproxy The proxy vital rate model covering survival from the main
@@ -586,9 +676,10 @@ arma::mat revelations(List survproxy, List obsproxy, List sizeproxy,
 
 //' Creates a Summation of Most Terms Needed in Vital Rate Calculation
 //' 
-//' Function \code{.rimeotam()} provides the majority of the work in creating the
-//' linear model sum to be used in vital rate estimation in the MPM. Works
-//' specifically with function \code{\link{jerzeibalowski}()}.
+//' Function \code{.rimeotam()} provides the majority of the work in creating
+//' the linear model sum to be used in vital rate estimation in the MPM. Works
+//' specifically with functions \code{\link{.jerzeibalowski}()} and
+//' \code{\link{.motherbalowski}()}.
 //' 
 //' @param maincoefs The coefficients portion of the vital rate model proxy.
 //' @param fl1_i Reproductive status in time *t*-1.
@@ -706,7 +797,7 @@ double rimeotam(arma::vec maincoefs, double fl1_i, double fl2n_i, double sz1_i,
 //' Counts Numbers of Elements in Each Random Individual Covariate Portion of
 //' Model
 //' 
-//' Function \code{.foi_counter} counts the number of elements in each random
+//' Function \code{.foi_counter()} counts the number of elements in each random
 //' individual covariate and returns that as a vector.
 //' 
 //' @param modelproxy A list holding the contents of a model processed with
@@ -777,7 +868,7 @@ arma::ivec foi_counter(List modelproxy, bool zi) {
 
 //' Create Vector of Random Individual Covariate Terms
 //' 
-//' Function \code{.flightoficarus()} creates vectorss of random covariate
+//' Function \code{.flightoficarus()} creates vectors of random covariate
 //' terms.
 //' 
 //' @param modelproxy A model proxy list extracted with function
@@ -1058,8 +1149,8 @@ StringVector zero_bootson(List modelproxy) {
 
 //' Create Index of Element Numbers for Random Individual Covariate Terms
 //' 
-//' Function \code{.foi_index} creates a matrix indexing the end points of each
-//' random individual covariate in the utilized vectors.
+//' Function \code{.foi_index()} creates a matrix indexing the end points of
+//' each random individual covariate in the utilized vectors.
 //' 
 //' @param surv_proxy Adult survival model proxy.
 //' @param obs_proxy Adult observation status model proxy.
@@ -1075,10 +1166,10 @@ StringVector zero_bootson(List modelproxy) {
 //' @param jsizec_proxy Juvenile tertiary size model proxy.
 //' @param jrepst_proxy Juvenile reproductive status model proxy.
 //' 
-//' @return An integer matrix with 6 rows and 20 columns. The columns
-//' contain the number of elements in each random individual covariate term,
-//' with the row order being: 1) cov a t2, 2) cov a t1, 3) cov b t2,
-//' 4) cov b t1, 5) cov c t2, cov c t1.
+//' @return An integer matrix with 6 rows and 20 columns. The columns contain
+//' the number of elements in each random individual covariate term, with the
+//' row order being: 1) cov a t2, 2) cov a t1, 3) cov b t2, 4) cov b t1,
+//' 5) cov c t2, and 6) cov c t1.
 //' 
 //' @keywords internal
 //' @noRd
@@ -1166,15 +1257,42 @@ arma::imat foi_index(List surv_proxy, List obs_proxy, List size_proxy,
 //' @param jsizeproxy List of coefficients estimated in model of juvenile size.
 //' @param jrepstproxy List of coefficients estimated in model of juvenile
 //' reproductive status.
-//' @param inda A numeric vector of length equal to the number of years, holding
-//' values equal to the mean value of individual covariate \code{a} at each time
-//' to be used in analysis.
-//' @param indb A numeric vector of length equal to the number of years, holding
-//' values equal to the mean value of individual covariate \code{b} at each time
-//' to be used in analysis.
-//' @param indc A numeric vector of length equal to the number of years, holding
-//' values equal to the mean value of individual covariate \code{c} at each time
-//' to be used in analysis.
+//' @param f2_inda A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of individual covariate \code{a} at
+//' each time \emph{t} to be used in analysis.
+//' @param f1_inda A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of individual covariate \code{a} at
+//' each time \emph{t}-1 to be used in analysis.
+//' @param f2_indb A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of individual covariate \code{b} at
+//' each time \emph{t} to be used in analysis.
+//' @param f1_indb A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of individual covariate \code{b} at
+//' each time \emph{t}-1 to be used in analysis.
+//' @param f2_indc A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of individual covariate \code{c} at
+//' each time \emph{t} to be used in analysis.
+//' @param f1_indc A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of individual covariate \code{c} at
+//' each time \emph{t}-1 to be used in analysis.
+//' @param r2_inda A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of individual random covariate
+//' \code{a} at each time \emph{t} to be used in analysis.
+//' @param r1_inda A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of individual random covariate
+//' \code{a} at each time \emph{t}-1 to be used in analysis.
+//' @param r2_indb A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of individual random covariate
+//' \code{b} at each time \emph{t} to be used in analysis.
+//' @param r1_indb A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of individual random covariate
+//' \code{b} at each time \emph{t}-1 to be used in analysis.
+//' @param r2_indc A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of individual random covariate
+//' \code{c} at each time \emph{t} to be used in analysis.
+//' @param r1_indc A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of individual random covariate
+//' \code{c} at each time \emph{t}-1 to be used in analysis.
 //' @param dev_terms A numeric vector containing the deviations to the linear
 //' models input by the user. The order is: survival, observation status, size,
 //' size_b, size_c, reproductive status, fecundity, juvenile survival, juvenile
@@ -1188,19 +1306,26 @@ arma::imat foi_index(List surv_proxy, List obs_proxy, List size_proxy,
 //' jsummedvarsc, and jsigmac. Summedvar terms are summed variance-covariance
 //' terms in Poisson and negative binomial size distributions, and sigma terms
 //' are standard deviations in the Gaussian size distribution.
-//' @param maxsize The maximum size to be used in element estimation.
+//' @param maxsize The maximum primary size to be used in element estimation.
+//' @param maxsizeb The maximum secondary size to be used in element estimation.
+//' @param maxsizec The maximum tertiary size to be used in element estimation.
 //' @param finalage The final age to be included in age-by-stage MPM estimation.
-//' @param sizedist Designates whether size is Gaussian (2), Poisson (0), or
-//' negative binomial (1) distributed.
-//' @param fecdist Designates whether fecundity is Gaussian (2), Poisson (0), or
-//' negative binomial (1) distributed.
-//' @param negfec Logical value denoting whether to change negative estimated
+//' @param sizedist Designates whether primary size is Gamma (3), Gaussian (2),
+//' Poisson (0), or negative binomial (1) distributed.
+//' @param sizebdist Designates whether secondary size is Gamma (3),
+//' Gaussian (2), Poisson (0), or negative binomial (1) distributed.
+//' @param sizecdist Designates whether tertiary size is Gamma (3),
+//' Gaussian (2), Poisson (0), or negative binomial (1) distributed.
+//' @param fecdist Designates whether fecundity is Gamma (3), Gaussian (2),
+//' Poisson (0), or negative binomial (1) distributed.
+//' @param negfec A logical value denoting whether to change negative estimated
 //' fecundity to 0.
-//' @param exp_tol A numeric value indicating the maximum limit for the exp()
-//' function to be used in vital rate calculations. Defaults to \code{700.0}.
+//' @param exp_tol A numeric value indicating the maximum limit for the
+//' \code{exp()} function to be used in vital rate calculations. Defaults to
+//' \code{700.0}.
 //' @param theta_tol A numeric value indicating a maximum value for theta in
-//' negative binomial probability density estimation.
-//' Defaults to \code{100000000}.
+//' negative binomial probability density estimation. Defaults to
+//' \code{100000000.0}.
 //' 
 //' @return A list of 3 matrices, including the main MPM (A), the survival-
 //' transition matrix (U), and a fecundity matrix (F). With tweaking, can also
@@ -3994,7 +4119,7 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
 
 //' Create Historically Structured Version of ahMPM
 //' 
-//' Function \code{thefifthhousemate()} takes an ahistorical MPM as input, and
+//' Function \code{.thefifthhousemate()} takes an ahistorical MPM as input, and
 //' uses the \code{allstages} index to create a historically structured version
 //' of it.
 //' 
@@ -4064,5 +4189,541 @@ Rcpp::List thefifthhousemate (List mpm, DataFrame allstages,
   Rcpp::List output = List::create(Named("A") = new_Amats, _["U"] = new_Umats,
     _["F"] = new_Fmats);
   return output;
+}
+
+//' Creates Matrices of Year and Patch Terms in Leslie Models
+//' 
+//' Function \code{.revelations_leslie()} creates a matrix holding either the
+//' year or patch coefficients from Leslie vital rate models. This reduces
+//' memory load in function \code{\link{.motherbalowski}()}.
+//' 
+//' @param survproxy The proxy vital rate model covering survival from the main
+//' matrix estimator function.
+//' @param fecproxy The proxy vital rate model covering fecundity from the main
+//' matrix estimator function.
+//' 
+//' @return A matrix with 2 columns corresponding to the number of vital rates
+//' and number of columns equal to the number of year or patches.
+//' 
+//' @keywords internal
+//' @noRd
+// [[Rcpp::export(.revelations_leslie)]]
+arma::mat revelations_leslie(List survproxy, List fecproxy, int mat_switch) {
+  
+  arma::mat final_mat;
+  
+  if (mat_switch == 1) {
+    Rcpp::DataFrame survyear_df(survproxy["years"]);
+    Rcpp::DataFrame fecyear_df(fecproxy["years"]);
+
+    arma::vec survyear = survyear_df[0];
+    arma::vec fecyear = fecyear_df[0];
+
+    int matrows = survyear.n_elem;
+    
+    arma::mat year_mat(matrows, 2, fill::zeros);
+    year_mat.col(0) = survyear;
+    year_mat.col(1) = fecyear;
+    
+    final_mat = year_mat;
+    
+  } else if (mat_switch == 2) {
+    
+    Rcpp::DataFrame survpatch_df(survproxy["patches"]);
+    Rcpp::DataFrame fecpatch_df(fecproxy["patches"]);
+
+    arma::vec survpatch = survpatch_df[0];
+    arma::vec fecpatch = fecpatch_df[0];
+
+    int matrows = survpatch.n_elem;
+    
+    arma::mat patch_mat(matrows, 2, fill::zeros);
+    patch_mat.col(0) = survpatch;
+    patch_mat.col(1) = fecpatch;
+
+    final_mat = patch_mat;
+  }
+  
+  return final_mat;
+}
+
+//' Create Index of Element Numbers for Random Individual Covariate Terms in
+//' Leslie Models
+//' 
+//' Function \code{.foi_index_leslie()} creates a matrix indexing the end points
+//' of each random individual covariate in the utilized vectors. Used in
+//' function \code{\link{.motherbalowski}()}.
+//' 
+//' @param surv_proxy Adult survival model proxy.
+//' @param fec_proxy Adult fecundity model proxy.
+//' 
+//' @return An integer matrix with 6 rows and 3 columns. The columns contain the
+//' number of elements in each random individual covariate term, with the row
+//' order being: 1) cov a t2, 2) cov a t1, 3) cov b t2, 4) cov b t1,
+//' 5) cov c t2, and 6) cov c t1.
+//' 
+//' @keywords internal
+//' @noRd
+// [[Rcpp::export(.foi_index_leslie)]]
+arma::imat foi_index_leslie(List surv_proxy, List fec_proxy) {
+  
+  arma::ivec surv_fc = foi_counter(surv_proxy, false);
+  arma::ivec fec_fc = foi_counter(fec_proxy, false);
+  arma::ivec fec_fc_zi = foi_counter(fec_proxy, true);
+  
+  arma::imat final_mat(6, 3, fill::zeros);
+  
+  for (int i = 0; i < 6; i++) {
+    final_mat(i, 0) = surv_fc(i);
+    final_mat(i, 1) = fec_fc(i);
+    final_mat(i, 2) = fec_fc_zi(i);
+  }
+  
+  return final_mat;
+}
+
+//' Estimate All Elements of Function-based Population Projection Matrix
+//' 
+//' Function \code{.motherbalowski()} swiftly calculates matrix elements in
+//' function-based Leslie population projection matrices. Used in
+//' \code{\link{fleslie}()}.
+//' 
+//' @param ppy A data frame with one row, showing the population, patch, and
+//' year.
+//' @param ageframe The modified stageframe used in matrix calculations.
+//' @param survproxy List of coefficients estimated in model of survival.
+//' @param fecproxy List of coefficients estimated in model of fecundity.
+//' @param f2_inda A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of individual covariate \code{a} at
+//' each time \emph{t} to be used in analysis.
+//' @param f1_inda A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of individual covariate \code{a} at
+//' each time \emph{t}-1 to be used in analysis.
+//' @param f2_indb A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of individual covariate \code{b} at
+//' each time \emph{t} to be used in analysis.
+//' @param f1_indb A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of individual covariate \code{b} at
+//' each time \emph{t}-1 to be used in analysis.
+//' @param f2_indc A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of individual covariate \code{c} at
+//' each time \emph{t} to be used in analysis.
+//' @param f1_indc A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of individual covariate \code{c} at
+//' each time \emph{t}-1 to be used in analysis.
+//' @param r2_inda A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of individual random covariate
+//' \code{a} at each time \emph{t} to be used in analysis.
+//' @param r1_inda A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of individual random covariate
+//' \code{a} at each time \emph{t}-1 to be used in analysis.
+//' @param r2_indb A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of individual random covariate
+//' \code{b} at each time \emph{t} to be used in analysis.
+//' @param r1_indb A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of individual random covariate
+//' \code{b} at each time \emph{t}-1 to be used in analysis.
+//' @param r2_indc A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of individual random covariate
+//' \code{c} at each time \emph{t} to be used in analysis.
+//' @param r1_indc A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of individual random covariate
+//' \code{c} at each time \emph{t}-1 to be used in analysis.
+//' @param surv_dev A numeric value indicating the deviation to the linear
+//' model of survival input by the user.
+//' @param fec_dev A numeric value indicating the deviation to the linear
+//' model of fecundity input by the user.
+//' @param dens A numeric value equal to the density to be used in calculations.
+//' @param fecmod A scalar multiplier for fecundity.
+//' @param finalage The final age to be included in Leslie MPM estimation.
+//' @param fecdist Designates whether fecundity is Gamma (3), Gaussian (2),
+//' Poisson (0), or negative binomial (1) distributed.
+//' @param negfec A logical value denoting whether to change negative estimated
+//' fecundity to 0.
+//' @param exp_tol A numeric value indicating the maximum limit for the
+//' \code{exp()} function to be used in vital rate calculations. Defaults to
+//' \code{700.0}.
+//' @param theta_tol A numeric value indicating a maximum value for theta in
+//' negative binomial probability density estimation. Defaults to
+//' \code{100000000.0}.
+//' 
+//' @return A list of 3 matrices, including the main MPM (A), the survival-
+//' transition matrix (U), and a fecundity matrix (F).
+//' 
+//' @keywords internal
+//' @noRd
+// [[Rcpp::export(.motherbalowski)]]
+List motherbalowski(DataFrame ppy, DataFrame ageframe, List survproxy,
+  List fecproxy, NumericVector f2_inda, NumericVector f1_inda,
+  NumericVector f2_indb, NumericVector f1_indb, NumericVector f2_indc,
+  NumericVector f1_indc, StringVector r2_inda, StringVector r1_inda,
+  StringVector r2_indb, StringVector r1_indb, StringVector r2_indc,
+  StringVector r1_indc, double surv_dev, double fec_dev, double dens,
+  double fecmod, unsigned int finalage, int fecdist, bool negfec,
+  double exp_tol = 700.0, double theta_tol = 100000000.0) {
+  
+  // Determines the size of the matrix
+  StringVector sf_agenames = ageframe["stage"];
+  IntegerVector sf_minage = ageframe["min_age"];
+  IntegerVector sf_maxage = ageframe["max_age"];
+  IntegerVector sf_repstatus = ageframe["repstatus"];
+  int noages = sf_minage.length();
+  
+  bool cont = false;
+  if (sf_maxage(noages - 1) == NA_INTEGER) {
+    cont = true;
+  }
+  
+  // Proxy model imports and settings
+  bool feczero = false;
+
+  arma::vec survcoefs = survproxy["coefficients"];
+  arma::vec feccoefs = fecproxy["coefficients"];
+
+  int survl = survcoefs.n_elem;
+  int fecl = feccoefs.n_elem;
+
+  double fecsigma = fecproxy["sigma"];
+
+  if (NumericVector::is_na(fecsigma)) {
+    if (fecdist == 1) {
+      fecsigma = 1.0;
+    } else {
+      fecsigma = 0.0;
+    }
+  }
+
+  arma::mat vital_year = revelations_leslie(survproxy, fecproxy, 1);
+  arma::mat vital_patch = revelations_leslie(survproxy, fecproxy, 2);
+  
+  Rcpp::DataFrame fecyearzi_df(fecproxy["zeroyear"]);
+  Rcpp::DataFrame fecpatchzi_df(fecproxy["zeropatch"]);
+  Rcpp::DataFrame survgroups2_df(survproxy["groups2"]);
+  Rcpp::DataFrame fecgroups2_df(fecproxy["groups2"]);
+  Rcpp::DataFrame survgroups1_df(survproxy["groups1"]);
+  Rcpp::DataFrame fecgroups1_df(fecproxy["groups1"]);
+  Rcpp::DataFrame fecgroups2zi_df(fecproxy["zerogroups2"]);
+  Rcpp::DataFrame fecgroups1zi_df(fecproxy["zerogroups1"]);
+  
+  arma::vec fecyearzi = fecyearzi_df[0];
+  arma::vec fecpatchzi = fecpatchzi_df[0];
+  arma::vec survgroups2 = survgroups2_df[0];
+  arma::vec fecgroups2 = fecgroups2_df[0];
+  arma::vec survgroups1 = survgroups1_df[0];
+  arma::vec fecgroups1 = fecgroups1_df[0];
+  arma::vec fecgroups2zi = fecgroups2zi_df[0];
+  arma::vec fecgroups1zi = fecgroups1zi_df[0];
+  
+  if (fecyearzi.n_elem > 1 || fecyearzi(0) != 0) feczero = true;
+  
+  arma::vec survind = flightoficarus(survproxy);
+  arma::vec fecind = flightoficarus(fecproxy);
+  arma::vec fecindzi = zero_flightoficarus(fecproxy);
+  
+  arma::imat rand_index = foi_index_leslie(survproxy, fecproxy);
+  
+  StringVector survind_rownames = bootson(survproxy);
+  StringVector fecind_rownames = bootson(fecproxy);
+  StringVector fecind_rownames_zi = zero_bootson(fecproxy);
+  
+  // listofyears import and settings
+  arma::uvec years = ppy["yearorder"];
+  int yearnumber = years(0) - 1;
+  
+  arma::uvec patches = ppy["patchorder"];
+  int patchnumber = patches(0) - 1;
+  
+  // Determination of choices of fixed and random individual covariates
+  double inda1 = f1_inda(yearnumber);
+  double indb1 = f1_indb(yearnumber);
+  double indc1 = f1_indc(yearnumber);
+  double inda2 = f2_inda(yearnumber);
+  double indb2 = f2_indb(yearnumber);
+  double indc2 = f2_indc(yearnumber);
+  
+  String chosen_r2inda = r2_inda(yearnumber);
+  String chosen_r1inda = r1_inda(yearnumber);
+  String chosen_r2indb = r2_indb(yearnumber);
+  String chosen_r1indb = r1_indb(yearnumber);
+  String chosen_r2indc = r2_indc(yearnumber);
+  String chosen_r1indc = r1_indc(yearnumber);
+  
+  // The output matrices
+  arma::mat survtransmat(noages, noages, fill::zeros);
+  arma::mat fectransmat(noages, noages, fill::zeros);
+  
+  // The following loop runs through each age, and so runs through
+  // each estimable element in the matrix
+  for(int i = 0; i < noages; i++) {
+    // Adult survival transitions
+    
+    double preout {0.0};
+    
+    if (survl > 1) {
+      
+      double chosen_randcova2 {0.0};
+      if (chosen_r2inda != "none") {
+        for (int indcount = 0; indcount < rand_index(0, 0); indcount++) {
+          if (chosen_r2inda == survind_rownames(indcount)) {
+            chosen_randcova2 = survind(indcount);
+          }
+        }
+      }
+      double chosen_randcova1 {0.0};
+      if (chosen_r1inda != "none") {
+        int delectable_sum = rand_index(0, 0);
+        for (int indcount = 0; indcount < rand_index(1, 0); indcount++) {
+          if (chosen_r1inda == survind_rownames(indcount + delectable_sum)) {
+            chosen_randcova1 = survind(indcount + delectable_sum);
+          }
+        }
+      }
+      double chosen_randcovb2 {0.0};
+      if (chosen_r2indb != "none") {
+        int delectable_sum = rand_index(0, 0) + rand_index(1, 0);
+        for (int indcount = 0; indcount < rand_index(2, 0); indcount++) {
+          if (chosen_r2indb == survind_rownames(indcount + delectable_sum)) {
+            chosen_randcovb2 = survind(indcount + delectable_sum);
+          }
+        }
+      }
+      double chosen_randcovb1 {0.0};
+      if (chosen_r1indb != "none") {
+        int delectable_sum = rand_index(0, 0) + rand_index(1, 0) + rand_index(2, 0);
+        for (int indcount = 0; indcount < rand_index(3, 0); indcount++) {
+          if (chosen_r1indb == survind_rownames(indcount + delectable_sum)) {
+            chosen_randcovb1 = survind(indcount + delectable_sum);
+          }
+        }
+      }
+      double chosen_randcovc2 {0.0};
+      if (chosen_r2indc != "none") {
+        int delectable_sum = rand_index(0, 0) + rand_index(1, 0) + rand_index(2, 0) +
+          rand_index(3, 0);
+        for (int indcount = 0; indcount < rand_index(4, 0); indcount++) {
+          if (chosen_r2indc == survind_rownames(indcount + delectable_sum)) {
+            chosen_randcovc2 = survind(indcount + delectable_sum);
+          }
+        }
+      }
+      double chosen_randcovc1 {0.0};
+      if (chosen_r1indc != "none") {
+        int delectable_sum = rand_index(0, 0) + rand_index(1, 0) + rand_index(2, 0) +
+          rand_index(3, 0) + rand_index(4, 0);
+        for (int indcount = 0; indcount < rand_index(5, 0); indcount++) {
+          if (chosen_r1indc == survind_rownames(indcount + delectable_sum)) {
+            chosen_randcovc1 = survind(indcount + delectable_sum);
+          }
+        }
+      }
+      
+      double mainsum = rimeotam(survcoefs, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, static_cast<char>(i), inda1, inda2, indb1, indb2, indc1, indc2,
+        dens, false);
+      
+      preout = (mainsum + chosen_randcova2 + chosen_randcova1 +
+        chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
+        chosen_randcovc1 + survgroups2(0) + survgroups1(0) + 
+        vital_patch(patchnumber, 0) + vital_year(yearnumber, 0) + surv_dev);
+
+      if (preout > exp_tol) preout = exp_tol; // This catches numbers too high to be dealt with properly
+      if (i < (noages - 1)) {
+        survtransmat(i+1, i) = exp(preout) / (1.0 + exp(preout));
+      } else {
+        if (cont) {
+          survtransmat(i, i) = exp(preout) / (1.0 + exp(preout));
+        }
+      }
+    } else {
+      if (i < (noages - 1)) {
+        survtransmat(i+1, i) = survcoefs(0);
+      } else {
+        survtransmat(i, i) = survcoefs(0);
+      }
+    }
+    
+    // This next block calculates fecundity
+    if (fecl > 0) {
+      if (sf_repstatus(i) == 1) {
+        
+        double chosen_randcova2 {0.0};
+        if (chosen_r2inda != "none") {
+          for (int indcount = 0; indcount < rand_index(0, 6); indcount++) {
+            if (chosen_r2inda == fecind_rownames(indcount)) {
+              chosen_randcova2 = fecind(indcount);
+            }
+          }
+        }
+        double chosen_randcova1 {0.0};
+        if (chosen_r1inda != "none") {
+          int delectable_sum = rand_index(0, 6);
+          for (int indcount = 0; indcount < rand_index(1, 6); indcount++) {
+            if (chosen_r1inda == fecind_rownames(indcount + delectable_sum)) {
+              chosen_randcova1 = fecind(indcount + delectable_sum);
+            }
+          }
+        }
+        double chosen_randcovb2 {0.0};
+        if (chosen_r2indb != "none") {
+          int delectable_sum = rand_index(0, 6) + rand_index(1, 6);
+          for (int indcount = 0; indcount < rand_index(2, 6); indcount++) {
+            if (chosen_r2indb == fecind_rownames(indcount + delectable_sum)) {
+              chosen_randcovb2 = fecind(indcount + delectable_sum);
+            }
+          }
+        }
+        double chosen_randcovb1 {0.0};
+        if (chosen_r1indb != "none") {
+          int delectable_sum = rand_index(0, 6) + rand_index(1, 6) + rand_index(2, 6);
+          for (int indcount = 0; indcount < rand_index(3, 6); indcount++) {
+            if (chosen_r1indb == fecind_rownames(indcount + delectable_sum)) {
+              chosen_randcovb1 = fecind(indcount + delectable_sum);
+            }
+          }
+        }
+        double chosen_randcovc2 {0.0};
+        if (chosen_r2indc != "none") {
+          int delectable_sum = rand_index(0, 6) + rand_index(1, 6) + rand_index(2, 6) +
+            rand_index(3, 6);
+          for (int indcount = 0; indcount < rand_index(4, 6); indcount++) {
+            if (chosen_r2indc == fecind_rownames(indcount + delectable_sum)) {
+              chosen_randcovc2 = fecind(indcount + delectable_sum);
+            }
+          }
+        }
+        double chosen_randcovc1 {0.0};
+        if (chosen_r1indc != "none") {
+          int delectable_sum = rand_index(0, 6) + rand_index(1, 6) + rand_index(2, 6) +
+            rand_index(3, 6) + rand_index(4, 6);
+          for (int indcount = 0; indcount < rand_index(5, 6); indcount++) {
+            if (chosen_r1indc == fecind_rownames(indcount + delectable_sum)) {
+              chosen_randcovc1 = fecind(indcount + delectable_sum);
+            }
+          }
+        }
+        double chosen_randcova2zi {0.0};
+        if (chosen_r2inda != "none") {
+          for (int indcount = 0; indcount < rand_index(0, 16); indcount++) {
+            if (chosen_r2inda == fecind_rownames_zi(indcount)) {
+              chosen_randcova2zi = fecindzi(indcount);
+            }
+          }
+        }
+        double chosen_randcova1zi {0.0};
+        if (chosen_r1inda != "none") {
+          int delectable_sum = rand_index(0, 16);
+          for (int indcount = 0; indcount < rand_index(1, 16); indcount++) {
+            if (chosen_r1inda == fecind_rownames_zi(indcount + delectable_sum)) {
+              chosen_randcova1zi = fecindzi(indcount + delectable_sum);
+            }
+          }
+        }
+        double chosen_randcovb2zi {0.0};
+        if (chosen_r2indb != "none") {
+          int delectable_sum = rand_index(0, 16) + rand_index(1, 16);
+          for (int indcount = 0; indcount < rand_index(2, 16); indcount++) {
+            if (chosen_r2indb == fecind_rownames_zi(indcount + delectable_sum)) {
+              chosen_randcovb2zi = fecindzi(indcount + delectable_sum);
+            }
+          }
+        }
+        double chosen_randcovb1zi {0.0};
+        if (chosen_r1indb != "none") {
+          int delectable_sum = rand_index(0, 16) + rand_index(1, 16) + rand_index(2, 16);
+          for (int indcount = 0; indcount < rand_index(3, 16); indcount++) {
+            if (chosen_r1indb == fecind_rownames_zi(indcount + delectable_sum)) {
+              chosen_randcovb1zi = fecindzi(indcount + delectable_sum);
+            }
+          }
+        }
+        double chosen_randcovc2zi {0.0};
+        if (chosen_r2indc != "none") {
+          int delectable_sum = rand_index(0, 16) + rand_index(1, 16) + rand_index(2, 16) +
+            rand_index(3, 16);
+          for (int indcount = 0; indcount < rand_index(4, 16); indcount++) {
+            if (chosen_r2indc == fecind_rownames_zi(indcount + delectable_sum)) {
+              chosen_randcovc2zi = fecindzi(indcount + delectable_sum);
+            }
+          }
+        }
+        double chosen_randcovc1zi {0.0};
+        if (chosen_r1indc != "none") {
+          int delectable_sum = rand_index(0, 16) + rand_index(1, 16) + rand_index(2, 16) +
+            rand_index(3, 16) + rand_index(4, 16);
+          for (int indcount = 0; indcount < rand_index(5, 16); indcount++) {
+            if (chosen_r1indc == fecind_rownames_zi(indcount + delectable_sum)) {
+              chosen_randcovc1zi = fecindzi(indcount + delectable_sum);
+            }
+          }
+        }
+            
+        double preoutx {0.0};
+        
+        if (fecdist < 4 && fecl > 1) {
+          if (feczero) {
+            
+            double mainsum = rimeotam(feccoefs, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+              0.0, 0.0, static_cast<char>(i), inda1, inda2, indb1, indb2, indc1,
+              indc2, dens, true);
+            
+            preoutx = (mainsum + chosen_randcova2zi + chosen_randcova1zi +
+              chosen_randcovb2zi + chosen_randcovb1zi + chosen_randcovc2zi +
+              chosen_randcovc1zi + fecgroups2zi(0) + fecgroups1zi(0) + 
+              fecpatchzi(patchnumber) + fecyearzi(yearnumber) + fec_dev);
+            
+          } else {
+            
+            double mainsum = rimeotam(feccoefs, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+              0.0, 0.0, static_cast<char>(i), inda1, inda2, indb1, indb2, indc1,
+              indc2, dens, false);
+            
+            preoutx = (mainsum + chosen_randcova2 + chosen_randcova1 +
+              chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
+              chosen_randcovc1 + fecgroups2(0) + fecgroups1(0) + 
+              vital_patch(patchnumber, 1) + vital_year(yearnumber, 1) + fec_dev);
+          }
+          
+          if (fecdist == 0 || fecdist == 1) {
+            // Poisson and negative binomial fecundity
+            
+            if (feczero) {
+              
+              if (preoutx > exp_tol) preoutx = exp_tol;
+              
+              fectransmat(0, i) = (exp(preoutx) / (1.0 + exp(preoutx))) * fecmod;
+              
+            } else {
+            
+              if (preoutx > exp_tol) preoutx = exp_tol;
+              
+              fectransmat(0, i) = exp(preoutx) * fecmod;
+            }
+          } else if (fecdist == 2) {
+            // Gaussian fecundity
+            fectransmat(0, i) = preoutx * fecmod;
+            
+            if (negfec && fectransmat(0, i) < 0.0) {
+              fectransmat(0, i) = 0.0;
+            }
+          } else if (fecdist == 3) {
+            // Gamma fecundity
+            fectransmat(0, i) = (1.0 / preoutx) * fecmod;
+          }
+          
+        } else if (fecl > 1) {
+          // All others with estimated models
+          
+          fectransmat(0, i) = 0.0;
+        } else {
+          fectransmat(0, i) = feccoefs(0);
+        }
+      }
+    }
+  }
+  
+  arma::mat amatrix = survtransmat + fectransmat;
+  
+  return List::create(Named("A") = amatrix, _["U"] = survtransmat,
+    _["F"] = fectransmat);
 }
 

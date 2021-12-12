@@ -3261,3 +3261,188 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
     _["ovtable"] = newsupplement);
 }
 
+//' Create Stageframe for Population Matrix Projection Analysis
+//' 
+//' Function \code{.sf_leslie()} returns a data frame describing each age in a
+//' Leslie MPM in terms of ahistorical stage information. This function is
+//' internal to \code{\link{rleslie}()} and \code{\link{fleslie}()}.
+//' 
+//' @param min_age The first age to include in the matrix.
+//' @param max_age The maximum age to include in the matrix.
+//' @param min_fecage The first age in which reproduction is possible.
+//' @param max_fecage The final age in which reproduction is possible.
+//' @param cont A logical value indicating whether survival continues past the
+//' last described age.
+//' 
+//' @return A data frame of class \code{stageframe}, which includes information
+//' on the stage name, size, reproductive status, observation status, propagule 
+//' status, immaturity status, maturity status, presence within the core dataset, 
+//' stage group classification, raw bin half-width, and the minimum, 
+//' center, and maximum of each size bin, as well as its width. If minimum and
+//' maximum ages were specified, then these are also included. Also includes an 
+//' empty string variable that can be used to describe stages meaningfully.
+//' 
+//' Variables in this data frame include the following:
+//' \item{stage}{The unique names of the stages to be analyzed.}
+//' \item{size}{The typical or representative size at which each stage occurs.}
+//' \item{size_b}{Size at which each stage occurs in terms of a second size
+//' variable, if one exists.}
+//' \item{size_c}{Size at which each stage occurs in terms of a third size
+//' variable, if one exists.}
+//' \item{min_age}{The minimum age at which the stage may occur.}
+//' \item{max_age}{The maximum age at which the stage may occur.}
+//' \item{repstatus}{A binomial variable showing whether each stage is
+//' reproductive.}
+//' \item{obsstatus}{A binomial variable showing whether each stage is
+//' observable.}
+//' \item{propstatus}{A binomial variable showing whether each stage is a
+//' propagule.}
+//' \item{immstatus}{A binomial variable showing whether each stage can occur as
+//' immature.}
+//' \item{matstatus}{A binomial variable showing whether each stage occurs in
+//' maturity.}
+//' \item{indataset}{A binomial variable describing whether each stage occurs in
+//' the input dataset.}
+//' \item{binhalfwidth_raw}{The half-width of the size bin, as input.}
+//' \item{sizebin_min}{The minimum size at which the stage may occur.}
+//' \item{sizebin_max}{The maximum size at which the stage may occur.}
+//' \item{sizebin_center}{The midpoint of the size bin at which the stage may
+//' occur.}
+//' \item{sizebin_width}{The width of the size bin corresponding to the stage.}
+//' \item{binhalfwidthb_raw}{The half-width of the size bin of a second size
+//' variable, as input.}
+//' \item{sizebinb_min}{The minimum size at which the stage may occur.}
+//' \item{sizebinb_max}{The maximum size at which the stage may occur.}
+//' \item{sizebinb_center}{The midpoint of the size bin at which the stage may
+//' occur, in terms of a second size variable.}
+//' \item{sizebinb_width}{The width of the size bin corresponding to the stage,
+//' in terms of a second size variable.}
+//' \item{binhalfwidthc_raw}{The half-width of the size bin of a third size
+//' variable, as input.}
+//' \item{sizebinc_min}{The minimum size at which the stage may occur, in terms
+//' of a third size variable.}
+//' \item{sizebinc_max}{The maximum size at which the stage may occur, in terms
+//' of a third size variable.}
+//' \item{sizebinc_center}{The midpoint of the size bin at which the stage may
+//' occur, in terms of a third size variable.}
+//' \item{sizebinc_width}{The width of the size bin corresponding to the stage,
+//' in terms of a third size variable.}
+//' \item{group}{An integer denoting the size classification group that the
+//' stage falls within.}
+//' \item{comments}{A text field for stage descriptions.}
+//' 
+//' @keywords internal
+//' @noRd
+// [[Rcpp::export(.sf_leslie)]]
+Rcpp::List sf_leslie (int min_age, int max_age, int min_fecage,int max_fecage,
+  bool cont) {
+  
+  int age_range = max_age - min_age;
+  int total_ages = age_range + 1;
+  if (age_range < 1) {
+    throw Rcpp::exception("There must be at least two ages to create a Leslie MPM.", false);
+  }
+  
+  Rcpp::List output_longlist(29);
+  Rcpp::CharacterVector varnames {"stage", "size", "size_b", "size_c", "min_age", "max_age",
+    "repstatus", "obsstatus", "propstatus", "immstatus", "matstatus", "indataset",
+    "binhalfwidth_raw", "sizebin_min", "sizebin_max", "sizebin_center", "sizebin_width",
+    "binhalfwidthb_raw", "sizebinb_min", "sizebinb_max", "sizebinb_center", "sizebinb_width",
+    "binhalfwidthc_raw", "sizebinc_min", "sizebinc_max", "sizebinc_center", "sizebinc_width",
+    "group", "comments"};
+  
+  int matsize = total_ages;
+  
+  StringVector agenames_true (matsize, NA_STRING);
+  NumericVector size_true (matsize, NA_REAL);
+  NumericVector sizesb_true (matsize, NA_REAL);
+  NumericVector sizesc_true (matsize, NA_REAL);
+  IntegerVector repstatus_true (matsize, 0);
+  IntegerVector obsstatus_true (matsize, 1);
+  IntegerVector propstatus_true (matsize, 0);
+  IntegerVector matstatus_true (matsize, 0);
+  IntegerVector immstatus_true (matsize, 1);
+  IntegerVector indataset_true (matsize, 1);
+  NumericVector minage_true (matsize, 0.0);
+  NumericVector maxage_true (matsize, 0.0);
+  NumericVector binhalfwidth_true (matsize, NA_REAL);
+  NumericVector binhalfwidthb_true (matsize, NA_REAL);
+  NumericVector binhalfwidthc_true (matsize, NA_REAL);
+  NumericVector sizebin_min (matsize, NA_REAL);
+  NumericVector sizebin_max (matsize, NA_REAL);
+  NumericVector sizebin_center (matsize, NA_REAL);
+  NumericVector sizebin_width (matsize, NA_REAL);
+  NumericVector sizebinb_min (matsize, NA_REAL);
+  NumericVector sizebinb_max (matsize, NA_REAL);
+  NumericVector sizebinb_center (matsize, NA_REAL);
+  NumericVector sizebinb_width (matsize, NA_REAL);
+  NumericVector sizebinc_min (matsize, NA_REAL);
+  NumericVector sizebinc_max (matsize, NA_REAL);
+  NumericVector sizebinc_center (matsize, NA_REAL);
+  NumericVector sizebinc_width (matsize, NA_REAL);
+  IntegerVector group_true (matsize, 0);
+  StringVector comments_true (matsize, "No description");
+  
+  for (int i = 0; i < total_ages; i++) {
+    Rcpp::String part1("Age");
+    part1 += (static_cast<char>(i + min_age));
+    agenames_true(i) = part1;
+    
+    if ((i + min_age) >= min_fecage) {
+      repstatus_true(i) = 1;
+      matstatus_true(i) = 1;
+      immstatus_true(i) = 0;
+    }
+    
+    minage_true(i) = static_cast<double>(i + min_age);
+    if ((i + min_age < max_age) || !cont) {
+      maxage_true(i) = static_cast<double>(i + min_age);
+    } else {
+      maxage_true(i) = NA_REAL;
+    }
+  }
+  
+  output_longlist(0) = agenames_true;
+  output_longlist(1) = size_true;
+  output_longlist(2) = sizesb_true;
+  output_longlist(3) = sizesc_true;
+  
+  output_longlist(4) = minage_true;
+  output_longlist(5) = maxage_true;
+  output_longlist(6) = repstatus_true;
+  output_longlist(7) = obsstatus_true;
+  output_longlist(8) = propstatus_true;
+  output_longlist(9) = immstatus_true;
+  output_longlist(10) = matstatus_true;
+  
+  output_longlist(11) = indataset_true;
+  
+  output_longlist(12) = binhalfwidth_true;
+  output_longlist(13) = sizebin_min;
+  output_longlist(14) = sizebin_max;
+  output_longlist(15) = sizebin_center;
+  output_longlist(16) = sizebin_width;
+  
+  output_longlist(17) = binhalfwidthb_true;
+  output_longlist(18) = sizebinb_min;
+  output_longlist(19) = sizebinb_max;
+  output_longlist(20) = sizebinb_center;
+  output_longlist(21) = sizebinb_width;
+  
+  output_longlist(22) = binhalfwidthc_true;
+  output_longlist(23) = sizebinc_min;
+  output_longlist(24) = sizebinc_max;
+  output_longlist(25) = sizebinc_center;
+  output_longlist(26) = sizebinc_width;
+  
+  output_longlist(27) = group_true;
+  output_longlist(28) = comments_true;
+  
+  output_longlist.attr("names") = varnames;
+  output_longlist.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, matsize);
+  StringVector needed_classes {"data.frame", "stageframe"};
+  output_longlist.attr("class") = needed_classes; // data.frame
+  
+  return output_longlist;
+}
+

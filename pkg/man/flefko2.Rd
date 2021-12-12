@@ -369,8 +369,9 @@ occasion time combinations corresponding to these matrices.
 }
 \section{Notes}{
 
-Unlike \code{\link{rlefko2}()} and \code{\link{rlefko3}()}, this function
-does not currently distinguish populations.
+Unlike \code{\link{rlefko2}()}, \code{\link{rlefko3}()}, and
+\code{\link{rleslie}()}, this function does not currently distinguish
+populations.
 
 This function will yield incorrect estimates if the models utilized
 incorporate state in occasion \emph{t}-1. Only use models developed testing

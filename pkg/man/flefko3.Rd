@@ -377,8 +377,9 @@ combinations corresponding to these matrices.
 }
 \section{Notes}{
 
-Unlike \code{\link{rlefko3}()}, this function currently does not distinguish
-populations within the same dataset.
+Unlike \code{\link{rlefko2}()}, \code{\link{rlefko3}()}, and
+\code{\link{rleslie}()}, this function does not currently distinguish
+populations.
 
 The default behavior of this function is to estimate fecundity with regards
 to transitions specified via associated fecundity multipliers in either
