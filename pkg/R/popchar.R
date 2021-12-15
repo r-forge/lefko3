@@ -918,9 +918,9 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
 #' assumed to be subject to this style of density dependence. Defaults to
 #' \code{ricker}.
 #' @param time_delay A vector indicating the number of occasions back on which
-#' density dependence operates. Defaults to 1, and may not equal any number less
-#' than 1. If a single number is input, then all noted transitions are assumed
-#' to be subject to this time delay.
+#' density dependence operates. Defaults to \code{1}, and may not equal any
+#' number less than 1. If a single number is input, then all noted transitions
+#' are assumed to be subject to this time delay.
 #' @param alpha A vector indicating the numeric values to use as the
 #' alpha term in the two parameter Ricker, Beverton-Holt, or Usher function, or
 #' the value of the carrying capacity \emph{K} to use in the logistic equation
@@ -928,9 +928,10 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
 #' provided, then all noted transitions are assumed to be subject to this value
 #' of alpha.
 #' @param beta A vector indicating the numeric values to use as the beta term in
-#' the two parameter Ricker, Beverton-Holt, or Usher function. Not used in the
-#' logistic equation. If a single number is provided, then all noted transitions
-#' are assumed to be subject to this value of beta.
+#' the two parameter Ricker, Beverton-Holt, or Usher function. Used to indicate
+#' whether to use \emph{K} as a hard limit in the logistic equation (see section
+#' \code{Notes} below. If a single number is provided, then all noted
+#' transitions are assumed to be subject to this value of \code{beta}.
 #' @param type A vector denoting the kind of transition between occasions
 #' \emph{t} and \emph{t}+1 to be replaced. This should be entered as \code{1},
 #' \code{S}, or \code{s} for the replacement of a survival transition; or 
@@ -973,7 +974,7 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
 #' The parameters \code{alpha} and \code{beta} are applied according to the
 #' two-parameter Ricker function, the two-parameter Beverton-Holt function, the
 #' two-parameter Usher function, or the one-parameter logistic function.
-#' Although the default is that a 1 time step delay is assumed), greater time
+#' Although the default is that a 1 time step delay is assumed, greater time
 #' delays can be set through the \code{time_delay} option.
 #' 
 #' Entries in \code{stage3}, \code{stage2}, and \code{stage1} can include
@@ -983,6 +984,13 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
 #' immature stages are to be used, \code{prop} if all propagule stages are to be
 #' used, \code{npr} if all non-propagule stages are to be used, and leave empty
 #' or use \code{all} if all stages in stageframe are to be used.
+#' 
+#' When using the logistic function, it is possible that the time delay used in
+#' density dependent simulations will cause matrix elements to become negative.
+#' To prevent this behavior, set the associated \code{beta} term to \code{1.0}.
+#' Doing so will set \code{K} as the hard limit in the logistic equation,
+#' essentially setting a minimum limit at \code{0} for all matrix elements
+#' modified.
 #' 
 #' @seealso \code{\link{start_input}()}
 #' @seealso \code{\link{projection3}()}

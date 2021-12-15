@@ -1721,8 +1721,12 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
               theprophecy(dyn_index321(j)) = changing_element;
             }
           } else if (dyn_style(j) == 4) { // Logistic function
+            double used_popsize = pop_size;
+            if (dyn_beta(j) > 0.0 && pop_size > dyn_alpha(j)) {
+              used_popsize = dyn_alpha(j);
+            }
             changing_element = theprophecy(dyn_index321(j)) * 
-              (1 - pop_size / dyn_alpha(j)); // Fi*(1 - ALPHA/n)
+              (1 - used_popsize / dyn_alpha(j)); // Fi*(1 - ALPHA/n)
             
             if (substoch == 0 || dyn_type(j) == 2) {
               theprophecy(dyn_index321(j)) = changing_element;
@@ -1861,8 +1865,12 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
               sparse_prophecy(dyn_index321(j)) = changing_element;
             }
           } else if (dyn_style(j) == 4) { // Logistic function
+            double used_popsize = pop_size;
+            if (dyn_beta(j) > 0.0 && pop_size > dyn_alpha(j)) {
+              used_popsize = dyn_alpha(j);
+            }
             changing_element = sparse_prophecy(dyn_index321(j)) * 
-              (1 - pop_size / dyn_alpha(j)); // Fi*(1 - ALPHA/n)
+              (1 - used_popsize / dyn_alpha(j)); // Fi*(1 - ALPHA/n)
             
             if (substoch == 0 || dyn_type(j) == 2) {
               sparse_prophecy(dyn_index321(j)) = changing_element;

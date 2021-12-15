@@ -6,6 +6,8 @@ CHANGES IN VERSION 4.2.0 (2021-12-XX)
   NEW FEATURES
     1. Functions rleslie() and fleslie() created to estimate raw and 
        function-based Leslie MPMs, respectively.
+    2. Added a beta term setting K as hard maximum in the logistic function
+       using functions density_input() and projection3().
 
   USER-VISIBLE CHANGES
     1. Functions rlefko2() and rlefko3() now provide warnings if individual
@@ -26,6 +28,8 @@ CHANGES IN VERSION 4.2.0 (2021-12-XX)
     5. Fixed bug ignoring coordsRepeat setting in verticalize3().
     6. Fixed bug causing inconsistent coordinate assignment under unobserved
        stages in historicalize3().
+    7. Corrected bug capable of causing the logistic function to yield negative
+       matrix elements.
 
 
 CHANGES IN VERSION 4.1.1 (2021-12-07)
