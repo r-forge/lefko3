@@ -5227,38 +5227,19 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' \donttest{
 #' data(lathyrus)
 #' 
-#' sizevector <- c(0, 3500)
-#' stagevector <- c("Sd", "living")
-#' repvector <- c(0, 1)
-#' obsvector <- c(0, 1)
-#' matvector <- c(0, 1)
-#' immvector <- c(1, 0)
-#' propvector <- c(1, 0)
-#' indataset <- c(0, 1)
-#' binvec <- c(0, 3550)
-#' minima <- c(0, 0)
-#' maxima <- c(0, NA)
-#' 
-#' lathframe_age <- sf_create(sizes = sizevector, stagenames = stagevector,
-#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
-#'   immstatus = immvector, indataset = indataset, binhalfwidth = binvec,
-#'   propstatus = propvector, minage = minima, maxage = maxima)
-#'   
 #' lathvert_base <- verticalize3(lathyrus, noyears = 4, firstyear = 1988,
 #'   patchidcol = "SUBPLOT", individcol = "GENET", blocksize = 9,
 #'   sizeacol = "Volume88", repstracol = "FCODE88", fecacol = "Intactseed88",
-#'   deadacol = "Dead1988", stageassign = lathframe_age, stagesize = "sizea",
-#'   censorcol = "Missing1988", censorkeep = NA, censor = TRUE, NRasRep = TRUE,
-#'   NOasObs = TRUE)
+#'   deadacol = "Dead1988", censorcol = "Missing1988", censorkeep = NA,
+#'   censor = TRUE, NRasRep = TRUE, NOasObs = TRUE)
 #' 
 #' lathvert_age <- subset(lathvert_base, firstseen > 1988)
 #' 
 #' lathmodels2_age <- modelsearch(lathvert_age, historical = FALSE,
 #'   approach = "mixed", suite = "cons", bestfit = "AICc&k", age = "obsage",
-#'   vitalrates = c("surv", "fec"),
-#'   sizedist = "gaussian", fecdist = "negbin", indiv = "individ", year = "year2",
-#'   year.as.random = TRUE, patch.as.random = TRUE, show.model.tables = TRUE,
-#'   fec.zero = TRUE, quiet = TRUE)
+#'   vitalrates = c("surv", "fec"), fecdist = "negbin", indiv = "individ",
+#'   year = "year2", year.as.random = TRUE, patch.as.random = TRUE,
+#'   show.model.tables = TRUE, fec.zero = TRUE, quiet = TRUE)
 #' 
 #' lathmat2fleslie <- fleslie(year = "all", data = lathvert_base,
 #'   modelsuite = lathmodels2_age, yearcol = "year2")
@@ -5802,28 +5783,11 @@ fleslie <- function(year = "all", patch = "all", data = NA, modelsuite = NA,
 #' # Cypripedium example
 #' data(cypdata)
 #' 
-#' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
-#' stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
-#'   "XLg")
-#' repvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
-#' obsvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
-#' matvector <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
-#' immvector <- c(0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
-#' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-#' indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
-#' binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 2.5, 7)
-#' 
-#' cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector,
-#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
-#'   propstatus = propvector, immstatus = immvector, indataset = indataset,
-#'   binhalfwidth = binvec)
-#' 
 #' cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
 #'   patchidcol = "patch", individcol = "plantid", blocksize = 4,
 #'   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04",
 #'   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
-#'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
-#'   NRasRep = TRUE)
+#'   NAas0 = TRUE, NRasRep = TRUE)
 #' 
 #' cyp_rl <- rleslie(data = cypraw_v1, start_age = 0, last_age = 4, continue = TRUE,
 #'   fecage_min = 3, fecage_max = 4, year = "all", pop = NA, patch = "all",

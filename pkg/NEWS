@@ -12,12 +12,20 @@ CHANGES IN VERSION 4.2.0 (2021-12-XX)
        identity variable name or column number is not provided.
     2. Function summary.lefkoMat() now provides appropriate descriptions of
        data quality control sections with missing values.
+    3. Added spatial coordinates to cypdata and cypvert.
 
   BUG FIXES
     1. Matrix quality control summaries corrected when functions add_lM(),
        delete_lM(), and subset_lM() are used.
     2. Corrected errors in documentation regatding censoring variables used in
        rlefko3() and rlefko2().
+    3. Corrected issue yielding fatal error in historicalize3() when spatial
+       coordinates are set and reduce = TRUE.
+    4. Corrected improper matrix formatting in some integer variables used in
+       historicalize3().
+    5. Fixed bug ignoring coordsRepeat setting in verticalize3().
+    6. Fixed bug causing inconsistent coordinate assignment under unobserved
+       stages in historicalize3().
 
 
 CHANGES IN VERSION 4.1.1 (2021-12-07)

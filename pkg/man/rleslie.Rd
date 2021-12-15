@@ -159,28 +159,11 @@ lead to erroneous calculations, and may lead to fatal errors.
 # Cypripedium example
 data(cypdata)
 
-sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
-stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
-  "XLg")
-repvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
-obsvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
-matvector <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
-immvector <- c(0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
-propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
-binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 2.5, 7)
-
-cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector,
-  repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
-  propstatus = propvector, immstatus = immvector, indataset = indataset,
-  binhalfwidth = binvec)
-
 cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
   patchidcol = "patch", individcol = "plantid", blocksize = 4,
   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04",
   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
-  stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
-  NRasRep = TRUE)
+  NAas0 = TRUE, NRasRep = TRUE)
 
 cyp_rl <- rleslie(data = cypraw_v1, start_age = 0, last_age = 4, continue = TRUE,
   fecage_min = 3, fecage_max = 4, year = "all", pop = NA, patch = "all",

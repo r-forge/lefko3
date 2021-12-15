@@ -2048,33 +2048,33 @@ historicalize3 <- function(data, popidcol = 0, patchidcol = 0, individcol,
   if (reduce) {
     if (all(is.na(popdata$xpos1)) | length(unique(popdata$xpos1)) == 1) {
       popdata <- popdata[,-c(which(names(popdata) == "xpos1"))]
-    } else if (all.equal(sort(unique(popdata$xpos1)), c(-1,0))) {
+    } else if (isTRUE(all.equal(sort(unique(popdata$xpos1)), c(-1,0)))) {
       popdata <- popdata[,-c(which(names(popdata) == "xpos1"))]
     }
     if (all(is.na(popdata$ypos1)) | length(unique(popdata$ypos1)) == 1) {
       popdata <- popdata[,-c(which(names(popdata) == "ypos1"))]
-    } else if (all.equal(sort(unique(popdata$ypos1)), c(-1,0))) {
+    } else if (isTRUE(all.equal(sort(unique(popdata$ypos1)), c(-1,0)))) {
       popdata <- popdata[,-c(which(names(popdata) == "ypos1"))]
     }
     
     if (all(is.na(popdata$xpos2)) | length(unique(popdata$xpos2)) == 1) {
       popdata <- popdata[,-c(which(names(popdata) == "xpos2"))]
-    } else if (all.equal(sort(unique(popdata$xpos2)), c(-1,0))) {
+    } else if (isTRUE(all.equal(sort(unique(popdata$xpos2)), c(-1,0)))) {
       popdata <- popdata[,-c(which(names(popdata) == "xpos2"))]
     }
     if (all(is.na(popdata$ypos2)) | length(unique(popdata$ypos2)) == 1) {
       popdata <- popdata[,-c(which(names(popdata) == "ypos2"))]
-    } else if (all.equal(sort(unique(popdata$ypos2)), c(-1,0))) {
+    } else if (isTRUE(all.equal(sort(unique(popdata$ypos2)), c(-1,0)))) {
       popdata <- popdata[,-c(which(names(popdata) == "ypos2"))]
     }
     if (all(is.na(popdata$xpos3)) | length(unique(popdata$xpos3)) == 1) {
       popdata <- popdata[,-c(which(names(popdata) == "xpos3"))]
-    } else if (all.equal(sort(unique(popdata$xpos3)), c(-1,0))) {
+    } else if (isTRUE(all.equal(sort(unique(popdata$xpos3)), c(-1,0)))) {
       popdata <- popdata[,-c(which(names(popdata) == "xpos3"))]
     }
     if (all(is.na(popdata$ypos3)) | length(unique(popdata$ypos3)) == 1) {
       popdata <- popdata[,-c(which(names(popdata) == "ypos3"))]
-    } else if (all.equal(sort(unique(popdata$ypos3)), c(-1,0))) {
+    } else if (isTRUE(all.equal(sort(unique(popdata$ypos3)), c(-1,0)))) {
       popdata <- popdata[,-c(which(names(popdata) == "ypos3"))]
     }
     

@@ -232,38 +232,19 @@ they will be treated as zeroes in vital rate estimation.
 \donttest{
 data(lathyrus)
 
-sizevector <- c(0, 3500)
-stagevector <- c("Sd", "living")
-repvector <- c(0, 1)
-obsvector <- c(0, 1)
-matvector <- c(0, 1)
-immvector <- c(1, 0)
-propvector <- c(1, 0)
-indataset <- c(0, 1)
-binvec <- c(0, 3550)
-minima <- c(0, 0)
-maxima <- c(0, NA)
-
-lathframe_age <- sf_create(sizes = sizevector, stagenames = stagevector,
-  repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
-  immstatus = immvector, indataset = indataset, binhalfwidth = binvec,
-  propstatus = propvector, minage = minima, maxage = maxima)
-  
 lathvert_base <- verticalize3(lathyrus, noyears = 4, firstyear = 1988,
   patchidcol = "SUBPLOT", individcol = "GENET", blocksize = 9,
   sizeacol = "Volume88", repstracol = "FCODE88", fecacol = "Intactseed88",
-  deadacol = "Dead1988", stageassign = lathframe_age, stagesize = "sizea",
-  censorcol = "Missing1988", censorkeep = NA, censor = TRUE, NRasRep = TRUE,
-  NOasObs = TRUE)
+  deadacol = "Dead1988", censorcol = "Missing1988", censorkeep = NA,
+  censor = TRUE, NRasRep = TRUE, NOasObs = TRUE)
 
 lathvert_age <- subset(lathvert_base, firstseen > 1988)
 
 lathmodels2_age <- modelsearch(lathvert_age, historical = FALSE,
   approach = "mixed", suite = "cons", bestfit = "AICc&k", age = "obsage",
-  vitalrates = c("surv", "fec"),
-  sizedist = "gaussian", fecdist = "negbin", indiv = "individ", year = "year2",
-  year.as.random = TRUE, patch.as.random = TRUE, show.model.tables = TRUE,
-  fec.zero = TRUE, quiet = TRUE)
+  vitalrates = c("surv", "fec"), fecdist = "negbin", indiv = "individ",
+  year = "year2", year.as.random = TRUE, patch.as.random = TRUE,
+  show.model.tables = TRUE, fec.zero = TRUE, quiet = TRUE)
 
 lathmat2fleslie <- fleslie(year = "all", data = lathvert_base,
   modelsuite = lathmodels2_age, yearcol = "year2")
