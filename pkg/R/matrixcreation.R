@@ -878,7 +878,14 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   if (size_proxy$family == "poisson") {
     sizedist <- 0
     if (!all(is.na(size_proxy$variances))) {
-      rvarssummed <- sum(size_proxy$variances[,"vcov"])
+      if (is.element("vcov", names(size_proxy$variances))) {
+        rvarssummed <- sum(size_proxy$variances[,"vcov"])
+      } else if (is.element("cond", names(size_proxy$variances))) {
+        rvarssummed <- sum(unlist(lapply(c(1:length(size_proxy$variances[["cond"]])), function(X) {
+          stddev.est <- attr(size_proxy$variances[["cond"]][[X]], "stddev")
+          return(stddev.est * stddev.est)
+        })))
+      }
     } else {
       rvarssummed <- 0
     }
@@ -903,7 +910,14 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   if (sizeb_proxy$family == "poisson") {
     sizebdist <- 0
     if (!all(is.na(sizeb_proxy$variances))) {
-      rvarssummedb <- sum(sizeb_proxy$variances[,"vcov"])
+      if (is.element("vcov", names(sizeb_proxy$variances))) {
+        rvarssummedb <- sum(sizeb_proxy$variances[,"vcov"])
+      } else if (is.element("cond", names(sizeb_proxy$variances))) {
+        rvarssummedb <- sum(unlist(lapply(c(1:length(sizeb_proxy$variances[["cond"]])), function(X) {
+          stddev.est <- attr(sizeb_proxy$variances[["cond"]][[X]], "stddev")
+          return(stddev.est * stddev.est)
+        })))
+      }
     } else {
       rvarssummedb <- 0
     }
@@ -928,7 +942,14 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   if (sizec_proxy$family == "poisson") {
     sizecdist <- 0
     if (!all(is.na(sizec_proxy$variances))) {
-      rvarssummedc <- sum(sizec_proxy$variances[,"vcov"])
+      if (is.element("vcov", names(sizec_proxy$variances))) {
+        rvarssummedc <- sum(sizec_proxy$variances[,"vcov"])
+      } else if (is.element("cond", names(sizec_proxy$variances))) {
+        rvarssummedc <- sum(unlist(lapply(c(1:length(sizec_proxy$variances[["cond"]])), function(X) {
+          stddev.est <- attr(sizec_proxy$variances[["cond"]][[X]], "stddev")
+          return(stddev.est * stddev.est)
+        })))
+      }
     } else {
       rvarssummedc <- 0
     }
@@ -977,7 +998,14 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   
   if (jsize_proxy$family == "poisson") {
     if (!all(is.na(jsize_proxy$variances))) {
-      jrvarssummed <- sum(jsize_proxy$variances[,"vcov"])
+      if (is.element("vcov", names(jsize_proxy$variances))) {
+        jrvarssummed <- sum(jsize_proxy$variances[,"vcov"])
+      } else if (is.element("cond", names(jsize_proxy$variances))) {
+        jrvarssummed <- sum(unlist(lapply(c(1:length(jsize_proxy$variances[["cond"]])), function(X) {
+          stddev.est <- attr(jsize_proxy$variances[["cond"]][[X]], "stddev")
+          return(stddev.est * stddev.est)
+        })))
+      }
     } else {
       jrvarssummed <- 0
     }
@@ -994,7 +1022,14 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   
   if (jsizeb_proxy$family == "poisson") {
     if (!all(is.na(jsizeb_proxy$variances))) {
-      jrvarssummedb <- sum(jsize_proxy$variances[,"vcov"])
+      if (is.element("vcov", names(jsizeb_proxy$variances))) {
+        jrvarssummedb <- sum(jsizeb_proxy$variances[,"vcov"])
+      } else if (is.element("cond", names(jsizeb_proxy$variances))) {
+        jrvarssummedb <- sum(unlist(lapply(c(1:length(jsizeb_proxy$variances[["cond"]])), function(X) {
+          stddev.est <- attr(jsizeb_proxy$variances[["cond"]][[X]], "stddev")
+          return(stddev.est * stddev.est)
+        })))
+      }
     } else {
       jrvarssummedb <- 0
     }
@@ -1011,7 +1046,14 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   
   if (jsizec_proxy$family == "poisson") {
     if (!all(is.na(jsizec_proxy$variances))) {
-      jrvarssummedc <- sum(jsizec_proxy$variances[,"vcov"])
+      if (is.element("vcov", names(jsizec_proxy$variances))) {
+        jrvarssummedc <- sum(jsizec_proxy$variances[,"vcov"])
+      } else if (is.element("cond", names(jsizec_proxy$variances))) {
+        jrvarssummedc <- sum(unlist(lapply(c(1:length(jsizec_proxy$variances[["cond"]])), function(X) {
+          stddev.est <- attr(jsizec_proxy$variances[["cond"]][[X]], "stddev")
+          return(stddev.est * stddev.est)
+        })))
+      }
     } else {
       jrvarssummedc <- 0
     }
@@ -2009,7 +2051,14 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   if (size_proxy$family == "poisson") {
     sizedist <- 0
     if (!all(is.na(size_proxy$variances))) {
-      rvarssummed <- sum(size_proxy$variances[,"vcov"])
+      if (is.element("vcov", names(size_proxy$variances))) {
+        rvarssummed <- sum(size_proxy$variances[,"vcov"])
+      } else if (is.element("cond", names(size_proxy$variances))) {
+        rvarssummed <- sum(unlist(lapply(c(1:length(size_proxy$variances[["cond"]])), function(X) {
+          stddev.est <- attr(size_proxy$variances[["cond"]][[X]], "stddev")
+          return(stddev.est * stddev.est)
+        })))
+      }
     } else {
       rvarssummed <- 0
     }
@@ -2034,7 +2083,14 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   if (sizeb_proxy$family == "poisson") {
     sizebdist <- 0
     if (!all(is.na(sizeb_proxy$variances))) {
-      rvarssummedb <- sum(sizeb_proxy$variances[,"vcov"])
+      if (is.element("vcov", names(sizeb_proxy$variances))) {
+        rvarssummedb <- sum(sizeb_proxy$variances[,"vcov"])
+      } else if (is.element("cond", names(sizeb_proxy$variances))) {
+        rvarssummedb <- sum(unlist(lapply(c(1:length(sizeb_proxy$variances[["cond"]])), function(X) {
+          stddev.est <- attr(sizeb_proxy$variances[["cond"]][[X]], "stddev")
+          return(stddev.est * stddev.est)
+        })))
+      }
     } else {
       rvarssummedb <- 0
     }
@@ -2059,7 +2115,14 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   if (sizec_proxy$family == "poisson") {
     sizecdist <- 0
     if (!all(is.na(sizec_proxy$variances))) {
-      rvarssummedc <- sum(sizec_proxy$variances[,"vcov"])
+      if (is.element("vcov", names(sizec_proxy$variances))) {
+        rvarssummedc <- sum(sizec_proxy$variances[,"vcov"])
+      } else if (is.element("cond", names(sizec_proxy$variances))) {
+        rvarssummedc <- sum(unlist(lapply(c(1:length(sizec_proxy$variances[["cond"]])), function(X) {
+          stddev.est <- attr(sizec_proxy$variances[["cond"]][[X]], "stddev")
+          return(stddev.est * stddev.est)
+        })))
+      }
     } else {
       rvarssummedc <- 0
     }
@@ -2108,7 +2171,14 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   
   if (jsize_proxy$family == "poisson") {
     if (!all(is.na(jsize_proxy$variances))) {
-      jrvarssummed <- sum(jsize_proxy$variances[,"vcov"])
+      if (is.element("vcov", names(jsize_proxy$variances))) {
+        jrvarssummed <- sum(jsize_proxy$variances[,"vcov"])
+      } else if (is.element("cond", names(jsize_proxy$variances))) {
+        jrvarssummed <- sum(unlist(lapply(c(1:length(jsize_proxy$variances[["cond"]])), function(X) {
+          stddev.est <- attr(jsize_proxy$variances[["cond"]][[X]], "stddev")
+          return(stddev.est * stddev.est)
+        })))
+      }
     } else {
       jrvarssummed <- 0
     }
@@ -2125,7 +2195,14 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   
   if (jsizeb_proxy$family == "poisson") {
     if (!all(is.na(jsizeb_proxy$variances))) {
-      jrvarssummedb <- sum(jsize_proxy$variances[,"vcov"])
+      if (is.element("vcov", names(jsizeb_proxy$variances))) {
+        jrvarssummedb <- sum(jsizeb_proxy$variances[,"vcov"])
+      } else if (is.element("cond", names(jsizeb_proxy$variances))) {
+        jrvarssummedb <- sum(unlist(lapply(c(1:length(jsizeb_proxy$variances[["cond"]])), function(X) {
+          stddev.est <- attr(jsizeb_proxy$variances[["cond"]][[X]], "stddev")
+          return(stddev.est * stddev.est)
+        })))
+      }
     } else {
       jrvarssummedb <- 0
     }
@@ -2142,7 +2219,14 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   
   if (jsizec_proxy$family == "poisson") {
     if (!all(is.na(jsizec_proxy$variances))) {
-      jrvarssummedc <- sum(jsizec_proxy$variances[,"vcov"])
+      if (is.element("vcov", names(jsizec_proxy$variances))) {
+        jrvarssummedc <- sum(jsizec_proxy$variances[,"vcov"])
+      } else if (is.element("cond", names(jsizec_proxy$variances))) {
+        jrvarssummedc <- sum(unlist(lapply(c(1:length(jsizec_proxy$variances[["cond"]])), function(X) {
+          stddev.est <- attr(jsizec_proxy$variances[["cond"]][[X]], "stddev")
+          return(stddev.est * stddev.est)
+        })))
+      }
     } else {
       jrvarssummedc <- 0
     }
@@ -4836,7 +4920,14 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   if (size_proxy$family == "poisson") {
     sizedist <- 0
     if (!all(is.na(size_proxy$variances))) {
-      rvarssummed <- sum(size_proxy$variances[,"vcov"])
+      if (is.element("vcov", names(size_proxy$variances))) {
+        rvarssummed <- sum(size_proxy$variances[,"vcov"])
+      } else if (is.element("cond", names(size_proxy$variances))) {
+        rvarssummed <- sum(unlist(lapply(c(1:length(size_proxy$variances[["cond"]])), function(X) {
+          stddev.est <- attr(size_proxy$variances[["cond"]][[X]], "stddev")
+          return(stddev.est * stddev.est)
+        })))
+      }
     } else {
       rvarssummed <- 0
     }
@@ -4861,7 +4952,14 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   if (sizeb_proxy$family == "poisson") {
     sizebdist <- 0
     if (!all(is.na(sizeb_proxy$variances))) {
-      rvarssummedb <- sum(sizeb_proxy$variances[,"vcov"])
+      if (is.element("vcov", names(sizeb_proxy$variances))) {
+        rvarssummedb <- sum(sizeb_proxy$variances[,"vcov"])
+      } else if (is.element("cond", names(sizeb_proxy$variances))) {
+        rvarssummedb <- sum(unlist(lapply(c(1:length(sizeb_proxy$variances[["cond"]])), function(X) {
+          stddev.est <- attr(sizeb_proxy$variances[["cond"]][[X]], "stddev")
+          return(stddev.est * stddev.est)
+        })))
+      }
     } else {
       rvarssummedb <- 0
     }
@@ -4886,7 +4984,14 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   if (sizec_proxy$family == "poisson") {
     sizecdist <- 0
     if (!all(is.na(sizec_proxy$variances))) {
-      rvarssummedc <- sum(sizec_proxy$variances[,"vcov"])
+      if (is.element("vcov", names(sizec_proxy$variances))) {
+        rvarssummedc <- sum(sizec_proxy$variances[,"vcov"])
+      } else if (is.element("cond", names(sizec_proxy$variances))) {
+        rvarssummedc <- sum(unlist(lapply(c(1:length(sizec_proxy$variances[["cond"]])), function(X) {
+          stddev.est <- attr(sizec_proxy$variances[["cond"]][[X]], "stddev")
+          return(stddev.est * stddev.est)
+        })))
+      }
     } else {
       rvarssummedc <- 0
     }
@@ -4935,7 +5040,14 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   
   if (jsize_proxy$family == "poisson") {
     if (!all(is.na(jsize_proxy$variances))) {
-      jrvarssummed <- sum(jsize_proxy$variances[,"vcov"])
+      if (is.element("vcov", names(jsize_proxy$variances))) {
+        jrvarssummed <- sum(jsize_proxy$variances[,"vcov"])
+      } else if (is.element("cond", names(jsize_proxy$variances))) {
+        jrvarssummed <- sum(unlist(lapply(c(1:length(jsize_proxy$variances[["cond"]])), function(X) {
+          stddev.est <- attr(jsize_proxy$variances[["cond"]][[X]], "stddev")
+          return(stddev.est * stddev.est)
+        })))
+      }
     } else {
       jrvarssummed <- 0
     }
@@ -4952,7 +5064,14 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   
   if (jsizeb_proxy$family == "poisson") {
     if (!all(is.na(jsizeb_proxy$variances))) {
-      jrvarssummedb <- sum(jsize_proxy$variances[,"vcov"])
+      if (is.element("vcov", names(jsizeb_proxy$variances))) {
+        jrvarssummedb <- sum(jsizeb_proxy$variances[,"vcov"])
+      } else if (is.element("cond", names(jsizeb_proxy$variances))) {
+        jrvarssummedb <- sum(unlist(lapply(c(1:length(jsizeb_proxy$variances[["cond"]])), function(X) {
+          stddev.est <- attr(jsizeb_proxy$variances[["cond"]][[X]], "stddev")
+          return(stddev.est * stddev.est)
+        })))
+      }
     } else {
       jrvarssummedb <- 0
     }
@@ -4969,7 +5088,14 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   
   if (jsizec_proxy$family == "poisson") {
     if (!all(is.na(jsizec_proxy$variances))) {
-      jrvarssummedc <- sum(jsizec_proxy$variances[,"vcov"])
+      if (is.element("vcov", names(jsizec_proxy$variances))) {
+        jrvarssummedc <- sum(jsizec_proxy$variances[,"vcov"])
+      } else if (is.element("cond", names(jsizec_proxy$variances))) {
+        jrvarssummedc <- sum(unlist(lapply(c(1:length(jsizec_proxy$variances[["cond"]])), function(X) {
+          stddev.est <- attr(jsizec_proxy$variances[["cond"]][[X]], "stddev")
+          return(stddev.est * stddev.est)
+        })))
+      }
     } else {
       jrvarssummedc <- 0
     }

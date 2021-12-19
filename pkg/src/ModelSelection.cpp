@@ -1119,9 +1119,14 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
   } else if (suite == "cons") {
     if (fixedcovcounter == 0 && modelcounter == 0) fullmainmodel += "1";
     
+    if (modelcounter > 0) fullmainmodel += " + "; // This added
     fullmainmodel += fixedtackon;
-    if (fixedcovcounter > 0) fullmainmodel += " + ";
-    fullmainmodel += randomtackon;
+    
+    if (yasrand || pasrand) { // This added
+      if (fixedcovcounter > 0) fullmainmodel += " + ";
+      fullmainmodel += randomtackon;
+    }
+    
   } else {
     fullmainmodel = "none";
   }

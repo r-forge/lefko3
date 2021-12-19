@@ -1,13 +1,19 @@
 LEFKO3 NEWS
 -----------
 
-CHANGES IN VERSION 4.2.0 (2021-12-XX)
+CHANGES IN VERSION 4.2.0 (2022-01-XX)
 -------------------------------------
   NEW FEATURES
     1. Functions rleslie() and fleslie() created to estimate raw and 
        function-based Leslie MPMs, respectively.
     2. Added a beta term setting K as hard maximum in the logistic function
        using functions density_input() and projection3().
+    3. Accuracy check added to size and fecundity models in modelsearch().
+    4. Function modelsearch() new runs exhaustive model selection under the
+       `suite = "cons"` setting if age, density, or any individual covariate
+       is added to the analysis.
+    5. Function modelsearch() now performs accuracy checks by default, and
+       allows an opt-out.
 
   USER-VISIBLE CHANGES
     1. Functions rlefko2() and rlefko3() now provide warnings if individual
@@ -15,6 +21,9 @@ CHANGES IN VERSION 4.2.0 (2021-12-XX)
     2. Function summary.lefkoMat() now provides appropriate descriptions of
        data quality control sections with missing values.
     3. Added spatial coordinates to cypdata and cypvert.
+    4. Function modelsearch() is now more flexible with input errors in some
+       key settings.
+    5. Ended dependence on package stringr.
 
   BUG FIXES
     1. Matrix quality control summaries corrected when functions add_lM(),
@@ -30,6 +39,10 @@ CHANGES IN VERSION 4.2.0 (2021-12-XX)
        stages in historicalize3().
     7. Corrected bug capable of causing the logistic function to yield negative
        matrix elements.
+    8. Fixed improper handling of numeric entries for year and patch options in
+       function modelsearch().
+    9. Corrected issue in flefko3(), flefko2(), and aflefko2() affecting the
+       incorporation of zero-inflated Poisson and negative binomial models.
 
 
 CHANGES IN VERSION 4.1.1 (2021-12-07)

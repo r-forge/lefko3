@@ -58,6 +58,7 @@ modelsearch(
   test.group = FALSE,
   show.model.tables = TRUE,
   global.only = FALSE,
+  accuracy = TRUE,
   quiet = FALSE
 )
 }
@@ -309,6 +310,10 @@ in the output. Defaults to \code{TRUE}.}
 \item{global.only}{If set to TRUE, then only global models will be built and
 evaluated. Defaults to \code{FALSE}.}
 
+\item{accuracy}{A logical value indicating whether to test accuracy of
+models. See \code{Notes} section for details on hoew accuracy is assessed.
+Defaults to \code{TRUE}.}
+
 \item{quiet}{If set to TRUE, then model building and selection will proceed
 with most warnings and diagnostic messages silenced. Defaults to
 \code{FALSE}.}
@@ -388,11 +393,11 @@ individuals.}
 reproduction probability.}
 \item{criterion}{Character variable denoting the criterion used to determine
 the best-fit model.}
-\item{qc}{Data frame with four variables: 1) Name of vital rate, 2) number
+\item{qc}{Data frame with five variables: 1) Name of vital rate, 2) number
 of individuals used to model that vital rate, 3) number of individual
-transitions used to model that vital rate, and 4) accuracy of model expressed
-as percent of predicted responses equal to actual responses (only in binomial
-models).}
+transitions used to model that vital rate, 4) parameter distribution used to
+model the vital rats, and 5) accuracy of model, given as detailed in Notes
+section.}
 }
 \description{
 Function \code{modelsearch()} runs exhaustive model building and selection
@@ -443,6 +448,16 @@ historical, individual covariates are used, or a zero-inflated distribution
 is assumed. In such cases, the number of models built and tested will run at
 least in the millions. Small datasets will also increase the error associated
 with these tests, leading to adoption of simpler models overall.
+
+Accuracy of vital rate models is calculated differently depending on vital
+rate and assumed distribution. For all vital rates assuming a binomial
+distribution, including survival, observation status, reproductive status,
+and juvenile version of these, accuracy is calculated as the percent of
+predicted responses equal to actual responses. In all other models, accuracy
+is actually the conditional R-wquared using package \code{MuMIn}'s
+\code{\link[MuMIn]{r.squaredGLMM}()} function, estimated via the delta
+method. When this method fails, \code{modelsearch()} calculates McFadden's
+pseudo R-squared. If this fails, then \code{NA} is returned.
 
 Care must be taken to build models that test the impacts of state in occasion
 \emph{t}-1 for historical models, and that do not test these impacts for
