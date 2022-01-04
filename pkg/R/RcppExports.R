@@ -860,6 +860,95 @@ cond_diff <- function(lDiff, ref = 1L, matchoice = NULL, err_check = NULL) {
     .Call('_lefko3_foi_index', PACKAGE = 'lefko3', surv_proxy, obs_proxy, size_proxy, sizeb_proxy, sizec_proxy, repst_proxy, fec_proxy, jsurv_proxy, jobs_proxy, jsize_proxy, jsizeb_proxy, jsizec_proxy, jrepst_proxy)
 }
 
+#' Estimate Value for Vital Rate Based on Inputs
+#' 
+#' Function \code{.preouterator()} calculates the value of the vital rate
+#' called for by the function.
+#' 
+#' @param modelproxy A model_proxy object derived from function
+#' \code{\link(.modelextract)()}.
+#' @param maincoefs The coefficients portion of the vital rate model proxy.
+#' @param randindex An integer matrix indexing all random covariates for all
+#' vital rates.
+#' @param dev_terms A numeric vector containing the deviations to the linear
+#' models input by the user. The order is: survival, observation status, size,
+#' size_b, size_c, reproductive status, fecundity, juvenile survival, juvenile
+#' observation status, juvenile size, juvenile size_b, juvenile size_c,
+#' and juvenile reproductive status.
+#' @param svsigmas A vector of sigma and summedvar terms from vital rate
+#' models, in the order of: summedvars, sigma, summedvarsb, sigmab,
+#' summedvarsc, sigmac, jsummedvars, jsigma, jsummedvarsb, jsigmab,
+#' jsummedvarsc, and jsigmac. Summedvar terms are summed variance-covariance
+#' terms in Poisson and negative binomial size distributions, and sigma terms
+#' are standard deviations in the Gaussian size distribution.
+#' @param vitalyear A matrix with year coefficients for all vital rates.
+#' @param vitalpatch A matrix with patch coefficients for all vital rates.
+#' @param chosen_r2inda A string identifying random covariate a in time t.
+#' @param chosen_r1inda A string identifying random covariate a in time t-1.
+#' @param chosen_r2indb A string identifying random covariate b in time t.
+#' @param chosen_r1indb A string identifying random covariate b in time t-1.
+#' @param chosen_r2indc A string identifying random covariate c in time t.
+#' @param chosen_r1indc A string identifying random covariate c in time t-1.
+#' @param status_terms A NumericVector containing, in order: fl1_i, fl2n_i,
+#' sz1_i, sz2o_i, szb1_i, szb2o_i, szc1_i, szc2o_i, aage2_i, inda_1, inda_2,
+#' indb_1, indb_2, indc_1, indc_2, used_dens, sz3_i, szb3_i, szc3_i,
+#' binwidth3_i, binbwidth3_i, and bincwidth3_i.
+#' @param modelgroups2 A vector of group slope coefficients for time t.
+#' @param modelgroups1 A vector of group slope coefficients for time t-1.
+#' @param modelgroups2zi A vector of zero-inflation model group slope
+#' coefficients for time t.
+#' @param modelgroups1zi A vector of zero-inflation model group slope
+#' coefficients for time t-1.
+#' @param modelyearzi A vector of zero-inflation model time slope coefficients.
+#' @param modelpatchzi A vector of zero-inflation model patch slope coefficients.
+#' @param modelind A vector of individual covariate slope coefficients.
+#' @param modelind_rownames A string vector with the names of the individual
+#' covariate coefficients.
+#' @param modelindzi A vector of individual covariate slope coefficients.
+#' @param modelind_rownames_zi A string vector with the names of the individual
+#' covariate coefficients.
+#' @param zi A logical value indicating whether model coefficients refer to the
+#' zero inflation portion of a model.
+#' @param grp2o_i Stage group number in time t.
+#' @param grp1_i Stage group number in time t-1.
+#' @param patchnumber An integer index for pop-patch.
+#' @param yearnumber An integer index for monitoring occasion in time t.
+#' @param vitaldist A parameter specifying the distribution of the vital rate.
+#' Current options are: Poisson (0), negative binomial (1), Gaussian (2),
+#' Gamma (3), and binomial (4).
+#' @param vitalrate An integer specifying the vital rate. 1 = surv, 2 = obs,
+#' 3 = size, 4 = sizeb, 5 = sizec, 6 = repst, 7 = fec, 8 = jsurv, 9 = jobs,
+#' 10 = jsize, 11 = jsizeb, 12 = jsizec, 13 = jrepst
+#' @param exp_tol A numeric value indicating the maximum limit for the
+#' \code{exp()} function to be used in vital rate calculations. Defaults to
+#' \code{700.0}.
+#' @param theta_tol A numeric value indicating a maximum value for theta in
+#' negative binomial probability density estimation. Defaults to
+#' \code{100000000.0}.
+#' @param ipm_cdf A logical value indicating whether to use the cumulative
+#' density function to estimate size transitions in continuous distributions
+#' (\code{true}), or the midpoint method (\code{false}).
+#' @param matrixformat An integer representing the style of matrix to develop.
+#' Options include Ehrlen-format hMPM (1), deVries-format hMPM (2), ahMPM (3),
+#' and age-by-stage MPM (4).
+#' @param fecmod A scalar multiplier for fecundity.
+#' @param repentry_i Rep entry value for time t+1.
+#' @param negfec A logical value denoting whether to change negative estimated
+#' fecundity to 0.
+#' @param stage2n_i Numeric index of stage in time t.
+#' @param nostages The total number of stages in the stageframe.
+#' @param modeltrunc An integer coding for zero-truncation status.
+#' @param modelsigma A double numeric holding the standard deviation of the
+#' parameter distribution.
+#' 
+#' @return A class double numeric value for the vital rate being estimated.
+#' 
+#' @keywords internal
+#' @noRd
+.preouterator <- function(modelproxy, maincoefs, randindex, dev_terms, svsigmas, vitalyear, vitalpatch, chosen_r2inda, chosen_r1inda, chosen_r2indb, chosen_r1indb, chosen_r2indc, chosen_r1indc, status_terms, modelgroups2, modelgroups1, modelgroups2zi, modelgroups1zi, modelyearzi, modelpatchzi, modelind, modelind_rownames, modelindzi, modelind_rownames_zi, zi, grp2o_i, grp1_i, patchnumber, yearnumber, vitaldist, vitalrate, exp_tol, theta_tol, ipm_cdf, matrixformat, fecmod, repentry_i, negfec, stage2n_i, nostages, modeltrunc, modelsigma) {
+    .Call('_lefko3_preouterator', PACKAGE = 'lefko3', modelproxy, maincoefs, randindex, dev_terms, svsigmas, vitalyear, vitalpatch, chosen_r2inda, chosen_r1inda, chosen_r2indb, chosen_r1indb, chosen_r2indc, chosen_r1indc, status_terms, modelgroups2, modelgroups1, modelgroups2zi, modelgroups1zi, modelyearzi, modelpatchzi, modelind, modelind_rownames, modelindzi, modelind_rownames_zi, zi, grp2o_i, grp1_i, patchnumber, yearnumber, vitaldist, vitalrate, exp_tol, theta_tol, ipm_cdf, matrixformat, fecmod, repentry_i, negfec, stage2n_i, nostages, modeltrunc, modelsigma)
+}
+
 #' Estimate All Elements of Function-based Population Projection Matrix
 #' 
 #' Function \code{.jerzeibalowski()} swiftly calculates matrix elements in
@@ -958,6 +1047,10 @@ cond_diff <- function(lDiff, ref = 1L, matchoice = NULL, err_check = NULL) {
 #' @param theta_tol A numeric value indicating a maximum value for theta in
 #' negative binomial probability density estimation. Defaults to
 #' \code{100000000.0}.
+#' @param ipm_method A string indicating which method should be used to
+#' estimate size transitions in cases with continuous distributions. Options
+#' include \code{"midpoint"}, which uses the midpoint method, and \code{"cdf"},
+#' which uses the cumulative density function.
 #' 
 #' @return A list of 3 matrices, including the main MPM (A), the survival-
 #' transition matrix (U), and a fecundity matrix (F). With tweaking, can also
@@ -965,10 +1058,23 @@ cond_diff <- function(lDiff, ref = 1L, matchoice = NULL, err_check = NULL) {
 #' probability, reproduction probability, and size transition probability, for
 #' each element of the final MPM.
 #' 
+#' @section Notes:
+#' 
+#' The DataFrame AllStages introduces variables used in size and fecundity
+#' calculations. This DataFrame is broken up into long vectors composed of
+#' input sizes and related variables for these calculations. The "model" Lists
+#' bring in the vital rate models, and include random coefficients where
+#' needed. We also have a number of extra variables, that include such info as
+#' whether to use the Poisson, negative binomial, Gamma, or Gaussian
+#' distributions for size and fecundity calculations. If \code{sizedist},
+#' \code{sizebdist}, \code{sizecdist}, or \code{fecdist} equals 0, 1, 2, or 3,
+#' then the Poisson, negative binomial, Gaussian, or Gamma is used,
+#' respectively.
+#' 
 #' @keywords internal
 #' @noRd
-.jerzeibalowski <- function(ppy, AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, svsigmas, maxsize, maxsizeb, maxsizec, finalage, sizedist, sizebdist, sizecdist, fecdist, negfec, exp_tol = 700.0, theta_tol = 100000000.0) {
-    .Call('_lefko3_jerzeibalowski', PACKAGE = 'lefko3', ppy, AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, svsigmas, maxsize, maxsizeb, maxsizec, finalage, sizedist, sizebdist, sizecdist, fecdist, negfec, exp_tol, theta_tol)
+.jerzeibalowski <- function(ppy, AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, svsigmas, maxsize, maxsizeb, maxsizec, finalage, sizedist, sizebdist, sizecdist, fecdist, negfec, exp_tol = 700.0, theta_tol = 100000000.0, ipm_method = "cdf") {
+    .Call('_lefko3_jerzeibalowski', PACKAGE = 'lefko3', ppy, AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, svsigmas, maxsize, maxsizeb, maxsizec, finalage, sizedist, sizebdist, sizecdist, fecdist, negfec, exp_tol, theta_tol, ipm_method)
 }
 
 #' Create Historically Structured Version of ahMPM

@@ -2136,7 +2136,7 @@ start_input <- function(mpm, stage2, stage1 = NA, age2 = NA, value = 1) {
   return(output_tab)
 }
 
-#' Calculate Actual Stage or Stage-Pair Distributions
+#' Calculate Actual Stage, Age-Stage, or Stage-Pair Distributions
 #' 
 #' Function \code{actualstage3()} shows the frequencies and proportions of
 #' each stage or stage pair in each year.
@@ -2153,12 +2153,16 @@ start_input <- function(mpm, stage2, stage1 = NA, age2 = NA, value = 1) {
 #' @param stagecol A vector of three strings, indicating the stage name columns
 #' for times \emph{t}+1, \emph{t}, and \emph{t}-1, respectively, in \code{data}.
 #' Defaults to \code{stagecol = c("stage3", "stage2", "stage1")}.
+#' @param remove.stage A string vector indicating the names of stages to remove
+#' from consideration. Defaults to \code{"NotAlive"}.
 #' 
-#' @return A data frame with five variables:
+#' @return A data frame with the following variables:
 #' \item{rowid}{A string identifier term, equal to the monitoring occasion in
 #' time \emph{t} and the stage index.}
 #' \item{stageindex}{The stageframe index of the stage.}
 #' \item{stage}{The name of each stage, or \code{NA}.}
+#' \item{stage2}{The name of the stage in time \emph{t}.}
+#' \item{stage1}{The name of the stage in time \emph{t}-1, or \code{NA}.}
 #' \item{year2}{Monitoring occasion in time \emph{t}.}
 #' \item{frequency}{The number of individuals in the respective stage and time.}
 #' \item{actual_prop}{The proportion of individuals alive in time \emph{t} in
@@ -2212,7 +2216,7 @@ start_input <- function(mpm, stage2, stage1 = NA, age2 = NA, value = 1) {
 #' @export
 actualstage3 <- function(data, historical = FALSE, year2 = "year2",
   indices = c("stage3index", "stage2index", "stage1index"),
-  stagecol = c("stage3", "stage2", "stage1")) {
+  stagecol = c("stage3", "stage2", "stage1"), remove.stage = "NotAlive") {
   
   aaa.data <- ordered_stages <- ordered_indices <- NULL
   stagenames <- FALSE
@@ -2266,6 +2270,24 @@ actualstage3 <- function(data, historical = FALSE, year2 = "year2",
   bits_to_tack_on$year2 <- all_years[1] + 1
   data <- rbind.data.frame(data, bits_to_tack_on)
   
+  allstages <- unique(data$stage2)
+  
+  if (any(nchar(remove.stage) > 0)) {
+    blank.stage <- which(nchar(remove.stage) == 0)
+    
+    if (length(blank.stage) > 0) {
+      remove.stage <- remove.stage[-which(nchar(remove.stage) == 0)]
+    }
+    
+    if (any(!is.element(remove.stage, allstages))) {
+      stop("Setting remove.stage includes stages not found in dataset.", call. = FALSE)
+    }
+     rows_to_remove <- which(is.element(data$stage2, remove.stage))
+     if (length(rows_to_remove) > 0) {
+       data <- data[-rows_to_remove,]
+     }
+  }
+  
   if (!historical) {
     if (stagenames) {
       data$stages <- data$stage2
@@ -2274,6 +2296,11 @@ actualstage3 <- function(data, historical = FALSE, year2 = "year2",
     
     aaa.data <- as.data.frame(xtabs(~ stage2index + year2, data), stringsAsFactors = FALSE)
     names(aaa.data)[which(names(aaa.data) == "stage2index")] <- "stageindex"
+    
+    aaa.data$stage2 <- apply(as.matrix(aaa.data$stageindex), 1, function(X) {
+      data$stage2[which(data$stage2index == X)[1]]
+    })
+    aaa.data$stage1 <- NA
     
     ordered_indices <- sort(unique(as.numeric(aaa.data$stageindex)))
   } else {
@@ -2288,6 +2315,13 @@ actualstage3 <- function(data, historical = FALSE, year2 = "year2",
     }
     
     aaa.data <- as.data.frame(xtabs(~ stageindex + year2, data), stringsAsFactors = FALSE)
+    
+    aaa.data$stage2 <- apply(as.matrix(aaa.data$stageindex), 1, function(X) {
+      data$stage2[which(data$stageindex == X)[1]]
+    })
+    aaa.data$stage1 <- apply(as.matrix(aaa.data$stageindex), 1, function(X) {
+      data$stage1[which(data$stageindex == X)[1]]
+    })
     
     ordered_indices <- sort(unique(aaa.data$stageindex))
   }
@@ -2319,8 +2353,8 @@ actualstage3 <- function(data, historical = FALSE, year2 = "year2",
     aaa.data$stage <- NA
   }
   
-  aaa.data <- aaa.data[, c("rowid", "stageindex", "stage", "year2", "Freq",
-    "actual_prop")]
+  aaa.data <- aaa.data[, c("rowid", "stageindex", "stage", "stage2", "stage1",
+    "year2", "Freq", "actual_prop")]
   names(aaa.data)[which(names(aaa.data) == "Freq")] <- "frequency"
   
   return(aaa.data)

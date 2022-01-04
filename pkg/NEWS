@@ -14,6 +14,13 @@ CHANGES IN VERSION 4.2.0 (2022-01-XX)
        is added to the analysis.
     5. Function modelsearch() now performs accuracy checks by default, and
        allows an opt-out.
+    6. Function actualstage3() now removes stages if wished, including stage
+       NotAlive be default.
+    7. New plot.lefkoProj() function added.
+    8. All function-based matrix estimators now incorporate a default method
+       for continuous distributions using cumulative density functions to
+       estimate size transition probabilities. The midpoint rule is now only an
+       option (and not advised).
 
   USER-VISIBLE CHANGES
     1. Functions rlefko2() and rlefko3() now provide warnings if individual
@@ -24,6 +31,8 @@ CHANGES IN VERSION 4.2.0 (2022-01-XX)
     4. Function modelsearch() is now more flexible with input errors in some
        key settings.
     5. Ended dependence on package stringr.
+    6. Expanded data frame output with actualstage3() to give individual stage
+       designations in times t and t-1.
 
   BUG FIXES
     1. Matrix quality control summaries corrected when functions add_lM(),
@@ -43,6 +52,10 @@ CHANGES IN VERSION 4.2.0 (2022-01-XX)
        function modelsearch().
     9. Corrected issue in flefko3(), flefko2(), and aflefko2() affecting the
        incorporation of zero-inflated Poisson and negative binomial models.
+    10. Fixed fecundity estimation issue arising in some circumstances with
+        deVries-formatted historical models.
+    11. Fixed bug leading size of 0 to be treated as zero-inflated in Poisson
+        and negative binomial models.
 
 
 CHANGES IN VERSION 4.1.1 (2021-12-07)

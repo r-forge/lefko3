@@ -1,8 +1,8 @@
 Package: lefko3
 Type: Package
 Title: Historical and Ahistorical Population Projection Matrix Analysis
-Version: 4.1.1.9003
-Date: 2021-12-17
+Version: 4.1.1.9005
+Date: 2022-01-04
 Authors@R: c(person(given = "Richard P.", family = "Shefferson",
              email = "cdorm@g.ecc.u-tokyo.ac.jp", role = c("aut", "cre"),
              comment=c(ORCID="0000-0002-5234-3131")),
@@ -18,20 +18,11 @@ Description: Creates matrix population models for use in population ecological
              deVries and Caswell (2018) <doi:10.1007/s12080-017-0353-0>.
 Encoding: UTF-8
 License: GPL (>= 2)
-Imports: Rcpp (>= 1.0.5),
-    glmmTMB,
-    lme4,
-    MASS,
-    MuMIn,
-    pscl,
-    SparseM,
-    stats,
-    VGAM
-LinkingTo: Rcpp, RcppArmadillo
+Imports: Rcpp (>= 1.0.5), glmmTMB, lme4, MASS, MuMIn, pscl, SparseM, stats, VGAM
+LinkingTo: Rcpp, RcppArmadillo, BH
 LazyData: true
 RoxygenNote: 7.1.2
-Suggests: 
-    knitr,
-    popbio,
-    rmarkdown,
+Suggests: knitr, popbio, rmarkdown,
 VignetteBuilder: knitr
+NeedsCompilation: yes
+

@@ -1,5 +1,9 @@
-#include <RcppArmadillo.h>
 // [[Rcpp::depends(RcppArmadillo)]]
+#define BOOST_DISABLE_ASSERTS
+
+#include <RcppArmadillo.h>
+#include <boost/math/special_functions/gamma.hpp>
+#include <boost/math/special_functions/beta.hpp>
 
 using namespace Rcpp;
 using namespace arma;
@@ -566,12 +570,12 @@ Rcpp::List minorpatrolgroup(DataFrame MainData, DataFrame StageFrame,
 //' @keywords internal
 //' @noRd
 // [[Rcpp::export(.revelations)]]
-arma::mat revelations(List survproxy, List obsproxy, List sizeproxy,
+NumericMatrix revelations(List survproxy, List obsproxy, List sizeproxy,
   List sizebproxy, List sizecproxy, List repstproxy, List fecproxy,
   List jsurvproxy, List jobsproxy, List jsizeproxy, List jsizebproxy,
   List jsizecproxy, List jrepstproxy, int mat_switch) {
   
-  arma::mat final_mat;
+  NumericMatrix final_mat;
   
   if (mat_switch == 1) {
     Rcpp::DataFrame survyear_df(survproxy["years"]);
@@ -588,36 +592,36 @@ arma::mat revelations(List survproxy, List obsproxy, List sizeproxy,
     Rcpp::DataFrame jsizecyear_df(jsizecproxy["years"]);
     Rcpp::DataFrame jrepstyear_df(jrepstproxy["years"]);
     
-    arma::vec survyear = survyear_df[0];
-    arma::vec obsyear = obsyear_df[0];
-    arma::vec sizeyear = sizeyear_df[0];
-    arma::vec sizebyear = sizebyear_df[0];
-    arma::vec sizecyear = sizecyear_df[0];
-    arma::vec repstyear = repstyear_df[0];
-    arma::vec fecyear = fecyear_df[0];
-    arma::vec jsurvyear = jsurvyear_df[0];
-    arma::vec jobsyear = jobsyear_df[0];
-    arma::vec jsizeyear = jsizeyear_df[0];
-    arma::vec jsizebyear = jsizebyear_df[0];
-    arma::vec jsizecyear = jsizecyear_df[0];
-    arma::vec jrepstyear = jrepstyear_df[0];
+    NumericVector survyear = survyear_df[0];
+    NumericVector obsyear = obsyear_df[0];
+    NumericVector sizeyear = sizeyear_df[0];
+    NumericVector sizebyear = sizebyear_df[0];
+    NumericVector sizecyear = sizecyear_df[0];
+    NumericVector repstyear = repstyear_df[0];
+    NumericVector fecyear = fecyear_df[0];
+    NumericVector jsurvyear = jsurvyear_df[0];
+    NumericVector jobsyear = jobsyear_df[0];
+    NumericVector jsizeyear = jsizeyear_df[0];
+    NumericVector jsizebyear = jsizebyear_df[0];
+    NumericVector jsizecyear = jsizecyear_df[0];
+    NumericVector jrepstyear = jrepstyear_df[0];
     
-    int matrows = survyear.n_elem;
+    int matrows = survyear.length();
     
-    arma::mat year_mat(matrows, 13, fill::zeros);
-    year_mat.col(0) = survyear;
-    year_mat.col(1) = obsyear;
-    year_mat.col(2) = sizeyear;
-    year_mat.col(3) = sizebyear;
-    year_mat.col(4) = sizecyear;
-    year_mat.col(5) = repstyear;
-    year_mat.col(6) = fecyear;
-    year_mat.col(7) = jsurvyear;
-    year_mat.col(8) = jobsyear;
-    year_mat.col(9) = jsizeyear;
-    year_mat.col(10) = jsizebyear;
-    year_mat.col(11) = jsizecyear;
-    year_mat.col(12) = jrepstyear;
+    NumericMatrix year_mat(matrows, 13);
+    year_mat(_, 0) = survyear;
+    year_mat(_, 1) = obsyear;
+    year_mat(_, 2) = sizeyear;
+    year_mat(_, 3) = sizebyear;
+    year_mat(_, 4) = sizecyear;
+    year_mat(_, 5) = repstyear;
+    year_mat(_, 6) = fecyear;
+    year_mat(_, 7) = jsurvyear;
+    year_mat(_, 8) = jobsyear;
+    year_mat(_, 9) = jsizeyear;
+    year_mat(_, 10) = jsizebyear;
+    year_mat(_, 11) = jsizecyear;
+    year_mat(_, 12) = jrepstyear;
     
     final_mat = year_mat;
     
@@ -637,36 +641,36 @@ arma::mat revelations(List survproxy, List obsproxy, List sizeproxy,
     Rcpp::DataFrame jsizecpatch_df(jsizecproxy["patches"]);
     Rcpp::DataFrame jrepstpatch_df(jrepstproxy["patches"]);
     
-    arma::vec survpatch = survpatch_df[0];
-    arma::vec obspatch = obspatch_df[0];
-    arma::vec sizepatch = sizepatch_df[0];
-    arma::vec sizebpatch = sizebpatch_df[0];
-    arma::vec sizecpatch = sizecpatch_df[0];
-    arma::vec repstpatch = repstpatch_df[0];
-    arma::vec fecpatch = fecpatch_df[0];
-    arma::vec jsurvpatch = jsurvpatch_df[0];
-    arma::vec jobspatch = jobspatch_df[0];
-    arma::vec jsizepatch = jsizepatch_df[0];
-    arma::vec jsizebpatch = jsizebpatch_df[0];
-    arma::vec jsizecpatch = jsizecpatch_df[0];
-    arma::vec jrepstpatch = jrepstpatch_df[0];
+    NumericVector survpatch = survpatch_df[0];
+    NumericVector obspatch = obspatch_df[0];
+    NumericVector sizepatch = sizepatch_df[0];
+    NumericVector sizebpatch = sizebpatch_df[0];
+    NumericVector sizecpatch = sizecpatch_df[0];
+    NumericVector repstpatch = repstpatch_df[0];
+    NumericVector fecpatch = fecpatch_df[0];
+    NumericVector jsurvpatch = jsurvpatch_df[0];
+    NumericVector jobspatch = jobspatch_df[0];
+    NumericVector jsizepatch = jsizepatch_df[0];
+    NumericVector jsizebpatch = jsizebpatch_df[0];
+    NumericVector jsizecpatch = jsizecpatch_df[0];
+    NumericVector jrepstpatch = jrepstpatch_df[0];
     
-    int matrows = survpatch.n_elem;
+    int matrows = survpatch.length();
     
-    arma::mat patch_mat(matrows, 13, fill::zeros);
-    patch_mat.col(0) = survpatch;
-    patch_mat.col(1) = obspatch;
-    patch_mat.col(2) = sizepatch;
-    patch_mat.col(3) = sizebpatch;
-    patch_mat.col(4) = sizecpatch;
-    patch_mat.col(5) = repstpatch;
-    patch_mat.col(6) = fecpatch;
-    patch_mat.col(7) = jsurvpatch;
-    patch_mat.col(8) = jobspatch;
-    patch_mat.col(9) = jsizepatch;
-    patch_mat.col(10) = jsizebpatch;
-    patch_mat.col(11) = jsizecpatch;
-    patch_mat.col(12) = jrepstpatch;
+    NumericMatrix patch_mat(matrows, 13);
+    patch_mat(_, 0) = survpatch;
+    patch_mat(_, 1) = obspatch;
+    patch_mat(_, 2) = sizepatch;
+    patch_mat(_, 3) = sizebpatch;
+    patch_mat(_, 4) = sizecpatch;
+    patch_mat(_, 5) = repstpatch;
+    patch_mat(_, 6) = fecpatch;
+    patch_mat(_, 7) = jsurvpatch;
+    patch_mat(_, 8) = jobspatch;
+    patch_mat(_, 9) = jsizepatch;
+    patch_mat(_, 10) = jsizebpatch;
+    patch_mat(_, 11) = jsizecpatch;
+    patch_mat(_, 12) = jrepstpatch;
     
     final_mat = patch_mat;
   }
@@ -707,7 +711,7 @@ arma::mat revelations(List survproxy, List obsproxy, List sizeproxy,
 //' @keywords internal
 //' @noRd
 // [[Rcpp::export(.rimeotam)]]
-double rimeotam(arma::vec maincoefs, double fl1_i, double fl2n_i, double sz1_i,
+double rimeotam(NumericVector maincoefs, double fl1_i, double fl2n_i, double sz1_i,
   double sz2o_i, double szb1_i, double szb2o_i, double szc1_i, double szc2o_i,
   double aage2_i, double inda_1, double inda_2, double indb_1, double indb_2,
   double indc_1, double indc_2, double used_dens, bool zi) {
@@ -882,7 +886,7 @@ arma::ivec foi_counter(List modelproxy, bool zi) {
 //' @keywords internal
 //' @noRd
 // [[Rcpp::export(.flightoficarus)]]
-arma::vec flightoficarus(List modelproxy) {
+NumericVector flightoficarus(List modelproxy) {
   Rcpp::DataFrame modelinda2r_df(modelproxy["indcova2s"]);
   Rcpp::DataFrame modelinda1r_df(modelproxy["indcova1s"]);
   Rcpp::DataFrame modelindb2r_df(modelproxy["indcovb2s"]);
@@ -890,22 +894,22 @@ arma::vec flightoficarus(List modelproxy) {
   Rcpp::DataFrame modelindc2r_df(modelproxy["indcovc2s"]);
   Rcpp::DataFrame modelindc1r_df(modelproxy["indcovc1s"]);
   
-  arma::vec modelinda2r = modelinda2r_df[0];
-  arma::vec modelinda1r = modelinda1r_df[0];
-  arma::vec modelindb2r = modelindb2r_df[0];
-  arma::vec modelindb1r = modelindb1r_df[0];
-  arma::vec modelindc2r = modelindc2r_df[0];
-  arma::vec modelindc1r = modelindc1r_df[0];
+  NumericVector modelinda2r = modelinda2r_df[0];
+  NumericVector modelinda1r = modelinda1r_df[0];
+  NumericVector modelindb2r = modelindb2r_df[0];
+  NumericVector modelindb1r = modelindb1r_df[0];
+  NumericVector modelindc2r = modelindc2r_df[0];
+  NumericVector modelindc1r = modelindc1r_df[0];
   
-  int v1_l = modelinda2r.n_elem;
-  int v2_l = modelinda1r.n_elem;
-  int v3_l = modelindb2r.n_elem;
-  int v4_l = modelindb1r.n_elem;
-  int v5_l = modelindc2r.n_elem;
-  int v6_l = modelindc1r.n_elem;
+  int v1_l = modelinda2r.length();
+  int v2_l = modelinda1r.length();
+  int v3_l = modelindb2r.length();
+  int v4_l = modelindb1r.length();
+  int v5_l = modelindc2r.length();
+  int v6_l = modelindc1r.length();
   int vec_length = v1_l + v2_l + v3_l + v4_l + v5_l + v6_l;
   
-  arma::vec final_vec(vec_length, fill::zeros);
+  NumericVector final_vec(vec_length);
   int all_counter {0};
   
   for (int i = 0; i < v1_l; i++) {
@@ -1022,7 +1026,7 @@ StringVector bootson(List modelproxy) {
 //' @keywords internal
 //' @noRd
 // [[Rcpp::export(.zero_flightoficarus)]]
-arma::vec zero_flightoficarus(List modelproxy) {
+NumericVector zero_flightoficarus(List modelproxy) {
   Rcpp::DataFrame modelinda2r_df(modelproxy["zeroindcova2s"]);
   Rcpp::DataFrame modelinda1r_df(modelproxy["zeroindcova1s"]);
   Rcpp::DataFrame modelindb2r_df(modelproxy["zeroindcovb2s"]);
@@ -1030,22 +1034,22 @@ arma::vec zero_flightoficarus(List modelproxy) {
   Rcpp::DataFrame modelindc2r_df(modelproxy["zeroindcovc2s"]);
   Rcpp::DataFrame modelindc1r_df(modelproxy["zeroindcovc1s"]);
   
-  arma::vec modelinda2r = modelinda2r_df[0];
-  arma::vec modelinda1r = modelinda1r_df[0];
-  arma::vec modelindb2r = modelindb2r_df[0];
-  arma::vec modelindb1r = modelindb1r_df[0];
-  arma::vec modelindc2r = modelindc2r_df[0];
-  arma::vec modelindc1r = modelindc1r_df[0];
+  NumericVector modelinda2r = modelinda2r_df[0];
+  NumericVector modelinda1r = modelinda1r_df[0];
+  NumericVector modelindb2r = modelindb2r_df[0];
+  NumericVector modelindb1r = modelindb1r_df[0];
+  NumericVector modelindc2r = modelindc2r_df[0];
+  NumericVector modelindc1r = modelindc1r_df[0];
   
-  int v1_l = modelinda2r.n_elem;
-  int v2_l = modelinda1r.n_elem;
-  int v3_l = modelindb2r.n_elem;
-  int v4_l = modelindb1r.n_elem;
-  int v5_l = modelindc2r.n_elem;
-  int v6_l = modelindc1r.n_elem;
+  int v1_l = modelinda2r.length();
+  int v2_l = modelinda1r.length();
+  int v3_l = modelindb2r.length();
+  int v4_l = modelindb1r.length();
+  int v5_l = modelindc2r.length();
+  int v6_l = modelindc1r.length();
   int vec_length = v1_l + v2_l + v3_l + v4_l + v5_l + v6_l;
   
-  arma::vec final_vec(vec_length, fill::zeros);
+  NumericVector final_vec(vec_length);
   int all_counter {0};
   
   for (int i = 0; i < v1_l; i++) {
@@ -1228,6 +1232,554 @@ arma::imat foi_index(List surv_proxy, List obs_proxy, List size_proxy,
   return final_mat;
 }
 
+//' Estimate Value for Vital Rate Based on Inputs
+//' 
+//' Function \code{.preouterator()} calculates the value of the vital rate
+//' called for by the function.
+//' 
+//' @param modelproxy A model_proxy object derived from function
+//' \code{\link(.modelextract)()}.
+//' @param maincoefs The coefficients portion of the vital rate model proxy.
+//' @param randindex An integer matrix indexing all random covariates for all
+//' vital rates.
+//' @param dev_terms A numeric vector containing the deviations to the linear
+//' models input by the user. The order is: survival, observation status, size,
+//' size_b, size_c, reproductive status, fecundity, juvenile survival, juvenile
+//' observation status, juvenile size, juvenile size_b, juvenile size_c,
+//' and juvenile reproductive status.
+//' @param svsigmas A vector of sigma and summedvar terms from vital rate
+//' models, in the order of: summedvars, sigma, summedvarsb, sigmab,
+//' summedvarsc, sigmac, jsummedvars, jsigma, jsummedvarsb, jsigmab,
+//' jsummedvarsc, and jsigmac. Summedvar terms are summed variance-covariance
+//' terms in Poisson and negative binomial size distributions, and sigma terms
+//' are standard deviations in the Gaussian size distribution.
+//' @param vitalyear A matrix with year coefficients for all vital rates.
+//' @param vitalpatch A matrix with patch coefficients for all vital rates.
+//' @param chosen_r2inda A string identifying random covariate a in time t.
+//' @param chosen_r1inda A string identifying random covariate a in time t-1.
+//' @param chosen_r2indb A string identifying random covariate b in time t.
+//' @param chosen_r1indb A string identifying random covariate b in time t-1.
+//' @param chosen_r2indc A string identifying random covariate c in time t.
+//' @param chosen_r1indc A string identifying random covariate c in time t-1.
+//' @param status_terms A NumericVector containing, in order: fl1_i, fl2n_i,
+//' sz1_i, sz2o_i, szb1_i, szb2o_i, szc1_i, szc2o_i, aage2_i, inda_1, inda_2,
+//' indb_1, indb_2, indc_1, indc_2, used_dens, sz3_i, szb3_i, szc3_i,
+//' binwidth3_i, binbwidth3_i, and bincwidth3_i.
+//' @param modelgroups2 A vector of group slope coefficients for time t.
+//' @param modelgroups1 A vector of group slope coefficients for time t-1.
+//' @param modelgroups2zi A vector of zero-inflation model group slope
+//' coefficients for time t.
+//' @param modelgroups1zi A vector of zero-inflation model group slope
+//' coefficients for time t-1.
+//' @param modelyearzi A vector of zero-inflation model time slope coefficients.
+//' @param modelpatchzi A vector of zero-inflation model patch slope coefficients.
+//' @param modelind A vector of individual covariate slope coefficients.
+//' @param modelind_rownames A string vector with the names of the individual
+//' covariate coefficients.
+//' @param modelindzi A vector of individual covariate slope coefficients.
+//' @param modelind_rownames_zi A string vector with the names of the individual
+//' covariate coefficients.
+//' @param zi A logical value indicating whether model coefficients refer to the
+//' zero inflation portion of a model.
+//' @param grp2o_i Stage group number in time t.
+//' @param grp1_i Stage group number in time t-1.
+//' @param patchnumber An integer index for pop-patch.
+//' @param yearnumber An integer index for monitoring occasion in time t.
+//' @param vitaldist A parameter specifying the distribution of the vital rate.
+//' Current options are: Poisson (0), negative binomial (1), Gaussian (2),
+//' Gamma (3), and binomial (4).
+//' @param vitalrate An integer specifying the vital rate. 1 = surv, 2 = obs,
+//' 3 = size, 4 = sizeb, 5 = sizec, 6 = repst, 7 = fec, 8 = jsurv, 9 = jobs,
+//' 10 = jsize, 11 = jsizeb, 12 = jsizec, 13 = jrepst
+//' @param exp_tol A numeric value indicating the maximum limit for the
+//' \code{exp()} function to be used in vital rate calculations. Defaults to
+//' \code{700.0}.
+//' @param theta_tol A numeric value indicating a maximum value for theta in
+//' negative binomial probability density estimation. Defaults to
+//' \code{100000000.0}.
+//' @param ipm_cdf A logical value indicating whether to use the cumulative
+//' density function to estimate size transitions in continuous distributions
+//' (\code{true}), or the midpoint method (\code{false}).
+//' @param matrixformat An integer representing the style of matrix to develop.
+//' Options include Ehrlen-format hMPM (1), deVries-format hMPM (2), ahMPM (3),
+//' and age-by-stage MPM (4).
+//' @param fecmod A scalar multiplier for fecundity.
+//' @param repentry_i Rep entry value for time t+1.
+//' @param negfec A logical value denoting whether to change negative estimated
+//' fecundity to 0.
+//' @param stage2n_i Numeric index of stage in time t.
+//' @param nostages The total number of stages in the stageframe.
+//' @param modeltrunc An integer coding for zero-truncation status.
+//' @param modelsigma A double numeric holding the standard deviation of the
+//' parameter distribution.
+//' 
+//' @return A class double numeric value for the vital rate being estimated.
+//' 
+//' @keywords internal
+//' @noRd
+// [[Rcpp::export(.preouterator)]]
+double preouterator(List modelproxy, NumericVector maincoefs, arma::imat randindex,
+  NumericVector dev_terms, NumericVector svsigmas, NumericMatrix vitalyear,
+  NumericMatrix vitalpatch, String chosen_r2inda, String chosen_r1inda,
+  String chosen_r2indb, String chosen_r1indb, String chosen_r2indc,
+  String chosen_r1indc, NumericVector status_terms, NumericVector modelgroups2,
+  NumericVector modelgroups1, NumericVector modelgroups2zi,
+  NumericVector modelgroups1zi, NumericVector modelyearzi,
+  NumericVector modelpatchzi, NumericVector modelind,
+  StringVector modelind_rownames, NumericVector modelindzi,
+  StringVector modelind_rownames_zi, bool zi, double grp2o_i,
+  double grp1_i, int patchnumber, int yearnumber, int vitaldist, int vitalrate,
+  double exp_tol, double theta_tol, bool ipm_cdf, int matrixformat,
+  double fecmod, double repentry_i, bool negfec, double stage2n_i,
+  int nostages, int modeltrunc, double modelsigma) {
+  
+  double preout {0.0};
+  double all_out {0.0};
+  
+  int placeholder = vitalrate - 1;
+  int placeholder_zi = placeholder + 11;
+  int vitaltype {0}; // Binomial vital rates
+  if (vitalrate == 3 || vitalrate == 4 || vitalrate == 5) {
+    vitaltype = 1; // Size
+  } else if (vitalrate == 10 || vitalrate == 11 || vitalrate == 12) {
+    vitaltype = 1; // Juv size
+  } else if (vitalrate == 7) {
+    vitaltype = 2; // Fecundity
+  }
+  
+  // This section occurs in all vital rates
+  double mainsum = rimeotam(maincoefs, status_terms(0), status_terms(1),
+    status_terms(2), status_terms(3), status_terms(4), status_terms(5),
+    status_terms(6), status_terms(7), status_terms(8), status_terms(9),
+    status_terms(10), status_terms(11), status_terms(12), status_terms(13),
+    status_terms(14), status_terms(15), zi);
+  
+  bool zi_processing = false;
+  
+  if (vitaltype == 1) {
+    if (vitalrate == 3 || vitalrate == 10) {
+      if (zi && status_terms(16) == 0.0) zi_processing = true;
+    } else if (vitalrate == 4 || vitalrate == 11) {
+      if (zi && status_terms(17) == 0.0) zi_processing = true;
+    } else if (vitalrate == 5 || vitalrate == 12) {
+      if (zi && status_terms(18) == 0.0) zi_processing = true;
+    } 
+  } else if (vitaltype == 2) {
+    if (zi && status_terms(16) == 0 && status_terms(17) == 0 &&
+      status_terms(18) == 0 && vitaldist < 2) zi_processing = true;  
+  }
+  
+  if (!zi_processing) {
+    // Random covariate processing
+    double chosen_randcova2 {0.0};
+    if (chosen_r2inda != "none") {
+      for (int indcount = 0; indcount < randindex(0, placeholder); indcount++) {
+        if (chosen_r2inda == modelind_rownames(indcount)) {
+          chosen_randcova2 = modelind(indcount);
+        }
+      }
+    }
+    double chosen_randcova1 {0.0};
+    if (chosen_r1inda != "none") {
+      int delectable_sum = randindex(0, placeholder);
+      for (int indcount = 0; indcount < randindex(1, placeholder); indcount++) {
+        if (chosen_r1inda == modelind_rownames(indcount + delectable_sum)) {
+          chosen_randcova1 = modelind(indcount + delectable_sum);
+        }
+      }
+    }
+    double chosen_randcovb2 {0.0};
+    if (chosen_r2indb != "none") {
+      int delectable_sum = randindex(0, placeholder) + randindex(1, placeholder);
+      for (int indcount = 0; indcount < randindex(2, placeholder); indcount++) {
+        if (chosen_r2indb == modelind_rownames(indcount + delectable_sum)) {
+          chosen_randcovb2 = modelind(indcount + delectable_sum);
+        }
+      }
+    }
+    double chosen_randcovb1 {0.0};
+    if (chosen_r1indb != "none") {
+      int delectable_sum = randindex(0, placeholder) + randindex(1, placeholder) +
+        randindex(2, placeholder);
+      for (int indcount = 0; indcount < randindex(3, placeholder); indcount++) {
+        if (chosen_r1indb == modelind_rownames(indcount + delectable_sum)) {
+          chosen_randcovb1 = modelind(indcount + delectable_sum);
+        }
+      }
+    }
+    double chosen_randcovc2 {0.0};
+    if (chosen_r2indc != "none") {
+      int delectable_sum = randindex(0, placeholder) + randindex(1, placeholder) +
+        randindex(2, placeholder) + randindex(3, placeholder);
+      for (int indcount = 0; indcount < randindex(4, placeholder); indcount++) {
+        if (chosen_r2indc == modelind_rownames(indcount + delectable_sum)) {
+          chosen_randcovc2 = modelind(indcount + delectable_sum);
+        }
+      }
+    }
+    double chosen_randcovc1 {0.0};
+    if (chosen_r1indc != "none") {
+      int delectable_sum = randindex(0, placeholder) + randindex(1, placeholder) +
+        randindex(2, placeholder) + randindex(3, placeholder) + randindex(4, placeholder);
+      for (int indcount = 0; indcount < randindex(5, placeholder); indcount++) {
+        if (chosen_r1indc == modelind_rownames(indcount + delectable_sum)) {
+          chosen_randcovc1 = modelind(indcount + delectable_sum);
+        }
+      }
+    }
+    
+    preout = (mainsum + chosen_randcova2 + chosen_randcova1 +
+      chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
+      chosen_randcovc1 + modelgroups2(grp2o_i) + modelgroups1(grp1_i) + 
+      vitalpatch(patchnumber, placeholder) + vitalyear(yearnumber, placeholder) +
+      dev_terms(placeholder));
+      
+    if (preout > exp_tol && vitaldist < 2) preout = exp_tol;
+  } else {
+    // Only for size and fec
+    double chosen_randcova2zi {0.0};
+    if (chosen_r2inda != "none") {
+      for (int indcount = 0; indcount < randindex(0, placeholder_zi); indcount++) {
+        if (chosen_r2inda == modelind_rownames_zi(indcount)) {
+          chosen_randcova2zi = modelindzi(indcount);
+        }
+      }
+    }
+    double chosen_randcova1zi {0.0};
+    if (chosen_r1inda != "none") {
+      int delectable_sum = randindex(0, placeholder_zi);
+      for (int indcount = 0; indcount < randindex(1, placeholder_zi); indcount++) {
+        if (chosen_r1inda == modelind_rownames_zi(indcount + delectable_sum)) {
+          chosen_randcova1zi = modelindzi(indcount + delectable_sum);
+        }
+      }
+    }
+    double chosen_randcovb2zi {0.0};
+    if (chosen_r2indb != "none") {
+      int delectable_sum = randindex(0, placeholder_zi) + randindex(1, placeholder_zi);
+      for (int indcount = 0; indcount < randindex(2, placeholder_zi); indcount++) {
+        if (chosen_r2indb == modelind_rownames_zi(indcount + delectable_sum)) {
+          chosen_randcovb2zi = modelindzi(indcount + delectable_sum);
+        }
+      }
+    }
+    double chosen_randcovb1zi {0.0};
+    if (chosen_r1indb != "none") {
+      int delectable_sum = randindex(0, placeholder_zi) + randindex(1, placeholder_zi) +
+        randindex(2, placeholder_zi);
+      for (int indcount = 0; indcount < randindex(3, placeholder_zi); indcount++) {
+        if (chosen_r1indb == modelind_rownames_zi(indcount + delectable_sum)) {
+          chosen_randcovb1zi = modelindzi(indcount + delectable_sum);
+        }
+      }
+    }
+    double chosen_randcovc2zi {0.0};
+    if (chosen_r2indc != "none") {
+      int delectable_sum = randindex(0, placeholder_zi) + randindex(1, placeholder_zi) +
+        randindex(2, placeholder_zi) + randindex(3, placeholder_zi);
+      for (int indcount = 0; indcount < randindex(4, placeholder_zi); indcount++) {
+        if (chosen_r2indc == modelind_rownames_zi(indcount + delectable_sum)) {
+          chosen_randcovc2zi = modelindzi(indcount + delectable_sum);
+        }
+      }
+    }
+    double chosen_randcovc1zi {0.0};
+    if (chosen_r1indc != "none") {
+      int delectable_sum = randindex(0, placeholder_zi) + randindex(1, placeholder_zi) +
+        randindex(2, placeholder_zi) + randindex(3, placeholder_zi) + randindex(4, placeholder_zi);
+      for (int indcount = 0; indcount < randindex(5, placeholder_zi); indcount++) {
+        if (chosen_r1indc == modelind_rownames_zi(indcount + delectable_sum)) {
+          chosen_randcovc1zi = modelindzi(indcount + delectable_sum);
+        }
+      }
+    }
+    
+    preout = (mainsum + chosen_randcova2zi + chosen_randcova1zi +
+      chosen_randcovb2zi + chosen_randcovb1zi + chosen_randcovc2zi +
+      chosen_randcovc1zi + modelgroups2zi(grp2o_i) + modelgroups1zi(grp1_i) + 
+      modelpatchzi(patchnumber) + modelyearzi(yearnumber) +
+      dev_terms(placeholder));
+  }
+  
+  if (vitaltype == 0) {
+    
+    double pre_exp = exp(preout);
+    all_out = pre_exp / (1.0 + pre_exp);
+    
+    // Rcout << "Binomial: pre_exp: " << pre_exp << " all_out: " << all_out << "\n";
+    
+  } else if (vitaltype == 1) {
+    
+    double Used_size3 = status_terms(16);
+    double Used_binwidth3 = status_terms(19);
+    double Used_svsigmas0 = svsigmas(0);
+    double Used_svsigmas1 = svsigmas(1);
+    
+    if (vitalrate == 4) {
+      Used_size3 = status_terms(17);
+      Used_binwidth3 = status_terms(20);
+      
+      Used_svsigmas0 = svsigmas(2);
+      Used_svsigmas1 = svsigmas(3);
+    } else if (vitalrate == 5) {
+      Used_size3 = status_terms(18);
+      Used_binwidth3 = status_terms(21);
+      
+      Used_svsigmas0 = svsigmas(4);
+      Used_svsigmas1 = svsigmas(5);
+    } else if (vitalrate == 10) {
+      Used_svsigmas0 = svsigmas(6);
+      Used_svsigmas1 = svsigmas(7);
+    } else if (vitalrate == 11) {
+      Used_size3 = status_terms(17);
+      Used_binwidth3 = status_terms(20);
+      
+      Used_svsigmas0 = svsigmas(8);
+      Used_svsigmas1 = svsigmas(9);
+    } else if (vitalrate == 12) {
+      Used_size3 = status_terms(18);
+      Used_binwidth3 = status_terms(21);
+      
+      Used_svsigmas0 = svsigmas(10);
+      Used_svsigmas1 = svsigmas(11);
+    }
+    
+    if (zi_processing) {
+      preout = preout + (Used_svsigmas0 / 2.0);
+      
+      if (preout > exp_tol) preout = exp_tol;
+      
+      double pre_exp = exp(preout);
+      all_out = pre_exp / (1.0 + pre_exp);
+      
+      // Rcout << "ZI Binomial: pre_exp: " << pre_exp << " all_out: " << all_out << "\n";
+      
+    } else {
+      if (vitaldist == 0) {
+        // Poisson distribution
+        
+        preout = preout + (Used_svsigmas0 / 2.0);
+        
+        if (preout > exp_tol) preout = exp_tol;
+        double lambda = exp(preout);
+        
+        double upper_boundary = (Used_size3 + (Used_binwidth3 / 2));
+        double upper_boundary_int = floor(upper_boundary);
+        
+        double lower_boundary = (Used_size3 - (Used_binwidth3 / 2));
+        double lower_boundary_int = floor(lower_boundary);
+        
+        if (ipm_cdf) {
+          if (lower_boundary_int < 0.0) lower_boundary_int = 0.0;
+          
+          double sizefac {1.0};
+          if (upper_boundary_int > 0.0) {
+            sizefac = upper_boundary_int * tgamma(upper_boundary_int);
+          }
+          double main_out = boost::math::tgamma((upper_boundary_int + 1), lambda) / sizefac;
+          
+          if (upper_boundary_int > lower_boundary_int) {
+            double sizefac_low {1.0};
+            if (lower_boundary_int > 0.0) {
+              sizefac_low = lower_boundary_int * tgamma(lower_boundary_int);
+            }
+            all_out = main_out - boost::math::tgamma((lower_boundary_int + 1), lambda) / sizefac_low;
+          } else {
+            all_out = main_out;
+          }
+          
+          // Rcout << "Poisson cdf: upper_boundary_int: " << upper_boundary_int << 
+          //   " lower_boundary_int: " << lower_boundary_int << " lambda: " << lambda << 
+          //   " all_out: " << all_out << "\n";
+          
+        } else {
+          int y = static_cast<int>(upper_boundary_int);
+          int y0 = static_cast<int>(lower_boundary_int);
+          if (y0 < -1) y0 = -1;
+          
+          double current_prob {0.0};
+          
+          for (int summed_size = (y0 + 1); summed_size <= y; summed_size++) {
+            double sizefac {1.0};
+            if (Used_size3 > 0.0) {
+              sizefac = Used_size3 * tgamma(Used_size3);
+            }
+            
+            double den_corr {1.0};
+            if (modeltrunc == 1) den_corr = (1.0 - (exp(-1 * lambda)));
+            
+            current_prob += ((pow(lambda, Used_size3) * exp(-1.0 * lambda)) / sizefac) / den_corr;
+          }
+          all_out = current_prob;
+          
+          // Rcout << "Poisson mid: upper_boundary_int: " << upper_boundary_int <<
+          //   " lower_boundary_int: " << lower_boundary_int << " lambda: " << lambda << 
+          //   " current_prob: " << current_prob << "\n";
+        }
+        
+      } else if (vitaldist == 1) {
+        // Negative binomial
+        
+        double mu = exp(preout);
+        
+        double theta = modelproxy["sigma"];
+        if (NumericVector::is_na(theta)) theta = 1.0;
+        if (theta > theta_tol) theta = theta_tol;
+        double alpha = 1.0 / theta;
+        
+        double upper_boundary = (Used_size3 + (Used_binwidth3 / 2));
+        double upper_boundary_int = floor(upper_boundary);
+        int y = static_cast<int>(upper_boundary_int);
+        
+        double lower_boundary = (Used_size3 - (Used_binwidth3 / 2));
+        double lower_boundary_int = floor(lower_boundary);
+        int y0 = static_cast<int>(lower_boundary_int);
+        if (y0 < -1) y0 = -1;
+        
+        double log_amu = log(alpha) + log(mu);
+        double log_mid = -1.0 * theta * log(1.0 + (alpha * mu));
+        double den_corr {1.0};
+        if (modeltrunc == 1) den_corr = 1.0 - exp(log_mid);
+        
+        double current_prob {0.0};
+        
+        for (int summed_size = (y0 + 1); summed_size <= y; summed_size++) {
+          double log_leftie = 0.0;
+          for (int j = 0; j < summed_size; j++) {
+            log_leftie = log(static_cast<double>(j) + theta) - log(static_cast<double>(j) + 1.0) + log_leftie;
+          }
+          double log_rightie = static_cast<double>(summed_size) * (log_amu - log(1.0 + (alpha * mu)));
+          
+          double raw_prob = log_leftie + log_mid + log_rightie;
+          
+          current_prob += exp(raw_prob) / den_corr;
+        }
+        all_out = current_prob;
+        
+        // Rcout << "Negbin: y: " << y << " y0: " << y0 << " alpha: " << alpha <<
+        //   " mu: " << mu << " current_prob: " << current_prob << "\n";
+        
+      } else if (vitaldist == 2) {
+        // Gaussian size distribution, assuming midpoint
+        
+        if (ipm_cdf) {
+          double lower_size = Used_size3 - (0.5 * Used_binwidth3);
+          double upper_size = Used_size3 + (0.5 * Used_binwidth3);
+          
+          double lower_prob = normcdf(lower_size, preout, Used_svsigmas1);
+          double upper_prob = normcdf(upper_size, preout, Used_svsigmas1);
+          
+          all_out = upper_prob - lower_prob;
+          
+          // Rcout << "Gaussian cdf: upper_size: " << upper_size << " lower_size: " <<
+          //   lower_size << " Used_size3: " << Used_size3 << " Used_binwidth3: " <<
+          //   Used_binwidth3 << " preout: " << preout << " Used_svsigmas1: " <<
+          //   Used_svsigmas1 << " upper_prob: " << upper_prob << " lower_prob: " <<
+          //   lower_prob << " all_out: " << all_out << "\n";
+        } else {
+          double sigma2 = Used_svsigmas1 * Used_svsigmas1;
+          
+          all_out = (exp(-1 * (pow((Used_size3 - preout), 2) / (2.0 * sigma2))) / 
+            ((pow((2 * M_PI), 0.5)) * Used_svsigmas1));
+          all_out = all_out * Used_binwidth3; // This is the midpoint integration
+          
+          // Rcout << "Gaussian mid: Used_size3: " << Used_size3 << " Used_binwidth3: " <<
+          //   Used_binwidth3 << " Used_svsigmas1: " << Used_svsigmas1 << " preout: " <<
+          //   preout << " all_out: " << all_out << "\n";
+        }
+      } else if (vitaldist == 3) {
+        // Gamma size distribution, assuming midpoint
+        
+        double E_y = 1 / preout;
+        double sigma2 = Used_svsigmas1 * Used_svsigmas1;
+        double alpha = 1.0 / sigma2;
+        double beta = (alpha / E_y);
+        
+        if (ipm_cdf) {
+          double lower_size = Used_size3 - (0.5 * Used_binwidth3);
+          double upper_size = Used_size3 + (0.5 * Used_binwidth3);
+          
+          double lower_prob = boost::math::gamma_p(alpha, (beta * lower_size));
+          double upper_prob = boost::math::gamma_p(alpha, (beta * upper_size));
+          
+          all_out = upper_prob - lower_prob;
+          
+          // Rcout << "Gamma cdf: upper_size: " << upper_size << " lower_size: " <<
+          //   lower_size << " alpha: " << alpha << " beta: " << beta << " upper_prob: " <<
+          //   upper_prob << " lower_prob: " << lower_prob << " all_out: " << all_out << "\n";
+        } else {
+          
+          all_out = pow(beta, alpha) * (1.0 / tgamma(alpha)) * 
+            pow(Used_size3, (alpha - 1.0)) * exp(-1.0 * beta * Used_size3);
+          all_out = all_out * Used_binwidth3; // This is the midpoint integration
+          
+          // Rcout << "Gamma mid: Used_size3: " << Used_size3 << " Used_binwidth3: " <<
+          //   Used_binwidth3 << " alpha: " << alpha << " beta: " << beta <<
+          //   " all_out: " << all_out << "\n";
+        }
+      }
+    }
+  } else if (vitaltype == 2) {
+    if (matrixformat != 2 || stage2n_i != static_cast<double>(nostages+1)) {
+      if (vitaldist == 0 || vitaldist == 1) {
+        // Poisson and negative binomial fecundity
+        if (preout > exp_tol) preout = exp_tol;
+        
+        if (zi_processing) {
+          
+          all_out = (exp(preout) / (1.0 + exp(preout))) * fecmod * repentry_i;
+          
+        } else {
+          
+          all_out = exp(preout) * fecmod * repentry_i;
+        }
+      } else if (vitaldist == 2) {
+        // Gaussian fecundity
+        all_out = preout * fecmod * repentry_i;
+        
+        if (negfec && all_out < 0.0) all_out = 0.0;
+        
+      } else if (vitaldist == 3) {
+        // Gamma fecundity
+        all_out = (1.0 / preout) * fecmod * repentry_i;
+      } else {
+        all_out = maincoefs(0);
+      }
+    } else if (stage2n_i == static_cast<double>(nostages+1)) {
+      // This propagates fecundity in deVries-formatted hMPMs
+      if (vitaldist == 0 || vitaldist == 1) {
+        // Poisson and negative binomial fecundity
+        
+        if (preout > exp_tol) preout = exp_tol;
+            
+        if (zi_processing) {
+          
+          all_out = (exp(preout) / (1.0 + exp(preout))) * fecmod * repentry_i;
+          
+        } else {
+          
+            all_out = exp(preout) * fecmod * repentry_i;
+          
+        }
+      } else if (vitaldist == 2) {
+        // Gaussian fecundity
+        all_out = preout * fecmod * repentry_i;
+        
+        if (negfec && all_out < 0.0) {
+          all_out = 0.0;
+        }
+      } else if (vitaldist == 3) {
+        // Gamma fecundity
+        all_out = (1.0 / preout) * fecmod * repentry_i;
+      }
+    } else {
+      all_out = maincoefs(0);
+    }
+  }
+  
+  return(all_out);
+}
+
 //' Estimate All Elements of Function-based Population Projection Matrix
 //' 
 //' Function \code{.jerzeibalowski()} swiftly calculates matrix elements in
@@ -1326,12 +1878,29 @@ arma::imat foi_index(List surv_proxy, List obs_proxy, List size_proxy,
 //' @param theta_tol A numeric value indicating a maximum value for theta in
 //' negative binomial probability density estimation. Defaults to
 //' \code{100000000.0}.
+//' @param ipm_method A string indicating which method should be used to
+//' estimate size transitions in cases with continuous distributions. Options
+//' include \code{"midpoint"}, which uses the midpoint method, and \code{"cdf"},
+//' which uses the cumulative density function.
 //' 
 //' @return A list of 3 matrices, including the main MPM (A), the survival-
 //' transition matrix (U), and a fecundity matrix (F). With tweaking, can also
 //' produce a 4 column matrix showing survival probability, observation
 //' probability, reproduction probability, and size transition probability, for
 //' each element of the final MPM.
+//' 
+//' @section Notes:
+//' 
+//' The DataFrame AllStages introduces variables used in size and fecundity
+//' calculations. This DataFrame is broken up into long vectors composed of
+//' input sizes and related variables for these calculations. The "model" Lists
+//' bring in the vital rate models, and include random coefficients where
+//' needed. We also have a number of extra variables, that include such info as
+//' whether to use the Poisson, negative binomial, Gamma, or Gaussian
+//' distributions for size and fecundity calculations. If \code{sizedist},
+//' \code{sizebdist}, \code{sizecdist}, or \code{fecdist} equals 0, 1, 2, or 3,
+//' then the Poisson, negative binomial, Gaussian, or Gamma is used,
+//' respectively.
 //' 
 //' @keywords internal
 //' @noRd
@@ -1348,15 +1917,11 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   double dens, double fecmod, NumericVector svsigmas, double maxsize,
   double maxsizeb, double maxsizec, unsigned int finalage, int sizedist,
   int sizebdist, int sizecdist, int fecdist, bool negfec,
-  double exp_tol = 700.0, double theta_tol = 100000000.0) {
+  double exp_tol = 700.0, double theta_tol = 100000000.0,
+  String ipm_method = "cdf") {
   
-  // The DataFrame AllStages introduces variables used in size and fecundity calculations. This DataFrame
-  // is broken up into long vectors composed of input sizes and related variables for these calculations. 
-  // The "model" Lists bring in the vital rate models, and include random coefficients
-  // where needed. We also have a number of extra variables, that include such info as whether to use
-  // the Poisson, negative binomial, and Gaussian for size and fecundity calculations. If either sizedist
-  // or fecdist equals 0, then the Poisson is used. If either equals 1, then the negative binomial is 
-  // used. If 2, then the Gaussian. If 3, then the Gamma.
+  bool ipm_cdf = true;
+  if (ipm_method == "midpoint") ipm_cdf = false;
   
   // Determines the size of the matrix
   StringVector stagenames = stageframe["stage"];
@@ -1388,37 +1953,38 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   bool jsizebzero = false;
   bool jsizeczero = false;
   
-  arma::vec survcoefs = survproxy["coefficients"];
-  arma::vec obscoefs = obsproxy["coefficients"];
-  arma::vec sizecoefs = sizeproxy["coefficients"];
-  arma::vec sizebcoefs = sizebproxy["coefficients"];
-  arma::vec sizeccoefs = sizecproxy["coefficients"];
-  arma::vec repstcoefs = repstproxy["coefficients"];
-  arma::vec feccoefs = fecproxy["coefficients"];
-  arma::vec jsurvcoefs = jsurvproxy["coefficients"];
-  arma::vec jobscoefs = jobsproxy["coefficients"];
-  arma::vec jsizecoefs = jsizeproxy["coefficients"];
-  arma::vec jsizebcoefs = jsizebproxy["coefficients"];
-  arma::vec jsizeccoefs = jsizecproxy["coefficients"];
-  arma::vec jrepstcoefs = jrepstproxy["coefficients"];
+  NumericVector survcoefs = survproxy["coefficients"];
+  NumericVector obscoefs = obsproxy["coefficients"];
+  NumericVector sizecoefs = sizeproxy["coefficients"];
+  NumericVector sizebcoefs = sizebproxy["coefficients"];
+  NumericVector sizeccoefs = sizecproxy["coefficients"];
+  NumericVector repstcoefs = repstproxy["coefficients"];
+  NumericVector feccoefs = fecproxy["coefficients"];
+  NumericVector jsurvcoefs = jsurvproxy["coefficients"];
+  NumericVector jobscoefs = jobsproxy["coefficients"];
+  NumericVector jsizecoefs = jsizeproxy["coefficients"];
+  NumericVector jsizebcoefs = jsizebproxy["coefficients"];
+  NumericVector jsizeccoefs = jsizecproxy["coefficients"];
+  NumericVector jrepstcoefs = jrepstproxy["coefficients"];
   
-  int survl = survcoefs.n_elem;
-  int obsl = obscoefs.n_elem;
-  int sizel = sizecoefs.n_elem;
-  int sizebl = sizebcoefs.n_elem;
-  int sizecl = sizeccoefs.n_elem;
-  int repstl = repstcoefs.n_elem;
-  int fecl = feccoefs.n_elem;
-  int jsurvl = jsurvcoefs.n_elem;
-  int jobsl = jobscoefs.n_elem;
-  int jsizel = jsizecoefs.n_elem;
-  int jsizebl = jsizebcoefs.n_elem;
-  int jsizecl = jsizeccoefs.n_elem;
-  int jrepstl = jrepstcoefs.n_elem;
+  int survl = survcoefs.length();
+  int obsl = obscoefs.length();
+  int sizel = sizecoefs.length();
+  int sizebl = sizebcoefs.length();
+  int sizecl = sizeccoefs.length();
+  int repstl = repstcoefs.length();
+  int fecl = feccoefs.length();
+  int jsurvl = jsurvcoefs.length();
+  int jobsl = jobscoefs.length();
+  int jsizel = jsizecoefs.length();
+  int jsizebl = jsizebcoefs.length();
+  int jsizecl = jsizeccoefs.length();
+  int jrepstl = jrepstcoefs.length();
   
   int sizetrunc = sizeproxy["trunc"];
   int sizebtrunc = sizebproxy["trunc"];
   int sizectrunc = sizecproxy["trunc"];
+  int fectrunc = fecproxy["trunc"];
   int jsizetrunc = jsizeproxy["trunc"];
   int jsizebtrunc = jsizebproxy["trunc"];
   int jsizectrunc = jsizecproxy["trunc"];
@@ -1481,13 +2047,17 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
     }
   }
   
-  arma::mat vital_year = revelations(survproxy, obsproxy, sizeproxy, sizebproxy,
+  NumericMatrix vital_year = revelations(survproxy, obsproxy, sizeproxy, sizebproxy,
     sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy,
     jsizebproxy, jsizecproxy, jrepstproxy, 1);
   
-  arma::mat vital_patch = revelations(survproxy, obsproxy, sizeproxy,
+  NumericMatrix vital_patch = revelations(survproxy, obsproxy, sizeproxy,
     sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy,
     jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, 2);
+  
+  arma::imat rand_index = foi_index(survproxy, obsproxy, sizeproxy, sizebproxy,
+    sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy,
+    jsizebproxy, jsizecproxy, jrepstproxy);
   
   Rcpp::DataFrame sizeyearzi_df(sizeproxy["zeroyear"]);
   Rcpp::DataFrame sizebyearzi_df(sizebproxy["zeroyear"]);
@@ -1497,21 +2067,31 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   Rcpp::DataFrame jsizebyearzi_df(jsizebproxy["zeroyear"]);
   Rcpp::DataFrame jsizecyearzi_df(jsizecproxy["zeroyear"]);
   
-  arma::vec sizeyearzi = sizeyearzi_df[0];
-  arma::vec sizebyearzi = sizebyearzi_df[0];
-  arma::vec sizecyearzi = sizecyearzi_df[0];
-  arma::vec fecyearzi = fecyearzi_df[0];
-  arma::vec jsizeyearzi = jsizeyearzi_df[0];
-  arma::vec jsizebyearzi = jsizebyearzi_df[0];
-  arma::vec jsizecyearzi = jsizecyearzi_df[0];
+  NumericVector sizeyearzi = sizeyearzi_df[0];
+  NumericVector sizebyearzi = sizebyearzi_df[0];
+  NumericVector sizecyearzi = sizecyearzi_df[0];
+  NumericVector fecyearzi = fecyearzi_df[0];
+  NumericVector jsizeyearzi = jsizeyearzi_df[0];
+  NumericVector jsizebyearzi = jsizebyearzi_df[0];
+  NumericVector jsizecyearzi = jsizecyearzi_df[0];
   
-  if (sizeyearzi.n_elem > 1 || sizeyearzi(0) != 0) sizezero = true;
-  if (sizebyearzi.n_elem > 1 || sizebyearzi(0) != 0) sizebzero = true;
-  if (sizecyearzi.n_elem > 1 || sizecyearzi(0) != 0) sizeczero = true;
-  if (fecyearzi.n_elem > 1 || fecyearzi(0) != 0) feczero = true;
-  if (jsizeyearzi.n_elem > 1 || jsizeyearzi(0) != 0) jsizezero = true;
-  if (jsizebyearzi.n_elem > 1 || jsizebyearzi(0) != 0) jsizebzero = true;
-  if (jsizecyearzi.n_elem > 1 || jsizecyearzi(0) != 0) jsizeczero = true;
+  NumericVector dud_yearzi(sizeyearzi.length());
+  
+  NumericVector unisyzi = unique(sizeyearzi);
+  NumericVector unisyzbi = unique(sizebyearzi);
+  NumericVector unisyzci = unique(sizecyearzi);
+  NumericVector unijsyzi = unique(jsizeyearzi);
+  NumericVector unijsyzbi = unique(jsizebyearzi);
+  NumericVector unijsyzci = unique(jsizecyearzi);
+  NumericVector unifeci = unique(fecyearzi);
+  
+  if (unisyzi.length() > 1 || unisyzi(0) != 0) sizezero = true;
+  if (unisyzbi.length() > 1 || unisyzbi(0) != 0) sizebzero = true;
+  if (unisyzci.length() > 1 || unisyzci(0) != 0) sizeczero = true;
+  if (unifeci.length() > 1 || unifeci(0) != 0) feczero = true;
+  if (unijsyzi.length() > 1 || unijsyzi(0) != 0) jsizezero = true;
+  if (unijsyzbi.length() > 1 || unijsyzbi(0) != 0) jsizebzero = true;
+  if (unijsyzci.length() > 1 || unijsyzci(0) != 0) jsizeczero = true;
   
   Rcpp::DataFrame sizepatchzi_df(sizeproxy["zeropatch"]);
   Rcpp::DataFrame sizebpatchzi_df(sizebproxy["zeropatch"]);
@@ -1521,13 +2101,15 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   Rcpp::DataFrame jsizebpatchzi_df(jsizebproxy["zeropatch"]);
   Rcpp::DataFrame jsizecpatchzi_df(jsizecproxy["zeropatch"]);
   
-  arma::vec sizepatchzi = sizepatchzi_df[0];
-  arma::vec sizebpatchzi = sizebpatchzi_df[0];
-  arma::vec sizecpatchzi = sizecpatchzi_df[0];
-  arma::vec fecpatchzi = fecpatchzi_df[0];
-  arma::vec jsizepatchzi = jsizepatchzi_df[0];
-  arma::vec jsizebpatchzi = jsizebpatchzi_df[0];
-  arma::vec jsizecpatchzi = jsizecpatchzi_df[0];
+  NumericVector sizepatchzi = sizepatchzi_df[0];
+  NumericVector sizebpatchzi = sizebpatchzi_df[0];
+  NumericVector sizecpatchzi = sizecpatchzi_df[0];
+  NumericVector fecpatchzi = fecpatchzi_df[0];
+  NumericVector jsizepatchzi = jsizepatchzi_df[0];
+  NumericVector jsizebpatchzi = jsizebpatchzi_df[0];
+  NumericVector jsizecpatchzi = jsizecpatchzi_df[0];
+  
+  NumericVector dud_patchzi(sizepatchzi.length());
   
   Rcpp::DataFrame survgroups2_df(survproxy["groups2"]);
   Rcpp::DataFrame obsgroups2_df(obsproxy["groups2"]);
@@ -1543,19 +2125,19 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   Rcpp::DataFrame jsizecgroups2_df(jsizecproxy["groups2"]);
   Rcpp::DataFrame jrepstgroups2_df(jrepstproxy["groups2"]);
   
-  arma::vec survgroups2 = survgroups2_df[0];
-  arma::vec obsgroups2 = obsgroups2_df[0];
-  arma::vec sizegroups2 = sizegroups2_df[0];
-  arma::vec sizebgroups2 = sizebgroups2_df[0];
-  arma::vec sizecgroups2 = sizecgroups2_df[0];
-  arma::vec repstgroups2 = repstgroups2_df[0];
-  arma::vec fecgroups2 = fecgroups2_df[0];
-  arma::vec jsurvgroups2 = jsurvgroups2_df[0];
-  arma::vec jobsgroups2 = jobsgroups2_df[0];
-  arma::vec jsizegroups2 = jsizegroups2_df[0];
-  arma::vec jsizebgroups2 = jsizebgroups2_df[0];
-  arma::vec jsizecgroups2 = jsizecgroups2_df[0];
-  arma::vec jrepstgroups2 = jrepstgroups2_df[0];
+  NumericVector survgroups2 = survgroups2_df[0];
+  NumericVector obsgroups2 = obsgroups2_df[0];
+  NumericVector sizegroups2 = sizegroups2_df[0];
+  NumericVector sizebgroups2 = sizebgroups2_df[0];
+  NumericVector sizecgroups2 = sizecgroups2_df[0];
+  NumericVector repstgroups2 = repstgroups2_df[0];
+  NumericVector fecgroups2 = fecgroups2_df[0];
+  NumericVector jsurvgroups2 = jsurvgroups2_df[0];
+  NumericVector jobsgroups2 = jobsgroups2_df[0];
+  NumericVector jsizegroups2 = jsizegroups2_df[0];
+  NumericVector jsizebgroups2 = jsizebgroups2_df[0];
+  NumericVector jsizecgroups2 = jsizecgroups2_df[0];
+  NumericVector jrepstgroups2 = jrepstgroups2_df[0];
   
   Rcpp::DataFrame survgroups1_df(survproxy["groups1"]);
   Rcpp::DataFrame obsgroups1_df(obsproxy["groups1"]);
@@ -1571,19 +2153,19 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   Rcpp::DataFrame jsizecgroups1_df(jsizecproxy["groups1"]);
   Rcpp::DataFrame jrepstgroups1_df(jrepstproxy["groups1"]);
   
-  arma::vec survgroups1 = survgroups1_df[0];
-  arma::vec obsgroups1 = obsgroups1_df[0];
-  arma::vec sizegroups1 = sizegroups1_df[0];
-  arma::vec sizebgroups1 = sizebgroups1_df[0];
-  arma::vec sizecgroups1 = sizecgroups1_df[0];
-  arma::vec repstgroups1 = repstgroups1_df[0];
-  arma::vec fecgroups1 = fecgroups1_df[0];
-  arma::vec jsurvgroups1 = jsurvgroups1_df[0];
-  arma::vec jobsgroups1 = jobsgroups1_df[0];
-  arma::vec jsizegroups1 = jsizegroups1_df[0];
-  arma::vec jsizebgroups1 = jsizebgroups1_df[0];
-  arma::vec jsizecgroups1 = jsizecgroups1_df[0];
-  arma::vec jrepstgroups1 = jrepstgroups1_df[0];
+  NumericVector survgroups1 = survgroups1_df[0];
+  NumericVector obsgroups1 = obsgroups1_df[0];
+  NumericVector sizegroups1 = sizegroups1_df[0];
+  NumericVector sizebgroups1 = sizebgroups1_df[0];
+  NumericVector sizecgroups1 = sizecgroups1_df[0];
+  NumericVector repstgroups1 = repstgroups1_df[0];
+  NumericVector fecgroups1 = fecgroups1_df[0];
+  NumericVector jsurvgroups1 = jsurvgroups1_df[0];
+  NumericVector jobsgroups1 = jobsgroups1_df[0];
+  NumericVector jsizegroups1 = jsizegroups1_df[0];
+  NumericVector jsizebgroups1 = jsizebgroups1_df[0];
+  NumericVector jsizecgroups1 = jsizecgroups1_df[0];
+  NumericVector jrepstgroups1 = jrepstgroups1_df[0];
   
   Rcpp::DataFrame sizegroups2zi_df(sizeproxy["zerogroups2"]);
   Rcpp::DataFrame sizebgroups2zi_df(sizebproxy["zerogroups2"]);
@@ -1593,13 +2175,15 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   Rcpp::DataFrame jsizebgroups2zi_df(jsizebproxy["zerogroups2"]);
   Rcpp::DataFrame jsizecgroups2zi_df(jsizecproxy["zerogroups2"]);
   
-  arma::vec sizegroups2zi = sizegroups2zi_df[0];
-  arma::vec sizebgroups2zi = sizebgroups2zi_df[0];
-  arma::vec sizecgroups2zi = sizecgroups2zi_df[0];
-  arma::vec fecgroups2zi = fecgroups2zi_df[0];
-  arma::vec jsizegroups2zi = jsizegroups2zi_df[0];
-  arma::vec jsizebgroups2zi = jsizebgroups2zi_df[0];
-  arma::vec jsizecgroups2zi = jsizecgroups2zi_df[0];
+  NumericVector sizegroups2zi = sizegroups2zi_df[0];
+  NumericVector sizebgroups2zi = sizebgroups2zi_df[0];
+  NumericVector sizecgroups2zi = sizecgroups2zi_df[0];
+  NumericVector fecgroups2zi = fecgroups2zi_df[0];
+  NumericVector jsizegroups2zi = jsizegroups2zi_df[0];
+  NumericVector jsizebgroups2zi = jsizebgroups2zi_df[0];
+  NumericVector jsizecgroups2zi = jsizecgroups2zi_df[0];
+  
+  NumericVector dud_groups2zi(jsizecyearzi.length());
   
   Rcpp::DataFrame sizegroups1zi_df(sizeproxy["zerogroups1"]);
   Rcpp::DataFrame sizebgroups1zi_df(sizebproxy["zerogroups1"]);
@@ -1609,39 +2193,37 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   Rcpp::DataFrame jsizebgroups1zi_df(jsizebproxy["zerogroups1"]);
   Rcpp::DataFrame jsizecgroups1zi_df(jsizecproxy["zerogroups1"]);
   
-  arma::vec sizegroups1zi = sizegroups1zi_df[0];
-  arma::vec sizebgroups1zi = sizebgroups1zi_df[0];
-  arma::vec sizecgroups1zi = sizecgroups1zi_df[0];
-  arma::vec fecgroups1zi = fecgroups1zi_df[0];
-  arma::vec jsizegroups1zi = jsizegroups1zi_df[0];
-  arma::vec jsizebgroups1zi = jsizebgroups1zi_df[0];
-  arma::vec jsizecgroups1zi = jsizecgroups1zi_df[0];
+  NumericVector sizegroups1zi = sizegroups1zi_df[0];
+  NumericVector sizebgroups1zi = sizebgroups1zi_df[0];
+  NumericVector sizecgroups1zi = sizecgroups1zi_df[0];
+  NumericVector fecgroups1zi = fecgroups1zi_df[0];
+  NumericVector jsizegroups1zi = jsizegroups1zi_df[0];
+  NumericVector jsizebgroups1zi = jsizebgroups1zi_df[0];
+  NumericVector jsizecgroups1zi = jsizecgroups1zi_df[0];
   
-  arma::vec survind = flightoficarus(survproxy);
-  arma::vec obsind = flightoficarus(obsproxy);
-  arma::vec sizeind = flightoficarus(sizeproxy);
-  arma::vec sizebind = flightoficarus(sizebproxy);
-  arma::vec sizecind = flightoficarus(sizecproxy);
-  arma::vec repstind = flightoficarus(repstproxy);
-  arma::vec fecind = flightoficarus(fecproxy);
-  arma::vec jsurvind = flightoficarus(jsurvproxy);
-  arma::vec jobsind = flightoficarus(jobsproxy);
-  arma::vec jsizeind = flightoficarus(jsizeproxy);
-  arma::vec jsizebind = flightoficarus(jsizebproxy);
-  arma::vec jsizecind = flightoficarus(jsizecproxy);
-  arma::vec jrepstind = flightoficarus(jrepstproxy);
+  NumericVector dud_groups1zi(jsizecyearzi.length());
   
-  arma::vec sizeindzi = zero_flightoficarus(sizeproxy);
-  arma::vec sizebindzi = zero_flightoficarus(sizebproxy);
-  arma::vec sizecindzi = zero_flightoficarus(sizecproxy);
-  arma::vec fecindzi = zero_flightoficarus(fecproxy);
-  arma::vec jsizeindzi = zero_flightoficarus(jsizeproxy);
-  arma::vec jsizebindzi = zero_flightoficarus(jsizebproxy);
-  arma::vec jsizecindzi = zero_flightoficarus(jsizecproxy);
+  NumericVector survind = flightoficarus(survproxy);
+  NumericVector obsind = flightoficarus(obsproxy);
+  NumericVector sizeind = flightoficarus(sizeproxy);
+  NumericVector sizebind = flightoficarus(sizebproxy);
+  NumericVector sizecind = flightoficarus(sizecproxy);
+  NumericVector repstind = flightoficarus(repstproxy);
+  NumericVector fecind = flightoficarus(fecproxy);
+  NumericVector jsurvind = flightoficarus(jsurvproxy);
+  NumericVector jobsind = flightoficarus(jobsproxy);
+  NumericVector jsizeind = flightoficarus(jsizeproxy);
+  NumericVector jsizebind = flightoficarus(jsizebproxy);
+  NumericVector jsizecind = flightoficarus(jsizecproxy);
+  NumericVector jrepstind = flightoficarus(jrepstproxy);
   
-  arma::imat rand_index = foi_index(survproxy, obsproxy, sizeproxy, sizebproxy,
-    sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy,
-    jsizebproxy, jsizecproxy, jrepstproxy);
+  NumericVector sizeindzi = zero_flightoficarus(sizeproxy);
+  NumericVector sizebindzi = zero_flightoficarus(sizebproxy);
+  NumericVector sizecindzi = zero_flightoficarus(sizecproxy);
+  NumericVector fecindzi = zero_flightoficarus(fecproxy);
+  NumericVector jsizeindzi = zero_flightoficarus(jsizeproxy);
+  NumericVector jsizebindzi = zero_flightoficarus(jsizebproxy);
+  NumericVector jsizecindzi = zero_flightoficarus(jsizecproxy);
   
   StringVector survind_rownames = bootson(survproxy);
   StringVector obsind_rownames = bootson(obsproxy);
@@ -1758,166 +2340,44 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   arma::mat survtransmat(matrixdim, matrixdim, fill::zeros);
   arma::mat fectransmat(matrixdim, matrixdim, fill::zeros);
   
-  // Extra variables utilized in calculations
-  double mu {0.0};
-  double lambda {0.0};
-  double lambda_preexp {0.0};
-  double mu_preexp {0.0};
-  
   // The following loop runs through each line of AllStages, and so runs through
   // each estimable element in the matrix
   for(int i = 0; i < n; i++) {
     unsigned int k = aliveandequal(i);
     
+    Rcpp::NumericVector statusterms = {fl1(i), fl2n(i), sz1(i), sz2o(i),                   // Spot to check
+      szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2, indb1,
+      indb2, indc1, indc2, dens, sz3(i), szb3(i), szc3(i), binwidth3(i),
+      binbwidth3(i), bincwidth3(i)};
+    
     if (ovgivent(i) == -1 && indata(i) == 1 && stage2n(i) == stage2o(i)) {
       if ((mat2n(i) == 1 && mat3(i) == 1) || (mat2o(i) == 1 && mat3(i) == 1)) {
         // Adult survival transitions
         
-        arma::vec preout(6);
-        
         if (survl > 1) {
-          
-          double chosen_randcova2 {0.0};
-          if (chosen_r2inda != "none") {
-            for (int indcount = 0; indcount < rand_index(0, 0); indcount++) {
-              if (chosen_r2inda == survind_rownames(indcount)) {
-                chosen_randcova2 = survind(indcount);
-              }
-            }
-          }
-          double chosen_randcova1 {0.0};
-          if (chosen_r1inda != "none") {
-            int delectable_sum = rand_index(0, 0);
-            for (int indcount = 0; indcount < rand_index(1, 0); indcount++) {
-              if (chosen_r1inda == survind_rownames(indcount + delectable_sum)) {
-                chosen_randcova1 = survind(indcount + delectable_sum);
-              }
-            }
-          }
-          double chosen_randcovb2 {0.0};
-          if (chosen_r2indb != "none") {
-            int delectable_sum = rand_index(0, 0) + rand_index(1, 0);
-            for (int indcount = 0; indcount < rand_index(2, 0); indcount++) {
-              if (chosen_r2indb == survind_rownames(indcount + delectable_sum)) {
-                chosen_randcovb2 = survind(indcount + delectable_sum);
-              }
-            }
-          }
-          double chosen_randcovb1 {0.0};
-          if (chosen_r1indb != "none") {
-            int delectable_sum = rand_index(0, 0) + rand_index(1, 0) + rand_index(2, 0);
-            for (int indcount = 0; indcount < rand_index(3, 0); indcount++) {
-              if (chosen_r1indb == survind_rownames(indcount + delectable_sum)) {
-                chosen_randcovb1 = survind(indcount + delectable_sum);
-              }
-            }
-          }
-          double chosen_randcovc2 {0.0};
-          if (chosen_r2indc != "none") {
-            int delectable_sum = rand_index(0, 0) + rand_index(1, 0) + rand_index(2, 0) +
-              rand_index(3, 0);
-            for (int indcount = 0; indcount < rand_index(4, 0); indcount++) {
-              if (chosen_r2indc == survind_rownames(indcount + delectable_sum)) {
-                chosen_randcovc2 = survind(indcount + delectable_sum);
-              }
-            }
-          }
-          double chosen_randcovc1 {0.0};
-          if (chosen_r1indc != "none") {
-            int delectable_sum = rand_index(0, 0) + rand_index(1, 0) + rand_index(2, 0) +
-              rand_index(3, 0) + rand_index(4, 0);
-            for (int indcount = 0; indcount < rand_index(5, 0); indcount++) {
-              if (chosen_r1indc == survind_rownames(indcount + delectable_sum)) {
-                chosen_randcovc1 = survind(indcount + delectable_sum);
-              }
-            }
-          }
-          
-          double mainsum = rimeotam(survcoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-            szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-            indb1, indb2, indc1, indc2, dens, false);
-          
-          preout(0) = (mainsum + chosen_randcova2 + chosen_randcova1 +
-            chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-            chosen_randcovc1 + survgroups2(grp2o(i)) + survgroups1(grp1(i)) + 
-            vital_patch(patchnumber, 0) + vital_year(yearnumber, 0) + dev_terms(0));
-          
-          if (preout(0) > exp_tol) preout(0) = exp_tol; // This catches numbers too high to be dealt with properly
-          out(i, 0) = exp(preout(0)) / (1.0 + exp(preout(0)));
+          out(i, 0) = preouterator(survproxy, survcoefs, rand_index, dev_terms,
+            svsigmas, vital_year, vital_patch, chosen_r2inda, chosen_r1inda,
+            chosen_r2indb, chosen_r1indb, chosen_r2indc, chosen_r1indc,
+            statusterms, survgroups2, survgroups1, dud_groups2zi, dud_groups1zi,
+            dud_yearzi, dud_patchzi, survind, survind_rownames, sizeindzi,
+            sizeind_rownames_zi, false, grp2o(i), grp1(i), patchnumber,
+            yearnumber, 4, 1, exp_tol, theta_tol, ipm_cdf, matrixformat, fecmod,
+            repentry(i), negfec, stage2n(i), nostages, 0, 0.0);
           
         } else {
           out(i, 0) = survcoefs(0);
         }
         
         if (obsl > 1) {
+          out(i, 1) = preouterator(obsproxy, obscoefs, rand_index, dev_terms,
+            svsigmas, vital_year, vital_patch, chosen_r2inda, chosen_r1inda,
+            chosen_r2indb, chosen_r1indb, chosen_r2indc, chosen_r1indc,
+            statusterms, obsgroups2, obsgroups1, dud_groups2zi, dud_groups1zi,
+            dud_yearzi, dud_patchzi, obsind, obsind_rownames, sizeindzi,
+            sizeind_rownames_zi, false, grp2o(i), grp1(i), patchnumber,
+            yearnumber, 4, 2, exp_tol, theta_tol, ipm_cdf, matrixformat, fecmod,
+            repentry(i), negfec, stage2n(i), nostages, 0, 0.0);
           
-          double chosen_randcova2 {0.0};
-          if (chosen_r2inda != "none") {
-            for (int indcount = 0; indcount < rand_index(0, 1); indcount++) {
-              if (chosen_r2inda == obsind_rownames(indcount)) {
-                chosen_randcova2 = obsind(indcount);
-              }
-            }
-          }
-          double chosen_randcova1 {0.0};
-          if (chosen_r1inda != "none") {
-            int delectable_sum = rand_index(0, 1);
-            for (int indcount = 0; indcount < rand_index(1, 1); indcount++) {
-              if (chosen_r1inda == obsind_rownames(indcount + delectable_sum)) {
-                chosen_randcova1 = obsind(indcount + delectable_sum);
-              }
-            }
-          }
-          double chosen_randcovb2 {0.0};
-          if (chosen_r2indb != "none") {
-            int delectable_sum = rand_index(0, 1) + rand_index(1, 1);
-            for (int indcount = 0; indcount < rand_index(2, 1); indcount++) {
-              if (chosen_r2indb == obsind_rownames(indcount + delectable_sum)) {
-                chosen_randcovb2 = obsind(indcount + delectable_sum);
-              }
-            }
-          }
-          double chosen_randcovb1 {0.0};
-          if (chosen_r1indb != "none") {
-            int delectable_sum = rand_index(0, 1) + rand_index(1, 1) + rand_index(2, 1);
-            for (int indcount = 0; indcount < rand_index(3, 1); indcount++) {
-              if (chosen_r1indb == obsind_rownames(indcount + delectable_sum)) {
-                chosen_randcovb1 = obsind(indcount + delectable_sum);
-              }
-            }
-          }
-          double chosen_randcovc2 {0.0};
-          if (chosen_r2indc != "none") {
-            int delectable_sum = rand_index(0, 1) + rand_index(1, 1) + rand_index(2, 1) +
-              rand_index(3, 1);
-            for (int indcount = 0; indcount < rand_index(4, 1); indcount++) {
-              if (chosen_r2indc == obsind_rownames(indcount + delectable_sum)) {
-                chosen_randcovc2 = obsind(indcount + delectable_sum);
-              }
-            }
-          }
-          double chosen_randcovc1 {0.0};
-          if (chosen_r1indc != "none") {
-            int delectable_sum = rand_index(0, 1) + rand_index(1, 1) + rand_index(2, 1) +
-              rand_index(3, 1) + rand_index(4, 1);
-            for (int indcount = 0; indcount < rand_index(5, 1); indcount++) {
-              if (chosen_r1indc == obsind_rownames(indcount + delectable_sum)) {
-                chosen_randcovc1 = obsind(indcount + delectable_sum);
-              }
-            }
-          }
-          
-          double mainsum = rimeotam(obscoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-            szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-            indb1, indb2, indc1, indc2, dens, false);
-          
-          preout(1) = (mainsum + chosen_randcova2 + chosen_randcova1 +
-            chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-            chosen_randcovc1 + obsgroups2(grp2o(i)) + obsgroups1(grp1(i)) + 
-            vital_patch(patchnumber, 1) + vital_year(yearnumber, 1) + dev_terms(1));
-            
-          if (preout(1) > exp_tol) preout(1) = exp_tol; // This catches numbers too high to be dealt with properly
-          out(i, 1) = exp(preout(1)) / (1.0 + exp(preout(1)));
         } else {
           out(i, 1) = obscoefs(0);
         }
@@ -1925,855 +2385,68 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
         if (ob3(i) == 1 || obsl == 1) {
           
           if (sizel > 1) {
+            bool used_sizezero = false;
+            if (sizezero && sz3(i) == 0) used_sizezero = sizezero;
             
-            double chosen_randcova2 {0.0};
-            if (chosen_r2inda != "none") {
-              for (int indcount = 0; indcount < rand_index(0, 2); indcount++) {
-                if (chosen_r2inda == sizeind_rownames(indcount)) {
-                  chosen_randcova2 = sizeind(indcount);
-                }
-              }
-            }
-            double chosen_randcova1 {0.0};
-            if (chosen_r1inda != "none") {
-              int delectable_sum = rand_index(0, 2);
-              for (int indcount = 0; indcount < rand_index(1, 2); indcount++) {
-                if (chosen_r1inda == sizeind_rownames(indcount + delectable_sum)) {
-                  chosen_randcova1 = sizeind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb2 {0.0};
-            if (chosen_r2indb != "none") {
-              int delectable_sum = rand_index(0, 2) + rand_index(1, 2);
-              for (int indcount = 0; indcount < rand_index(2, 2); indcount++) {
-                if (chosen_r2indb == sizeind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovb2 = sizeind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb1 {0.0};
-            if (chosen_r1indb != "none") {
-              int delectable_sum = rand_index(0, 2) + rand_index(1, 2) + rand_index(2, 2);
-              for (int indcount = 0; indcount < rand_index(3, 2); indcount++) {
-                if (chosen_r1indb == sizeind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovb1 = sizeind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc2 {0.0};
-            if (chosen_r2indc != "none") {
-              int delectable_sum = rand_index(0, 2) + rand_index(1, 2) + rand_index(2, 2) +
-                rand_index(3, 2);
-              for (int indcount = 0; indcount < rand_index(4, 2); indcount++) {
-                if (chosen_r2indc == sizeind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovc2 = sizeind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc1 {0.0};
-            if (chosen_r1indc != "none") {
-              int delectable_sum = rand_index(0, 2) + rand_index(1, 2) + rand_index(2, 2) +
-                rand_index(3, 2) + rand_index(4, 2);
-              for (int indcount = 0; indcount < rand_index(5, 2); indcount++) {
-                if (chosen_r1indc == sizeind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovc1 = sizeind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcova2zi {0.0};
-            if (chosen_r2inda != "none") {
-              for (int indcount = 0; indcount < rand_index(0, 13); indcount++) {
-                if (chosen_r2inda == sizeind_rownames_zi(indcount)) {
-                  chosen_randcova2zi = sizeindzi(indcount);
-                }
-              }
-            }
-            double chosen_randcova1zi {0.0};
-            if (chosen_r1inda != "none") {
-              int delectable_sum = rand_index(0, 13);
-              for (int indcount = 0; indcount < rand_index(1, 13); indcount++) {
-                if (chosen_r1inda == sizeind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcova1zi = sizeindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb2zi {0.0};
-            if (chosen_r2indb != "none") {
-              int delectable_sum = rand_index(0, 13) + rand_index(1, 13);
-              for (int indcount = 0; indcount < rand_index(2, 13); indcount++) {
-                if (chosen_r2indb == sizeind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcovb2zi = sizeindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb1zi {0.0};
-            if (chosen_r1indb != "none") {
-              int delectable_sum = rand_index(0, 13) + rand_index(1, 13) + rand_index(2, 13);
-              for (int indcount = 0; indcount < rand_index(3, 13); indcount++) {
-                if (chosen_r1indb == sizeind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcovb1zi = sizeindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc2zi {0.0};
-            if (chosen_r2indc != "none") {
-              int delectable_sum = rand_index(0, 13) + rand_index(1, 13) + rand_index(2, 13) +
-                rand_index(3, 13);
-              for (int indcount = 0; indcount < rand_index(4, 13); indcount++) {
-                if (chosen_r2indc == sizeind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcovc2zi = sizeindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc1zi {0.0};
-            if (chosen_r1indc != "none") {
-              int delectable_sum = rand_index(0, 13) + rand_index(1, 13) + rand_index(2, 13) +
-                rand_index(3, 13) + rand_index(4, 13);
-              for (int indcount = 0; indcount < rand_index(5, 13); indcount++) {
-                if (chosen_r1indc == sizeind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcovc1zi = sizeindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            
-            if (sizedist == 0) {
-              // Poisson size distribution
+            out(i, 3) = preouterator(sizeproxy, sizecoefs, rand_index,
+              dev_terms, svsigmas, vital_year, vital_patch, chosen_r2inda,
+              chosen_r1inda, chosen_r2indb, chosen_r1indb, chosen_r2indc,
+              chosen_r1indc, statusterms, sizegroups2, sizegroups1,
+              sizegroups2zi, sizegroups1zi, sizeyearzi, sizepatchzi, sizeind,
+              sizeind_rownames, sizeindzi, sizeind_rownames_zi, used_sizezero,
+              grp2o(i), grp1(i), patchnumber, yearnumber, sizedist, 3, exp_tol,
+              theta_tol, ipm_cdf, matrixformat, fecmod, repentry(i), negfec,
+              stage2n(i), nostages, sizetrunc, sizesigma);
               
-              if (sizezero && sz3(i) == 0) {
-                double mainsum = rimeotam(sizecoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                  szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                  indb1, indb2, indc1, indc2, dens, true);
-                
-                lambda_preexp = (mainsum + chosen_randcova2zi + chosen_randcova1zi +
-                  chosen_randcovb2zi + chosen_randcovb1zi + chosen_randcovc2zi +
-                  chosen_randcovc1zi + sizegroups2zi(grp2o(i)) + sizegroups1zi(grp1(i)) + 
-                  sizepatchzi(patchnumber) + sizeyearzi(yearnumber) + dev_terms(2) +
-                  (svsigmas(0) / 2.0));
-                
-                if (lambda_preexp > exp_tol) {
-                  lambda = exp(exp_tol);
-                } else lambda = exp(lambda_preexp);
-                out(i, 3) = (lambda) / (1.0 + (lambda));
-                
-              } else {
-                double sizefac {1.0};
-                if (sz3(i) > 0) {
-                  sizefac = sz3(i) * tgamma(sz3(i));
-                }
-                double mainsum = rimeotam(sizecoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                  szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                  indb1, indb2, indc1, indc2, dens, false);
-                
-                lambda_preexp = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                  chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                  chosen_randcovc1 + sizegroups2(grp2o(i)) + sizegroups1(grp1(i)) + 
-                  vital_patch(patchnumber, 2) + vital_year(yearnumber, 2) + dev_terms(2) + 
-                  (svsigmas(0) / 2.0));
-                
-                if (lambda_preexp > exp_tol) {
-                  lambda = exp(exp_tol);
-                } else lambda = exp(lambda_preexp);
-                
-                if (sizetrunc == 1) {
-                  out(i, 3) = ((pow(lambda, sz3(i)) * exp(-1.0 * lambda)) / sizefac) / (1.0 - (exp(-1 * lambda)));
-                } else {
-                  out(i, 3) = ((pow(lambda, sz3(i)) * exp(-1.0 * lambda)) / sizefac);
-                }
-              }
-            } else if (sizedist == 1) {
-              // Negative binomial size distribution
-              
-              if (sizezero && sz3(i) == 0) {
-                double mainsum = rimeotam(sizecoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                  szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                  indb1, indb2, indc1, indc2, dens, true);
-                
-                mu_preexp = (mainsum + chosen_randcova2zi + chosen_randcova1zi +
-                  chosen_randcovb2zi + chosen_randcovb1zi + chosen_randcovc2zi +
-                  chosen_randcovc1zi + sizegroups2zi(grp2o(i)) + sizegroups1zi(grp1(i)) +
-                  sizepatchzi(patchnumber) + sizeyearzi(yearnumber) + dev_terms(2) +
-                  (svsigmas(0) / 2.0));
-                
-                if (mu_preexp > exp_tol) {
-                  mu = exp(exp_tol);
-                } else mu = exp(mu_preexp);
-                
-                out(i, 3) = (mu) / (1.0 + (mu));
-              } else {
-                double mainsum = rimeotam(sizecoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                  szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                  indb1, indb2, indc1, indc2, dens, false);
-                
-                mu_preexp = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                  chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                  chosen_randcovc1 + sizegroups2(grp2o(i)) + sizegroups1(grp1(i)) + 
-                  vital_patch(patchnumber, 2) + vital_year(yearnumber, 2) + dev_terms(2));
-                
-                if (mu_preexp > exp_tol) {
-                  mu = exp(exp_tol);
-                } else mu = exp(mu_preexp);
-                
-                double theta = sizesigma;
-                if (theta > theta_tol) {
-                  theta = theta_tol;
-                }
-                double alpha = 1.0 / theta;
-                
-                int y = static_cast<int>(sz3(i));
-                
-                double log_leftie = 0.0;
-                for (int j = 0; j < y; j++) {
-                  log_leftie = log(static_cast<double>(j) + theta) - log(static_cast<double>(j) + 1.0) + log_leftie;
-                }
-                
-                double log_amu = log(alpha) + log(mu);
-                double log_mid = -1.0 * theta * log(1.0 + (alpha * mu));
-                
-                double log_rightie = sz3(i) * (log_amu - log(1.0 + (alpha * mu)));
-                
-                double raw_prob = log_leftie + log_mid + log_rightie;
-                
-                if (sizetrunc == 1) {
-                  double zero_raw_prob = log_mid;
-                  
-                  out(i, 3) = exp(raw_prob) / (1.0 - exp(zero_raw_prob));
-                } else {
-                  out(i, 3) = exp(raw_prob);
-                }
-              }
-            } else if (sizedist == 2) {
-              // Gaussian size distribution
-              
-              double mainsum = rimeotam(sizecoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                indb1, indb2, indc1, indc2, dens, false);
-              
-              double sigma2 = svsigmas(1) * svsigmas(1);
-              preout(3) = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                chosen_randcovc1 + sizegroups2(grp2o(i)) + sizegroups1(grp1(i)) + 
-                vital_patch(patchnumber, 2) + vital_year(yearnumber, 2) + dev_terms(2));
-              
-              out(i, 3) = (exp(-1 * (pow((sz3(i) - preout(3)), 2) / (2.0 * sigma2))) / 
-                ((pow((2 * M_PI), 0.5)) * svsigmas(1))) * binwidth3(i);
-              
-            } else if (sizedist == 3) {
-              // Gamma size distribution
-              
-              double mainsum = rimeotam(sizecoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                indb1, indb2, indc1, indc2, dens, false);
-              
-              double sigma2 = svsigmas(1) * svsigmas(1);
-              preout(3) = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                chosen_randcovc1 + sizegroups2(grp2o(i)) + sizegroups1(grp1(i)) + 
-                vital_patch(patchnumber, 2) + vital_year(yearnumber, 2) + dev_terms(2));
-                
-              double E_y = 1 / preout(3);
-              double alpha = 1.0 / sigma2;
-              
-              out(i, 3) = pow((alpha / E_y), alpha) * (1.0 / tgamma(alpha)) * 
-                pow(sz3(i), (alpha - 1.0)) * exp(-1.0 * (alpha / E_y) * sz3(i)) * binwidth3(i);
-              
-            } else {
-              out(i, 3) = 0.0;
-            }
           } else {
             out(i, 3) = 1.0;
           }
           
           if (sizebl > 1) {
+            bool used_sizebzero = false;
+            if (sizebzero && szb3(i) == 0) used_sizebzero = sizebzero;
             
-            double chosen_randcova2 {0.0};
-            if (chosen_r2inda != "none") {
-              for (int indcount = 0; indcount < rand_index(0, 3); indcount++) {
-                if (chosen_r2inda == sizebind_rownames(indcount)) {
-                  chosen_randcova2 = sizebind(indcount);
-                }
-              }
-            }
-            double chosen_randcova1 {0.0};
-            if (chosen_r1inda != "none") {
-              int delectable_sum = rand_index(0, 3);
-              for (int indcount = 0; indcount < rand_index(1, 3); indcount++) {
-                if (chosen_r1inda == sizebind_rownames(indcount + delectable_sum)) {
-                  chosen_randcova1 = sizebind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb2 {0.0};
-            if (chosen_r2indb != "none") {
-              int delectable_sum = rand_index(0, 3) + rand_index(1, 3);
-              for (int indcount = 0; indcount < rand_index(2, 3); indcount++) {
-                if (chosen_r2indb == sizebind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovb2 = sizebind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb1 {0.0};
-            if (chosen_r1indb != "none") {
-              int delectable_sum = rand_index(0, 3) + rand_index(1, 3) + rand_index(2, 3);
-              for (int indcount = 0; indcount < rand_index(3, 3); indcount++) {
-                if (chosen_r1indb == sizebind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovb1 = sizebind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc2 {0.0};
-            if (chosen_r2indc != "none") {
-              int delectable_sum = rand_index(0, 3) + rand_index(1, 3) + rand_index(2, 3) +
-                rand_index(3, 3);
-              for (int indcount = 0; indcount < rand_index(4, 3); indcount++) {
-                if (chosen_r2indc == sizebind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovc2 = sizebind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc1 {0.0};
-            if (chosen_r1indc != "none") {
-              int delectable_sum = rand_index(0, 3) + rand_index(1, 3) + rand_index(2, 3) +
-                rand_index(3, 3) + rand_index(4, 3);
-              for (int indcount = 0; indcount < rand_index(5, 3); indcount++) {
-                if (chosen_r1indc == sizebind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovc1 = sizebind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcova2zi {0.0};
-            if (chosen_r2inda != "none") {
-              for (int indcount = 0; indcount < rand_index(0, 14); indcount++) {
-                if (chosen_r2inda == sizebind_rownames_zi(indcount)) {
-                  chosen_randcova2zi = sizebindzi(indcount);
-                }
-              }
-            }
-            double chosen_randcova1zi {0.0};
-            if (chosen_r1inda != "none") {
-              int delectable_sum = rand_index(0, 14);
-              for (int indcount = 0; indcount < rand_index(1, 14); indcount++) {
-                if (chosen_r1inda == sizebind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcova1zi = sizebindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb2zi {0.0};
-            if (chosen_r2indb != "none") {
-              int delectable_sum = rand_index(0, 14) + rand_index(1, 14);
-              for (int indcount = 0; indcount < rand_index(2, 14); indcount++) {
-                if (chosen_r2indb == sizebind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcovb2zi = sizebindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb1zi {0.0};
-            if (chosen_r1indb != "none") {
-              int delectable_sum = rand_index(0, 14) + rand_index(1, 14) + rand_index(2, 14);
-              for (int indcount = 0; indcount < rand_index(3, 14); indcount++) {
-                if (chosen_r1indb == sizebind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcovb1zi = sizebindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc2zi {0.0};
-            if (chosen_r2indc != "none") {
-              int delectable_sum = rand_index(0, 14) + rand_index(1, 14) + rand_index(2, 14) +
-                rand_index(3, 14);
-              for (int indcount = 0; indcount < rand_index(4, 14); indcount++) {
-                if (chosen_r2indc == sizebind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcovc2zi = sizebindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc1zi {0.0};
-            if (chosen_r1indc != "none") {
-              int delectable_sum = rand_index(0, 14) + rand_index(1, 14) + rand_index(2, 14) +
-                rand_index(3, 14) + rand_index(4, 14);
-              for (int indcount = 0; indcount < rand_index(5, 14); indcount++) {
-                if (chosen_r1indc == sizebind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcovc1zi = sizebindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            
-            if (sizebdist == 0) {
-              // Poisson size_b distribution
-              
-              if (sizebzero && szb3(i) == 0) {
-                double mainsum = rimeotam(sizebcoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                  szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                  indb1, indb2, indc1, indc2, dens, true);
-                
-                lambda_preexp = (mainsum + chosen_randcova2zi + chosen_randcova1zi +
-                  chosen_randcovb2zi + chosen_randcovb1zi + chosen_randcovc2zi +
-                  chosen_randcovc1zi + sizebgroups2zi(grp2o(i)) + sizebgroups1zi(grp1(i)) + 
-                  sizebpatchzi(patchnumber) + sizebyearzi(yearnumber) + dev_terms(3) + (svsigmas(2) / 2.0));
-                
-                if (lambda_preexp > exp_tol) {
-                  lambda = exp(exp_tol);
-                } else lambda = exp(lambda_preexp);
-                out(i, 4) = (lambda) / (1 + (lambda));
-              } else {
-                double sizefac {1.0};
-                if (szb3(i) > 0) {
-                  sizefac = szb3(i) * tgamma(szb3(i));
-                }
-                double mainsum = rimeotam(sizebcoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                  szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                  indb1, indb2, indc1, indc2, dens, false);
-                
-                lambda_preexp = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                  chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                  chosen_randcovc1 + sizebgroups2(grp2o(i)) + sizebgroups1(grp1(i)) + 
-                  vital_patch(patchnumber, 3) + vital_year(yearnumber, 3) + dev_terms(3) + 
-                  (svsigmas(2) / 2.0));
-                
-                if (lambda_preexp > exp_tol) {
-                  lambda = exp(exp_tol);
-                } else lambda = exp(lambda_preexp);
-                
-                if (sizebtrunc == 1) {
-                  out(i, 4) = ((pow(lambda, szb3(i)) * exp(-1.0 * lambda)) / sizefac) / (1.0 - (exp(-1.0 * lambda)));
-                } else {
-                  out(i, 4) = ((pow(lambda, szb3(i)) * exp(-1.0 * lambda)) / sizefac);
-                }
-              }
-              
-            } else if (sizebdist == 1) {
-              // Negative binomial size_b distribution
-              
-              if (sizebzero && szb3(i) == 0) {
-                double mainsum = rimeotam(sizebcoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                  szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                  indb1, indb2, indc1, indc2, dens, true);
-                
-                mu_preexp = (mainsum + chosen_randcova2zi + chosen_randcova1zi +
-                  chosen_randcovb2zi + chosen_randcovb1zi + chosen_randcovc2zi +
-                  chosen_randcovc1zi + sizebgroups2zi(grp2o(i)) + sizebgroups1zi(grp1(i)) + 
-                  sizebpatchzi(patchnumber) + sizebyearzi(yearnumber) + dev_terms(3) + 
-                  (svsigmas(2) / 2.0));
-                
-                if (mu_preexp > exp_tol) {
-                  mu = exp(exp_tol);
-                } else mu = exp(mu_preexp);
-                
-                out(i, 4) = (mu) / (1.0 + (mu));
-             } else {
-                double mainsum = rimeotam(sizebcoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                  szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                  indb1, indb2, indc1, indc2, dens, false);
-                
-                mu_preexp = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                  chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                  chosen_randcovc1 + sizebgroups2(grp2o(i)) + sizebgroups1(grp1(i)) + 
-                  vital_patch(patchnumber, 3) + vital_year(yearnumber, 3) + dev_terms(3));
-                
-                if (mu_preexp > exp_tol) {
-                  mu = exp(exp_tol);
-                } else mu = exp(mu_preexp);
-                
-                double theta = sizebsigma;
-                if (theta > theta_tol) {
-                  theta = theta_tol;
-                }
-                double alpha = 1.0 / theta;
-                
-                int y = static_cast<int>(szb3(i));
-                
-                double log_leftie = 0.0;
-                for (int j = 0; j < y; j++) {
-                  log_leftie = log(static_cast<double>(j) + theta) - log(static_cast<double>(j) + 1.0) + log_leftie;
-                }
-                
-                double log_amu = log(alpha) + log(mu);
-                double log_mid = -1.0 * theta * log(1.0 + (alpha * mu));
-                
-                double log_rightie = szb3(i) * (log_amu - log(1.0 + (alpha * mu)));
-                
-                double raw_prob = log_leftie + log_mid + log_rightie;
-                
-                if (sizebtrunc == 1) {
-                  double zero_raw_prob = log_mid;
-                  
-                  out(i, 4) = exp(raw_prob) / (1.0 - exp(zero_raw_prob));
-                } else {
-                  out(i, 4) = exp(raw_prob);
-                }
-              }
-            } else if (sizebdist == 2) {
-              // Gaussian size distribution
-              
-              double mainsum = rimeotam(sizebcoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                indb1, indb2, indc1, indc2, dens, false);
-                
-              double sigma2 = svsigmas(3) * svsigmas(3);
-              preout(4) = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                chosen_randcovc1 + sizebgroups2(grp2o(i)) + sizebgroups1(grp1(i)) + 
-                vital_patch(patchnumber, 3) + vital_year(yearnumber, 3) + dev_terms(3));
-              
-              out(i, 4) = (exp(-1 * (pow((szb3(i) - preout(4)), 2) / (2.0 * sigma2))) / 
-                ((pow((2 * M_PI), 0.5)) * svsigmas(3))) * binbwidth3(i);
-            } else if (sizebdist == 3) {
-              // Gamma size_b distribution
-              
-              double mainsum = rimeotam(sizebcoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                indb1, indb2, indc1, indc2, dens, false);
-                
-              double sigma2 = svsigmas(3) * svsigmas(3);
-              preout(4) = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                chosen_randcovc1 + sizebgroups2(grp2o(i)) + sizebgroups1(grp1(i)) + 
-                vital_patch(patchnumber, 3) + vital_year(yearnumber, 3) + dev_terms(3));
-                
-              double E_y = 1 / preout(4);
-              double alpha = 1 / sigma2;
-              
-              out(i, 4) = pow((alpha / E_y), alpha) * (1.0 / tgamma(alpha)) * 
-                pow(szb3(i), (alpha - 1.0)) * exp(-1.0 * (alpha / E_y) * szb3(i)) * binbwidth3(i);
-              
-            } else {
-              out(i, 4) = 0.0;
-            }
+            out(i, 4) = preouterator(sizebproxy, sizebcoefs, rand_index,
+              dev_terms, svsigmas, vital_year, vital_patch, chosen_r2inda,
+              chosen_r1inda, chosen_r2indb, chosen_r1indb, chosen_r2indc,
+              chosen_r1indc, statusterms, sizebgroups2, sizebgroups1,
+              sizebgroups2zi, sizebgroups1zi, sizebyearzi, sizebpatchzi,
+              sizebind, sizebind_rownames, sizebindzi, sizebind_rownames_zi,
+              used_sizebzero, grp2o(i), grp1(i), patchnumber, yearnumber, sizebdist,
+              4, exp_tol, theta_tol, ipm_cdf, matrixformat, fecmod, repentry(i),
+              negfec, stage2n(i), nostages, sizebtrunc, sizebsigma);
           } else {
             out(i, 4) = 1.0;
           }
           
           if (sizecl > 1) {
+            bool used_sizeczero = false;
+            if (sizeczero && szc3(i) == 0) used_sizeczero = sizeczero;
             
-            double chosen_randcova2 {0.0};
-            if (chosen_r2inda != "none") {
-              for (int indcount = 0; indcount < rand_index(0, 4); indcount++) {
-                if (chosen_r2inda == sizecind_rownames(indcount)) {
-                  chosen_randcova2 = sizecind(indcount);
-                }
-              }
-            }
-            double chosen_randcova1 {0.0};
-            if (chosen_r1inda != "none") {
-              int delectable_sum = rand_index(0, 4);
-              for (int indcount = 0; indcount < rand_index(1, 4); indcount++) {
-                if (chosen_r1inda == sizecind_rownames(indcount + delectable_sum)) {
-                  chosen_randcova1 = sizecind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb2 {0.0};
-            if (chosen_r2indb != "none") {
-              int delectable_sum = rand_index(0, 4) + rand_index(1, 4);
-              for (int indcount = 0; indcount < rand_index(2, 4); indcount++) {
-                if (chosen_r2indb == sizecind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovb2 = sizecind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb1 {0.0};
-            if (chosen_r1indb != "none") {
-              int delectable_sum = rand_index(0, 4) + rand_index(1, 4) + rand_index(2, 4);
-              for (int indcount = 0; indcount < rand_index(3, 4); indcount++) {
-                if (chosen_r1indb == sizecind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovb1 = sizecind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc2 {0.0};
-            if (chosen_r2indc != "none") {
-              int delectable_sum = rand_index(0, 4) + rand_index(1, 4) + rand_index(2, 4) +
-                rand_index(3, 4);
-              for (int indcount = 0; indcount < rand_index(4, 4); indcount++) {
-                if (chosen_r2indc == sizecind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovc2 = sizecind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc1 {0.0};
-            if (chosen_r1indc != "none") {
-              int delectable_sum = rand_index(0, 4) + rand_index(1, 4) + rand_index(2, 4) +
-                rand_index(3, 4) + rand_index(4, 4);
-              for (int indcount = 0; indcount < rand_index(5, 4); indcount++) {
-                if (chosen_r1indc == sizecind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovc1 = sizecind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcova2zi {0.0};
-            if (chosen_r2inda != "none") {
-              for (int indcount = 0; indcount < rand_index(0, 15); indcount++) {
-                if (chosen_r2inda == sizecind_rownames_zi(indcount)) {
-                  chosen_randcova2zi = sizecindzi(indcount);
-                }
-              }
-            }
-            double chosen_randcova1zi {0.0};
-            if (chosen_r1inda != "none") {
-              int delectable_sum = rand_index(0, 15);
-              for (int indcount = 0; indcount < rand_index(1, 15); indcount++) {
-                if (chosen_r1inda == sizecind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcova1zi = sizecindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb2zi {0.0};
-            if (chosen_r2indb != "none") {
-              int delectable_sum = rand_index(0, 15) + rand_index(1, 15);
-              for (int indcount = 0; indcount < rand_index(2, 15); indcount++) {
-                if (chosen_r2indb == sizecind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcovb2zi = sizecindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb1zi {0.0};
-            if (chosen_r1indb != "none") {
-              int delectable_sum = rand_index(0, 15) + rand_index(1, 15) + rand_index(2, 15);
-              for (int indcount = 0; indcount < rand_index(3, 15); indcount++) {
-                if (chosen_r1indb == sizecind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcovb1zi = sizecindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc2zi {0.0};
-            if (chosen_r2indc != "none") {
-              int delectable_sum = rand_index(0, 15) + rand_index(1, 15) + rand_index(2, 15) +
-                rand_index(3, 15);
-              for (int indcount = 0; indcount < rand_index(4, 15); indcount++) {
-                if (chosen_r2indc == sizecind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcovc2zi = sizecindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc1zi {0.0};
-            if (chosen_r1indc != "none") {
-              int delectable_sum = rand_index(0, 15) + rand_index(1, 15) + rand_index(2, 15) +
-                rand_index(3, 15) + rand_index(4, 15);
-              for (int indcount = 0; indcount < rand_index(5, 15); indcount++) {
-                if (chosen_r1indc == sizecind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcovc1zi = sizecindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            
-            if (sizecdist == 0) {
-              // Poisson size_c distribution
-              
-              if (sizeczero && szc3(i) == 0) {
-                double mainsum = rimeotam(sizeccoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                  szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                  indb1, indb2, indc1, indc2, dens, true);
-                
-                lambda_preexp = (mainsum + chosen_randcova2zi + chosen_randcova1zi +
-                  chosen_randcovb2zi + chosen_randcovb1zi + chosen_randcovc2zi +
-                  chosen_randcovc1zi + sizecgroups2zi(grp2o(i)) + sizecgroups1zi(grp1(i)) + 
-                  sizecpatchzi(patchnumber) + sizecyearzi(yearnumber) + dev_terms(4) + (svsigmas(4) / 2.0));
-                
-                if (lambda_preexp > exp_tol) {
-                  lambda = exp(exp_tol);
-                } else lambda = exp(lambda_preexp);
-                out(i, 5) = (lambda) / (1 + (lambda));
-                
-              } else {
-                double sizefac {1.0};
-                if (szc3(i) > 0) {
-                  sizefac = szc3(i) * tgamma(szc3(i));
-                }
-                double mainsum = rimeotam(sizeccoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                  szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                  indb1, indb2, indc1, indc2, dens, false);
-                
-                lambda_preexp = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                  chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                  chosen_randcovc1 + sizecgroups2(grp2o(i)) + sizecgroups1(grp1(i)) + 
-                  vital_patch(patchnumber, 4) + vital_year(yearnumber, 4) + dev_terms(4) + 
-                  (svsigmas(4) / 2.0));
-                
-                if (lambda_preexp > exp_tol) {
-                  lambda = exp(exp_tol);
-                } else lambda = exp(lambda_preexp);
-                
-                if (sizectrunc == 1) {
-                  out(i, 5) = ((pow(lambda, szc3(i)) * exp(-1.0 * lambda)) / sizefac) / (1.0 - (exp(-1.0 * lambda)));
-                } else {
-                  out(i, 5) = ((pow(lambda, szc3(i)) * exp(-1.0 * lambda)) / sizefac);
-                }
-              }
-              
-            } else if (sizecdist == 1) {
-              // Negative binomial size distribution
-              
-              if (sizeczero && szc3(i) == 0) {
-                double mainsum = rimeotam(sizeccoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                  szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                  indb1, indb2, indc1, indc2, dens, true);
-                
-                mu_preexp = (mainsum + chosen_randcova2zi + chosen_randcova1zi +
-                  chosen_randcovb2zi + chosen_randcovb1zi + chosen_randcovc2zi +
-                  chosen_randcovc1zi + sizecgroups2zi(grp2o(i)) + sizecgroups1zi(grp1(i)) + 
-                  sizecpatchzi(patchnumber) + sizecyearzi(yearnumber) + dev_terms(4) + 
-                  (svsigmas(4) / 2.0));
-                
-                if (mu_preexp > exp_tol) {
-                  mu = exp(exp_tol);
-                } else mu = exp(mu_preexp);
-                
-                out(i, 5) = (mu) / (1 + (mu));
-              } else {
-                double mainsum = rimeotam(sizeccoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                  szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                  indb1, indb2, indc1, indc2, dens, false);
-                
-                mu_preexp = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                  chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                  chosen_randcovc1 + sizecgroups2(grp2o(i)) + sizecgroups1(grp1(i)) + 
-                  vital_patch(patchnumber, 4) + vital_year(yearnumber, 4) + dev_terms(4));
-                
-                if (mu_preexp > exp_tol) {
-                  mu = exp(exp_tol);
-                } else mu = exp(mu_preexp);
-                
-                double theta = sizecsigma;
-                if (theta > theta_tol) {
-                  theta = theta_tol;
-                }
-                double alpha = 1.0 / theta;
-                
-                int y = static_cast<int>(szc3(i));
-                
-                double log_leftie = 0.0;
-                for (int j = 0; j < y; j++) {
-                  log_leftie = log(static_cast<double>(j) + theta) - log(static_cast<double>(j) + 1.0) + log_leftie;
-                }
-                
-                double log_amu = log(alpha) + log(mu);
-                double log_mid = -1.0 * theta * log(1.0 + (alpha * mu));
-                
-                double log_rightie = szc3(i) * (log_amu - log(1.0 + (alpha * mu)));
-                
-                double raw_prob = log_leftie + log_mid + log_rightie;
-                
-                if (sizectrunc == 1) {
-                  double zero_raw_prob = log_mid;
-                  
-                  out(i, 5) = exp(raw_prob) / (1.0 - exp(zero_raw_prob));
-                } else {
-                  out(i, 5) = exp(raw_prob);
-                }
-              }
-              
-            } else if (sizecdist == 2) {
-              // Gaussian size distribution
-              
-              double mainsum = rimeotam(sizeccoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                indb1, indb2, indc1, indc2, dens, false);
-              
-              double sigma2 = svsigmas(5) * svsigmas(5);
-              preout(5) = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                chosen_randcovc1 + sizecgroups2(grp2o(i)) + sizecgroups1(grp1(i)) + 
-                vital_patch(patchnumber, 4) + vital_year(yearnumber, 4) + dev_terms(4));
-              
-              out(i, 5) = (exp(-1 * (pow((szc3(i) - preout(5)), 2) / (2.0 * sigma2))) / 
-                ((pow((2 * M_PI), 0.5)) * svsigmas(5))) * bincwidth3(i);
-              
-            } else if (sizecdist == 3) {
-              // Gamma size_c distribution
-              
-              double mainsum = rimeotam(sizeccoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                indb1, indb2, indc1, indc2, dens, false);
-              
-              double sigma2 = svsigmas(5) * svsigmas(5);
-              preout(5) = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                chosen_randcovc1 + sizecgroups2(grp2o(i)) + sizecgroups1(grp1(i)) + 
-                vital_patch(patchnumber, 4) + vital_year(yearnumber, 4) + dev_terms(4));
-                
-              double E_y = 1.0 / preout(5);
-              double alpha = 1.0 / sigma2;
-              
-              out(i, 5) = pow((alpha / E_y), alpha) * (1.0 / tgamma(alpha)) * 
-                pow(szc3(i), (alpha - 1.0)) * exp(-1.0 * (alpha / E_y) * szc3(i)) * bincwidth3(i);
-              
-            } else {
-              out(i, 5) = 0.0;
-            }
+            out(i, 5) = preouterator(sizecproxy, sizeccoefs, rand_index,
+              dev_terms, svsigmas, vital_year, vital_patch, chosen_r2inda,
+              chosen_r1inda, chosen_r2indb, chosen_r1indb, chosen_r2indc,
+              chosen_r1indc, statusterms, sizecgroups2, sizecgroups1,
+              sizecgroups2zi, sizecgroups1zi, sizecyearzi, sizecpatchzi,
+              sizecind, sizecind_rownames, sizecindzi, sizecind_rownames_zi,
+              used_sizeczero, grp2o(i), grp1(i), patchnumber, yearnumber, sizecdist,
+              5, exp_tol, theta_tol, ipm_cdf, matrixformat, fecmod, repentry(i),
+              negfec, stage2n(i), nostages, sizectrunc, sizecsigma);
           } else {
             out(i, 5) = 1.0;
           }
           
           if (repstl > 1) {
-            
-            double chosen_randcova2 {0.0};
-            if (chosen_r2inda != "none") {
-              for (int indcount = 0; indcount < rand_index(0, 5); indcount++) {
-                if (chosen_r2inda == repstind_rownames(indcount)) {
-                  chosen_randcova2 = repstind(indcount);
-                }
-              }
-            }
-            double chosen_randcova1 {0.0};
-            if (chosen_r1inda != "none") {
-              int delectable_sum = rand_index(0, 5);
-              for (int indcount = 0; indcount < rand_index(1, 5); indcount++) {
-                if (chosen_r1inda == repstind_rownames(indcount + delectable_sum)) {
-                  chosen_randcova1 = repstind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb2 {0.0};
-            if (chosen_r2indb != "none") {
-              int delectable_sum = rand_index(0, 5) + rand_index(1, 5);
-              for (int indcount = 0; indcount < rand_index(2, 5); indcount++) {
-                if (chosen_r2indb == repstind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovb2 = repstind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb1 {0.0};
-            if (chosen_r1indb != "none") {
-              int delectable_sum = rand_index(0, 5) + rand_index(1, 5) + rand_index(2, 5);
-              for (int indcount = 0; indcount < rand_index(3, 5); indcount++) {
-                if (chosen_r1indb == repstind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovb1 = repstind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc2 {0.0};
-            if (chosen_r2indc != "none") {
-              int delectable_sum = rand_index(0, 5) + rand_index(1, 5) + rand_index(2, 5) +
-                rand_index(3, 5);
-              for (int indcount = 0; indcount < rand_index(4, 5); indcount++) {
-                if (chosen_r2indc == repstind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovc2 = repstind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc1 {0.0};
-            if (chosen_r1indc != "none") {
-              int delectable_sum = rand_index(0, 5) + rand_index(1, 5) + rand_index(2, 5) +
-                rand_index(3, 5) + rand_index(4, 5);
-              for (int indcount = 0; indcount < rand_index(5, 5); indcount++) {
-                if (chosen_r1indc == repstind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovc1 = repstind(indcount + delectable_sum);
-                }
-              }
-            }
-            
-            double mainsum = rimeotam(repstcoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-              szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-              indb1, indb2, indc1, indc2, dens, false);
-            
-            preout(2) = (mainsum + chosen_randcova2 + chosen_randcova1 +
-              chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-              chosen_randcovc1 + repstgroups2(grp2o(i)) + repstgroups1(grp1(i)) + 
-              vital_patch(patchnumber, 5) + vital_year(yearnumber, 5) + dev_terms(5));
-            
-            if (preout(2) > exp_tol) preout(2) = exp_tol;
-            
-            out(i, 2) = exp(preout(2)) / (1 + exp(preout(2)));
-            
+            out(i, 2) = preouterator(repstproxy, repstcoefs, rand_index,
+              dev_terms, svsigmas, vital_year, vital_patch, chosen_r2inda,
+              chosen_r1inda, chosen_r2indb, chosen_r1indb, chosen_r2indc,
+              chosen_r1indc, statusterms, repstgroups2, repstgroups1,
+              dud_groups2zi, dud_groups1zi, dud_yearzi, dud_patchzi, repstind,
+              repstind_rownames, sizeindzi, sizeind_rownames_zi, false,
+              grp2o(i), grp1(i), patchnumber, yearnumber, 4, 6, exp_tol,
+              theta_tol, ipm_cdf, matrixformat, fecmod, repentry(i), negfec,
+              stage2n(i), nostages, 0, 0.0);
+              
             if (fl3(i) == 0) {
               out(i, 2) = 1.0 - out(i, 2);
             }
@@ -2798,1009 +2471,90 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
       } else if (immat2n(i) == 1 && immat1(i) == 1 && jsurvl > 0) {
         // Juvenile to adult transitions
         
-        arma::vec preout(4);
-        
         if (jsurvl > 1) {
-        
-          double chosen_randcova2 {0.0};
-          if (chosen_r2inda != "none") {
-            for (int indcount = 0; indcount < rand_index(0, 7); indcount++) {
-              if (chosen_r2inda == jsurvind_rownames(indcount)) {
-                chosen_randcova2 = jsurvind(indcount);
-              }
-            }
-          }
-          double chosen_randcova1 {0.0};
-          if (chosen_r1inda != "none") {
-            int delectable_sum = rand_index(0, 7);
-            for (int indcount = 0; indcount < rand_index(1, 7); indcount++) {
-              if (chosen_r1inda == jsurvind_rownames(indcount + delectable_sum)) {
-                chosen_randcova1 = jsurvind(indcount + delectable_sum);
-              }
-            }
-          }
-          double chosen_randcovb2 {0.0};
-          if (chosen_r2indb != "none") {
-            int delectable_sum = rand_index(0, 7) + rand_index(1, 7);
-            for (int indcount = 0; indcount < rand_index(2, 7); indcount++) {
-              if (chosen_r2indb == jsurvind_rownames(indcount + delectable_sum)) {
-                chosen_randcovb2 = jsurvind(indcount + delectable_sum);
-              }
-            }
-          }
-          double chosen_randcovb1 {0.0};
-          if (chosen_r1indb != "none") {
-            int delectable_sum = rand_index(0, 7) + rand_index(1, 7) + rand_index(2, 7);
-            for (int indcount = 0; indcount < rand_index(3, 7); indcount++) {
-              if (chosen_r1indb == jsurvind_rownames(indcount + delectable_sum)) {
-                chosen_randcovb1 = jsurvind(indcount + delectable_sum);
-              }
-            }
-          }
-          double chosen_randcovc2 {0.0};
-          if (chosen_r2indc != "none") {
-            int delectable_sum = rand_index(0, 7) + rand_index(1, 7) + rand_index(2, 7) +
-              rand_index(3, 7);
-            for (int indcount = 0; indcount < rand_index(4, 7); indcount++) {
-              if (chosen_r2indc == jsurvind_rownames(indcount + delectable_sum)) {
-                chosen_randcovc2 = jsurvind(indcount + delectable_sum);
-              }
-            }
-          }
-          double chosen_randcovc1 {0.0};
-          if (chosen_r1indc != "none") {
-            int delectable_sum = rand_index(0, 7) + rand_index(1, 7) + rand_index(2, 7) +
-              rand_index(3, 7) + rand_index(4, 7);
-            for (int indcount = 0; indcount < rand_index(5, 7); indcount++) {
-              if (chosen_r1indc == jsurvind_rownames(indcount + delectable_sum)) {
-                chosen_randcovc1 = jsurvind(indcount + delectable_sum);
-              }
-            }
-          }
-          
-          double mainsum = rimeotam(jsurvcoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-            szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-            indb1, indb2, indc1, indc2, dens, false);
-          
-          preout(0) = (mainsum + chosen_randcova2 + chosen_randcova1 +
-            chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-            chosen_randcovc1 + jsurvgroups2(grp2o(i)) + jsurvgroups1(grp1(i)) +
-            vital_patch(patchnumber, 7) + vital_year(yearnumber, 7) + dev_terms(7));
-          
-          if (preout(0) > exp_tol) preout(0) = exp_tol;
-          
-          out(i, 0) = exp(preout(0)) / (1.0 + exp(preout(0)));
+          out(i, 0) = preouterator(jsurvproxy, jsurvcoefs, rand_index,
+            dev_terms, svsigmas, vital_year, vital_patch, chosen_r2inda,
+            chosen_r1inda, chosen_r2indb, chosen_r1indb, chosen_r2indc,
+            chosen_r1indc, statusterms, jsurvgroups2, jsurvgroups1,
+            dud_groups2zi, dud_groups1zi, dud_yearzi, dud_patchzi, jsurvind,
+            jsurvind_rownames, jsizeindzi, jsizeind_rownames_zi, false,
+            grp2o(i), grp1(i), patchnumber, yearnumber, 4, 8, exp_tol,
+            theta_tol, ipm_cdf, matrixformat, fecmod, repentry(i), negfec,
+            stage2n(i), nostages, 0, 0.0);
         } else {
           out(i, 0) = jsurvcoefs(0);
         }
         
         if (jobsl > 1) {
-        
-          double chosen_randcova2 {0.0};
-          if (chosen_r2inda != "none") {
-            for (int indcount = 0; indcount < rand_index(0, 8); indcount++) {
-              if (chosen_r2inda == jobsind_rownames(indcount)) {
-                chosen_randcova2 = jobsind(indcount);
-              }
-            }
-          }
-          double chosen_randcova1 {0.0};
-          if (chosen_r1inda != "none") {
-            int delectable_sum = rand_index(0, 8);
-            for (int indcount = 0; indcount < rand_index(1, 8); indcount++) {
-              if (chosen_r1inda == jobsind_rownames(indcount + delectable_sum)) {
-                chosen_randcova1 = jobsind(indcount + delectable_sum);
-              }
-            }
-          }
-          double chosen_randcovb2 {0.0};
-          if (chosen_r2indb != "none") {
-            int delectable_sum = rand_index(0, 8) + rand_index(1, 8);
-            for (int indcount = 0; indcount < rand_index(2, 8); indcount++) {
-              if (chosen_r2indb == jobsind_rownames(indcount + delectable_sum)) {
-                chosen_randcovb2 = jobsind(indcount + delectable_sum);
-              }
-            }
-          }
-          double chosen_randcovb1 {0.0};
-          if (chosen_r1indb != "none") {
-            int delectable_sum = rand_index(0, 8) + rand_index(1, 8) + rand_index(2, 8);
-            for (int indcount = 0; indcount < rand_index(3, 8); indcount++) {
-              if (chosen_r1indb == jobsind_rownames(indcount + delectable_sum)) {
-                chosen_randcovb1 = jobsind(indcount + delectable_sum);
-              }
-            }
-          }
-          double chosen_randcovc2 {0.0};
-          if (chosen_r2indc != "none") {
-            int delectable_sum = rand_index(0, 8) + rand_index(1, 8) + rand_index(2, 8) +
-              rand_index(3, 8);
-            for (int indcount = 0; indcount < rand_index(4, 8); indcount++) {
-              if (chosen_r2indc == jobsind_rownames(indcount + delectable_sum)) {
-                chosen_randcovc2 = jobsind(indcount + delectable_sum);
-              }
-            }
-          }
-          double chosen_randcovc1 {0.0};
-          if (chosen_r1indc != "none") {
-            int delectable_sum = rand_index(0, 8) + rand_index(1, 8) + rand_index(2, 8) +
-              rand_index(3, 8) + rand_index(4, 8);
-            for (int indcount = 0; indcount < rand_index(5, 8); indcount++) {
-              if (chosen_r1indc == jobsind_rownames(indcount + delectable_sum)) {
-                chosen_randcovc1 = jobsind(indcount + delectable_sum);
-              }
-            }
-          }
-          
-          double mainsum = rimeotam(jobscoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-            szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-            indb1, indb2, indc1, indc2, dens, false);
-          
-          preout(1) = (mainsum + chosen_randcova2 + chosen_randcova1 +
-            chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-            chosen_randcovc1 + jobsgroups2(grp2o(i)) + jobsgroups1(grp1(i)) + 
-            vital_patch(patchnumber, 8) + vital_year(yearnumber, 8) + dev_terms(8));
-          
-          if (preout(1) > exp_tol) preout(1) = exp_tol;
-          
-          out(i, 1) = exp(preout(1)) / (1.0 + exp(preout(1)));
-          
+          out(i, 1) = preouterator(jobsproxy, jobscoefs, rand_index, dev_terms,
+            svsigmas, vital_year, vital_patch, chosen_r2inda, chosen_r1inda,
+            chosen_r2indb, chosen_r1indb, chosen_r2indc, chosen_r1indc,
+            statusterms, jobsgroups2, jobsgroups1, dud_groups2zi, dud_groups1zi,
+            dud_yearzi, dud_patchzi, jobsind, jobsind_rownames, jsizeindzi,
+            jsizeind_rownames_zi, false, grp2o(i), grp1(i), patchnumber,
+            yearnumber, 4, 9, exp_tol, theta_tol, ipm_cdf, matrixformat, fecmod,
+            repentry(i), negfec, stage2n(i), nostages, 0, 0.0);
         } else {
           out(i, 1) = jobscoefs(0);
         }
         
         if (ob3(i) == 1 || jobsl == 1) {
           if (jsizel > 1) {
-          
-            double chosen_randcova2 {0.0};
-            if (chosen_r2inda != "none") {
-              for (int indcount = 0; indcount < rand_index(0, 9); indcount++) {
-                if (chosen_r2inda == jsizeind_rownames(indcount)) {
-                  chosen_randcova2 = jsizeind(indcount);
-                }
-              }
-            }
-            double chosen_randcova1 {0.0};
-            if (chosen_r1inda != "none") {
-              int delectable_sum = rand_index(0, 9);
-              for (int indcount = 0; indcount < rand_index(1, 9); indcount++) {
-                if (chosen_r1inda == jsizeind_rownames(indcount + delectable_sum)) {
-                  chosen_randcova1 = jsizeind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb2 {0.0};
-            if (chosen_r2indb != "none") {
-              int delectable_sum = rand_index(0, 9) + rand_index(1, 9);
-              for (int indcount = 0; indcount < rand_index(2, 9); indcount++) {
-                if (chosen_r2indb == jsizeind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovb2 = jsizeind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb1 {0.0};
-            if (chosen_r1indb != "none") {
-              int delectable_sum = rand_index(0, 9) + rand_index(1, 9) + rand_index(2, 9);
-              for (int indcount = 0; indcount < rand_index(3, 9); indcount++) {
-                if (chosen_r1indb == jsizeind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovb1 = jsizeind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc2 {0.0};
-            if (chosen_r2indc != "none") {
-              int delectable_sum = rand_index(0, 9) + rand_index(1, 9) + rand_index(2, 9) +
-                rand_index(3, 9);
-              for (int indcount = 0; indcount < rand_index(4, 9); indcount++) {
-                if (chosen_r2indc == jsizeind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovc2 = jsizeind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc1 {0.0};
-            if (chosen_r1indc != "none") {
-              int delectable_sum = rand_index(0, 9) + rand_index(1, 9) + rand_index(2, 9) +
-                rand_index(3, 9) + rand_index(4, 9);
-              for (int indcount = 0; indcount < rand_index(5, 9); indcount++) {
-                if (chosen_r1indc == jsizeind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovc1 = jsizeind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcova2zi {0.0};
-            if (chosen_r2inda != "none") {
-              for (int indcount = 0; indcount < rand_index(0, 17); indcount++) {
-                if (chosen_r2inda == jsizeind_rownames_zi(indcount)) {
-                  chosen_randcova2zi = jsizeindzi(indcount);
-                }
-              }
-            }
-            double chosen_randcova1zi {0.0};
-            if (chosen_r1inda != "none") {
-              int delectable_sum = rand_index(0, 17);
-              for (int indcount = 0; indcount < rand_index(1, 17); indcount++) {
-                if (chosen_r1inda == jsizeind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcova1zi = jsizeindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb2zi {0.0};
-            if (chosen_r2indb != "none") {
-              int delectable_sum = rand_index(0, 17) + rand_index(1, 17);
-              for (int indcount = 0; indcount < rand_index(2, 17); indcount++) {
-                if (chosen_r2indb == jsizeind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcovb2zi = jsizeindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb1zi {0.0};
-            if (chosen_r1indb != "none") {
-              int delectable_sum = rand_index(0, 17) + rand_index(1, 17) + rand_index(2, 17);
-              for (int indcount = 0; indcount < rand_index(3, 17); indcount++) {
-                if (chosen_r1indb == jsizeind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcovb1zi = jsizeindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc2zi {0.0};
-            if (chosen_r2indc != "none") {
-              int delectable_sum = rand_index(0, 17) + rand_index(1, 17) + rand_index(2, 17) +
-                rand_index(3, 17);
-              for (int indcount = 0; indcount < rand_index(4, 17); indcount++) {
-                if (chosen_r2indc == jsizeind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcovc2zi = jsizeindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc1zi {0.0};
-            if (chosen_r1indc != "none") {
-              int delectable_sum = rand_index(0, 17) + rand_index(1, 17) + rand_index(2, 17) +
-                rand_index(3, 17) + rand_index(4, 17);
-              for (int indcount = 0; indcount < rand_index(5, 17); indcount++) {
-                if (chosen_r1indc == jsizeind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcovc1zi = jsizeindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            
-            if (sizedist == 0) {
-              // Poisson size distribution
-              
-              if (jsizezero && sz3(i) == 0) {
-                double mainsum = rimeotam(jsizecoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                  szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                  indb1, indb2, indc1, indc2, dens, true);
-                
-                lambda_preexp = (mainsum + chosen_randcova2zi + chosen_randcova1zi +
-                  chosen_randcovb2zi + chosen_randcovb1zi + chosen_randcovc2zi +
-                  chosen_randcovc1zi + sizegroups2zi(grp2o(i)) + sizegroups1zi(grp1(i)) +
-                  jsizepatchzi(patchnumber) + jsizeyearzi(yearnumber) +
-                  dev_terms(9) + (svsigmas(6) / 2.0));
-                
-                if (lambda_preexp > exp_tol) {
-                  lambda = exp(exp_tol);
-                } else lambda = exp(lambda_preexp);
-                
-                out(i, 3) = (lambda) / (1.0 + (lambda));
-                
-              } else {
-                double sizefac {1.0};
-                if (sz3(i) > 0) {
-                  sizefac = sz3(i) * tgamma(sz3(i));
-                }
-                double mainsum = rimeotam(jsizecoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                  szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                  indb1, indb2, indc1, indc2, dens, false);
-                
-                lambda_preexp = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                  chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                  chosen_randcovc1 + jsizegroups2(grp2o(i)) + jsizegroups1(grp1(i)) + 
-                  vital_patch(patchnumber, 9) + vital_year(yearnumber, 9) + dev_terms(9) +
-                  (svsigmas(6) / 2.0));
-                
-                if (lambda_preexp > exp_tol) {
-                  lambda = exp(exp_tol);
-                } else lambda = exp(lambda_preexp);
-                
-                if (jsizetrunc == 1) {
-                  out(i, 3) = ((pow(lambda, sz3(i)) * exp(-1.0 * lambda)) / sizefac) / (1.0 - (exp(-1.0 * lambda)));
-                } else {
-                  out(i, 3) = ((pow(lambda, sz3(i)) * exp(-1.0 * lambda)) / sizefac);
-                }
-              }
-            } else if (sizedist == 1) {
-              // Negative binomial size distribution
-              
-              if (jsizezero && sz3(i) == 0) {
-                double mainsum = rimeotam(jsizecoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                  szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                  indb1, indb2, indc1, indc2, dens, true);
-                
-                mu_preexp = (mainsum + chosen_randcova2zi + chosen_randcova1zi +
-                  chosen_randcovb2zi + chosen_randcovb1zi + chosen_randcovc2zi +
-                  chosen_randcovc1zi + sizegroups2zi(grp2o(i)) + sizegroups1zi(grp1(i)) + 
-                  jsizepatchzi(patchnumber) + jsizeyearzi(yearnumber) + dev_terms(9));
-                
-                if (mu_preexp > exp_tol) {
-                  mu = exp(exp_tol);
-                } else mu = exp(mu_preexp);
-                
-                out(i, 3) = (mu) / (1.0 + (mu));
-              } else {
-                double mainsum = rimeotam(jsizecoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                  szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                  indb1, indb2, indc1, indc2, dens, false);
-                
-                mu = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                  chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                  chosen_randcovc1 + jsizegroups2(grp2o(i)) + jsizegroups1(grp1(i)) +
-                  vital_patch(patchnumber, 9) + vital_year(yearnumber, 9) + dev_terms(9));
-                
-                if (mu_preexp > exp_tol) {
-                  mu = exp(exp_tol);
-                } else mu = exp(mu_preexp);
-                
-                double theta = jsizesigma;
-                if (theta > theta_tol) {
-                  theta = theta_tol;
-                }
-                double alpha = 1.0 / theta;
-                
-                int y = static_cast<int>(sz3(i));
-                
-                double log_leftie = 0.0;
-                for (int j = 0; j < y; j++) {
-                  log_leftie = log(static_cast<double>(j) + theta) - log(static_cast<double>(j) + 1.0) + log_leftie;
-                }
-                
-                double log_amu = log(alpha) + log(mu);
-                double log_mid = -1.0 * theta * log(1.0 + (alpha * mu));
-                
-                double log_rightie = sz3(i) * (log_amu - log(1.0 + (alpha * mu)));
-                
-                double raw_prob = log_leftie + log_mid + log_rightie;
-                
-                if (jsizetrunc == 1) {
-                  double zero_raw_prob = log_mid;
-                  
-                  out(i, 3) = exp(raw_prob) / (1.0 - exp(zero_raw_prob));
-                } else {
-                  out(i, 3) = exp(raw_prob);
-                }
-              }
-            } else if (sizedist == 2) {
-              // Gaussian size distribution
-              
-              double mainsum = rimeotam(jsizecoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                indb1, indb2, indc1, indc2, dens, false);
-              
-              double sigma2 = svsigmas(7) * svsigmas(7);
-              preout(3) = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                chosen_randcovc1 + jsizegroups2(grp2o(i)) + jsizegroups1(grp1(i)) + 
-                vital_patch(patchnumber, 9) + vital_year(yearnumber, 9) + dev_terms(9));
-              
-              out(i, 3) = (exp(-1.0 * (pow((sz3(i) - preout(3)), 2) / (2.0 * sigma2))) / 
-                ((pow((2 * M_PI), 0.5)) * svsigmas(7))) * binwidth3(i);
-              
-            } else if (sizedist == 3) {
-              // Gamma size distribution
-              
-              double mainsum = rimeotam(jsizecoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                indb1, indb2, indc1, indc2, dens, false);
-              
-              double sigma2 = svsigmas(7) * svsigmas(7);
-              preout(3) = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                chosen_randcovc1 + jsizegroups2(grp2o(i)) + jsizegroups1(grp1(i)) +
-                vital_patch(patchnumber, 9) + vital_year(yearnumber, 9) + dev_terms(9));
-                
-              double E_y = 1.0 / preout(3);
-              double alpha = 1.0 / sigma2;
-              
-              out(i, 3) = pow((alpha / E_y), alpha) * (1.0 / tgamma(alpha)) * 
-                pow(sz3(i), (alpha - 1.0)) * exp(-1.0 * (alpha / E_y) * sz3(i)) * binwidth3(i);
-              
-            } else {
-              out(i, 3) = 0.0;
-            }
+            out(i, 3) = preouterator(jsizeproxy, jsizecoefs, rand_index,
+              dev_terms, svsigmas, vital_year, vital_patch, chosen_r2inda,
+              chosen_r1inda, chosen_r2indb, chosen_r1indb, chosen_r2indc,
+              chosen_r1indc, statusterms, jsizegroups2, jsizegroups1,
+              jsizegroups2zi, jsizegroups1zi, jsizeyearzi, jsizepatchzi,
+              jsizeind, jsizeind_rownames, jsizeindzi, jsizeind_rownames_zi,
+              jsizezero, grp2o(i), grp1(i), patchnumber, yearnumber, sizedist,
+              10, exp_tol, theta_tol, ipm_cdf, matrixformat, fecmod,
+              repentry(i), negfec, stage2n(i), nostages, jsizetrunc,
+              jsizesigma);
           } else {
             out(i, 3) = 1.0;
           }
           
           if (jsizebl > 1) {
-          
-            double chosen_randcova2 {0.0};
-            if (chosen_r2inda != "none") {
-              for (int indcount = 0; indcount < rand_index(0, 10); indcount++) {
-                if (chosen_r2inda == jsizebind_rownames(indcount)) {
-                  chosen_randcova2 = jsizebind(indcount);
-                }
-              }
-            }
-            double chosen_randcova1 {0.0};
-            if (chosen_r1inda != "none") {
-              int delectable_sum = rand_index(0, 10);
-              for (int indcount = 0; indcount < rand_index(1, 10); indcount++) {
-                if (chosen_r1inda == jsizebind_rownames(indcount + delectable_sum)) {
-                  chosen_randcova1 = jsizebind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb2 {0.0};
-            if (chosen_r2indb != "none") {
-              int delectable_sum = rand_index(0, 10) + rand_index(1, 10);
-              for (int indcount = 0; indcount < rand_index(2, 10); indcount++) {
-                if (chosen_r2indb == jsizebind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovb2 = jsizebind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb1 {0.0};
-            if (chosen_r1indb != "none") {
-              int delectable_sum = rand_index(0, 10) + rand_index(1, 10) + rand_index(2, 10);
-              for (int indcount = 0; indcount < rand_index(3, 10); indcount++) {
-                if (chosen_r1indb == jsizebind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovb1 = jsizebind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc2 {0.0};
-            if (chosen_r2indc != "none") {
-              int delectable_sum = rand_index(0, 10) + rand_index(1, 10) + rand_index(2, 10) +
-                rand_index(3, 10);
-              for (int indcount = 0; indcount < rand_index(4, 10); indcount++) {
-                if (chosen_r2indc == jsizebind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovc2 = jsizebind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc1 {0.0};
-            if (chosen_r1indc != "none") {
-              int delectable_sum = rand_index(0, 10) + rand_index(1, 10) + rand_index(2, 10) +
-                rand_index(3, 10) + rand_index(4, 10);
-              for (int indcount = 0; indcount < rand_index(5, 10); indcount++) {
-                if (chosen_r1indc == jsizebind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovc1 = jsizebind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcova2zi {0.0};
-            if (chosen_r2inda != "none") {
-              for (int indcount = 0; indcount < rand_index(0, 18); indcount++) {
-                if (chosen_r2inda == jsizebind_rownames_zi(indcount)) {
-                  chosen_randcova2zi = jsizebindzi(indcount);
-                }
-              }
-            }
-            double chosen_randcova1zi {0.0};
-            if (chosen_r1inda != "none") {
-              int delectable_sum = rand_index(0, 18);
-              for (int indcount = 0; indcount < rand_index(1, 18); indcount++) {
-                if (chosen_r1inda == jsizebind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcova1zi = jsizebindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb2zi {0.0};
-            if (chosen_r2indb != "none") {
-              int delectable_sum = rand_index(0, 18) + rand_index(1, 18);
-              for (int indcount = 0; indcount < rand_index(2, 18); indcount++) {
-                if (chosen_r2indb == jsizebind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcovb2zi = jsizebindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb1zi {0.0};
-            if (chosen_r1indb != "none") {
-              int delectable_sum = rand_index(0, 18) + rand_index(1, 18) + rand_index(2, 18);
-              for (int indcount = 0; indcount < rand_index(3, 18); indcount++) {
-                if (chosen_r1indb == jsizebind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcovb1zi = jsizebindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc2zi {0.0};
-            if (chosen_r2indc != "none") {
-              int delectable_sum = rand_index(0, 18) + rand_index(1, 18) + rand_index(2, 18) +
-                rand_index(3, 18);
-              for (int indcount = 0; indcount < rand_index(4, 18); indcount++) {
-                if (chosen_r2indc == jsizebind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcovc2zi = jsizebindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc1zi {0.0};
-            if (chosen_r1indc != "none") {
-              int delectable_sum = rand_index(0, 18) + rand_index(1, 18) + rand_index(2, 18) +
-                rand_index(3, 18) + rand_index(4, 18);
-              for (int indcount = 0; indcount < rand_index(5, 18); indcount++) {
-                if (chosen_r1indc == jsizebind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcovc1zi = jsizebindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            
-            if (sizebdist == 0) {
-              // Poisson size_b distribution
-              
-              if (jsizebzero && szb3(i) == 0) {
-                double mainsum = rimeotam(jsizebcoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                  szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                  indb1, indb2, indc1, indc2, dens, true);
-                
-                lambda_preexp = (mainsum + chosen_randcova2zi + chosen_randcova1zi +
-                  chosen_randcovb2zi + chosen_randcovb1zi + chosen_randcovc2zi +
-                  chosen_randcovc1zi + sizegroups2zi(grp2o(i)) + sizegroups1zi(grp1(i)) +
-                  jsizebpatchzi(patchnumber) + jsizebyearzi(yearnumber) + dev_terms(10) +
-                  (svsigmas(8) / 2));
-                
-                if (lambda_preexp > exp_tol) {
-                  lambda = exp(exp_tol);
-                } else lambda = exp(lambda_preexp);
-                
-                out(i, 4) = (lambda) / (1.0 + (lambda));
-                
-              } else {
-                double sizefac {1.0};
-                if (szb3(i) > 0) {
-                  sizefac = szb3(i) * tgamma(szb3(i));
-                }
-                double mainsum = rimeotam(jsizebcoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                  szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                  indb1, indb2, indc1, indc2, dens, false);
-                
-                lambda_preexp = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                  chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                  chosen_randcovc1 + jsizebgroups2(grp2o(i)) + jsizebgroups1(grp1(i)) + 
-                  vital_patch(patchnumber, 10) + vital_year(yearnumber, 10) + dev_terms(10) +
-                  (svsigmas(8) / 2.0));
-                
-                if (lambda_preexp > exp_tol) {
-                  lambda = exp(exp_tol);
-                } else lambda = exp(lambda_preexp);
-                
-                if (jsizebtrunc == 1) {
-                  out(i, 4) = ((pow(lambda, szb3(i)) * exp(-1.0 * lambda)) / sizefac) / (1.0 - (exp(-1.0 * lambda)));
-                } else {
-                  out(i, 4) = ((pow(lambda, szb3(i)) * exp(-1.0 * lambda)) / sizefac);
-                }
-              }
-            } else if (sizebdist == 1) {
-              // Negative binomial size distribution
-              
-              if (jsizebzero && szb3(i) == 0) {
-                double mainsum = rimeotam(jsizebcoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                  szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                  indb1, indb2, indc1, indc2, dens, true);
-                
-                mu_preexp = (mainsum + chosen_randcova2zi + chosen_randcova1zi +
-                  chosen_randcovb2zi + chosen_randcovb1zi + chosen_randcovc2zi +
-                  chosen_randcovc1zi + sizegroups2zi(grp2o(i)) + sizegroups1zi(grp1(i)) +
-                  jsizebpatchzi(patchnumber) + jsizebyearzi(yearnumber) + dev_terms(10));
-                
-                if (mu_preexp > exp_tol) {
-                  mu = exp(exp_tol);
-                } else mu = exp(mu_preexp);
-                
-                out(i, 4) = (mu) / (1.0 + (mu));
-              } else {
-                double mainsum = rimeotam(jsizebcoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                  szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                  indb1, indb2, indc1, indc2, dens, false);
-                
-                mu = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                  chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                  chosen_randcovc1 + jsizebgroups2(grp2o(i)) + jsizebgroups1(grp1(i)) + 
-                  vital_patch(patchnumber, 10) + vital_year(yearnumber, 10) + dev_terms(10));
-                
-                if (mu_preexp > exp_tol) {
-                  mu = exp(exp_tol);
-                } else mu = exp(mu_preexp);
-                
-                double theta = jsizebsigma;
-                if (theta > theta_tol) {
-                  theta = theta_tol;
-                }
-                double alpha = 1.0 / theta;
-                
-                int y = static_cast<int>(szb3(i));
-                
-                double log_leftie = 0.0;
-                for (int j = 0; j < y; j++) {
-                  log_leftie = log(static_cast<double>(j) + theta) - log(static_cast<double>(j) + 1.0) + log_leftie;
-                }
-                
-                double log_amu = log(alpha) + log(mu);
-                double log_mid = -1.0 * theta * log(1.0 + (alpha * mu));
-                
-                double log_rightie = szb3(i) * (log_amu - log(1.0 + (alpha * mu)));
-                
-                double raw_prob = log_leftie + log_mid + log_rightie;
-                
-                if (jsizebtrunc == 1) {
-                  double zero_raw_prob = log_mid;
-                  
-                  out(i, 4) = exp(raw_prob) / (1.0 - exp(zero_raw_prob));
-                } else {
-                  out(i, 4) = exp(raw_prob);
-                }
-              }
-            } else if (sizebdist == 2) {
-              // Gaussian size_b distribution
-              
-              double mainsum = rimeotam(jsizebcoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                indb1, indb2, indc1, indc2, dens, false);
-              
-              double sigma2 = svsigmas(9) * svsigmas(9);
-              preout(4) = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                chosen_randcovc1 + jsizebgroups2(grp2o(i)) + jsizebgroups1(grp1(i)) + 
-                vital_patch(patchnumber, 10) + vital_year(yearnumber, 10) + dev_terms(10));
-              
-              out(i, 4) = (exp(-1.0 * (pow((szb3(i) - preout(4)), 2) / (2.0 * sigma2))) / 
-                ((pow((2 * M_PI), 0.5)) * svsigmas(9))) * binbwidth3(i);
-              
-            } else if (sizebdist == 3) {
-              // Gamma size distribution
-              
-              double mainsum = rimeotam(jsizebcoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                indb1, indb2, indc1, indc2, dens, false);
-              
-              double sigma2 = svsigmas(9) * svsigmas(9);
-              preout(4) = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                chosen_randcovc1 + jsizebgroups2(grp2o(i)) + jsizebgroups1(grp1(i)) + 
-                vital_patch(patchnumber, 10) + vital_year(yearnumber, 10) + dev_terms(10));
-                
-              double E_y = 1.0 / preout(4);
-              double alpha = 1.0 / sigma2;
-              
-              out(i, 4) = pow((alpha / E_y), alpha) * (1.0 / tgamma(alpha)) * 
-                pow(szb3(i), (alpha - 1.0)) * exp(-1.0 * (alpha / E_y) * szb3(i)) * binbwidth3(i);
-              
-            } else {
-              out(i, 4) = 0.0;
-            }
+            out(i, 4) = preouterator(jsizebproxy, jsizebcoefs, rand_index,
+              dev_terms, svsigmas, vital_year, vital_patch, chosen_r2inda,
+              chosen_r1inda, chosen_r2indb, chosen_r1indb, chosen_r2indc,
+              chosen_r1indc, statusterms, jsizebgroups2, jsizebgroups1,
+              jsizebgroups2zi, jsizebgroups1zi, jsizebyearzi, jsizebpatchzi,
+              jsizebind, jsizebind_rownames, jsizebindzi, jsizebind_rownames_zi,
+              jsizebzero, grp2o(i), grp1(i), patchnumber, yearnumber, sizebdist,
+              11, exp_tol, theta_tol, ipm_cdf, matrixformat, fecmod,
+              repentry(i), negfec, stage2n(i), nostages, jsizebtrunc,
+              jsizebsigma);
           } else {
             out(i, 4) = 1.0;
           }
           
           if (jsizecl > 1) {
-          
-            double chosen_randcova2 {0.0};
-            if (chosen_r2inda != "none") {
-              for (int indcount = 0; indcount < rand_index(0, 11); indcount++) {
-                if (chosen_r2inda == jsizecind_rownames(indcount)) {
-                  chosen_randcova2 = jsizecind(indcount);
-                }
-              }
-            }
-            double chosen_randcova1 {0.0};
-            if (chosen_r1inda != "none") {
-              int delectable_sum = rand_index(0, 11);
-              for (int indcount = 0; indcount < rand_index(1, 11); indcount++) {
-                if (chosen_r1inda == jsizecind_rownames(indcount + delectable_sum)) {
-                  chosen_randcova1 = jsizecind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb2 {0.0};
-            if (chosen_r2indb != "none") {
-              int delectable_sum = rand_index(0, 11) + rand_index(1, 11);
-              for (int indcount = 0; indcount < rand_index(2, 11); indcount++) {
-                if (chosen_r2indb == jsizecind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovb2 = jsizecind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb1 {0.0};
-            if (chosen_r1indb != "none") {
-              int delectable_sum = rand_index(0, 11) + rand_index(1, 11) + rand_index(2, 11);
-              for (int indcount = 0; indcount < rand_index(3, 11); indcount++) {
-                if (chosen_r1indb == jsizecind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovb1 = jsizecind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc2 {0.0};
-            if (chosen_r2indc != "none") {
-              int delectable_sum = rand_index(0, 11) + rand_index(1, 11) + rand_index(2, 11) +
-                rand_index(3, 11);
-              for (int indcount = 0; indcount < rand_index(4, 11); indcount++) {
-                if (chosen_r2indc == jsizecind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovc2 = jsizecind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc1 {0.0};
-            if (chosen_r1indc != "none") {
-              int delectable_sum = rand_index(0, 11) + rand_index(1, 11) + rand_index(2, 11) +
-                rand_index(3, 11) + rand_index(4, 11);
-              for (int indcount = 0; indcount < rand_index(5, 11); indcount++) {
-                if (chosen_r1indc == jsizecind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovc1 = jsizecind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcova2zi {0.0};
-            if (chosen_r2inda != "none") {
-              for (int indcount = 0; indcount < rand_index(0, 19); indcount++) {
-                if (chosen_r2inda == jsizecind_rownames_zi(indcount)) {
-                  chosen_randcova2zi = jsizecindzi(indcount);
-                }
-              }
-            }
-            double chosen_randcova1zi {0.0};
-            if (chosen_r1inda != "none") {
-              int delectable_sum = rand_index(0, 19);
-              for (int indcount = 0; indcount < rand_index(1, 19); indcount++) {
-                if (chosen_r1inda == jsizecind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcova1zi = jsizecindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb2zi {0.0};
-            if (chosen_r2indb != "none") {
-              int delectable_sum = rand_index(0, 19) + rand_index(1, 19);
-              for (int indcount = 0; indcount < rand_index(2, 19); indcount++) {
-                if (chosen_r2indb == jsizecind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcovb2zi = jsizecindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb1zi {0.0};
-            if (chosen_r1indb != "none") {
-              int delectable_sum = rand_index(0, 19) + rand_index(1, 19) + rand_index(2, 19);
-              for (int indcount = 0; indcount < rand_index(3, 19); indcount++) {
-                if (chosen_r1indb == jsizecind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcovb1zi = jsizecindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc2zi {0.0};
-            if (chosen_r2indc != "none") {
-              int delectable_sum = rand_index(0, 19) + rand_index(1, 19) + rand_index(2, 19) +
-                rand_index(3, 19);
-              for (int indcount = 0; indcount < rand_index(4, 19); indcount++) {
-                if (chosen_r2indc == jsizecind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcovc2zi = jsizecindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc1zi {0.0};
-            if (chosen_r1indc != "none") {
-              int delectable_sum = rand_index(0, 19) + rand_index(1, 19) + rand_index(2, 19) +
-                rand_index(3, 19) + rand_index(4, 19);
-              for (int indcount = 0; indcount < rand_index(5, 19); indcount++) {
-                if (chosen_r1indc == jsizecind_rownames_zi(indcount + delectable_sum)) {
-                  chosen_randcovc1zi = jsizecindzi(indcount + delectable_sum);
-                }
-              }
-            }
-            
-            if (sizecdist == 0) {
-              // Poisson size_c distribution
-              
-              if (jsizeczero && szc3(i) == 0) {
-                double mainsum = rimeotam(jsizeccoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                  szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                  indb1, indb2, indc1, indc2, dens, true);
-                
-                lambda_preexp = (mainsum + chosen_randcova2zi + chosen_randcova1zi +
-                  chosen_randcovb2zi + chosen_randcovb1zi + chosen_randcovc2zi +
-                  chosen_randcovc1zi + sizegroups2zi(grp2o(i)) + sizegroups1zi(grp1(i)) +
-                  jsizecpatchzi(patchnumber) + jsizecyearzi(yearnumber) + dev_terms(11) +
-                  (svsigmas(10) / 2.0));
-                
-                if (lambda_preexp > exp_tol) {
-                  lambda = exp(exp_tol);
-                } else lambda = exp(lambda_preexp);
-                
-                out(i, 5) = (lambda) / (1.0 + (lambda));
-                
-              } else {
-                double sizefac {1.0};
-                if (szc3(i) > 0) {
-                  sizefac = szc3(i) * tgamma(szc3(i));
-                }
-                double mainsum = rimeotam(jsizeccoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                  szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                  indb1, indb2, indc1, indc2, dens, false);
-                
-                lambda_preexp = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                  chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                  chosen_randcovc1 + jsizecgroups2(grp2o(i)) + jsizecgroups1(grp1(i)) + 
-                  vital_patch(patchnumber, 11) + vital_year(yearnumber, 11) + dev_terms(11) +
-                  (svsigmas(10) / 2.0));
-                
-                if (lambda_preexp > exp_tol) {
-                  lambda = exp(exp_tol);
-                } else lambda = exp(lambda_preexp);
-                
-                if (jsizectrunc == 1) {
-                  out(i, 5) = ((pow(lambda, szc3(i)) * exp(-1.0 * lambda)) / sizefac) / (1.0 - (exp(-1.0 * lambda)));
-                } else {
-                  out(i, 5) = ((pow(lambda, szc3(i)) * exp(-1.0 * lambda)) / sizefac);
-                }
-              }
-            } else if (sizecdist == 1) {
-              // Negative binomial size_c distribution
-              
-              if (jsizeczero && szc3(i) == 0) {
-                double mainsum = rimeotam(jsizeccoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                  szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                  indb1, indb2, indc1, indc2, dens, true);
-                
-                mu_preexp = (mainsum + chosen_randcova2zi + chosen_randcova1zi +
-                  chosen_randcovb2zi + chosen_randcovb1zi + chosen_randcovc2zi +
-                  chosen_randcovc1zi + sizegroups2zi(grp2o(i)) + sizegroups1zi(grp1(i)) +
-                  jsizecpatchzi(patchnumber) + jsizecyearzi(yearnumber) + dev_terms(11));
-                
-                if (mu_preexp > exp_tol) {
-                  mu = exp(exp_tol);
-                } else mu = exp(mu_preexp);
-                
-                out(i, 5) = (mu) / (1.0 + (mu));
-              } else {
-                double mainsum = rimeotam(jsizeccoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                  szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                  indb1, indb2, indc1, indc2, dens, false);
-                
-                mu = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                  chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                  chosen_randcovc1 + jsizecgroups2(grp2o(i)) + jsizecgroups1(grp1(i)) + 
-                  vital_patch(patchnumber, 11) + vital_year(yearnumber, 11) + dev_terms(11));
-                
-                if (mu_preexp > exp_tol) {
-                  mu = exp(exp_tol);
-                } else mu = exp(mu_preexp);
-                
-                double theta = jsizecsigma;
-                if (theta > theta_tol) {
-                  theta = theta_tol;
-                }
-                double alpha = 1.0 / theta;
-                
-                int y = static_cast<int>(szc3(i));
-                
-                double log_leftie = 0.0;
-                for (int j = 0; j < y; j++) {
-                  log_leftie = log(static_cast<double>(j) + theta) - log(static_cast<double>(j) + 1.0) + log_leftie;
-                }
-                
-                double log_amu = log(alpha) + log(mu);
-                double log_mid = -1.0 * theta * log(1.0 + (alpha * mu));
-                
-                double log_rightie = szc3(i) * (log_amu - log(1.0 + (alpha * mu)));
-                
-                double raw_prob = log_leftie + log_mid + log_rightie;
-                
-                if (jsizetrunc == 1) {
-                  double zero_raw_prob = log_mid;
-                  
-                  out(i, 5) = exp(raw_prob) / (1.0 - exp(zero_raw_prob));
-                } else {
-                  out(i, 5) = exp(raw_prob);
-                }
-              }
-            } else if (sizecdist == 2) {
-              // Gaussian size_c distribution
-              
-              double mainsum = rimeotam(jsizeccoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                indb1, indb2, indc1, indc2, dens, false);
-              
-              double sigma2 = svsigmas(11) * svsigmas(11);
-              preout(5) = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                chosen_randcovc1 + jsizecgroups2(grp2o(i)) + jsizecgroups1(grp1(i)) + 
-                vital_patch(patchnumber, 11) + vital_year(yearnumber, 11) + dev_terms(11));
-              
-              out(i, 5) = (exp(-1.0 * (pow((szc3(i) - preout(5)), 2) / (2.0 * sigma2))) / 
-                ((pow((2 * M_PI), 0.5)) * svsigmas(11))) * bincwidth3(i);
-              
-            } else if (sizecdist == 3) {
-              // Gamma size_c distribution
-              
-              double mainsum = rimeotam(jsizeccoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                indb1, indb2, indc1, indc2, dens, false);
-              
-              double sigma2 = svsigmas(11) * svsigmas(11);
-              preout(5) = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                chosen_randcovc1 + jsizecgroups2(grp2o(i)) + jsizecgroups1(grp1(i)) + 
-                vital_patch(patchnumber, 11) + vital_year(yearnumber, 11) + dev_terms(11));
-                
-              double E_y = 1.0 / preout(5);
-              double alpha = 1.0 / sigma2;
-              
-              out(i, 5) = pow((alpha / E_y), alpha) * (1.0 / tgamma(alpha)) * 
-                pow(szc3(i), (alpha - 1.0)) * exp(-1.0 * (alpha / E_y) * szc3(i)) * bincwidth3(i);
-              
-            } else {
-              out(i, 5) = 0.0;
-            }
+            out(i, 5) = preouterator(jsizecproxy, jsizeccoefs, rand_index,
+              dev_terms, svsigmas, vital_year, vital_patch, chosen_r2inda,
+              chosen_r1inda, chosen_r2indb, chosen_r1indb, chosen_r2indc,
+              chosen_r1indc, statusterms, jsizecgroups2, jsizecgroups1,
+              jsizecgroups2zi, jsizecgroups1zi, jsizecyearzi, jsizecpatchzi,
+              jsizecind, jsizecind_rownames, jsizecindzi, jsizecind_rownames_zi,
+              jsizeczero, grp2o(i), grp1(i), patchnumber, yearnumber, sizecdist,
+              12, exp_tol, theta_tol, ipm_cdf, matrixformat, fecmod,
+              repentry(i), negfec, stage2n(i), nostages, jsizectrunc,
+              jsizecsigma);
           } else {
             out(i, 5) = 1.0;
           }
           
           if (jrepstl > 1) {
-            
-            double chosen_randcova2 {0.0};
-            if (chosen_r2inda != "none") {
-              for (int indcount = 0; indcount < rand_index(0, 12); indcount++) {
-                if (chosen_r2inda == jrepstind_rownames(indcount)) {
-                  chosen_randcova2 = jrepstind(indcount);
-                }
-              }
-            }
-            double chosen_randcova1 {0.0};
-            if (chosen_r1inda != "none") {
-              int delectable_sum = rand_index(0, 12);
-              for (int indcount = 0; indcount < rand_index(1, 12); indcount++) {
-                if (chosen_r1inda == jrepstind_rownames(indcount + delectable_sum)) {
-                  chosen_randcova1 = jrepstind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb2 {0.0};
-            if (chosen_r2indb != "none") {
-              int delectable_sum = rand_index(0, 12) + rand_index(1, 12);
-              for (int indcount = 0; indcount < rand_index(2, 12); indcount++) {
-                if (chosen_r2indb == jrepstind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovb2 = jrepstind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovb1 {0.0};
-            if (chosen_r1indb != "none") {
-              int delectable_sum = rand_index(0, 12) + rand_index(1, 12) + rand_index(2, 12);
-              for (int indcount = 0; indcount < rand_index(3, 12); indcount++) {
-                if (chosen_r1indb == jrepstind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovb1 = jrepstind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc2 {0.0};
-            if (chosen_r2indc != "none") {
-              int delectable_sum = rand_index(0, 12) + rand_index(1, 12) + rand_index(2, 12) +
-                rand_index(3, 12);
-              for (int indcount = 0; indcount < rand_index(4, 12); indcount++) {
-                if (chosen_r2indc == jrepstind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovc2 = jrepstind(indcount + delectable_sum);
-                }
-              }
-            }
-            double chosen_randcovc1 {0.0};
-            if (chosen_r1indc != "none") {
-              int delectable_sum = rand_index(0, 12) + rand_index(1, 12) + rand_index(2, 12) +
-                rand_index(3, 12) + rand_index(4, 12);
-              for (int indcount = 0; indcount < rand_index(5, 12); indcount++) {
-                if (chosen_r1indc == jrepstind_rownames(indcount + delectable_sum)) {
-                  chosen_randcovc1 = jrepstind(indcount + delectable_sum);
-                }
-              }
-            }
-            
-            double mainsum = rimeotam(jrepstcoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-              szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-              indb1, indb2, indc1, indc2, dens, false);
-            
-            preout(2) = (mainsum + chosen_randcova2 + chosen_randcova1 +
-              chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-              chosen_randcovc1 + jrepstgroups2(grp2o(i)) + jrepstgroups1(grp1(i)) + 
-              vital_patch(patchnumber, 12) + vital_year(yearnumber, 12) + dev_terms(12));
-            
-            if (preout(2) > exp_tol) preout(2) = exp_tol;
-            
-            out(i, 2) = exp(preout(2)) / (1.0 + exp(preout(2)));
-            
+            out(i, 2) = preouterator(jrepstproxy, jrepstcoefs, rand_index,
+              dev_terms, svsigmas, vital_year, vital_patch, chosen_r2inda,
+              chosen_r1inda, chosen_r2indb, chosen_r1indb, chosen_r2indc,
+              chosen_r1indc, statusterms, jrepstgroups2, jrepstgroups1,
+              dud_groups2zi, dud_groups1zi, dud_yearzi, dud_patchzi, jrepstind,
+              jrepstind_rownames, jsizeindzi, jsizeind_rownames_zi, false,
+              grp2o(i), grp1(i), patchnumber, yearnumber, 4, 13, exp_tol,
+              theta_tol, ipm_cdf, matrixformat, fecmod, repentry(i), negfec,
+              stage2n(i), nostages, 0, 0.0);
+              
             if (fl3(i) == 0) {
               out(i, 2) = 1.0 - out(i, 2);
             }
@@ -3821,7 +2575,8 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
           out(i, 5) = 1.0;
         }
         
-        survtransmat(k) = out(i, 0) * out(i, 1) * out(i, 2) * out(i, 3) * out(i, 4) * out(i, 5);
+        survtransmat(k) = out(i, 0) * out(i, 1) * out(i, 2) * out(i, 3) *
+          out(i, 4) * out(i, 5);
       }
     } else if (ovgivent(i) != -1) {
       // All other transitions
@@ -3832,240 +2587,16 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
     // This next block calculates fecundity
     if (indata2n(i) == 1 && fecl > 0) {
       if (fl2o(i) == 1 && ovgivenf(i) == -1) {
+      
+        fectransmat(k) = preouterator(fecproxy, feccoefs, rand_index, dev_terms,
+          svsigmas, vital_year, vital_patch, chosen_r2inda, chosen_r1inda,
+          chosen_r2indb, chosen_r1indb, chosen_r2indc, chosen_r1indc,
+          statusterms, fecgroups2, fecgroups1, fecgroups2zi, fecgroups1zi,
+          fecyearzi, fecpatchzi, fecind, fecind_rownames, fecindzi,
+          fecind_rownames_zi, feczero, grp2o(i), grp1(i), patchnumber, yearnumber,
+          fecdist, 7, exp_tol, theta_tol, ipm_cdf, matrixformat, fecmod,
+          repentry(i), negfec, stage2n(i), nostages, fectrunc, fecsigma);
         
-        double chosen_randcova2 {0.0};
-        if (chosen_r2inda != "none") {
-          for (int indcount = 0; indcount < rand_index(0, 6); indcount++) {
-            if (chosen_r2inda == fecind_rownames(indcount)) {
-              chosen_randcova2 = fecind(indcount);
-            }
-          }
-        }
-        double chosen_randcova1 {0.0};
-        if (chosen_r1inda != "none") {
-          int delectable_sum = rand_index(0, 6);
-          for (int indcount = 0; indcount < rand_index(1, 6); indcount++) {
-            if (chosen_r1inda == fecind_rownames(indcount + delectable_sum)) {
-              chosen_randcova1 = fecind(indcount + delectable_sum);
-            }
-          }
-        }
-        double chosen_randcovb2 {0.0};
-        if (chosen_r2indb != "none") {
-          int delectable_sum = rand_index(0, 6) + rand_index(1, 6);
-          for (int indcount = 0; indcount < rand_index(2, 6); indcount++) {
-            if (chosen_r2indb == fecind_rownames(indcount + delectable_sum)) {
-              chosen_randcovb2 = fecind(indcount + delectable_sum);
-            }
-          }
-        }
-        double chosen_randcovb1 {0.0};
-        if (chosen_r1indb != "none") {
-          int delectable_sum = rand_index(0, 6) + rand_index(1, 6) + rand_index(2, 6);
-          for (int indcount = 0; indcount < rand_index(3, 6); indcount++) {
-            if (chosen_r1indb == fecind_rownames(indcount + delectable_sum)) {
-              chosen_randcovb1 = fecind(indcount + delectable_sum);
-            }
-          }
-        }
-        double chosen_randcovc2 {0.0};
-        if (chosen_r2indc != "none") {
-          int delectable_sum = rand_index(0, 6) + rand_index(1, 6) + rand_index(2, 6) +
-            rand_index(3, 6);
-          for (int indcount = 0; indcount < rand_index(4, 6); indcount++) {
-            if (chosen_r2indc == fecind_rownames(indcount + delectable_sum)) {
-              chosen_randcovc2 = fecind(indcount + delectable_sum);
-            }
-          }
-        }
-        double chosen_randcovc1 {0.0};
-        if (chosen_r1indc != "none") {
-          int delectable_sum = rand_index(0, 6) + rand_index(1, 6) + rand_index(2, 6) +
-            rand_index(3, 6) + rand_index(4, 6);
-          for (int indcount = 0; indcount < rand_index(5, 6); indcount++) {
-            if (chosen_r1indc == fecind_rownames(indcount + delectable_sum)) {
-              chosen_randcovc1 = fecind(indcount + delectable_sum);
-            }
-          }
-        }
-        double chosen_randcova2zi {0.0};
-        if (chosen_r2inda != "none") {
-          for (int indcount = 0; indcount < rand_index(0, 16); indcount++) {
-            if (chosen_r2inda == fecind_rownames_zi(indcount)) {
-              chosen_randcova2zi = fecindzi(indcount);
-            }
-          }
-        }
-        double chosen_randcova1zi {0.0};
-        if (chosen_r1inda != "none") {
-          int delectable_sum = rand_index(0, 16);
-          for (int indcount = 0; indcount < rand_index(1, 16); indcount++) {
-            if (chosen_r1inda == fecind_rownames_zi(indcount + delectable_sum)) {
-              chosen_randcova1zi = fecindzi(indcount + delectable_sum);
-            }
-          }
-        }
-        double chosen_randcovb2zi {0.0};
-        if (chosen_r2indb != "none") {
-          int delectable_sum = rand_index(0, 16) + rand_index(1, 16);
-          for (int indcount = 0; indcount < rand_index(2, 16); indcount++) {
-            if (chosen_r2indb == fecind_rownames_zi(indcount + delectable_sum)) {
-              chosen_randcovb2zi = fecindzi(indcount + delectable_sum);
-            }
-          }
-        }
-        double chosen_randcovb1zi {0.0};
-        if (chosen_r1indb != "none") {
-          int delectable_sum = rand_index(0, 16) + rand_index(1, 16) + rand_index(2, 16);
-          for (int indcount = 0; indcount < rand_index(3, 16); indcount++) {
-            if (chosen_r1indb == fecind_rownames_zi(indcount + delectable_sum)) {
-              chosen_randcovb1zi = fecindzi(indcount + delectable_sum);
-            }
-          }
-        }
-        double chosen_randcovc2zi {0.0};
-        if (chosen_r2indc != "none") {
-          int delectable_sum = rand_index(0, 16) + rand_index(1, 16) + rand_index(2, 16) +
-            rand_index(3, 16);
-          for (int indcount = 0; indcount < rand_index(4, 16); indcount++) {
-            if (chosen_r2indc == fecind_rownames_zi(indcount + delectable_sum)) {
-              chosen_randcovc2zi = fecindzi(indcount + delectable_sum);
-            }
-          }
-        }
-        double chosen_randcovc1zi {0.0};
-        if (chosen_r1indc != "none") {
-          int delectable_sum = rand_index(0, 16) + rand_index(1, 16) + rand_index(2, 16) +
-            rand_index(3, 16) + rand_index(4, 16);
-          for (int indcount = 0; indcount < rand_index(5, 16); indcount++) {
-            if (chosen_r1indc == fecind_rownames_zi(indcount + delectable_sum)) {
-              chosen_randcovc1zi = fecindzi(indcount + delectable_sum);
-            }
-          }
-        }
-            
-        double preoutx {0.0};
-        
-        if (matrixformat != 2) {
-          if (fecdist < 4 && fecl > 1) {
-            if (feczero && sz3(i) == 0 && szb3(i) == 0 && szc3(i) == 0) {
-              
-              double mainsum = rimeotam(feccoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                indb1, indb2, indc1, indc2, dens, true);
-              
-              preoutx = (mainsum + chosen_randcova2zi + chosen_randcova1zi +
-                chosen_randcovb2zi + chosen_randcovb1zi + chosen_randcovc2zi +
-                chosen_randcovc1zi + fecgroups2zi(grp2o(i)) + fecgroups1zi(grp1(i)) + 
-                fecpatchzi(patchnumber) + fecyearzi(yearnumber) + dev_terms(6));
-                
-            } else {
-              
-              double mainsum = rimeotam(feccoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                indb1, indb2, indc1, indc2, dens, false);
-              
-              preoutx = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                chosen_randcovc1 + fecgroups2(grp2o(i)) + fecgroups1(grp1(i)) + 
-                vital_patch(patchnumber, 6) + vital_year(yearnumber, 6) + dev_terms(6));
-            }
-            
-            if (fecdist == 0 || fecdist == 1) {
-              // Poisson and negative binomial fecundity
-              
-              if (feczero && sz3(i) == 0 && szb3(i) == 0 && szc3(i) == 0) {
-                
-                if (preoutx > exp_tol) preoutx = exp_tol;
-                
-                fectransmat(k) = (exp(preoutx) / (1.0 + exp(preoutx))) * fecmod * repentry(i);
-                
-              } else {
-              
-                if (preoutx > exp_tol) preoutx = exp_tol;
-                
-                fectransmat(k) = exp(preoutx) * fecmod * repentry(i);
-              }
-            } else if (fecdist == 2) {
-              // Gaussian fecundity
-              fectransmat(k) = preoutx * fecmod * repentry(i);
-              
-              if (negfec && fectransmat(k) < 0.0) {
-                fectransmat(k) = 0.0;
-              }
-            } else if (fecdist == 3) {
-              // Gamma fecundity
-              fectransmat(k) = (1.0 / preoutx) * fecmod * repentry(i);
-            }
-            
-          } else if (fecl > 1) {
-            // All others with estimated models
-            
-            fectransmat(k) = 0.0;
-          } else {
-            fectransmat(k) = feccoefs(0);
-          }
-        } else if (stage2n(i) == (nostages+1)) {
-          // This propagates fecundity in deVries-formatted hMPMs
-          if (fecdist < 4 && fecl > 1) {
-            if (feczero && sz3(i) == 0 && szb3(i) == 0 && szc3(i) == 0) {
-              
-              double mainsum = rimeotam(feccoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                indb1, indb2, indc1, indc2, dens, true);
-              
-              preoutx = (mainsum + chosen_randcova2zi + chosen_randcova1zi +
-                chosen_randcovb2zi + chosen_randcovb1zi + chosen_randcovc2zi +
-                chosen_randcovc1zi + fecgroups2zi(grp2o(i)) + fecgroups1zi(grp1(i)) + 
-                fecpatchzi(patchnumber) + fecyearzi(yearnumber) + dev_terms(6));
-                
-            } else {
-              
-              double mainsum = rimeotam(feccoefs, fl1(i), fl2n(i), sz1(i), sz2o(i),
-                szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2,
-                indb1, indb2, indc1, indc2, dens, false);
-              
-              preoutx = (mainsum + chosen_randcova2 + chosen_randcova1 +
-                chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
-                chosen_randcovc1 + fecgroups2(grp2o(i)) + fecgroups1(grp1(i)) + 
-                vital_patch(patchnumber, 6) + vital_year(yearnumber, 6) + dev_terms(6));
-            }
-            
-            if (fecdist == 0 || fecdist == 1) {
-              // Poisson and negative binomial fecundity
-              
-              if (feczero && sz3(i) == 0 && szb3(i) == 0 && szc3(i) == 0) {
-                
-                if (preoutx > exp_tol) preoutx = exp_tol;
-                
-                fectransmat(k) = (exp(preoutx) / (1.0 + exp(preoutx))) * fecmod * repentry(i);
-                
-              } else {
-              
-                if (preoutx > exp_tol) preoutx = exp_tol;
-                
-                fectransmat(k) = exp(preoutx) * fecmod * repentry(i);
-              }
-            } else if (fecdist == 2) {
-              // Gaussian fecundity
-              fectransmat(k) = preoutx * fecmod * repentry(i);
-              
-              if (negfec && fectransmat(k) < 0.0) {
-                fectransmat(k) = 0.0;
-              }
-            } else if (fecdist == 3) {
-              // Gamma fecundity
-              fectransmat(k) = (1.0 / preoutx) * fecmod * repentry(i);
-            }
-            
-          } else if (fecl > 1) {
-            // All others with estimated models
-            
-            fectransmat(k) = 0.0;
-          } else {
-            fectransmat(k) = feccoefs(0);
-          }
-        }
       } else if (ovgivenf(i) != -1 ) {
         fectransmat(k) = ovgivenf(i);
       }
@@ -4377,11 +2908,11 @@ List motherbalowski(DataFrame ppy, DataFrame ageframe, List survproxy,
   // Proxy model imports and settings
   bool feczero = false;
 
-  arma::vec survcoefs = survproxy["coefficients"];
-  arma::vec feccoefs = fecproxy["coefficients"];
+  NumericVector survcoefs = survproxy["coefficients"];
+  NumericVector feccoefs = fecproxy["coefficients"];
 
-  int survl = survcoefs.n_elem;
-  int fecl = feccoefs.n_elem;
+  int survl = survcoefs.length();
+  int fecl = feccoefs.length();
 
   double fecsigma = fecproxy["sigma"];
 
@@ -4518,7 +3049,7 @@ List motherbalowski(DataFrame ppy, DataFrame ageframe, List survproxy,
       }
       
       double mainsum = rimeotam(survcoefs, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-        0.0, static_cast<char>(i), inda1, inda2, indb1, indb2, indc1, indc2,
+        0.0, static_cast<double>(i), inda1, inda2, indb1, indb2, indc1, indc2,
         dens, false);
       
       preout = (mainsum + chosen_randcova2 + chosen_randcova1 +
@@ -4663,7 +3194,7 @@ List motherbalowski(DataFrame ppy, DataFrame ageframe, List survproxy,
           if (feczero) {
             
             double mainsum = rimeotam(feccoefs, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-              0.0, 0.0, static_cast<char>(i), inda1, inda2, indb1, indb2, indc1,
+              0.0, 0.0, static_cast<double>(i), inda1, inda2, indb1, indb2, indc1,
               indc2, dens, true);
             
             preoutx = (mainsum + chosen_randcova2zi + chosen_randcova1zi +
@@ -4674,7 +3205,7 @@ List motherbalowski(DataFrame ppy, DataFrame ageframe, List survproxy,
           } else {
             
             double mainsum = rimeotam(feccoefs, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-              0.0, 0.0, static_cast<char>(i), inda1, inda2, indb1, indb2, indc1,
+              0.0, 0.0, static_cast<double>(i), inda1, inda2, indb1, indb2, indc1,
               indc2, dens, false);
             
             preoutx = (mainsum + chosen_randcova2 + chosen_randcova1 +

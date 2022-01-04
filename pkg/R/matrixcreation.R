@@ -6,7 +6,7 @@
 #' the characteristics of the ahistorical stages used and historical stage pairs
 #' created, and a data frame characterizing the patch and occasion time
 #' combinations corresponding to these matrices.
-#'
+#' 
 #' @param year A variable corresponding to the observation occasion, or a set
 #' of such values, given in values associated with the year term used in linear 
 #' model development. Defaults to \code{"all"}, in which case matrices will be
@@ -213,6 +213,10 @@
 #' \code{ehrlen} format or \code{deVries} format. The latter adds one extra
 #' prior stage to account for the prior state of newborns. Defaults to
 #' \code{ehrlen} format.
+#' @param ipm_method A string indicating what method to use to estimate size
+#' transition probabilities if size is treated as continuous. Options include
+#' \code{"midpoint"}, which utilizes the midpoint method, and \code{"CDF"},
+#' which uses the cumulative distribution function. Defaults to \code{"CDF"}.
 #' @param reduce A logical value denoting whether to remove historical stages
 #' associated solely with 0 transitions. These are only removed in cases where
 #' the associated row and column sums in ALL matrices estimated equal 0. 
@@ -296,6 +300,24 @@
 #' Care should be taken to match the random status of year and patch to the
 #' states of those variables within the modelsuite. If they do not match, then
 #' they will be treated as zeroes in vital rate estimation.
+#' 
+#' The \code{ipm_method} function gives the option of using two different means
+#' of estimating the probability of size transition. The midpoint method
+#' (\code{"midpoint"}) refers to the method in which the probability is
+#' estimated by first estimating the probability associated with transition from
+#' the exact size at the midpoint of the size class using the corresponding
+#' probability density function, and then multiplying that value by the bin
+#' width of the size class. Doak et al. 2021 (Ecological Monographs) noted that
+#' this method can produce biased results, with total size transitions
+#' associated with a specific size not totaling to 1.0 and even specific size
+#' transition probabilities capable of being estimated at values greater than
+#' 1.0. The alternative and default method, \code{"CDF"}, uses the corresponding
+#' cumulative density function to estimate the probability of size transition as
+#' the cumulative probability of size transition at the greater limit of the
+#' size class minus the cumulative probability of size transition at the lower
+#' limit of the size class. The latter method avoids this bias. Note, however,
+#' that both methods are exact and unbiased for negative binomial and Poisson
+#' distributions.
 #' 
 #' Using the \code{err_check} option will produce a matrix of 6 columns, each
 #' characterizing a different vital rate. The product of each row yields an
@@ -457,8 +479,8 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   jsizeb_dev = 0, jsizec_dev = 0, jrepst_dev = 0, density = NA, repmod = 1,
   yearcol = NA, patchcol = NA, year.as.random = FALSE, patch.as.random = FALSE,
   random.inda = FALSE, random.indb = FALSE, random.indc = FALSE, 
-  randomseed = NA, negfec = FALSE, format = "ehrlen", reduce = FALSE,
-  err_check = FALSE, exp_tol = 700, theta_tol = 100000000) {
+  randomseed = NA, negfec = FALSE, format = "ehrlen", ipm_method = "CDF",
+  reduce = FALSE, err_check = FALSE, exp_tol = 700, theta_tol = 100000000) {
   
   indanames <- indbnames <- indcnames <- NULL
   
@@ -469,6 +491,15 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   } else {
     stop("The format parameter must be set to either 'ehrlen' or 'deVries'.",
       call. = FALSE)
+  }
+  
+  ipm_method <- tolower(ipm_method)
+  if (length(grep("mi", ipm_method)) > 0) {
+    ipm_method <- "midpoint"
+  } else if (length(grep("cd", ipm_method)) > 0) {
+    ipm_method <- "cdf"
+  } else {
+    stop("Option ipm_method not recognized.", call. = FALSE)
   }
   
   if (all(is.na(modelsuite)) & all(is.na(paramnames))) {
@@ -1102,7 +1133,7 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
     c(rvarssummed, sigma, rvarssummedb, sigmab, rvarssummedc, sigmac,
       jrvarssummed, jsigma, jrvarssummedb, jsigmab, jrvarssummedc, jsigmac),
     maxsize, maxsizeb, maxsizec, 0, sizedist, sizebdist, sizecdist, fecdist,
-    negfec, exp_tol, theta_tol)
+    negfec, exp_tol, theta_tol, ipm_method)
   
   a_list <- lapply(madsexmadrigal, function(X) {X$A})
   u_list <- lapply(madsexmadrigal, function(X) {X$U})
@@ -1408,6 +1439,10 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' \code{\link{set.seed}()} default.
 #' @param negfec A logical value denoting whether fecundity values estimated to
 #' be negative should be reset to \code{0}. Defaults to \code{FALSE}.
+#' @param ipm_method A string indicating what method to use to estimate size
+#' transition probabilities if size is treated as continuous. Options include
+#' \code{"midpoint"}, which utilizes the midpoint method, and \code{"CDF"},
+#' which uses the cumulative distribution function. Defaults to \code{"CDF"}.
 #' @param reduce A logical value denoting whether to remove ahistorical stages
 #' associated solely with 0 transitions. These are only removed in cases where
 #' the associated row and column sums in ALL matrices estimated equal 0.
@@ -1493,6 +1528,24 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' Care should be taken to match the random status of year and patch to the
 #' states of those variables within the modelsuite. If they do not match, then
 #' they will be treated as zeroes in vital rate estimation.
+#' 
+#' The \code{ipm_method} function gives the option of using two different means
+#' of estimating the probability of size transition. The midpoint method
+#' (\code{"midpoint"}) refers to the method in which the probability is
+#' estimated by first estimating the probability associated with transition from
+#' the exact size at the midpoint of the size class using the corresponding
+#' probability density function, and then multiplying that value by the bin
+#' width of the size class. Doak et al. 2021 (Ecological Monographs) noted that
+#' this method can produce biased results, with total size transitions
+#' associated with a specific size not totaling to 1.0 and even specific size
+#' transition probabilities capable of being estimated at values greater than
+#' 1.0. The alternative and default method, \code{"CDF"}, uses the corresponding
+#' cumulative density function to estimate the probability of size transition as
+#' the cumulative probability of size transition at the greater limit of the
+#' size class minus the cumulative probability of size transition at the lower
+#' limit of the size class. The latter method avoids this bias. Note, however,
+#' that both methods are exact and unbiased for negative binomial and Poisson
+#' distributions.
 #' 
 #' Using the \code{err_check} option will produce a matrix of 6 columns, each
 #' characterizing a different vital rate. The product of each row yields an
@@ -1645,8 +1698,8 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   jsizeb_dev = 0, jsizec_dev = 0, jrepst_dev = 0, density = NA, repmod = 1,
   yearcol = NA, patchcol = NA, year.as.random = FALSE, patch.as.random = FALSE,
   random.inda = FALSE, random.indb = FALSE, random.indc = FALSE,
-  randomseed = NA, negfec = FALSE, reduce = FALSE, err_check = FALSE,
-  exp_tol = 700, theta_tol = 100000000) {
+  randomseed = NA, negfec = FALSE, ipm_method = "CDF", reduce = FALSE,
+  err_check = FALSE, exp_tol = 700, theta_tol = 100000000) {
   
   indanames <- indbnames <- indcnames <- NULL
   
@@ -1658,6 +1711,15 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
     paramnames <- modelsuite$paramnames
     yearcol <- paramnames$modelparams[which(paramnames$mainparams == "year2")]
     patchcol <- paramnames$modelparams[which(paramnames$mainparams == "patch")]
+  }
+  
+  ipm_method <- tolower(ipm_method)
+  if (length(grep("mi", ipm_method)) > 0) {
+    ipm_method <- "midpoint"
+  } else if (length(grep("cd", ipm_method)) > 0) {
+    ipm_method <- "cdf"
+  } else {
+    stop("Option ipm_method not recognized.", call. = FALSE)
   }
   
   if (all(is.na(data))) {
@@ -2274,7 +2336,7 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
       sigma, rvarssummedb, sigmab, rvarssummedc, sigmac, jrvarssummed, jsigma,
       jrvarssummedb, jsigmab, jrvarssummedc, jsigmac), maxsize, maxsizeb,
     maxsizec, 0, sizedist, sizebdist, sizecdist, fecdist, negfec, exp_tol,
-    theta_tol)
+    theta_tol, ipm_method)
   
   a_list <- lapply(madsexmadrigal, function(X) {X$A})
   u_list <- lapply(madsexmadrigal, function(X) {X$U})
@@ -4348,6 +4410,10 @@ rlefko2 <- function(data, stageframe, year = "all", pop = NA, patch = NA,
 #' \code{\link{set.seed}()} default.
 #' @param negfec A logical value denoting whether fecundity values estimated to
 #' be negative should be reset to \code{0}. Defaults to \code{FALSE}.
+#' @param ipm_method A string indicating what method to use to estimate size
+#' transition probabilities if size is treated as continuous. Options include
+#' \code{"midpoint"}, which utilizes the midpoint method, and \code{"CDF"},
+#' which uses the cumulative distribution function. Defaults to \code{"CDF"}.
 #' @param reduce A logical value denoting whether to remove ahistorical stages
 #' associated solely with 0 transitions. These are only removed in cases where
 #' the associated row and column sums in ALL matrices estimated equal 0.
@@ -4435,6 +4501,24 @@ rlefko2 <- function(data, stageframe, year = "all", pop = NA, patch = NA,
 #' states of those variables within the modelsuite. If they do not match, then
 #' they will be treated as zeroes in vital rate estimation.
 #' 
+#' The \code{ipm_method} function gives the option of using two different means
+#' of estimating the probability of size transition. The midpoint method
+#' (\code{"midpoint"}) refers to the method in which the probability is
+#' estimated by first estimating the probability associated with transition from
+#' the exact size at the midpoint of the size class using the corresponding
+#' probability density function, and then multiplying that value by the bin
+#' width of the size class. Doak et al. 2021 (Ecological Monographs) noted that
+#' this method can produce biased results, with total size transitions
+#' associated with a specific size not totaling to 1.0 and even specific size
+#' transition probabilities capable of being estimated at values greater than
+#' 1.0. The alternative and default method, \code{"CDF"}, uses the corresponding
+#' cumulative density function to estimate the probability of size transition as
+#' the cumulative probability of size transition at the greater limit of the
+#' size class minus the cumulative probability of size transition at the lower
+#' limit of the size class. The latter method avoids this bias. Note, however,
+#' that both methods are exact and unbiased for the Poisson and negative
+#' binomial distributions.
+#' 
 #' Using the \code{err_check} option will produce a matrix of 6 columns, each
 #' characterizing a different vital rate. The product of each row yields an
 #' element in the associated \code{$U} matrix. The number and order of elements
@@ -4516,8 +4600,8 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   jsizeb_dev = 0, jsizec_dev = 0, jrepst_dev = 0, density = NA, repmod = 1,
   yearcol = NA, patchcol = NA, year.as.random = FALSE, patch.as.random = FALSE,
   random.inda = FALSE, random.indb = FALSE, random.indc = FALSE, final_age = 10,
-  continue = TRUE, randomseed = NA, negfec = FALSE, reduce = FALSE,
-  err_check = FALSE, exp_tol = 700, theta_tol = 100000000) {
+  continue = TRUE, randomseed = NA, negfec = FALSE, ipm_method = "CDF",
+  reduce = FALSE, err_check = FALSE, exp_tol = 700, theta_tol = 100000000) {
   
   indanames <- indbnames <- indcnames <- NULL
   
@@ -4529,6 +4613,15 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
     paramnames <- modelsuite$paramnames
     yearcol <- paramnames$modelparams[which(paramnames$mainparams == "year2")]
     patchcol <- paramnames$modelparams[which(paramnames$mainparams == "patch")]
+  }
+  
+  ipm_method <- tolower(ipm_method)
+  if (length(grep("mi", ipm_method)) > 0) {
+    ipm_method <- "midpoint"
+  } else if (length(grep("cd", ipm_method)) > 0) {
+    ipm_method <- "cdf"
+  } else {
+    stop("Option ipm_method not recognized.", call. = FALSE)
   }
   
   if (all(is.na(data))) {
@@ -5142,7 +5235,7 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
       sigma, rvarssummedb, sigmab, rvarssummedc, sigmac, jrvarssummed, jsigma,
       jrvarssummedb, jsigmab, jrvarssummedc, jsigmac), maxsize, maxsizeb,
     maxsizec, final_age, sizedist, sizebdist, sizecdist, fecdist, negfec,
-    exp_tol, theta_tol)
+    exp_tol, theta_tol, ipm_method)
   
   a_list <- lapply(madsexmadrigal, function(X) {X$A})
   u_list <- lapply(madsexmadrigal, function(X) {X$U})

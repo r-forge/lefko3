@@ -54,6 +54,7 @@ flefko2(
   random.indc = FALSE,
   randomseed = NA,
   negfec = FALSE,
+  ipm_method = "CDF",
   reduce = FALSE,
   err_check = FALSE,
   exp_tol = 700,
@@ -310,6 +311,11 @@ or \code{patch.as.random} is set to \code{TRUE}. Defaults to
 \item{negfec}{A logical value denoting whether fecundity values estimated to
 be negative should be reset to \code{0}. Defaults to \code{FALSE}.}
 
+\item{ipm_method}{A string indicating what method to use to estimate size
+transition probabilities if size is treated as continuous. Options include
+\code{"midpoint"}, which utilizes the midpoint method, and \code{"CDF"},
+which uses the cumulative distribution function. Defaults to \code{"CDF"}.}
+
 \item{reduce}{A logical value denoting whether to remove ahistorical stages
 associated solely with 0 transitions. These are only removed in cases where
 the associated row and column sums in ALL matrices estimated equal 0.
@@ -407,6 +413,24 @@ lead to erroneous calculations, and may lead to fatal errors.
 Care should be taken to match the random status of year and patch to the
 states of those variables within the modelsuite. If they do not match, then
 they will be treated as zeroes in vital rate estimation.
+
+The \code{ipm_method} function gives the option of using two different means
+of estimating the probability of size transition. The midpoint method
+(\code{"midpoint"}) refers to the method in which the probability is
+estimated by first estimating the probability associated with transition from
+the exact size at the midpoint of the size class using the corresponding
+probability density function, and then multiplying that value by the bin
+width of the size class. Doak et al. 2021 (Ecological Monographs) noted that
+this method can produce biased results, with total size transitions
+associated with a specific size not totaling to 1.0 and even specific size
+transition probabilities capable of being estimated at values greater than
+1.0. The alternative and default method, \code{"CDF"}, uses the corresponding
+cumulative density function to estimate the probability of size transition as
+the cumulative probability of size transition at the greater limit of the
+size class minus the cumulative probability of size transition at the lower
+limit of the size class. The latter method avoids this bias. Note, however,
+that both methods are exact and unbiased for negative binomial and Poisson
+distributions.
 
 Using the \code{err_check} option will produce a matrix of 6 columns, each
 characterizing a different vital rate. The product of each row yields an
