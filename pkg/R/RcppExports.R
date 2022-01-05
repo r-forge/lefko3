@@ -576,6 +576,178 @@ cond_diff <- function(lDiff, ref = 1L, matchoice = NULL, err_check = NULL) {
     .Call('_lefko3_cond_diff', PACKAGE = 'lefko3', lDiff, ref, matchoice, err_check)
 }
 
+#' Two-parameter Ricker function
+#' 
+#' Function \code{ricker3()} creates a vector of values produced by the two-
+#' parameter Ricker function as applied with a user-specified time lag.
+#' Here, phi in time t is equal to n in time t.
+#' 
+#' @param start_value A positive number to start the return vector in time 0.
+#' @param alpha The alpha parameter in the two-parameter Ricker function. Must
+#' be non-negative.
+#' @param beta The beta parameter in the two-parameter Ricker function.
+#' @param time_steps The number of time steps to run the projection. Must be a
+#' positive integer.
+#' @param time_lag A positive integer denoting the number of time steps back
+#' for the value of phi in the two-parameter Ricker function.
+#' @param pre0_subs A logical value indicating whether to use a number other
+#' than that given in \code{start_value} for values of phi lagged from times
+#' prior to time 0.
+#' @param pre0_value A positive number to use for phi lagged from times prior
+#' to time 0. Only used if \code{pre0_subs = TRUE}.
+#' @param substoch A logical value indicating whether the numbers resulting
+#' from the two-parameter Ricker function should be forced to the interval
+#' [0, 1].
+#' @param separate_N An optional numeric vector with values of N in each time,
+#' if phi is to be treated as different from N in the two-parameter model.
+#' 
+#' @return A numeric vector of values showing values projected under the two-
+#' parameter Ricker function.
+#' 
+#' @examples
+#' trial_run1 <- ricker3(1, alpha = 0.5, beta = -0.009)
+#' plot(trial_run1)
+#' 
+#' trial_run2 <- ricker3(1, alpha = 0.5, beta = 0.009)
+#' plot(trial_run2)
+#' 
+#' trial_run3 <- ricker3(1, alpha = 1, beta = -0.009)
+#' plot(trial_run3)
+#' 
+#' trial_run4 <- ricker3(1, alpha = 1, beta = 0.009)
+#' plot(trial_run4)
+#' 
+#' trial_run5 <- ricker3(1, alpha = 5, beta = -0.009)
+#' plot(trial_run5)
+#' 
+#' trial_run6 <- ricker3(1, alpha = 5, beta = 0.009)
+#' plot(trial_run6)
+#' 
+#' used_Ns <- c(10, 15, 12, 14, 14, 150, 15, 1, 5, 7, 9, 14, 13, 16, 17, 19,
+#'   25, 26)
+#' trial_run7 <- ricker3(1, alpha = 1, beta = -0.009, separate_N = used_Ns)
+#' plot(trial_run7)
+#' 
+#' @export ricker3
+ricker3 <- function(start_value, alpha, beta, time_steps = 100L, time_lag = 1L, pre0_subs = FALSE, pre0_value = 0.0, substoch = FALSE, separate_N = NULL) {
+    .Call('_lefko3_ricker3', PACKAGE = 'lefko3', start_value, alpha, beta, time_steps, time_lag, pre0_subs, pre0_value, substoch, separate_N)
+}
+
+#' Two-parameter Beverton-Holt function
+#' 
+#' Function \code{beverton3()} creates a vector of values produced by the two-
+#' parameter Beverton-Holt function as applied with a user-specified time lag.
+#' Here, phi in time t is equal to n in time t.
+#' 
+#' @param start_value A positive number to start the return vector in time 0.
+#' @param alpha The alpha parameter in the two-parameter Beverton-Holt
+#' function. Must be non-negative.
+#' @param beta The beta parameter in the two-parameter Beverton-Holt function.
+#' Must be non-negative.
+#' @param time_steps The number of time steps to run the projection. Must be a
+#' positive integer.
+#' @param time_lag A positive integer denoting the number of time steps back
+#' for the value of phi in the two-parameter Beverton-Holt function.
+#' @param pre0_subs A logical value indicating whether to use a number other
+#' than that given in \code{start_value} for values of phi lagged from times
+#' prior to time 0.
+#' @param pre0_value A positive number to use for phi lagged from times prior
+#' to time 0. Only used if \code{pre0_subs = TRUE}.
+#' @param substoch A logical value indicating whether the numbers resulting
+#' from the two-parameter Beverton-Holt function should be forced to the
+#' interval [0, 1].
+#' @param separate_N An optional numeric vector with values of N in each time,
+#' if phi is to be treated as different from N in the two-parameter model.
+#' 
+#' @return A numeric vector of values showing values projected under the two-
+#' parameter Beverton-Holt function.
+#' 
+#' @examples
+#' trial_run1 <- beverton3(1, alpha = 0.5, beta = 0.009)
+#' plot(trial_run1)
+#' 
+#' trial_run2 <- beverton3(1, alpha = 0.5, beta = 0.9)
+#' plot(trial_run2)
+#' 
+#' trial_run3 <- beverton3(1, alpha = 1, beta = 0.009)
+#' plot(trial_run3)
+#' 
+#' trial_run4 <- beverton3(1, alpha = 1, beta = 0.9)
+#' plot(trial_run4)
+#' 
+#' trial_run5 <- beverton3(1, alpha = 5, beta = 0.009)
+#' plot(trial_run5)
+#' 
+#' trial_run6 <- beverton3(1, alpha = 5, beta = 0.9)
+#' plot(trial_run6)
+#' 
+#' used_Ns <- c(10, 15, 12, 14, 14, 150, 15, 1, 5, 7, 9, 14, 13, 16, 17, 19,
+#'   25, 26)
+#' trial_run7 <- beverton3(1, alpha = 1, beta = 0.009, separate_N = used_Ns)
+#' plot(trial_run7)
+#' 
+#' @export beverton3
+beverton3 <- function(start_value, alpha, beta, time_steps = 100L, time_lag = 1L, pre0_subs = FALSE, pre0_value = 0.0, substoch = FALSE, separate_N = NULL) {
+    .Call('_lefko3_beverton3', PACKAGE = 'lefko3', start_value, alpha, beta, time_steps, time_lag, pre0_subs, pre0_value, substoch, separate_N)
+}
+
+#' Two-parameter Usher function
+#' 
+#' Function \code{usher3()} creates a vector of values produced by the two-
+#' parameter Usher function as applied with a user-specified time lag.
+#' Here, phi in time t is equal to n in time t.
+#' 
+#' @param start_value A positive number to start the return vector in time 0.
+#' @param alpha The alpha parameter in the two-parameter Usher
+#' function.
+#' @param beta The beta parameter in the two-parameter Usher function.
+#' @param time_steps The number of time steps to run the projection. Must be a
+#' positive integer.
+#' @param time_lag A positive integer denoting the number of time steps back
+#' for the value of phi in the two-parameter Usher function.
+#' @param pre0_subs A logical value indicating whether to use a number other
+#' than that given in \code{start_value} for values of phi lagged from times
+#' prior to time 0.
+#' @param pre0_value A positive number to use for phi lagged from times prior
+#' to time 0. Only used if \code{pre0_subs = TRUE}.
+#' @param substoch A logical value indicating whether the numbers resulting
+#' from the two-parameter Usher function should be forced to the
+#' interval [0, 1].
+#' @param separate_N An optional numeric vector with values of N in each time,
+#' if phi is to be treated as different from N in the two-parameter model.
+#' 
+#' @return A numeric vector of values showing values projected under the two-
+#' parameter Usher function.
+#' 
+#' @examples
+#' trial_run1 <- usher3(1, alpha = -0.5, beta = 0.005)
+#' plot(trial_run1)
+#' 
+#' trial_run2 <- usher3(1, alpha = 0.5, beta = 0.005)
+#' plot(trial_run2)
+#' 
+#' trial_run3 <- usher3(1, alpha = -5, beta = 0.005)
+#' plot(trial_run3)
+#' 
+#' trial_run4 <- usher3(1, alpha = 5, beta = 0.005)
+#' plot(trial_run4)
+#' 
+#' trial_run5 <- usher3(1, alpha = -25, beta = 0.005)
+#' plot(trial_run5)
+#' 
+#' trial_run6 <- usher3(1, alpha = 25, beta = 0.005)
+#' plot(trial_run6)
+#' 
+#' used_Ns <- c(10, 15, 12, 14, 14, 150, 15, 1, 5, 7, 9, 14, 13, 16, 17, 19,
+#'   25, 26)
+#' trial_run7 <- usher3(1, alpha = -0.5, beta = 0.005, separate_N = used_Ns)
+#' plot(trial_run7)
+#' 
+#' @export usher3
+usher3 <- function(start_value, alpha, beta, time_steps = 100L, time_lag = 1L, pre0_subs = FALSE, pre0_value = 0.0, substoch = FALSE, separate_N = NULL) {
+    .Call('_lefko3_usher3', PACKAGE = 'lefko3', start_value, alpha, beta, time_steps, time_lag, pre0_subs, pre0_value, substoch, separate_N)
+}
+
 #' Estimate All Elements of Raw Historical Matrix
 #' 
 #' Function \code{.specialpatrolgroup()} swiftly calculates matrix transitions

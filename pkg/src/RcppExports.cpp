@@ -225,6 +225,63 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// ricker3
+Rcpp::NumericVector ricker3(double start_value, double alpha, double beta, int time_steps, int time_lag, bool pre0_subs, double pre0_value, bool substoch, Nullable<NumericVector> separate_N);
+RcppExport SEXP _lefko3_ricker3(SEXP start_valueSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP time_stepsSEXP, SEXP time_lagSEXP, SEXP pre0_subsSEXP, SEXP pre0_valueSEXP, SEXP substochSEXP, SEXP separate_NSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type start_value(start_valueSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< int >::type time_steps(time_stepsSEXP);
+    Rcpp::traits::input_parameter< int >::type time_lag(time_lagSEXP);
+    Rcpp::traits::input_parameter< bool >::type pre0_subs(pre0_subsSEXP);
+    Rcpp::traits::input_parameter< double >::type pre0_value(pre0_valueSEXP);
+    Rcpp::traits::input_parameter< bool >::type substoch(substochSEXP);
+    Rcpp::traits::input_parameter< Nullable<NumericVector> >::type separate_N(separate_NSEXP);
+    rcpp_result_gen = Rcpp::wrap(ricker3(start_value, alpha, beta, time_steps, time_lag, pre0_subs, pre0_value, substoch, separate_N));
+    return rcpp_result_gen;
+END_RCPP
+}
+// beverton3
+Rcpp::NumericVector beverton3(double start_value, double alpha, double beta, int time_steps, int time_lag, bool pre0_subs, double pre0_value, bool substoch, Nullable<NumericVector> separate_N);
+RcppExport SEXP _lefko3_beverton3(SEXP start_valueSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP time_stepsSEXP, SEXP time_lagSEXP, SEXP pre0_subsSEXP, SEXP pre0_valueSEXP, SEXP substochSEXP, SEXP separate_NSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type start_value(start_valueSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< int >::type time_steps(time_stepsSEXP);
+    Rcpp::traits::input_parameter< int >::type time_lag(time_lagSEXP);
+    Rcpp::traits::input_parameter< bool >::type pre0_subs(pre0_subsSEXP);
+    Rcpp::traits::input_parameter< double >::type pre0_value(pre0_valueSEXP);
+    Rcpp::traits::input_parameter< bool >::type substoch(substochSEXP);
+    Rcpp::traits::input_parameter< Nullable<NumericVector> >::type separate_N(separate_NSEXP);
+    rcpp_result_gen = Rcpp::wrap(beverton3(start_value, alpha, beta, time_steps, time_lag, pre0_subs, pre0_value, substoch, separate_N));
+    return rcpp_result_gen;
+END_RCPP
+}
+// usher3
+Rcpp::NumericVector usher3(double start_value, double alpha, double beta, int time_steps, int time_lag, bool pre0_subs, double pre0_value, bool substoch, Nullable<NumericVector> separate_N);
+RcppExport SEXP _lefko3_usher3(SEXP start_valueSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP time_stepsSEXP, SEXP time_lagSEXP, SEXP pre0_subsSEXP, SEXP pre0_valueSEXP, SEXP substochSEXP, SEXP separate_NSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type start_value(start_valueSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< int >::type time_steps(time_stepsSEXP);
+    Rcpp::traits::input_parameter< int >::type time_lag(time_lagSEXP);
+    Rcpp::traits::input_parameter< bool >::type pre0_subs(pre0_subsSEXP);
+    Rcpp::traits::input_parameter< double >::type pre0_value(pre0_valueSEXP);
+    Rcpp::traits::input_parameter< bool >::type substoch(substochSEXP);
+    Rcpp::traits::input_parameter< Nullable<NumericVector> >::type separate_N(separate_NSEXP);
+    rcpp_result_gen = Rcpp::wrap(usher3(start_value, alpha, beta, time_steps, time_lag, pre0_subs, pre0_value, substoch, separate_N));
+    return rcpp_result_gen;
+END_RCPP
+}
 // specialpatrolgroup
 List specialpatrolgroup(DataFrame sge9l, DataFrame sge3, DataFrame MainData, DataFrame StageFrame, int format, int err_switch);
 RcppExport SEXP _lefko3_specialpatrolgroup(SEXP sge9lSEXP, SEXP sge3SEXP, SEXP MainDataSEXP, SEXP StageFrameSEXP, SEXP formatSEXP, SEXP err_switchSEXP) {
@@ -1108,6 +1165,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_lefko3_hoffmannofstuttgart", (DL_FUNC) &_lefko3_hoffmannofstuttgart, 4},
     {"_lefko3_cond_hmpm", (DL_FUNC) &_lefko3_cond_hmpm, 3},
     {"_lefko3_cond_diff", (DL_FUNC) &_lefko3_cond_diff, 4},
+    {"_lefko3_ricker3", (DL_FUNC) &_lefko3_ricker3, 9},
+    {"_lefko3_beverton3", (DL_FUNC) &_lefko3_beverton3, 9},
+    {"_lefko3_usher3", (DL_FUNC) &_lefko3_usher3, 9},
     {"_lefko3_specialpatrolgroup", (DL_FUNC) &_lefko3_specialpatrolgroup, 6},
     {"_lefko3_normalpatrolgroup", (DL_FUNC) &_lefko3_normalpatrolgroup, 4},
     {"_lefko3_minorpatrolgroup", (DL_FUNC) &_lefko3_minorpatrolgroup, 5},

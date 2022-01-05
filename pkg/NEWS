@@ -21,6 +21,8 @@ CHANGES IN VERSION 4.2.0 (2022-01-XX)
        for continuous distributions using cumulative density functions to
        estimate size transition probabilities. The midpoint rule is now only an
        option (and not advised).
+    9. New standalone density dependence functions ricker3(), beverton3(), and
+       usher3() added.
 
   USER-VISIBLE CHANGES
     1. Functions rlefko2() and rlefko3() now provide warnings if individual
