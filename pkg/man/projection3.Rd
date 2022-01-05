@@ -47,7 +47,9 @@ integer. Defaults to FALSE.}
 transition matrices to be substochastic in density dependent simulations.
 Defaults to \code{0}, which does not force substochasticity. Alternatively,
 \code{1} forces all survival-transition elements to range from 0.0 to 1.0,
-and \code{2} forces all column rows to total no more than 1.0.}
+and forces fecundity to be non-negative; and \code{2} forces all column rows
+in the survival-transition matrices to total no more than 1.0, in addition
+to the actions outlined for option \code{1}.}
 
 \item{start_vec}{An optional numeric vector denoting the starting stage
 distribution for the projection. Defaults to a single individual of each

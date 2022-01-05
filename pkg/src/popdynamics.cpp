@@ -1559,8 +1559,9 @@ arma::mat proj3sp(arma::vec start_vec, List core_list, arma::uvec mat_order,
 //' @param substoch An integer value indicating whether to force survival-
 //' transition matrices to be substochastic in density dependent simulations.
 //' Defaults to \code{0}, which does not force substochasticity. Alternatively,
-//' \code{1} forces all survival-transition elements to range from 0.0 to 1.0,
-//' and \code{2} forces all column rows to total no more than 1.0.
+//' \code{1} forces all survival-transition elements to range from 0.0 to 1.0
+//' and fecundity to be non-negative, and \code{2} forces all column rows to
+//' total no more than 1.0.
 //' @param dens_input The original \code{lefkoDens} data frame supplied through
 //' the \code{\link{density_input}()} function.
 //' @param dens_index A list giving the indices of elements in object
@@ -1661,10 +1662,10 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
             changing_element = theprophecy(dyn_index321(j)) * 
               dyn_alpha(j) * exp((-1*dyn_beta(j)) * pop_size); // Fi*ALPHA*exp(-BETA*n)
             
-            if (substoch == 0 || dyn_type(j) == 2) {
+            if (substoch == 0) {
               theprophecy(dyn_index321(j)) = changing_element;
-            } else if (substoch == 1 && dyn_type(j) == 1) {
-              if (changing_element > 1.0) {
+            } else if (substoch == 1) {
+              if (changing_element > 1.0 && dyn_type(j) == 1) {
                 changing_element = 1.0;
               } else if (changing_element < 0.0) {
                 changing_element = 0.0;
@@ -1675,6 +1676,11 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
               
               if (changing_element > (1.0 - changing_colsum)) {
                 changing_element = (1.0 - changing_colsum);
+              }
+              theprophecy(dyn_index321(j)) = changing_element;
+            } else if (substoch == 2 && dyn_type(j) == 2) {
+              if (changing_element < 0.0) {
+                changing_element = 0.0;
               }
               theprophecy(dyn_index321(j)) = changing_element;
             }
@@ -1682,10 +1688,10 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
             changing_element = theprophecy(dyn_index321(j)) * 
               dyn_alpha(j) / (1 + dyn_beta(j) * pop_size); // Fi*ALPHA/(1+BETA*n)
             
-            if (substoch == 0 || dyn_type(j) == 2) {
+            if (substoch == 0) {
               theprophecy(dyn_index321(j)) = changing_element;
-            } else if (substoch == 1 && dyn_type(j) == 1) {
-              if (changing_element > 1.0) {
+            } else if (substoch == 1) {
+              if (changing_element > 1.0 && dyn_type(j) == 1) {
                 changing_element = 1.0;
               } else if (changing_element < 0.0) {
                 changing_element = 0.0;
@@ -1696,6 +1702,11 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
               
               if (changing_element > (1.0 - changing_colsum)) {
                 changing_element = (1.0 - changing_colsum);
+              }
+              theprophecy(dyn_index321(j)) = changing_element;
+            } else if (substoch == 2 && dyn_type(j) == 2) {
+              if (changing_element < 0.0) {
+                changing_element = 0.0;
               }
               theprophecy(dyn_index321(j)) = changing_element;
             }
@@ -1703,10 +1714,10 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
             changing_element = theprophecy(dyn_index321(j)) * 
               (1 / (1 + exp(dyn_alpha(j) * pop_size + dyn_beta(j)))); // Fi*(1 / (1 + exp(alpha*N+b)))
             
-            if (substoch == 0 || dyn_type(j) == 2) {
+            if (substoch == 0) {
               theprophecy(dyn_index321(j)) = changing_element;
-            } else if (substoch == 1 && dyn_type(j) == 1) {
-              if (changing_element > 1.0) {
+            } else if (substoch == 1) {
+              if (changing_element > 1.0 && dyn_type(j) == 1) {
                 changing_element = 1.0;
               } else if (changing_element < 0.0) {
                 changing_element = 0.0;
@@ -1717,6 +1728,11 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
               
               if (changing_element > (1.0 - changing_colsum)) {
                 changing_element = (1.0 - changing_colsum);
+              }
+              theprophecy(dyn_index321(j)) = changing_element;
+            } else if (substoch == 2 && dyn_type(j) == 2) {
+              if (changing_element < 0.0) {
+                changing_element = 0.0;
               }
               theprophecy(dyn_index321(j)) = changing_element;
             }
@@ -1728,10 +1744,10 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
             changing_element = theprophecy(dyn_index321(j)) * 
               (1 - used_popsize / dyn_alpha(j)); // Fi*(1 - ALPHA/n)
             
-            if (substoch == 0 || dyn_type(j) == 2) {
+            if (substoch == 0) {
               theprophecy(dyn_index321(j)) = changing_element;
-            } else if (substoch == 1 && dyn_type(j) == 1) {
-              if (changing_element > 1.0) {
+            } else if (substoch == 1) {
+              if (changing_element > 1.0 && dyn_type(j) == 1) {
                 changing_element = 1.0;
               } else if (changing_element < 0.0) {
                 changing_element = 0.0;
@@ -1742,6 +1758,11 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
               
               if (changing_element > (1.0 - changing_colsum)) {
                 changing_element = (1.0 - changing_colsum);
+              }
+              theprophecy(dyn_index321(j)) = changing_element;
+            } else if (substoch == 2 && dyn_type(j) == 2) {
+              if (changing_element < 0.0) {
+                changing_element = 0.0;
               }
               theprophecy(dyn_index321(j)) = changing_element;
             }
@@ -1957,7 +1978,9 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
 //' transition matrices to be substochastic in density dependent simulations.
 //' Defaults to \code{0}, which does not force substochasticity. Alternatively,
 //' \code{1} forces all survival-transition elements to range from 0.0 to 1.0,
-//' and \code{2} forces all column rows to total no more than 1.0.
+//' and forces fecundity to be non-negative; and \code{2} forces all column rows
+//' in the survival-transition matrices to total no more than 1.0, in addition
+//' to the actions outlined for option \code{1}.
 //' @param start_vec An optional numeric vector denoting the starting stage
 //' distribution for the projection. Defaults to a single individual of each
 //' stage.

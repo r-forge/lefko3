@@ -595,9 +595,10 @@ cond_diff <- function(lDiff, ref = 1L, matchoice = NULL, err_check = NULL) {
 #' prior to time 0.
 #' @param pre0_value A positive number to use for phi lagged from times prior
 #' to time 0. Only used if \code{pre0_subs = TRUE}.
-#' @param substoch A logical value indicating whether the numbers resulting
-#' from the two-parameter Ricker function should be forced to the interval
-#' [0, 1].
+#' @param substoch An integer value indicating the kind of substochasticity to
+#' use. Values include: \code{0}, no substochasticity enforced (the default);
+#' \code{1}, all numbers must be non-negative; and \code{2}, all numbers should
+#' be forced to the interval [0, 1].
 #' @param separate_N An optional numeric vector with values of N in each time,
 #' if phi is to be treated as different from N in the two-parameter model.
 #' 
@@ -629,7 +630,7 @@ cond_diff <- function(lDiff, ref = 1L, matchoice = NULL, err_check = NULL) {
 #' plot(trial_run7)
 #' 
 #' @export ricker3
-ricker3 <- function(start_value, alpha, beta, time_steps = 100L, time_lag = 1L, pre0_subs = FALSE, pre0_value = 0.0, substoch = FALSE, separate_N = NULL) {
+ricker3 <- function(start_value, alpha, beta, time_steps = 100L, time_lag = 1L, pre0_subs = FALSE, pre0_value = 0.0, substoch = 0L, separate_N = NULL) {
     .Call('_lefko3_ricker3', PACKAGE = 'lefko3', start_value, alpha, beta, time_steps, time_lag, pre0_subs, pre0_value, substoch, separate_N)
 }
 
@@ -653,9 +654,10 @@ ricker3 <- function(start_value, alpha, beta, time_steps = 100L, time_lag = 1L, 
 #' prior to time 0.
 #' @param pre0_value A positive number to use for phi lagged from times prior
 #' to time 0. Only used if \code{pre0_subs = TRUE}.
-#' @param substoch A logical value indicating whether the numbers resulting
-#' from the two-parameter Beverton-Holt function should be forced to the
-#' interval [0, 1].
+#' @param substoch An integer value indicating the kind of substochasticity to
+#' use. Values include: \code{0}, no substochasticity enforced (the default);
+#' \code{1}, all numbers must be non-negative; and \code{2}, all numbers should
+#' be forced to the interval [0, 1].
 #' @param separate_N An optional numeric vector with values of N in each time,
 #' if phi is to be treated as different from N in the two-parameter model.
 #' 
@@ -687,7 +689,7 @@ ricker3 <- function(start_value, alpha, beta, time_steps = 100L, time_lag = 1L, 
 #' plot(trial_run7)
 #' 
 #' @export beverton3
-beverton3 <- function(start_value, alpha, beta, time_steps = 100L, time_lag = 1L, pre0_subs = FALSE, pre0_value = 0.0, substoch = FALSE, separate_N = NULL) {
+beverton3 <- function(start_value, alpha, beta, time_steps = 100L, time_lag = 1L, pre0_subs = FALSE, pre0_value = 0.0, substoch = 0L, separate_N = NULL) {
     .Call('_lefko3_beverton3', PACKAGE = 'lefko3', start_value, alpha, beta, time_steps, time_lag, pre0_subs, pre0_value, substoch, separate_N)
 }
 
@@ -710,9 +712,10 @@ beverton3 <- function(start_value, alpha, beta, time_steps = 100L, time_lag = 1L
 #' prior to time 0.
 #' @param pre0_value A positive number to use for phi lagged from times prior
 #' to time 0. Only used if \code{pre0_subs = TRUE}.
-#' @param substoch A logical value indicating whether the numbers resulting
-#' from the two-parameter Usher function should be forced to the
-#' interval [0, 1].
+#' @param substoch An integer value indicating the kind of substochasticity to
+#' use. Values include: \code{0}, no substochasticity enforced (the default);
+#' \code{1}, all numbers must be non-negative; and \code{2}, all numbers should
+#' be forced to the interval [0, 1].
 #' @param separate_N An optional numeric vector with values of N in each time,
 #' if phi is to be treated as different from N in the two-parameter model.
 #' 
@@ -744,8 +747,66 @@ beverton3 <- function(start_value, alpha, beta, time_steps = 100L, time_lag = 1L
 #' plot(trial_run7)
 #' 
 #' @export usher3
-usher3 <- function(start_value, alpha, beta, time_steps = 100L, time_lag = 1L, pre0_subs = FALSE, pre0_value = 0.0, substoch = FALSE, separate_N = NULL) {
+usher3 <- function(start_value, alpha, beta, time_steps = 100L, time_lag = 1L, pre0_subs = FALSE, pre0_value = 0.0, substoch = 0L, separate_N = NULL) {
     .Call('_lefko3_usher3', PACKAGE = 'lefko3', start_value, alpha, beta, time_steps, time_lag, pre0_subs, pre0_value, substoch, separate_N)
+}
+
+#' Two-parameter logistic function
+#' 
+#' Function \code{logistic3()} creates a vector of values produced by the
+#' logistic function as applied with a user-specified time lag. Here, phi in
+#' time t is equal to n in time t.
+#' 
+#' @param start_value A positive number to start the return vector in time 0.
+#' @param alpha The carrying capacity K.
+#' @param beta If set to some positive number, then this number is the maximum
+#' value of phi to enforce. Otherwise, equals \code{0} and enforces no limit.
+#' @param time_steps The number of time steps to run the projection. Must be a
+#' positive integer.
+#' @param time_lag A positive integer denoting the number of time steps back
+#' for the value of phi in the logistic function.
+#' @param pre0_subs A logical value indicating whether to use a number other
+#' than that given in \code{start_value} for values of phi lagged from times
+#' prior to time 0.
+#' @param pre0_value A positive number to use for phi lagged from times prior
+#' to time 0. Only used if \code{pre0_subs = TRUE}.
+#' @param substoch An integer value indicating the kind of substochasticity to
+#' use. Values include: \code{0}, no substochasticity enforced (the default);
+#' \code{1}, all numbers must be non-negative; and \code{2}, all numbers should
+#' be forced to the interval [0, 1].
+#' @param separate_N An optional numeric vector with values of N in each time,
+#' if phi is to be treated as different from N in the logistic model.
+#' 
+#' @return A numeric vector of values showing values projected under the-
+#' logistic function.
+#' 
+#' @examples
+#' trial_run1 <- logistic3(1, alpha = 5)
+#' plot(trial_run1)
+#' 
+#' trial_run2 <- logistic3(1, alpha = 5, beta = 5)
+#' plot(trial_run2)
+#' 
+#' trial_run3 <- logistic3(1, alpha = 100)
+#' plot(trial_run3)
+#' 
+#' trial_run4 <- logistic3(1, alpha = 100, beta = 50)
+#' plot(trial_run4)
+#' 
+#' trial_run5 <- logistic3(1, alpha = 500)
+#' plot(trial_run5)
+#' 
+#' trial_run6 <- logistic3(1, alpha = 500, beta = 501)
+#' plot(trial_run6)
+#' 
+#' used_Ns <- c(10, 15, 12, 14, 14, 150, 15, 1, 5, 7, 9, 14, 13, 16, 17, 19,
+#'   25, 26)
+#' trial_run7 <- logistic3(1, alpha = 500, beta = 501, separate_N = used_Ns)
+#' plot(trial_run7)
+#' 
+#' @export logistic3
+logistic3 <- function(start_value, alpha, beta = 0.0, time_steps = 100L, time_lag = 1L, pre0_subs = FALSE, pre0_value = 0.0, substoch = 0L, separate_N = NULL) {
+    .Call('_lefko3_logistic3', PACKAGE = 'lefko3', start_value, alpha, beta, time_steps, time_lag, pre0_subs, pre0_value, substoch, separate_N)
 }
 
 #' Estimate All Elements of Raw Historical Matrix
@@ -2334,8 +2395,9 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' @param substoch An integer value indicating whether to force survival-
 #' transition matrices to be substochastic in density dependent simulations.
 #' Defaults to \code{0}, which does not force substochasticity. Alternatively,
-#' \code{1} forces all survival-transition elements to range from 0.0 to 1.0,
-#' and \code{2} forces all column rows to total no more than 1.0.
+#' \code{1} forces all survival-transition elements to range from 0.0 to 1.0
+#' and fecundity to be non-negative, and \code{2} forces all column rows to
+#' total no more than 1.0.
 #' @param dens_input The original \code{lefkoDens} data frame supplied through
 #' the \code{\link{density_input}()} function.
 #' @param dens_index A list giving the indices of elements in object
@@ -2391,7 +2453,9 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' transition matrices to be substochastic in density dependent simulations.
 #' Defaults to \code{0}, which does not force substochasticity. Alternatively,
 #' \code{1} forces all survival-transition elements to range from 0.0 to 1.0,
-#' and \code{2} forces all column rows to total no more than 1.0.
+#' and forces fecundity to be non-negative; and \code{2} forces all column rows
+#' in the survival-transition matrices to total no more than 1.0, in addition
+#' to the actions outlined for option \code{1}.
 #' @param start_vec An optional numeric vector denoting the starting stage
 #' distribution for the projection. Defaults to a single individual of each
 #' stage.

@@ -12,7 +12,7 @@ ricker3(
   time_lag = 1L,
   pre0_subs = FALSE,
   pre0_value = 0,
-  substoch = FALSE,
+  substoch = 0L,
   separate_N = NULL
 )
 }
@@ -37,9 +37,10 @@ prior to time 0.}
 \item{pre0_value}{A positive number to use for phi lagged from times prior
 to time 0. Only used if \code{pre0_subs = TRUE}.}
 
-\item{substoch}{A logical value indicating whether the numbers resulting
-from the two-parameter Ricker function should be forced to the interval
-[0, 1].}
+\item{substoch}{An integer value indicating the kind of substochasticity to
+use. Values include: \code{0}, no substochasticity enforced (the default);
+\code{1}, all numbers must be non-negative; and \code{2}, all numbers should
+be forced to the interval [0, 1].}
 
 \item{separate_N}{An optional numeric vector with values of N in each time,
 if phi is to be treated as different from N in the two-parameter model.}
