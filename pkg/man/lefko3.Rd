@@ -15,7 +15,7 @@ age-by-stage MPMs and IPMs. It also includes powerful functions to
 standardize demographic datasets.
 }
 \details{
-The lefko3 package provides six categories of functions:
+The lefko3 package provides seven categories of functions:
 
 1. Data transformation and handling functions
 
@@ -29,6 +29,8 @@ The lefko3 package provides six categories of functions:
 
 6. Functions describing, summarizing, or visualizing MPMs and derived
 structures
+
+7. Extra functions used to illustrate core theory and ideas.
 
 lefko3 also includes example datasets complete with sample code.
 }

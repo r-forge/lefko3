@@ -2097,7 +2097,6 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
     maingroups, indanames, indbnames, indcnames, year.as.random,
     patch.as.random, random.inda, random.indb, random.indc, err_check = FALSE)
   
-  
   obs_proxy <- .modelextract(obs_model, paramnames, mainyears, mainpatches,
     maingroups, indanames, indbnames, indcnames, year.as.random,
     patch.as.random, random.inda, random.indb, random.indc, err_check = FALSE)
@@ -6358,7 +6357,10 @@ rleslie <- function(data, start_age = NA, last_age = NA, continue = TRUE,
 #' the number of annual matrices, the number of estimated (non-zero) elements
 #' across all matrices and per matrix, the number of unique transitions in the
 #' dataset, the number of individuals, and summaries of the column sums of the
-#' survival-transition matrices.
+#' survival-transition matrices. This function will also yield warnings if any
+#' survival-transition matrices include elements outside of the interval [0,1],
+#' if any fecundity matrices contain negative elements, and if any matrices
+#' include NA values.
 #' 
 #' @examples
 #' data(cypdata)
@@ -6452,8 +6454,15 @@ summary.lefkoMat <- function(object, colsums = TRUE, ...) {
         mqac, " per matrix. Positions of survival vs fecundity transitions are not known."))
   }
   
-  writeLines(paste0("This lefkoMat object covers ", totalpops, " populations, ",
-      totalpatches, " patches, and ", totalyears, " time steps."))
+  grammar_pops <- " populations, "
+  grammar_patches <- " patches, and "
+  grammar_years <- " time steps."
+  if (totalpops == 1) grammar_pops <- " population, "
+  if (totalpatches == 1) grammar_patches <- " patch, and "
+  if (totalyears == 1) grammar_years <- " time step."
+  
+  writeLines(paste0("This lefkoMat object covers ", totalpops, grammar_pops,
+      totalpatches, grammar_patches, totalyears, grammar_years))
   
   if (is.element("dataqc", names(matrices))) {
     dqca <- matrices$dataqc[1]
@@ -6548,8 +6557,19 @@ summary.lefkoMat <- function(object, colsums = TRUE, ...) {
     }
   }
   
-  dethonthetoilet <- apply(as.matrix(c(1:length(matrices$U))), 1,
-      function(X) {summary(colSums(matrices$U[[X]]))}
+  dethonthetoilet <- apply(as.matrix(c(1:length(matrices$U))), 1, function(X) {
+      summary(colSums(matrices$U[[X]]))
+    }
+  )
+  
+  sexinthelavatory <- apply(as.matrix(c(1:length(matrices$U))), 1, function(X) {
+      summary(colSums(matrices$F[[X]]))
+    }
+  )
+  
+  dethintheurinal <- apply(as.matrix(c(1:length(matrices$U))), 1, function(X) {
+      any(is.na(matrices$A[[X]]))
+    }
   )
   
   if (colsums) {
@@ -6563,6 +6583,14 @@ summary.lefkoMat <- function(object, colsums = TRUE, ...) {
   
   if (min(dethonthetoilet) < 0) {
     warning("Some matrices include stages with survival probability less than 0.0.", call. = FALSE)
+  }
+  
+  if (min(sexinthelavatory) < 0) {
+    warning("Some matrices include stages with fecundity less than 0.0.", call. = FALSE)
+  }
+  
+  if (any(dethintheurinal)) {
+    warning("Some matrices include NA values.", call. = FALSE)
   }
 }
 

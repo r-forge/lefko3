@@ -1502,12 +1502,13 @@ double preouterator(List modelproxy, NumericVector maincoefs, arma::imat randind
   }
   
   if (vitaltype == 0) {
-    
+    if (preout > exp_tol) preout = exp_tol;
+      
     double pre_exp = exp(preout);
     all_out = pre_exp / (1.0 + pre_exp);
     
-    // Rcout << "Binomial: pre_exp: " << pre_exp << " all_out: " << all_out << "\n";
-    
+    // Rcout << "Binomial: preout: " << preout << " pre_exp: " << pre_exp <<
+    //   " all_out: " << all_out << "\n";
   } else if (vitaltype == 1) {
     
     double Used_size3 = status_terms(16);
@@ -1552,7 +1553,8 @@ double preouterator(List modelproxy, NumericVector maincoefs, arma::imat randind
       double pre_exp = exp(preout);
       all_out = pre_exp / (1.0 + pre_exp);
       
-      // Rcout << "ZI Binomial: pre_exp: " << pre_exp << " all_out: " << all_out << "\n";
+      // Rcout << "ZI Binomial: preout: " << preout << " pre_exp: " << pre_exp <<
+      //   " all_out: " << all_out << "\n";
       
     } else {
       if (vitaldist == 0) {
@@ -1883,11 +1885,12 @@ double preouterator(List modelproxy, NumericVector maincoefs, arma::imat randind
 //' include \code{"midpoint"}, which uses the midpoint method, and \code{"cdf"},
 //' which uses the cumulative density function.
 //' 
-//' @return A list of 3 matrices, including the main MPM (A), the survival-
-//' transition matrix (U), and a fecundity matrix (F). With tweaking, can also
-//' produce a 4 column matrix showing survival probability, observation
-//' probability, reproduction probability, and size transition probability, for
-//' each element of the final MPM.
+//' @return A list with 4 elements. The first 3 elements are matrices, including
+//' the main MPM (A), the survival-transition matrix (U), and a fecundity matrix
+//' (F). The last element is a 6 column matrix showing survival probability,
+//' observation probability, reproduction probability, sizea transition
+//' probability, sizeb transition probability, and sizec transition probability
+//' for each element of the final MPM.
 //' 
 //' @section Notes:
 //' 
@@ -2352,8 +2355,8 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
     
     if (ovgivent(i) == -1 && indata(i) == 1 && stage2n(i) == stage2o(i)) {
       if ((mat2n(i) == 1 && mat3(i) == 1) || (mat2o(i) == 1 && mat3(i) == 1)) {
-        // Adult survival transitions
         
+        // Adult survival transitions
         if (survl > 1) {
           out(i, 0) = preouterator(survproxy, survcoefs, rand_index, dev_terms,
             svsigmas, vital_year, vital_patch, chosen_r2inda, chosen_r1inda,
@@ -2587,7 +2590,7 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
     // This next block calculates fecundity
     if (indata2n(i) == 1 && fecl > 0) {
       if (fl2o(i) == 1 && ovgivenf(i) == -1) {
-      
+        
         fectransmat(k) = preouterator(fecproxy, feccoefs, rand_index, dev_terms,
           svsigmas, vital_year, vital_patch, chosen_r2inda, chosen_r1inda,
           chosen_r2indb, chosen_r1indb, chosen_r2indc, chosen_r1indc,
@@ -3218,13 +3221,10 @@ List motherbalowski(DataFrame ppy, DataFrame ageframe, List survproxy,
             // Poisson and negative binomial fecundity
             
             if (feczero) {
-              
               if (preoutx > exp_tol) preoutx = exp_tol;
               
               fectransmat(0, i) = (exp(preoutx) / (1.0 + exp(preoutx))) * fecmod;
-              
             } else {
-            
               if (preoutx > exp_tol) preoutx = exp_tol;
               
               fectransmat(0, i) = exp(preoutx) * fecmod;
@@ -3242,8 +3242,8 @@ List motherbalowski(DataFrame ppy, DataFrame ageframe, List survproxy,
           }
           
         } else if (fecl > 1) {
-          // All others with estimated models
           
+          // All others with estimated models
           fectransmat(0, i) = 0.0;
         } else {
           fectransmat(0, i) = feccoefs(0);

@@ -761,6 +761,8 @@ usher3 <- function(start_value, alpha, beta, time_steps = 100L, time_lag = 1L, p
 #' @param alpha The carrying capacity K.
 #' @param beta If set to some positive number, then this number is the maximum
 #' value of phi to enforce. Otherwise, equals \code{0} and enforces no limit.
+#' @param lambda The value of the discrete population growth rate to use.
+#' Equal to the natural logarithm of the instantaneous growth rate, r.
 #' @param time_steps The number of time steps to run the projection. Must be a
 #' positive integer.
 #' @param time_lag A positive integer denoting the number of time steps back
@@ -805,8 +807,8 @@ usher3 <- function(start_value, alpha, beta, time_steps = 100L, time_lag = 1L, p
 #' plot(trial_run7)
 #' 
 #' @export logistic3
-logistic3 <- function(start_value, alpha, beta = 0.0, time_steps = 100L, time_lag = 1L, pre0_subs = FALSE, pre0_value = 0.0, substoch = 0L, separate_N = NULL) {
-    .Call('_lefko3_logistic3', PACKAGE = 'lefko3', start_value, alpha, beta, time_steps, time_lag, pre0_subs, pre0_value, substoch, separate_N)
+logistic3 <- function(start_value, alpha, beta = 0.0, lambda = 1.0, time_steps = 100L, time_lag = 1L, pre0_subs = FALSE, pre0_value = 0.0, substoch = 0L, separate_N = NULL) {
+    .Call('_lefko3_logistic3', PACKAGE = 'lefko3', start_value, alpha, beta, lambda, time_steps, time_lag, pre0_subs, pre0_value, substoch, separate_N)
 }
 
 #' Estimate All Elements of Raw Historical Matrix
@@ -1285,11 +1287,12 @@ logistic3 <- function(start_value, alpha, beta = 0.0, time_steps = 100L, time_la
 #' include \code{"midpoint"}, which uses the midpoint method, and \code{"cdf"},
 #' which uses the cumulative density function.
 #' 
-#' @return A list of 3 matrices, including the main MPM (A), the survival-
-#' transition matrix (U), and a fecundity matrix (F). With tweaking, can also
-#' produce a 4 column matrix showing survival probability, observation
-#' probability, reproduction probability, and size transition probability, for
-#' each element of the final MPM.
+#' @return A list with 4 elements. The first 3 elements are matrices, including
+#' the main MPM (A), the survival-transition matrix (U), and a fecundity matrix
+#' (F). The last element is a 6 column matrix showing survival probability,
+#' observation probability, reproduction probability, sizea transition
+#' probability, sizeb transition probability, and sizec transition probability
+#' for each element of the final MPM.
 #' 
 #' @section Notes:
 #' 

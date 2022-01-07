@@ -37,6 +37,8 @@ CHANGES IN VERSION 4.2.0 (2022-01-XX)
     5. Ended dependence on package stringr.
     6. Expanded data frame output with actualstage3() to give individual stage
        designations in times t and t-1.
+    7. Function summary.lefkoMat() now yields warnings if any fecundity matrix
+       contains a negative value, and if any matrix contains an NA value.
 
   BUG FIXES
     1. Matrix quality control summaries corrected when functions add_lM(),
@@ -60,6 +62,9 @@ CHANGES IN VERSION 4.2.0 (2022-01-XX)
         deVries-formatted historical models.
     11. Fixed bug leading size of 0 to be treated as zero-inflated in Poisson
         and negative binomial models.
+    12. Added tolerance limit to binomial probability estimation in all
+        function-based matrix estimators, to prevent some conditions yielding
+        NA probabilities.
 
 
 CHANGES IN VERSION 4.1.1 (2021-12-07)

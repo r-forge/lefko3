@@ -499,7 +499,7 @@ where $\alpha$ and $\beta$ are the density dependence parameters, and $\beta$ in
   
 \begin{equation}
 \tag{12}
-\phi_{t+1} = \frac{\phi_t \times \alpha}{1 + \beta n_t}
+\phi_{t+1} = \phi_t \times \frac{\alpha}{1 + \beta n_t}
 \end{equation}
   
 where $\alpha$ and $\beta$ are, once again, the density dependence parameters, and $\beta$ in particular gives the strength of density dependence. This function generally asymptotes at an equilibrium density, and so is not capable of producing the complex patterns that the Ricker model is capable of.
@@ -508,7 +508,7 @@ where $\alpha$ and $\beta$ are, once again, the density dependence parameters, a
   
 \begin{equation}
 \tag{13}
-\phi_{t+1} = \phi_t \times \frac{1}{1 + e^{\alpha N + \beta}}
+\phi_{t+1} = \phi_t \times \frac{1}{1 + e^{\alpha n_t + \beta}}
 \end{equation}
   
 where both $\alpha$ and $\beta$ give the strength of density dependence, though the former via an interaction with density and the latter via an addition to the exponential effect.
@@ -517,7 +517,7 @@ where both $\alpha$ and $\beta$ give the strength of density dependence, though 
   
 \begin{equation}
 \tag{14}
-\phi_{t+1} = \phi_t \times (1 - \frac{n}{K})
+\phi_{t+1} = \phi_t \times (1 - \frac{n_t}{K})
 \end{equation}
   
 where only one parameter, $K$, is needed.

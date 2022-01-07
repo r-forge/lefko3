@@ -409,6 +409,8 @@ Rcpp::NumericVector usher3(double start_value, double alpha, double beta,
 //' @param alpha The carrying capacity K.
 //' @param beta If set to some positive number, then this number is the maximum
 //' value of phi to enforce. Otherwise, equals \code{0} and enforces no limit.
+//' @param lambda The value of the discrete population growth rate to use.
+//' Equal to the natural logarithm of the instantaneous growth rate, r.
 //' @param time_steps The number of time steps to run the projection. Must be a
 //' positive integer.
 //' @param time_lag A positive integer denoting the number of time steps back
@@ -455,7 +457,7 @@ Rcpp::NumericVector usher3(double start_value, double alpha, double beta,
 //' @export logistic3
 // [[Rcpp::export(logistic3)]]
 Rcpp::NumericVector logistic3(double start_value, double alpha,
-  double beta = 0.0, int time_steps = 100, int time_lag = 1,
+  double beta = 0.0, double lambda = 1.0, int time_steps = 100, int time_lag = 1,
   bool pre0_subs = false, double pre0_value = 0.0, int substoch = 0,
   Nullable<NumericVector> separate_N = R_NilValue) {
   
@@ -465,6 +467,7 @@ Rcpp::NumericVector logistic3(double start_value, double alpha,
   
   if (start_value <= 0.0) throw Rcpp::exception("Option start_value must be positive.", false);
   if (alpha <= 0.0) throw Rcpp::exception("Option alpha must be positive.", false);
+  if (lambda < 0.0) throw Rcpp::exception("Option lambda must be non-negative.", false);
   if (time_lag < 1) throw Rcpp::exception("Option time_lag must be positive.", false);
   if (pre0_subs && pre0_value <= 0.0) {
     throw Rcpp::exception("Option pre0_value must be positive if pre0_subs is set to TRUE", false);
@@ -520,7 +523,7 @@ Rcpp::NumericVector logistic3(double start_value, double alpha,
     if (beta > 0.0) {
       if (nt > beta) nt = beta;
     }
-    output(i) = used_phi * (1 - (nt / alpha));
+    output(i) = used_phi * lambda * (1 - (nt / alpha));
     
     if (substoch > 0) {
       if (output(i) < 0.0) {

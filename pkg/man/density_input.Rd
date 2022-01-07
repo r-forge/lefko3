@@ -64,7 +64,7 @@ of alpha.}
 \item{beta}{A vector indicating the numeric values to use as the beta term in
 the two parameter Ricker, Beverton-Holt, or Usher function. Used to indicate
 whether to use \emph{K} as a hard limit in the logistic equation (see section
-\code{Notes} below. If a single number is provided, then all noted
+\code{Notes} below). If a single number is provided, then all noted
 transitions are assumed to be subject to this value of \code{beta}.}
 
 \item{type}{A vector denoting the kind of transition between occasions

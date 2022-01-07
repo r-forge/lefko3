@@ -8,6 +8,7 @@ logistic3(
   start_value,
   alpha,
   beta = 0,
+  lambda = 1,
   time_steps = 100L,
   time_lag = 1L,
   pre0_subs = FALSE,
@@ -23,6 +24,9 @@ logistic3(
 
 \item{beta}{If set to some positive number, then this number is the maximum
 value of phi to enforce. Otherwise, equals \code{0} and enforces no limit.}
+
+\item{lambda}{The value of the discrete population growth rate to use.
+Equal to the natural logarithm of the instantaneous growth rate, r.}
 
 \item{time_steps}{The number of time steps to run the projection. Must be a
 positive integer.}
