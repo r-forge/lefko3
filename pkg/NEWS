@@ -25,6 +25,8 @@ CHANGES IN VERSION 4.2.0 (2022-01-XX)
        usher3(), and logistic3() added.
     10. Substochasticity options for projection3() now include the option to
         force fecundity to stay non-negative.
+    11. Function projection3() now issues warnings if density dependence yields
+        matrix impossible matrix values.
 
   USER-VISIBLE CHANGES
     1. Functions rlefko2() and rlefko3() now provide warnings if individual

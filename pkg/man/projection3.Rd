@@ -13,6 +13,7 @@ projection3(
   growthonly = TRUE,
   integeronly = FALSE,
   substoch = 0L,
+  sub_warnings = TRUE,
   start_vec = NULL,
   start_frame = NULL,
   tweights = NULL,
@@ -50,6 +51,12 @@ Defaults to \code{0}, which does not force substochasticity. Alternatively,
 and forces fecundity to be non-negative; and \code{2} forces all column rows
 in the survival-transition matrices to total no more than 1.0, in addition
 to the actions outlined for option \code{1}.}
+
+\item{sub_warnings}{A logical value indicating whether to warn the user if
+density dependence yields matrix values outside of the realm of possibility.
+Generally, this means that survival-transition elements altered to values
+outside of the interval [0, 1], and negative fecundity values, will both
+yield warnings. Defaults to \code{TRUE}.}
 
 \item{start_vec}{An optional numeric vector denoting the starting stage
 distribution for the projection. Defaults to a single individual of each

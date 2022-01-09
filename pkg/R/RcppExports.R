@@ -2414,6 +2414,8 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' the \code{\link{density_input}()} function.
 #' @param dens_index A list giving the indices of elements in object
 #' \code{dens_input}.
+#' @param allow_warnings A logical value indicating whether the function should
+#' send warnings if estimated values fall outside of the realm of possibility.
 #' 
 #' @return A matrix in which, if \code{growthonly = TRUE}, each row is the
 #' population vector at each projected occasion, and if \code{growthonly =
@@ -2431,8 +2433,8 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' 
 #' @keywords internal
 #' @noRd
-.proj3dens <- function(start_vec, core_list, mat_order, growthonly, integeronly, substoch, dens_input, dens_index) {
-    .Call('_lefko3_proj3dens', PACKAGE = 'lefko3', start_vec, core_list, mat_order, growthonly, integeronly, substoch, dens_input, dens_index)
+.proj3dens <- function(start_vec, core_list, mat_order, growthonly, integeronly, substoch, dens_input, dens_index, allow_warnings = FALSE) {
+    .Call('_lefko3_proj3dens', PACKAGE = 'lefko3', start_vec, core_list, mat_order, growthonly, integeronly, substoch, dens_input, dens_index, allow_warnings)
 }
 
 #' Conduct Population Projection Simulations
@@ -2468,6 +2470,11 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' and forces fecundity to be non-negative; and \code{2} forces all column rows
 #' in the survival-transition matrices to total no more than 1.0, in addition
 #' to the actions outlined for option \code{1}.
+#' @param sub_warnings A logical value indicating whether to warn the user if
+#' density dependence yields matrix values outside of the realm of possibility.
+#' Generally, this means that survival-transition elements altered to values
+#' outside of the interval [0, 1], and negative fecundity values, will both
+#' yield warnings. Defaults to \code{TRUE}.
 #' @param start_vec An optional numeric vector denoting the starting stage
 #' distribution for the projection. Defaults to a single individual of each
 #' stage.
@@ -2651,8 +2658,8 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' cypstoch <- projection3(cypmatrix3r, nreps = 5, stochastic = TRUE)
 #' 
 #' @export projection3
-projection3 <- function(mpm, nreps = 1L, times = 10000L, stochastic = FALSE, standardize = FALSE, growthonly = TRUE, integeronly = FALSE, substoch = 0L, start_vec = NULL, start_frame = NULL, tweights = NULL, density = NULL) {
-    .Call('_lefko3_projection3', PACKAGE = 'lefko3', mpm, nreps, times, stochastic, standardize, growthonly, integeronly, substoch, start_vec, start_frame, tweights, density)
+projection3 <- function(mpm, nreps = 1L, times = 10000L, stochastic = FALSE, standardize = FALSE, growthonly = TRUE, integeronly = FALSE, substoch = 0L, sub_warnings = TRUE, start_vec = NULL, start_frame = NULL, tweights = NULL, density = NULL) {
+    .Call('_lefko3_projection3', PACKAGE = 'lefko3', mpm, nreps, times, stochastic, standardize, growthonly, integeronly, substoch, sub_warnings, start_vec, start_frame, tweights, density)
 }
 
 #' Estimate Stochastic Population Growth Rate

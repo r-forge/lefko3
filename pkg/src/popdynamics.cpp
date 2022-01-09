@@ -1566,6 +1566,8 @@ arma::mat proj3sp(arma::vec start_vec, List core_list, arma::uvec mat_order,
 //' the \code{\link{density_input}()} function.
 //' @param dens_index A list giving the indices of elements in object
 //' \code{dens_input}.
+//' @param allow_warnings A logical value indicating whether the function should
+//' send warnings if estimated values fall outside of the realm of possibility.
 //' 
 //' @return A matrix in which, if \code{growthonly = TRUE}, each row is the
 //' population vector at each projected occasion, and if \code{growthonly =
@@ -1586,11 +1588,13 @@ arma::mat proj3sp(arma::vec start_vec, List core_list, arma::uvec mat_order,
 // [[Rcpp::export(.proj3dens)]]
 arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
   bool growthonly, bool integeronly, int substoch, Rcpp::DataFrame dens_input,
-  Rcpp::List dens_index) {
+  Rcpp::List dens_index, bool allow_warnings = false) {
   
   int sparse_switch {0};
   int time_delay {1};
   double pop_size {0};
+  bool warn_trigger_neg = false;
+  bool warn_trigger_1 = false;
   
   int nostages = start_vec.n_elem;
   int theclairvoyant = mat_order.n_elem;
@@ -1662,80 +1666,14 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
             changing_element = theprophecy(dyn_index321(j)) * 
               dyn_alpha(j) * exp((-1*dyn_beta(j)) * pop_size); // Fi*ALPHA*exp(-BETA*n)
             
-            if (substoch == 0) {
-              theprophecy(dyn_index321(j)) = changing_element;
-            } else if (substoch == 1) {
-              if (changing_element > 1.0 && dyn_type(j) == 1) {
-                changing_element = 1.0;
-              } else if (changing_element < 0.0) {
-                changing_element = 0.0;
-              }
-              theprophecy(dyn_index321(j)) = changing_element;
-            } else if (substoch == 2 && dyn_type(j) == 1) {
-              changing_colsum = sum(theprophecy.col(dyn_index_col(j))) - theprophecy(dyn_index321(j));
-              
-              if (changing_element > (1.0 - changing_colsum)) {
-                changing_element = (1.0 - changing_colsum);
-              }
-              theprophecy(dyn_index321(j)) = changing_element;
-            } else if (substoch == 2 && dyn_type(j) == 2) {
-              if (changing_element < 0.0) {
-                changing_element = 0.0;
-              }
-              theprophecy(dyn_index321(j)) = changing_element;
-            }
           } else if (dyn_style(j) == 2) { // Beverton-Holt
             changing_element = theprophecy(dyn_index321(j)) * 
               dyn_alpha(j) / (1 + dyn_beta(j) * pop_size); // Fi*ALPHA/(1+BETA*n)
             
-            if (substoch == 0) {
-              theprophecy(dyn_index321(j)) = changing_element;
-            } else if (substoch == 1) {
-              if (changing_element > 1.0 && dyn_type(j) == 1) {
-                changing_element = 1.0;
-              } else if (changing_element < 0.0) {
-                changing_element = 0.0;
-              }
-              theprophecy(dyn_index321(j)) = changing_element;
-            } else if (substoch == 2 && dyn_type(j) == 1) {
-              changing_colsum = sum(theprophecy.col(dyn_index_col(j))) - theprophecy(dyn_index321(j));
-              
-              if (changing_element > (1.0 - changing_colsum)) {
-                changing_element = (1.0 - changing_colsum);
-              }
-              theprophecy(dyn_index321(j)) = changing_element;
-            } else if (substoch == 2 && dyn_type(j) == 2) {
-              if (changing_element < 0.0) {
-                changing_element = 0.0;
-              }
-              theprophecy(dyn_index321(j)) = changing_element;
-            }
           } else if (dyn_style(j) == 3) { // Usher function
             changing_element = theprophecy(dyn_index321(j)) * 
               (1 / (1 + exp(dyn_alpha(j) * pop_size + dyn_beta(j)))); // Fi*(1 / (1 + exp(alpha*N+b)))
             
-            if (substoch == 0) {
-              theprophecy(dyn_index321(j)) = changing_element;
-            } else if (substoch == 1) {
-              if (changing_element > 1.0 && dyn_type(j) == 1) {
-                changing_element = 1.0;
-              } else if (changing_element < 0.0) {
-                changing_element = 0.0;
-              }
-              theprophecy(dyn_index321(j)) = changing_element;
-            } else if (substoch == 2 && dyn_type(j) == 1) {
-              changing_colsum = sum(theprophecy.col(dyn_index_col(j))) - theprophecy(dyn_index321(j));
-              
-              if (changing_element > (1.0 - changing_colsum)) {
-                changing_element = (1.0 - changing_colsum);
-              }
-              theprophecy(dyn_index321(j)) = changing_element;
-            } else if (substoch == 2 && dyn_type(j) == 2) {
-              if (changing_element < 0.0) {
-                changing_element = 0.0;
-              }
-              theprophecy(dyn_index321(j)) = changing_element;
-            }
           } else if (dyn_style(j) == 4) { // Logistic function
             double used_popsize = pop_size;
             if (dyn_beta(j) > 0.0 && pop_size > dyn_alpha(j)) {
@@ -1744,27 +1682,34 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
             changing_element = theprophecy(dyn_index321(j)) * 
               (1 - used_popsize / dyn_alpha(j)); // Fi*(1 - ALPHA/n)
             
-            if (substoch == 0) {
-              theprophecy(dyn_index321(j)) = changing_element;
-            } else if (substoch == 1) {
-              if (changing_element > 1.0 && dyn_type(j) == 1) {
-                changing_element = 1.0;
-              } else if (changing_element < 0.0) {
-                changing_element = 0.0;
-              }
-              theprophecy(dyn_index321(j)) = changing_element;
-            } else if (substoch == 2 && dyn_type(j) == 1) {
-              changing_colsum = sum(theprophecy.col(dyn_index_col(j))) - theprophecy(dyn_index321(j));
-              
-              if (changing_element > (1.0 - changing_colsum)) {
-                changing_element = (1.0 - changing_colsum);
-              }
-              theprophecy(dyn_index321(j)) = changing_element;
-            } else if (substoch == 2 && dyn_type(j) == 2) {
-              if (changing_element < 0.0) {
-                changing_element = 0.0;
-              }
-              theprophecy(dyn_index321(j)) = changing_element;
+          }
+          
+          if (substoch == 1) {
+            if (changing_element > 1.0 && dyn_type(j) == 1) {
+              changing_element = 1.0;
+            } else if (changing_element < 0.0) {
+              changing_element = 0.0;
+            }
+          } else if (substoch == 2 && dyn_type(j) == 1) {
+            changing_colsum = sum(theprophecy.col(dyn_index_col(j))) - theprophecy(dyn_index321(j));
+            
+            if (changing_element > (1.0 - changing_colsum)) {
+              changing_element = (1.0 - changing_colsum);
+            }
+          } else if (substoch > 0 && dyn_type(j) == 2) {
+            if (changing_element < 0.0) {
+              changing_element = 0.0;
+            }
+          }
+          theprophecy(dyn_index321(j)) = changing_element;
+          
+          if (allow_warnings) {
+            if (dyn_type(j) == 1 && theprophecy(dyn_index321(j)) > 1.0 && !warn_trigger_1) {
+              warn_trigger_1 = true;
+              Rf_warningcall(R_NilValue, "Some probabilities with value > 1.0 produced during density adjustment.");
+            } else if (theprophecy(dyn_index321(j)) < 0.0 && !warn_trigger_neg) {
+              warn_trigger_neg = true;
+              Rf_warningcall(R_NilValue, "Some matrix elements with value < 0.0 produced during density adjustment.");
             }
           }
         }
@@ -1826,65 +1771,14 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
             changing_element = sparse_prophecy(dyn_index321(j)) * 
               dyn_alpha(j) * exp((-1*dyn_beta(j)) * pop_size); // Fi*ALPHA*exp(-BETA*n)
             
-            if (substoch == 0 || dyn_type(j) == 2) {
-              sparse_prophecy(dyn_index321(j)) = changing_element;
-            } else if (substoch == 1 && dyn_type(j) == 1) {
-              if (changing_element > 1.0) {
-                changing_element = 1.0;
-              } else if (changing_element < 0.0) {
-                changing_element = 0.0;
-              }
-              sparse_prophecy(dyn_index321(j)) = changing_element;
-            } else if (substoch == 2 && dyn_type(j) == 1) {
-              changing_colsum = sum(sparse_prophecy.col(dyn_index_col(j))) - sparse_prophecy(dyn_index321(j));
-              
-              if (changing_element > (1.0 - changing_colsum)) {
-                changing_element = (1.0 - changing_colsum);
-              }
-              sparse_prophecy(dyn_index321(j)) = changing_element;
-            }
           } else if (dyn_style(j) == 2) { // Beverton-Holt
             changing_element = sparse_prophecy(dyn_index321(j)) * 
               dyn_alpha(j) / (1 + dyn_beta(j) * pop_size); // Fi*ALPHA/(1+BETA*n)
             
-            if (substoch == 0 || dyn_type(j) == 2) {
-              sparse_prophecy(dyn_index321(j)) = changing_element;
-            } else if (substoch == 1 && dyn_type(j) == 1) {
-              if (changing_element > 1.0) {
-                changing_element = 1.0;
-              } else if (changing_element < 0.0) {
-                changing_element = 0.0;
-              }
-              sparse_prophecy(dyn_index321(j)) = changing_element;
-            } else if (substoch == 2 && dyn_type(j) == 1) {
-              changing_colsum = sum(sparse_prophecy.col(dyn_index_col(j))) - sparse_prophecy(dyn_index321(j));
-              
-              if (changing_element > (1.0 - changing_colsum)) {
-                changing_element = (1.0 - changing_colsum);
-              }
-              sparse_prophecy(dyn_index321(j)) = changing_element;
-            }
           } else if (dyn_style(j) == 3) { // Usher function
             changing_element = sparse_prophecy(dyn_index321(j)) * 
               (1 / (1 + exp(dyn_alpha(j) * pop_size + dyn_beta(j)))); // Fi*(1 / (1 + exp(alpha*N+b)))
             
-            if (substoch == 0 || dyn_type(j) == 2) {
-              sparse_prophecy(dyn_index321(j)) = changing_element;
-            } else if (substoch == 1 && dyn_type(j) == 1) {
-              if (changing_element > 1.0) {
-                changing_element = 1.0;
-              } else if (changing_element < 0.0) {
-                changing_element = 0.0;
-              }
-              sparse_prophecy(dyn_index321(j)) = changing_element;
-            } else if (substoch == 2 && dyn_type(j) == 1) {
-              changing_colsum = sum(sparse_prophecy.col(dyn_index_col(j))) - sparse_prophecy(dyn_index321(j));
-              
-              if (changing_element > (1.0 - changing_colsum)) {
-                changing_element = (1.0 - changing_colsum);
-              }
-              sparse_prophecy(dyn_index321(j)) = changing_element;
-            }
           } else if (dyn_style(j) == 4) { // Logistic function
             double used_popsize = pop_size;
             if (dyn_beta(j) > 0.0 && pop_size > dyn_alpha(j)) {
@@ -1892,24 +1786,34 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
             }
             changing_element = sparse_prophecy(dyn_index321(j)) * 
               (1 - used_popsize / dyn_alpha(j)); // Fi*(1 - ALPHA/n)
-            
-            if (substoch == 0 || dyn_type(j) == 2) {
-              sparse_prophecy(dyn_index321(j)) = changing_element;
-            } else if (substoch == 1 && dyn_type(j) == 1) {
-              if (changing_element > 1.0) {
-                changing_element = 1.0;
-              } else if (changing_element < 0.0) {
-                changing_element = 0.0;
-              }
-              sparse_prophecy(dyn_index321(j)) = changing_element;
-            } else if (substoch == 2 && dyn_type(j) == 1) {
-              changing_colsum = sum(sparse_prophecy.col(dyn_index_col(j))) - sparse_prophecy(dyn_index321(j));
-              
-              if (changing_element > (1.0 - changing_colsum)) {
-                changing_element = (1.0 - changing_colsum);
-              }
-              sparse_prophecy(dyn_index321(j)) = changing_element;
+          }
+          
+          if (substoch == 1 && dyn_type(j) == 1) {
+            if (changing_element > 1.0) {
+              changing_element = 1.0;
+            } else if (changing_element < 0.0) {
+              changing_element = 0.0;
             }
+          } else if (substoch == 2 && dyn_type(j) == 1) {
+            changing_colsum = sum(sparse_prophecy.col(dyn_index_col(j))) - sparse_prophecy(dyn_index321(j));
+            
+            if (changing_element > (1.0 - changing_colsum)) {
+              changing_element = (1.0 - changing_colsum);
+            }
+          } else if (substoch > 0 && dyn_type(j) == 2) {
+            if (changing_element < 0.0) {
+              changing_element = 0.0;
+            }
+          }
+          sparse_prophecy(dyn_index321(j)) = changing_element;
+          
+          if (allow_warnings) {
+            if (dyn_type(j) == 1 && sparse_prophecy(dyn_index321(j)) > 1.0 && !warn_trigger_1) {
+              warn_trigger_1 = true;
+              Rf_warningcall(R_NilValue, "Some probabilities with value > 1.0 produced during density adjustment.");
+            } else if (sparse_prophecy(dyn_index321(j)) < 0.0 && !warn_trigger_neg)
+              warn_trigger_neg = true;
+              Rf_warningcall(R_NilValue, "Some matrix elements with value < 0.0 produced during density adjustment.");
           }
         }
       }
@@ -1981,6 +1885,11 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
 //' and forces fecundity to be non-negative; and \code{2} forces all column rows
 //' in the survival-transition matrices to total no more than 1.0, in addition
 //' to the actions outlined for option \code{1}.
+//' @param sub_warnings A logical value indicating whether to warn the user if
+//' density dependence yields matrix values outside of the realm of possibility.
+//' Generally, this means that survival-transition elements altered to values
+//' outside of the interval [0, 1], and negative fecundity values, will both
+//' yield warnings. Defaults to \code{TRUE}.
 //' @param start_vec An optional numeric vector denoting the starting stage
 //' distribution for the projection. Defaults to a single individual of each
 //' stage.
@@ -2167,7 +2076,7 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
 // [[Rcpp::export]]
 Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
   bool stochastic = false, bool standardize = false, bool growthonly = true,
-  bool integeronly = false, int substoch = 0,
+  bool integeronly = false, int substoch = 0, bool sub_warnings = true,
   Nullable<NumericVector> start_vec = R_NilValue,
   Nullable<DataFrame> start_frame = R_NilValue,
   Nullable<NumericVector> tweights = R_NilValue,
@@ -2511,10 +2420,11 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
         if (dens_switch) {
           if (rep == 0) {
             projection = proj3dens(startvec, amats, theprophecy, growthonly,
-              integeronly, substoch, dens_input, dens_index);
+              integeronly, substoch, dens_input, dens_index, sub_warnings);
           } else {
             arma::mat nextproj = proj3dens(startvec, amats, theprophecy,
-              growthonly, integeronly, substoch, dens_input, dens_index);
+              growthonly, integeronly, substoch, dens_input, dens_index,
+              sub_warnings);
             projection = arma::join_cols(projection, nextproj);
           }
         } else {
@@ -2612,10 +2522,12 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
           if (dens_switch) {
             if (rep == 0) {
               projection = proj3dens(startvec, meanmatyearlist, theprophecy,
-                growthonly, integeronly, substoch, dens_input, dens_index);
+                growthonly, integeronly, substoch, dens_input, dens_index,
+                sub_warnings);
             } else {
               arma::mat nextproj = proj3dens(startvec, meanmatyearlist, theprophecy,
-                growthonly, integeronly, substoch, dens_input, dens_index);
+                growthonly, integeronly, substoch, dens_input, dens_index,
+                sub_warnings);
               projection = arma::join_cols(projection, nextproj);
             }
           } else {
