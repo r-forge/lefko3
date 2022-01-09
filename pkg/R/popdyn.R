@@ -4274,6 +4274,7 @@ summary.lefkoProj <- function(object, threshold = 1,
 #' Plot Projection Simulations
 #' 
 #' Function \code{plot.lefkoProj()} produces plots of \code{lefkoProj} objects.
+#' Acts as a convenient wrapper for the \code{plot.default()} function.
 #' 
 #' @param x A \code{lefkoProj} object.
 #' @param variable The focus variable of the plot to produce. Defaults to
@@ -4291,14 +4292,23 @@ summary.lefkoProj <- function(object, threshold = 1,
 #' population-level projection is plotted. Can also be set to \code{"all"}, in
 #' which case projections for all patches and population in the \code{labels}
 #' element are plotted.
-#' @param ylim_auto A logical value indicating whether the maximum of the y axis
-#' should be determined automatically. Defaults to \code{TRUE}.
-#' @param ... Other parameters used by function \code{plot()}.
+#' @param auto_ylim A logical value indicating whether the maximum of the y axis
+#' should be determined automatically. Defaults to \code{TRUE}, but reverts to
+#' \code{FALSE} if any setting for \code{ylim} is given.
+#' @param auto_col A logical value indicating whether to shift the color of
+#' lines associated with each patch automatically. Defaults to \code{TRUE}, but
+#' reverts to \code{FALSE} if any setting for \code{col} is given.
+#' @param auto_lty A logical value indicating whether to shift the line type
+#' associated with each replicate automatically. Defaults to \code{TRUE}, but
+#' reverts to \code{FALSE} if any setting for \code{lty} is given.
+#' @param ... Other parameters used by functions \code{plot.default()} and
+#' \code{lines()}.
 #' 
 #' @return A plot of the results of a \code{link{projection3}()} run.
 #' 
 #' @section Notes:
-#' Plots are currently limited to population size plots.
+#' Output plots are currently limited to time series and state space plots of
+#' population size.
 #' 
 #' @examples
 #' # Lathyrus example
@@ -4348,7 +4358,32 @@ summary.lefkoProj <- function(object, threshold = 1,
 #' 
 #' @export
 plot.lefkoProj <- function(x, variable = "popsize", style = "time",
-  repl = "all", patch = "pop", ylim_auto = TRUE, ...) {
+  repl = "all", patch = "pop", auto_ylim = TRUE, auto_col = TRUE,
+  auto_lty = TRUE, ...) {
+  
+  further_args <- list(...)
+  
+  if (length(further_args) == 0) further_args <- list()
+  
+  if (!is.element("type", names(further_args))) {
+    further_args$type <- "l"
+  }
+  if (!is.element("ylab", names(further_args))) {
+    further_args$ylab <- "Population size"
+  }
+  if (!is.element("xlab", names(further_args))) {
+    further_args$xlab <- "Time"
+  }
+  if (is.element("col", names(further_args))) {
+    auto_col <- FALSE
+  }
+  if (is.element("lty", names(further_args))) {
+    auto_lty <- FALSE
+  }
+  if (is.element("ylim", names(further_args))) {
+    auto_ylim <- FALSE
+  }
+  basal_args <- further_args
   
   actual_patches <- c(1:length(x$labels$patch))
   actual_replicates <- c(1:x$control[1])
@@ -4412,41 +4447,52 @@ plot.lefkoProj <- function(x, variable = "popsize", style = "time",
       other than `popsize`.", call. = FALSE)
   }
   
+  used_col <- 1
+  
   for (i in patch) {
-    if (ylim_auto) {
-      y_max <- max(x$pop_size[[i]], na.rm = TRUE)
-      
-      if (style == "timeseries") {
-        plot(x$pop_size[[i]][1,], ylim = c(0, y_max), ...)
-      } else if (style == "statespace") {
-        yterm <- x$pop_size[[i]][1,2:dim(x$pop_size[[i]])[2]]
-        xterm <- x$pop_size[[i]][1,1:(dim(x$pop_size[[i]])[2] - 1)]
-        
-        plot(yterm ~ xterm, ylim = c(0, y_max), ...)
-      }
-    } else {
-      if (style == "timeseries") {
-        plot(x$pop_size[[i]][1,], ...)
-      } else if (style == "statespace") {
-        yterm <- x$pop_size[[i]][1,2:dim(x$pop_size[[i]])[2]]
-        xterm <- x$pop_size[[i]][1,1:(dim(x$pop_size[[i]])[2] - 1)]
-        
-        plot(yterm ~ xterm, ...)
-      }
+    used_lty <- 1
+    
+    if (auto_ylim) {
+      further_args$ylim <- c(0, max(x$pop_size[[i]], na.rm = TRUE))
     }
+    if (auto_col) {
+      further_args$col <- used_col
+      basal_args$col <- used_col
+    }
+    if (auto_lty) {
+      further_args$lty <- used_lty
+      basal_args$lty <- used_lty
+    }
+      
+    if (style == "timeseries") {
+      c_xy <- xy.coords(x = c(1:length(x$pop_size[[i]][1,])), y = x$pop_size[[i]][1,])
+      further_args$x <- c_xy
+      
+    } else if (style == "statespace") {
+      c_xy <- xy.coords(x = x$pop_size[[i]][1,1:(dim(x$pop_size[[i]])[2] - 1)],
+        y = x$pop_size[[i]][1,2:dim(x$pop_size[[i]])[2]])
+      further_args$x <- c_xy
+    }
+    
+    do.call("plot.default", further_args)
     
     if (length(repl) > 1) {
       for (j in c(2:x$control[1])) {
         if (style == "timeseries") {
-          lines(x$pop_size[[i]][j,], ...)
+          basal_args$x <- c(1:length(x$pop_size[[i]][1,]))
+          basal_args$y <- x$pop_size[[i]][1,]
+          
         } else if (style == "statespace") {
-        yterm <- x$pop_size[[i]][j,2:dim(x$pop_size[[i]])[2]]
-        xterm <- x$pop_size[[i]][j,1:(dim(x$pop_size[[i]])[2] - 1)]
+          basal_args$y <- x$pop_size[[i]][j,2:dim(x$pop_size[[i]])[2]]
+          basal_args$x <- x$pop_size[[i]][j,1:(dim(x$pop_size[[i]])[2] - 1)]
         
-        lines(yterm ~ xterm, ...)
         }
+        do.call("lines", basal_args)
       }
+      used_lty <- used_lty + 1;
     }
+    used_col <- used_col + 1;
+    if (used_col > length(palette())) used_col <- 1;
   }
 }
 

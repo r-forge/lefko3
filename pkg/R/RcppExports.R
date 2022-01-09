@@ -579,8 +579,10 @@ cond_diff <- function(lDiff, ref = 1L, matchoice = NULL, err_check = NULL) {
 #' Two-parameter Ricker function
 #' 
 #' Function \code{ricker3()} creates a vector of values produced by the two-
-#' parameter Ricker function as applied with a user-specified time lag.
-#' Here, phi in time t is equal to n in time t.
+#' parameter Ricker function as applied with a user-specified time lag. The
+#' two-parameter Ricker function is given as 
+#' \eqn{\phi_{t+1} = \phi_t \alpha e^{-\beta n_t}}. Here, if no
+#' \code{separate_N} vector is provided, then \eqn{n_t = \phi_t}.
 #' 
 #' @param start_value A positive number to start the return vector in time 0.
 #' @param alpha The alpha parameter in the two-parameter Ricker function. Must
@@ -638,7 +640,9 @@ ricker3 <- function(start_value, alpha, beta, time_steps = 100L, time_lag = 1L, 
 #' 
 #' Function \code{beverton3()} creates a vector of values produced by the two-
 #' parameter Beverton-Holt function as applied with a user-specified time lag.
-#' Here, phi in time t is equal to n in time t.
+#' The two-parameter Beverton-Holt function is given as 
+#' \eqn{\phi_{t+1} = \phi_t \alpha / (1 + \beta n_t)}. Here, if no
+#' \code{separate_N} vector is provided, then \eqn{n_t = \phi_t}.
 #' 
 #' @param start_value A positive number to start the return vector in time 0.
 #' @param alpha The alpha parameter in the two-parameter Beverton-Holt
@@ -697,7 +701,9 @@ beverton3 <- function(start_value, alpha, beta, time_steps = 100L, time_lag = 1L
 #' 
 #' Function \code{usher3()} creates a vector of values produced by the two-
 #' parameter Usher function as applied with a user-specified time lag.
-#' Here, phi in time t is equal to n in time t.
+#' The Usher function is given as 
+#' \eqn{\phi_{t+1} = \phi_t / (1 + e^{\alpha n_t + \beta})}. Here,
+#' if no \code{separate_N} vector is provided, then \eqn{n_t = \phi_t}.
 #' 
 #' @param start_value A positive number to start the return vector in time 0.
 #' @param alpha The alpha parameter in the two-parameter Usher
@@ -754,8 +760,11 @@ usher3 <- function(start_value, alpha, beta, time_steps = 100L, time_lag = 1L, p
 #' Two-parameter logistic function
 #' 
 #' Function \code{logistic3()} creates a vector of values produced by the
-#' logistic function as applied with a user-specified time lag. Here, phi in
-#' time t is equal to n in time t.
+#' logistic function as applied with a user-specified time lag. The logistic
+#' function is given as 
+#' \eqn{\phi_{t+1} = \phi_t \lambda (1 - n_t / K)}. Here,
+#' if no \code{separate_N} vector is provided, then \eqn{n_t = \phi_t}. If
+#' \eqn{\lambda} is not provided, then it defaults to \code{1.0}.
 #' 
 #' @param start_value A positive number to start the return vector in time 0.
 #' @param alpha The carrying capacity K.

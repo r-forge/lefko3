@@ -53,7 +53,9 @@ parameter Beverton-Holt function.
 \description{
 Function \code{beverton3()} creates a vector of values produced by the two-
 parameter Beverton-Holt function as applied with a user-specified time lag.
-Here, phi in time t is equal to n in time t.
+The two-parameter Beverton-Holt function is given as 
+\eqn{\phi_{t+1} = \phi_t \alpha / (1 + \beta n_t)}. Here, if no
+\code{separate_N} vector is provided, then \eqn{n_t = \phi_t}.
 }
 \examples{
 trial_run1 <- beverton3(1, alpha = 0.5, beta = 0.009)

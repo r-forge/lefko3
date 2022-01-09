@@ -55,8 +55,11 @@ logistic function.
 }
 \description{
 Function \code{logistic3()} creates a vector of values produced by the
-logistic function as applied with a user-specified time lag. Here, phi in
-time t is equal to n in time t.
+logistic function as applied with a user-specified time lag. The logistic
+function is given as 
+\eqn{\phi_{t+1} = \phi_t \lambda (1 - n_t / K)}. Here,
+if no \code{separate_N} vector is provided, then \eqn{n_t = \phi_t}. If
+\eqn{\lambda} is not provided, then it defaults to \code{1.0}.
 }
 \examples{
 trial_run1 <- logistic3(1, alpha = 5)

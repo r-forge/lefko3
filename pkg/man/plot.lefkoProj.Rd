@@ -10,7 +10,9 @@
   style = "time",
   repl = "all",
   patch = "pop",
-  ylim_auto = TRUE,
+  auto_ylim = TRUE,
+  auto_col = TRUE,
+  auto_lty = TRUE,
   ...
 )
 }
@@ -36,20 +38,32 @@ population-level projection is plotted. Can also be set to \code{"all"}, in
 which case projections for all patches and population in the \code{labels}
 element are plotted.}
 
-\item{ylim_auto}{A logical value indicating whether the maximum of the y axis
-should be determined automatically. Defaults to \code{TRUE}.}
+\item{auto_ylim}{A logical value indicating whether the maximum of the y axis
+should be determined automatically. Defaults to \code{TRUE}, but reverts to
+\code{FALSE} if any setting for \code{ylim} is given.}
 
-\item{...}{Other parameters used by function \code{plot()}.}
+\item{auto_col}{A logical value indicating whether to shift the color of
+lines associated with each patch automatically. Defaults to \code{TRUE}, but
+reverts to \code{FALSE} if any setting for \code{col} is given.}
+
+\item{auto_lty}{A logical value indicating whether to shift the line type
+associated with each replicate automatically. Defaults to \code{TRUE}, but
+reverts to \code{FALSE} if any setting for \code{lty} is given.}
+
+\item{...}{Other parameters used by functions \code{plot.default()} and
+\code{lines()}.}
 }
 \value{
 A plot of the results of a \code{link{projection3}()} run.
 }
 \description{
 Function \code{plot.lefkoProj()} produces plots of \code{lefkoProj} objects.
+Acts as a convenient wrapper for the \code{plot.default()} function.
 }
 \section{Notes}{
 
-Plots are currently limited to population size plots.
+Output plots are currently limited to time series and state space plots of
+population size.
 }
 
 \examples{

@@ -37,6 +37,7 @@
 #' @import Rcpp
 #' @importFrom glmmTMB fixef glmmTMB nbinom2 ranef truncated_nbinom2 truncated_poisson
 #' @importFrom graphics lines
+#' @importFrom grDevices palette xy.coords
 #' @importFrom lme4 fixef glmer lmer ranef VarCorr
 #' @importFrom MASS glm.nb
 #' @importFrom MuMIn dredge r.squaredGLMM

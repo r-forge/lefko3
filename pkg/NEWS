@@ -39,6 +39,7 @@ CHANGES IN VERSION 4.2.0 (2022-01-XX)
        designations in times t and t-1.
     7. Function summary.lefkoMat() now yields warnings if any fecundity matrix
        contains a negative value, and if any matrix contains an NA value.
+    8. Added equations in key help files.
 
   BUG FIXES
     1. Matrix quality control summaries corrected when functions add_lM(),
