@@ -245,10 +245,11 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
   
   if (year!= "none") {
     if (yasrand) {
-      randomtackony += " + ";
       randomtackony += "(1 | ";
       randomtackony += year;
       randomtackony += ")";
+      
+      if (pasrand || indiv != "none") randomtackony += " + ";
     } else {
       if (fixedcovcounter > 0) {
         fixedtackony += " + as.factor(";
@@ -264,10 +265,12 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
   
   if (patch!= "none") {
     if (pasrand) {
-      randomtackonp += " + ";
+      //randomtackonp += " + ";
       randomtackonp += "(1 | ";
       randomtackonp += patch;
       randomtackonp += ")";
+      
+      if (indiv != "none") randomtackony += " + ";
     } else {
       if (fixedcovcounter > 0) {
         fixedtackonp += " + as.factor(";
@@ -282,7 +285,7 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
   }
   
   if (indiv != "none" && approach == "mixed") {
-    randomtackoni += " + (1 | ";
+    randomtackoni += "(1 | ";
     randomtackoni += indiv;
     randomtackoni += ")";
   }
@@ -290,88 +293,85 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
   // Now we add the individual covariates to the tacked-on sections
   if (indcova(1) != "none") {
     if (!iaasrand) {
-      if (fixedcovcounter > 0) {
-        fixedtackonia += " + ";
-        fixedtackonia += indcova(1);
-      } else {
-        fixedtackonia += indcova(1);
-      }
-      fixedcovcounter += 1;
+      fixedtackonia += indcova(1);
       if (historical) {
         fixedtackonia += " + ";
         fixedtackonia += indcova(2);
       }
+      if (fixedcovcounter > 0 || indcovb(1) != "none" || indcovc(1) != "none") {
+        fixedtackonia += " + ";
+      }
+      fixedcovcounter += 1;
     } else {
-      randomtackonia += " + (1 | ";
+      randomtackonia += "(1 | ";
       randomtackonia += indcova(1);
-      randomtackonia += ")";
+      randomtackonia += ") + ";
       
       if (historical) {
-        randomtackonia += " + (1 | ";
+        randomtackonia += "(1 | ";
         randomtackonia += indcova(2);
-        randomtackonia += ")";
+        randomtackonia += ") + ";
       }
     }
   }
   if (indcovb(1) != "none") {
     if (!ibasrand) {
-      if (fixedcovcounter > 0) {
-        fixedtackonib += " + ";
-        fixedtackonib += indcovb(1);
-      } else {
-        fixedtackonib += indcovb(1);
-      }
-      fixedcovcounter += 1;
+      fixedtackonib += indcovb(1);
       if (historical) {
         fixedtackonib += " + ";
         fixedtackonib += indcovb(2);
       }
+      if (fixedcovcounter > 0) {
+        fixedtackonib += " + ";
+      }
+      fixedcovcounter += 1;
     } else {
-      randomtackonib += " + (1 | ";
+      randomtackonib += "(1 | ";
       randomtackonib += indcovb(1);
-      randomtackonib += ")";
+      randomtackonib += ") + ";
       
       if (historical) {
-        randomtackonib += " + (1 | ";
+        randomtackonib += "(1 | ";
         randomtackonib += indcovb(2);
-        randomtackonib += ")";
+        randomtackonib += ") + ";
       }
     }
   }
   if (indcovc(1) != "none") {
     if (!icasrand) {
-      if (fixedcovcounter > 0) {
-        fixedtackonic += " + ";
-        fixedtackonic += indcovc(1);
-      } else {
-        fixedtackonic += indcovc(1);
-      }
-      fixedcovcounter += 1;
+      fixedtackonic += indcovc(1);
       if (historical) {
         fixedtackonic += " + ";
         fixedtackonic += indcovc(2);
       }
+      if (fixedcovcounter > 0) {
+        fixedtackonic += " + ";
+      }
+      fixedcovcounter += 1;
     } else {
-      randomtackonic += " + (1 | ";
+      randomtackonic += "(1 | ";
       randomtackonic += indcovc(1);
-      randomtackonic += ")";
+      randomtackonic += ") + ";
       
       if (historical) {
-        randomtackonic += " + (1 | ";
+        randomtackonic += "(1 | ";
         randomtackonic += indcovc(2);
-        randomtackonic += ")";
+        randomtackonic += ") + ";
       }
     }
   }
   if (suite == "full" && !iaasrand && !ibasrand) {
     if (indcova(1) != "none" && indcovb(1) != "none") {
-      fixedtackonib += " + ";
+      // fixedtackonib += " + ";
       fixedtackonib += indcova(1);
       fixedtackonib += ":";
       fixedtackonib += indcovb(1);
+      if (fixedcovcounter > 0 || historical) {
+        fixedtackonib += " + ";
+      }
       
       if (historical) {
-        fixedtackonib += " + ";
+        // fixedtackonib += " + ";
         fixedtackonib += indcova(2);
         fixedtackonib += ":";
         fixedtackonib += indcovb(2);
@@ -385,18 +385,24 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
         fixedtackonib += indcova(2);
         fixedtackonib += ":";
         fixedtackonib += indcovb(1);
+        if (fixedcovcounter > 0) {
+          fixedtackonib += " + ";
+        }
       }
     }
   }
   if (suite == "full" && !iaasrand && !icasrand) {
     if (indcova(1) != "none" && indcovc(1) != "none") {
-      fixedtackonic += " + ";
+      //fixedtackonic += " + ";
       fixedtackonic += indcova(1);
       fixedtackonic += ":";
       fixedtackonic += indcovc(1);
+      if (fixedcovcounter > 0 || historical) {
+        fixedtackonic += " + ";
+      }
       
       if (historical) {
-        fixedtackonic += " + ";
+        //fixedtackonic += " + ";
         fixedtackonic += indcova(2);
         fixedtackonic += ":";
         fixedtackonic += indcovc(2);
@@ -410,18 +416,24 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
         fixedtackonic += indcova(2);
         fixedtackonic += ":";
         fixedtackonic += indcovc(1);
+        if (fixedcovcounter > 0) {
+          fixedtackonic += " + ";
+        }
       }
     }
   }
   if (suite == "full" && !ibasrand && !icasrand) {
     if (indcovb(1) != "none" && indcovc(1) != "none") {
-      fixedtackonic += " + ";
+      // fixedtackonic += " + ";
       fixedtackonic += indcovb(1);
       fixedtackonic += ":";
       fixedtackonic += indcovc(1);
+      if (fixedcovcounter > 0 || historical) {
+        fixedtackonic += " + ";
+      }
       
       if (historical) {
-        fixedtackonic += " + ";
+        //fixedtackonic += " + ";
         fixedtackonic += indcovb(2);
         fixedtackonic += ":";
         fixedtackonic += indcovc(2);
@@ -435,6 +447,9 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
         fixedtackonic += indcovb(2);
         fixedtackonic += ":";
         fixedtackonic += indcovc(1);
+        if (fixedcovcounter > 0) {
+          fixedtackonic += " + ";
+        }
       }
     }
   }
@@ -1358,4 +1373,5 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
   
   return output;
 }
+
 
