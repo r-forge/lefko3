@@ -928,17 +928,19 @@ logistic3 <- function(start_value, alpha, beta = 0.0, lambda = 1.0, time_steps =
 #' size from the main matrix estimator function.
 #' @param jsizecproxy The proxy vital rate model covering juvenile tertiary
 #' size from the main matrix estimator function.
-#' @param repstproxy The proxy vital rate model covering juvenile reproductive
+#' @param jrepstproxy The proxy vital rate model covering juvenile reproductive
 #' status from the main matrix estimator function.
+#' @param jmatstproxy The proxy vital rate model covering juvenile probability
+#' of becoming mature from the main matrix estimator function.
 #' @param mat_switch An integer coding for year (\code{1}) or patch (\code{2}).
 #' 
-#' @return A matrix with 13 columns corresponding to the number of vital rates
+#' @return A matrix with 14 columns corresponding to the number of vital rates
 #' and number of columns equal to the number of year or patches.
 #' 
 #' @keywords internal
 #' @noRd
-.revelations <- function(survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, mat_switch) {
-    .Call('_lefko3_revelations', PACKAGE = 'lefko3', survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, mat_switch)
+.revelations <- function(survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, jmatstproxy, mat_switch) {
+    .Call('_lefko3_revelations', PACKAGE = 'lefko3', survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, jmatstproxy, mat_switch)
 }
 
 #' Creates a Summation of Most Terms Needed in Vital Rate Calculation
@@ -1092,6 +1094,7 @@ logistic3 <- function(start_value, alpha, beta = 0.0, lambda = 1.0, time_steps =
 #' @param jsizeb_proxy Juvenile secondary size model proxy.
 #' @param jsizec_proxy Juvenile tertiary size model proxy.
 #' @param jrepst_proxy Juvenile reproductive status model proxy.
+#' @param jmatst_proxy Juvenile maturity status model proxy.
 #' 
 #' @return An integer matrix with 6 rows and 20 columns. The columns contain
 #' the number of elements in each random individual covariate term, with the
@@ -1100,8 +1103,8 @@ logistic3 <- function(start_value, alpha, beta = 0.0, lambda = 1.0, time_steps =
 #' 
 #' @keywords internal
 #' @noRd
-.foi_index <- function(surv_proxy, obs_proxy, size_proxy, sizeb_proxy, sizec_proxy, repst_proxy, fec_proxy, jsurv_proxy, jobs_proxy, jsize_proxy, jsizeb_proxy, jsizec_proxy, jrepst_proxy) {
-    .Call('_lefko3_foi_index', PACKAGE = 'lefko3', surv_proxy, obs_proxy, size_proxy, sizeb_proxy, sizec_proxy, repst_proxy, fec_proxy, jsurv_proxy, jobs_proxy, jsize_proxy, jsizeb_proxy, jsizec_proxy, jrepst_proxy)
+.foi_index <- function(surv_proxy, obs_proxy, size_proxy, sizeb_proxy, sizec_proxy, repst_proxy, fec_proxy, jsurv_proxy, jobs_proxy, jsize_proxy, jsizeb_proxy, jsizec_proxy, jrepst_proxy, jmatst_proxy) {
+    .Call('_lefko3_foi_index', PACKAGE = 'lefko3', surv_proxy, obs_proxy, size_proxy, sizeb_proxy, sizec_proxy, repst_proxy, fec_proxy, jsurv_proxy, jobs_proxy, jsize_proxy, jsizeb_proxy, jsizec_proxy, jrepst_proxy, jmatst_proxy)
 }
 
 #' Estimate Value for Vital Rate Based on Inputs
@@ -1162,7 +1165,7 @@ logistic3 <- function(start_value, alpha, beta = 0.0, lambda = 1.0, time_steps =
 #' Gamma (3), and binomial (4).
 #' @param vitalrate An integer specifying the vital rate. 1 = surv, 2 = obs,
 #' 3 = size, 4 = sizeb, 5 = sizec, 6 = repst, 7 = fec, 8 = jsurv, 9 = jobs,
-#' 10 = jsize, 11 = jsizeb, 12 = jsizec, 13 = jrepst
+#' 10 = jsize, 11 = jsizeb, 12 = jsizec, 13 = jrepst, 14 = jmatst.
 #' @param exp_tol A numeric value indicating the maximum limit for the
 #' \code{exp()} function to be used in vital rate calculations. Defaults to
 #' \code{700.0}.
@@ -1222,6 +1225,8 @@ logistic3 <- function(start_value, alpha, beta = 0.0, lambda = 1.0, time_steps =
 #' @param jsizeproxy List of coefficients estimated in model of juvenile size.
 #' @param jrepstproxy List of coefficients estimated in model of juvenile
 #' reproductive status.
+#' @param jmatstproxy List of coefficients estimated in model of juvenile
+#' maturity probability.
 #' @param f2_inda A numeric vector of length equal to the number of years,
 #' holding values equal to the mean value of individual covariate \code{a} at
 #' each time \emph{t} to be used in analysis.
@@ -1262,7 +1267,7 @@ logistic3 <- function(start_value, alpha, beta = 0.0, lambda = 1.0, time_steps =
 #' models input by the user. The order is: survival, observation status, size,
 #' size_b, size_c, reproductive status, fecundity, juvenile survival, juvenile
 #' observation status, juvenile size, juvenile size_b, juvenile size_c,
-#' and juvenile reproductive status.
+#' juvenile reproductive status, and juvenile maturity status.
 #' @param dens A numeric value equal to the density to be used in calculations.
 #' @param fecmod A scalar multiplier for fecundity.
 #' @param svsigmas A vector of sigma and summedvar terms from vital rate
@@ -1318,8 +1323,8 @@ logistic3 <- function(start_value, alpha, beta = 0.0, lambda = 1.0, time_steps =
 #' 
 #' @keywords internal
 #' @noRd
-.jerzeibalowski <- function(ppy, AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, svsigmas, maxsize, maxsizeb, maxsizec, finalage, sizedist, sizebdist, sizecdist, fecdist, negfec, exp_tol = 700.0, theta_tol = 100000000.0, ipm_method = "cdf") {
-    .Call('_lefko3_jerzeibalowski', PACKAGE = 'lefko3', ppy, AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, svsigmas, maxsize, maxsizeb, maxsizec, finalage, sizedist, sizebdist, sizecdist, fecdist, negfec, exp_tol, theta_tol, ipm_method)
+.jerzeibalowski <- function(ppy, AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, jmatstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, svsigmas, maxsize, maxsizeb, maxsizec, finalage, sizedist, sizebdist, sizecdist, fecdist, negfec, exp_tol = 700.0, theta_tol = 100000000.0, ipm_method = "cdf") {
+    .Call('_lefko3_jerzeibalowski', PACKAGE = 'lefko3', ppy, AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, jmatstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, svsigmas, maxsize, maxsizeb, maxsizec, finalage, sizedist, sizebdist, sizecdist, fecdist, negfec, exp_tol, theta_tol, ipm_method)
 }
 
 #' Create Historically Structured Version of ahMPM
@@ -1480,6 +1485,8 @@ logistic3 <- function(start_value, alpha, beta = 0.0, lambda = 1.0, time_steps =
 #' coding reproductive status.
 #' @param fec A vector of strings indicating the names of the variables coding
 #' fecundity.
+#' @param matstat A vector of strings indicating the names of the variables
+#' coding for maturity status.
 #' @param vitalrates A vector of strings indicating which vital rates will be
 #' estimated.
 #' @param historical A logical value indicating whether to create global models
@@ -1542,8 +1549,8 @@ logistic3 <- function(start_value, alpha, beta = 0.0, lambda = 1.0, time_steps =
 #'
 #' @keywords internal
 #' @noRd
-.stovokor <- function(surv, obs, size, sizeb, sizec, repst, fec, vitalrates, historical, suite, approach, nojuvs, age, indcova, indcovb, indcovc, indiv, patch, year, pasrand, yasrand, iaasrand, ibasrand, icasrand, fectime, juvsize, sizebused, sizecused, grouptest, densitycol, densityused, indcovaused, indcovbused, indcovcused) {
-    .Call('_lefko3_stovokor', PACKAGE = 'lefko3', surv, obs, size, sizeb, sizec, repst, fec, vitalrates, historical, suite, approach, nojuvs, age, indcova, indcovb, indcovc, indiv, patch, year, pasrand, yasrand, iaasrand, ibasrand, icasrand, fectime, juvsize, sizebused, sizecused, grouptest, densitycol, densityused, indcovaused, indcovbused, indcovcused)
+.stovokor <- function(surv, obs, size, sizeb, sizec, repst, fec, matstat, vitalrates, historical, suite, approach, nojuvs, age, indcova, indcovb, indcovc, indiv, patch, year, pasrand, yasrand, iaasrand, ibasrand, icasrand, fectime, juvsize, sizebused, sizecused, grouptest, densitycol, densityused, indcovaused, indcovbused, indcovcused) {
+    .Call('_lefko3_stovokor', PACKAGE = 'lefko3', surv, obs, size, sizeb, sizec, repst, fec, matstat, vitalrates, historical, suite, approach, nojuvs, age, indcova, indcovb, indcovc, indiv, patch, year, pasrand, yasrand, iaasrand, ibasrand, icasrand, fectime, juvsize, sizebused, sizecused, grouptest, densitycol, densityused, indcovaused, indcovbused, indcovcused)
 }
 
 #' Append NumericVector to the End of Another NumericVector

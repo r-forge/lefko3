@@ -29,6 +29,12 @@
 #' \code{1}, or \code{1}, respectively.}
 #' \item{matrixqc}{A short vector describing the number of non-zero elements in
 #' \code{U} and \code{F} mean matrices, and the number of annual matrices.}
+#' \item{modelqc}{This is the \code{qc} portion of the \code{modelsuite} input.
+#' Only output from \code{lefkoMat} objects resulting from function-based
+#' estimation.}
+#' \item{dataqc}{A vector showing the numbers of individuals and rows in the
+#' vertical dataset used as input. Only output from \code{lefkoMat} objects
+#' resulting from raw matrix estimation.}
 #' 
 #' @examples
 #' # Lathyrus example
@@ -194,6 +200,13 @@ lmean <- function(mats, matsout = "all") {
     output <- .geodiesel(listofyears, mats$U, mats$F, agestages, mats$ahstages,
       patchonly, poponly)
     output$hstages <- NA
+  }
+  
+  if (is.element("dataqc", names(mats))) {
+    output$dataqc <- mats$dataqc
+  }
+  if (is.element("modelqc", names(mats))) {
+    output$dataqc <- mats$modelqc
   }
   
   class(output) <- "lefkoMat"
@@ -3762,7 +3775,7 @@ ltre3.lefkoMat <- function(mats, refmats = NA, ref = NA, stochastic = FALSE,
 #' and, if applicable, historical transition.
 #'
 #' @param object A \code{lefkoElas} object.
-#' @param ... Other parameters.
+#' @param ... Other parameters currently not utilized.
 #' 
 #' @return A list composed of 2 data frames. The first, \code{hist}, is a data
 #' frame showing the summed elasticities for all 16 kinds of historical
@@ -3896,7 +3909,7 @@ summary.lefkoElas <- function(object, ...) {
 #' and, if applicable, historical transition.
 #'
 #' @param object A \code{lefkoLTRE} object.
-#' @param ... Other parameters.
+#' @param ... Other parameters currently not utilized.
 #' 
 #' @return A list composed of 2 (if deterministic) or 4 (if stochastic) data
 #' frames. If deterministic, then \code{hist_det} is a data
@@ -4102,7 +4115,7 @@ summary.lefkoLTRE <- function(object, ...) {
 #' each projection, or decimals between 0 and 1, which would then be translated
 #' into the corresponding projection steps of the total. Defaults to
 #' \code{c(0, 0.25, 0.50, 0.75, 1.00)}.
-#' @param ... Other parameters.
+#' @param ... Other parameters currently not utilized.
 #' 
 #' @return Apart from a statement of the results, we have the following item in
 #' the output:

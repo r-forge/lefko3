@@ -249,10 +249,11 @@ overwrite <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
 #' are to be used, \code{nrep} if all mature but non-reproductive stages are to
 #' be used, \code{mat} if all mature stages are to be used, \code{immat} if all
 #' immature stages are to be used, \code{prop} if all propagule stages are to be
-#' used, \code{npr} if all non-propagule stages are to be used, and leave empty
-#' or use \code{all} if all stages in stageframe are to be used. Also use
-#' \code{groupX} to denote all stages in group X (e.g. \code{group1} will use
-#' all stages in the respective stageframe's group 1).
+#' used, \code{npr} if all non-propagule stages are to be used, \code{obs} if
+#' all observable stages are to be used, \code{nobs} if all unobservable stages
+#' are to be used, and leave empty or use \code{all} if all stages in stageframe
+#' are to be used. Also use \code{groupX} to denote all stages in group X (e.g.
+#' \code{group1} will use all stages in the respective stageframe's group 1).
 #' 
 #' @examples
 #' # Lathyrus example
@@ -447,7 +448,7 @@ supplemental <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
     })
     
     wildcard_list <- c("all", "rep", "nrep", "mat", "immat", "prop", "npr",
-      "notalive", group_labels)
+      "notalive", "obs", "nobs", group_labels)
     unaccountedfor <- extrastuff[which(!is.element(extrastuff, wildcard_list))]
     
     if (!all(is.element(extrastuff, wildcard_list))) {
@@ -680,8 +681,8 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
         stop("Name of obs3 variable does not match any variable in dataset.",
           call. = FALSE)
       } else if (length(obs3proxy) > 1) {
-        stop("Obs3 variable name appears to match several variable names in
-          dataset.", call. = FALSE)
+        stop("Variable obs3 appears to match several variable names in dataset.",
+          call. = FALSE)
       }
       
       sdata <- sdata[which(sdata[,obs3proxy] == 1),]
@@ -837,11 +838,11 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
       writeLines(paste0("and an alternative hypothesis of overdispersion, is ", signif(jvodchip, digits = 4)))
       
       if (jvodchip <= 0.05 & jvvar > jvmean) {
-        writeLines(paste0("\n", full_inenglish[term_used]," is significantly overdispersed."))
+        writeLines(paste0("\n", full_inenglish[term_used]," is significantly overdispersed.\n"))
       } else if (jvodchip <= 0.05 & jvvar < jvmean) {
-        writeLines(paste0("\n", full_inenglish[term_used]," is significantly underdispersed."))
+        writeLines(paste0("\n", full_inenglish[term_used]," is significantly underdispersed.\n"))
       } else {
-        writeLines(paste0("\nDispersion level in ", full_inenglish_small[term_used]," matches expectation."))
+        writeLines(paste0("\nDispersion level in ", full_inenglish_small[term_used]," matches expectation.\n"))
       }
     }
     
@@ -869,7 +870,7 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
         if (jvzichip <= 0.05 & v0n0 > v0exp) {
           writeLines(paste0("\n", full_inenglish[term_used]," is significantly zero-inflated.\n"))
         } else {
-          writeLines(paste0("\n", full_inenglish[term_used]," is not significantly zero-inflated."))
+          writeLines(paste0("\n", full_inenglish[term_used]," is not significantly zero-inflated.\n"))
           
           if (v0n0 == 0) {
             writeLines(paste0(full_inenglish[term_used]," does not appear to include 0s, suggesting
@@ -982,8 +983,10 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
 #' are to be used, \code{nrep} if all mature but non-reproductive stages are to
 #' be used, \code{mat} if all mature stages are to be used, \code{immat} if all
 #' immature stages are to be used, \code{prop} if all propagule stages are to be
-#' used, \code{npr} if all non-propagule stages are to be used, and leave empty
-#' or use \code{all} if all stages in stageframe are to be used.
+#' used, \code{npr} if all non-propagule stages are to be used, \code{obs} if
+#' all observable stages are to be used, \code{nobs} if all unobservable stages
+#' are to be used, and leave empty or use \code{all} if all stages in stageframe
+#' are to be used.
 #' 
 #' When using the logistic function, it is possible that the time delay used in
 #' density dependent simulations will cause matrix elements to become negative.
@@ -1264,10 +1267,10 @@ density_input <- function(mpm, stage3, stage2, stage1 = NA, age2 = NA,
     extrastuff <- tolower(all.stages.inp[which(mismatches)])
     
     unaccountedfor <- extrastuff[which(!is.element(extrastuff, 
-          c("all", "rep", "nrep", "mat", "immat", "prop", "npr", "notalive")))]
+          c("all", "rep", "nrep", "mat", "immat", "prop", "npr", "obs", "nobs", "notalive")))]
     
     if (!all(is.element(extrastuff, c("all", "rep", "nrep", "mat", "immat",
-          "prop", "npr", "notalive")))) {
+          "prop", "npr", "obs", "nobs", "notalive")))) {
       stop(paste("The following stage names input in supplemental() do not match
           the stageframe:", paste(unaccountedfor, collapse = ' ')),
         call. = FALSE)
@@ -1430,6 +1433,26 @@ density_input <- function(mpm, stage3, stage2, stage1 = NA, age2 = NA,
           
           return(shrubbery.small)
           
+        } else if (shrubbery[X, "stage1"] == "obs") {
+          shrubbery.small <- cbind.data.frame(stage3 = shrubbery[X, "stage3"], 
+            stage2 = shrubbery[X, "stage2"], stage1 = stageframe$stage[which(stageframe$obsstatus == 1)], 
+            age2 = shrubbery[X, "age2"], style = shrubbery[X, "style"],
+            alpha = shrubbery[X, "alpha"], beta = shrubbery[X, "beta"],
+            time_delay = shrubbery[X, "time_delay"], type = shrubbery[X, "type"],
+            type_t12 = shrubbery[X, "type_t12"], stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage1"] == "nobs") {
+          shrubbery.small <- cbind.data.frame(stage3 = shrubbery[X, "stage3"], 
+            stage2 = shrubbery[X, "stage2"], stage1 = stageframe$stage[which(stageframe$obsstatus == 0)], 
+            age2 = shrubbery[X, "age2"], style = shrubbery[X, "style"],
+            alpha = shrubbery[X, "alpha"], beta = shrubbery[X, "beta"],
+            time_delay = shrubbery[X, "time_delay"], type = shrubbery[X, "type"],
+            type_t12 = shrubbery[X, "type_t12"], stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
         } else if (shrubbery[X, "stage1"] == "all") {
           shrubbery.small <- cbind.data.frame(stage3 = shrubbery[X, "stage3"], 
             stage2 = shrubbery[X, "stage2"], stage1 = stageframe$stage, 
@@ -1529,6 +1552,28 @@ density_input <- function(mpm, stage3, stage2, stage1 = NA, age2 = NA,
           
           return(shrubbery.small)
           
+        } else if (shrubbery[X, "stage2"] == "obs") {
+          shrubbery.small <- cbind.data.frame(stage3 = shrubbery[X, "stage3"], 
+            stage2 = stageframe$stage[which(stageframe$obsstatus == 1)],
+            stage1 = shrubbery[X, "stage1"], age2 = shrubbery[X, "age2"],
+            style = shrubbery[X, "style"], alpha = shrubbery[X, "alpha"],
+            beta = shrubbery[X, "beta"], time_delay = shrubbery[X, "time_delay"],
+            type = shrubbery[X, "type"], type_t12 = shrubbery[X, "type_t12"],
+            stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage2"] == "nobs") {
+          shrubbery.small <- cbind.data.frame(stage3 = shrubbery[X, "stage3"], 
+            stage2 = stageframe$stage[which(stageframe$obsstatus == 0)],
+            stage1 = shrubbery[X, "stage1"], age2 = shrubbery[X, "age2"],
+            style = shrubbery[X, "style"], alpha = shrubbery[X, "alpha"],
+            beta = shrubbery[X, "beta"], time_delay = shrubbery[X, "time_delay"],
+            type = shrubbery[X, "type"], type_t12 = shrubbery[X, "type_t12"],
+            stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
         } else if (shrubbery[X, "stage2"] == "all") {
           shrubbery.small <- cbind.data.frame(stage3 = shrubbery[X, "stage3"], 
             stage2 = stageframe$stage, stage1 = shrubbery[X, "stage1"], 
@@ -1614,6 +1659,26 @@ density_input <- function(mpm, stage3, stage2, stage1 = NA, age2 = NA,
           
         } else if (shrubbery[X, "stage3"] == "npr") {
           shrubbery.small <- cbind.data.frame(stage3 = stageframe$stage[which(stageframe$propstatus == 0)], 
+            stage2 = shrubbery[X, "stage2"], stage1 = shrubbery[X, "stage1"], 
+            age2 = shrubbery[X, "age2"], style = shrubbery[X, "style"],
+            alpha = shrubbery[X, "alpha"], beta = shrubbery[X, "beta"],
+            time_delay = shrubbery[X, "time_delay"], type = shrubbery[X, "type"],
+            type_t12 = shrubbery[X, "type_t12"], stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage3"] == "obs") {
+          shrubbery.small <- cbind.data.frame(stage3 = stageframe$stage[which(stageframe$obsstatus == 1)], 
+            stage2 = shrubbery[X, "stage2"], stage1 = shrubbery[X, "stage1"], 
+            age2 = shrubbery[X, "age2"], style = shrubbery[X, "style"],
+            alpha = shrubbery[X, "alpha"], beta = shrubbery[X, "beta"],
+            time_delay = shrubbery[X, "time_delay"], type = shrubbery[X, "type"],
+            type_t12 = shrubbery[X, "type_t12"], stringsAsFactors = FALSE)
+          
+          return(shrubbery.small)
+          
+        } else if (shrubbery[X, "stage3"] == "nobs") {
+          shrubbery.small <- cbind.data.frame(stage3 = stageframe$stage[which(stageframe$obsstatus == 0)], 
             stage2 = shrubbery[X, "stage2"], stage1 = shrubbery[X, "stage1"], 
             age2 = shrubbery[X, "age2"], style = shrubbery[X, "style"],
             alpha = shrubbery[X, "alpha"], beta = shrubbery[X, "beta"],
@@ -1725,8 +1790,10 @@ density_input <- function(mpm, stage3, stage2, stage1 = NA, age2 = NA,
 #' \code{nrep} if all mature but non-reproductive stages are to be used,
 #' \code{mat} if all mature stages are to be used, \code{immat} if all immature
 #' stages are to be used, \code{prop} if all propagule stages are to be used,
-#' \code{npr} if all non-propagule stages are to be used, and leave empty or use
-#' \code{all} if all stages in stageframe are to be used.
+#' \code{npr} if all non-propagule stages are to be used, \code{obs} if all
+#' observable stages are to be used, \code{nobs} if all unobservable stages are
+#' to be used, and leave empty or use \code{all} if all stages in stageframe are
+#' to be used.
 #' 
 #' @seealso \code{\link{density_input}()}
 #' @seealso \code{\link{projection3}()}
@@ -1831,7 +1898,7 @@ start_input <- function(mpm, stage2, stage1 = NA, age2 = NA, value = 1) {
   if (all(is.character(stage2))) {
     
     unknown_stage2 <- which(!is.element(tolower(stage2), c(tolower(mpm$ahstages$stage),
-        c("all", "rep", "nrep", "mat", "immat", "prop", "npr"))))
+        c("all", "rep", "nrep", "mat", "immat", "prop", "npr", "obs", "nobs"))))
     if (length(unknown_stage2) > 0) {
       stop(paste0("Unknown stage designations used in stage2: ",
         stage2[unknown_stage2]), call. = FALSE)
@@ -1892,6 +1959,18 @@ start_input <- function(mpm, stage2, stage1 = NA, age2 = NA, value = 1) {
             stringsAsFactors = FALSE)
             
           return(shrubbery.small)
+        } else if (tolower(stage2[X]) == "obs") {
+          shrubbery.small <- cbind.data.frame(stage2 = mpm$ahstages$stage[which(mpm$ahstages$obsstatus == 1)],
+            stage1 = stage1[X], age2 = age2[X], value = value[X],
+            stringsAsFactors = FALSE)
+            
+          return(shrubbery.small)
+        } else if (tolower(stage2[X]) == "nobs") {
+          shrubbery.small <- cbind.data.frame(stage2 = mpm$ahstages$stage[which(mpm$ahstages$obsstatus == 0)],
+            stage1 = stage1[X], age2 = age2[X], value = value[X],
+            stringsAsFactors = FALSE)
+            
+          return(shrubbery.small)
         }
       }
     })
@@ -1918,7 +1997,7 @@ start_input <- function(mpm, stage2, stage1 = NA, age2 = NA, value = 1) {
     if (all(is.character(shrubbery$stage1)) & !all(is.na(shrubbery$stage1))) {
       
       unknown_stage1 <- which(!is.element(tolower(stage1), c(tolower(mpm$ahstages$stage),
-          c("all", "rep", "nrep", "mat", "immat", "prop", "npr", "almostborn"))))
+          c("all", "rep", "nrep", "mat", "immat", "prop", "npr", "obs", "nobs", "almostborn"))))
       if (length(unknown_stage1) > 0) {
       stop(paste0("Unknown stage designations used in stage1: ",
         stage1[unknown_stage1]), call. = FALSE)
@@ -1981,6 +2060,20 @@ start_input <- function(mpm, stage2, stage1 = NA, age2 = NA, value = 1) {
           } else if (tolower(shrubbery$stage1[X]) == "npr") {
             shrubbery.small <- cbind.data.frame(stage2 = shrubbery$stage2[X],
               stage1 = mpm$ahstages$stage[which(mpm$ahstages$propstatus == 0)],
+              age2 = shrubbery$age2[X], value = shrubbery$value[X],
+              stringsAsFactors = FALSE)
+              
+            return(shrubbery.small)
+          } else if (tolower(shrubbery$stage1[X]) == "obs") {
+            shrubbery.small <- cbind.data.frame(stage2 = shrubbery$stage2[X],
+              stage1 = mpm$ahstages$stage[which(mpm$ahstages$obsstatus == 1)],
+              age2 = shrubbery$age2[X], value = shrubbery$value[X],
+              stringsAsFactors = FALSE)
+              
+            return(shrubbery.small)
+          } else if (tolower(shrubbery$stage1[X]) == "nobs") {
+            shrubbery.small <- cbind.data.frame(stage2 = shrubbery$stage2[X],
+              stage1 = mpm$ahstages$stage[which(mpm$ahstages$obsstatus == 0)],
               age2 = shrubbery$age2[X], value = shrubbery$value[X],
               stringsAsFactors = FALSE)
               

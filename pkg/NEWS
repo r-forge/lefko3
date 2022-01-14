@@ -10,8 +10,8 @@ CHANGES IN VERSION 4.2.0 (2022-01-XX)
        using functions density_input() and projection3().
     3. Accuracy check added to size and fecundity models in modelsearch().
     4. Function modelsearch() new runs exhaustive model selection under the
-       `suite = "cons"` setting if age, density, or any individual covariate
-       is added to the analysis.
+       `suite = "cons"` setting if age, density, or any individual covariate is
+       added to the analysis.
     5. Function modelsearch() now performs accuracy checks by default, and
        allows an opt-out.
     6. Function actualstage3() now removes stages if wished, including stage
@@ -27,6 +27,11 @@ CHANGES IN VERSION 4.2.0 (2022-01-XX)
         force fecundity to stay non-negative.
     11. Function projection3() now issues warnings if density dependence yields
         matrix impossible matrix values.
+    12. Function modelsearch() now also estimates maturity status probability in
+        juveniles.
+    13. Functions supplemental(), density_input(), and start_input() now also
+        include automated handling of keywords "obs" and "nobs", which specify
+        the use of all observable or unobservable stages, respectively.
 
   USER-VISIBLE CHANGES
     1. Functions rlefko2() and rlefko3() now provide warnings if individual
@@ -42,6 +47,11 @@ CHANGES IN VERSION 4.2.0 (2022-01-XX)
     7. Function summary.lefkoMat() now yields warnings if any fecundity matrix
        contains a negative value, and if any matrix contains an NA value.
     8. Added equations in key help files.
+    9. Corrections and updates to all vignettes.
+    10. Function modelsearch() now tries several more parameterizations if the
+        global model fails.
+    11. Function lmean() now also incorporates modelqc and dataqc elements for
+        quality control purposes.
 
   BUG FIXES
     1. Matrix quality control summaries corrected when functions add_lM(),
@@ -68,6 +78,13 @@ CHANGES IN VERSION 4.2.0 (2022-01-XX)
     12. Added tolerance limit to binomial probability estimation in all
         function-based matrix estimators, to prevent some conditions yielding
         NA probabilities.
+    13. Eliminated bug causing rare error in formulae creation in modelsearch().
+    14. Eliminated bug causing unrealistic pseudo-R^2 in rare runs of
+        modelsearch().
+    15. Eliminated fatal error in modelsearch() occurring under rare instances
+        when all attempts to build a working global model fail.
+    16. Fixed bug incorrectly importing non-standard variable names into
+        modelsearch().
 
 
 CHANGES IN VERSION 4.1.1 (2021-12-07)

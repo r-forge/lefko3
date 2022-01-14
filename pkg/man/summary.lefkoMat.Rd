@@ -29,8 +29,20 @@ include NA values.
 A function to simplify the viewing of basic information describing the
 matrices produced through functions \code{\link{flefko3}()},
 \code{\link{flefko2}()}, \code{\link{rlefko3}()}, \code{\link{rlefko2}()},
-and \code{\link{aflefko2}()}.
+\code{\link{aflefko2}()}, \code{\link{rleslie}()}, and
+\code{\link{fleslie}()}.
 }
+\section{Notes}{
+
+Under the Gaussian and gamma size distributions, the number of estimated
+parameters may differ between the two \code{ipm_method} settings. Because
+the midpoint method has a tendency to incorporate upward bias in the
+estimation of size transition probabilities, it is more likely to yield non-
+zero values when the true probability is extremely close to 0. This will
+result in the \code{summary.lefkoMat} function yielding higher numbers of
+estimated parameters than the \code{ipm_method = "CDF"} yields in some cases.
+}
+
 \examples{
 data(cypdata)
 

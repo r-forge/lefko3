@@ -128,8 +128,10 @@ abbreviations for groups of stages. Use \code{rep} if all reproductive stages
 are to be used, \code{nrep} if all mature but non-reproductive stages are to
 be used, \code{mat} if all mature stages are to be used, \code{immat} if all
 immature stages are to be used, \code{prop} if all propagule stages are to be
-used, \code{npr} if all non-propagule stages are to be used, and leave empty
-or use \code{all} if all stages in stageframe are to be used.
+used, \code{npr} if all non-propagule stages are to be used, \code{obs} if
+all observable stages are to be used, \code{nobs} if all unobservable stages
+are to be used, and leave empty or use \code{all} if all stages in stageframe
+are to be used.
 
 When using the logistic function, it is possible that the time delay used in
 density dependent simulations will cause matrix elements to become negative.

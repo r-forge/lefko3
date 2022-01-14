@@ -26,6 +26,7 @@ flefko2(
   jsizeb_model = NA,
   jsizec_model = NA,
   jrepst_model = NA,
+  jmatst_model = NA,
   paramnames = NA,
   inda = NULL,
   indb = NULL,
@@ -43,6 +44,7 @@ flefko2(
   jsizeb_dev = 0,
   jsizec_dev = 0,
   jrepst_dev = 0,
+  jmatst_dev = 0,
   density = NA,
   repmod = 1,
   yearcol = NA,
@@ -110,9 +112,9 @@ models. If given, then \code{surv_model}, \code{obs_model},
 \code{size_model}, \code{sizeb_model}, \code{sizec_model},
 \code{repst_model}, \code{fec_model}, \code{jsurv_model}, \code{jobs_model},
 \code{jsize_model}, \code{jsizeb_model}, \code{jsizec_model},
-\code{jrepst_model}, \code{paramnames}, \code{yearcol}, and \code{patchcol}
-are not required. No models should include size or reproductive status in
-occasion \emph{t}-1.}
+\code{jrepst_model}, \code{jmatst_model}, \code{paramnames}, \code{yearcol},
+and \code{patchcol} are not required. No models should include size or
+reproductive status in occasion \emph{t}-1.}
 
 \item{surv_model}{A linear model predicting survival probability. This can
 be a model of class \code{glm} or \code{glmer}, and requires a predicted
@@ -199,12 +201,19 @@ model must have been developed in a modeling exercise testing only the
 impacts of occasion \emph{t}.}
 
 \item{jrepst_model}{A linear model predicting reproduction probability of a 
-mature individual that was immature in the previous year. This can be a model 
+mature individual that was immature in time \emph{t}. This can be a model
 of class \code{glm} or \code{glmer}, and requires a predicted binomial
 variable under a logit link. If given, then will overwrite any reproduction
 probability model given in \code{modelsuite}. This model must have been
 developed in a modeling exercise testing only the impacts of occasion
 \emph{t}.}
+
+\item{jmatst_model}{A linear model predicting maturity probability of an 
+individual that was immature in time \emph{t}. This can be a model of class
+\code{glm} or \code{glmer}, and requires a predicted binomial variable under
+a logit link. If given, then will overwrite any maturity probability model
+given in \code{modelsuite}. This model must have been developed in a modeling
+exercise testing only the impacts of occasion \emph{t}.}
 
 \item{paramnames}{A dataframe with three columns, the first describing all
 terms used in linear modeling, the second (must be called \code{mainparams}),
@@ -267,6 +276,9 @@ linear model for juvenile tertiary size.}
 
 \item{jrepst_dev}{A numeric value to be added to the y-intercept in the
 linear model for juvenile reproduction probability.}
+
+\item{jmatst_dev}{A numeric value to be added to the y-intercept in the
+linear model for juvenile maturity probability.}
 
 \item{density}{A numeric value indicating density value to use to propagate
 matrices. Only needed if density is an explanatory term used in linear
@@ -431,6 +443,14 @@ size class minus the cumulative probability of size transition at the lower
 limit of the size class. The latter method avoids this bias. Note, however,
 that both methods are exact and unbiased for negative binomial and Poisson
 distributions.
+
+Under the Gaussian and gamma size distributions, the number of estimated
+parameters may differ between the two \code{ipm_method} settings. Because
+the midpoint method has a tendency to incorporate upward bias in the
+estimation of size transition probabilities, it is more likely to yield non-
+zero values when the true probability is extremely close to 0. This will
+result in the \code{summary.lefkoMat} function yielding higher numbers of
+estimated parameters than the \code{ipm_method = "CDF"} yields in some cases.
 
 Using the \code{err_check} option will produce a matrix of 6 columns, each
 characterizing a different vital rate. The product of each row yields an

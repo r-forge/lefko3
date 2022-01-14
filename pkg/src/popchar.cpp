@@ -2579,7 +2579,7 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
   
   if (over_provided || supp_provided) {
     StringVector unique_stages = unique(newstagevec);
-    StringVector extra_terms = {"rep", "nrep", "immat", "mat", "prop", "npr", "all"};
+    StringVector extra_terms = {"rep", "nrep", "immat", "mat", "prop", "npr", "all", "obs", "nobs"};
     
     int no_newstages = unique_stages.length();
     int no_extraterms = extra_terms.length();
@@ -2688,6 +2688,8 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
     arma::uvec newrep_stages = find(newrepvec);
     arma::uvec newrep0_stages = find(newrepvec == 0);
     arma::uvec newmat_rep0_stages = intersect(newmat_stages, newrep0_stages);
+    arma::uvec newobs_stages = find(newobsvec);
+    arma::uvec newobs0_stages = find(newobsvec == 0);
     arma::uvec all_stages = find(newalive); // 7 "all"
     int no_current_group {0};
     
@@ -2705,6 +2707,10 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
         s3_calls(i) = newrep_stages.n_elem;
       } else if (stage3_supp(i) == "nrep") {
         s3_calls(i) = newmat_rep0_stages.n_elem;
+      } else if (stage3_supp(i) == "obs") {
+        s3_calls(i) = newobs_stages.n_elem;
+      } else if (stage3_supp(i) == "nobs") {
+        s3_calls(i) = newobs0_stages.n_elem;
       } else if (stage3_supp(i) == "all") {
         s3_calls(i) = all_stages.n_elem;
       } else {
@@ -2731,6 +2737,10 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
         ests3_calls(i) = newrep_stages.n_elem;
       } else if (eststage3_supp(i) == "nrep") {
         ests3_calls(i) = newmat_rep0_stages.n_elem;
+      } else if (eststage3_supp(i) == "obs") {
+        ests3_calls(i) = newobs_stages.n_elem;
+      } else if (eststage3_supp(i) == "nobs") {
+        ests3_calls(i) = newobs0_stages.n_elem;
       } else if (eststage3_supp(i) == "all") {
         ests3_calls(i) = all_stages.n_elem;
       } else {
@@ -2757,6 +2767,10 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
         s2_calls(i) = newrep_stages.n_elem;
       } else if (stage2_supp(i) == "nrep") {
         s2_calls(i) = newmat_rep0_stages.n_elem;
+      } else if (stage2_supp(i) == "obs") {
+        s2_calls(i) = newobs_stages.n_elem;
+      } else if (stage2_supp(i) == "nobs") {
+        s2_calls(i) = newobs0_stages.n_elem;
       } else if (stage2_supp(i) == "all") {
         s2_calls(i) = all_stages.n_elem;
       } else {
@@ -2783,6 +2797,10 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
         ests2_calls(i) = newrep_stages.n_elem;
       } else if (eststage2_supp(i) == "nrep") {
         ests2_calls(i) = newmat_rep0_stages.n_elem;
+      } else if (eststage2_supp(i) == "obs") {
+        ests2_calls(i) = newobs_stages.n_elem;
+      } else if (eststage2_supp(i) == "nobs") {
+        ests2_calls(i) = newobs0_stages.n_elem;
       } else if (eststage2_supp(i) == "all") {
         ests2_calls(i) = all_stages.n_elem;
       } else {
@@ -2809,6 +2827,10 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
         s1_calls(i) = newrep_stages.n_elem;
       } else if (stage1_supp(i) == "nrep") {
         s1_calls(i) = newmat_rep0_stages.n_elem;
+      } else if (stage1_supp(i) == "obs") {
+        s1_calls(i) = newobs_stages.n_elem;
+      } else if (stage1_supp(i) == "nobs") {
+        s1_calls(i) = newobs0_stages.n_elem;
       } else if (stage1_supp(i) == "all") {
         s1_calls(i) = all_stages.n_elem;
       } else if (StringVector::is_na(stage1_supp(i))) {
@@ -2837,6 +2859,10 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
         ests1_calls(i) = newrep_stages.n_elem;
       } else if (eststage1_supp(i) == "nrep") {
         ests1_calls(i) = newmat_rep0_stages.n_elem;
+      } else if (eststage1_supp(i) == "obs") {
+        ests1_calls(i) = newobs_stages.n_elem;
+      } else if (eststage1_supp(i) == "nobs") {
+        ests1_calls(i) = newobs0_stages.n_elem;
       } else if (eststage1_supp(i) == "all") {
         ests1_calls(i) = all_stages.n_elem;
       } else if (StringVector::is_na(eststage1_supp(i))) {
@@ -2959,6 +2985,10 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
               stage3_newsupp(basepoints(i) + overall_counter) = newstagevec(newrep_stages(l));
             } else if (stage3_supp(i) == "nrep") {
               stage3_newsupp(basepoints(i) + overall_counter) = newstagevec(newmat_rep0_stages(l));
+            } else if (stage3_supp(i) == "obs") {
+              stage3_newsupp(basepoints(i) + overall_counter) = newstagevec(newobs_stages(l));
+            } else if (stage3_supp(i) == "nobs") {
+              stage3_newsupp(basepoints(i) + overall_counter) = newstagevec(newobs0_stages(l));
             } else if (stage3_supp(i) == "all") {
               stage3_newsupp(basepoints(i) + overall_counter) = newstagevec(all_stages(l));
             } else {
@@ -3008,6 +3038,10 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
               eststage3_newsupp(basepoints(i) + overall_counter) = newstagevec(newrep_stages(l));
             } else if (eststage3_supp(i) == "nrep") {
               eststage3_newsupp(basepoints(i) + overall_counter) = newstagevec(newmat_rep0_stages(l));
+            } else if (eststage3_supp(i) == "obs") {
+              eststage3_newsupp(basepoints(i) + overall_counter) = newstagevec(newobs_stages(l));
+            } else if (eststage3_supp(i) == "nobs") {
+              eststage3_newsupp(basepoints(i) + overall_counter) = newstagevec(newobs0_stages(l));
             } else if (eststage3_supp(i) == "all") {
               eststage3_newsupp(basepoints(i) + overall_counter) = newstagevec(all_stages(l));
             } else {
@@ -3053,6 +3087,10 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
               stage2_newsupp(basepoints(i) + overall_counter) = newstagevec(newrep_stages(k));
             } else if (stage2_supp(i) == "nrep") {
               stage2_newsupp(basepoints(i) + overall_counter) = newstagevec(newmat_rep0_stages(k));
+            } else if (stage2_supp(i) == "obs") {
+              stage2_newsupp(basepoints(i) + overall_counter) = newstagevec(newobs_stages(k));
+            } else if (stage2_supp(i) == "nobs") {
+              stage2_newsupp(basepoints(i) + overall_counter) = newstagevec(newobs0_stages(k));
             } else if (stage2_supp(i) == "all") {
               stage2_newsupp(basepoints(i) + overall_counter) = newstagevec(all_stages(k));
             } else {
@@ -3098,6 +3136,10 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
               eststage2_newsupp(basepoints(i) + overall_counter) = newstagevec(newrep_stages(k));
             } else if (eststage2_supp(i) == "nrep") {
               eststage2_newsupp(basepoints(i) + overall_counter) = newstagevec(newmat_rep0_stages(k));
+            } else if (eststage2_supp(i) == "obs") {
+              eststage2_newsupp(basepoints(i) + overall_counter) = newstagevec(newobs_stages(k));
+            } else if (eststage2_supp(i) == "nobs") {
+              eststage2_newsupp(basepoints(i) + overall_counter) = newstagevec(newobs0_stages(k));
             } else if (eststage2_supp(i) == "all") {
               eststage2_newsupp(basepoints(i) + overall_counter) = newstagevec(all_stages(k));
             } else {
@@ -3143,6 +3185,10 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
               stage1_newsupp(basepoints(i) + overall_counter) = newstagevec(newrep_stages(j));
             } else if (stage1_supp(i) == "nrep") {
               stage1_newsupp(basepoints(i) + overall_counter) = newstagevec(newmat_rep0_stages(j));
+            } else if (stage1_supp(i) == "obs") {
+              stage1_newsupp(basepoints(i) + overall_counter) = newstagevec(newobs_stages(j));
+            } else if (stage1_supp(i) == "nobs") {
+              stage1_newsupp(basepoints(i) + overall_counter) = newstagevec(newobs0_stages(j));
             } else if (stage1_supp(i) == "all") {
               stage1_newsupp(basepoints(i) + overall_counter) = newstagevec(all_stages(j));
             } else {
@@ -3188,6 +3234,10 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
               eststage1_newsupp(basepoints(i) + overall_counter) = newstagevec(newrep_stages(j));
             } else if (eststage1_supp(i) == "nrep") {
               eststage1_newsupp(basepoints(i) + overall_counter) = newstagevec(newmat_rep0_stages(j));
+            } else if (eststage1_supp(i) == "obs") {
+              eststage1_newsupp(basepoints(i) + overall_counter) = newstagevec(newobs_stages(j));
+            } else if (eststage1_supp(i) == "nobs") {
+              eststage1_newsupp(basepoints(i) + overall_counter) = newstagevec(newobs0_stages(j));
             } else if (eststage1_supp(i) == "all") {
               eststage1_newsupp(basepoints(i) + overall_counter) = newstagevec(all_stages(j));
             } else {

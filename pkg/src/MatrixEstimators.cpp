@@ -560,11 +560,13 @@ Rcpp::List minorpatrolgroup(DataFrame MainData, DataFrame StageFrame,
 //' size from the main matrix estimator function.
 //' @param jsizecproxy The proxy vital rate model covering juvenile tertiary
 //' size from the main matrix estimator function.
-//' @param repstproxy The proxy vital rate model covering juvenile reproductive
+//' @param jrepstproxy The proxy vital rate model covering juvenile reproductive
 //' status from the main matrix estimator function.
+//' @param jmatstproxy The proxy vital rate model covering juvenile probability
+//' of becoming mature from the main matrix estimator function.
 //' @param mat_switch An integer coding for year (\code{1}) or patch (\code{2}).
 //' 
-//' @return A matrix with 13 columns corresponding to the number of vital rates
+//' @return A matrix with 14 columns corresponding to the number of vital rates
 //' and number of columns equal to the number of year or patches.
 //' 
 //' @keywords internal
@@ -573,7 +575,7 @@ Rcpp::List minorpatrolgroup(DataFrame MainData, DataFrame StageFrame,
 NumericMatrix revelations(List survproxy, List obsproxy, List sizeproxy,
   List sizebproxy, List sizecproxy, List repstproxy, List fecproxy,
   List jsurvproxy, List jobsproxy, List jsizeproxy, List jsizebproxy,
-  List jsizecproxy, List jrepstproxy, int mat_switch) {
+  List jsizecproxy, List jrepstproxy,List jmatstproxy, int mat_switch) {
   
   NumericMatrix final_mat;
   
@@ -591,6 +593,7 @@ NumericMatrix revelations(List survproxy, List obsproxy, List sizeproxy,
     Rcpp::DataFrame jsizebyear_df(jsizebproxy["years"]);
     Rcpp::DataFrame jsizecyear_df(jsizecproxy["years"]);
     Rcpp::DataFrame jrepstyear_df(jrepstproxy["years"]);
+    Rcpp::DataFrame jmatstyear_df(jmatstproxy["years"]);
     
     NumericVector survyear = survyear_df[0];
     NumericVector obsyear = obsyear_df[0];
@@ -605,10 +608,11 @@ NumericMatrix revelations(List survproxy, List obsproxy, List sizeproxy,
     NumericVector jsizebyear = jsizebyear_df[0];
     NumericVector jsizecyear = jsizecyear_df[0];
     NumericVector jrepstyear = jrepstyear_df[0];
+    NumericVector jmatstyear = jmatstyear_df[0];
     
     int matrows = survyear.length();
     
-    NumericMatrix year_mat(matrows, 13);
+    NumericMatrix year_mat(matrows, 14);
     year_mat(_, 0) = survyear;
     year_mat(_, 1) = obsyear;
     year_mat(_, 2) = sizeyear;
@@ -622,6 +626,7 @@ NumericMatrix revelations(List survproxy, List obsproxy, List sizeproxy,
     year_mat(_, 10) = jsizebyear;
     year_mat(_, 11) = jsizecyear;
     year_mat(_, 12) = jrepstyear;
+    year_mat(_, 13) = jmatstyear;
     
     final_mat = year_mat;
     
@@ -640,6 +645,7 @@ NumericMatrix revelations(List survproxy, List obsproxy, List sizeproxy,
     Rcpp::DataFrame jsizebpatch_df(jsizebproxy["patches"]);
     Rcpp::DataFrame jsizecpatch_df(jsizecproxy["patches"]);
     Rcpp::DataFrame jrepstpatch_df(jrepstproxy["patches"]);
+    Rcpp::DataFrame jmatstpatch_df(jmatstproxy["patches"]);
     
     NumericVector survpatch = survpatch_df[0];
     NumericVector obspatch = obspatch_df[0];
@@ -654,10 +660,11 @@ NumericMatrix revelations(List survproxy, List obsproxy, List sizeproxy,
     NumericVector jsizebpatch = jsizebpatch_df[0];
     NumericVector jsizecpatch = jsizecpatch_df[0];
     NumericVector jrepstpatch = jrepstpatch_df[0];
+    NumericVector jmatstpatch = jmatstpatch_df[0];
     
     int matrows = survpatch.length();
     
-    NumericMatrix patch_mat(matrows, 13);
+    NumericMatrix patch_mat(matrows, 14);
     patch_mat(_, 0) = survpatch;
     patch_mat(_, 1) = obspatch;
     patch_mat(_, 2) = sizepatch;
@@ -671,6 +678,7 @@ NumericMatrix revelations(List survproxy, List obsproxy, List sizeproxy,
     patch_mat(_, 10) = jsizebpatch;
     patch_mat(_, 11) = jsizecpatch;
     patch_mat(_, 12) = jrepstpatch;
+    patch_mat(_, 13) = jmatstpatch;
     
     final_mat = patch_mat;
   }
@@ -1169,6 +1177,7 @@ StringVector zero_bootson(List modelproxy) {
 //' @param jsizeb_proxy Juvenile secondary size model proxy.
 //' @param jsizec_proxy Juvenile tertiary size model proxy.
 //' @param jrepst_proxy Juvenile reproductive status model proxy.
+//' @param jmatst_proxy Juvenile maturity status model proxy.
 //' 
 //' @return An integer matrix with 6 rows and 20 columns. The columns contain
 //' the number of elements in each random individual covariate term, with the
@@ -1181,7 +1190,7 @@ StringVector zero_bootson(List modelproxy) {
 arma::imat foi_index(List surv_proxy, List obs_proxy, List size_proxy, 
   List sizeb_proxy, List sizec_proxy, List repst_proxy, List fec_proxy,
   List jsurv_proxy, List jobs_proxy, List jsize_proxy, List jsizeb_proxy,
-  List jsizec_proxy, List jrepst_proxy) {
+  List jsizec_proxy, List jrepst_proxy, List jmatst_proxy) {
   
   arma::ivec surv_fc = foi_counter(surv_proxy, false);
   arma::ivec obs_fc = foi_counter(obs_proxy, false);
@@ -1196,6 +1205,7 @@ arma::imat foi_index(List surv_proxy, List obs_proxy, List size_proxy,
   arma::ivec jsizeb_fc = foi_counter(jsizeb_proxy, false);
   arma::ivec jsizec_fc = foi_counter(jsizec_proxy, false);
   arma::ivec jrepst_fc = foi_counter(jrepst_proxy, false);
+  arma::ivec jmatst_fc = foi_counter(jmatst_proxy, false);
   arma::ivec size_fc_zi = foi_counter(size_proxy, true);
   arma::ivec sizeb_fc_zi = foi_counter(sizeb_proxy, true);
   arma::ivec sizec_fc_zi = foi_counter(sizec_proxy, true);
@@ -1204,7 +1214,7 @@ arma::imat foi_index(List surv_proxy, List obs_proxy, List size_proxy,
   arma::ivec jsizeb_fc_zi = foi_counter(jsizeb_proxy, true);
   arma::ivec jsizec_fc_zi = foi_counter(jsizec_proxy, true);
   
-  arma::imat final_mat(6, 20, fill::zeros);
+  arma::imat final_mat(6, 21, fill::zeros);
   
   for (int i = 0; i < 6; i++) {
     final_mat(i, 0) = surv_fc(i);
@@ -1227,6 +1237,7 @@ arma::imat foi_index(List surv_proxy, List obs_proxy, List size_proxy,
     final_mat(i, 17) = jsize_fc_zi(i);
     final_mat(i, 18) = jsizeb_fc_zi(i);
     final_mat(i, 19) = jsizec_fc_zi(i);
+    final_mat(i, 20) = jrepst_fc(i);
   }
   
   return final_mat;
@@ -1290,7 +1301,7 @@ arma::imat foi_index(List surv_proxy, List obs_proxy, List size_proxy,
 //' Gamma (3), and binomial (4).
 //' @param vitalrate An integer specifying the vital rate. 1 = surv, 2 = obs,
 //' 3 = size, 4 = sizeb, 5 = sizec, 6 = repst, 7 = fec, 8 = jsurv, 9 = jobs,
-//' 10 = jsize, 11 = jsizeb, 12 = jsizec, 13 = jrepst
+//' 10 = jsize, 11 = jsizeb, 12 = jsizec, 13 = jrepst, 14 = jmatst.
 //' @param exp_tol A numeric value indicating the maximum limit for the
 //' \code{exp()} function to be used in vital rate calculations. Defaults to
 //' \code{700.0}.
@@ -1811,6 +1822,8 @@ double preouterator(List modelproxy, NumericVector maincoefs, arma::imat randind
 //' @param jsizeproxy List of coefficients estimated in model of juvenile size.
 //' @param jrepstproxy List of coefficients estimated in model of juvenile
 //' reproductive status.
+//' @param jmatstproxy List of coefficients estimated in model of juvenile
+//' maturity probability.
 //' @param f2_inda A numeric vector of length equal to the number of years,
 //' holding values equal to the mean value of individual covariate \code{a} at
 //' each time \emph{t} to be used in analysis.
@@ -1851,7 +1864,7 @@ double preouterator(List modelproxy, NumericVector maincoefs, arma::imat randind
 //' models input by the user. The order is: survival, observation status, size,
 //' size_b, size_c, reproductive status, fecundity, juvenile survival, juvenile
 //' observation status, juvenile size, juvenile size_b, juvenile size_c,
-//' and juvenile reproductive status.
+//' juvenile reproductive status, and juvenile maturity status.
 //' @param dens A numeric value equal to the density to be used in calculations.
 //' @param fecmod A scalar multiplier for fecundity.
 //' @param svsigmas A vector of sigma and summedvar terms from vital rate
@@ -1912,7 +1925,7 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   int matrixformat, List survproxy, List obsproxy, List sizeproxy,
   List sizebproxy, List sizecproxy, List repstproxy, List fecproxy,
   List jsurvproxy, List jobsproxy, List jsizeproxy, List jsizebproxy,
-  List jsizecproxy, List jrepstproxy, NumericVector f2_inda,
+  List jsizecproxy, List jrepstproxy, List jmatstproxy, NumericVector f2_inda,
   NumericVector f1_inda, NumericVector f2_indb, NumericVector f1_indb,
   NumericVector f2_indc, NumericVector f1_indc, StringVector r2_inda,
   StringVector r1_inda, StringVector r2_indb, StringVector r1_indb,
@@ -1969,6 +1982,7 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   NumericVector jsizebcoefs = jsizebproxy["coefficients"];
   NumericVector jsizeccoefs = jsizecproxy["coefficients"];
   NumericVector jrepstcoefs = jrepstproxy["coefficients"];
+  NumericVector jmatstcoefs = jmatstproxy["coefficients"];
   
   int survl = survcoefs.length();
   int obsl = obscoefs.length();
@@ -1983,6 +1997,7 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   int jsizebl = jsizebcoefs.length();
   int jsizecl = jsizeccoefs.length();
   int jrepstl = jrepstcoefs.length();
+  int jmatstl = jmatstcoefs.length();
   
   int sizetrunc = sizeproxy["trunc"];
   int sizebtrunc = sizebproxy["trunc"];
@@ -2052,15 +2067,15 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   
   NumericMatrix vital_year = revelations(survproxy, obsproxy, sizeproxy, sizebproxy,
     sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy,
-    jsizebproxy, jsizecproxy, jrepstproxy, 1);
+    jsizebproxy, jsizecproxy, jrepstproxy, jmatstproxy, 1);
   
   NumericMatrix vital_patch = revelations(survproxy, obsproxy, sizeproxy,
     sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy,
-    jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, 2);
+    jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, jmatstproxy, 2);
   
   arma::imat rand_index = foi_index(survproxy, obsproxy, sizeproxy, sizebproxy,
     sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy,
-    jsizebproxy, jsizecproxy, jrepstproxy);
+    jsizebproxy, jsizecproxy, jrepstproxy, jmatstproxy);
   
   Rcpp::DataFrame sizeyearzi_df(sizeproxy["zeroyear"]);
   Rcpp::DataFrame sizebyearzi_df(sizebproxy["zeroyear"]);
@@ -2127,6 +2142,7 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   Rcpp::DataFrame jsizebgroups2_df(jsizebproxy["groups2"]);
   Rcpp::DataFrame jsizecgroups2_df(jsizecproxy["groups2"]);
   Rcpp::DataFrame jrepstgroups2_df(jrepstproxy["groups2"]);
+  Rcpp::DataFrame jmatstgroups2_df(jmatstproxy["groups2"]);
   
   NumericVector survgroups2 = survgroups2_df[0];
   NumericVector obsgroups2 = obsgroups2_df[0];
@@ -2141,6 +2157,7 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   NumericVector jsizebgroups2 = jsizebgroups2_df[0];
   NumericVector jsizecgroups2 = jsizecgroups2_df[0];
   NumericVector jrepstgroups2 = jrepstgroups2_df[0];
+  NumericVector jmatstgroups2 = jmatstgroups2_df[0];
   
   Rcpp::DataFrame survgroups1_df(survproxy["groups1"]);
   Rcpp::DataFrame obsgroups1_df(obsproxy["groups1"]);
@@ -2155,6 +2172,7 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   Rcpp::DataFrame jsizebgroups1_df(jsizebproxy["groups1"]);
   Rcpp::DataFrame jsizecgroups1_df(jsizecproxy["groups1"]);
   Rcpp::DataFrame jrepstgroups1_df(jrepstproxy["groups1"]);
+  Rcpp::DataFrame jmatstgroups1_df(jmatstproxy["groups1"]);
   
   NumericVector survgroups1 = survgroups1_df[0];
   NumericVector obsgroups1 = obsgroups1_df[0];
@@ -2169,6 +2187,7 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   NumericVector jsizebgroups1 = jsizebgroups1_df[0];
   NumericVector jsizecgroups1 = jsizecgroups1_df[0];
   NumericVector jrepstgroups1 = jrepstgroups1_df[0];
+  NumericVector jmatstgroups1 = jmatstgroups1_df[0];
   
   Rcpp::DataFrame sizegroups2zi_df(sizeproxy["zerogroups2"]);
   Rcpp::DataFrame sizebgroups2zi_df(sizebproxy["zerogroups2"]);
@@ -2219,6 +2238,7 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   NumericVector jsizebind = flightoficarus(jsizebproxy);
   NumericVector jsizecind = flightoficarus(jsizecproxy);
   NumericVector jrepstind = flightoficarus(jrepstproxy);
+  NumericVector jmatstind = flightoficarus(jmatstproxy);
   
   NumericVector sizeindzi = zero_flightoficarus(sizeproxy);
   NumericVector sizebindzi = zero_flightoficarus(sizebproxy);
@@ -2241,6 +2261,7 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   StringVector jsizebind_rownames = bootson(jsizebproxy);
   StringVector jsizecind_rownames = bootson(jsizecproxy);
   StringVector jrepstind_rownames = bootson(jrepstproxy);
+  StringVector jmatstind_rownames = bootson(jmatstproxy);
   
   StringVector sizeind_rownames_zi = zero_bootson(sizeproxy);
   StringVector sizebind_rownames_zi = zero_bootson(sizebproxy);
@@ -2338,8 +2359,8 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   
   // The output matrix to collect conditional probabilities
   // Matrix out is 0 matrix with n rows & 6 columns: 0 surv, 1 obs, 2 repst,
-  // 3 size, 4 size_b, 5 size_c, >5 are test variables
-  arma::mat out(n, 6, fill::zeros);  
+  // 3 size, 4 size_b, 5 size_c, 6 matst, >6 are test variables
+  arma::mat out(n, 7, fill::zeros);  
   arma::mat survtransmat(matrixdim, matrixdim, fill::zeros);
   arma::mat fectransmat(matrixdim, matrixdim, fill::zeros);
   
@@ -2347,6 +2368,8 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   // each estimable element in the matrix
   for(int i = 0; i < n; i++) {
     unsigned int k = aliveandequal(i);
+    
+    out(i, 6) = 1.0; // Initialization of maturity status probability for typical case
     
     Rcpp::NumericVector statusterms = {fl1(i), fl2n(i), sz1(i), sz2o(i),                   // Spot to check
       szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2, indb1,
@@ -2468,11 +2491,38 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
           out(i, 3) = 1.0;
           out(i, 4) = 1.0;
           out(i, 5) = 1.0;
+          out(i, 6) = 1.0;
         }
         
-        survtransmat(k) = out(i, 0) * out(i, 1) * out(i, 2) * out(i, 3) * out(i, 4) * out(i, 5);
+        survtransmat(k) = out(i, 0) * out(i, 1) * out(i, 2) * out(i, 3) *
+          out(i, 4) * out(i, 5) * out(i, 6);
+        
       } else if (immat2n(i) == 1 && immat1(i) == 1 && jsurvl > 0) {
         // Juvenile to adult transitions
+        
+        if (jmatstl > 1) {
+          double mat_predicted = preouterator(jmatstproxy, jmatstcoefs,
+            rand_index, dev_terms, svsigmas, vital_year, vital_patch,
+            chosen_r2inda, chosen_r1inda, chosen_r2indb, chosen_r1indb,
+            chosen_r2indc, chosen_r1indc, statusterms, jmatstgroups2,
+            jmatstgroups1, dud_groups2zi, dud_groups1zi, dud_yearzi,
+            dud_patchzi, jmatstind, jmatstind_rownames, jsizeindzi,
+            jsizeind_rownames_zi, false, grp2o(i), grp1(i), patchnumber,
+            yearnumber, 4, 14, exp_tol, theta_tol, ipm_cdf, matrixformat, fecmod,
+            repentry(i), negfec, stage2n(i), nostages, 0, 0.0);
+          
+          if (mat3(i) > 0.5) {
+            out(i, 6) = mat_predicted;
+          } else {
+            out(i, 6) = 1 - mat_predicted;
+          }
+        } else {
+          if (mat3(i) > 0.5) {
+            out(i, 6) = 1;
+          } else {
+            out(i, 6) = 0;
+          }
+        }
         
         if (jsurvl > 1) {
           out(i, 0) = preouterator(jsurvproxy, jsurvcoefs, rand_index,
@@ -2576,10 +2626,11 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
           out(i, 3) = 1.0;
           out(i, 4) = 1.0;
           out(i, 5) = 1.0;
+          out(i, 6) = 1.0;
         }
         
         survtransmat(k) = out(i, 0) * out(i, 1) * out(i, 2) * out(i, 3) *
-          out(i, 4) * out(i, 5);
+          out(i, 4) * out(i, 5) * out(i, 6);
       }
     } else if (ovgivent(i) != -1) {
       // All other transitions

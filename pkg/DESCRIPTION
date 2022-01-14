@@ -1,21 +1,21 @@
 Package: lefko3
 Type: Package
 Title: Historical and Ahistorical Population Projection Matrix Analysis
-Version: 4.1.1.9011
-Date: 2022-01-10
+Version: 4.1.1.9012
+Date: 2022-01-14
 Authors@R: c(person(given = "Richard P.", family = "Shefferson",
              email = "cdorm@g.ecc.u-tokyo.ac.jp", role = c("aut", "cre"),
              comment=c(ORCID="0000-0002-5234-3131")),
              person(given = "Johan", family = "Ehrlen", role = "aut",
              comment=c(ORCID="0000-0001-8539-8967")))
-Description: Creates matrix population models for use in population ecological
-             analyses. Specializes on the construction of historical matrices,
-             which are 2d matrices comprising 3 consecutive times of demographic
+Description: Complete analytical environment for the construction and analysis
+             of matrix population models and integral projection models.
+             Includes the ability to construct historical matrices, which are
+             2d matrices comprising 3 consecutive times of demographic
              information. Estimates both raw and function-based forms of
              historical and standard ahistorical matrices. It also estimates
-             function-based age-by-stage matrices. Methodology based on Ehrlen
-             (2000) <doi:10.1890/0012-9658(2000)081[1675:TDOPPD]2.0.CO;2> and
-             deVries and Caswell (2018) <doi:10.1007/s12080-017-0353-0>.
+             function-based age-by-stage matrices and raw and function-based
+             Leslie matrices.
 Encoding: UTF-8
 License: GPL (>= 2)
 URL: http://www.sheffersonlab.com/projects
