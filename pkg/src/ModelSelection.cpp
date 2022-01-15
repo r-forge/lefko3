@@ -245,11 +245,11 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
   
   if (year!= "none") {
     if (yasrand) {
-      randomtackony += "(1 | ";
+      randomtackony += " + (1 | ";
       randomtackony += year;
       randomtackony += ")";
       
-      if (pasrand || indiv != "none") randomtackony += " + ";
+      //if (pasrand || indiv != "none") randomtackony += " + ";
     } else {
       if (fixedcovcounter > 0) {
         fixedtackony += " + as.factor(";
@@ -266,11 +266,11 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
   if (patch!= "none") {
     if (pasrand) {
       //randomtackonp += " + ";
-      randomtackonp += "(1 | ";
+      randomtackonp += " + (1 | ";
       randomtackonp += patch;
       randomtackonp += ")";
       
-      if (indiv != "none") randomtackony += " + ";
+      // if (indiv != "none") randomtackony += " + ";
     } else {
       if (fixedcovcounter > 0) {
         fixedtackonp += " + as.factor(";
@@ -285,7 +285,7 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
   }
   
   if (indiv != "none" && approach == "mixed") {
-    randomtackoni += "(1 | ";
+    randomtackoni += " + (1 | ";
     randomtackoni += indiv;
     randomtackoni += ")";
   }
