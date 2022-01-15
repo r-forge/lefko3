@@ -155,9 +155,25 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
   if (indcova(1) != "none") covcount += 1;
   if (indcovb(1) != "none") covcount += 1;
   if (indcovc(1) != "none") covcount += 1;
+  
   int modelcounter {0};
   int juvmodelcounter {0};
   int fixedcovcounter {0};
+  int randomcovcounter {0};
+  
+  int indcova_ran_counter {0};
+  int indcovb_ran_counter {0};
+  int indcovc_ran_counter {0};
+  int year_ran_counter {0};
+  int patch_ran_counter {0};
+  int indiv_ran_counter {0};
+  
+  int indcova_fix_counter {0};
+  int indcovb_fix_counter {0};
+  int indcovc_fix_counter {0};
+  int year_fix_counter {0};
+  int patch_fix_counter {0};
+  int group_fix_counter {0};
   
   // This section determines which vital rates need global model formulae
   for (int i = 0; i < nvitalrates; i++) {
@@ -241,53 +257,52 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
       fixedcovcounter += 1;
       fixedtackong += "+ as.factor(group1)";
     }
+    group_fix_counter += 1;
   }
   
   if (year!= "none") {
     if (yasrand) {
-      randomtackony += " + (1 | ";
+      randomtackony += "(1 | ";
       randomtackony += year;
       randomtackony += ")";
       
-      //if (pasrand || indiv != "none") randomtackony += " + ";
+      year_ran_counter += 1;
+      randomcovcounter += 1;
     } else {
-      if (fixedcovcounter > 0) {
-        fixedtackony += " + as.factor(";
-      } else {
-        fixedtackony += "as.factor(";
-      }
+      fixedtackony += "as.factor(";
       fixedtackony += year;
       fixedtackony += ")";
       
+      year_fix_counter += 1;
       fixedcovcounter += 1;
     }
   }
   
   if (patch!= "none") {
     if (pasrand) {
-      //randomtackonp += " + ";
-      randomtackonp += " + (1 | ";
+      randomtackonp += "(1 | ";
       randomtackonp += patch;
       randomtackonp += ")";
       
-      // if (indiv != "none") randomtackony += " + ";
+      patch_ran_counter += 1;
+      randomcovcounter += 1;
     } else {
-      if (fixedcovcounter > 0) {
-        fixedtackonp += " + as.factor(";
-      } else {
-        fixedtackonp += "as.factor(";
-      }
+      fixedtackonp += "as.factor(";
       fixedtackonp += patch;
-      
       fixedtackonp += ")";
+      
+      patch_fix_counter += 1;
       fixedcovcounter += 1;
     }
   }
   
   if (indiv != "none" && approach == "mixed") {
-    randomtackoni += " + (1 | ";
+    randomtackoni += "(1 | ";
     randomtackoni += indiv;
     randomtackoni += ")";
+    
+    indiv_ran_counter += 1;
+    randomcovcounter += 1;
   }
   
   // Now we add the individual covariates to the tacked-on sections
@@ -298,43 +313,48 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
         fixedtackonia += " + ";
         fixedtackonia += indcova(2);
       }
-      if (fixedcovcounter > 0 || indcovb(1) != "none" || indcovc(1) != "none") {
-        fixedtackonia += " + ";
-      }
+      
+      indcova_fix_counter += 1;
       fixedcovcounter += 1;
     } else {
       randomtackonia += "(1 | ";
       randomtackonia += indcova(1);
-      randomtackonia += ") + ";
+      randomtackonia += ")";
       
       if (historical) {
-        randomtackonia += "(1 | ";
+        randomtackonia += " + (1 | ";
         randomtackonia += indcova(2);
         randomtackonia += ") + ";
       }
+      
+      indcova_ran_counter += 1;
+      randomcovcounter += 1;
     }
   }
   if (indcovb(1) != "none") {
     if (!ibasrand) {
       fixedtackonib += indcovb(1);
+      
       if (historical) {
         fixedtackonib += " + ";
         fixedtackonib += indcovb(2);
       }
-      if (fixedcovcounter > 0) {
-        fixedtackonib += " + ";
-      }
+      
+      indcovb_fix_counter += 1;
       fixedcovcounter += 1;
     } else {
       randomtackonib += "(1 | ";
       randomtackonib += indcovb(1);
-      randomtackonib += ") + ";
+      randomtackonib += ")";
       
       if (historical) {
-        randomtackonib += "(1 | ";
+        randomtackonib += " + (1 | ";
         randomtackonib += indcovb(2);
-        randomtackonib += ") + ";
+        randomtackonib += ")";
       }
+      
+      indcovb_ran_counter += 1;
+      randomcovcounter += 1;
     }
   }
   if (indcovc(1) != "none") {
@@ -344,34 +364,33 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
         fixedtackonic += " + ";
         fixedtackonic += indcovc(2);
       }
-      if (fixedcovcounter > 0) {
-        fixedtackonic += " + ";
-      }
+      
+      indcovc_fix_counter += 1;
       fixedcovcounter += 1;
     } else {
       randomtackonic += "(1 | ";
       randomtackonic += indcovc(1);
-      randomtackonic += ") + ";
+      randomtackonic += ")";
       
       if (historical) {
-        randomtackonic += "(1 | ";
+        randomtackonic += " + (1 | ";
         randomtackonic += indcovc(2);
-        randomtackonic += ") + ";
+        randomtackonic += ")";
       }
+      
+      indcovc_ran_counter += 1;
+      randomcovcounter += 1;
     }
   }
   if (suite == "full" && !iaasrand && !ibasrand) {
     if (indcova(1) != "none" && indcovb(1) != "none") {
-      // fixedtackonib += " + ";
+      fixedtackonib += " + ";
       fixedtackonib += indcova(1);
       fixedtackonib += ":";
       fixedtackonib += indcovb(1);
-      if (fixedcovcounter > 0 || historical) {
-        fixedtackonib += " + ";
-      }
       
       if (historical) {
-        // fixedtackonib += " + ";
+        fixedtackonib += " + ";
         fixedtackonib += indcova(2);
         fixedtackonib += ":";
         fixedtackonib += indcovb(2);
@@ -385,24 +404,18 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
         fixedtackonib += indcova(2);
         fixedtackonib += ":";
         fixedtackonib += indcovb(1);
-        if (fixedcovcounter > 0) {
-          fixedtackonib += " + ";
-        }
       }
     }
   }
   if (suite == "full" && !iaasrand && !icasrand) {
     if (indcova(1) != "none" && indcovc(1) != "none") {
-      //fixedtackonic += " + ";
+      fixedtackonic += " + ";
       fixedtackonic += indcova(1);
       fixedtackonic += ":";
       fixedtackonic += indcovc(1);
-      if (fixedcovcounter > 0 || historical) {
-        fixedtackonic += " + ";
-      }
       
       if (historical) {
-        //fixedtackonic += " + ";
+        fixedtackonic += " + ";
         fixedtackonic += indcova(2);
         fixedtackonic += ":";
         fixedtackonic += indcovc(2);
@@ -416,24 +429,18 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
         fixedtackonic += indcova(2);
         fixedtackonic += ":";
         fixedtackonic += indcovc(1);
-        if (fixedcovcounter > 0) {
-          fixedtackonic += " + ";
-        }
       }
     }
   }
   if (suite == "full" && !ibasrand && !icasrand) {
     if (indcovb(1) != "none" && indcovc(1) != "none") {
-      // fixedtackonic += " + ";
+      fixedtackonic += " + ";
       fixedtackonic += indcovb(1);
       fixedtackonic += ":";
       fixedtackonic += indcovc(1);
-      if (fixedcovcounter > 0 || historical) {
-        fixedtackonic += " + ";
-      }
       
       if (historical) {
-        //fixedtackonic += " + ";
+        fixedtackonic += " + ";
         fixedtackonic += indcovb(2);
         fixedtackonic += ":";
         fixedtackonic += indcovc(2);
@@ -447,26 +454,59 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
         fixedtackonic += indcovb(2);
         fixedtackonic += ":";
         fixedtackonic += indcovc(1);
-        if (fixedcovcounter > 0) {
-          fixedtackonic += " + ";
-        }
       }
     }
   }
   
-  randomtackon += randomtackonia;
-  randomtackon += randomtackonib;
-  randomtackon += randomtackonic;
-  randomtackon += randomtackony;
-  randomtackon += randomtackonp;
-  randomtackon += randomtackoni;
+  if (indcova_ran_counter > 0) {
+    randomtackon += " + ";
+    randomtackon += randomtackonia;
+  }
+  if (indcovb_ran_counter > 0) {
+    randomtackon += " + ";
+    randomtackon += randomtackonib;
+  }
+  if (indcovc_ran_counter > 0) {
+    randomtackon += " + ";
+    randomtackon += randomtackonic;
+  }
+  if (year_ran_counter > 0) {
+    randomtackon += " + ";
+    randomtackon += randomtackony;
+  }
+  if (patch_ran_counter > 0) {
+    randomtackon += " + ";
+    randomtackon += randomtackonp;
+  }
+  if (indiv_ran_counter > 0) {
+    randomtackon += " + ";
+    randomtackon += randomtackoni;
+  }
   
-  fixedtackon += fixedtackong;
-  fixedtackon += fixedtackonia;
-  fixedtackon += fixedtackonib;
-  fixedtackon += fixedtackonic;
-  fixedtackon += fixedtackony;
-  fixedtackon += fixedtackonp;
+  if (group_fix_counter > 0) {
+    fixedtackon += " + ";
+    fixedtackon += fixedtackong;
+  }
+  if (indcova_fix_counter > 0) {
+    fixedtackon += " + ";
+    fixedtackon += fixedtackonia;
+  }
+  if (indcovb_fix_counter > 0) {
+    fixedtackon += " + ";
+    fixedtackon += fixedtackonib;
+  }
+  if (indcovc_fix_counter > 0) {
+    fixedtackon += " + ";
+    fixedtackon += fixedtackonic;
+  }
+  if (year_fix_counter > 0) {
+    fixedtackon += " + ";
+    fixedtackon += fixedtackony;
+  }
+  if (patch_fix_counter > 0) {
+    fixedtackon += " + ";
+    fixedtackon += fixedtackonp;
+  }
   
   // Main model patterns
   // First the juvenile model pattern
@@ -476,7 +516,7 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
     if (suite != "const") {
       if (juvsize && suite != "repst") {
         juvmainmodel += size(1);
-        juvmodelcounter += 1;
+        juvmodelcounter = 1;
         
         if (sizebused) {
           if (juvmodelcounter > 0) juvmainmodel += " + ";
@@ -534,9 +574,6 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
             }
           }
         }
-        
-        if (fixedcovcounter > 0) juvmainmodel += " + ";
-        
       } else if (densityused) {
         if (juvmodelcounter > 0) juvmainmodel += " + ";
         juvmainmodel += densitycol;
@@ -548,8 +585,8 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
       juvmainmodel += "1";
     }
     
-    juvmainmodel += fixedtackon;
-    juvmainmodel += randomtackon;
+    if (fixedcovcounter > 0) juvmainmodel += fixedtackon;
+    if (randomcovcounter > 0) juvmainmodel += randomtackon;
   }
     
   // Now the adult model pattern
@@ -557,7 +594,7 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
   
   if (age != "none") {
     fullmainmodel += age;
-    modelcounter += 1;
+    modelcounter = 1;
   }
   
   if (densityused) {
@@ -1116,10 +1153,10 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
       }
     }
     
-    if (modelcounter > 0 && fixedcovcounter > 0) fullmainmodel += " + ";
+    //if (modelcounter > 0 && fixedcovcounter > 0) fullmainmodel += " + ";
     
-    fullmainmodel += fixedtackon;
-    fullmainmodel += randomtackon;
+    if (fixedcovcounter > 0) fullmainmodel += fixedtackon;
+    if (randomcovcounter > 0) fullmainmodel += randomtackon;
   } else if (suite == "rep") {
     if (age != "none" || covcount > 0) fullmainmodel += " + ";
     fullmainmodel += repst(1);
@@ -1134,18 +1171,15 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
       fullmainmodel += repst(2);
     }
     
-    fullmainmodel += fixedtackon;
-    fullmainmodel += randomtackon;
+    if (fixedcovcounter > 0) fullmainmodel += fixedtackon;
+    if (randomcovcounter > 0) fullmainmodel += randomtackon;
   } else if (suite == "cons") {
     if (fixedcovcounter == 0 && modelcounter == 0) fullmainmodel += "1";
     
-    if (modelcounter > 0) fullmainmodel += " + "; // This added
-    fullmainmodel += fixedtackon;
+    //if (modelcounter > 0) fullmainmodel += " + "; // This added
+    if (fixedcovcounter > 0) fullmainmodel += fixedtackon;
     
-    if (yasrand || pasrand) { // This added
-      if (fixedcovcounter > 0) fullmainmodel += " + ";
-      fullmainmodel += randomtackon;
-    }
+    if (randomcovcounter > 0) fullmainmodel += randomtackon;
     
   } else {
     fullmainmodel = "none";
@@ -1373,5 +1407,4 @@ List stovokor(StringVector surv, StringVector obs, StringVector size,
   
   return output;
 }
-
 
