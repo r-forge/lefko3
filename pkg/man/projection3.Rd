@@ -95,11 +95,13 @@ each occasion per replicate (row within data frame) per pop-patch or
 population (list element).}
 \item{labels}{A data frame showing the order of populations and patches in
 item \code{projection}.}
-\item{control}{A short vector indicating the number of replicates and the
-number of occasions projected per replicate.}
 \item{ahstages}{The original stageframe used in the study.}
 \item{hstages}{A data frame showing the order of historical stage pairs.}
 \item{agestages}{A data frame showing the order of age-stage pairs.}
+\item{control}{A short vector indicating the number of replicates and the
+number of occasions projected per replicate.}
+\item{density}{The data frame input under the density option. Only provided
+if input by the user.}
 }
 \description{
 Function \code{projection3()} runs projection simulations. It projects the

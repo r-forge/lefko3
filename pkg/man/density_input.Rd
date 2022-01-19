@@ -142,6 +142,7 @@ modified.
 }
 
 \examples{
+\donttest{
 # Lathyrus example
 data(lathyrus)
 
@@ -187,6 +188,10 @@ ehrlen3mean <- lmean(ehrlen3)
 e3d <- density_input(ehrlen3mean, stage3 = c("Sd", "Sdl"),
   stage2 = c("rep", "rep"), stage1 = c("all", "all"), style = 1,
   time_delay = 1, alpha = 1, beta = 0, type = c(2, 2), type_t12 = c(1, 1))
+
+lathproj <- projection3(ehrlen3, nreps = 5, stochastic = TRUE, substoch = 2,
+  density = e3d)
+}
 
 }
 \seealso{

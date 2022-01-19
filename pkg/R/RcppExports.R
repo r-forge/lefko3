@@ -347,9 +347,9 @@
 #' deVries and Caswell (2018).
 #'
 #' @param mainmat Historical matrix.
-#' @param indices Data frame including the stages at times t-1, t, and t+1, as
-#' well as indices corresponding to elements in the main historical matrix and
-#' the conditional matrices to be produced.
+#' @param indices Data frame including the stages at times \emph{t}-1,
+#' \emph{t}, and \emph{t}+1, asvwell as indices corresponding to elements in
+#' the main historical matrix andvthe conditional matrices to be produced.
 #' @param ahstages The number of stages in the stageframe.
 #' @param stageframe The original stageframe for the input matrices.
 #'
@@ -951,21 +951,21 @@ logistic3 <- function(start_value, alpha, beta = 0.0, lambda = 1.0, time_steps =
 #' \code{\link{.motherbalowski}()}.
 #' 
 #' @param maincoefs The coefficients portion of the vital rate model proxy.
-#' @param fl1_i Reproductive status in time *t*-1.
-#' @param fl2n_i Reproductive status in time *t*.
-#' @param sz1_i Primary size in time *t*-1.
-#' @param sz2o_i Primary size in time *t*.
-#' @param szb1_i Secondary size in time *t*-1.
-#' @param szb2o_i Secondary size in time *t*.
-#' @param szc1_i Tertiary size in time *t*-1.
-#' @param szc2o_i Tertiary size in time *t*.
-#' @param aage2_i Used age in time *t*.
-#' @param inda_1 Value of numeric individual covariate a in time *t*-1.
-#' @param inda_2 Value of numeric individual covariate a in time *t*.
-#' @param indb_1 Value of numeric individual covariate b in time *t*-1.
-#' @param indb_2 Value of numeric individual covariate b in time *t*.
-#' @param indc_1 Value of numeric individual covariate c in time *t*-1.
-#' @param indc_2 Value of numeric individual covariate c in time *t*.
+#' @param fl1_i Reproductive status in time \emph{t}*-1.
+#' @param fl2n_i Reproductive status in time \emph{t}.
+#' @param sz1_i Primary size in time \emph{t}-1.
+#' @param sz2o_i Primary size in time \emph{t}.
+#' @param szb1_i Secondary size in time \emph{t}-1.
+#' @param szb2o_i Secondary size in time \emph{t}.
+#' @param szc1_i Tertiary size in time \emph{t}-1.
+#' @param szc2o_i Tertiary size in time \emph{t}.
+#' @param aage2_i Used age in time \emph{t}.
+#' @param inda_1 Value of numeric individual covariate a in time \emph{t}-1.
+#' @param inda_2 Value of numeric individual covariate a in time \emph{t}.
+#' @param indb_1 Value of numeric individual covariate b in time \emph{t}-1.
+#' @param indb_2 Value of numeric individual covariate b in time \emph{t}.
+#' @param indc_1 Value of numeric individual covariate c in time \emph{t}-1.
+#' @param indc_2 Value of numeric individual covariate c in time \emph{t}.
 #' @param used_dens Density value used.
 #' @param zi A logical value indicating whether model coefficients refer to the
 #' zero inflation portion of a model.
@@ -2515,11 +2515,13 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' population (list element).}
 #' \item{labels}{A data frame showing the order of populations and patches in
 #' item \code{projection}.}
-#' \item{control}{A short vector indicating the number of replicates and the
-#' number of occasions projected per replicate.}
 #' \item{ahstages}{The original stageframe used in the study.}
 #' \item{hstages}{A data frame showing the order of historical stage pairs.}
 #' \item{agestages}{A data frame showing the order of age-stage pairs.}
+#' \item{control}{A short vector indicating the number of replicates and the
+#' number of occasions projected per replicate.}
+#' \item{density}{The data frame input under the density option. Only provided
+#' if input by the user.}
 #' 
 #' @section Notes:
 #' Projections are run both at the patch level and at the population level.

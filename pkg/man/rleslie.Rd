@@ -171,3 +171,16 @@ cyp_rl <- rleslie(data = cypraw_v1, start_age = 0, last_age = 4, continue = TRUE
 cyp_rl
 
 }
+\seealso{
+\code{\link{flefko3}()}
+
+\code{\link{flefko2}()}
+
+\code{\link{aflefko2}()}
+
+\code{\link{fleslie}()}
+
+\code{\link{rlefko3}()}
+
+\code{\link{rlefko2}()}
+}

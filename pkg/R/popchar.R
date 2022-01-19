@@ -510,23 +510,23 @@ supplemental <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
 #' @param data A historical vertical data file, which is a data frame of class
 #' \code{hfvdata}.
 #' @param sizea A vector holding the name or column number of the variables
-#' corresponding to primary size in occasions *t*+1 and *t*. Input only if
-#' \code{sizea} is to be tested.
+#' corresponding to primary size in occasions \emph{t}+1 and \emph{t}. Input 
+#' only if \code{sizea} is to be tested.
 #' @param sizeb A vector holding the name or column number of the variables
-#' corresponding to secondary size in occasions *t*+1 and *t*. Input only if
-#' \code{sizeb} is to be tested.
+#' corresponding to secondary size in occasions \emph{t}+1 and \emph{t}. Input 
+#' only if \code{sizeb} is to be tested.
 #' @param sizec A vector holding the name or column number of the variables
-#' corresponding to tertiary size in occasions *t*+1 and *t*. Input only if
-#' \code{sizec} is to be tested.
+#' corresponding to tertiary size in occasions \emph{t}+1 and \emph{t}. Input 
+#' only if \code{sizec} is to be tested.
 #' @param obs3 The name or column number of the variable corresponding to
-#' observation status in occasion *t+1*. This should be used if observation
+#' observation status in occasion \emph{t}+1. This should be used if observation
 #' status will be used as a vital rate to absorb states of size = 0.
 #' @param fec A vector holding the names or column numbers of the variables
-#' corresponding to in occasions *t*+1 and *t*. Input only if \code{fec} is to
-#' be tested.
+#' corresponding to in occasions \emph{t}+1 and \emph{t}. Input only if 
+#' \code{fec} is to be tested.
 #' @param repst A vector holding the names or column numbers of the variables
-#' corresponding to reproductive status in occasions *t*+1 and *t*. If not
-#' provided, then fecundity will be tested without subsetting to only
+#' corresponding to reproductive status in occasions \emph{t}+1 and \emph{t}.
+#' If not provided, then fecundity will be tested without subsetting to only
 #' reproductive individuals.
 #' @param zisizea A logical value indicating whether to conduct a test of zero
 #' inflation in primary size. Defaults to \code{TRUE}.
@@ -537,7 +537,8 @@ supplemental <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
 #' @param zifec A logical value indicating whether to conduct a test of zero
 #' inflation in fecundity. Defaults to TRUE.
 #' @param fectime An integer indicating whether to treat fecundity as occurring
-#' in time *t* (\code{2}) or time *t*+1 (\code{3}). Defaults to \code{2}.
+#' in time \emph{t} (\code{2}) or time \emph{t}+1 (\code{3}). Defaults to
+#' \code{2}.
 #' @param show.size A logical value indicating whether to show the output for
 #' tests of size. Defaults to \code{TRUE}.
 #' @param show.fec A logical value indicating whether to show the output for
@@ -557,7 +558,8 @@ supplemental <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
 #' 
 #' The specific test used for overdispersion is a chi-squared test of the
 #' dispersion parameter estimated using a generalized linear model predicting
-#' the response given size in occasion *t*, under a quasi-Poisson distribution.
+#' the response given size in occasion \emph{t}, under a quasi-Poisson
+#' distribution.
 #' 
 #' The specific test used for zero-inflation is the chi-squared test presented
 #' in van der Broek (1995).
@@ -724,7 +726,8 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
 #' @param repst The vector of variable names or column numbers denoting
 #' reproductive status (\code{repst}). Used in fecundity assessment.
 #' @param fectime An integer denoting whether fecundity is assessed in time
-#' *t*+1 (\code{3}) or time *t* (\code{2}). Used in fecundity assessment.
+#' \emph{t}+1 (\code{3}) or time \emph{t} (\code{2}). Used in fecundity
+#' assessment.
 #' @param show_var A logical variable indicating whether to show the results of
 #' tests for the particular variable in question.
 #' 
@@ -999,6 +1002,7 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
 #' @seealso \code{\link{projection3}()}
 #' 
 #' @examples
+#' \donttest{
 #' # Lathyrus example
 #' data(lathyrus)
 #' 
@@ -1044,6 +1048,10 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
 #' e3d <- density_input(ehrlen3mean, stage3 = c("Sd", "Sdl"),
 #'   stage2 = c("rep", "rep"), stage1 = c("all", "all"), style = 1,
 #'   time_delay = 1, alpha = 1, beta = 0, type = c(2, 2), type_t12 = c(1, 1))
+#' 
+#' lathproj <- projection3(ehrlen3, nreps = 5, stochastic = TRUE, substoch = 2,
+#'   density = e3d)
+#' }
 #' 
 #' @export
 density_input <- function(mpm, stage3, stage2, stage1 = NA, age2 = NA,
@@ -1842,6 +1850,9 @@ density_input <- function(mpm, stage3, stage2, stage1 = NA, age2 = NA,
 #' ehrlen3mean <- lmean(ehrlen3)
 #' 
 #' e3m_sv <- start_input(ehrlen3mean, stage2 = "Sd", stage1 = "Sd", value = 1000)
+#' 
+#' lathproj <- projection3(ehrlen3, nreps = 5, times = 100, stochastic = TRUE,
+#'   start_frame = e3m_sv)
 #' 
 #' @export
 start_input <- function(mpm, stage2, stage1 = NA, age2 = NA, value = 1) {

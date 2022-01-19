@@ -593,3 +593,16 @@ summary(vert.mats.f2)
 }
 
 }
+\seealso{
+\code{\link{flefko3}()}
+
+\code{\link{aflefko2}()}
+
+\code{\link{fleslie}()}
+
+\code{\link{rlefko3}()}
+
+\code{\link{rlefko2}()}
+
+\code{\link{rleslie}()}
+}

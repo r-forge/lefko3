@@ -694,21 +694,21 @@ NumericMatrix revelations(List survproxy, List obsproxy, List sizeproxy,
 //' \code{\link{.motherbalowski}()}.
 //' 
 //' @param maincoefs The coefficients portion of the vital rate model proxy.
-//' @param fl1_i Reproductive status in time *t*-1.
-//' @param fl2n_i Reproductive status in time *t*.
-//' @param sz1_i Primary size in time *t*-1.
-//' @param sz2o_i Primary size in time *t*.
-//' @param szb1_i Secondary size in time *t*-1.
-//' @param szb2o_i Secondary size in time *t*.
-//' @param szc1_i Tertiary size in time *t*-1.
-//' @param szc2o_i Tertiary size in time *t*.
-//' @param aage2_i Used age in time *t*.
-//' @param inda_1 Value of numeric individual covariate a in time *t*-1.
-//' @param inda_2 Value of numeric individual covariate a in time *t*.
-//' @param indb_1 Value of numeric individual covariate b in time *t*-1.
-//' @param indb_2 Value of numeric individual covariate b in time *t*.
-//' @param indc_1 Value of numeric individual covariate c in time *t*-1.
-//' @param indc_2 Value of numeric individual covariate c in time *t*.
+//' @param fl1_i Reproductive status in time \emph{t}*-1.
+//' @param fl2n_i Reproductive status in time \emph{t}.
+//' @param sz1_i Primary size in time \emph{t}-1.
+//' @param sz2o_i Primary size in time \emph{t}.
+//' @param szb1_i Secondary size in time \emph{t}-1.
+//' @param szb2o_i Secondary size in time \emph{t}.
+//' @param szc1_i Tertiary size in time \emph{t}-1.
+//' @param szc2o_i Tertiary size in time \emph{t}.
+//' @param aage2_i Used age in time \emph{t}.
+//' @param inda_1 Value of numeric individual covariate a in time \emph{t}-1.
+//' @param inda_2 Value of numeric individual covariate a in time \emph{t}.
+//' @param indb_1 Value of numeric individual covariate b in time \emph{t}-1.
+//' @param indb_2 Value of numeric individual covariate b in time \emph{t}.
+//' @param indc_1 Value of numeric individual covariate c in time \emph{t}-1.
+//' @param indc_2 Value of numeric individual covariate c in time \emph{t}.
 //' @param used_dens Density value used.
 //' @param zi A logical value indicating whether model coefficients refer to the
 //' zero inflation portion of a model.
@@ -2272,9 +2272,13 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   StringVector jsizecind_rownames_zi = zero_bootson(jsizecproxy);
   
   // AllStages import and settings
-  arma::vec stage3 = AllStages["stage3"];
-  arma::vec stage2n = AllStages["stage2n"];
-  arma::vec stage2o = AllStages["stage2o"];
+  Rcpp::NumericVector stage3_num = AllStages["stage3"];
+  Rcpp::NumericVector stage2n_num = AllStages["stage2n"];
+  Rcpp::NumericVector stage2o_num = AllStages["stage2o"];
+  arma::vec stage3 = as<arma::vec>(stage3_num);
+  arma::vec stage2n = as<arma::vec>(stage2n_num);
+  arma::vec stage2o = as<arma::vec>(stage2o_num);
+  
   Rcpp::NumericVector sz3 = AllStages["size3"];
   Rcpp::NumericVector sz2n = AllStages["size2n"];
   Rcpp::NumericVector sz2o = AllStages["size2o"];
@@ -2313,16 +2317,22 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   Rcpp::NumericVector grp2o = AllStages["group2o"];
   Rcpp::NumericVector grp1 = AllStages["group1"];
   
+  Rcpp::NumericVector ovestt_num = AllStages["ovest_t"];
+  arma::vec ovestt = as<arma::vec>(ovestt_num);
+  
+  Rcpp::NumericVector ovestf_num = AllStages["ovest_f"];
+  arma::vec ovestf = as<arma::vec>(ovestf_num);
+  
   Rcpp::NumericVector indata = AllStages["indata"];
-  arma::vec ovestt = AllStages["ovest_t"];
   Rcpp::NumericVector ovgivent = AllStages["ovgiven_t"];
-  arma::vec ovestf = AllStages["ovest_f"];
   Rcpp::NumericVector ovgivenf = AllStages["ovgiven_f"];
   
   Rcpp::NumericVector ovsurvmult = AllStages["ovsurvmult"];
   Rcpp::NumericVector ovfecmult = AllStages["ovfecmult"];
   
-  arma::uvec index321 = AllStages["index321"];
+  Rcpp::IntegerVector index321_int = AllStages["index321"];
+  arma::uvec index321 = as<arma::uvec>(index321_int);
+  
   Rcpp::NumericVector aliveandequal = AllStages["aliveandequal"];
   
   int n = stage3.n_elem;
@@ -2360,9 +2370,13 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   // The output matrix to collect conditional probabilities
   // Matrix out is 0 matrix with n rows & 6 columns: 0 surv, 1 obs, 2 repst,
   // 3 size, 4 size_b, 5 size_c, 6 matst, >6 are test variables
-  arma::mat out(n, 7, fill::zeros);  
-  arma::mat survtransmat(matrixdim, matrixdim, fill::zeros);
-  arma::mat fectransmat(matrixdim, matrixdim, fill::zeros);
+  arma::mat out(n, 7);
+  arma::mat survtransmat(matrixdim, matrixdim);
+  arma::mat fectransmat(matrixdim, matrixdim);
+  
+  out.zeros();
+  survtransmat.zeros();
+  fectransmat.zeros();
   
   // The following loop runs through each line of AllStages, and so runs through
   // each estimable element in the matrix
@@ -2371,7 +2385,7 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
     
     out(i, 6) = 1.0; // Initialization of maturity status probability for typical case
     
-    Rcpp::NumericVector statusterms = {fl1(i), fl2n(i), sz1(i), sz2o(i),                   // Spot to check
+    Rcpp::NumericVector statusterms = {fl1(i), fl2n(i), sz1(i), sz2o(i),
       szb1(i), szb2o(i), szc1(i), szc2o(i), actualage2(i), inda1, inda2, indb1,
       indb2, indc1, indc2, dens, sz3(i), szb3(i), szc3(i), binwidth3(i),
       binbwidth3(i), bincwidth3(i)};
@@ -2665,7 +2679,7 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
       
       repindex = replacetvec(i); // AllStages index
       properindex = aliveandequal(repindex);
-      arma::uvec rightindex = find(index321 == ovestt(repindex)); // Should this be repindex+1?
+      arma::uvec rightindex = find(index321 == ovestt(repindex));
       
       if (rightindex.n_elem > 0) {
         proxyindex = aliveandequal(rightindex(0));

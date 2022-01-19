@@ -238,16 +238,34 @@ lathvert_base <- verticalize3(lathyrus, noyears = 4, firstyear = 1988,
   deadacol = "Dead1988", censorcol = "Missing1988", censorkeep = NA,
   censor = TRUE, NRasRep = TRUE, NOasObs = TRUE)
 
+lathvert_base$feca3 <- round(lathvert_base$feca3)
+lathvert_base$feca2 <- round(lathvert_base$feca2)
+lathvert_base$feca1 <- round(lathvert_base$feca1)
+
 lathvert_age <- subset(lathvert_base, firstseen > 1988)
 
 lathmodels2_age <- modelsearch(lathvert_age, historical = FALSE,
   approach = "mixed", suite = "cons", bestfit = "AICc&k", age = "obsage",
-  vitalrates = c("surv", "fec"), fecdist = "negbin", indiv = "individ",
-  year = "year2", year.as.random = TRUE, patch.as.random = TRUE,
-  show.model.tables = TRUE, fec.zero = TRUE, quiet = TRUE)
+  vitalrates = c("surv", "fec"), fecdist = "poisson", indiv = "individ",
+  year = "year2", year.as.random = TRUE, show.model.tables = TRUE,
+  quiet = TRUE)
 
-lathmat2fleslie <- fleslie(year = "all", data = lathvert_base,
-  modelsuite = lathmodels2_age, yearcol = "year2")
+lathmat2fleslie <- fleslie(year = "all", data = lathvert_age,
+  modelsuite = lathmodels2_age, yearcol = "year2", fecage_min = 1)
+
 summary(lathmat2fleslie)
 }
+}
+\seealso{
+\code{\link{flefko3}()}
+
+\code{\link{flefko2}()}
+
+\code{\link{aflefko2}()}
+
+\code{\link{rlefko3}()}
+
+\code{\link{rlefko2}()}
+
+\code{\link{rleslie}()}
 }

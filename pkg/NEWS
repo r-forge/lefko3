@@ -1,7 +1,7 @@
 LEFKO3 NEWS
 -----------
 
-CHANGES IN VERSION 4.2.0 (2022-01-XX)
+CHANGES IN VERSION 4.2.0 (2022-01-17)
 -------------------------------------
   NEW FEATURES
     1. Functions rleslie() and fleslie() created to estimate raw and 
@@ -52,6 +52,8 @@ CHANGES IN VERSION 4.2.0 (2022-01-XX)
         global model fails.
     11. Function lmean() now also incorporates modelqc and dataqc elements for
         quality control purposes.
+    12. Function aflefko2() now treats missing minimum ages as zeroes, allowing
+        estimation even when age info is missing from stageframes.
 
   BUG FIXES
     1. Matrix quality control summaries corrected when functions add_lM(),
@@ -85,6 +87,9 @@ CHANGES IN VERSION 4.2.0 (2022-01-XX)
         when all attempts to build a working global model fail.
     16. Fixed bug incorrectly importing non-standard variable names into
         modelsearch().
+    17. Fixed error causing density dependent projections under large,
+        historical MPMs in projection3() to issue substochasticity warnings
+        continuously regardless of actual substochasticity violation.
 
 
 CHANGES IN VERSION 4.1.1 (2021-12-07)

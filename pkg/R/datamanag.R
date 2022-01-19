@@ -2829,8 +2829,8 @@ create_lM <- function(mats, stageframe, hstages = NA, agestages = NA,
 #' @param patch The patch designation for each matrix. If object \code{lM}
 #' includes only a single patch, then defaults to that designation. Otherwise
 #' requires a designation as input.
-#' @param year The designation for occasion at time *t* corresponding to each
-#' matrix. Cannot be left empty.
+#' @param year The designation for occasion at time \emph{t} corresponding to
+#' each matrix. Cannot be left empty.
 #' 
 #' @return A \code{lefkoMat} object incorporating the new matrices within the
 #' object input in \code{lM}. 
@@ -3604,8 +3604,8 @@ delete_lM <- function(lM, mat_num = NA, pop = NA, patch = NA, year = NA) {
 #' \code{mat_num} is not given.
 #' @param patch The patch designation for matrices to select. Only used if
 #' \code{mat_num} is not given.
-#' @param year The time *t* designation for matrices to select. Only used if
-#' \code{mat_num} is not given.
+#' @param year The time \emph{t} designation for matrices to select. Only used
+#' if \code{mat_num} is not given.
 #' 
 #' @return A \code{lefkoMat} object composed of the matrices specified in the
 #' options. 

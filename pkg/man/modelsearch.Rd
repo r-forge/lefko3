@@ -277,10 +277,10 @@ Defaults to \code{2}.}
 dataset, in order from occasion \emph{t}+1, followed by occasion \emph{t},
 and lastly followed by occasion \emph{t}-1. Defaults to \code{NA}.}
 
-\item{age}{Designates the name of the variable corresponding to age in the
-vertical dataset. Defaults to \code{NA}, in which case age is not included in
-linear models. Should only be used if building Leslie or age x stage
-matrices.}
+\item{age}{Designates the name of the variable corresponding to age in time
+\emph{t} in the vertical dataset. Defaults to \code{NA}, in which case age
+is not included in linear models. Should only be used if building Leslie or
+age x stage matrices.}
 
 \item{indcova}{Vector designating the names in occasions \emph{t}+1,
 \emph{t}, and \emph{t}-1 of an individual covariate. Defaults to \code{NA}.}

@@ -341,6 +341,13 @@
 #' in each column of this matrix matches the associated matrix in column vector
 #' format. Use of this option is generally for the purposes of debugging code.
 #'`
+#' @seealso \code{\link{flefko2}()}
+#' @seealso \code{\link{aflefko2}()}
+#' @seealso \code{\link{fleslie}()}
+#' @seealso \code{\link{rlefko3}()}
+#' @seealso \code{\link{rlefko2}()}
+#' @seealso \code{\link{rleslie}()}
+#' 
 #' @examples
 #' \donttest{
 #' # Lathyrus example
@@ -403,8 +410,6 @@
 #' summary(lathmat3ln)
 #' 
 #' #Cypripedium example using three size metrics for classification
-#' rm(list=ls(all=TRUE))
-#' 
 #' data(cypdata)
 #' sizevector.f <- c(0, 0, 0, 0, 0, 0, seq(1, 12, by = 1), seq(0, 9, by = 1),
 #'   seq(0, 8, by = 1), seq(0, 7, by = 1), seq(0, 6, by = 1), seq(0, 5, by = 1),
@@ -1596,6 +1601,13 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' in each column of this matrix matches the associated matrix in column vector
 #' format. Use of this option is generally for the purposes of debugging code.
 #'
+#' @seealso \code{\link{flefko3}()}
+#' @seealso \code{\link{aflefko2}()}
+#' @seealso \code{\link{fleslie}()}
+#' @seealso \code{\link{rlefko3}()}
+#' @seealso \code{\link{rlefko2}()}
+#' @seealso \code{\link{rleslie}()}
+#' 
 #' @examples
 #' \donttest{
 #' # Lathyrus example
@@ -2647,6 +2659,13 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' \code{\link{historicalize3}()} in this regard. Users are strongly
 #' encouraged to use the latter two functions for stage assignment.
 #' 
+#' @seealso \code{\link{flefko3}()}
+#' @seealso \code{\link{flefko2}()}
+#' @seealso \code{\link{aflefko2}()}
+#' @seealso \code{\link{fleslie}()}
+#' @seealso \code{\link{rlefko2}()}
+#' @seealso \code{\link{rleslie}()}
+#' 
 #' @examples
 #' # Lathyrus example
 #' data(lathyrus)
@@ -3610,6 +3629,13 @@ rlefko3 <- function(data, stageframe, year = "all", pop = NA, patch = NA,
 #' \code{\link{historicalize3}()} in this regard. Users are strongly
 #' encouraged to use the latter two functions for stage assignment.
 #' 
+#' @seealso \code{\link{flefko3}()}
+#' @seealso \code{\link{flefko2}()}
+#' @seealso \code{\link{aflefko2}()}
+#' @seealso \code{\link{fleslie}()}
+#' @seealso \code{\link{rlefko3}()}
+#' @seealso \code{\link{rleslie}()}
+#' 
 #' @examples
 #' # Lathyrus example
 #' data(lathyrus)
@@ -4547,6 +4573,10 @@ rlefko2 <- function(data, stageframe, year = "all", pop = NA, patch = NA,
 #' ahistorical. If provided as historical, then \code{aflefko2()} will fail and
 #' produce an error.
 #' 
+#' Stageframes used in this function should include ages for minimum and maximum
+#' age for each stage. \code{NA}s are treated as \code{0}s in minimum age, and
+#' as \code{final_age} for maximum age.
+#' 
 #' Users may at times wish to estimate MPMs using a dataset incorporating
 #' multiple patches or subpopulations, but without discriminating between those
 #' patches or subpopulations. Should the aim of analysis be a general MPM that
@@ -4592,6 +4622,13 @@ rlefko2 <- function(data, stageframe, year = "all", pop = NA, patch = NA,
 #' element in the associated \code{$U} matrix. The number and order of elements
 #' in each column of this matrix matches the associated matrix in column vector
 #' format. Use of this option is generally for the purposes of debugging code.
+#' 
+#' @seealso \code{\link{flefko3}()}
+#' @seealso \code{\link{flefko2}()}
+#' @seealso \code{\link{fleslie}()}
+#' @seealso \code{\link{rlefko3}()}
+#' @seealso \code{\link{rlefko2}()}
+#' @seealso \code{\link{rleslie}()}
 #' 
 #' @examples
 #' \donttest{
@@ -5521,6 +5558,13 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' states of those variables within the modelsuite. If they do not match, then
 #' they will be treated as zeroes in vital rate estimation.
 #' 
+#' @seealso \code{\link{flefko3}()}
+#' @seealso \code{\link{flefko2}()}
+#' @seealso \code{\link{aflefko2}()}
+#' @seealso \code{\link{rlefko3}()}
+#' @seealso \code{\link{rlefko2}()}
+#' @seealso \code{\link{rleslie}()}
+#' 
 #' @examples
 #' \donttest{
 #' data(lathyrus)
@@ -5531,16 +5575,21 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #'   deadacol = "Dead1988", censorcol = "Missing1988", censorkeep = NA,
 #'   censor = TRUE, NRasRep = TRUE, NOasObs = TRUE)
 #' 
+#' lathvert_base$feca3 <- round(lathvert_base$feca3)
+#' lathvert_base$feca2 <- round(lathvert_base$feca2)
+#' lathvert_base$feca1 <- round(lathvert_base$feca1)
+#' 
 #' lathvert_age <- subset(lathvert_base, firstseen > 1988)
 #' 
 #' lathmodels2_age <- modelsearch(lathvert_age, historical = FALSE,
 #'   approach = "mixed", suite = "cons", bestfit = "AICc&k", age = "obsage",
-#'   vitalrates = c("surv", "fec"), fecdist = "negbin", indiv = "individ",
-#'   year = "year2", year.as.random = TRUE, patch.as.random = TRUE,
-#'   show.model.tables = TRUE, fec.zero = TRUE, quiet = TRUE)
+#'   vitalrates = c("surv", "fec"), fecdist = "poisson", indiv = "individ",
+#'   year = "year2", year.as.random = TRUE, show.model.tables = TRUE,
+#'   quiet = TRUE)
 #' 
-#' lathmat2fleslie <- fleslie(year = "all", data = lathvert_base,
-#'   modelsuite = lathmodels2_age, yearcol = "year2")
+#' lathmat2fleslie <- fleslie(year = "all", data = lathvert_age,
+#'   modelsuite = lathmodels2_age, yearcol = "year2", fecage_min = 1)
+#' 
 #' summary(lathmat2fleslie)
 #' }
 #' @export
@@ -6076,6 +6125,13 @@ fleslie <- function(year = "all", patch = "all", data = NA, modelsuite = NA,
 #' Input options including multiple variable names must be entered in the order
 #' of variables in occasion \emph{t}+1 and \emph{t}. Rearranging the order WILL
 #' lead to erroneous calculations, and may lead to fatal errors.
+#' 
+#' @seealso \code{\link{flefko3}()}
+#' @seealso \code{\link{flefko2}()}
+#' @seealso \code{\link{aflefko2}()}
+#' @seealso \code{\link{fleslie}()}
+#' @seealso \code{\link{rlefko3}()}
+#' @seealso \code{\link{rlefko2}()}
 #' 
 #' @examples
 #' # Cypripedium example

@@ -529,8 +529,6 @@ lathmat3ln <- flefko3(year = "all", patch = "all", stageframe = lathframeln,
 summary(lathmat3ln)
 
 #Cypripedium example using three size metrics for classification
-rm(list=ls(all=TRUE))
-
 data(cypdata)
 sizevector.f <- c(0, 0, 0, 0, 0, 0, seq(1, 12, by = 1), seq(0, 9, by = 1),
   seq(0, 8, by = 1), seq(0, 7, by = 1), seq(0, 6, by = 1), seq(0, 5, by = 1),
@@ -609,4 +607,17 @@ vert.mats.f3 <- flefko3(stageframe = vertframe.f, supplement = vertsupp3f,
 summary(vert.mats.f3)
 }
 
+}
+\seealso{
+\code{\link{flefko2}()}
+
+\code{\link{aflefko2}()}
+
+\code{\link{fleslie}()}
+
+\code{\link{rlefko3}()}
+
+\code{\link{rlefko2}()}
+
+\code{\link{rleslie}()}
 }

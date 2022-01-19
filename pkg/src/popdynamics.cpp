@@ -1695,6 +1695,8 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
             
             if (changing_element > (1.0 - changing_colsum)) {
               changing_element = (1.0 - changing_colsum);
+            } else if (changing_element < 0.0) {
+              changing_element = 0.0;
             }
           } else if (substoch > 0 && dyn_type(j) == 2) {
             if (changing_element < 0.0) {
@@ -1799,6 +1801,8 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
             
             if (changing_element > (1.0 - changing_colsum)) {
               changing_element = (1.0 - changing_colsum);
+            } else if (changing_element < 0.0) {
+              changing_element = 0.0;
             }
           } else if (substoch > 0 && dyn_type(j) == 2) {
             if (changing_element < 0.0) {
@@ -1811,9 +1815,10 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
             if (dyn_type(j) == 1 && sparse_prophecy(dyn_index321(j)) > 1.0 && !warn_trigger_1) {
               warn_trigger_1 = true;
               Rf_warningcall(R_NilValue, "Some probabilities with value > 1.0 produced during density adjustment.");
-            } else if (sparse_prophecy(dyn_index321(j)) < 0.0 && !warn_trigger_neg)
+            } else if (sparse_prophecy(dyn_index321(j)) < 0.0 && !warn_trigger_neg) {
               warn_trigger_neg = true;
               Rf_warningcall(R_NilValue, "Some matrix elements with value < 0.0 produced during density adjustment.");
+            }
           }
         }
       }
@@ -1923,11 +1928,13 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
 //' population (list element).}
 //' \item{labels}{A data frame showing the order of populations and patches in
 //' item \code{projection}.}
-//' \item{control}{A short vector indicating the number of replicates and the
-//' number of occasions projected per replicate.}
 //' \item{ahstages}{The original stageframe used in the study.}
 //' \item{hstages}{A data frame showing the order of historical stage pairs.}
 //' \item{agestages}{A data frame showing the order of age-stage pairs.}
+//' \item{control}{A short vector indicating the number of replicates and the
+//' number of occasions projected per replicate.}
+//' \item{density}{The data frame input under the density option. Only provided
+//' if input by the user.}
 //' 
 //' @section Notes:
 //' Projections are run both at the patch level and at the population level.
@@ -2628,12 +2635,16 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
     output(7) = agestages;
     output(8) = control;
     
-    CharacterVector namevec = {"projection", "stage_dist", "rep_value", "pop_size",
-      "labels", "ahstages", "hstages", "agestages", "control"};
-    output.attr("names") = namevec;
-    
     if (dens_switch) {
-      output.push_back(dens_index);
+      output.push_back(dens_input);
+      
+      CharacterVector namevec = {"projection", "stage_dist", "rep_value", "pop_size",
+        "labels", "ahstages", "hstages", "agestages", "control", "density"};
+      output.attr("names") = namevec;
+    } else {
+      CharacterVector namevec = {"projection", "stage_dist", "rep_value", "pop_size",
+        "labels", "ahstages", "hstages", "agestages", "control"};
+      output.attr("names") = namevec;
     }
     output.attr("class") = "lefkoProj";
     

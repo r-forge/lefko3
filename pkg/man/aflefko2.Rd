@@ -423,6 +423,10 @@ The reproduction matrix (field \code{repmatrix}) may only be supplied as
 ahistorical. If provided as historical, then \code{aflefko2()} will fail and
 produce an error.
 
+Stageframes used in this function should include ages for minimum and maximum
+age for each stage. \code{NA}s are treated as \code{0}s in minimum age, and
+as \code{final_age} for maximum age.
+
 Users may at times wish to estimate MPMs using a dataset incorporating
 multiple patches or subpopulations, but without discriminating between those
 patches or subpopulations. Should the aim of analysis be a general MPM that
@@ -533,4 +537,17 @@ lathmat2age <- aflefko2(year = "all", patch = "all",
 summary(lathmat2age)
 
 }
+}
+\seealso{
+\code{\link{flefko3}()}
+
+\code{\link{flefko2}()}
+
+\code{\link{fleslie}()}
+
+\code{\link{rlefko3}()}
+
+\code{\link{rlefko2}()}
+
+\code{\link{rleslie}()}
 }

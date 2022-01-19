@@ -2380,6 +2380,7 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
     neworigsizebvec(i) = origsizebvec(neworder(i));
     neworigsizecvec(i) = origsizecvec(neworder(i));
     newminagevec(i) = minagevec(neworder(i));
+    if (NumericVector::is_na(newminagevec(i))) newminagevec(i) = 0.0;
     newmaxagevec(i) = maxagevec(neworder(i));
     newrepvec(i) = repvec(neworder(i));
     newobsvec(i) = obsvec(neworder(i));

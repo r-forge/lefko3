@@ -175,10 +175,10 @@
 #' @param censor A vector denoting the names of censoring variables in the
 #' dataset, in order from occasion \emph{t}+1, followed by occasion \emph{t},
 #' and lastly followed by occasion \emph{t}-1. Defaults to \code{NA}.
-#' @param age Designates the name of the variable corresponding to age in the
-#' vertical dataset. Defaults to \code{NA}, in which case age is not included in
-#' linear models. Should only be used if building Leslie or age x stage
-#' matrices.
+#' @param age Designates the name of the variable corresponding to age in time
+#' \emph{t} in the vertical dataset. Defaults to \code{NA}, in which case age
+#' is not included in linear models. Should only be used if building Leslie or
+#' age x stage matrices.
 #' @param indcova Vector designating the names in occasions \emph{t}+1,
 #' \emph{t}, and \emph{t}-1 of an individual covariate. Defaults to \code{NA}.
 #' @param indcovb Vector designating the names in occasions \emph{t}+1,
@@ -1726,6 +1726,11 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
   if (is.numeric(formulae$juv.sizec.model)) {juv.sizec.global.model <- formulae$juv.sizec.model}
   if (is.numeric(formulae$juv.repst.model)) {juv.repst.global.model <- formulae$juv.repst.model}
   if (is.numeric(formulae$juv.matst.model)) {juv.matst.global.model <- formulae$juv.matst.model}
+  if (is.character(formulae$juv.matst.model)) {
+    if (formulae$juv.matst.model == "none") {
+      juv.matst.global.model <- 1
+    }
+  }
   
   surv.table <- obs.table <- size.table <- sizeb.table <- sizec.table <- repst.table <- NA
   juvsurv.table <- juvobs.table <- juvsize.table <- juvsizeb.table <- juvsizec.table <- NA
@@ -3121,7 +3126,12 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
             accuracy <- 1 - (bf_log / null_log)
           }
           
-          if (accuracy < 0 | accuracy > 1) accuracy <- NA
+          if (is.numeric(accuracy)) {
+            if (!is.na(accuracy)) {
+              if (accuracy < 0 | accuracy > 1) accuracy <- NA
+            }
+          } else {accuracy <- NA}
+          
         } else if (!suppressWarnings(all(is.na(nullmodel)))) {
           if (is.element("delta", rownames(accuracy.table))) {
             accuracy <- accuracy.table["delta","R2c"]
@@ -3219,45 +3229,46 @@ summary.lefkoMod <- function(object, ...) {
   
   writeLines(paste0("This LefkoMod object includes ", totalmodels, " linear models."))
   writeLines(paste0("Best-fit model criterion used: ", modelsuite$criterion))
-  writeLines(paste0("\n\n\n"))
+  writeLines(paste0("\n\n"))
   writeLines("Survival model:")
   print(modelsuite$survival_model)
-  writeLines(paste0("\n\n"))
+  writeLines(paste0("\n"))
   writeLines("\nObservation model:")
   print(modelsuite$observation_model)
-  writeLines(paste0("\n\n"))
+  writeLines(paste0("\n"))
   writeLines("\nSize model:")
   print(modelsuite$size_model)
-  writeLines(paste0("\n\n"))
+  writeLines(paste0("\n"))
   writeLines("\nSecondary size model:")
   print(modelsuite$sizeb_model)
-  writeLines(paste0("\n\n"))
+  writeLines(paste0("\n"))
   writeLines("\nTertiary size model:")
   print(modelsuite$sizec_model)
-  writeLines(paste0("\n\n"))
+  writeLines(paste0("\n"))
   writeLines("\nReproductive status model:")
   print(modelsuite$repstatus_model)
-  writeLines(paste0("\n\n"))
+  writeLines(paste0("\n"))
   writeLines("\nFecundity model:")
   print(modelsuite$fecundity_model)
-  writeLines(paste0("\n\n\n"))
+  writeLines(paste0("\n"))
   writeLines("Juvenile survival model:")
   print(modelsuite$juv_survival_model)
-  writeLines(paste0("\n\n"))
+  writeLines(paste0("\n"))
   writeLines("\nJuvenile observation model:")
   print(modelsuite$juv_observation_model)
-  writeLines(paste0("\n\n"))
+  writeLines(paste0("\n"))
   writeLines("\nJuvenile size model:")
   print(modelsuite$juv_size_model)
-  writeLines(paste0("\n\n"))
+  writeLines(paste0("\n"))
   writeLines("\nJuvenile secondary size model:")
   print(modelsuite$juv_sizeb_model)
-  writeLines(paste0("\n\n"))
+  writeLines(paste0("\n"))
   writeLines("\nJuvenile tertiary size model:")
   print(modelsuite$juv_sizec_model)
-  writeLines(paste0("\n\n"))
+  writeLines(paste0("\n"))
   writeLines("\nJuvenile reproduction model:")
   print(modelsuite$juv_reproduction_model)
+  writeLines(paste0("\n"))
   writeLines("\nJuvenile maturity model:")
   print(modelsuite$juv_maturity_model)
   

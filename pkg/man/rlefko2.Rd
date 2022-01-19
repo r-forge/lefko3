@@ -294,3 +294,16 @@ cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw,
 cypmatrix2r$A[[1]]
 
 }
+\seealso{
+\code{\link{flefko3}()}
+
+\code{\link{flefko2}()}
+
+\code{\link{aflefko2}()}
+
+\code{\link{fleslie}()}
+
+\code{\link{rlefko3}()}
+
+\code{\link{rleslie}()}
+}

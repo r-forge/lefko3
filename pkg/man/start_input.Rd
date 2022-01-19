@@ -107,6 +107,9 @@ ehrlen3mean <- lmean(ehrlen3)
 
 e3m_sv <- start_input(ehrlen3mean, stage2 = "Sd", stage1 = "Sd", value = 1000)
 
+lathproj <- projection3(ehrlen3, nreps = 5, times = 100, stochastic = TRUE,
+  start_frame = e3m_sv)
+
 }
 \seealso{
 \code{\link{density_input}()}
