@@ -4381,12 +4381,6 @@ plot.lefkoProj <- function(x, variable = "popsize", style = "time",
   if (!is.element("type", names(further_args))) {
     further_args$type <- "l"
   }
-  if (!is.element("ylab", names(further_args))) {
-    further_args$ylab <- "Population size"
-  }
-  if (!is.element("xlab", names(further_args))) {
-    further_args$xlab <- "Time"
-  }
   if (is.element("col", names(further_args))) {
     auto_col <- FALSE
   }
@@ -4407,8 +4401,22 @@ plot.lefkoProj <- function(x, variable = "popsize", style = "time",
   
   if (length(grep("stat", style)) > 0) {
     style <- "statespace"
+    
+    if (!is.element("ylab", names(further_args))) {
+      further_args$ylab <- "State in time t+1"
+    }
+    if (!is.element("xlab", names(further_args))) {
+      further_args$xlab <- "State in time t"
+    }
   } else if (length(grep("tim", style)) > 0) {
     style <- "timeseries"
+    
+    if (!is.element("ylab", names(further_args))) {
+      further_args$ylab <- "Population size"
+    }
+    if (!is.element("xlab", names(further_args))) {
+      further_args$xlab <- "Time"
+    }
   }
   
   if (all(is.na(patch))) {

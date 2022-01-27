@@ -265,7 +265,11 @@
 #' \code{.overwrite_reassess}. Must be processed via \code{.overwrite_reassess}
 #' rather than being a raw overwrite or supplement table.
 #' @param repmatrix The reproductive matrix used in analysis.
-#' @param finalage The final age to be used in analysis.
+#' @param firstage The first age to be used in the analysis. Should typically
+#' be \code{0} for pre-breeding and \code{1} for post-breeding life history
+#' models. If not building age-by-stage MPMs, then should be set to \code{0}.
+#' @param finalage The final age to be used in analysis. If not building
+#' age-by-stage MPMs, then should be set to \code{0}.
 #' @param format Indicates whether historical matrices should be in (1) Ehrlen
 #' or (2) deVries format.
 #' @param style The style of analysis, where 0 is historical, 1 is ahistorical,
@@ -277,8 +281,8 @@
 #' 
 #' @keywords internal
 #' @noRd
-.theoldpizzle <- function(StageFrame, OverWrite, repmatrix, finalage, format, style, cont) {
-    .Call('_lefko3_theoldpizzle', PACKAGE = 'lefko3', StageFrame, OverWrite, repmatrix, finalage, format, style, cont)
+.theoldpizzle <- function(StageFrame, OverWrite, repmatrix, firstage, finalage, format, style, cont) {
+    .Call('_lefko3_theoldpizzle', PACKAGE = 'lefko3', StageFrame, OverWrite, repmatrix, firstage, finalage, format, style, cont)
 }
 
 #' Estimate Radial Density in Cartesian Space
@@ -897,6 +901,34 @@ logistic3 <- function(start_value, alpha, beta = 0.0, lambda = 1.0, time_steps =
     .Call('_lefko3_minorpatrolgroup', PACKAGE = 'lefko3', MainData, StageFrame, fectime, cont, fec_mod)
 }
 
+#' Estimate All Elements of Raw Age-By-Stage Population Projection Matrix
+#' 
+#' Function \code{.subvertedpatrolgroup()} swiftly calculates matrix
+#' transitions in raw ahistorical matrices, and serves as the core workhorse
+#' function behind \code{\link{arlefko2}()}.
+#' 
+#' @param sge3 The Allstages data frame developed for \code{rlefko2()} covering
+#' stage pairs across times \emph{t}+1 and \emph{t}. Generally termed
+#' \code{stageexpansion3}.
+#' @param sge2 The data frame covering all stages in time \emph{t}. Generally
+#' termed \code{stageexpansion2}.
+#' @param MainData The demographic dataset modified to hold \code{usedfec} and
+#' \code{usedstage} columns.
+#' @param StageFrame The full stageframe for the analysis.
+#' @param firstage The first true age to start the matrix with.
+#' @param finalage The last true age to estimate.
+#' @param cont A logical value indicating whether to lump survival past the
+#' last age into a final age transition set on the supermatrix diagonal.
+#' 
+#' @return List of three matrices, including the survival-transition (U)
+#' matrix, the fecundity matrix (F), and the sum (A) matrix, with A first.
+#' 
+#' @keywords internal
+#' @noRd
+.subvertedpatrolgroup <- function(sge3, sge2, MainData, StageFrame, firstage, finalage, cont) {
+    .Call('_lefko3_subvertedpatrolgroup', PACKAGE = 'lefko3', sge3, sge2, MainData, StageFrame, firstage, finalage, cont)
+}
+
 #' Creates Matrices of Year and Patch Terms in Models
 #' 
 #' Function \code{.revelations()} creates a matrix holding either the year or
@@ -1279,6 +1311,7 @@ logistic3 <- function(start_value, alpha, beta = 0.0, lambda = 1.0, time_steps =
 #' @param maxsize The maximum primary size to be used in element estimation.
 #' @param maxsizeb The maximum secondary size to be used in element estimation.
 #' @param maxsizec The maximum tertiary size to be used in element estimation.
+#' @param firstage The first age to be included in age-by-stage MPM estimation.
 #' @param finalage The final age to be included in age-by-stage MPM estimation.
 #' @param sizedist Designates whether primary size is Gamma (3), Gaussian (2),
 #' Poisson (0), or negative binomial (1) distributed.
@@ -1323,8 +1356,8 @@ logistic3 <- function(start_value, alpha, beta = 0.0, lambda = 1.0, time_steps =
 #' 
 #' @keywords internal
 #' @noRd
-.jerzeibalowski <- function(ppy, AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, jmatstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, svsigmas, maxsize, maxsizeb, maxsizec, finalage, sizedist, sizebdist, sizecdist, fecdist, negfec, exp_tol = 700.0, theta_tol = 100000000.0, ipm_method = "cdf") {
-    .Call('_lefko3_jerzeibalowski', PACKAGE = 'lefko3', ppy, AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, jmatstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, svsigmas, maxsize, maxsizeb, maxsizec, finalage, sizedist, sizebdist, sizecdist, fecdist, negfec, exp_tol, theta_tol, ipm_method)
+.jerzeibalowski <- function(ppy, AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, jmatstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, svsigmas, maxsize, maxsizeb, maxsizec, firstage, finalage, sizedist, sizebdist, sizecdist, fecdist, negfec, exp_tol = 700.0, theta_tol = 100000000.0, ipm_method = "cdf") {
+    .Call('_lefko3_jerzeibalowski', PACKAGE = 'lefko3', ppy, AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, jmatstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, svsigmas, maxsize, maxsizeb, maxsizec, firstage, finalage, sizedist, sizebdist, sizecdist, fecdist, negfec, exp_tol, theta_tol, ipm_method)
 }
 
 #' Create Historically Structured Version of ahMPM
@@ -2447,12 +2480,14 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' Conduct Population Projection Simulations
 #' 
 #' Function \code{projection3()} runs projection simulations. It projects the
-#' population an patches forward in time by a user-defined number of occasions.
-#' Projections may be deterministic or stochastic, and may be density
-#' dependent either way. If deterministic, then projections will be cyclical if
-#' matrices exist covering multiple occasions for each population or patch. If
-#' stochastic, then annual matrices will be shuffled within patches and
-#' populations. Replicates may also be requested.
+#' population and patches forward in time by a user-defined number of
+#' occasions. A given set of matrices is utilized and not recreated, although
+#' elements may be altered if density dependence is set. Projections may be
+#' deterministic or stochastic, and may be density dependent in either case. If
+#' deterministic, then projections will be cyclical if matrices exist covering
+#' multiple occasions for each population or patch. If stochastic, then annual
+#' matrices will be shuffled within patches and populations. Also produces
+#' replicates if set.
 #' 
 #' @param mpm A matrix projection model of class \code{lefkoMat}, or a list of
 #' full matrix projection matrices.

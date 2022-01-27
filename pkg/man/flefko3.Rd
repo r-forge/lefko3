@@ -75,9 +75,9 @@ matrices estimated. Defaults to \code{"all"}, but can also be set to specific
 patch names.}
 
 \item{stageframe}{A stageframe object that includes information on the size,
-observation status, propagule status, immaturity status, and maturity status
-of each ahistorical stage. Should also incorporate bin widths if size is
-continuous.}
+observation status, propagule status, reproduction status, immaturity status,
+and maturity status of each ahistorical stage. Should also incorporate bin
+widths if size is continuous.}
 
 \item{supplement}{An optional data frame of class \code{lefkoSD} that
 provides supplemental data that should be incorporated into the MPM. Three
@@ -108,7 +108,8 @@ function supplements overwrite data provided in \code{supplement}.}
 
 \item{data}{The historical vertical demographic data frame used to estimate
 vital rates (class \code{hfvdata}), which is required to initialize times and
-patches properly.}
+patches properly. Variable names should correspond to the naming conventions
+in \code{\link{verticalize3}()} and \code{\link{historicalize3}()}.}
 
 \item{modelsuite}{An optional \code{lefkoMod} object holding the vital rate
 models. If given, then \code{surv_model}, \code{obs_model}, 
@@ -612,6 +613,8 @@ summary(vert.mats.f3)
 \code{\link{flefko2}()}
 
 \code{\link{aflefko2}()}
+
+\code{\link{arlefko2}()}
 
 \code{\link{fleslie}()}
 

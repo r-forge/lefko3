@@ -178,6 +178,8 @@ cyp_rl
 
 \code{\link{aflefko2}()}
 
+\code{\link{arlefko2}()}
+
 \code{\link{fleslie}()}
 
 \code{\link{rlefko3}()}

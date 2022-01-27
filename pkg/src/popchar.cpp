@@ -542,12 +542,12 @@ Rcpp::List sf_create (NumericVector sizes, Nullable<StringVector> stagenames = R
     } else {
       throw Rcpp::exception("Vector maxage should be the same length as vector sizes.", false);
     }
-    if (no_age) {
-      throw Rcpp::exception("Vector minage is required if vector maxage is provided.", false);
-    }
-  } else if (!no_age) {
-    throw Rcpp::exception("Vector maxage is required if vector minage is provided.", false);
-  }
+    //if (no_age) { // We don't really need this any more.
+    //  throw Rcpp::exception("Vector minage is required if vector maxage is provided.", false);
+    //}
+  } // else if (!no_age) { // We do not really need this bit
+    //throw Rcpp::exception("Vector maxage is required if vector minage is provided.", false);
+  //}
   
   if (repstatus.isNotNull()) {
     Rcpp::IntegerVector repstatus_thru(repstatus);

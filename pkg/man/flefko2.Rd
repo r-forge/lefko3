@@ -74,9 +74,9 @@ matrices estimated. Defaults to \code{"all"}, but can also be set to specific
 patch names.}
 
 \item{stageframe}{A stageframe object that includes information on the size,
-observation status, propagule status, immaturity status, and maturity status
-of each ahistorical stage. Should also incorporate bin widths if size is
-continuous.}
+observation status, propagule status, reproduction status, immaturity status,
+and maturity status of each ahistorical stage. Should also incorporate bin
+widths if size is continuous.}
 
 \item{supplement}{An optional data frame of class \code{lefkoSD} that
 provides supplemental data that should be incorporated into the MPM. Three
@@ -104,8 +104,9 @@ either with given values or with other estimated transitions. Note that this
 function supplements overwrite data provided in \code{supplement}.}
 
 \item{data}{The historical vertical demographic data frame used to estimate
-vital rates (class \code{hfvdata}). The original data frame is required in
-order to initialize times and patches properly.}
+vital rates (class \code{hfvdata}), which is required to initialize times and
+patches properly. Variable names should correspond to the naming conventions
+in \code{\link{verticalize3}()} and \code{\link{historicalize3}()}.}
 
 \item{modelsuite}{An optional \code{lefkoMod} object holding the vital rate
 models. If given, then \code{surv_model}, \code{obs_model}, 
@@ -519,8 +520,6 @@ lathmat2ln <- flefko2(year = "all", patch = "all", stageframe = lathframeln,
 summary(lathmat2ln)
 
 #Cypripedium example using three size metrics for classification
-rm(list=ls(all=TRUE))
-
 data(cypdata)
 sizevector.f <- c(0, 0, 0, 0, 0, 0, seq(1, 12, by = 1), seq(0, 9, by = 1),
   seq(0, 8, by = 1), seq(0, 7, by = 1), seq(0, 6, by = 1), seq(0, 5, by = 1),
@@ -597,6 +596,8 @@ summary(vert.mats.f2)
 \code{\link{flefko3}()}
 
 \code{\link{aflefko2}()}
+
+\code{\link{arlefko2}()}
 
 \code{\link{fleslie}()}
 

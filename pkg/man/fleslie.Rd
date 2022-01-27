@@ -263,6 +263,8 @@ summary(lathmat2fleslie)
 
 \code{\link{aflefko2}()}
 
+\code{\link{arlefko2}()}
+
 \code{\link{rlefko3}()}
 
 \code{\link{rlefko2}()}

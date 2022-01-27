@@ -3316,7 +3316,11 @@ Rcpp::List jpf(DataFrame data, DataFrame stageframe, int popidcol,
 //' \code{.overwrite_reassess}. Must be processed via \code{.overwrite_reassess}
 //' rather than being a raw overwrite or supplement table.
 //' @param repmatrix The reproductive matrix used in analysis.
-//' @param finalage The final age to be used in analysis.
+//' @param firstage The first age to be used in the analysis. Should typically
+//' be \code{0} for pre-breeding and \code{1} for post-breeding life history
+//' models. If not building age-by-stage MPMs, then should be set to \code{0}.
+//' @param finalage The final age to be used in analysis. If not building
+//' age-by-stage MPMs, then should be set to \code{0}.
 //' @param format Indicates whether historical matrices should be in (1) Ehrlen
 //' or (2) deVries format.
 //' @param style The style of analysis, where 0 is historical, 1 is ahistorical,
@@ -3330,7 +3334,8 @@ Rcpp::List jpf(DataFrame data, DataFrame stageframe, int popidcol,
 //' @noRd
 // [[Rcpp::export(.theoldpizzle)]]
 Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
-  arma::mat repmatrix, int finalage, int format, int style, int cont) {
+  arma::mat repmatrix, int firstage, int finalage, int format, int style,
+  int cont) {
   
   StringVector ovstage3 = OverWrite["stage3"];
   StringVector ovstage2 = OverWrite["stage2"];
@@ -3344,7 +3349,8 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
   arma::vec ovconvt12 = OverWrite["convtype_t12"];
   int ovrows = ovconvtype.n_elem;
   
-  int totalages = finalage + 1;
+  int totalages = (finalage - firstage) + 1;
+  // if (cont) totalages += 1;
   
   arma::vec ovindex3(ovrows * totalages);
   arma::vec ovindex2(ovrows * totalages);
@@ -3388,7 +3394,6 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
   arma::vec binsizebwidth = StageFrame["sizebinb_width"];
   arma::vec binsizecwidth = StageFrame["sizebinc_width"];
   
-  
   // This section determines the length of the matrix map data frame
   int nostages = newstageid.n_elem;
   int nostages_nodead = nostages - 1;
@@ -3401,7 +3406,7 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
   int totallength {0};
   
   if (style == 2) {
-    totallength = (nostages * nostages * (finalage + 1) * (finalage + 1));
+    totallength = (nostages * nostages * totalages * totalages);
   } else if (style == 1) {
     totallength = (nostages * nostages_nodead);
   } else {
@@ -3419,7 +3424,6 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
   // repmatrix has been entered in historical or ahistorical format, since this
   // does not necessarily match the MPM type
   int reprows = repmatrix.n_rows;
-
   int repmattype = 0;
   
   if (reprows == (nostages - 1) || reprows == (nostages - 2)) {
@@ -3518,7 +3522,7 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
   int repm_elem {-1};
   double deadandnasty {0};
   long long int currentindex {0};
-
+  
   // This step changes the stage names to stage numbers per the input stageframe for styles 0 and 1
   if (style < 2) {
     if (ovrows > 1 || ovconvtype(0) != -1) {
@@ -3554,6 +3558,7 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
   
   // Now we cover the main data frame creation loops
   // When style = 0, this will create AllStages for the historical case
+  // When format = 2, the historical MPM will be in deVries format
   if (style == 0 && format == 2) {
     
     if (ovrows > 1 || ovconvtype(0) != -1) {
@@ -4102,107 +4107,118 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
         }
       }
     } // ovreplace if statement
-  } else if (style == 2) { // This takes care of the stage x age case
-    
-    int age3 {0};
+  } else if (style == 2) { // This takes care of the age x stage case
+    int age3 {firstage};
     
     for (int time3 = 0; time3 < nostages; time3++) {
       if (NumericVector::is_na(maxage(time3))) {
-        maxage(time3) = finalage + cont;
+        maxage(time3) = finalage + cont; // Originally included finalage + cont
       }
     }
     
     // This sets up the overwrite tables
     if (ovrows > 1 || ovconvtype(0) != -1) {
       // This first set of loops establishes a number of indices
-      for (int age2 = 0; age2 < totalages; age2++) {
+      for (int age2 = firstage; age2 < (totalages + 1); age2++) {
         for (int i = 0; i < ovrows; i++) { // Loop across overwrite rows
           for (int j = 0; j < nostages; j++) { // Loop across stageframe rows
-            ovconvtypeage(i + (ovrows * age2)) = ovconvtype(i);
+            ovconvtypeage(i + (ovrows * (age2 - firstage))) = ovconvtype(i);
               
-            if (age2 < (totalages - 1)) {
+            if (age2 < (totalages)) { // Originally totalages - 1
               if (ovconvtype(i) == 1) {
                 age3 = age2 + 1;
               } else {
-                age3 = 0;
+                age3 = firstage;
               }
               
               if (ovstage3(i) == origstageid(j)) {
-                ovindex3(i + (ovrows * age2)) = newstageid(j) - 1;
+                ovindex3(i + (ovrows * (age2 - firstage))) = newstageid(j) - 1;
               }
               
               if (ovstage2(i) == origstageid(j)) {
-                ovindex2(i + (ovrows * age2)) = newstageid(j) - 1;
+                ovindex2(i + (ovrows * (age2 - firstage))) = newstageid(j) - 1;
               }
               
               if (oveststage3(i) == origstageid(j)) {
-                ovnew3(i + (ovrows * age2)) = newstageid(j) - 1;
+                ovnew3(i + (ovrows * (age2 - firstage))) = newstageid(j) - 1;
               }
               
               if (oveststage2(i) == origstageid(j)) {
-                ovnew2(i + (ovrows * age2)) = newstageid(j) - 1;
+                ovnew2(i + (ovrows * (age2 - firstage))) = newstageid(j) - 1;
               }
               
-              if (ovindex3(i + (ovrows * age2)) != -1 && ovindex2(i + (ovrows * age2)) != -1) {
-                ovindexold321(i + (ovrows * age2)) = ovindex3(i + (ovrows * age2)) +
-                  (age3 * nostages) + (ovindex2(i + (ovrows * age2)) * nostages * totalages) + 
-                  (age2 * nostages * nostages * totalages);
+              if (ovindex3(i + (ovrows * (age2 - firstage))) != -1 && 
+                ovindex2(i + (ovrows * (age2 - firstage))) != -1) {
+                ovindexold321(i + (ovrows * (age2 - firstage))) = 
+                  ovindex3(i + (ovrows * (age2 - firstage))) +
+                  ((age3 - firstage) * nostages) +
+                  (ovindex2(i + (ovrows * (age2 - firstage))) * nostages * totalages) + 
+                  ((age2 - firstage) * nostages * nostages * totalages);
               }
               
-              if (ovnew3(i + (ovrows * age2)) != -1 && ovnew2(i + (ovrows * age2)) != -1) {
-                ovindexnew321(i + (ovrows * age2)) = ovnew3(i + (ovrows * age2)) +
-                  (age3 * nostages) + (ovnew2(i + (ovrows * age2)) * nostages * totalages) +
-                  (age2 * nostages * nostages * totalages);
+              if (ovnew3(i + (ovrows * (age2 - firstage))) != -1 &&
+                ovnew2(i + (ovrows * (age2 - firstage))) != -1) {
+                ovindexnew321(i + (ovrows * (age2 - firstage))) =
+                  ovnew3(i + (ovrows * (age2 - firstage))) +
+                  ((age3 - firstage) * nostages) +
+                  (ovnew2(i + (ovrows * (age2 - firstage))) * nostages * totalages) +
+                  ((age2 - firstage) * nostages * nostages * totalages);
               }
               
               if (!NumericVector::is_na(ovgivenrate(i))) {
-                ovnewgivenrate(i + (ovrows * age2)) = ovgivenrate(i);
+                ovnewgivenrate(i + (ovrows * (age2 - firstage))) = ovgivenrate(i);
               }
               if (NumericVector::is_na(ovmultiplier(i))) {
                 ovmultiplier(i) = 1;
               }
-              ovnewmultiplier(i + (ovrows * age2)) = ovmultiplier(i);
+              ovnewmultiplier(i + (ovrows * (age2 - firstage))) = ovmultiplier(i);
             } else {
               if (ovconvtype(i) == 1) {
                 age3 = age2;
               } else {
-                age3 = 0;
+                age3 = firstage;
               }
               
               if (ovstage3(i) == origstageid(j)) {
-                ovindex3(i + (ovrows * age2)) = newstageid(j) - 1;
+                ovindex3(i + (ovrows * (age2 - firstage))) = newstageid(j) - 1;
               }
               
               if (ovstage2(i) == origstageid(j)) {
-                ovindex2(i + (ovrows * age2)) = newstageid(j) - 1;
+                ovindex2(i + (ovrows * (age2 - firstage))) = newstageid(j) - 1;
               }
               
               if (oveststage3(i) == origstageid(j)) {
-                ovnew3(i + (ovrows * age2)) = newstageid(j) - 1;
+                ovnew3(i + (ovrows * (age2 - firstage))) = newstageid(j) - 1;
               }
               
               if (oveststage2(i) == origstageid(j)) {
-                ovnew2(i + (ovrows * age2)) = newstageid(j) - 1;
+                ovnew2(i + (ovrows * (age2 - firstage))) = newstageid(j) - 1;
               }
               
-              if (ovindex3(i + (ovrows * age2)) != -1 && ovindex2(i + (ovrows * age2)) != -1) {
-                ovindexold321(i + (ovrows * age2)) = ovindex3(i + (ovrows * age2)) +
-                  (age3 * nostages) + (ovindex2(i + (ovrows * age2)) * nostages * totalages) +
-                  (age2 * nostages * nostages * totalages);
+              if (ovindex3(i + (ovrows * (age2 - firstage))) != -1 &&
+                ovindex2(i + (ovrows * (age2 - firstage))) != -1) {
+                ovindexold321(i + (ovrows * (age2 - firstage))) =
+                  ovindex3(i + (ovrows * (age2 - firstage))) +
+                  ((age3 - firstage) * nostages) +
+                  (ovindex2(i + (ovrows * (age2 - firstage))) * nostages * totalages) +
+                  ((age2 - firstage) * nostages * nostages * totalages);
               }
               
-              if (ovnew3(i + (ovrows * age2)) != -1 && ovnew2(i + (ovrows * age2)) != -1) {
-                ovindexnew321(i + (ovrows * age2)) = ovnew3(i + (ovrows * age2)) +
-                  (age3 * nostages) + (ovnew2(i + (ovrows * age2)) * nostages * totalages) +
-                  (age2 * nostages * nostages * totalages);
+              if (ovnew3(i + (ovrows * (age2 - firstage))) != -1 &&
+                ovnew2(i + (ovrows * (age2 - firstage))) != -1) {
+                ovindexnew321(i + (ovrows * (age2 - firstage))) =
+                  ovnew3(i + (ovrows * (age2 - firstage))) +
+                  ((age3 - firstage) * nostages) +
+                  (ovnew2(i + (ovrows * (age2 - firstage))) * nostages * totalages) +
+                  ((age2 - firstage) * nostages * nostages * totalages);
               }
               if (!NumericVector::is_na(ovgivenrate(i))) {
-                ovnewgivenrate(i + (ovrows * age2)) = ovgivenrate(i);
+                ovnewgivenrate(i + (ovrows * (age2 - firstage))) = ovgivenrate(i);
               }
               if (NumericVector::is_na(ovmultiplier(i))) {
                 ovmultiplier(i) = 1;
               }
-              ovnewmultiplier(i + (ovrows * age2)) = ovmultiplier(i);
+              ovnewmultiplier(i + (ovrows * (age2 - firstage))) = ovmultiplier(i);
             }
           } // j for loop
           
@@ -4213,15 +4229,16 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
       }
     } // ovrows if statement
     
-    for (int age2 = 0; age2 <= finalage; age2++) {
+    for (int age2 = firstage; age2 <= finalage; age2++) {
       if (age2 < finalage) { // This first loop takes care of transitions from one age to the next
         for (int time2n = 0; time2n < nostages; time2n++) {
           for (int time3 = 0; time3 < nostages; time3++) {
             
             // First survival
             age3 = age2 + 1;
-            currentindex = time3 + (age3 * nostages) + 
-              (time2n * nostages * totalages) + (age2 * nostages * nostages * totalages);
+            currentindex = time3 + ((age3 - firstage) * nostages) + 
+              (time2n * nostages * totalages) +
+              ((age2 - firstage) * nostages * nostages * totalages);
             
             stage3(currentindex) = newstageid(time3);
             stage2n(currentindex) = newstageid(time2n);
@@ -4299,6 +4316,7 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
             // The next indexer includes the following order: (1st # of age blocks) + (1st # of stage cols) +
             // (1st # of age rows) + stage in time 3
             index321(currentindex) = currentindex;
+            index21(currentindex) = time2n + ((age2 - firstage) * nostages);
             indatalong(currentindex) = 1;
             
             // This section identifies elements with non-zero entries by their element number in the final matrix
@@ -4306,8 +4324,10 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
               if (age2 >= minage2(currentindex) && age2 < maxage3(currentindex)) { 
                 
                 // Survival transitions
-                aliveequal(currentindex) = (age2 * (nostages - 1) * (nostages - 1) * totalages) + 
-                  (time2n * (nostages - 1) * totalages) + (age3 * (nostages - 1)) + time3;
+                aliveequal(currentindex) =
+                  ((age2 - firstage) * (nostages - 1) * (nostages - 1) * totalages) + 
+                  (time2n * (nostages - 1) * totalages) +
+                  ((age3 - firstage) * (nostages - 1)) + time3;
               }
             }
             
@@ -4316,9 +4336,10 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
               if (repmatrix((time3 + (nostages_nodead * time2n))) > 0) {
                 
                 // Now fecundity
-                age3 = 0;
-                currentindex = time3 + (age3 * nostages) + 
-                  (time2n * nostages * totalages) + (age2 * nostages * nostages * totalages);
+                age3 = firstage;
+                currentindex = time3 + ((age3 - firstage) * nostages) + 
+                  (time2n * nostages * totalages) +
+                  ((age2 - firstage) * nostages * nostages * totalages);
                 
                 stage3(currentindex) = newstageid(time3);
                 stage2n(currentindex) = newstageid(time2n);
@@ -4398,6 +4419,7 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
                 // The next indexer includes the following order: (1st # of age blocks) + 
                 // (1st # of stage cols) + (1st # of age rows) + stage in time 3
                 index321(currentindex) = currentindex;
+                index21(currentindex) = time2n + ((age2 - firstage) * nostages);
                 indatalong(currentindex) = 1;
                 
                 // This section identifies elements with non-zero entries by their
@@ -4406,22 +4428,25 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
                   if (age2 >= minage2(currentindex) && age2 <= maxage2(currentindex)) { 
                     
                     // Fecundity transitions
-                    aliveequal(currentindex) = (age2 * (nostages - 1) * (nostages - 1) * totalages) + 
-                      (time2n * (nostages - 1) * totalages) + (age3 * (nostages - 1)) + time3;
+                    aliveequal(currentindex) = 
+                      ((age2 - firstage) * (nostages - 1) * (nostages - 1) * totalages) + 
+                      (time2n * (nostages - 1) * totalages) +
+                      ((age3 - firstage) * (nostages - 1)) + time3;
                   }
                 } // if statement leading to aliveequal assignment
               } // if statement yielding fecundity estimation
             } // if statement checking time3 and time2n
           } // time3 loop
         } // time2n loop
-      } else if (cont == 1) { // This is the self-loop on the final age if the organism can live past the final age
+      } else if (cont == 1) { // Self-loop on final age, if the organism can live past final age
         for (int time2n = 0; time2n < nostages; time2n++) {
           for (int time3 = 0; time3 < nostages; time3++) {
             
             // First survival
             age3 = age2;
-            currentindex = time3 + (age3 * nostages) + 
-              (time2n * nostages * totalages) + (age2 * nostages * nostages * totalages);
+            currentindex = time3 + ((age3 - firstage) * nostages) + 
+              (time2n * nostages * totalages) +
+              ((age2 - firstage) * nostages * nostages * totalages);
             
             stage3(currentindex) = newstageid(time3);
             stage2n(currentindex) = newstageid(time2n);
@@ -4499,26 +4524,29 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
             // The next indexer includes the following order: (1st # of age blocks) + 
             // (1st # of stage cols) + (1st # of age rows) + stage in time 3
             index321(currentindex) = currentindex;
+            index21(currentindex) = time2n + ((age2 - firstage) * nostages);
             indatalong(currentindex) = 1;
             
             // This section identifies elements with non-zero entries by their element number in the final matrix
             if (alive(time2n) == 1 && alive(time3) == 1) {
               if (age2 >= minage2(currentindex) && age2 < maxage3(currentindex)) { 
-                
+
                 // Survival transitions
-                aliveequal(currentindex) = (age2 * (nostages - 1) * (nostages - 1) * totalages) + 
-                  (time2n * (nostages - 1) * totalages) + (age3 * (nostages - 1)) + time3;
+                aliveequal(currentindex) = 
+                  ((age2 - firstage) * (nostages - 1) * (nostages - 1) * totalages) + 
+                  (time2n * (nostages - 1) * totalages) +
+                  ((age3 - firstage) * (nostages - 1)) + time3;
               }
             }
             
             if (time3 < nostages_nodead && time2n < nostages_nodead) {
-            
               if (repmatrix((time3 + (nostages_nodead * time2n))) > 0) {
                 
                 // Now fecundity
-                age3 = 0;
-                currentindex = time3 + (age3 * nostages) + 
-                  (time2n * nostages * totalages) + (age2 * nostages * nostages * totalages);
+                age3 = firstage;
+                currentindex = time3 + ((age3 - firstage) * nostages) + 
+                  (time2n * nostages * totalages) +
+                  ((age2 - firstage) * nostages * nostages * totalages);
                 
                 stage3(currentindex) = newstageid(time3);
                 stage2n(currentindex) = newstageid(time2n);
@@ -4597,6 +4625,7 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
                 // The next indexer includes the following order: (1st # of age blocks) + (1st # of stage cols) +
                 // (1st # of age rows) + stage in time 3
                 index321(currentindex) = currentindex;
+                index21(currentindex) = time2n + ((age2 - firstage) * nostages);
                 indatalong(currentindex) = 1;
                 
                 // This section identifies elements with non-zero entries by their element number in the final matrix
@@ -4604,8 +4633,10 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
                   if (age2 >= minage2(currentindex) && age2 <= maxage2(currentindex)) { 
                     
                     // Fecundity transitions
-                    aliveequal(currentindex) = (age2 * (nostages - 1) * (nostages - 1) * totalages) + 
-                      (time2n * (nostages - 1) * totalages) + (age3 * (nostages - 1)) + time3;
+                    aliveequal(currentindex) =
+                      ((age2 - firstage) * (nostages - 1) * (nostages - 1) * totalages) + 
+                      (time2n * (nostages - 1) * totalages) +
+                      ((age3 - firstage) * (nostages - 1)) + time3;
                   }
                 } // if statement leading to aliveequal assignment
               } // if statement yielding fecundity estimation
@@ -4637,7 +4668,8 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
         }
       }
     } // ovreplace if statement
-  } // Age by stage loop (style == 2)
+  } // Age-by-stage loop (style = 2)
+  
   
   Rcpp::List output_longlist(59);
   

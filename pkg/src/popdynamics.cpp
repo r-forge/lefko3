@@ -1860,12 +1860,14 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
 //' Conduct Population Projection Simulations
 //' 
 //' Function \code{projection3()} runs projection simulations. It projects the
-//' population an patches forward in time by a user-defined number of occasions.
-//' Projections may be deterministic or stochastic, and may be density
-//' dependent either way. If deterministic, then projections will be cyclical if
-//' matrices exist covering multiple occasions for each population or patch. If
-//' stochastic, then annual matrices will be shuffled within patches and
-//' populations. Replicates may also be requested.
+//' population and patches forward in time by a user-defined number of
+//' occasions. A given set of matrices is utilized and not recreated, although
+//' elements may be altered if density dependence is set. Projections may be
+//' deterministic or stochastic, and may be density dependent in either case. If
+//' deterministic, then projections will be cyclical if matrices exist covering
+//' multiple occasions for each population or patch. If stochastic, then annual
+//' matrices will be shuffled within patches and populations. Also produces
+//' replicates if set.
 //' 
 //' @param mpm A matrix projection model of class \code{lefkoMat}, or a list of
 //' full matrix projection matrices.

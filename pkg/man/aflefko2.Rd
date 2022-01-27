@@ -49,13 +49,15 @@ aflefko2(
   repmod = 1,
   yearcol = NA,
   patchcol = NA,
+  agecol = "obsage",
   year.as.random = FALSE,
   patch.as.random = FALSE,
   random.inda = FALSE,
   random.indb = FALSE,
   random.indc = FALSE,
-  final_age = 10,
+  final_age = NA,
   continue = TRUE,
+  prebreeding = TRUE,
   randomseed = NA,
   negfec = FALSE,
   ipm_method = "CDF",
@@ -76,9 +78,9 @@ matrices estimated. Defaults to \code{"all"}, but can also be set to specific
 patch names.}
 
 \item{stageframe}{A stageframe object that includes information on the size,
-observation status, propagule status, immaturity status, and maturity status
-of each ahistorical stage. Should also incorporate bin widths if size is
-continuous.}
+observation status, propagule status, reproduction status, immaturity status,
+and maturity status of each ahistorical stage. Should also incorporate bin
+widths if size is continuous.}
 
 \item{supplement}{An optional data frame of class \code{lefkoSD} that
 provides supplemental data that should be incorporated into the MPM. Three
@@ -107,8 +109,9 @@ either with given values or with other estimated transitions. Note that this
 function supplements overwrite data provided in \code{supplement}.}
 
 \item{data}{The historical vertical demographic data frame used to estimate
-vital rates (class \code{hfvdata}). The original data frame is required in
-order to initialize occasions and patches properly.}
+vital rates (class \code{hfvdata}), which is required to initialize times and
+patches properly. Variable names should correspond to the naming conventions
+in \code{\link{verticalize3}()} and \code{\link{historicalize3}()}.}
 
 \item{modelsuite}{An optional \code{lefkoMod} object holding the vital rate
 models. If given, then \code{surv_model}, \code{obs_model}, 
@@ -295,6 +298,10 @@ supplied.}
 \item{patchcol}{The variable name or column number corresponding to patch in 
 the dataset. Not needed if a \code{modelsuite} is supplied.}
 
+\item{agecol}{The variable name or column number corresponding to age in the
+dataset. Used for quality control checks, and to determine the default
+\code{final_age}. Defaults to \code{"obsage"}.}
+
 \item{year.as.random}{A logical term indicating whether coefficients for
 missing occasions within vital rate models should be estimated as random
 intercepts. Defaults to \code{FALSE}, in which case missing monitoring
@@ -318,11 +325,14 @@ covariate \code{c} as a random, categorical variable. Otherwise is treated as
 a fixed, numeric variable. Defaults to \code{FALSE}.}
 
 \item{final_age}{The final age to model in the matrix, where the first age
-will be age 0.}
+will be age 0. Defaults to the maximum age in the dataset.}
 
 \item{continue}{A logical value designating whether to allow continued
 survival of individuals past the final age noted in the stageframe, using the 
 demographic characteristics of the final age. Defaults to \code{TRUE}.}
+
+\item{prebreeding}{A logical value indicating whether the life history model
+is a pre-breeding model. Defaults to \code{TRUE}.}
 
 \item{randomseed}{A numeric value used as a seed to generate random estimates
 for missing occasion and patch coefficients, if either \code{year.as.random}
@@ -535,7 +545,6 @@ lathmat2age <- aflefko2(year = "all", patch = "all",
   final_age = 2, continue = TRUE, reduce = FALSE)
 
 summary(lathmat2age)
-
 }
 }
 \seealso{
@@ -544,6 +553,8 @@ summary(lathmat2age)
 \code{\link{flefko2}()}
 
 \code{\link{fleslie}()}
+
+\code{\link{arlefko2}()}
 
 \code{\link{rlefko3}()}
 

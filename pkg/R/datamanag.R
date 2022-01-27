@@ -178,6 +178,11 @@
 #' during stage assignment. This can be useful when a MPM is desired without
 #' separation of observable and unobservable stages. Only used if
 #' \code{stageassign} is set to a stageframe. Defaults to \code{FALSE}.
+#' @param prebreeding A logical term indicating whether the life history model
+#' is pre-breeding. If so, then \code{1} is added to all ages. Defaults to
+#' \code{TRUE}.
+#' @param age_offset A number to add automatically to all values of age at time
+#' \emph{t}. Defaults to \code{0}.
 #' @param reduce A logical variable determining whether unused variables and 
 #' some invariant state variables should be removed from the output dataset.
 #' Defaults to \code{TRUE}.
@@ -491,7 +496,8 @@ verticalize3 <- function(data, noyears, firstyear = 1, popidcol = 0,
   repstrrel = 1, fecrel = 1, stagecol = 0, stageassign = NA, stagesize = NA,
   censorkeep = 0, censorRepeat = FALSE, censor = FALSE,
   coordsRepeat = FALSE, spacing = NA, NAas0 = FALSE, NRasRep = FALSE,
-  NOasObs = FALSE, reduce = TRUE, a2check = FALSE, quiet = FALSE) {
+  NOasObs = FALSE, prebreeding = TRUE, age_offset = 0, reduce = TRUE,
+  a2check = FALSE, quiet = FALSE) {
   
   stassign <- rowid <- alive2 <- indataset <- censor1 <- censor2 <- NULL
   censor3 <- censbool <- NULL
@@ -513,9 +519,11 @@ verticalize3 <- function(data, noyears, firstyear = 1, popidcol = 0,
   }
   
   if (!all(is.logical(c(censorRepeat, censor, coordsRepeat, NAas0, NRasRep, 
-      NOasObs, reduce, a2check, quiet)))) {
+      NOasObs, reduce, a2check, quiet, prebreeding)))) {
     stop("Some logical variables have been set to non-logical values.", call. = FALSE)
   }
+  
+  if (prebreeding) age_offset <- age_offset + 1
   
   if (is.character(popidcol)) {
     if (is.element(popidcol, names(data))) {
@@ -1134,6 +1142,8 @@ verticalize3 <- function(data, noyears, firstyear = 1, popidcol = 0,
     }
   }
   
+  popdatareal$obsage <- popdatareal$obsage + age_offset
+  
   return(popdatareal)
 }
 
@@ -1303,6 +1313,11 @@ verticalize3 <- function(data, noyears, firstyear = 1, popidcol = 0,
 #' during stage assignment. This can be useful when a MPM is desired without
 #' separation of observable and unobservable stages. Only used if
 #' \code{stageassign} is set to a stageframe. Defaults to \code{FALSE}.
+#' @param prebreeding A logical term indicating whether the life history model
+#' is pre-breeding. If so, then \code{1} is added to all ages. Defaults to
+#' \code{TRUE}.
+#' @param age_offset A number to add automatically to all values of age at time
+#' \emph{t}. Defaults to \code{0}.
 #' @param reduce A logical variable determining whether unused variables and
 #' some invariant state variables should be removed from the output dataset.
 #' Defaults to \code{TRUE}.
@@ -1486,14 +1501,17 @@ historicalize3 <- function(data, popidcol = 0, patchidcol = 0, individcol,
   nonobs2col = 0, nonobs3col = 0, repstrrel = 1, fecrel = 1, stage2col = 0,
   stage3col = 0, juv2col = 0, juv3col = 0, stageassign = NA, stagesize = NA,
   censor = FALSE, censorcol = 0, censorkeep = 0, spacing = NA, NAas0 = FALSE,
-  NRasRep = FALSE, NOasObs = FALSE, reduce = TRUE, quiet = FALSE) {
+  NRasRep = FALSE, NOasObs = FALSE, prebreeding = TRUE, age_offset = 0,
+  reduce = TRUE, quiet = FALSE) {
   
   alive2 <- indataset <- censor1 <- censor2 <- censor3 <- censbool <- NULL
   
-  if (!all(is.logical(c(NAas0, NRasRep, NOasObs, reduce, quiet)))) {
+  if (!all(is.logical(c(NAas0, NRasRep, NOasObs, reduce, quiet, prebreeding)))) {
     stop("Some logical variables have been assigned non-logical values.",
       call. = FALSE)
   }
+  
+  if (prebreeding) age_offset <- age_offset + 1
   
   if (is.na(individcol)) {
     stop("Individual ID variable is required.", call. = FALSE)
@@ -2264,6 +2282,8 @@ historicalize3 <- function(data, popidcol = 0, patchidcol = 0, individcol,
       popdata <- popdata[,-c(which(names(popdata) =="fecstatus3"))]
     }
   }
+  
+  popdata$obsage <- popdata$obsage + age_offset
   
   return(popdata)
 }
@@ -3957,19 +3977,37 @@ hist_null <- function(mpm, format = 1) {
   redone_mpms <- .thefifthhousemate(mpm, allstages$allstages, allstages$ahstages, format)
   
   if (is.element("dataqc", names(mpm)) & is.element("matrixqc", names(mpm))) {
+    totalutransitions <- sum(unlist(lapply(redone_mpms$U, function(X) {length(which(X != 0))})))
+    totalftransitions <- sum(unlist(lapply(redone_mpms$F, function(X) {length(which(X != 0))})))
+    totalmatrices <- length(redone_mpms$U)
+    
+    qcoutput1 <- c(totalutransitions, totalftransitions, totalmatrices)
+    
     new_mpm <- list(A = redone_mpms$A, U = redone_mpms$U, F = redone_mpms$F,
       agestages = mpm$agestages, hstages = allstages$hstages,
       ahstages = allstages$ahstages, labels = mpm$labels,
-      matrixqc = mpm$matrixqc, dataqc = mpm$dataqc)
+      matrixqc = qcoutput1, dataqc = mpm$dataqc)
   } else if (is.element("matrixqc", names(mpm)) & is.element("modelqc", names(mpm))) {
+    totalutransitions <- sum(unlist(lapply(redone_mpms$U, function(X) {length(which(X != 0))})))
+    totalftransitions <- sum(unlist(lapply(redone_mpms$F, function(X) {length(which(X != 0))})))
+    totalmatrices <- length(redone_mpms$U)
+    
+    qcoutput1 <- c(totalutransitions, totalftransitions, totalmatrices)
+    
     new_mpm <- list(A = redone_mpms$A, U = redone_mpms$U, F = redone_mpms$F,
       agestages = mpm$agestages, hstages = allstages$hstages,
       ahstages = allstages$ahstages, labels = mpm$labels,
-      matrixqc = mpm$matrixqc, modelqc = mpm$modelqc)
+      matrixqc = qcoutput1, modelqc = mpm$modelqc)
   } else if (is.element("matrixqc", names(mpm))) {
+    totalutransitions <- sum(unlist(lapply(redone_mpms$U, function(X) {length(which(X != 0))})))
+    totalftransitions <- sum(unlist(lapply(redone_mpms$F, function(X) {length(which(X != 0))})))
+    totalmatrices <- length(redone_mpms$U)
+    
+    qcoutput1 <- c(totalutransitions, totalftransitions, totalmatrices)
+    
     new_mpm <- list(A = redone_mpms$A, U = redone_mpms$U, F = redone_mpms$F,
       agestages = mpm$agestages, hstages = allstages$hstages,
-      ahstages = allstages$ahstages, labels = mpm$labels, matrixqc = mpm$matrixqc)
+      ahstages = allstages$ahstages, labels = mpm$labels, matrixqc = qcoutput1)
   } else {
     new_mpm <- list(A = redone_mpms$A, U = redone_mpms$U, F = redone_mpms$F,
       agestages = mpm$agestages, hstages = allstages$hstages,

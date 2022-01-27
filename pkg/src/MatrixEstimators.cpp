@@ -529,6 +529,190 @@ Rcpp::List minorpatrolgroup(DataFrame MainData, DataFrame StageFrame,
   return List::create(Named("A") = amatrix, _["U"] = tmatrix, _["F"] = fmatrix);
 }
 
+//' Estimate All Elements of Raw Age-By-Stage Population Projection Matrix
+//' 
+//' Function \code{.subvertedpatrolgroup()} swiftly calculates matrix
+//' transitions in raw ahistorical matrices, and serves as the core workhorse
+//' function behind \code{\link{arlefko2}()}.
+//' 
+//' @param sge3 The Allstages data frame developed for \code{rlefko2()} covering
+//' stage pairs across times \emph{t}+1 and \emph{t}. Generally termed
+//' \code{stageexpansion3}.
+//' @param sge2 The data frame covering all stages in time \emph{t}. Generally
+//' termed \code{stageexpansion2}.
+//' @param MainData The demographic dataset modified to hold \code{usedfec} and
+//' \code{usedstage} columns.
+//' @param StageFrame The full stageframe for the analysis.
+//' @param firstage The first true age to start the matrix with.
+//' @param finalage The last true age to estimate.
+//' @param cont A logical value indicating whether to lump survival past the
+//' last age into a final age transition set on the supermatrix diagonal.
+//' 
+//' @return List of three matrices, including the survival-transition (U)
+//' matrix, the fecundity matrix (F), and the sum (A) matrix, with A first.
+//' 
+//' @keywords internal
+//' @noRd
+// [[Rcpp::export(.subvertedpatrolgroup)]]
+List subvertedpatrolgroup(DataFrame sge3, DataFrame sge2, DataFrame MainData,
+  DataFrame StageFrame, int firstage, int finalage, bool cont) {
+  
+  arma::vec sge3fec32 = sge3["repentry3"];
+  arma::vec sge3rep2 = sge3["rep2n"];
+  arma::vec sge3indata32 = sge3["indata"];
+  arma::vec sge3ovgivent = sge3["ovgiven_t"];
+  arma::vec sge3ovgivenf = sge3["ovgiven_f"];
+  arma::vec sge3ovestt = sge3["ovest_t"];
+  arma::vec sge3ovestf = sge3["ovest_f"];
+  arma::vec sge3ovsurvmult = sge3["ovsurvmult"];
+  arma::vec sge3ovfecmult = sge3["ovfecmult"];
+  arma::vec sge3index321 = sge3["index321"];
+  arma::vec sge3index21 = sge3["index21"];
+  arma::vec sge3index2 = sge3["stage2n"];
+  arma::vec aliveandequal = sge3["aliveandequal"];
+  
+  arma::vec sge2rep2 = sge2["rep2"];
+  arma::vec sge2fec3 = sge2["fec3"];
+  arma::vec sge2index21 = sge2["index21"];
+  arma::vec sge2stage2 = sge2["stage2"];
+  
+  arma::vec dataindex321 = MainData["index321"];
+  arma::vec dataindex21 = MainData["index21"];
+  arma::vec dataalive3 = MainData["alive3"];
+  arma::vec datausedfec2 = MainData["usedfec2"];
+  
+  int totalages = finalage - firstage + 1;
+  // if (cont) totalages += 1;
+  
+  arma::vec sfsizes = StageFrame["sizebin_center"];
+  int nostages = sfsizes.n_elem;
+  
+  int n = dataindex321.n_elem;
+  int no21stages = sge2index21.n_elem; // This includes the dead stage in every age
+  int noelems = sge3index321.n_elem;
+  unsigned int the_chosen_bun {0};
+  
+  arma::vec probsrates0(noelems, fill::zeros); // 1st vec = # indivs (3 trans)
+  arma::vec probsrates1(noelems, fill::zeros); // 2nd vec = total indivs for pair stage
+  arma::vec probsrates2(noelems, fill::zeros); // 3rd vec = total indivs alive for pair stage
+  arma::vec probsrates3(noelems, fill::zeros); // 4th vec = total fec for pair stage
+  
+  arma::mat stage21fec(no21stages, 3, fill::zeros); //1st col = # indivs total, 2nd col = no indivs alive, 3rd col = sum fec
+  
+  arma::mat tmatrix(((nostages-1) * totalages), ((nostages-1) * totalages), fill::zeros); // Main output U matrix
+  arma::mat fmatrix(((nostages-1) * totalages), ((nostages-1) * totalages), fill::zeros); // Main output F matrix
+  
+  // This main loop counts individuals going through transitions and sums their
+  // fecundities, and then adds that info to the 3-trans and 2-trans tables
+  for (int i = 0; i < n; i++) { 
+    
+    // The next line yields sum of all individuals with particular transition
+    arma::uvec chosen_index321_vec = find(sge3index321 == dataindex321(i));
+    
+    if (chosen_index321_vec.n_elem > 0) {
+      int chosen_index321 = chosen_index321_vec(0);
+      probsrates0(chosen_index321) = probsrates0(chosen_index321) + 1; 
+    }
+    
+    // The next line yields sum of all individuals with particular transition
+    arma::uvec chosen_index21_vec = find(sge2index21 == dataindex21(i));
+    int chosen_index21 = chosen_index21_vec(0);
+    
+    stage21fec(chosen_index21, 0) = stage21fec(chosen_index21, 0) + 1; 
+    if (dataalive3(i) > 0) {
+      stage21fec(chosen_index21, 1) = stage21fec(chosen_index21, 1) + 1;
+    }
+    
+    stage21fec(chosen_index21, 2) = stage21fec(chosen_index21, 2) + datausedfec2(i);
+  }
+  
+  // This next loop populates vectors of individuals according to stage in time t
+  for (int i = 0; i < noelems; i++) {
+    arma::uvec classy_aks = find(sge2index21 == sge3index21(i));
+    
+
+    if (classy_aks.n_elem > 0) {
+      the_chosen_bun = classy_aks(0);
+      
+      probsrates1(i) = stage21fec(the_chosen_bun, 0);
+      probsrates2(i) = stage21fec(the_chosen_bun, 1);
+      probsrates3(i) = stage21fec(the_chosen_bun, 2);
+    }
+  }
+  
+  // Here we populate the main U and F matrices
+  for (int elem3 = 0; elem3 < noelems; elem3++) {
+    
+    if (aliveandequal(elem3) != -1) {
+      
+      // The next lines DO leave NaNs in the matrices when 0 individuals are summed through in probsrates1
+      if (sge3ovsurvmult(elem3) < 0) sge3ovsurvmult(elem3) = 1.0;
+      tmatrix(aliveandequal(elem3)) = probsrates0(elem3) * sge3ovsurvmult(elem3) / 
+        probsrates1(elem3);
+        
+      if (sge3ovfecmult(elem3) < 0) sge3ovfecmult(elem3) = 1.0;
+      fmatrix(aliveandequal(elem3)) = sge3fec32(elem3) * sge3rep2(elem3) * 
+        probsrates3(elem3) * sge3ovfecmult(elem3) / probsrates1(elem3);
+    }
+  }
+  
+  // This section corrects for transitions given in the overwrite table
+  arma::uvec ovgiventind = find(sge3ovgivent != -1);
+  arma::uvec ovgivenfind = find(sge3ovgivenf != -1);
+  int ovgtn = ovgiventind.n_elem;
+  int ovgfn = ovgivenfind.n_elem;
+  
+  if (ovgtn > 0) {
+    for (int i = 0; i < ovgtn; i++) {
+      int matrixelement2 = aliveandequal(ovgiventind(i));
+      
+      if (matrixelement2 != -1) tmatrix(matrixelement2) = sge3ovgivent(ovgiventind(i));
+    }
+  }
+  
+  if (ovgfn > 0) {
+    for (int i = 0; i < ovgfn; i++) {
+      int matrixelement2 = aliveandequal(ovgivenfind(i));
+      
+      if (matrixelement2 != -1) fmatrix(matrixelement2) = sge3ovgivenf(ovgivenfind(i));
+    }
+  }
+  
+  // This section replaces transitions with proxies as given in the overwrite table
+  arma::uvec ovesttind = find(sge3ovestt != -1);
+  arma::uvec ovestfind = find(sge3ovestf != -1);
+  int ovestn = ovesttind.n_elem;
+  int ovesfn = ovestfind.n_elem;
+  
+  if (ovestn > 0) {
+    for (int i = 0; i < ovestn; i++) {
+      arma::uvec replacement = find(sge3index321 == sge3ovestt(ovesttind(i)));
+      
+      if (aliveandequal(ovesttind(i)) != -1 && aliveandequal(replacement(0)) != -1) {
+        tmatrix(aliveandequal(ovesttind(i))) = tmatrix(aliveandequal(replacement(0)));
+      }
+    }
+  }
+  
+  if (ovesfn > 0) {
+    for (int i = 0; i < ovesfn; i++) {
+      arma::uvec replacement = find(sge3index321 == sge3ovestf(ovestfind(i)));
+      
+      if (aliveandequal(ovestfind(i)) != -1 && aliveandequal(replacement(0)) != -1) {
+        fmatrix(aliveandequal(ovestfind(i))) = fmatrix(aliveandequal(replacement(0)));
+      }
+    }
+  }
+  
+  // The next bit changes NAs to 0
+  tmatrix(find_nonfinite(tmatrix)).zeros();
+  fmatrix(find_nonfinite(fmatrix)).zeros();
+  
+  arma::mat amatrix = tmatrix + fmatrix; // Create the A matrix
+  
+  return List::create(Named("A") = amatrix, _["U"] = tmatrix, _["F"] = fmatrix);
+}
+
 //' Creates Matrices of Year and Patch Terms in Models
 //' 
 //' Function \code{.revelations()} creates a matrix holding either the year or
@@ -1876,6 +2060,7 @@ double preouterator(List modelproxy, NumericVector maincoefs, arma::imat randind
 //' @param maxsize The maximum primary size to be used in element estimation.
 //' @param maxsizeb The maximum secondary size to be used in element estimation.
 //' @param maxsizec The maximum tertiary size to be used in element estimation.
+//' @param firstage The first age to be included in age-by-stage MPM estimation.
 //' @param finalage The final age to be included in age-by-stage MPM estimation.
 //' @param sizedist Designates whether primary size is Gamma (3), Gaussian (2),
 //' Poisson (0), or negative binomial (1) distributed.
@@ -1931,10 +2116,10 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   StringVector r1_inda, StringVector r2_indb, StringVector r1_indb,
   StringVector r2_indc, StringVector r1_indc, NumericVector dev_terms,
   double dens, double fecmod, NumericVector svsigmas, double maxsize,
-  double maxsizeb, double maxsizec, unsigned int finalage, int sizedist,
-  int sizebdist, int sizecdist, int fecdist, bool negfec,
-  double exp_tol = 700.0, double theta_tol = 100000000.0,
-  String ipm_method = "cdf") {
+  double maxsizeb, double maxsizec, unsigned int firstage,
+  unsigned int finalage, int sizedist, int sizebdist, int sizecdist,
+  int fecdist, bool negfec, double exp_tol = 700.0,
+  double theta_tol = 100000000.0, String ipm_method = "cdf") {
   
   bool ipm_cdf = true;
   if (ipm_method == "midpoint") ipm_cdf = false;
@@ -1957,7 +2142,7 @@ List jerzeibalowski(DataFrame ppy, DataFrame AllStages, DataFrame stageframe,
   } else if (matrixformat == 3) { // ahMPM
     matrixdim = nostages;
   } else if (matrixformat == 4) { // age-by-stage MPM
-    matrixdim = nostages * (finalage + 1);
+    matrixdim = nostages * (finalage - firstage + 1);
   }
   
   // Proxy model imports and settings
