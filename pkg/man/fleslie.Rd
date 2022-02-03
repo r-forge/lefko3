@@ -32,6 +32,7 @@ fleslie(
   random.inda = FALSE,
   random.indb = FALSE,
   random.indc = FALSE,
+  prebreeding = TRUE,
   randomseed = NA,
   negfec = FALSE,
   exp_tol = 700,
@@ -80,14 +81,15 @@ used in modeling (must be named \code{modelparams}). Only required if
 \code{modelsuite} is not supplied.}
 
 \item{start_age}{The age from which to start the matrix. Defaults to
-\code{NA}, in which case the earliest age in the dataset is used.}
+\code{NA}, age \code{1} is used if \code{prebreeding = TRUE}, and age
+\code{0} is used if \code{prebreeding = FALSE}.}
 
 \item{last_age}{The final age to use in the matrix. Defaults to \code{NA}, in
 which case the highest age in the dataset is used.}
 
 \item{fecage_min}{The minimum age at which reproduction is possible. Defaults
 to \code{NA}, which is interpreted to mean that fecundity should be assessed
-starting in the first described age.}
+starting in the minimum age observed in the dataset.}
 
 \item{fecage_max}{The maximum age at which reproduction is possible. Defaults
 to \code{NA}, which is interpreted to mean that fecundity should be assessed
@@ -155,6 +157,9 @@ a fixed, numeric variable. Defaults to \code{FALSE}.}
 \item{random.indc}{A logical value denoting whether to treat individual
 covariate \code{c} as a random, categorical variable. Otherwise is treated as
 a fixed, numeric variable. Defaults to \code{FALSE}.}
+
+\item{prebreeding}{A logical value indicating whether the life history model
+is a pre-breeding model. Defaults to \code{TRUE}.}
 
 \item{randomseed}{A numeric value used as a seed to generate random estimates
 for missing occasion and patch coefficients, if either \code{year.as.random}

@@ -149,15 +149,15 @@
 #' @param inda Can be a single value to use for individual covariate \code{a}
 #' in all matrices, a pair of values to use for times \emph{t} and \emph{t}-1 in
 #' historical matrices, or a vector of such values corresponding to each
-#' occasion in option \code{year}. Defaults to \code{NULL}.
+#' occasion in the dataset. Defaults to \code{NULL}.
 #' @param indb Can be a single value to use for individual covariate \code{b}
 #' in all matrices, a pair of values to use for times \emph{t} and \emph{t}-1 in
 #' historical matrices, or a vector of such values corresponding to each
-#' occasion in option \code{year}. Defaults to \code{NULL}.
+#' occasion in the dataset. Defaults to \code{NULL}.
 #' @param indc Can be a single value to use for individual covariate \code{c}
 #' in all matrices, a pair of values to use for times \emph{t} and \emph{t}-1 in
 #' historical matrices, or a vector of such values corresponding to each
-#' occasion in option \code{year}. Defaults to \code{NULL}.
+#' occasion in the dataset. Defaults to \code{NULL}.
 #' @param surv_dev A numeric value to be added to the y-intercept in the linear
 #' model for survival probability.
 #' @param obs_dev A numeric value to be added to the y-intercept in the linear
@@ -627,9 +627,9 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
         call. = FALSE)
     }
     
-    if (!is.element(length(inda), c(1, 2, length(year)))) {
+    if (!is.element(length(inda), c(1, 2, length(mainyears)))) {
       stop("Individual covariate vector a must be empty, or include 1, 2, or as
-        many elements as occasions to be modeled.", call. = FALSE)
+        many elements as occasions in the dataset.", call. = FALSE)
     }
     
     if (random.inda) {
@@ -652,42 +652,42 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
       }
       
       if (length(inda) == 1) {
-        r1.inda <- rep(as.character(inda), length(year))
-        r2.inda <- rep(as.character(inda), length(year))
+        r1.inda <- rep(as.character(inda), length(mainyears))
+        r2.inda <- rep(as.character(inda), length(mainyears))
       } else if (length(inda) == 2 & length(year) != 2) {
-        r1.inda <- rep(as.character(inda[1]), length(year))
-        r2.inda <- rep(as.character(inda[2]), length(year))
-      } else if (length(inda) == length(year)) {
+        r1.inda <- rep(as.character(inda[1]), length(mainyears))
+        r2.inda <- rep(as.character(inda[2]), length(mainyears))
+      } else if (length(inda) == length(mainyears)) {
         r2.inda <- as.character(inda)
         r1.inda <- c("none", r2.inda[1:(length(inda) - 1)])
       }
       
-      f1.inda <- rep(0, length(year))
-      f2.inda <- rep(0, length(year))
+      f1.inda <- rep(0, length(mainyears))
+      f2.inda <- rep(0, length(mainyears))
       
     } else {
       indanames <- c(0)
       
       if (length(inda) == 1) {
-        f1.inda <- rep(inda, length(year))
-        f2.inda <- rep(inda, length(year))
+        f1.inda <- rep(inda, length(mainyears))
+        f2.inda <- rep(inda, length(mainyears))
       } else if (length(inda) == 2 & length(year) != 2) {
-        f1.inda <- rep(inda[1], length(year))
-        f2.inda <- rep(inda[2], length(year))
-      } else if (length(inda) == length(year)) {
+        f1.inda <- rep(inda[1], length(mainyears))
+        f2.inda <- rep(inda[2], length(mainyears))
+      } else if (length(inda) == length(mainyears)) {
         f2.inda <- inda
         f1.inda <- c(0, f2.inda[1:(length(inda) - 1)])
       }
-      r2.inda <- rep("none", length(year))
-      r1.inda <- rep("none", length(year))
+      r2.inda <- rep("none", length(mainyears))
+      r1.inda <- rep("none", length(mainyears))
     }
   } else {
     indanames <- c(0)
     
-    f1.inda <- rep(0, length(year))
-    f2.inda <- rep(0, length(year))
-    r2.inda <- rep("none", length(year))
-    r1.inda <- rep("none", length(year))
+    f1.inda <- rep(0, length(mainyears))
+    f2.inda <- rep(0, length(mainyears))
+    r2.inda <- rep("none", length(mainyears))
+    r1.inda <- rep("none", length(mainyears))
   }
   
   if (!is.null(indb)) {
@@ -696,9 +696,9 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
         call. = FALSE)
     }
     
-    if (!is.element(length(indb), c(1, 2, length(year)))) {
+    if (!is.element(length(indb), c(1, 2, length(mainyears)))) {
       stop("Individual covariate vector b must be empty, or include 1, 2, or as
-        many elements as occasions to be modeled.", call. = FALSE)
+        many elements as occasions in the dataset.", call. = FALSE)
     }
     
     if (random.indb) {
@@ -721,42 +721,42 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
       }
       
       if (length(indb) == 1) {
-        r1.indb <- rep(as.character(indb), length(year))
-        r2.indb <- rep(as.character(indb), length(year))
+        r1.indb <- rep(as.character(indb), length(mainyears))
+        r2.indb <- rep(as.character(indb), length(mainyears))
       } else if (length(indb) == 2 & length(year) != 2) {
-        r1.indb <- rep(as.character(indb[1]), length(year))
-        r2.indb <- rep(as.character(indb[2]), length(year))
-      } else if (length(indb) == length(year)) {
+        r1.indb <- rep(as.character(indb[1]), length(mainyears))
+        r2.indb <- rep(as.character(indb[2]), length(mainyears))
+      } else if (length(indb) == length(mainyears)) {
         r2.indb <- as.character(indb)
         r1.indb <- c("none", r2.indb[1:(length(indb) - 1)])
       }
       
-      f1.indb <- rep(0, length(year))
-      f2.indb <- rep(0, length(year))
+      f1.indb <- rep(0, length(mainyears))
+      f2.indb <- rep(0, length(mainyears))
       
     } else {
       indbnames <- c(0)
       
       if (length(indb) == 1) {
-        f1.indb <- rep(indb, length(year))
-        f2.indb <- rep(indb, length(year))
+        f1.indb <- rep(indb, length(mainyears))
+        f2.indb <- rep(indb, length(mainyears))
       } else if (length(indb) == 2 & length(year) != 2) {
-        f1.indb <- rep(indb[1], length(year))
-        f2.indb <- rep(indb[2], length(year))
-      } else if (length(indb) == length(year)) {
+        f1.indb <- rep(indb[1], length(mainyears))
+        f2.indb <- rep(indb[2], length(mainyears))
+      } else if (length(indb) == length(mainyears)) {
         f2.indb <- indb
         f1.indb <- c(0, f2.indb[1:(length(indb) - 1)])
       }
-      r2.indb <- rep("none", length(year))
-      r1.indb <- rep("none", length(year))
+      r2.indb <- rep("none", length(mainyears))
+      r1.indb <- rep("none", length(mainyears))
     }
   } else {
     indbnames <- c(0)
     
-    f1.indb <- rep(0, length(year))
-    f2.indb <- rep(0, length(year))
-    r2.indb <- rep("none", length(year))
-    r1.indb <- rep("none", length(year))
+    f1.indb <- rep(0, length(mainyears))
+    f2.indb <- rep(0, length(mainyears))
+    r2.indb <- rep("none", length(mainyears))
+    r1.indb <- rep("none", length(mainyears))
   }
   
   if (!is.null(indc)) {
@@ -765,9 +765,9 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
         call. = FALSE)
     }
     
-    if (!is.element(length(indc), c(1, 2, length(year)))) {
+    if (!is.element(length(indc), c(1, 2, length(mainyears)))) {
       stop("Individual covariate vector c must be empty, or include 1, 2, or as
-        many elements as occasions to be modeled.", call. = FALSE)
+        many elements as occasions in the dataset.", call. = FALSE)
     }
     
     if (random.indc) {
@@ -790,42 +790,42 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
       }
       
       if (length(indc) == 1) {
-        r1.indc <- rep(as.character(indc), length(year))
-        r2.indc <- rep(as.character(indc), length(year))
+        r1.indc <- rep(as.character(indc), length(mainyears))
+        r2.indc <- rep(as.character(indc), length(mainyears))
       } else if (length(indc) == 2 & length(year) != 2) {
-        r1.indc <- rep(as.character(indc[1]), length(year))
-        r2.indc <- rep(as.character(indc[2]), length(year))
-      } else if (length(indc) == length(year)) {
+        r1.indc <- rep(as.character(indc[1]), length(mainyears))
+        r2.indc <- rep(as.character(indc[2]), length(mainyears))
+      } else if (length(indc) == length(mainyears)) {
         r2.indc <- as.character(indc)
         r1.indc <- c("none", r2.indc[1:(length(indc) - 1)])
       }
       
-      f1.indc <- rep(0, length(year))
-      f2.indc <- rep(0, length(year))
+      f1.indc <- rep(0, length(mainyears))
+      f2.indc <- rep(0, length(mainyears))
       
     } else {
       indcnames <- c(0)
       
       if (length(indc) == 1) {
-        f1.indc <- rep(indc, length(year))
-        f2.indc <- rep(indc, length(year))
+        f1.indc <- rep(indc, length(mainyears))
+        f2.indc <- rep(indc, length(mainyears))
       } else if (length(indc) == 2 & length(year) != 2) {
-        f1.indc <- rep(indc[1], length(year))
-        f2.indc <- rep(indc[2], length(year))
-      } else if (length(indc) == length(year)) {
+        f1.indc <- rep(indc[1], length(mainyears))
+        f2.indc <- rep(indc[2], length(mainyears))
+      } else if (length(indc) == length(mainyears)) {
         f2.indc <- indc
         f1.indc <- c(0, f2.indc[1:(length(indc) - 1)])
       }
-      r2.indc <- rep("none", length(year))
-      r1.indc <- rep("none", length(year))
+      r2.indc <- rep("none", length(mainyears))
+      r1.indc <- rep("none", length(mainyears))
     }
   } else {
     indcnames <- c(0)
     
-    f1.indc <- rep(0, length(year))
-    f2.indc <- rep(0, length(year))
-    r2.indc <- rep("none", length(year))
-    r1.indc <- rep("none", length(year))
+    f1.indc <- rep(0, length(mainyears))
+    f2.indc <- rep(0, length(mainyears))
+    r2.indc <- rep("none", length(mainyears))
+    r1.indc <- rep("none", length(mainyears))
   }
   
   maingroups <- sort(unique(stageframe$group))
@@ -1430,15 +1430,15 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' @param inda Can be a single value to use for individual covariate \code{a}
 #' in all matrices, a pair of values to use for times \emph{t} and \emph{t}-1 in
 #' historical matrices, or a vector of such values corresponding to each
-#' occasion in option \code{year}. Defaults to \code{NULL}.
+#' occasion in the dataset. Defaults to \code{NULL}.
 #' @param indb Can be a single value to use for individual covariate \code{b}
 #' in all matrices, a pair of values to use for times \emph{t} and \emph{t}-1 in
 #' historical matrices, or a vector of such values corresponding to each
-#' occasion in option \code{year}. Defaults to \code{NULL}.
+#' occasion in the dataset. Defaults to \code{NULL}.
 #' @param indc Can be a single value to use for individual covariate \code{c}
 #' in all matrices, a pair of values to use for times \emph{t} and \emph{t}-1 in
 #' historical matrices, or a vector of such values corresponding to each
-#' occasion in option \code{year}. Defaults to \code{NULL}.
+#' occasion in the dataset. Defaults to \code{NULL}.
 #' @param surv_dev A numeric value to be added to the y-intercept in the linear
 #' model for survival probability.
 #' @param obs_dev A numeric value to be added to the y-intercept in the linear
@@ -1888,9 +1888,9 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
         call. = FALSE)
     }
     
-    if (!is.element(length(inda), c(1, 2, length(year)))) {
+    if (!is.element(length(inda), c(1, 2, length(mainyears)))) {
       stop("Individual covariate vector a must be empty, or include 1, 2, or as
-        many elements as occasions to be modeled.", call. = FALSE)
+        many elements as occasions in the dataset.", call. = FALSE)
     }
     
     if (random.inda) {
@@ -1913,42 +1913,42 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
       }
       
       if (length(inda) == 1) {
-        r1.inda <- rep(as.character(inda), length(year))
-        r2.inda <- rep(as.character(inda), length(year))
+        r1.inda <- rep(as.character(inda), length(mainyears))
+        r2.inda <- rep(as.character(inda), length(mainyears))
       } else if (length(inda) == 2 & length(year) != 2) {
-        r1.inda <- rep(as.character(inda[1]), length(year))
-        r2.inda <- rep(as.character(inda[2]), length(year))
-      } else if (length(inda) == length(year)) {
+        r1.inda <- rep(as.character(inda[1]), length(mainyears))
+        r2.inda <- rep(as.character(inda[2]), length(mainyears))
+      } else if (length(inda) == length(mainyears)) {
         r2.inda <- as.character(inda)
         r1.inda <- c("none", r2.inda[1:(length(inda) - 1)])
       }
       
-      f1.inda <- rep(0, length(year))
-      f2.inda <- rep(0, length(year))
+      f1.inda <- rep(0, length(mainyears))
+      f2.inda <- rep(0, length(mainyears))
       
     } else {
       indanames <- c(0)
       
       if (length(inda) == 1) {
-        f1.inda <- rep(inda, length(year))
-        f2.inda <- rep(inda, length(year))
+        f1.inda <- rep(inda, length(mainyears))
+        f2.inda <- rep(inda, length(mainyears))
       } else if (length(inda) == 2 & length(year) != 2) {
-        f1.inda <- rep(inda[1], length(year))
-        f2.inda <- rep(inda[2], length(year))
-      } else if (length(inda) == length(year)) {
+        f1.inda <- rep(inda[1], length(mainyears))
+        f2.inda <- rep(inda[2], length(mainyears))
+      } else if (length(inda) == length(mainyears)) {
         f2.inda <- inda
         f1.inda <- c(0, f2.inda[1:(length(inda) - 1)])
       }
-      r2.inda <- rep("none", length(year))
-      r1.inda <- rep("none", length(year))
+      r2.inda <- rep("none", length(mainyears))
+      r1.inda <- rep("none", length(mainyears))
     }
   } else {
     indanames <- c(0)
     
-    f1.inda <- rep(0, length(year))
-    f2.inda <- rep(0, length(year))
-    r2.inda <- rep("none", length(year))
-    r1.inda <- rep("none", length(year))
+    f1.inda <- rep(0, length(mainyears))
+    f2.inda <- rep(0, length(mainyears))
+    r2.inda <- rep("none", length(mainyears))
+    r1.inda <- rep("none", length(mainyears))
   }
   
   if (!is.null(indb)) {
@@ -1957,9 +1957,9 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
         call. = FALSE)
     }
     
-    if (!is.element(length(indb), c(1, 2, length(year)))) {
+    if (!is.element(length(indb), c(1, 2, length(mainyears)))) {
       stop("Individual covariate vector b must be empty, or include 1, 2, or as
-        many elements as occasions to be modeled.", call. = FALSE)
+        many elements as occasions in the dataset.", call. = FALSE)
     }
     
     if (random.indb) {
@@ -1982,42 +1982,42 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
       }
       
       if (length(indb) == 1) {
-        r1.indb <- rep(as.character(indb), length(year))
-        r2.indb <- rep(as.character(indb), length(year))
+        r1.indb <- rep(as.character(indb), length(mainyears))
+        r2.indb <- rep(as.character(indb), length(mainyears))
       } else if (length(indb) == 2 & length(year) != 2) {
-        r1.indb <- rep(as.character(indb[1]), length(year))
-        r2.indb <- rep(as.character(indb[2]), length(year))
-      } else if (length(indb) == length(year)) {
+        r1.indb <- rep(as.character(indb[1]), length(mainyears))
+        r2.indb <- rep(as.character(indb[2]), length(mainyears))
+      } else if (length(indb) == length(mainyears)) {
         r2.indb <- as.character(indb)
         r1.indb <- c("none", r2.indb[1:(length(indb) - 1)])
       }
       
-      f1.indb <- rep(0, length(year))
-      f2.indb <- rep(0, length(year))
+      f1.indb <- rep(0, length(mainyears))
+      f2.indb <- rep(0, length(mainyears))
       
     } else {
       indbnames <- c(0)
       
       if (length(indb) == 1) {
-        f1.indb <- rep(indb, length(year))
-        f2.indb <- rep(indb, length(year))
+        f1.indb <- rep(indb, length(mainyears))
+        f2.indb <- rep(indb, length(mainyears))
       } else if (length(indb) == 2 & length(year) != 2) {
-        f1.indb <- rep(indb[1], length(year))
-        f2.indb <- rep(indb[2], length(year))
-      } else if (length(indb) == length(year)) {
+        f1.indb <- rep(indb[1], length(mainyears))
+        f2.indb <- rep(indb[2], length(mainyears))
+      } else if (length(indb) == length(mainyears)) {
         f2.indb <- indb
         f1.indb <- c(0, f2.indb[1:(length(indb) - 1)])
       }
-      r2.indb <- rep("none", length(year))
-      r1.indb <- rep("none", length(year))
+      r2.indb <- rep("none", length(mainyears))
+      r1.indb <- rep("none", length(mainyears))
     }
   } else {
     indbnames <- c(0)
     
-    f1.indb <- rep(0, length(year))
-    f2.indb <- rep(0, length(year))
-    r2.indb <- rep("none", length(year))
-    r1.indb <- rep("none", length(year))
+    f1.indb <- rep(0, length(mainyears))
+    f2.indb <- rep(0, length(mainyears))
+    r2.indb <- rep("none", length(mainyears))
+    r1.indb <- rep("none", length(mainyears))
   }
   
   if (!is.null(indc)) {
@@ -2026,9 +2026,9 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
         call. = FALSE)
     }
     
-    if (!is.element(length(indc), c(1, 2, length(year)))) {
+    if (!is.element(length(indc), c(1, 2, length(mainyears)))) {
       stop("Individual covariate vector c must be empty, or include 1, 2, or as
-        many elements as occasions to be modeled.", call. = FALSE)
+        many elements as occasions in the dataset.", call. = FALSE)
     }
     
     if (random.indc) {
@@ -2051,42 +2051,42 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
       }
       
       if (length(indc) == 1) {
-        r1.indc <- rep(as.character(indc), length(year))
-        r2.indc <- rep(as.character(indc), length(year))
+        r1.indc <- rep(as.character(indc), length(mainyears))
+        r2.indc <- rep(as.character(indc), length(mainyears))
       } else if (length(indc) == 2 & length(year) != 2) {
-        r1.indc <- rep(as.character(indc[1]), length(year))
-        r2.indc <- rep(as.character(indc[2]), length(year))
-      } else if (length(indc) == length(year)) {
+        r1.indc <- rep(as.character(indc[1]), length(mainyears))
+        r2.indc <- rep(as.character(indc[2]), length(mainyears))
+      } else if (length(indc) == length(mainyears)) {
         r2.indc <- as.character(indc)
         r1.indc <- c("none", r2.indc[1:(length(indc) - 1)])
       }
       
-      f1.indc <- rep(0, length(year))
-      f2.indc <- rep(0, length(year))
+      f1.indc <- rep(0, length(mainyears))
+      f2.indc <- rep(0, length(mainyears))
       
     } else {
       indcnames <- c(0)
       
       if (length(indc) == 1) {
-        f1.indc <- rep(indc, length(year))
-        f2.indc <- rep(indc, length(year))
+        f1.indc <- rep(indc, length(mainyears))
+        f2.indc <- rep(indc, length(mainyears))
       } else if (length(indc) == 2 & length(year) != 2) {
-        f1.indc <- rep(indc[1], length(year))
-        f2.indc <- rep(indc[2], length(year))
-      } else if (length(indc) == length(year)) {
+        f1.indc <- rep(indc[1], length(mainyears))
+        f2.indc <- rep(indc[2], length(mainyears))
+      } else if (length(indc) == length(mainyears)) {
         f2.indc <- indc
         f1.indc <- c(0, f2.indc[1:(length(indc) - 1)])
       }
-      r2.indc <- rep("none", length(year))
-      r1.indc <- rep("none", length(year))
+      r2.indc <- rep("none", length(mainyears))
+      r1.indc <- rep("none", length(mainyears))
     }
   } else {
     indcnames <- c(0)
     
-    f1.indc <- rep(0, length(year))
-    f2.indc <- rep(0, length(year))
-    r2.indc <- rep("none", length(year))
-    r1.indc <- rep("none", length(year))
+    f1.indc <- rep(0, length(mainyears))
+    f2.indc <- rep(0, length(mainyears))
+    r2.indc <- rep("none", length(mainyears))
+    r1.indc <- rep("none", length(mainyears))
   }
   
   maingroups <- sort(unique(stageframe$group))
@@ -4490,15 +4490,15 @@ rlefko2 <- function(data, stageframe, year = "all", pop = NA, patch = NA,
 #' @param inda Can be a single value to use for individual covariate \code{a}
 #' in all matrices, a pair of values to use for times \emph{t} and \emph{t}-1 in
 #' historical matrices, or a vector of such values corresponding to each
-#' occasion in option \code{year}. Defaults to \code{NULL}.
+#' occasion in the dataset. Defaults to \code{NULL}.
 #' @param indb Can be a single value to use for individual covariate \code{b}
 #' in all matrices, a pair of values to use for times \emph{t} and \emph{t}-1 in
 #' historical matrices, or a vector of such values corresponding to each
-#' occasion in option \code{year}. Defaults to \code{NULL}.
+#' occasion in the dataset. Defaults to \code{NULL}.
 #' @param indc Can be a single value to use for individual covariate \code{c}
 #' in all matrices, a pair of values to use for times \emph{t} and \emph{t}-1 in
 #' historical matrices, or a vector of such values corresponding to each
-#' occasion in option \code{year}. Defaults to \code{NULL}.
+#' occasion in the dataset. Defaults to \code{NULL}.
 #' @param surv_dev A numeric value to be added to the y-intercept in the linear
 #' model for survival probability.
 #' @param obs_dev A numeric value to be added to the y-intercept in the linear
@@ -4943,9 +4943,9 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
         call. = FALSE)
     }
     
-    if (!is.element(length(inda), c(1, 2, length(year)))) {
+    if (!is.element(length(inda), c(1, 2, length(mainyears)))) {
       stop("Individual covariate vector a must be empty, or include 1, 2, or as
-        many elements as occasions to be modeled.", call. = FALSE)
+        many elements as occasions in the dataset.", call. = FALSE)
     }
     
     if (random.inda) {
@@ -4968,42 +4968,42 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
       }
       
       if (length(inda) == 1) {
-        r1.inda <- rep(as.character(inda), length(year))
-        r2.inda <- rep(as.character(inda), length(year))
+        r1.inda <- rep(as.character(inda), length(mainyears))
+        r2.inda <- rep(as.character(inda), length(mainyears))
       } else if (length(inda) == 2 & length(year) != 2) {
-        r1.inda <- rep(as.character(inda[1]), length(year))
-        r2.inda <- rep(as.character(inda[2]), length(year))
-      } else if (length(inda) == length(year)) {
+        r1.inda <- rep(as.character(inda[1]), length(mainyears))
+        r2.inda <- rep(as.character(inda[2]), length(mainyears))
+      } else if (length(inda) == length(mainyears)) {
         r2.inda <- as.character(inda)
         r1.inda <- c("none", r2.inda[1:(length(inda) - 1)])
       }
       
-      f1.inda <- rep(0, length(year))
-      f2.inda <- rep(0, length(year))
+      f1.inda <- rep(0, length(mainyears))
+      f2.inda <- rep(0, length(mainyears))
       
     } else {
       indanames <- c(0)
       
       if (length(inda) == 1) {
-        f1.inda <- rep(inda, length(year))
-        f2.inda <- rep(inda, length(year))
+        f1.inda <- rep(inda, length(mainyears))
+        f2.inda <- rep(inda, length(mainyears))
       } else if (length(inda) == 2 & length(year) != 2) {
-        f1.inda <- rep(inda[1], length(year))
-        f2.inda <- rep(inda[2], length(year))
-      } else if (length(inda) == length(year)) {
+        f1.inda <- rep(inda[1], length(mainyears))
+        f2.inda <- rep(inda[2], length(mainyears))
+      } else if (length(inda) == length(mainyears)) {
         f2.inda <- inda
         f1.inda <- c(0, f2.inda[1:(length(inda) - 1)])
       }
-      r2.inda <- rep("none", length(year))
-      r1.inda <- rep("none", length(year))
+      r2.inda <- rep("none", length(mainyears))
+      r1.inda <- rep("none", length(mainyears))
     }
   } else {
     indanames <- c(0)
     
-    f1.inda <- rep(0, length(year))
-    f2.inda <- rep(0, length(year))
-    r2.inda <- rep("none", length(year))
-    r1.inda <- rep("none", length(year))
+    f1.inda <- rep(0, length(mainyears))
+    f2.inda <- rep(0, length(mainyears))
+    r2.inda <- rep("none", length(mainyears))
+    r1.inda <- rep("none", length(mainyears))
   }
   
   if (!is.null(indb)) {
@@ -5012,9 +5012,9 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
         call. = FALSE)
     }
     
-    if (!is.element(length(indb), c(1, 2, length(year)))) {
+    if (!is.element(length(indb), c(1, 2, length(mainyears)))) {
       stop("Individual covariate vector b must be empty, or include 1, 2, or as
-        many elements as occasions to be modeled.", call. = FALSE)
+        many elements as occasions in the dataset.", call. = FALSE)
     }
     
     if (random.indb) {
@@ -5037,42 +5037,42 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
       }
       
       if (length(indb) == 1) {
-        r1.indb <- rep(as.character(indb), length(year))
-        r2.indb <- rep(as.character(indb), length(year))
+        r1.indb <- rep(as.character(indb), length(mainyears))
+        r2.indb <- rep(as.character(indb), length(mainyears))
       } else if (length(indb) == 2 & length(year) != 2) {
-        r1.indb <- rep(as.character(indb[1]), length(year))
-        r2.indb <- rep(as.character(indb[2]), length(year))
-      } else if (length(indb) == length(year)) {
+        r1.indb <- rep(as.character(indb[1]), length(mainyears))
+        r2.indb <- rep(as.character(indb[2]), length(mainyears))
+      } else if (length(indb) == length(mainyears)) {
         r2.indb <- as.character(indb)
         r1.indb <- c("none", r2.indb[1:(length(indb) - 1)])
       }
       
-      f1.indb <- rep(0, length(year))
-      f2.indb <- rep(0, length(year))
+      f1.indb <- rep(0, length(mainyears))
+      f2.indb <- rep(0, length(mainyears))
       
     } else {
       indbnames <- c(0)
       
       if (length(indb) == 1) {
-        f1.indb <- rep(indb, length(year))
-        f2.indb <- rep(indb, length(year))
+        f1.indb <- rep(indb, length(mainyears))
+        f2.indb <- rep(indb, length(mainyears))
       } else if (length(indb) == 2 & length(year) != 2) {
-        f1.indb <- rep(indb[1], length(year))
-        f2.indb <- rep(indb[2], length(year))
-      } else if (length(indb) == length(year)) {
+        f1.indb <- rep(indb[1], length(mainyears))
+        f2.indb <- rep(indb[2], length(mainyears))
+      } else if (length(indb) == length(mainyears)) {
         f2.indb <- indb
         f1.indb <- c(0, f2.indb[1:(length(indb) - 1)])
       }
-      r2.indb <- rep("none", length(year))
-      r1.indb <- rep("none", length(year))
+      r2.indb <- rep("none", length(mainyears))
+      r1.indb <- rep("none", length(mainyears))
     }
   } else {
     indbnames <- c(0)
     
-    f1.indb <- rep(0, length(year))
-    f2.indb <- rep(0, length(year))
-    r2.indb <- rep("none", length(year))
-    r1.indb <- rep("none", length(year))
+    f1.indb <- rep(0, length(mainyears))
+    f2.indb <- rep(0, length(mainyears))
+    r2.indb <- rep("none", length(mainyears))
+    r1.indb <- rep("none", length(mainyears))
   }
   
   if (!is.null(indc)) {
@@ -5081,9 +5081,9 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
         call. = FALSE)
     }
     
-    if (!is.element(length(indc), c(1, 2, length(year)))) {
+    if (!is.element(length(indc), c(1, 2, length(mainyears)))) {
       stop("Individual covariate vector c must be empty, or include 1, 2, or as
-        many elements as occasions to be modeled.", call. = FALSE)
+        many elements as occasions in the dataset.", call. = FALSE)
     }
     
     if (random.indc) {
@@ -5106,42 +5106,42 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
       }
       
       if (length(indc) == 1) {
-        r1.indc <- rep(as.character(indc), length(year))
-        r2.indc <- rep(as.character(indc), length(year))
+        r1.indc <- rep(as.character(indc), length(mainyears))
+        r2.indc <- rep(as.character(indc), length(mainyears))
       } else if (length(indc) == 2 & length(year) != 2) {
-        r1.indc <- rep(as.character(indc[1]), length(year))
-        r2.indc <- rep(as.character(indc[2]), length(year))
-      } else if (length(indc) == length(year)) {
+        r1.indc <- rep(as.character(indc[1]), length(mainyears))
+        r2.indc <- rep(as.character(indc[2]), length(mainyears))
+      } else if (length(indc) == length(mainyears)) {
         r2.indc <- as.character(indc)
         r1.indc <- c("none", r2.indc[1:(length(indc) - 1)])
       }
       
-      f1.indc <- rep(0, length(year))
-      f2.indc <- rep(0, length(year))
+      f1.indc <- rep(0, length(mainyears))
+      f2.indc <- rep(0, length(mainyears))
       
     } else {
       indcnames <- c(0)
       
       if (length(indc) == 1) {
-        f1.indc <- rep(indc, length(year))
-        f2.indc <- rep(indc, length(year))
+        f1.indc <- rep(indc, length(mainyears))
+        f2.indc <- rep(indc, length(mainyears))
       } else if (length(indc) == 2 & length(year) != 2) {
-        f1.indc <- rep(indc[1], length(year))
-        f2.indc <- rep(indc[2], length(year))
-      } else if (length(indc) == length(year)) {
+        f1.indc <- rep(indc[1], length(mainyears))
+        f2.indc <- rep(indc[2], length(mainyears))
+      } else if (length(indc) == length(mainyears)) {
         f2.indc <- indc
         f1.indc <- c(0, f2.indc[1:(length(indc) - 1)])
       }
-      r2.indc <- rep("none", length(year))
-      r1.indc <- rep("none", length(year))
+      r2.indc <- rep("none", length(mainyears))
+      r1.indc <- rep("none", length(mainyears))
     }
   } else {
     indcnames <- c(0)
     
-    f1.indc <- rep(0, length(year))
-    f2.indc <- rep(0, length(year))
-    r2.indc <- rep("none", length(year))
-    r1.indc <- rep("none", length(year))
+    f1.indc <- rep(0, length(mainyears))
+    f2.indc <- rep(0, length(mainyears))
+    r2.indc <- rep("none", length(mainyears))
+    r1.indc <- rep("none", length(mainyears))
   }
   
   maingroups <- sort(unique(stageframe$group))
@@ -6460,12 +6460,13 @@ arlefko2 <- function(data, stageframe, year = "all", pop = NA, patch = NA,
 #' used in modeling (must be named \code{modelparams}). Only required if
 #' \code{modelsuite} is not supplied.
 #' @param start_age The age from which to start the matrix. Defaults to
-#' \code{NA}, in which case the earliest age in the dataset is used.
+#' \code{NA}, age \code{1} is used if \code{prebreeding = TRUE}, and age
+#' \code{0} is used if \code{prebreeding = FALSE}.
 #' @param last_age The final age to use in the matrix. Defaults to \code{NA}, in
 #' which case the highest age in the dataset is used.
 #' @param fecage_min The minimum age at which reproduction is possible. Defaults
 #' to \code{NA}, which is interpreted to mean that fecundity should be assessed
-#' starting in the first described age.
+#' starting in the minimum age observed in the dataset.
 #' @param fecage_max The maximum age at which reproduction is possible. Defaults
 #' to \code{NA}, which is interpreted to mean that fecundity should be assessed
 #' until the final observed age.
@@ -6516,6 +6517,8 @@ arlefko2 <- function(data, stageframe, year = "all", pop = NA, patch = NA,
 #' @param random.indc A logical value denoting whether to treat individual
 #' covariate \code{c} as a random, categorical variable. Otherwise is treated as
 #' a fixed, numeric variable. Defaults to \code{FALSE}.
+#' @param prebreeding A logical value indicating whether the life history model
+#' is a pre-breeding model. Defaults to \code{TRUE}.
 #' @param randomseed A numeric value used as a seed to generate random estimates
 #' for missing occasion and patch coefficients, if either \code{year.as.random}
 #' or \code{patch.as.random} is set to \code{TRUE}. Defaults to
@@ -6616,10 +6619,15 @@ fleslie <- function(year = "all", patch = "all", data = NA, modelsuite = NA,
   indb = NULL, indc = NULL, surv_dev = 0, fec_dev = 0, density = NA, repmod = 1,
   yearcol = 0, patchcol = NA, agecol = "obsage", year.as.random = FALSE,
   patch.as.random = FALSE, random.inda = FALSE, random.indb = FALSE,
-  random.indc = FALSE, randomseed = NA, negfec = FALSE, exp_tol = 700,
-  theta_tol = 100000000) {
+  random.indc = FALSE, prebreeding = TRUE, randomseed = NA, negfec = FALSE,
+  exp_tol = 700, theta_tol = 100000000) {
   
   indanames <- indbnames <- indcnames <- NULL
+  
+  if (!all(is.logical(c(continue, year.as.random, patch.as.random, random.inda,
+          random.indb, random.indc, prebreeding, negfec)))) {
+    stop("Some logical variables have non-logical inputs.", call. = FALSE)
+  }
   
   if (all(is.na(modelsuite)) & all(is.na(paramnames))) {
     warning("Function may not work properly without a dataframe of model 
@@ -6657,9 +6665,15 @@ fleslie <- function(year = "all", patch = "all", data = NA, modelsuite = NA,
   }
   age_limit <- max(mainages) + 1
   
-  if (is.na(start_age)) {start_age <- min(mainages, na.rm = TRUE)}
+  if (is.na(start_age)) {
+    if (prebreeding) {
+      start_age <- 1
+    } else {
+      start_age <- 0
+    }
+  }
   if (is.na(last_age)) {last_age <- max(mainages, na.rm = TRUE) + 1}
-  if (is.na(fecage_min)) {fecage_min <- start_age}
+  if (is.na(fecage_min)) {fecage_min <- min(mainages, na.rm = TRUE)}
   if (is.na(fecage_max)) {fecage_max <- last_age}
   
   start_age <- as.integer(start_age)
@@ -7051,7 +7065,8 @@ fleslie <- function(year = "all", patch = "all", data = NA, modelsuite = NA,
 #' @param data A vertical demographic data frame, with variables corresponding 
 #' to the naming conventions in \code{\link{verticalize3}()}.
 #' @param start_age The age from which to start the matrix. Defaults to
-#' \code{NA}, in which case the earliest age in the dataset is used.
+#' \code{NA}, age \code{1} is used if \code{prebreeding = TRUE}, and age
+#' \code{0} is used if \code{prebreeding = FALSE}.
 #' @param last_age The final age to use in the matrix. Defaults to \code{NA}, in
 #' which case the highest age in the dataset is used.
 #' @param continue A logical value designating whether to allow continued
@@ -7059,7 +7074,7 @@ fleslie <- function(year = "all", patch = "all", data = NA, modelsuite = NA,
 #' demographic characteristics of the final age. Defaults to \code{TRUE}.
 #' @param fecage_min The minimum age at which reproduction is possible. Defaults
 #' to \code{NA}, which is interpreted to mean that fecundity should be assessed
-#' starting in the first described age.
+#' starting in the minimum age observed in the dataset.
 #' @param fecage_max The maximum age at which reproduction is possible. Defaults
 #' to \code{NA}, which is interpreted to mean that fecundity should be assessed
 #' until the final observed age.
@@ -7102,6 +7117,8 @@ fleslie <- function(year = "all", patch = "all", data = NA, modelsuite = NA,
 #' the variable given for \code{fec} in time \emph{t} (\code{2}) or time
 #' \emph{t}+1 (\code{3}).
 #' @param fecmod A scalar multiplier for fecundity. Defaults to \code{1.0}.
+#' @param prebreeding A logical value indicating whether the life history model
+#' is a pre-breeding model. Defaults to \code{TRUE}.
 #' 
 #' @return If all inputs are properly formatted, then this function will return
 #' an object of class \code{lefkoMat}, which is a list that holds the matrix
@@ -7163,7 +7180,7 @@ fleslie <- function(year = "all", patch = "all", data = NA, modelsuite = NA,
 #' 
 #' cyp_rl <- rleslie(data = cypraw_v1, start_age = 0, last_age = 4, continue = TRUE,
 #'   fecage_min = 3, fecage_max = 4, year = "all", pop = NA, patch = "all",
-#'   yearcol = "year2", popcol = NA, patchcol = "patchid")
+#'   yearcol = "year2", popcol = NA, patchcol = "patchid", indivcol = "individ")
 #' cyp_rl
 #' 
 #' @export
@@ -7172,9 +7189,14 @@ rleslie <- function(data, start_age = NA, last_age = NA, continue = TRUE,
   repst = c("repstatus3", "repstatus2", "repstatus1"),
   fec = c("feca3", "feca2", "feca1"), agecol = "obsage", year = "all", pop = NA,
   patch = NA, yearcol = NA, popcol = NA, patchcol = NA, indivcol = NA,
-  censor = FALSE, censorcol = NA, censorkeep = 0, fectime = 2, fecmod = 1.0) {
+  censor = FALSE, censorcol = NA, censorkeep = 0, fectime = 2, fecmod = 1.0,
+  prebreeding = TRUE) {
   
   popused <- patchused <- yearused <- NULL
+  
+  if (!all(is.logical(c(continue, censor, prebreeding)))) {
+    stop("Some logical variables have non-logical inputs.", call. = FALSE)
+  }
   
   if (all(is.na(data))) {
     stop("Need original vertical dataset to proceed.", call. = FALSE)
@@ -7202,9 +7224,15 @@ rleslie <- function(data, start_age = NA, last_age = NA, continue = TRUE,
   }
   age_limit <- max(mainages) + 1
   
-  if (is.na(start_age)) {start_age <- min(mainages, na.rm = TRUE)}
+  if (is.na(start_age)) {
+    if (prebreeding) {
+      start_age <- 1
+    } else {
+      start_age <- 0
+    }
+  }
   if (is.na(last_age)) {last_age <- max(mainages, na.rm = TRUE) + 1}
-  if (is.na(fecage_min)) {fecage_min <- start_age}
+  if (is.na(fecage_min)) {fecage_min <- min(mainages, na.rm = TRUE)}
   if (is.na(fecage_max)) {fecage_max <- last_age}
   
   start_age <- as.integer(start_age)

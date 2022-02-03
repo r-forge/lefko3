@@ -230,17 +230,17 @@ used in modeling (must be named \code{modelparams}). Only required if
 \item{inda}{Can be a single value to use for individual covariate \code{a}
 in all matrices, a pair of values to use for times \emph{t} and \emph{t}-1 in
 historical matrices, or a vector of such values corresponding to each
-occasion in option \code{year}. Defaults to \code{NULL}.}
+occasion in the dataset. Defaults to \code{NULL}.}
 
 \item{indb}{Can be a single value to use for individual covariate \code{b}
 in all matrices, a pair of values to use for times \emph{t} and \emph{t}-1 in
 historical matrices, or a vector of such values corresponding to each
-occasion in option \code{year}. Defaults to \code{NULL}.}
+occasion in the dataset. Defaults to \code{NULL}.}
 
 \item{indc}{Can be a single value to use for individual covariate \code{c}
 in all matrices, a pair of values to use for times \emph{t} and \emph{t}-1 in
 historical matrices, or a vector of such values corresponding to each
-occasion in option \code{year}. Defaults to \code{NULL}.}
+occasion in the dataset. Defaults to \code{NULL}.}
 
 \item{surv_dev}{A numeric value to be added to the y-intercept in the linear
 model for survival probability.}

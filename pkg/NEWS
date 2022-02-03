@@ -20,6 +20,9 @@ CHANGES IN VERSION 4.3.0 (2022-02-XX)
        conducting a state-space plot.
     2. Function hist_null() now correctly estimates the numbers of survival and
        fecundity elements.
+    3. Eliminated bug in functions flefko3(), flefko2(), and aflefko2()
+       preventing estimation of matrices for subsets of years in the dataset,
+       in situations in which the matrices are for later years.
 
 
 CHANGES IN VERSION 4.2.0 (2022-01-17)
