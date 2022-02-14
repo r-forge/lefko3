@@ -1,7 +1,7 @@
 LEFKO3 NEWS
 -----------
 
-CHANGES IN VERSION 4.3.0 (2022-02-XX)
+CHANGES IN VERSION 5.0.0 (2022-02-XX)
 -------------------------------------
   NEW FEATURES
     1. New function arlefko2() created to handle raw age-by-stage MPM
@@ -10,10 +10,13 @@ CHANGES IN VERSION 4.3.0 (2022-02-XX)
        history model is pre-breeding or post-breeding.
     3. Functions verticalize3() and historicalize3() now handle age offsets and
        automatically offset age by 1 if set to prebreeding = TRUE.
+    4. Further output has been added when err_check = TRUE is set in all
+       function-based matrix estimators.
 
   USER-VISIBLE CHANGES
     1. Default final_age in function aflefko2() is now the final age at time t
        in the original dataset.
+    2. All function-based matrix estimators have been sped up.
 
   BUG FIXES
     1. Function plot.lefkoProj() now uses the correct default axis labels when
@@ -21,8 +24,9 @@ CHANGES IN VERSION 4.3.0 (2022-02-XX)
     2. Function hist_null() now correctly estimates the numbers of survival and
        fecundity elements.
     3. Eliminated bug in functions flefko3(), flefko2(), and aflefko2()
-       preventing estimation of matrices for subsets of years in the dataset,
-       in situations in which the matrices are for later years.
+       preventing incorporation of random year effects into matrix estimation.
+    4. Eliminated bug causing inflation of lambda under some instances of the
+       Poisson distribution in function-based matrix estimation.
 
 
 CHANGES IN VERSION 4.2.0 (2022-01-17)

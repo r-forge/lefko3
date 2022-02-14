@@ -394,8 +394,6 @@
 #' ehrlen3mean$A[[1]]
 #' 
 #' # Cypripedium example using blocksize
-#' rm(list=ls(all=TRUE))
-#' 
 #' data(cypdata)
 #' 
 #' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
