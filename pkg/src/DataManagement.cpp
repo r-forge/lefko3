@@ -3321,7 +3321,7 @@ Rcpp::NumericVector density3(Rcpp::DataFrame data, int xcol, int ycol, int yearc
 //' Create Element Index for Matrix Estimation
 //' 
 //' Function \code{.simplepizzle()} creates a data frame object used by function
-//' \code{\link{.hist_null}()} to provide an index for estimation of null
+//' \code{\link{hist_null}()} to provide an index for estimation of null
 //' historical matrices from ahistorical MPM inputs.
 //' 
 //' @param StageFrame The stageframe object identifying the life history model
@@ -3354,6 +3354,7 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
   arma::vec minage = as<arma::vec>(StageFrame["min_age"]);
   arma::vec maxage = as<arma::vec>(StageFrame["max_age"]);
   arma::vec group = as<arma::vec>(StageFrame["group"]);
+  arma::vec entrystage = as<arma::vec>(StageFrame["entrystage"]);
   
   arma::vec binsizebctr = as<arma::vec>(StageFrame["sizebinb_center"]);
   arma::vec binsizecctr = as<arma::vec>(StageFrame["sizebinc_center"]);
@@ -3365,11 +3366,14 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
   int nostages_nounborn = nostages;
   int prior_stage = -1;
   int totallength {0};
+  if (format == 2)  nostages = nostages + 1;
+  
+  arma::vec almostborn (nostages, fill::zeros);
   
   if (format == 2) {
     arma::vec oldorigsize = as<arma::vec>(StageFrame["original_size"]);
-    arma::vec oldorigbsize = as<arma::vec>(StageFrame["size_b"]);
-    arma::vec oldorigcsize = as<arma::vec>(StageFrame["size_c"]);
+    arma::vec oldorigbsize = as<arma::vec>(StageFrame["original_size_b"]);
+    arma::vec oldorigcsize = as<arma::vec>(StageFrame["original_size_c"]);
     arma::vec oldpropstatus = as<arma::vec>(StageFrame["propstatus"]);
     arma::vec oldbinhalfwidthraw = as<arma::vec>(StageFrame["binhalfwidth_raw"]);
     arma::vec oldsizebinmin = as<arma::vec>(StageFrame["sizebin_min"]);
@@ -3383,46 +3387,46 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
     Rcpp::StringVector oldcomments = as<StringVector>(StageFrame["comments"]);
     arma::vec oldentrystage = as<arma::vec>(StageFrame["entrystage"]);
     
-    nostages = nostages + 1;
     nostages_nounborn = nostages - 1;
     prior_stage = nostages_nounborn;
     totallength = (2 * nostages_nounborn * nostages_nounborn *
       nostages);
     
-    arma::vec newstageidvec(nostages);
+    arma::vec newstageidvec(nostages, fill::zeros);
     Rcpp::StringVector newstagevec(nostages);
-    arma::vec neworigsizevec(nostages);
-    arma::vec neworigsizebvec(nostages);
-    arma::vec neworigsizecvec(nostages);
-    arma::vec newminagevec(nostages);
-    arma::vec newmaxagevec(nostages);
-    arma::vec newrepstatusvec(nostages);
+    arma::vec neworigsizevec(nostages, fill::zeros);
+    arma::vec neworigsizebvec(nostages, fill::zeros);
+    arma::vec neworigsizecvec(nostages, fill::zeros);
+    arma::vec newminagevec(nostages, fill::zeros);
+    arma::vec newmaxagevec(nostages, fill::zeros);
+    arma::vec newrepstatusvec(nostages, fill::zeros);
     arma::vec newobsstatusvec(nostages);
-    arma::vec newpropstatusvec(nostages);
-    arma::vec newimmstatusvec(nostages);
-    arma::vec newmatstatusvec(nostages);
-    arma::vec newindatasetvec(nostages);
-    arma::vec newbinhalfwidthrawvec(nostages);
-    arma::vec newsizebinminvec(nostages);
-    arma::vec newsizebinmaxvec(nostages);
-    arma::vec newsizebincentervec(nostages);
-    arma::vec newsizebinwidthvec(nostages);
+    arma::vec newpropstatusvec(nostages, fill::zeros);
+    arma::vec newimmstatusvec(nostages, fill::zeros);
+    arma::vec newmatstatusvec(nostages, fill::zeros);
+    arma::vec newindatasetvec(nostages, fill::zeros);
+    arma::vec newbinhalfwidthrawvec(nostages, fill::zeros);
+    arma::vec newsizebinminvec(nostages, fill::zeros);
+    arma::vec newsizebinmaxvec(nostages, fill::zeros);
+    arma::vec newsizebincentervec(nostages, fill::zeros);
+    arma::vec newsizebinwidthvec(nostages, fill::zeros);
     
-    arma::vec newbinhalfwidthbrawvec(nostages);
-    arma::vec newsizebinbminvec(nostages);
-    arma::vec newsizebinbmaxvec(nostages);
-    arma::vec newsizebinbcentervec(nostages);
-    arma::vec newsizebinbwidthvec(nostages);
+    arma::vec newbinhalfwidthbrawvec(nostages, fill::zeros);
+    arma::vec newsizebinbminvec(nostages, fill::zeros);
+    arma::vec newsizebinbmaxvec(nostages, fill::zeros);
+    arma::vec newsizebinbcentervec(nostages, fill::zeros);
+    arma::vec newsizebinbwidthvec(nostages, fill::zeros);
     
-    arma::vec newbinhalfwidthcrawvec(nostages);
-    arma::vec newsizebincminvec(nostages);
-    arma::vec newsizebincmaxvec(nostages);
-    arma::vec newsizebinccentervec(nostages);
-    arma::vec newsizebincwidthvec(nostages);
+    arma::vec newbinhalfwidthcrawvec(nostages, fill::zeros);
+    arma::vec newsizebincminvec(nostages, fill::zeros);
+    arma::vec newsizebincmaxvec(nostages, fill::zeros);
+    arma::vec newsizebinccentervec(nostages, fill::zeros);
+    arma::vec newsizebincwidthvec(nostages, fill::zeros);
     
-    arma::vec newgroupvec(nostages);
+    arma::vec newgroupvec(nostages, fill::zeros);
     Rcpp::StringVector newcomments(nostages);
-    arma::vec newentrystage(nostages);
+    arma::vec newentrystage(nostages, fill::zeros);
+    arma::vec newalmostborn(nostages, fill::zeros);
     
     for (int i = 0; i < nostages_nounborn; i++) {
       newstageidvec(i) = newstageid(i);
@@ -3497,8 +3501,9 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
     newgroupvec(nostages_nounborn) = 0.0;
     newcomments(nostages_nounborn) = "Almost Born";
     newentrystage(nostages_nounborn) = 0.0;
+    newalmostborn(nostages_nounborn) = 1.0;
     
-    Rcpp::List new_stageframe(31);
+    Rcpp::List new_stageframe(32);
     
     new_stageframe(0) = newstageidvec;
     new_stageframe(1) = newstagevec;
@@ -3535,6 +3540,7 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
     new_stageframe(28) = newgroupvec;
     new_stageframe(29) = newcomments;
     new_stageframe(30) = newentrystage;
+    new_stageframe(31) = newalmostborn;
     
     CharacterVector sfnamevec = {"stage_id", "stage", "original_size", "size_b",
       "size_c", "min_age", "max_age", "repstatus", "obsstatus", "propstatus",
@@ -3542,7 +3548,7 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
       "sizebin_max", "sizebin_center", "sizebin_width", "binhalfwidthb_raw",
       "sizebinb_min", "sizebinb_max", "sizebinb_center", "sizebinb_width",
       "binhalfwidthc_raw", "sizebinc_min", "sizebinc_max", "sizebinc_center",
-      "sizebinc_width", "group", "comments", "entrystage"};
+      "sizebinc_width", "group", "comments", "entrystage", "almostborn"};
     
     new_stageframe.attr("names") = sfnamevec;
     new_stageframe.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, newstageidvec.n_elem);
@@ -3567,6 +3573,8 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
     binsizecctr = as<arma::vec>(new_stageframe["sizebinc_center"]);
     binsizebwidth = as<arma::vec>(new_stageframe["sizebinb_width"]);
     binsizecwidth = as<arma::vec>(new_stageframe["sizebinc_width"]);
+    almostborn = as<arma::vec>(new_stageframe["almostborn"]);
+    entrystage = as<arma::vec>(new_stageframe["entrystage"]);
     
   } else {
     totallength = (nostages * nostages * nostages);
@@ -3644,6 +3652,10 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
   arma::vec imm1(totallength, fill::zeros);
   
   arma::vec repentry3(totallength, fill::zeros);
+  arma::vec repentry2o(totallength, fill::zeros);
+  arma::vec almostborn2n(totallength, fill::zeros);
+  arma::vec almostborn1(totallength, fill::zeros);
+  
   arma::vec binwidth(totallength, fill::zeros);
   arma::vec binbwidth(totallength, fill::zeros);
   arma::vec bincwidth(totallength, fill::zeros);
@@ -3664,12 +3676,14 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
   arma::vec grp1(totallength, fill::zeros);
   
   arma::vec actualage(totallength, fill::zeros);
-  arma::vec index321(totallength);
+  arma::vec index321u(totallength);
+  arma::vec index321f(totallength);
   arma::vec index21(totallength);
   arma::vec indatalong(totallength, fill::zeros);
   arma::vec aliveequal(totallength);
   arma::vec included(totallength, fill::zeros);
-  index321.fill(-1);
+  index321u.fill(-1);
+  index321f.fill(-1);
   index21.fill(-1);
   aliveequal.fill(-1);
   
@@ -3683,8 +3697,8 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
         for (int time2n = 0; time2n < nostages; time2n++) {
           for (int time3 = 0; time3 < nostages; time3++) {
             
-            if (time3 != prior_stage) {
-              if (time2n == time2o || time2n == prior_stage){
+            if (time3 != nostages_nounborn) {
+              if (time2n == time2o || time2n == nostages_nounborn) {
                 
                 included(currentindex) = 1;
                 
@@ -3738,7 +3752,10 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
                 imm2o(currentindex) = immstatus(time2o);
                 imm1(currentindex) = immstatus(time1);
                 
-                repentry3(currentindex) = 0;
+                repentry3(currentindex) = entrystage(time3);
+                repentry2o(currentindex) = entrystage(time2o);
+                almostborn2n(currentindex) = almostborn(time2n);
+                almostborn1(currentindex) = almostborn(time1);
                 
                 indata3(currentindex) = indata(time3);
                 indata2n(currentindex) = indata(time2n);
@@ -3769,11 +3786,12 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
                   ((stage1(currentindex) - 1) * nostages_nounborn * nostages *
                     nostages_nounborn);
                 
-                index321(currentindex) = (stage3(currentindex) - 1) + 
+                index321u(currentindex) = (stage3(currentindex) - 1) + 
                   ((stage2n(currentindex) - 1) * nostages_nounborn) + 
                   ((stage2o(currentindex) - 1) * nostages * nostages_nounborn) + 
                   ((stage1(currentindex) - 1) * nostages_nounborn * nostages *
                     nostages_nounborn);
+                index321f(currentindex) = index321u(currentindex);
                   
                 index21(currentindex) = (stage3(currentindex) - 1) + 
                   ((stage2o(currentindex) - 1) * nostages_nounborn); // Used to be 2o and 1
@@ -3781,8 +3799,22 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
                 indatalong(currentindex) = indata3(currentindex) * indata2n(currentindex) * 
                   indata2o(currentindex) * indata1(currentindex);
                 
+                // Now a few corrections
+                if ((almostborn1(currentindex) > 0.0 && repentry2o(currentindex) < 1.0)) {
+                    index321u(currentindex) = -1.0;
+                    index321f(currentindex) = -1.0;
+                }
+                if (almostborn2n(currentindex) > 0.0) {
+                  if (repentry3(currentindex) < 1.0 || rep2o(currentindex) < 1.0) {
+                    index321u(currentindex) = -1.0;
+                    index321f(currentindex) = -1.0;
+                  }
+                }
+                if (time2n == time2o) {
+                  index321f(currentindex) = -1.0;
+                }
                 currentindex += 1;
-              } // if (time2n == tim2o || time2n == prior_stage) statement
+              } // if (time2n == tim2o || time2n == nostages_nounborn) statement
             } // if (time3n != dead_stage) statement
           } // time3 loop
         } // time2n loop
@@ -3847,6 +3879,8 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
           imm1(currentindex) = immstatus(time1);
           
           repentry3(currentindex) = 0;
+          repentry2o(currentindex) = entrystage(time2o);
+          almostborn1(currentindex) = almostborn(time1);
           
           indata3(currentindex) = indata(time3);
           indata2n(currentindex) = indata(time2o);
@@ -3875,10 +3909,11 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
               (nostages - 1)) + ((stage2o(currentindex) - 1) * (nostages - 1) * (nostages - 1)) + 
             ((stage1(currentindex) - 1) * (nostages - 1) * (nostages - 1) * (nostages - 1));
             
-          index321(currentindex) = (stage3(currentindex) - 1) + 
+          index321u(currentindex) = (stage3(currentindex) - 1) + 
             ((stage2n(currentindex) - 1) * nostages) + 
             ((stage2n(currentindex) - 1) * nostages * nostages) + 
             ((stage1(currentindex) - 1) * nostages * nostages * nostages);
+          index321f(currentindex) = index321u(currentindex);
           index21(currentindex) = (stage3(currentindex) - 1) + ((stage2n(currentindex) - 1) * nostages);
           
           indatalong(currentindex) = indata3(currentindex) * indata2n(currentindex) * 
@@ -3892,7 +3927,7 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
   
   int stage3_length = stage3.n_elem;
   
-  Rcpp::List output_longlist(59);
+  Rcpp::List output_longlist(63);
   
   output_longlist(0) = Rcpp::NumericVector(stage3.begin(), stage3.end());
   output_longlist(1) = Rcpp::NumericVector(stage2n.begin(), stage2n.end());
@@ -3958,8 +3993,12 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
   output_longlist(55) = Rcpp::NumericVector(stage3_length, 1.0);
   
   output_longlist(56) = Rcpp::NumericVector(aliveequal.begin(), aliveequal.end());
-  output_longlist(57) = Rcpp::NumericVector(index321.begin(), index321.end());
+  output_longlist(57) = Rcpp::NumericVector(index321u.begin(), index321u.end());
   output_longlist(58) = Rcpp::NumericVector(index21.begin(), index21.end());
+  output_longlist(59) = Rcpp::NumericVector(repentry2o.begin(), repentry2o.end());
+  output_longlist(60) = Rcpp::NumericVector(almostborn2n.begin(), almostborn2n.end());
+  output_longlist(61) = Rcpp::NumericVector(almostborn1.begin(), almostborn1.end());
+  output_longlist(62) = Rcpp::NumericVector(index321f.begin(), index321f.end());
   
   CharacterVector namevec = {"stage3", "stage2n", "stage2o", "stage1", "size3",
     "size2n", "size2o", "size1", "sizeb3", "sizeb2n", "sizeb2o", "sizeb1", 
@@ -3969,7 +4008,8 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
     "indata1", "binwidth", "binbwidth", "bincwidth", "minage3", "minage2",
     "maxage3", "maxage2", "actualage", "group3", "group2n", "group2o", "group1",
     "indata", "ovgiven_t", "ovest_t", "ovgiven_f", "ovest_f", "ovsurvmult",
-    "ovfecmult", "aliveandequal", "index321", "index21"};
+    "ovfecmult", "aliveandequal", "index321u", "index21", "repentry2o",
+    "almostborn2n", "almostborn1", "index321f"};
   output_longlist.attr("names") = namevec;
   output_longlist.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, stage3_length);
   output_longlist.attr("class") = "data.frame";

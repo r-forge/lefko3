@@ -2666,6 +2666,13 @@ create_lM <- function(mats, stageframe, hstages = NA, agestages = NA,
         call. = FALSE)
     }
   }
+  
+  new_frame <- .sf_reassess(stageframe, supplement = NULL, overwrite = NULL,
+    repmatrix = NULL, agemat = agebystage, historical = historical, format = 1)
+  stageframe <- new_frame$stageframe
+  stageframe <- stageframe[-(dim(stageframe)[1]),]
+  # Entry stage issue
+  
   true_poporder <- poporder
   true_patchorder <- patchorder
   true_yearorder <- yearorder
@@ -2714,6 +2721,13 @@ create_lM <- function(mats, stageframe, hstages = NA, agestages = NA,
       stop("Unable to interpret entry stage designations.", call. = FALSE)
     }
   }
+  
+  if (entrystage > length(stageframe$entrystage)) {
+    stop("Chosen entry stage does not exist.", call. = FALSE)
+  }
+  new_entries <- rep(0, length(stageframe$entrystage))
+  new_entries[entrystage] <- 1
+  stageframe$entrystage <- new_entries
   
   matrixqc <- c(NA, NA, mat_length)
   
@@ -3910,12 +3924,16 @@ subset_lM <- function(lM, mat_num = NA, pop = NA, patch = NA, year = NA) {
 #' @param mpm An ahistorical MPM of class \code{lefkoMat}.
 #' @param format An integer stipulating whether historical matrices should be
 #' produced in Ehrlen format (\code{1}) or deVries format (\code{2}).
+#' @param err_check A logical value indicating whether to output the main index
+#' used to sort elements in the matrices.
 #' 
 #' @return An object of class \code{lefkoMat}, with the same list structure as
 #' the input object, but with \code{A}, \code{U}, and \code{F} elements replaced
 #' with lists of historically-structured matrices, and with element
 #' \code{hstages} changed from \code{NA} to an index of stage pairs
-#' corresponding to the rows and columns of the new matrices.
+#' corresponding to the rows and columns of the new matrices. If
+#' \code{err_check = TRUE}, then a data frame showing the values used to
+#' determine element index values is also exported.
 #' 
 #' @examples
 #' sizevector <- c(1, 1, 2, 3)
@@ -3958,7 +3976,7 @@ subset_lM <- function(lM, mat_num = NA, pop = NA, patch = NA, year = NA) {
 #' nullmodel2 <- hist_null(anth_lefkoMat, 2) # deVries format
 #' 
 #' @export
-hist_null <- function(mpm, format = 1) {
+hist_null <- function(mpm, format = 1, err_check = FALSE) {
   if (!is.element("lefkoMat", class(mpm))) {
     stop("Function hist_null requires an object of class lefkoMat as input.",
       call. = FALSE)
@@ -4011,6 +4029,8 @@ hist_null <- function(mpm, format = 1) {
       agestages = mpm$agestages, hstages = allstages$hstages,
       ahstages = allstages$ahstages, labels = mpm$labels)
   }
+  
+  if (err_check) new_mpm <- append(new_mpm, allstages)
   
   class(new_mpm) <- "lefkoMat"
   

@@ -25,9 +25,6 @@ fleslie(
   fec_dev = 0,
   density = NA,
   repmod = 1,
-  yearcol = 0,
-  patchcol = NA,
-  agecol = "obsage",
   random.inda = FALSE,
   random.indb = FALSE,
   random.indc = FALSE,
@@ -55,10 +52,10 @@ order to initialize occasions and patches properly, and to assess the range
 of ages observed in the population.}
 
 \item{modelsuite}{An optional \code{lefkoMod} object holding the vital rate
-models. If given, then \code{surv_model}, \code{fec_model},
-\code{paramnames}, \code{yearcol}, and \code{patchcol} are not required. No
-models should include size or reproductive status in any occasion, nor
-should they include any variable for occasion \emph{t}-1.}
+models. If given, then \code{surv_model}, \code{fec_model}, and 
+\code{paramnames} are not required. No models should include size or
+reproductive status in any occasion, nor should they include any variable for
+occasion \emph{t}-1.}
 
 \item{surv_model}{A linear model predicting survival probability. This can be
 a model of class \code{glm} or \code{glmer}, and requires a predicted
@@ -122,15 +119,6 @@ matrices. Only needed if density is an explanatory term used in linear
 models. Defaults to \code{NA}.}
 
 \item{repmod}{A scalar multiplier of fecundity. Defaults to \code{1}.}
-
-\item{yearcol}{The variable name or column number corresponding to occasion
-\emph{t} in the dataset. Not needed if a \code{modelsuite} is supplied.}
-
-\item{patchcol}{The variable name or column number corresponding to patch in 
-the dataset. Not needed if a \code{modelsuite} is supplied.}
-
-\item{agecol}{The name or column number of the variable coding for age in
-time \emph{t} in \code{data}. Defaults to \code{"obsage"}.}
 
 \item{random.inda}{A logical value denoting whether to treat individual
 covariate \code{a} as a random, categorical variable. Otherwise is treated as
@@ -198,8 +186,8 @@ terms.
 Users may at times wish to estimate MPMs using a dataset incorporating
 multiple patches or subpopulations, but without discriminating between those
 patches or subpopulations. Should the aim of analysis be a general MPM that
-does not distinguish these patches or subpopulations, the \code{patchcol}
-variable should be set to \code{NA}, which is the default.
+does not distinguish these patches or subpopulations, the
+\code{modelsearch()} run should not include patch terms.
 
 Input options including multiple variable names must be entered in the order
 of variables in occasion \emph{t}+1 and \emph{t}. Rearranging the order will
@@ -232,7 +220,7 @@ lathmodels2_age <- modelsearch(lathvert_age, historical = FALSE,
   year = "year2", show.model.tables = TRUE, quiet = TRUE)
 
 lathmat2fleslie <- fleslie(year = "all", data = lathvert_age,
-  modelsuite = lathmodels2_age, yearcol = "year2", fecage_min = 1)
+  modelsuite = lathmodels2_age, fecage_min = 1)
 
 summary(lathmat2fleslie)
 }

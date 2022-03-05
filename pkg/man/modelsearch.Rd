@@ -567,7 +567,7 @@ lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "mat", "Sd", "Sdl
 
 lathmat3ln <- flefko3(year = "all", patch = "all", stageframe = lathframeln, 
   modelsuite = lathmodelsln3, data = lathvertln, supplement = lathsupp3, 
-  patchcol = "patchid", yearcol = "year2", reduce = FALSE)
+  reduce = FALSE)
 
 summary(lathmat3ln)
 }

@@ -50,11 +50,11 @@
 #' \code{size_model}, \code{sizeb_model}, \code{sizec_model},
 #' \code{repst_model}, \code{fec_model}, \code{jsurv_model}, \code{jobs_model},
 #' \code{jsize_model}, \code{jsizeb_model}, \code{jsizec_model},
-#' \code{jrepst_model}, \code{jmatst_model}, \code{paramnames}, \code{yearcol},
-#' and \code{patchcol} are not required. One or more of these models should
-#' include size or reproductive status in occasion \emph{t}-1. Although this is
-#' optional input, it is recommended, and without it all vital rate model inputs
-#' (named \code{XX_model}) are required.
+#' \code{jrepst_model}, \code{jmatst_model}, and \code{paramnames} are not
+#' required. One or more of these models should include size or reproductive
+#' status in occasion \emph{t}-1. Although this is optional input, it is
+#' recommended, and without it all vital rate model inputs (named
+#' \code{XX_model}) are required.
 #' @param surv_model A linear model predicting survival probability. This can 
 #' be a model of class \code{glm} or \code{glmer}, and requires a predicted
 #' binomial variable under a logit link. Ignored if \code{modelsuite} is
@@ -178,10 +178,6 @@
 #' matrices. Only needed if density is an explanatory term used in one or more
 #' vital rate models. Defaults to \code{NA}.
 #' @param repmod A scalar multiplier of fecundity. Defaults to \code{1}.
-#' @param yearcol The variable name or column number corresponding to occasion
-#' \emph{t} in the dataset. Not needed if a \code{modelsuite} is supplied.
-#' @param patchcol The variable name or column number corresponding to patch in 
-#' the dataset. Not needed if a \code{modelsuite} is supplied.
 #' @param random.inda A logical value denoting whether to treat individual
 #' covariate \code{a} as a random, categorical variable. Otherwise is treated as
 #' a fixed, numeric variable. Defaults to \code{FALSE}.
@@ -281,17 +277,13 @@
 #' Users may at times wish to estimate MPMs using a dataset incorporating
 #' multiple patches or subpopulations, but without discriminating between those
 #' patches or subpopulations. Should the aim of analysis be a general MPM that
-#' does not distinguish these patches or subpopulations, the \code{patchcol}
-#' variable should be set to \code{NA}, which is the default.
+#' does not distinguish these patches or subpopulations, the
+#' \code{modelsearch()} run should not include patch terms.
 #'
 #' Input options including multiple variable names must be entered in the order
 #' of variables in occasion \emph{t}+1, \emph{t}, and \emph{t}-1. Rearranging
 #' the order will lead to erroneous calculations, and will may lead to fatal
 #' errors.
-#' 
-#' Care should be taken to match the random status of year and patch to the
-#' states of those variables within the \code{modelsuite}. If they do not match,
-#' then they will be treated as \code{0}s in vital rate estimation.
 #' 
 #' The \code{ipm_method} function gives the option of using two different means
 #' of estimating the probability of size transition. The midpoint method
@@ -389,7 +381,7 @@
 #' 
 #' lathmat3ln <- flefko3(year = "all", patch = "all", stageframe = lathframeln, 
 #'   modelsuite = lathmodelsln3, data = lathvertln, supplement = lathsupp3, 
-#'   patchcol = "patchid", yearcol = "year2", reduce = FALSE)
+#'   reduce = FALSE)
 #' 
 #' summary(lathmat3ln)
 #' 
@@ -483,11 +475,11 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   obs_dev = 0, size_dev = 0, sizeb_dev = 0, sizec_dev = 0, repst_dev = 0,
   fec_dev = 0, jsurv_dev = 0, jobs_dev = 0, jsize_dev = 0, jsizeb_dev = 0,
   jsizec_dev = 0, jrepst_dev = 0, jmatst_dev = 0, density = NA, repmod = 1,
-  yearcol = NA, patchcol = NA, random.inda = FALSE, random.indb = FALSE,
-  random.indc = FALSE, negfec = FALSE, format = "ehrlen", ipm_method = "CDF",
-  reduce = FALSE, err_check = FALSE, exp_tol = 700, theta_tol = 100000000) {
+  random.inda = FALSE, random.indb = FALSE, random.indc = FALSE,
+  negfec = FALSE, format = "ehrlen", ipm_method = "CDF", reduce = FALSE,
+  err_check = FALSE, exp_tol = 700, theta_tol = 100000000) {
   
-  indanames <- indbnames <- indcnames <- NULL
+  indanames <- indbnames <- indcnames <- yearcol <- patchcol <- NULL
   
   if (tolower(format) == "ehrlen") {
     format_int <- 1
@@ -508,7 +500,7 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   }
   
   if (all(is.null(modelsuite)) & all(is.null(paramnames))) {
-    warning("Function may not work properly without a dataframe of model parameters or
+    stop("Function will not work properly without a dataframe of model parameters or
       equivalents supplied either through the modelsuite option or through the paramnames
       input parameter.", call. = FALSE)
   } else if (!all(is.null(modelsuite))) {
@@ -622,19 +614,19 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
     choicevar <- which(names(data) == yearcol);
     
     if (length(choicevar) != 1) {
-      stop("Variable name yearcol does not match any variable in the dataset.",
+      stop("Year variable does not match any variable in the dataset.",
         call. = FALSE)
     }
     mainyears <- sort(unique(data[,choicevar]))
   } else if (is.numeric(yearcol)) {
     if (any(yearcol < 1) | any(yearcol > no_vars)) {
-      stop("Variable yearcol does not match any variable in the dataset.",
+      stop("Year variable does not match any variable in the dataset.",
         call. = FALSE)
     }
     
     mainyears <- sort(unique(data[, yearcol]));
   } else {
-    stop("Need appropriate year column designation.", call. = FALSE)
+    stop("Need appropriate year variable designation in paramnames.", call. = FALSE)
   }
   
   if (any(is.character(year))) {
@@ -659,20 +651,20 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   
   if (all(is.na(patch)) & !is.na(patchcol)) {
     warning("Matrix creation may not proceed properly without input in the patch
-      option if option patchcol is designated.", call. = FALSE)
+      option if a patch term occurs in the vital rate models.", call. = FALSE)
   }
   
   if (is.character(patchcol) & patchcol != "none") {
     choicevar <- which(names(data) == patchcol);
     
     if (length(choicevar) != 1) {
-      stop("Variable name patchcol does not match any variable in the dataset.",
+      stop("Patch variable does not match any variable in the dataset.",
         call. = FALSE)
     }
     mainpatches <- sort(unique(as.character(data[,choicevar])))
   } else if (is.numeric(patchcol)) {
     if (any(patchcol < 1) | any(patchcol > no_vars)) {
-      stop("Variable patchcol does not match any variable in the dataset.",
+      stop("Patch variable does not match any variable in the dataset.",
         call. = FALSE)
     }
     mainpatches <- sort(unique(as.character(data[, patchcol])));
@@ -895,8 +887,6 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
     r1.indc <- rep("none", length(mainyears))
   }
   
-  maingroups <- sort(unique(stageframe$group))
-  
   if (!all(is.na(density))) {
     if (!all(is.numeric(density))) {
       stop("Density value must be numeric.", call. = FALSE)
@@ -952,6 +942,8 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   stageframe <- melchett$stageframe
   repmatrix <- melchett$repmatrix
   ovtable <- melchett$ovtable
+  
+  maingroups <- seq(from = min(stageframe$group), to = max(stageframe$group))
   
   if (!all(is.null(overwrite)) | !all(is.null(supplement))) {
     if(any(duplicated(ovtable[,1:3]))) {
@@ -1145,11 +1137,10 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' \code{size_model}, \code{sizeb_model}, \code{sizec_model},
 #' \code{repst_model}, \code{fec_model}, \code{jsurv_model}, \code{jobs_model},
 #' \code{jsize_model}, \code{jsizeb_model}, \code{jsizec_model},
-#' \code{jrepst_model}, \code{jmatst_model}, \code{paramnames}, \code{yearcol},
-#' and \code{patchcol} are not required. No models should include size or
-#' reproductive status in occasion \emph{t}-1. Although this is optional input,
-#' it is recommended, and without it all vital rate model inputs (named
-#' \code{XX_model}) are required.
+#' \code{jrepst_model}, \code{jmatst_model}, and \code{paramnames} are not
+#' required. No models should include size or reproductive status in occasion
+#' \emph{t}-1. Although this is optional input, it is recommended, and without
+#' it all vital rate model inputs (named \code{XX_model}) are required.
 #' @param surv_model A linear model predicting survival probability. This can 
 #' be a model of class \code{glm} or \code{glmer}, and requires a predicted
 #' binomial variable under a logit link. Ignored if \code{modelsuite} is
@@ -1273,10 +1264,6 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' matrices. Only needed if density is an explanatory term used in one or more
 #' vital rate models. Defaults to \code{NA}.
 #' @param repmod A scalar multiplier of fecundity. Defaults to \code{1}.
-#' @param yearcol The variable name or column number corresponding to occasion
-#' \emph{t} in the dataset. Not needed if a \code{modelsuite} is supplied.
-#' @param patchcol The variable name or column number corresponding to patch in 
-#' the dataset. Not needed if a \code{modelsuite} is supplied.
 #' @param random.inda A logical value denoting whether to treat individual
 #' covariate \code{a} as a random, categorical variable. Otherwise is treated as
 #' a fixed, numeric variable. Defaults to \code{FALSE}.
@@ -1375,8 +1362,8 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' Users may at times wish to estimate MPMs using a dataset incorporating
 #' multiple patches or subpopulations, but without discriminating between those
 #' patches or subpopulations. Should the aim of analysis be a general MPM that
-#' does not distinguish these patches or subpopulations, the \code{patchcol}
-#' variable should be set to \code{NA}, which is the default.
+#' does not distinguish these patches or subpopulations, the
+#' \code{modelsearch()} run should not include patch terms.
 #'
 #' Input options including multiple variable names must be entered in the order
 #' of variables in occasion \emph{t}+1 and \emph{t}. Rearranging the order will
@@ -1480,7 +1467,7 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' 
 #' lathmat2ln <- flefko2(year = "all", patch = "all", stageframe = lathframeln, 
 #'   modelsuite = lathmodelsln2, data = lathvertln, supplement = lathsupp2,
-#'   patchcol = "patchid", yearcol = "year2", reduce = FALSE)
+#'   reduce = FALSE)
 #' 
 #' summary(lathmat2ln)
 #' 
@@ -1567,14 +1554,14 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   obs_dev = 0, size_dev = 0, sizeb_dev = 0, sizec_dev = 0, repst_dev = 0,
   fec_dev = 0, jsurv_dev = 0, jobs_dev = 0, jsize_dev = 0, jsizeb_dev = 0,
   jsizec_dev = 0, jrepst_dev = 0, jmatst_dev = 0, density = NA, repmod = 1,
-  yearcol = NA, patchcol = NA, random.inda = FALSE, random.indb = FALSE,
-  random.indc = FALSE, negfec = FALSE, ipm_method = "CDF", reduce = FALSE,
-  err_check = FALSE, exp_tol = 700, theta_tol = 100000000) {
+  random.inda = FALSE, random.indb = FALSE, random.indc = FALSE, negfec = FALSE,
+  ipm_method = "CDF", reduce = FALSE, err_check = FALSE, exp_tol = 700,
+  theta_tol = 100000000) {
   
-  indanames <- indbnames <- indcnames <- NULL
+  indanames <- indbnames <- indcnames <- yearcol <- patchcol <- NULL
   
   if (all(is.null(modelsuite)) & all(is.null(paramnames))) {
-    warning("Function may not work properly without a dataframe of model parameters or
+    stop("Function will not work properly without a dataframe of model parameters or
       equivalents supplied either through the modelsuite option or through the paramnames
       input parameter.", call. = FALSE)
   } else if (!all(is.null(modelsuite))) {
@@ -1697,19 +1684,19 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
     choicevar <- which(names(data) == yearcol);
     
     if (length(choicevar) != 1) {
-      stop("Variable name yearcol does not match any variable in the dataset.",
+      stop("Year variable does not match any variable in the dataset.",
         call. = FALSE)
     }
     mainyears <- sort(unique(data[,choicevar]))
   } else if (is.numeric(yearcol)) {
     if (any(yearcol < 1) | any(yearcol > no_vars)) {
-      stop("Variable yearcol does not match any variable in the dataset.",
+      stop("Year variable does not match any variable in the dataset.",
         call. = FALSE)
     }
     
     mainyears <- sort(unique(data[, yearcol]));
   } else {
-    stop("Need appropriate year column designation.", call. = FALSE)
+    stop("Need appropriate year variable designation.", call. = FALSE)
   }
   
   if (any(is.character(year))) {
@@ -1734,20 +1721,20 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   
   if (all(is.na(patch)) & !is.na(patchcol)) {
     warning("Matrix creation may not proceed properly without input in the patch
-      option if option patchcol is designated.", call. = FALSE)
+      option if patch terms occur in the vital rate models.", call. = FALSE)
   }
   
   if (is.character(patchcol) & patchcol != "none") {
     choicevar <- which(names(data) == patchcol);
     
     if (length(choicevar) != 1) {
-      stop("Variable name patchcol does not match any variable in the dataset.",
+      stop("Patch variable does not match any variable in the dataset.",
         call. = FALSE)
     }
     mainpatches <- sort(unique(as.character(data[,choicevar])))
   } else if (is.numeric(patchcol)) {
     if (any(patchcol < 1) | any(patchcol > no_vars)) {
-      stop("Variable patchcol does not match any variable in the dataset.",
+      stop("Patch variable does not match any variable in the dataset.",
         call. = FALSE)
     }
     mainpatches <- sort(unique(as.character(data[, patchcol])));
@@ -2214,11 +2201,10 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' \code{size_model}, \code{sizeb_model}, \code{sizec_model},
 #' \code{repst_model}, \code{fec_model}, \code{jsurv_model}, \code{jobs_model},
 #' \code{jsize_model}, \code{jsizeb_model}, \code{jsizec_model},
-#' \code{jrepst_model}, \code{jmatst_model}, \code{paramnames}, \code{yearcol},
-#' and \code{patchcol} are not required. No models should include size or
-#' reproductive status in occasion \emph{t}-1. Although this is optional input,
-#' it is recommended, and without it all vital rate model inputs (named
-#' \code{XX_model}) are required.
+#' \code{jrepst_model}, \code{jmatst_model}, and \code{paramnames} are not
+#' required. No models should include size or reproductive status in occasion
+#' \emph{t}-1. Although this is optional input, it is recommended, and without
+#' it all vital rate model inputs (named \code{XX_model}) are required.
 #' @param surv_model A linear model predicting survival probability. This can 
 #' be a model of class \code{glm} or \code{glmer}, and requires a predicted
 #' binomial variable under a logit link. Ignored if \code{modelsuite} is
@@ -2342,12 +2328,6 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' matrices. Only needed if density is an explanatory term used in one or more
 #' vital rate models. Defaults to \code{NA}.
 #' @param repmod A scalar multiplier of fecundity. Defaults to \code{1}.
-#' @param yearcol The variable name or column number corresponding to occasion
-#' \emph{t} in the dataset. Not needed if a \code{modelsuite} is supplied.
-#' @param patchcol The variable name or column number corresponding to patch in 
-#' the dataset. Not needed if a \code{modelsuite} is supplied.
-#' @param agecol The name or column number of the variable coding for age in
-#' time \emph{t} in \code{data}. Defaults to \code{"obsage"}.
 #' @param random.inda A logical value denoting whether to treat individual
 #' covariate \code{a} as a random, categorical variable. Otherwise is treated as
 #' a fixed, numeric variable. Defaults to \code{FALSE}.
@@ -2457,8 +2437,8 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' Users may at times wish to estimate MPMs using a dataset incorporating
 #' multiple patches or subpopulations, but without discriminating between those
 #' patches or subpopulations. Should the aim of analysis be a general MPM that
-#' does not distinguish these patches or subpopulations, the \code{patchcol}
-#' variable should be set to \code{NA}, which is the default.
+#' does not distinguish these patches or subpopulations, the
+#' \code{modelsearch()} run should not include patch terms.
 #'
 #' Input options including multiple variable names must be entered in the order
 #' of variables in occasion \emph{t}+1 and \emph{t}. Rearranging the order will
@@ -2564,8 +2544,7 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' 
 #' lathmat2age <- aflefko2(year = "all", patch = "all", 
 #'   stageframe = lathframeln, modelsuite = lathmodelsln2, data = lathvertln,
-#'   supplement = lathsupp2, patchcol = "patchid",
-#'   yearcol = "year2", final_age = 2, continue = TRUE, reduce = FALSE)
+#'   supplement = lathsupp2, final_age = 3, continue = TRUE, reduce = FALSE)
 #' 
 #' summary(lathmat2age)
 #' }
@@ -2580,15 +2559,14 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   obs_dev = 0, size_dev = 0, sizeb_dev = 0, sizec_dev = 0, repst_dev = 0,
   fec_dev = 0, jsurv_dev = 0, jobs_dev = 0, jsize_dev = 0, jsizeb_dev = 0,
   jsizec_dev = 0, jrepst_dev = 0, jmatst_dev = 0, density = NA, repmod = 1,
-  yearcol = NA, patchcol = NA, agecol = "obsage", random.inda = FALSE,
-  random.indb = FALSE, random.indc = FALSE, final_age = NA, continue = TRUE,
-  prebreeding = TRUE, negfec = FALSE, ipm_method = "CDF", reduce = FALSE,
-  err_check = FALSE, exp_tol = 700, theta_tol = 100000000) {
+  random.inda = FALSE, random.indb = FALSE, random.indc = FALSE, final_age = NA,
+  continue = TRUE, prebreeding = TRUE, negfec = FALSE, ipm_method = "CDF",
+  reduce = FALSE, err_check = FALSE, exp_tol = 700, theta_tol = 100000000) {
   
-  indanames <- indbnames <- indcnames <- NULL
+  indanames <- indbnames <- indcnames <- yearcol <- patchcol <- agecol <- NULL
   
   if (all(is.null(modelsuite)) & all(is.null(paramnames))) {
-    warning("Function may not work properly without a dataframe of model parameters or
+    stop("Function will not work properly without a dataframe of model parameters or
       equivalents supplied either through the modelsuite option or through the paramnames
       input parameter.", call. = FALSE)
   } else if (!all(is.null(modelsuite))) {
@@ -2596,11 +2574,13 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
       paramnames <- modelsuite$paramnames
       yearcol <- paramnames$modelparams[which(paramnames$mainparams == "year2")]
       patchcol <- paramnames$modelparams[which(paramnames$mainparams == "patch")]
+      agecol <- paramnames$modelparams[which(paramnames$mainparams == "age")]
     }
   } else if (!all(is.null(paramnames))) {
     if (is.data.frame(paramnames)) {
       yearcol <- paramnames$modelparams[which(paramnames$mainparams == "year2")]
       patchcol <- paramnames$modelparams[which(paramnames$mainparams == "patch")]
+      agecol <- paramnames$modelparams[which(paramnames$mainparams == "age")]
     }
     
     null_check <- 0;
@@ -2714,19 +2694,19 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
     choicevar <- which(names(data) == yearcol);
     
     if (length(choicevar) != 1) {
-      stop("Variable name yearcol does not match any variable in the dataset.",
+      stop("Year variable does not match any variable in the dataset.",
         call. = FALSE)
     }
     mainyears <- sort(unique(data[,choicevar]))
   } else if (is.numeric(yearcol)) {
     if (any(yearcol < 1) | any(yearcol > no_vars)) {
-      stop("Variable yearcol does not match any variable in the dataset.",
+      stop("Year variable does not match any variable in the dataset.",
         call. = FALSE)
     }
     
     mainyears <- sort(unique(data[, yearcol]));
   } else {
-    stop("Need appropriate year column designation.", call. = FALSE)
+    stop("Need appropriate year variable designation.", call. = FALSE)
   }
   
   if (any(is.character(year))) {
@@ -2741,13 +2721,13 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
     choicevar <- which(names(data) == agecol);
     
     if (length(choicevar) != 1) {
-      stop("Variable name agecol does not match any variable in the dataset.",
+      stop("Age variable does not match any variable in the dataset.",
         call. = FALSE)
     }
     mainages <- sort(unique(data[,choicevar]))
   } else if (is.numeric(agecol)) {
     if (any(agecol < 1) | any(agecol > no_vars)) {
-      stop("Variable agecol does not match any variable in the dataset.",
+      stop("Age variable does not match any variable in the dataset.",
         call. = FALSE)
     }
     
@@ -2795,20 +2775,20 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   
   if (all(is.na(patch)) & !is.na(patchcol)) {
     warning("Matrix creation may not proceed properly without input in the patch
-      option if option patchcol is designated.", call. = FALSE)
+      option if patch terms occur in the vital rate models.", call. = FALSE)
   }
   
   if (is.character(patchcol) & patchcol != "none") {
     choicevar <- which(names(data) == patchcol);
     
     if (length(choicevar) != 1) {
-      stop("Variable name patchcol does not match any variable in the dataset.",
+      stop("Patch variable does not match any variable in the dataset.",
         call. = FALSE)
     }
     mainpatches <- sort(unique(as.character(data[,choicevar])))
   } else if (is.numeric(patchcol)) {
     if (any(patchcol < 1) | any(patchcol > no_vars)) {
-      stop("Variable patchcol does not match any variable in the dataset.",
+      stop("Patch variable does not match any variable in the dataset.",
         call. = FALSE)
     }
     mainpatches <- sort(unique(as.character(data[, patchcol])));
@@ -3137,8 +3117,8 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   
   ahstages <- stageframe[1:(dim(stageframe)[1] - 1),]
   
-  agestages3 <- ahstages[rep(seq_len(nrow(ahstages)), (final_age + 1)), c(1,2)]
-  agestages2 <- rep(c(0:final_age), each = nrow(ahstages))
+  agestages3 <- ahstages[rep(seq_len(nrow(ahstages)), (final_age - first_age + 1)), c(1,2)]
+  agestages2 <- rep(c(first_age:final_age), each = nrow(ahstages))
   agestages <- cbind.data.frame(agestages3, agestages2)
   names(agestages) <- c("stage_id", "stage", "age")
   
@@ -3198,10 +3178,10 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' order to initialize occasions and patches properly, and to assess the range
 #' of ages observed in the population.
 #' @param modelsuite An optional \code{lefkoMod} object holding the vital rate
-#' models. If given, then \code{surv_model}, \code{fec_model},
-#' \code{paramnames}, \code{yearcol}, and \code{patchcol} are not required. No
-#' models should include size or reproductive status in any occasion, nor
-#' should they include any variable for occasion \emph{t}-1.
+#' models. If given, then \code{surv_model}, \code{fec_model}, and 
+#' \code{paramnames} are not required. No models should include size or
+#' reproductive status in any occasion, nor should they include any variable for
+#' occasion \emph{t}-1.
 #' @param surv_model A linear model predicting survival probability. This can be
 #' a model of class \code{glm} or \code{glmer}, and requires a predicted
 #' binomial variable under a logit link. Ignored if \code{modelsuite} is
@@ -3250,12 +3230,6 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' matrices. Only needed if density is an explanatory term used in linear
 #' models. Defaults to \code{NA}.
 #' @param repmod A scalar multiplier of fecundity. Defaults to \code{1}.
-#' @param yearcol The variable name or column number corresponding to occasion
-#' \emph{t} in the dataset. Not needed if a \code{modelsuite} is supplied.
-#' @param patchcol The variable name or column number corresponding to patch in 
-#' the dataset. Not needed if a \code{modelsuite} is supplied.
-#' @param agecol The name or column number of the variable coding for age in
-#' time \emph{t} in \code{data}. Defaults to \code{"obsage"}.
 #' @param random.inda A logical value denoting whether to treat individual
 #' covariate \code{a} as a random, categorical variable. Otherwise is treated as
 #' a fixed, numeric variable. Defaults to \code{FALSE}.
@@ -3307,8 +3281,8 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' Users may at times wish to estimate MPMs using a dataset incorporating
 #' multiple patches or subpopulations, but without discriminating between those
 #' patches or subpopulations. Should the aim of analysis be a general MPM that
-#' does not distinguish these patches or subpopulations, the \code{patchcol}
-#' variable should be set to \code{NA}, which is the default.
+#' does not distinguish these patches or subpopulations, the
+#' \code{modelsearch()} run should not include patch terms.
 #'
 #' Input options including multiple variable names must be entered in the order
 #' of variables in occasion \emph{t}+1 and \emph{t}. Rearranging the order will
@@ -3348,7 +3322,7 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #'   year = "year2", show.model.tables = TRUE, quiet = TRUE)
 #' 
 #' lathmat2fleslie <- fleslie(year = "all", data = lathvert_age,
-#'   modelsuite = lathmodels2_age, yearcol = "year2", fecage_min = 1)
+#'   modelsuite = lathmodels2_age, fecage_min = 1)
 #' 
 #' summary(lathmat2fleslie)
 #' }
@@ -3357,11 +3331,11 @@ fleslie <- function(year = "all", patch = "all", prebreeding = TRUE, data = NULL
   modelsuite = NULL, surv_model = NULL, fec_model = NULL, paramnames = NULL,
   start_age = NA, last_age = NA, fecage_min = NA, fecage_max = NA,
   continue = TRUE, inda = NULL, indb = NULL, indc = NULL, surv_dev = 0,
-  fec_dev = 0, density = NA, repmod = 1, yearcol = 0, patchcol = NA,
-  agecol = "obsage", random.inda = FALSE, random.indb = FALSE, random.indc = FALSE,
-  negfec = FALSE, exp_tol = 700, theta_tol = 100000000) {
+  fec_dev = 0, density = NA, repmod = 1, random.inda = FALSE,
+  random.indb = FALSE, random.indc = FALSE, negfec = FALSE, exp_tol = 700,
+  theta_tol = 100000000) {
   
-  indanames <- indbnames <- indcnames <- NULL
+  indanames <- indbnames <- indcnames <- yearcol <- patchcol <- agecol <- NULL
   err_check <- FALSE # Not used except as a remnant placemarker
   
   if (!all(is.logical(c(continue, random.inda, random.indb, random.indc, prebreeding, negfec)))) {
@@ -3369,7 +3343,7 @@ fleslie <- function(year = "all", patch = "all", prebreeding = TRUE, data = NULL
   }
   
   if (all(is.null(modelsuite)) & all(is.null(paramnames))) {
-    warning("Function may not work properly without a dataframe of model parameters or
+    stop("Function will not work properly without a dataframe of model parameters or
       equivalents supplied either through the modelsuite option or through the paramnames
       input parameter.", call. = FALSE)
   } else if (!all(is.null(modelsuite))) {
@@ -3377,11 +3351,13 @@ fleslie <- function(year = "all", patch = "all", prebreeding = TRUE, data = NULL
       paramnames <- modelsuite$paramnames
       yearcol <- paramnames$modelparams[which(paramnames$mainparams == "year2")]
       patchcol <- paramnames$modelparams[which(paramnames$mainparams == "patch")]
+      agecol <- paramnames$modelparams[which(paramnames$mainparams == "age")]
     }
   } else if (!all(is.null(paramnames))) {
     if (is.data.frame(paramnames)) {
       yearcol <- paramnames$modelparams[which(paramnames$mainparams == "year2")]
       patchcol <- paramnames$modelparams[which(paramnames$mainparams == "patch")]
+      agecol <- paramnames$modelparams[which(paramnames$mainparams == "age")]
     }
     
     null_check <- 0;
@@ -3472,14 +3448,14 @@ fleslie <- function(year = "all", patch = "all", prebreeding = TRUE, data = NULL
     choicevar <- which(names(data) == yearcol);
     
     if (length(choicevar) != 1) {
-      stop("Variable name yearcol does not match any variable in the dataset.",
+      stop("Year variable does not match any variable in the dataset.",
         call. = FALSE)
     }
     mainyears <- sort(unique(data[,choicevar]))
     
   } else if (is.numeric(yearcol)) {
     if (any(yearcol < 1) | any(yearcol > no_vars)) {
-      stop("Variable yearcol does not match any variable in the dataset.",
+      stop("Year variable does not match any variable in the dataset.",
         call. = FALSE)
     }
     mainyears <- sort(unique(data[, yearcol]));
@@ -3504,20 +3480,20 @@ fleslie <- function(year = "all", patch = "all", prebreeding = TRUE, data = NULL
   
   if (all(is.na(patch)) & !is.na(patchcol)) {
     warning("Matrix creation may not proceed properly without input in the patch
-      option if option patchcol is designated.", call. = FALSE)
+      option if patch terms occur in the vital rate models.", call. = FALSE)
   }
   
   if (is.character(patchcol) & patchcol != "none") {
     choicevar <- which(names(data) == patchcol);
     
     if (length(choicevar) != 1) {
-      stop("Variable name patchcol does not match any variable in the dataset.",
+      stop("Patch variable does not match any variable in the dataset.",
         call. = FALSE)
     }
     mainpatches <- sort(unique(as.character(data[,choicevar])))
   } else if (is.numeric(patchcol)) {
     if (any(patchcol < 1) | any(patchcol > no_vars)) {
-      stop("Variable patchcol does not match any variable in the dataset.",
+      stop("Patch variable does not match any variable in the dataset.",
         call. = FALSE)
     }
     mainpatches <- sort(unique(as.character(data[, patchcol])));

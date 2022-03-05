@@ -444,7 +444,7 @@
 #' 
 #' lathmat3ln <- flefko3(year = "all", patch = "all", stageframe = lathframeln, 
 #'   modelsuite = lathmodelsln3, data = lathvertln, supplement = lathsupp3, 
-#'   patchcol = "patchid", yearcol = "year2", reduce = FALSE)
+#'   reduce = FALSE)
 #' 
 #' summary(lathmat3ln)
 #' }
@@ -3572,20 +3572,21 @@ create_pm <- function() {
     "fecundity in time t+1", "fecundity in time t", "sizea in time t",
     "sizea in time t-1", "sizeb in time t", "sizeb in time t-1",
     "sizec in time t", "sizec in time t-1", "reproductive status in time t",
-    "reproductive status in time t-1", "age in time t", "density in time t",
-    "individual covariate a in time t", "individual covariate a in time t -1",
-    "individual covariate b in time t", "individual covariate b in time t -1",
-    "individual covariate c in time t", "individual covariate c in time t -1",
+    "reproductive status in time t-1", "maturity status in time t+1",
+    "maturity status in time t", "age in time t", "density in time t",
+    "individual covariate a in time t", "individual covariate a in time t-1",
+    "individual covariate b in time t", "individual covariate b in time t-1",
+    "individual covariate c in time t", "individual covariate c in time t-1",
     "stage group in time t", "stage group in time t-1")
   mainparams <- c("year2", "individ", "patch", "surv3", "obs3", "size3",
     "sizeb3", "sizec3", "repst3", "fec3", "fec2", "size2", "size1", "sizeb2",
-    "sizeb1", "sizec2", "sizec1", "repst2", "repst1", "age", "density",
-    "indcova2", "indcova1", "indcovb2", "indcovb1", "indcovc2", "indcovc1",
-    "group2", "group1")
+    "sizeb1", "sizec2", "sizec1", "repst2", "repst1", "matst3", "matst2", "age",
+    "density", "indcova2", "indcova1", "indcovb2", "indcovb1", "indcovc2",
+    "indcovc1", "group2", "group1")
   modelparams <- c("none", "none", "none", "none", "none", "none", "none",
     "none", "none", "none", "none", "none", "none", "none", "none", "none",
     "none", "none", "none", "none", "none", "none", "none", "none", "none",
-    "none", "none", "none", "none")
+    "none", "none", "none", "none", "none", "none")
   
   output <- cbind.data.frame(parameter_names, mainparams, modelparams)
 }

@@ -47,8 +47,6 @@ flefko3(
   jmatst_dev = 0,
   density = NA,
   repmod = 1,
-  yearcol = NA,
-  patchcol = NA,
   random.inda = FALSE,
   random.indb = FALSE,
   random.indc = FALSE,
@@ -112,11 +110,11 @@ associated metadata. If given, then \code{surv_model}, \code{obs_model},
 \code{size_model}, \code{sizeb_model}, \code{sizec_model},
 \code{repst_model}, \code{fec_model}, \code{jsurv_model}, \code{jobs_model},
 \code{jsize_model}, \code{jsizeb_model}, \code{jsizec_model},
-\code{jrepst_model}, \code{jmatst_model}, \code{paramnames}, \code{yearcol},
-and \code{patchcol} are not required. One or more of these models should
-include size or reproductive status in occasion \emph{t}-1. Although this is
-optional input, it is recommended, and without it all vital rate model inputs
-(named \code{XX_model}) are required.}
+\code{jrepst_model}, \code{jmatst_model}, and \code{paramnames} are not
+required. One or more of these models should include size or reproductive
+status in occasion \emph{t}-1. Although this is optional input, it is
+recommended, and without it all vital rate model inputs (named
+\code{XX_model}) are required.}
 
 \item{surv_model}{A linear model predicting survival probability. This can 
 be a model of class \code{glm} or \code{glmer}, and requires a predicted
@@ -275,12 +273,6 @@ vital rate models. Defaults to \code{NA}.}
 
 \item{repmod}{A scalar multiplier of fecundity. Defaults to \code{1}.}
 
-\item{yearcol}{The variable name or column number corresponding to occasion
-\emph{t} in the dataset. Not needed if a \code{modelsuite} is supplied.}
-
-\item{patchcol}{The variable name or column number corresponding to patch in 
-the dataset. Not needed if a \code{modelsuite} is supplied.}
-
 \item{random.inda}{A logical value denoting whether to treat individual
 covariate \code{a} as a random, categorical variable. Otherwise is treated as
 a fixed, numeric variable. Defaults to \code{FALSE}.}
@@ -399,17 +391,13 @@ fecundity multipliers noted.
 Users may at times wish to estimate MPMs using a dataset incorporating
 multiple patches or subpopulations, but without discriminating between those
 patches or subpopulations. Should the aim of analysis be a general MPM that
-does not distinguish these patches or subpopulations, the \code{patchcol}
-variable should be set to \code{NA}, which is the default.
+does not distinguish these patches or subpopulations, the
+\code{modelsearch()} run should not include patch terms.
 
 Input options including multiple variable names must be entered in the order
 of variables in occasion \emph{t}+1, \emph{t}, and \emph{t}-1. Rearranging
 the order will lead to erroneous calculations, and will may lead to fatal
 errors.
-
-Care should be taken to match the random status of year and patch to the
-states of those variables within the \code{modelsuite}. If they do not match,
-then they will be treated as \code{0}s in vital rate estimation.
 
 The \code{ipm_method} function gives the option of using two different means
 of estimating the probability of size transition. The midpoint method
@@ -501,7 +489,7 @@ lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "mat", "Sd", "Sdl
 
 lathmat3ln <- flefko3(year = "all", patch = "all", stageframe = lathframeln, 
   modelsuite = lathmodelsln3, data = lathvertln, supplement = lathsupp3, 
-  patchcol = "patchid", yearcol = "year2", reduce = FALSE)
+  reduce = FALSE)
 
 summary(lathmat3ln)
 

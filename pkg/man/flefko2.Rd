@@ -47,8 +47,6 @@ flefko2(
   jmatst_dev = 0,
   density = NA,
   repmod = 1,
-  yearcol = NA,
-  patchcol = NA,
   random.inda = FALSE,
   random.indb = FALSE,
   random.indc = FALSE,
@@ -110,11 +108,10 @@ associated metadata. If given, then \code{surv_model}, \code{obs_model},
 \code{size_model}, \code{sizeb_model}, \code{sizec_model},
 \code{repst_model}, \code{fec_model}, \code{jsurv_model}, \code{jobs_model},
 \code{jsize_model}, \code{jsizeb_model}, \code{jsizec_model},
-\code{jrepst_model}, \code{jmatst_model}, \code{paramnames}, \code{yearcol},
-and \code{patchcol} are not required. No models should include size or
-reproductive status in occasion \emph{t}-1. Although this is optional input,
-it is recommended, and without it all vital rate model inputs (named
-\code{XX_model}) are required.}
+\code{jrepst_model}, \code{jmatst_model}, and \code{paramnames} are not
+required. No models should include size or reproductive status in occasion
+\emph{t}-1. Although this is optional input, it is recommended, and without
+it all vital rate model inputs (named \code{XX_model}) are required.}
 
 \item{surv_model}{A linear model predicting survival probability. This can 
 be a model of class \code{glm} or \code{glmer}, and requires a predicted
@@ -273,12 +270,6 @@ vital rate models. Defaults to \code{NA}.}
 
 \item{repmod}{A scalar multiplier of fecundity. Defaults to \code{1}.}
 
-\item{yearcol}{The variable name or column number corresponding to occasion
-\emph{t} in the dataset. Not needed if a \code{modelsuite} is supplied.}
-
-\item{patchcol}{The variable name or column number corresponding to patch in 
-the dataset. Not needed if a \code{modelsuite} is supplied.}
-
 \item{random.inda}{A logical value denoting whether to treat individual
 covariate \code{a} as a random, categorical variable. Otherwise is treated as
 a fixed, numeric variable. Defaults to \code{FALSE}.}
@@ -394,8 +385,8 @@ produce an error.
 Users may at times wish to estimate MPMs using a dataset incorporating
 multiple patches or subpopulations, but without discriminating between those
 patches or subpopulations. Should the aim of analysis be a general MPM that
-does not distinguish these patches or subpopulations, the \code{patchcol}
-variable should be set to \code{NA}, which is the default.
+does not distinguish these patches or subpopulations, the
+\code{modelsearch()} run should not include patch terms.
 
 Input options including multiple variable names must be entered in the order
 of variables in occasion \emph{t}+1 and \emph{t}. Rearranging the order will
@@ -492,7 +483,7 @@ lathsupp2 <- supplemental(stage3 = c("Sd", "Sdl", "Sd", "Sdl"),
 
 lathmat2ln <- flefko2(year = "all", patch = "all", stageframe = lathframeln, 
   modelsuite = lathmodelsln2, data = lathvertln, supplement = lathsupp2,
-  patchcol = "patchid", yearcol = "year2", reduce = FALSE)
+  reduce = FALSE)
 
 summary(lathmat2ln)
 

@@ -122,7 +122,7 @@
 #'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
 #'   size = c("size3added", "size2added"), supplement = cypsupp2r,
 #'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
-#'                        
+#' 
 #' cyp2mean <- lmean(cypmatrix2r)
 #' cyp2mean
 #' 
@@ -206,7 +206,7 @@ lmean <- function(mats, matsout = "all") {
     output$dataqc <- mats$dataqc
   }
   if (is.element("modelqc", names(mats))) {
-    output$dataqc <- mats$modelqc
+    output$modelqc <- mats$modelqc
   }
   
   class(output) <- "lefkoMat"
@@ -1010,7 +1010,11 @@ stablestage3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
       if (mat_dims %% dim(labels_orig)[1] != 0) {
         stop("Matrices do not appear to be ahistorical, historical, or age x stage. Cannot proceed. Please make sure that matrix dimensions match stage descriptions.", call. = FALSE)
       }
-      age_bit <- c(apply(as.matrix(c(0:(newmult-1))), 1, rep, dim(labels_orig)[1]))
+      
+      if (!all(is.na(mats$agestages))) {
+        check_min <- min(mats$agestages$age)
+      }
+      age_bit <- c(apply(as.matrix(c((0 + check_min):(newmult + check_min - 1))), 1, rep, dim(labels_orig)[1]))
       core_labels <- cbind.data.frame(age_bit, do.call("rbind.data.frame", replicate(newmult, labels_orig, simplify = FALSE)))
       core_labels$agestage_id <- c(1:length(core_labels$stage_id))
       core_labels$agestage <- apply(as.matrix(core_labels$agestage_id), 1, function(X) {
@@ -1644,7 +1648,11 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
       if (mat_dims %% dim(labels_orig)[1] != 0) {
         stop("Matrices do not appear to be ahistorical, historical, or age x stage. Cannot proceed. Please make sure that matrix dimensions match stage descriptions.", call. = FALSE)
       }
-      age_bit <- c(apply(as.matrix(c(0:(newmult-1))), 1, rep, dim(labels_orig)[1]))
+      
+      if (!all(is.na(mats$agestages))) {
+        check_min <- min(mats$agestages$age)
+      }
+      age_bit <- c(apply(as.matrix(c((0 + check_min):(newmult + check_min - 1))), 1, rep, dim(labels_orig)[1]))
       core_labels <- cbind.data.frame(age_bit, do.call("rbind.data.frame", replicate(newmult, labels_orig, simplify = FALSE)))
       core_labels$agestage_id <- c(1:length(core_labels$stage_id))
       core_labels$agestage <- apply(as.matrix(core_labels$agestage_id), 1, function(X) {
@@ -2075,7 +2083,7 @@ sensitivity3 <- function(mats, ...) UseMethod("sensitivity3")
 #' deterministic (FALSE) or stochastic (TRUE) sensitivity analysis. Defaults to
 #' FALSE.
 #' @param steps The number of occasions to project forward in stochastic
-#' simulation. Defaults to 10,000.
+#' simulation. Defaults to \code{10000}.
 #' @param time_weights Numeric vector denoting the probabilistic weightings of
 #' annual matrices. Defaults to equal weighting among occasions.
 #' @param sparse A text string indicating whether to use sparse matrix encoding
@@ -2087,16 +2095,17 @@ sensitivity3 <- function(mats, ...) UseMethod("sensitivity3")
 #' 
 #' @return This function returns an object of class \code{lefkoSens}, which is a
 #' list of 8 elements. The first, \code{h_sensmats}, is a list of historical
-#' sensitivity matrices (NULL if an ahMPM is used as input). The second,
+#' sensitivity matrices (\code{NULL} if an ahMPM is used as input). The second,
 #' \code{ah_elasmats}, is a list of either ahistorical sensitivity matrices if
 #' an ahMPM is used as input, or, if an hMPM is used as input, then the result
 #' is a list of ahistorical matrices based on the equivalent historical
 #' dependencies assumed in the input historical matrices. The third element,
-#' \code{h_stages}, is a data frame showing historical stage pairs (NULL if
-#' ahMPM used as input). The fourth element, \code{agestages}, show the order of
-#' age-stage combinations, if age-by-stage MPMs have been supplied. The fifth
-#' element, \code{ah_stages}, is a data frame showing the order of ahistorical
-#' stages. The last 3 elements are the A, U, and F portions of the input.
+#' \code{h_stages}, is a data frame showing historical stage pairs (\code{NULL}
+#' if an ahMPM used as input). The fourth element, \code{agestages}, show the
+#' order of age-stage combinations, if age-by-stage MPMs have been supplied. The
+#' fifth element, \code{ah_stages}, is a data frame showing the order of
+#' ahistorical stages. The last 3 elements are the A, U, and F portions of the
+#' input.
 #' 
 #' @section Notes:
 #' Deterministic sensitivities are estimated as eqn. 9.14 in Caswell (2001,
@@ -2259,10 +2268,11 @@ sensitivity3.lefkoMat <- function(mats, stochastic = FALSE, steps = 10000,
     # Stochastic sensitivity analysis
     
     if(!any(is.na(time_weights))) {
-      returned_cubes <- .stoch_senselas(mats, times = steps, style = 1,
-        tweights = time_weights) 
+      returned_cubes <- .stoch_senselas(mats, times = steps, historical = FALSE,
+        style = 1, tweights = time_weights) 
     } else {
-      returned_cubes <- .stoch_senselas(mats, times = steps, style = 1) 
+      returned_cubes <- .stoch_senselas(mats, times = steps, historical = FALSE,
+        style = 1)
     }
     
     main_cube <- returned_cubes[[1]]
@@ -2448,7 +2458,7 @@ sensitivity3.matrix <- function(mats, sparse = "auto", ...)
 #' @param time_weights Numeric vector denoting the probabilistic weightings of
 #' annual matrices. Defaults to equal weighting among occasions.
 #' @param historical A logical value indicating whether matrices are historical.
-#' Defaults to FALSE.
+#' Defaults to \code{FALSE}.
 #' @param sparse A text string indicating whether to use sparse matrix encoding
 #' (\code{"yes"}) or dense matrix encoding (\code{"no"}). Defaults to
 #' \code{"auto"}.
@@ -2459,13 +2469,13 @@ sensitivity3.matrix <- function(mats, sparse = "auto", ...)
 #' 
 #' @return This function returns an object of class \code{lefkoSens}, which is a
 #' list of 8 elements. The first, \code{h_sensmats}, is a list of historical
-#' sensitivity matrices (NULL if an ahMPM is used as input). The second,
+#' sensitivity matrices (\code{NULL} if an ahMPM is used as input). The second,
 #' \code{ah_elasmats}, is a list of ahistorical sensitivity matrices if an ahMPM
-#' is used as input (NULL if an hMPM is used as input). The third element,
-#' \code{h_stages}, the fourth element, \code{agestages}, and the fifth element,
-#' \code{ah_stages}, are NULL. The last 3 elements include the original A
-#' matrices supplied (as the \code{A} element), followed by NULLs for the U and
-#' F elements.
+#' is used as input (\code{NULL} if an hMPM is used as input). The third
+#' element, \code{h_stages}, the fourth element, \code{agestages}, and the fifth
+#' element, \code{ah_stages}, are \code{NULL}. The last 3 elements include the
+#' original A matrices supplied (as the \code{A} element), followed by
+#' \code{NULL}s for the U and F elements.
 #' 
 #' @section Notes:
 #' Deterministic sensitivities are estimated as eqn. 9.14 in Caswell (2001,
@@ -2475,8 +2485,8 @@ sensitivity3.matrix <- function(mats, sparse = "auto", ...)
 #'
 #' Currently, this function does not estimate equivalent ahistorical stochastic
 #' sensitivities for input historical matrices, due to the lack of guidance
-#' input on the order of stages (such guidance is provided within
-#' \code{lefkoMat} objects).
+#' input on the order of stages (guidance is provided within \code{lefkoMat}
+#' objects).
 #'
 #' @seealso \code{\link{sensitivity3}()}
 #' @seealso \code{\link{sensitivity3.lefkoMat}()}
@@ -2611,10 +2621,11 @@ sensitivity3.list <- function(mats, stochastic = FALSE, steps = 10000,
     # Stochastic sensitivity analysis
     
     if(!any(is.na(time_weights))) {
-      returned_cube <- .stoch_senselas(mats, times = steps, style = 1,
-        tweights = time_weights)[[1]]
+      returned_cube <- .stoch_senselas(mats, times = steps, historical = historical,
+        style = 1, tweights = time_weights)[[1]]
     } else {
-      returned_cube <- .stoch_senselas(mats, times = steps, style = 1)[[1]]
+      returned_cube <- .stoch_senselas(mats, times = steps, historical = historical,
+        style = 1)[[1]]
     }
     
     returned_list <- lapply(as.list(c(1:dim(returned_cube)[3])), function(X) {
@@ -2955,10 +2966,11 @@ elasticity3.lefkoMat <- function(mats, stochastic = FALSE, steps = 10000,
   } else {
     # Stochastic elasticity analysis
     if(!any(is.na(time_weights))) {
-      returned_cubes <- .stoch_senselas(mats, times = steps, style = 2,
-        tweights = time_weights) 
+      returned_cubes <- .stoch_senselas(mats, times = steps, historical = FALSE,
+        style = 2, tweights = time_weights) 
     } else {
-      returned_cubes <- .stoch_senselas(mats, times = steps, style = 2) 
+      returned_cubes <- .stoch_senselas(mats, times = steps, historical = FALSE,
+        style = 2) 
     }
     
     main_cube <- returned_cubes[[1]]
@@ -3303,10 +3315,11 @@ elasticity3.list <- function(mats, stochastic = FALSE, steps = 10000,
     # Stochastic elasticity analysis
     
     if(!any(is.na(time_weights))) {
-      returned_cube <- .stoch_senselas(mats, times = steps, style = 2,
-        tweights = time_weights)[[1]]
+      returned_cube <- .stoch_senselas(mats, times = steps, historical = historical,
+        style = 2, tweights = time_weights)[[1]]
     } else {
-      returned_cube <- .stoch_senselas(mats, times = steps, style = 2)[[1]]
+      returned_cube <- .stoch_senselas(mats, times = steps, historical = historical,
+        style = 2)[[1]]
     }
     
     returned_list <- lapply(as.list(c(1:dim(returned_cube)[3])), function(X) {
@@ -4500,8 +4513,8 @@ plot.lefkoProj <- function(x, variable = "popsize", style = "time",
     if (length(repl) > 1) {
       for (j in c(2:x$control[1])) {
         if (style == "timeseries") {
-          basal_args$x <- c(1:length(x$pop_size[[i]][1,]))
-          basal_args$y <- x$pop_size[[i]][1,]
+          basal_args$x <- c(1:length(x$pop_size[[i]][j,]))
+          basal_args$y <- x$pop_size[[i]][j,]
           
         } else if (style == "statespace") {
           basal_args$y <- x$pop_size[[i]][j,2:dim(x$pop_size[[i]])[2]]
