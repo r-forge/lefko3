@@ -1,6 +1,15 @@
 LEFKO3 NEWS
 -----------
 
+CHANGES IN VERSION 5.0.1 (2022-03-08)
+-------------------------------------
+  USER-VISIBLE CHANGES
+    1. Updated help files for projection functions.
+
+  BUG FIXES
+    1. Updated primitive class checks in some functions.
+
+
 CHANGES IN VERSION 5.0.0 (2022-03-01)
 -------------------------------------
   NEW FEATURES

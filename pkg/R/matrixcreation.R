@@ -504,7 +504,7 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
       equivalents supplied either through the modelsuite option or through the paramnames
       input parameter.", call. = FALSE)
   } else if (!all(is.null(modelsuite))) {
-    if (class(modelsuite) == "lefkoMod") {
+    if (is(modelsuite, "lefkoMod")) {
       paramnames <- modelsuite$paramnames
       yearcol <- paramnames$modelparams[which(paramnames$mainparams == "year2")]
       patchcol <- paramnames$modelparams[which(paramnames$mainparams == "patch")]
@@ -590,11 +590,11 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
     stop("Need original vertical dataset to set proper limits on year and patch.", 
       call. = FALSE)
   }
-  if (!any(class(data) == "data.frame")) {
+  if (!is.data.frame(data)) {
     stop("Need original vertical dataset used in modeling to proceed.",
       call. = FALSE)
   }
-  if (!any(class(data) == "hfvdata")) {
+  if (!is(data, "hfvdata")) {
     warning("Dataset used as input is not of class hfvdata. Will assume that the
       dataset has been formatted equivalently.", call. = FALSE)
   }
@@ -904,7 +904,7 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
       All fecundity transitions will be inferred from the stageframe.",
       call. = FALSE)
   } else if (all(is.null(repmatrix)) ) {
-    if (any(class(supplement) == "lefkoSD")) {
+    if (is(supplement, "lefkoSD")) {
       checkconv <- supplement$convtype
       
       if (!is.element(3, checkconv)) {
@@ -917,7 +917,7 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   
   stagenum_init <- dim(stageframe)[1]
   if (!all(is.null(repmatrix))) {
-    if (any(class(repmatrix) == "matrix")) {
+    if (is.matrix(repmatrix)) {
       if (dim(repmatrix)[1] != stagenum_init & dim(repmatrix)[1] != stagenum_init^2) {
         stop("The repmatrix provided must be a square matrix with dimensions
           equal to the number of stages in the stageframe, or the square thereof.",
@@ -1565,7 +1565,7 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
       equivalents supplied either through the modelsuite option or through the paramnames
       input parameter.", call. = FALSE)
   } else if (!all(is.null(modelsuite))) {
-    if (class(modelsuite) == "lefkoMod") {
+    if (is(modelsuite, "lefkoMod")) {
       paramnames <- modelsuite$paramnames
       yearcol <- paramnames$modelparams[which(paramnames$mainparams == "year2")]
       patchcol <- paramnames$modelparams[which(paramnames$mainparams == "patch")]
@@ -1660,11 +1660,11 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
     stop("Need original vertical dataset to set proper limits on year and patch.",
       call. = FALSE)
   }
-  if (!any(class(data) == "data.frame")) {
+  if (!is.data.frame(data)) {
     stop("Need original vertical dataset used in modeling to proceed.",
       call. = FALSE)
   }
-  if (!any(class(data) == "hfvdata")) {
+  if (!is(data, "hfvdata")) {
     warning("Dataset used as input is not of class hfvdata. Will assume that the
       dataset has been formatted equivalently.", call. = FALSE)
   }
@@ -1976,7 +1976,7 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
       All fecundity transitions will be inferred from the stageframe.",
       call. = FALSE)
   } else if (all(is.null(repmatrix))) {
-    if (any(class(supplement) == "lefkoSD")) {
+    if (is(supplement, "lefkoSD")) {
       checkconv <- supplement$convtype
       
       if (!is.element(3, checkconv)) {
@@ -1989,7 +1989,7 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   
   stagenum_init <- dim(stageframe)[1]
   if (!all(is.null(repmatrix))) {
-    if (any(class(repmatrix) == "matrix")) {
+    if (is.matrix(repmatrix)) {
       if (dim(repmatrix)[1] != stagenum_init | dim(repmatrix)[2] != stagenum_init) {
         stop("The repmatrix provided must be a square matrix with dimensions
           equal to the number of stages in the stageframe.", call. = FALSE)
@@ -2570,7 +2570,7 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
       equivalents supplied either through the modelsuite option or through the paramnames
       input parameter.", call. = FALSE)
   } else if (!all(is.null(modelsuite))) {
-    if (class(modelsuite) == "lefkoMod") {
+    if (is(modelsuite, "lefkoMod")) {
       paramnames <- modelsuite$paramnames
       yearcol <- paramnames$modelparams[which(paramnames$mainparams == "year2")]
       patchcol <- paramnames$modelparams[which(paramnames$mainparams == "patch")]
@@ -2670,11 +2670,11 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
     stop("Need original vertical dataset to set proper limits on year and patch.", 
       call. = FALSE)
   }
-  if (!any(class(data) == "data.frame")) {
+  if (!is.data.frame(data)) {
     stop("Need original vertical dataset used in modeling to proceed.",
       call. = FALSE)
   }
-  if (!any(class(data) == "hfvdata")) {
+  if (!is(data, "hfvdata")) {
     warning("Dataset used as input is not of class hfvdata. Will assume that the
       dataset has been formatted equivalently.", call. = FALSE)
   }
@@ -3030,7 +3030,7 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
       All fecundity transitions will be inferred from the stageframe.",
       call. = FALSE)
   } else if (all(is.null(repmatrix))) {
-    if (any(class(supplement) == "lefkoSD")) {
+    if (is(supplement, "lefkoSD")) {
       checkconv <- supplement$convtype
       
       if (!is.element(3, checkconv)) {
@@ -3043,7 +3043,7 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   
   stagenum_init <- dim(stageframe)[1]
   if (!all(is.na(repmatrix))) {
-    if (any(class(repmatrix) == "matrix")) {
+    if (is.matrix(repmatrix)) {
       if (dim(repmatrix)[1] != stagenum_init | dim(repmatrix)[2] != stagenum_init) {
         stop("The repmatrix provided must be a square matrix with dimensions
           equal to the number of stages in the stageframe.", call. = FALSE)
@@ -3347,7 +3347,7 @@ fleslie <- function(year = "all", patch = "all", prebreeding = TRUE, data = NULL
       equivalents supplied either through the modelsuite option or through the paramnames
       input parameter.", call. = FALSE)
   } else if (!all(is.null(modelsuite))) {
-    if (class(modelsuite) == "lefkoMod") {
+    if (is(modelsuite, "lefkoMod")) {
       paramnames <- modelsuite$paramnames
       yearcol <- paramnames$modelparams[which(paramnames$mainparams == "year2")]
       patchcol <- paramnames$modelparams[which(paramnames$mainparams == "patch")]
@@ -3386,11 +3386,11 @@ fleslie <- function(year = "all", patch = "all", prebreeding = TRUE, data = NULL
     stop("Need original vertical dataset to set proper limits on year and patch and assess age properly.", 
       call. = FALSE)
   }
-  if (!any(class(data) == "data.frame")) {
+  if (!is.data.frame(data)) {
     stop("Need original vertical dataset used in modeling to proceed.",
       call. = FALSE)
   }
-  if (!any(class(data) == "hfvdata")) {
+  if (!is(data, "hfvdata")) {
     warning("Dataset used as input is not of class hfvdata. Will assume that the
       dataset has been formatted equivalently.", call. = FALSE)
   }
@@ -4103,12 +4103,12 @@ rlefko3 <- function(data, stageframe, year = "all", pop = NA, patch = NA,
     stop("Need original vertical dataset to proceed.", call. = FALSE)
   }
   
-  if (!any(class(data) == "data.frame")) {
+  if (!is.data.frame(data)) {
     stop("Need original vertical dataset to proceed. This dataset must be in
       historical vertical format.", call. = FALSE)
   }
   
-  if (!any(class(data) == "hfvdata")) {
+  if (!is(data, "hfvdata")) {
     warning("Dataset used as input is not of class hfvdata. Will assume that the
       dataset has been formatted equivalently.", call. = FALSE)
   }
@@ -4341,7 +4341,7 @@ rlefko3 <- function(data, stageframe, year = "all", pop = NA, patch = NA,
   
   stagenum_init <- dim(stageframe)[1]
   if (!all(is.null(repmatrix))) {
-    if (any(class(repmatrix) == "matrix")) {
+    if (is.matrix(repmatrix)) {
       if (dim(repmatrix)[1] != stagenum_init & dim(repmatrix)[1] != stagenum_init^2) {
         stop("The repmatrix must be a square matrix with dimensions equal to the
           number of stages in the stageframe, or the square thereof.",
@@ -5063,12 +5063,12 @@ rlefko2 <- function(data, stageframe, year = "all", pop = NA, patch = NA,
     stop("Need original vertical dataset to proceed.", call. = FALSE)
   }
   
-  if (!any(class(data) == "data.frame")) {
+  if (!is.data.frame(data)) {
     stop("Need original vertical dataset to proceed. This dataset must be in
       historical vertical format.", call. = FALSE)
   }
   
-  if (!any(class(data) == "hfvdata")) {
+  if (!is(data, "hfvdata")) {
     warning("Dataset used as input is not of class hfvdata. Will assume that the
       dataset has been formatted equivalently.", call. = FALSE)
   }
@@ -5299,7 +5299,7 @@ rlefko2 <- function(data, stageframe, year = "all", pop = NA, patch = NA,
   
   stagenum_init <- dim(stageframe)[1]
   if (!all(is.null(repmatrix))) {
-    if (any(class(repmatrix) == "matrix")) {
+    if (is.matrix(repmatrix)) {
       if (dim(repmatrix)[1] != stagenum_init) {
         stop("The repmatrix must be a square matrix with dimensions equal to the
           number of stages in the stageframe.", call. = FALSE)
@@ -5867,11 +5867,11 @@ arlefko2 <- function(data, stageframe, year = "all", pop = NA, patch = NA,
     stop("Need original vertical dataset to set proper limits on year and patch.", 
       call. = FALSE)
   }
-  if (!any(class(data) == "data.frame")) {
+  if (!is.data.frame(data)) {
     stop("Need original vertical dataset used in modeling to proceed.",
       call. = FALSE)
   }
-  if (!any(class(data) == "hfvdata")) {
+  if (!is(data, "hfvdata")) {
     warning("Dataset used as input is not of class hfvdata. Will assume that the
       dataset has been formatted equivalently.", call. = FALSE)
   }
@@ -6149,7 +6149,7 @@ arlefko2 <- function(data, stageframe, year = "all", pop = NA, patch = NA,
   
   stagenum_init <- dim(stageframe)[1]
   if (!all(is.null(repmatrix))) {
-    if (any(class(repmatrix) == "matrix")) {
+    if (is.matrix(repmatrix)) {
       if (dim(repmatrix)[1] != stagenum_init) {
         stop("The repmatrix must be a square matrix with dimensions equal to the
           number of stages in the stageframe.", call. = FALSE)
@@ -6630,12 +6630,12 @@ rleslie <- function(data, start_age = NA, last_age = NA, continue = TRUE,
     stop("Need original vertical dataset to proceed.", call. = FALSE)
   }
   
-  if (!any(class(data) == "data.frame")) {
+  if (!is.data.frame(data)) {
     stop("Need original vertical dataset to proceed. This dataset must be in
       historical vertical format.", call. = FALSE)
   }
   
-  if (!any(class(data) == "hfvdata")) {
+  if (!is(data, "hfvdata")) {
     warning("Dataset used as input is not of class hfvdata. Will assume that the
       dataset has been formatted equivalently.", call. = FALSE)
   }
@@ -7098,7 +7098,7 @@ summary.lefkoMat <- function(object, colsums = TRUE, ...) {
   }
   
   if (is.element("modelqc", names(matrices))) {
-    if (class(matrices$modelqc) == "data.frame") {
+    if (is.data.frame(matrices$modelqc)) {
       moqc12 <- matrices$modelqc[1,2]
       moqc22 <- matrices$modelqc[2,2]
       moqc32 <- matrices$modelqc[3,2]

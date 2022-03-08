@@ -3139,9 +3139,9 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' simulations in which it is more important to know the general trend in
 #' population growth than the explicit growth rate. Defaults to \code{FALSE}.
 #' @param growthonly A logical value indicating whether to produce only the
-#' projected population size at each occasion, or a vector showing the stage
-#' distribution followed by the reproductive value vector followed by the full
-#' population size at each occasion. Defaults to \code{TRUE}.
+#' projected population size at each occasion (\code{TRUE}), or also to produce
+#' vectors showing the stage distribution at each occasion (\code{FALSE}).
+#' Defaults to \code{TRUE}.
 #' @param repvalue A logical value indicating whether to calculate reproductive
 #' value vectors at each time step. Can only be set to \code{TRUE} if 
 #' \code{growthonly = FALSE}. Setting to \code{TRUE} may dramatically increase
@@ -3241,14 +3241,16 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' such numeric values. Defaults to \code{NA}.
 #' @param ind_terms An optional data frame with 3 columns and \code{times} rows
 #' giving the values of individual covariates a, b, and c, respectively, for
-#' each projected time.
+#' each projected time. Unused terms must be set to \code{0} (use of \code{NA}
+#' will produce errors.)
 #' @param dev_terms An optional data frame with 14 columns and \code{times}
 #' rows showing the values of the deviation terms to be added to each linear
 #' vital rate. The column order should be: 1: survival, 2: observation, 3:
 #' primary size, 4: secondary size, 5: tertiary size, 6: reproduction, 7:
 #' fecundity, 8: juvenile survival, 9: juvenile observation, 10: juvenile
 #' primary size, 11: juvenile secondary size, 12: juvenile tertiary size, 13:
-#' juvenile reproduction, and 14: juvenile maturity transition.
+#' juvenile reproduction, and 14: juvenile maturity transition.  Unused terms
+#' must be set to \code{0} (use of \code{NA} will produce errors.)
 #' @param surv_model A linear model predicting survival probability. This can 
 #' be a model of class \code{glm} or \code{glmer}, and requires a predicted
 #' binomial variable under a logit link. Ignored if \code{modelsuite} is
@@ -3349,9 +3351,9 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' \item{rep_value}{A list of lists of the actual reproductive value in each
 #' occasion in each replicate in each pop-patch or population. The list order
 #' is the same as in \code{projection}.}
-#' \item{pop_size}{A list of data frames showing the total population size in
-#' each occasion per replicate (row within data frame) per pop-patch or
-#' population (list element).}
+#' \item{pop_size}{A list of matrices showing the total population size in each
+#' occasion per replicate (row within data frame) per pop-patch or population
+#' (list element).}
 #' \item{labels}{A data frame showing the order of populations and patches in
 #' item \code{projection}.}
 #' \item{ahstages}{The original stageframe used in the study.}

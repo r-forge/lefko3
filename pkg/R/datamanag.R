@@ -752,7 +752,7 @@ verticalize3 <- function(data, noyears, firstyear = 1, popidcol = 0,
   
   stagesize <- tolower(stagesize)
   if(!all(is.na(stageassign))) {
-    if(!is.element("stageframe", class(stageassign))) {
+    if(!is(stageassign, "stageframe")) {
       stop("The stageassign option can only take NA or a stageframe object as input.",
         call. = FALSE)
     }
@@ -2616,15 +2616,15 @@ create_lM <- function(mats, stageframe, hstages = NA, agestages = NA,
   
   F_indices <- NULL
   
-  if (class(mats) != "list") {
+  if (!is.list(mats)) {
     stop("Object mats must be an object of class list.", call. = FALSE)
   }
-  if (!is.element("matrix", class(mats[[1]]))) {
+  if (!is.matrix(mats[[1]])) {
     stop("Object mats must be a list composed of objects of class matrix.", call. = FALSE)
   }
   mat_length <- length(mats)
   
-  if (!is.element("stageframe", class(stageframe))) {
+  if (!is(stageframe, "stageframe")) {
     warning("Object stageframe is not of class stageframe.", call. = FALSE)
   }
   if(all(is.na(agestages)) & agebystage) {
@@ -3100,7 +3100,7 @@ add_lM <- function(lM, Amats = NA, Umats = NA, Fmats = NA, UFdecomp = FALSE,
   
   F_indices <- numstages <- NULL
   
-  if (class(lM) != "lefkoMat") {
+  if (!is(lM, "lefkoMat")) {
     stop("This function requires a lefkoMat object as input.", call. = FALSE)
   }
   
@@ -3136,7 +3136,7 @@ add_lM <- function(lM, Amats = NA, Umats = NA, Fmats = NA, UFdecomp = FALSE,
   }
   
   if (!all(is.na(Amats))) {
-    if (class(Amats) == "matrix") {
+    if (is.matrix(Amats)) {
       Amats <- list(Amats)
     }
     
@@ -3231,7 +3231,7 @@ add_lM <- function(lM, Amats = NA, Umats = NA, Fmats = NA, UFdecomp = FALSE,
   }
   
   if (!all(is.na(Umats))) {
-    if (class(Umats) == "matrix") {
+    if (is.matrix(Umats)) {
       Umats <- list(Umats)
     }
     
@@ -3240,7 +3240,7 @@ add_lM <- function(lM, Amats = NA, Umats = NA, Fmats = NA, UFdecomp = FALSE,
     }
   }
   if (!all(is.na(Fmats))) {
-    if (class(Fmats) == "matrix") {
+    if (is.matrix(Fmats)) {
       Fmats <- list(Fmats)
     }
     
@@ -3547,7 +3547,7 @@ add_lM <- function(lM, Amats = NA, Umats = NA, Fmats = NA, UFdecomp = FALSE,
 #' @export
 delete_lM <- function(lM, mat_num = NA, pop = NA, patch = NA, year = NA) {
   
-  if (class(lM) != "lefkoMat") {
+  if (!is(lM, "lefkoMat")) {
     stop("This function requires a lefkoMat object as input.", call. = FALSE)
   }
   if (all(is.na(mat_num)) & all(is.na(pop)) & all(is.na(patch)) & all(is.na(year))) {
@@ -3837,7 +3837,7 @@ delete_lM <- function(lM, mat_num = NA, pop = NA, patch = NA, year = NA) {
 #' @export
 subset_lM <- function(lM, mat_num = NA, pop = NA, patch = NA, year = NA) {
   
-  if (class(lM) != "lefkoMat") {
+  if (!is(lM, "lefkoMat")) {
     stop("This function requires a lefkoMat object as input.", call. = FALSE)
   }
   if (all(is.na(mat_num)) & all(is.na(pop)) & all(is.na(patch)) & all(is.na(year))) {
@@ -3977,7 +3977,7 @@ subset_lM <- function(lM, mat_num = NA, pop = NA, patch = NA, year = NA) {
 #' 
 #' @export
 hist_null <- function(mpm, format = 1, err_check = FALSE) {
-  if (!is.element("lefkoMat", class(mpm))) {
+  if (!is(mpm, "lefkoMat")) {
     stop("Function hist_null requires an object of class lefkoMat as input.",
       call. = FALSE)
   }

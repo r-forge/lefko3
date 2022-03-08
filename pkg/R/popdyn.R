@@ -131,7 +131,7 @@ lmean <- function(mats, matsout = "all") {
   
   agestages <- NA
   
-  if (class(mats) != "lefkoMat") {
+  if (!is(mats, "lefkoMat")) {
     stop("An object of class lefkoMat is required as input.")
   }
   
@@ -463,10 +463,10 @@ lambda3.lefkoMat <- function(mats, sparse = "auto", ...) {
     } else sparsemethod <- 0
   }
   
-  baldrick <- if (any(class(mats$A) == "matrix")) {
+  baldrick <- if (is.matrix(mats$A)) {
     .lambda3matrix(mats$A, sparsemethod)
 
-  } else if (class(mats$A) == "list") {
+  } else if (is.list(mats$A)) {
     unlist(lapply(mats$A, .lambda3matrix, sparsemethod))
 
   } else {
@@ -923,10 +923,10 @@ stablestage3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
   }
   
   if (!stochastic) {
-    baldrick <- if (any(class(mats$A) == "matrix")) {
+    baldrick <- if (is.matrix(mats$A)) {
       .ss3matrix(mats$A, sparsemethod)
       
-    } else if (class(mats$A) == "list") {
+    } else if (is.list(mats$A)) {
       unlist(lapply(mats$A, .ss3matrix, sparsemethod))
       
     } else {
@@ -992,7 +992,7 @@ stablestage3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
   
   # The final bits sort everything and clean it up, and create the ahistorical
   # version if a historical input was used
-  if (class(mats$A) == "list") {
+  if (is.list(mats$A)) {
     if (!stochastic) {
       multiplier <- length(mats$A)
     } else {
@@ -1547,11 +1547,11 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
   }
   
   if (!stochastic) {
-    baldrick <- if (any(class(mats$A) == "matrix")) {
+    baldrick <- if (is.matrix(mats$A)) {
       
       almost_final <- .rv3matrix(mats$A, sparsemethod)
       
-    } else if (class(mats$A) == "list") {
+    } else if (is.list(mats$A)) {
       final <- unlist(lapply(mats$A, function(X) {
         almost_final <- .rv3matrix(X, sparsemethod)
         return(almost_final/almost_final[which(almost_final == min(almost_final[which(almost_final > 0)])[1])])
@@ -1630,7 +1630,7 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
     })
   }
   
-  if (class(mats$A) == "list") {
+  if (is.list(mats$A)) {
     if (!stochastic) {
       multiplier <- length(mats$A)
     } else {
@@ -2233,10 +2233,10 @@ sensitivity3.lefkoMat <- function(mats, stochastic = FALSE, steps = 10000,
   if (!stochastic) {
     # Deterministic sensitivity analysis
     
-    baldrick <- if (any(class(mats$A) == "matrix")) {
+    baldrick <- if (is.matrix(mats$A)) {
       .sens3matrix(mats$A, sparsemethod)
       
-    } else if (class(mats$A) == "list") {
+    } else if (is.list(mats$A)) {
       if (all(is.na(mats$hstages))) {
         lapply(mats$A, .sens3matrix, sparsemethod)
       } else {
@@ -2929,9 +2929,9 @@ elasticity3.lefkoMat <- function(mats, stochastic = FALSE, steps = 10000,
   if (!stochastic) {
     # Deterministic elasticity analysis
     
-    baldrick <- if (any(class(mats$A) == "matrix")) {
+    baldrick <- if (is.matrix(mats$A)) {
       .elas3matrix(mats$A, sparsemethod)
-    } else if (class(mats$A) == "list") {
+    } else if (is.list(mats$A)) {
       
       if (all(is.na(mats$hstages))) {
         lapply(mats$A, .elas3matrix, sparsemethod)
@@ -2942,7 +2942,7 @@ elasticity3.lefkoMat <- function(mats, stochastic = FALSE, steps = 10000,
       stop("Input not recognized.")
     }
     
-    if (class(mats$A) == "list") {
+    if (is.list(mats$A)) {
       multiplier <- length(mats$A)
     } else multiplier <- 1
     
@@ -3636,9 +3636,9 @@ ltre3.lefkoMat <- function(mats, refmats = NA, ref = NA, stochastic = FALSE,
   
   if (all(is.na(refmats))) {
     warning("Matrices input as mats will also be used as reference matrices.", call. = FALSE)
-  } else if (is.element("lefkoMat", class(refmats))) {
+  } else if (is(refmats, "lefkoMat")) {
     refmats <- refmats$A
-  } else if (is.element("matrix", class(refmats))) {
+  } else if (is.matrix(refmats)) {
     refmats <- list(refmats)
   } else {
     stop("Object refmats not recognized. Use only objects of class lefkoMat, list, or matrix.", call. = FALSE)
@@ -4274,7 +4274,7 @@ summary.lefkoProj <- function(object, threshold = 1,
     })
   }
   
-  if (is.element("matrix", class(milepost_sums))) {
+  if (is.matrix(milepost_sums)) {
     rownames(milepost_sums) <- milepost
     
     col_labels <- apply(object$labels, 1, function(X) {
