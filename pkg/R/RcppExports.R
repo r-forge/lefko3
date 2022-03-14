@@ -2212,7 +2212,7 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 
 #' Create Stageframe for Population Matrix Projection Analysis
 #' 
-#' Function \code{.sf_leslie()} returns a data frame describing each age in a
+#' Function \code{sf_leslie()} returns a data frame describing each age in a
 #' Leslie MPM in terms of ahistorical stage information. This function is
 #' internal to \code{\link{rleslie}()} and \code{\link{fleslie}()}.
 #' 
@@ -3229,11 +3229,11 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' @param year Either a single integer value corresponding to the year to
 #' project, or a vector of \code{times} elements with the year to use at each
 #' time step. Defaults to \code{NA}, in which the first year in the set of years
-#' in the dataset is projected. If a vector shorted than \code{times} is
+#' in the dataset is projected. If a vector shorter than \code{times} is
 #' supplied, then this vector will be cycled.
 #' @param patch A value of \code{NA}, a single string value corresponding to the
 #' patch to project, or a vector of \code{times} elements with the patch to use
-#' at each time step. If a vector shorted than \code{times} is supplied, then
+#' at each time step. If a vector shorter than \code{times} is supplied, then
 #' this vector will be cycled. Note that this function currently does not
 #' handle multiple projections for different patches in the same run.
 #' @param sp_density Either a single numeric value of spatial density to use in
@@ -3971,6 +3971,11 @@ f_projection3 <- function(data, format, prebreeding = TRUE, start_age = NA_integ
 #' Generally, this means that survival-transition elements altered to values
 #' outside of the interval [0, 1], and negative fecundity values, will both
 #' yield warnings. Defaults to \code{TRUE}.
+#' @param year Either a single integer value corresponding to the year to
+#' project, or a vector of \code{times} elements with the year to use at each
+#' time step. If a vector shorter than \code{times} is supplied, then this
+#' vector will be cycled. If not provided, then all annual matrices will be
+#' cycled within patches or populations.
 #' @param start_vec An optional numeric vector denoting the starting stage
 #' distribution for the projection. Defaults to a single individual of each
 #' stage.
@@ -4062,6 +4067,17 @@ f_projection3 <- function(data, format, prebreeding = TRUE, start_age = NA_integ
 #' numbers larger than can be handled computationally. In that circumstance, a
 #' continuously rising population size will suddenly become \code{NaN} for the
 #' remainder of the projection.
+#' 
+#' Users wishing to run projections of a mean matrix produced using the
+#' \code{lmean()} will need to add a \code{year2} column to the \code{labels}
+#' element of the \code{lefkoMat} object. For example, users can try running
+#' \code{myMPM$labels$year2 <- 1} for a \code{lefkoMat} object named
+#' \code{myMPM}.
+#' 
+#' Users wishing to run a projection of a single patch in a \code{lefkoMat}
+#' object with multiple patches should subset the MPM first to contain only
+#' the patch needed. This can be accomplished with the
+#' \code{\link{subset_lM}()} function.
 #' 
 #' @seealso \code{\link{start_input}()}
 #' @seealso \code{\link{density_input}()}
@@ -4161,8 +4177,8 @@ f_projection3 <- function(data, format, prebreeding = TRUE, start_age = NA_integ
 #' cypstoch <- projection3(cypmatrix3r, nreps = 5, stochastic = TRUE)
 #' 
 #' @export projection3
-projection3 <- function(mpm, nreps = 1L, times = 10000L, historical = FALSE, stochastic = FALSE, standardize = FALSE, growthonly = TRUE, integeronly = FALSE, substoch = 0L, sub_warnings = TRUE, start_vec = NULL, start_frame = NULL, tweights = NULL, density = NULL) {
-    .Call('_lefko3_projection3', PACKAGE = 'lefko3', mpm, nreps, times, historical, stochastic, standardize, growthonly, integeronly, substoch, sub_warnings, start_vec, start_frame, tweights, density)
+projection3 <- function(mpm, nreps = 1L, times = 10000L, historical = FALSE, stochastic = FALSE, standardize = FALSE, growthonly = TRUE, integeronly = FALSE, substoch = 0L, sub_warnings = TRUE, year = NULL, start_vec = NULL, start_frame = NULL, tweights = NULL, density = NULL) {
+    .Call('_lefko3_projection3', PACKAGE = 'lefko3', mpm, nreps, times, historical, stochastic, standardize, growthonly, integeronly, substoch, sub_warnings, year, start_vec, start_frame, tweights, density)
 }
 
 #' Estimate Stochastic Population Growth Rate

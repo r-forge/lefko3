@@ -1,6 +1,20 @@
 LEFKO3 NEWS
 -----------
 
+CHANGES IN VERSION 5.1.0 (2022-03-XX)
+-------------------------------------
+  NEW FEATURES
+    1. Added ability to run ordered annual matrix progressions in function
+       projection3().
+
+  USER-VISIBLE CHANGES
+    1. 
+
+  BUG FIXES
+    1. Fixed incorrect substochastic correction in projection3() and
+       f_projection3() when substoch = 2 and negative survival entries occur.
+
+
 CHANGES IN VERSION 5.0.1 (2022-03-08)
 -------------------------------------
   USER-VISIBLE CHANGES

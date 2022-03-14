@@ -3323,7 +3323,7 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
 
 //' Create Stageframe for Population Matrix Projection Analysis
 //' 
-//' Function \code{.sf_leslie()} returns a data frame describing each age in a
+//' Function \code{sf_leslie()} returns a data frame describing each age in a
 //' Leslie MPM in terms of ahistorical stage information. This function is
 //' internal to \code{\link{rleslie}()} and \code{\link{fleslie}()}.
 //' 
@@ -13078,11 +13078,11 @@ List mothermccooney(DataFrame listofyears, List modelsuite, IntegerVector actual
 //' @param year Either a single integer value corresponding to the year to
 //' project, or a vector of \code{times} elements with the year to use at each
 //' time step. Defaults to \code{NA}, in which the first year in the set of years
-//' in the dataset is projected. If a vector shorted than \code{times} is
+//' in the dataset is projected. If a vector shorter than \code{times} is
 //' supplied, then this vector will be cycled.
 //' @param patch A value of \code{NA}, a single string value corresponding to the
 //' patch to project, or a vector of \code{times} elements with the patch to use
-//' at each time step. If a vector shorted than \code{times} is supplied, then
+//' at each time step. If a vector shorter than \code{times} is supplied, then
 //' this vector will be cycled. Note that this function currently does not
 //' handle multiple projections for different patches in the same run.
 //' @param sp_density Either a single numeric value of spatial density to use in
@@ -14837,7 +14837,13 @@ Rcpp::List f_projection3(DataFrame data, int format, bool prebreeding = true,
                 changing_element_U = 0.0;
               }
             } else if (substoch == 2 && dyn_type(j) == 1) {
-              changing_colsum = sum(Umat.col(dyn_index_col(j))) - Umat(dyn_index321(j));
+              double barnyard_antics {0.0};
+              arma::vec given_col = Umat.col(dyn_index_col(j));
+              arma::uvec gc_negs = find(given_col < 0.0);
+              if (gc_negs.n_elem > 0) {
+                barnyard_antics = sum(given_col(gc_negs));
+              }
+              changing_colsum = sum(given_col) - Umat(dyn_index321(j)) - barnyard_antics;
               
               if (changing_element_U > (1.0 - changing_colsum)) {
                 changing_element_U = (1.0 - changing_colsum);
@@ -15015,14 +15021,22 @@ Rcpp::List f_projection3(DataFrame data, int format, bool prebreeding = true,
               } else if (changing_element_U < 0.0) {
                 changing_element_U = 0.0;
               }
+              
             } else if (substoch == 2 && dyn_type(j) == 1) {
-              changing_colsum = sum(Umat_sp.col(dyn_index_col(j))) - Umat_sp(dyn_index321(j));
+              double barnyard_antics {0.0};
+              arma::vec given_col = arma::vec(Umat_sp.col(dyn_index_col(j)));
+              arma::uvec gc_negs = find(given_col < 0.0);
+              if (gc_negs.n_elem > 0) {
+                barnyard_antics = sum(given_col(gc_negs));
+              }
+              changing_colsum = sum(given_col) - Umat_sp(dyn_index321(j)) - barnyard_antics;
               
               if (changing_element_U > (1.0 - changing_colsum)) {
                 changing_element_U = (1.0 - changing_colsum);
               } else if (changing_element_U < 0.0) {
                 changing_element_U = 0.0;
               }
+              
             } else if (substoch > 0 && dyn_type(j) == 2) {
               if (changing_element_F < 0.0) {
                 changing_element_F = 0.0;
@@ -16842,7 +16856,13 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
               changing_element = 0.0;
             }
           } else if (substoch == 2 && dyn_type(j) == 1) {
-            changing_colsum = sum(theprophecy.col(dyn_index_col(j))) - theprophecy(dyn_index321(j));
+            double barnyard_antics {0.0};
+            arma::vec given_col = theprophecy.col(dyn_index_col(j));
+            arma::uvec gc_negs = find(given_col < 0.0);
+            if (gc_negs.n_elem > 0) {
+              barnyard_antics = sum(given_col(gc_negs));
+            }
+            changing_colsum = sum(given_col) - theprophecy(dyn_index321(j)) - barnyard_antics;
             
             if (changing_element > (1.0 - changing_colsum)) {
               changing_element = (1.0 - changing_colsum);
@@ -16946,7 +16966,13 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
               changing_element = 0.0;
             }
           } else if (substoch == 2 && dyn_type(j) == 1) {
-            changing_colsum = sum(sparse_prophecy.col(dyn_index_col(j))) - sparse_prophecy(dyn_index321(j));
+            double barnyard_antics {0.0};
+            arma::vec given_col = arma::vec(sparse_prophecy.col(dyn_index_col(j)));
+            arma::uvec gc_negs = find(given_col < 0.0);
+            if (gc_negs.n_elem > 0) {
+              barnyard_antics = sum(given_col(gc_negs));
+            }
+            changing_colsum = sum(given_col) - sparse_prophecy(dyn_index321(j)) - barnyard_antics;
             
             if (changing_element > (1.0 - changing_colsum)) {
               changing_element = (1.0 - changing_colsum);
@@ -17048,6 +17074,11 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
 //' Generally, this means that survival-transition elements altered to values
 //' outside of the interval [0, 1], and negative fecundity values, will both
 //' yield warnings. Defaults to \code{TRUE}.
+//' @param year Either a single integer value corresponding to the year to
+//' project, or a vector of \code{times} elements with the year to use at each
+//' time step. If a vector shorter than \code{times} is supplied, then this
+//' vector will be cycled. If not provided, then all annual matrices will be
+//' cycled within patches or populations.
 //' @param start_vec An optional numeric vector denoting the starting stage
 //' distribution for the projection. Defaults to a single individual of each
 //' stage.
@@ -17139,6 +17170,17 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
 //' numbers larger than can be handled computationally. In that circumstance, a
 //' continuously rising population size will suddenly become \code{NaN} for the
 //' remainder of the projection.
+//' 
+//' Users wishing to run projections of a mean matrix produced using the
+//' \code{lmean()} will need to add a \code{year2} column to the \code{labels}
+//' element of the \code{lefkoMat} object. For example, users can try running
+//' \code{myMPM$labels$year2 <- 1} for a \code{lefkoMat} object named
+//' \code{myMPM}.
+//' 
+//' Users wishing to run a projection of a single patch in a \code{lefkoMat}
+//' object with multiple patches should subset the MPM first to contain only
+//' the patch needed. This can be accomplished with the
+//' \code{\link{subset_lM}()} function.
 //' 
 //' @seealso \code{\link{start_input}()}
 //' @seealso \code{\link{density_input}()}
@@ -17242,18 +17284,18 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
 Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
   bool historical = false, bool stochastic = false, bool standardize = false,
   bool growthonly = true, bool integeronly = false, int substoch = 0,
-  bool sub_warnings = true, Nullable<NumericVector> start_vec = R_NilValue,
-  Nullable<DataFrame> start_frame = R_NilValue, Nullable<NumericVector> tweights = R_NilValue,
-  Nullable<DataFrame> density = R_NilValue) {
+  bool sub_warnings = true, Nullable<IntegerVector> year = R_NilValue,
+  Nullable<NumericVector> start_vec = R_NilValue, Nullable<DataFrame> start_frame = R_NilValue,
+  Nullable<NumericVector> tweights = R_NilValue, Nullable<DataFrame> density = R_NilValue) {
   
   Rcpp::List dens_index;
   Rcpp::DataFrame dens_input;
   
-  int theclairvoyant {0};
-  theclairvoyant = times;
+  int theclairvoyant = times;
   int dens_switch {0};
   int used_matsize {0};
   int total_projrows {0};
+  bool year_override = false;
   
   if (theclairvoyant < 1) {
     throw Rcpp::exception("Option times must be a positive integer.", false);
@@ -17432,6 +17474,7 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
     StringVector poporder = as<StringVector>(labels["pop"]);
     StringVector patchorder = as<StringVector>(labels["patch"]);
     IntegerVector yearorder = as<IntegerVector>(labels["year2"]);
+    arma::uvec armayearorder = as<arma::uvec>(yearorder);
     int loysize = poporder.length();
     StringVector poppatch = clone(poporder);
     
@@ -17448,12 +17491,97 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
     IntegerVector year2c = match(yearorder, uniqueyears) - 1;
     int yl = uniqueyears.length();
     
+    IntegerVector years_forward;
+    if (year.isNotNull()) {
+      if (stochastic) throw Rcpp::exception("Options year cannot be used when stochastic = TRUE.", false);
+      
+      IntegerVector years_ = as<IntegerVector>(year);
+      
+      int member_sum {0};
+      for (int i = 0; i < years_.length(); i++) {
+        for (int j = 0; j < yl; j++) {
+          if (years_[i] == uniqueyears[j]) member_sum++;
+        }
+        if (member_sum == 0) {
+          throw Rcpp::exception("Option year includes time indices that do not exist in the input lefkoMat object.", false);
+        }
+        member_sum = 0;
+      }
+      
+      IntegerVector years_pre (times);
+      
+      int rampant_exigence {0};
+      for (int i = 0; i < times; i++) {
+        years_pre(i) = years_(rampant_exigence);
+        rampant_exigence++;
+        
+        if (rampant_exigence >= years_.length()) {
+          rampant_exigence = 0;
+        }
+      }
+      years_forward = years_pre; // This is the programmed order of matrices for all times, if years is input
+      year_override = true; // This variable decides whether to use years or the defaults matrix vectors
+    }
+    
+    
+    
+    // Use refsort_num(NumericMatrix vec, NumericVector ref)?
+    
+    /* This next portion is from f_projection3() - need to create mainyears and mainpatches vectors
+      CharacterVector patches_topull;
+      CharacterVector patches_projected (times);
+      int chosenpatch {1};
+      if (patch.isNotNull()) {
+        CharacterVector patch_int (patch);
+        
+        CharacterVector patches_unmatched = setdiff(patch_int, mainpatches);
+        if (patches_unmatched.length() > 0) {
+          throw Rcpp::exception("Some input patch values do not match patches documented in the dataset.");
+        }
+        patches_topull = patch_int;
+        int crazy_patch {-1};
+        if (patch_int.length() == 1) {
+          for (int i = 0; i < mainpatches.length(); i++) {
+            if (stringcompare_hard(as<std::string>(patch_int(0)), as<std::string>(mainpatches(i)))) {
+              crazy_patch = i;
+            }
+          }
+          if (crazy_patch != -1) chosenpatch = crazy_patch + 1;
+        }
+      } else {
+        CharacterVector patch_one (1);
+        patch_one(0) = mainpatches(0);
+        patches_topull = patch_one;
+        Rf_warningcall(R_NilValue, "Option patch not set, so will set to first patch/population.");
+      }
+      
+  */
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     arma::vec twinput;
     if (tweights.isNotNull()) {
       twinput = as<arma::vec>(tweights);
       if (twinput.n_elem != yl) {
         throw Rcpp::exception("Time weight vector must be the same length as the number of occasions represented in the lefkoMat object used as input.", false);
       }
+      if (!stochastic) throw Rcpp::exception("Option tweights can only be used when stochastic = TRUE.", false);
     } else {
       twinput.resize(yl);
       twinput.ones();
@@ -17551,16 +17679,32 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
     
     twinput = twinput / sum(twinput);
     
+    
+    
+    
     for (int i= 0; i < allppcsnem; i++) {
       thechosenone = as<arma::mat>(meanamats[i]);
       arma::uvec thenumbersofthebeast = find(ppcindex == allppcs(i));
       int chosen_yl = thenumbersofthebeast.n_elem;
       
+      arma::uvec pre_prophecy (theclairvoyant, fill::zeros);
+      if (year_override) {
+        for (int j = 0; j < theclairvoyant; j++) {
+          arma::uvec tnb_year_indices = find(armayearorder == years_forward(j));
+          arma::uvec year_patch_intersect = intersect(thenumbersofthebeast, tnb_year_indices);
+          
+          pre_prophecy(j) = year_patch_intersect(0);
+        }
+      }
       // This loop takes care of multiple replicates, creating the final data frame
       // of results for each pop-patch
       for (int rep = 0; rep < nreps; rep++) {
         if (stochastic) {
           theprophecy = Rcpp::RcppArmadillo::sample(thenumbersofthebeast, theclairvoyant, true, twinput);
+          
+        } else if (year_override) {
+          theprophecy = pre_prophecy;
+          
         } else {
           theprophecy.set_size(theclairvoyant);
           theprophecy.zeros();
@@ -17826,6 +17970,39 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
       startvec.ones();
     }
     
+    IntegerVector years_forward;
+    if (year.isNotNull()) {
+      if (stochastic) throw Rcpp::exception("Options year cannot be used when stochastic = TRUE.", false);
+      
+      IntegerVector years_ = as<IntegerVector>(year);
+      years_ = years_ - 1;
+      
+      int member_sum {0};
+      for (int i = 0; i < years_.length(); i++) {
+        for (int j = 0; j < yl; j++) {
+          if (years_[i] == uniqueyears[j]) member_sum++;
+        }
+        if (member_sum == 0) {
+          throw Rcpp::exception("Option year includes time indices that do not exist in the input lefkoMat object.", false);
+        }
+        member_sum = 0;
+      }
+      
+      IntegerVector years_pre (times);
+      
+      int rampant_exigence {0};
+      for (int i = 0; i < times; i++) {
+        years_pre(i) = years_(rampant_exigence);
+        rampant_exigence++;
+        
+        if (rampant_exigence >= years_.length()) {
+          rampant_exigence = 0;
+        }
+      }
+      years_forward = years_pre; // This is the programmed order of matrices for all times, if years is input
+      year_override = true; // This variable decides whether to use years or the defaults matrix vectors
+    }
+    
     // Now we create the mean matrix
     arma::mat thechosenone(matrows, matcols);
     thechosenone.zeros();
@@ -17844,6 +18021,9 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
     for (int rep = 0; rep < nreps; rep++) {
       if (stochastic) {
         theprophecy = Rcpp::RcppArmadillo::sample(thenumbersofthebeast, theclairvoyant, true, twinput);
+        
+      } else if (year_override) {
+        theprophecy = as<arma::uvec>(years_forward);
         
       } else {
         theprophecy.zeros();

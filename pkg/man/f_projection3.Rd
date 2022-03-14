@@ -213,12 +213,12 @@ required if \code{modelsuite} is not supplied.}
 \item{year}{Either a single integer value corresponding to the year to
 project, or a vector of \code{times} elements with the year to use at each
 time step. Defaults to \code{NA}, in which the first year in the set of years
-in the dataset is projected. If a vector shorted than \code{times} is
+in the dataset is projected. If a vector shorter than \code{times} is
 supplied, then this vector will be cycled.}
 
 \item{patch}{A value of \code{NA}, a single string value corresponding to the
 patch to project, or a vector of \code{times} elements with the patch to use
-at each time step. If a vector shorted than \code{times} is supplied, then
+at each time step. If a vector shorter than \code{times} is supplied, then
 this vector will be cycled. Note that this function currently does not
 handle multiple projections for different patches in the same run.}
 
