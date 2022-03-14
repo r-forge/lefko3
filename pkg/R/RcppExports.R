@@ -3,7 +3,7 @@
 
 #' Create Vertical Structure for Horizontal Data Frame Input
 #' 
-#' Function \code{.pfj()} powers the R function \code{\link{verticalize3}()},
+#' Function \code{pfj()} powers the R function \code{\link{verticalize3}()},
 #' creating the vertical structure and rearranging the data in that shape.
 #' 
 #' @param data The horizontal data file.
@@ -101,7 +101,7 @@
 
 #' Create Historical Vertical Structure for Ahistorical Vertical Data Frame
 #' 
-#' Function \code{.jpf()} is the core kernel for function
+#' Function \code{jpf()} is the core kernel for function
 #' \code{\link{historicalize3}()}, creating the historical, vertical structure
 #' and rearranging the data in that shape.
 #'

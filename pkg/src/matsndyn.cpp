@@ -17523,58 +17523,6 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
       year_override = true; // This variable decides whether to use years or the defaults matrix vectors
     }
     
-    
-    
-    // Use refsort_num(NumericMatrix vec, NumericVector ref)?
-    
-    /* This next portion is from f_projection3() - need to create mainyears and mainpatches vectors
-      CharacterVector patches_topull;
-      CharacterVector patches_projected (times);
-      int chosenpatch {1};
-      if (patch.isNotNull()) {
-        CharacterVector patch_int (patch);
-        
-        CharacterVector patches_unmatched = setdiff(patch_int, mainpatches);
-        if (patches_unmatched.length() > 0) {
-          throw Rcpp::exception("Some input patch values do not match patches documented in the dataset.");
-        }
-        patches_topull = patch_int;
-        int crazy_patch {-1};
-        if (patch_int.length() == 1) {
-          for (int i = 0; i < mainpatches.length(); i++) {
-            if (stringcompare_hard(as<std::string>(patch_int(0)), as<std::string>(mainpatches(i)))) {
-              crazy_patch = i;
-            }
-          }
-          if (crazy_patch != -1) chosenpatch = crazy_patch + 1;
-        }
-      } else {
-        CharacterVector patch_one (1);
-        patch_one(0) = mainpatches(0);
-        patches_topull = patch_one;
-        Rf_warningcall(R_NilValue, "Option patch not set, so will set to first patch/population.");
-      }
-      
-  */
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     arma::vec twinput;
     if (tweights.isNotNull()) {
       twinput = as<arma::vec>(tweights);
@@ -17678,9 +17626,6 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
     }
     
     twinput = twinput / sum(twinput);
-    
-    
-    
     
     for (int i= 0; i < allppcsnem; i++) {
       thechosenone = as<arma::mat>(meanamats[i]);

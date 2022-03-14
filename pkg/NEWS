@@ -8,7 +8,7 @@ CHANGES IN VERSION 5.1.0 (2022-03-XX)
        projection3().
 
   USER-VISIBLE CHANGES
-    1. 
+    1. Added cancel handling to verticalize3() and historicalize3().
 
   BUG FIXES
     1. Fixed incorrect substochastic correction in projection3() and
