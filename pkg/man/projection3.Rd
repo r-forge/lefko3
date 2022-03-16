@@ -179,12 +179,6 @@ numbers larger than can be handled computationally. In that circumstance, a
 continuously rising population size will suddenly become \code{NaN} for the
 remainder of the projection.
 
-Users wishing to run projections of a mean matrix produced using the
-\code{lmean()} will need to add a \code{year2} column to the \code{labels}
-element of the \code{lefkoMat} object. For example, users can try running
-\code{myMPM$labels$year2 <- 1} for a \code{lefkoMat} object named
-\code{myMPM}.
-
 Users wishing to run a projection of a single patch in a \code{lefkoMat}
 object with multiple patches should subset the MPM first to contain only
 the patch needed. This can be accomplished with the

@@ -4327,6 +4327,9 @@ summary.lefkoProj <- function(object, threshold = 1,
 #' @param auto_lty A logical value indicating whether to shift the line type
 #' associated with each replicate automatically. Defaults to \code{TRUE}, but
 #' reverts to \code{FALSE} if any setting for \code{lty} is given.
+#' @param auto_title A logical value indicating whether to add a title to each
+#' plot. The plot is composed of the concatenated population and patch names.
+#' Defaults to \code{FALSE}.
 #' @param ... Other parameters used by functions \code{plot.default()} and
 #' \code{lines()}.
 #' 
@@ -4385,7 +4388,7 @@ summary.lefkoProj <- function(object, threshold = 1,
 #' @export
 plot.lefkoProj <- function(x, variable = "popsize", style = "time",
   repl = "all", patch = "pop", auto_ylim = TRUE, auto_col = TRUE,
-  auto_lty = TRUE, ...) {
+  auto_lty = TRUE, auto_title = FALSE, ...) {
   
   further_args <- list(...)
   
@@ -4402,6 +4405,9 @@ plot.lefkoProj <- function(x, variable = "popsize", style = "time",
   }
   if (is.element("ylim", names(further_args))) {
     auto_ylim <- FALSE
+  }
+  if (is.element("main", names(further_args))) {
+    auto_title <- FALSE
   }
   basal_args <- further_args
   
@@ -4484,6 +4490,11 @@ plot.lefkoProj <- function(x, variable = "popsize", style = "time",
   used_col <- 1
   
   for (i in patch) {
+    if (auto_title) {
+      used_string <- paste("pop", x$labels[i, 1], "patch", x$labels[i, 2])
+      further_args$main <- used_string
+    }
+    
     used_lty <- 1
     
     if (auto_ylim) {

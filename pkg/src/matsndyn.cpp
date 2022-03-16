@@ -3650,7 +3650,7 @@ bool stringcompare_simple(std::string str1, std::string str2, bool lower = false
 //' Compares Three Strings for Interaction Notation
 //' 
 //' This function compares checks to see if one string is composed of the other
-//' two string in R's interaction notation.
+//' two strings in R's interaction notation.
 //' 
 //' @name stringcompare_x
 //' 
@@ -12523,9 +12523,9 @@ List modelextract(RObject object, DataFrame paramnames, NumericVector mainyears,
 
 //' Key Function Passing Models and Other Parameters to Matrix Estimators
 //' 
-//' This function takes the various vital rate models and other parameters and
-//' coordinates them as input into the function-based matrix estimation
-//' functions.
+//' Function \code{raymccooney()} takes the various vital rate models and other
+//' parameters and coordinates them as input into the function-based matrix
+//' estimation functions.
 //' 
 //' @param listofyears A data frame where the rows designate the exact order of
 //' years and patches to produce matrices for.
@@ -17171,12 +17171,6 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
 //' continuously rising population size will suddenly become \code{NaN} for the
 //' remainder of the projection.
 //' 
-//' Users wishing to run projections of a mean matrix produced using the
-//' \code{lmean()} will need to add a \code{year2} column to the \code{labels}
-//' element of the \code{lefkoMat} object. For example, users can try running
-//' \code{myMPM$labels$year2 <- 1} for a \code{lefkoMat} object named
-//' \code{myMPM}.
-//' 
 //' Users wishing to run a projection of a single patch in a \code{lefkoMat}
 //' object with multiple patches should subset the MPM first to contain only
 //' the patch needed. This can be accomplished with the
@@ -17468,12 +17462,31 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
       }
     }
     
+    IntegerVector yearorder;
+    StringVector patchorder;
     if (labels.length() < 3) {
-      throw Rcpp::exception("This function requires annual matrices as input. This lefkoMat object appears to be a set of mean matrices, and may lack annual matrices.", false);
+      StringVector label_elements = labels.attr("names");
+      std::string patch_named = "patch";
+      
+      for (int i = 0; i < label_elements.length(); i++) {
+        if (stringcompare_hard(as<std::string>(label_elements(i)), "patch")) {
+          Rf_warningcall(R_NilValue, "This function takes annual matrices as input. This lefkoMat object appears to be a set of mean matrices, and may lack annual matrices. Will project only the mean.");
+        }
+      }
+      
+      StringVector patch_projected = as<StringVector>(labels["patch"]);
+      IntegerVector years_projected(patch_projected.length());
+      for (int i = 0; i < patch_projected.length(); i++) {
+        years_projected(i) = 1;
+      }
+      
+      patchorder = patch_projected;
+      yearorder = years_projected;
+    } else {
+      patchorder = as<StringVector>(labels["patch"]);
+      yearorder = as<IntegerVector>(labels["year2"]);
     }
     StringVector poporder = as<StringVector>(labels["pop"]);
-    StringVector patchorder = as<StringVector>(labels["patch"]);
-    IntegerVector yearorder = as<IntegerVector>(labels["year2"]);
     arma::uvec armayearorder = as<arma::uvec>(yearorder);
     int loysize = poporder.length();
     StringVector poppatch = clone(poporder);

@@ -13,6 +13,7 @@
   auto_ylim = TRUE,
   auto_col = TRUE,
   auto_lty = TRUE,
+  auto_title = FALSE,
   ...
 )
 }
@@ -49,6 +50,10 @@ reverts to \code{FALSE} if any setting for \code{col} is given.}
 \item{auto_lty}{A logical value indicating whether to shift the line type
 associated with each replicate automatically. Defaults to \code{TRUE}, but
 reverts to \code{FALSE} if any setting for \code{lty} is given.}
+
+\item{auto_title}{A logical value indicating whether to add a title to each
+plot. The plot is composed of the concatenated population and patch names.
+Defaults to \code{FALSE}.}
 
 \item{...}{Other parameters used by functions \code{plot.default()} and
 \code{lines()}.}

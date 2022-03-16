@@ -6,9 +6,13 @@ CHANGES IN VERSION 5.1.0 (2022-03-XX)
   NEW FEATURES
     1. Added ability to run ordered annual matrix progressions in function
        projection3().
+    2. Function projection3() can now run arithmetic mean matrix projections
+       without any modifications required to the input lefkoMat object.
+    3. Function plot.lefkoProj() now has an auto-title feature.
 
   USER-VISIBLE CHANGES
-    1. Added cancel handling to verticalize3() and historicalize3().
+    1. Added cancel handling to verticalize3(), historicalize3(), slambda3(),
+       sensitivity3(), elasticity3(), and ltre3().
 
   BUG FIXES
     1. Fixed incorrect substochastic correction in projection3() and
