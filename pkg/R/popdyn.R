@@ -4333,7 +4333,7 @@ summary.lefkoProj <- function(object, threshold = 1,
 #' @param ... Other parameters used by functions \code{plot.default()} and
 #' \code{lines()}.
 #' 
-#' @return A plot of the results of a \code{link{projection3}()} run.
+#' @return A plot of the results of a \code{\link{projection3}()} run.
 #' 
 #' @section Notes:
 #' Output plots are currently limited to time series and state space plots of

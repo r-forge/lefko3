@@ -3343,17 +3343,19 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' below when a \code{lefkoMat} object is used as input:
 #' \item{projection}{A list of lists of matrices showing the total number of
 #' individuals per stage per occasion. The first list corresponds to each
-#' pop-patch followed by each population. The inner list corresponds to
+#' pop-patch followed by each population (this top-level list is a single
+#' element in \code{f_projection3()}). The inner list corresponds to
 #' replicates within each pop-patch or population.}
 #' \item{stage_dist}{A list of lists of the actual stage distribution in each
-#' occasion in each replicate in each pop-patch or population. The list order
-#' is the same as in \code{projection}.}
+#' occasion in each replicate in each pop-patch or population. The list
+#' structure is the same as in \code{\link{projection3}()}.}
 #' \item{rep_value}{A list of lists of the actual reproductive value in each
-#' occasion in each replicate in each pop-patch or population. The list order
-#' is the same as in \code{projection}.}
+#' occasion in each replicate in each pop-patch or population. The list
+#' structure is the same as in \code{\link{projection3}()}.}
 #' \item{pop_size}{A list of matrices showing the total population size in each
 #' occasion per replicate (row within data frame) per pop-patch or population
-#' (list element).}
+#' (list element). Only a single pop-patch or population is allowed in
+#' \code{f_projection3()}}
 #' \item{labels}{A data frame showing the order of populations and patches in
 #' item \code{projection}.}
 #' \item{ahstages}{The original stageframe used in the study.}

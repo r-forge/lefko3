@@ -59,7 +59,7 @@ Defaults to \code{FALSE}.}
 \code{lines()}.}
 }
 \value{
-A plot of the results of a \code{link{projection3}()} run.
+A plot of the results of a \code{\link{projection3}()} run.
 }
 \description{
 Function \code{plot.lefkoProj()} produces plots of \code{lefkoProj} objects.

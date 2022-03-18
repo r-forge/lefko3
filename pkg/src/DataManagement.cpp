@@ -3366,7 +3366,6 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
   // This section determines the length of the matrix map data frame
   int nostages = newstageid.n_elem;
   int nostages_nounborn = nostages;
-  int prior_stage = -1;
   int totallength {0};
   if (format == 2)  nostages = nostages + 1;
   
@@ -3390,7 +3389,6 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
     arma::vec oldentrystage = as<arma::vec>(StageFrame["entrystage"]);
     
     nostages_nounborn = nostages - 1;
-    prior_stage = nostages_nounborn;
     totallength = (2 * nostages_nounborn * nostages_nounborn *
       nostages);
     

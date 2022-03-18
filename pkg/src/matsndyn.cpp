@@ -424,8 +424,6 @@ Rcpp::List sf_create (NumericVector sizes, Nullable<StringVector> stagenames = R
   IntegerVector group_true (matsize, 0);
   StringVector comments_true (matsize, "No description");
   
-  bool no_age = true;
-  
   if (stagenames.isNotNull()) {
     Rcpp::StringVector stagenames_thru(stagenames);
     
@@ -533,8 +531,6 @@ Rcpp::List sf_create (NumericVector sizes, Nullable<StringVector> stagenames = R
     } else {
       throw Rcpp::exception("Vector minage should be the same length as vector sizes.", false);
     }
-    
-    no_age = false;
   }
   if (maxage.isNotNull()) {
     Rcpp::NumericVector maxage_thru(maxage);
@@ -547,12 +543,7 @@ Rcpp::List sf_create (NumericVector sizes, Nullable<StringVector> stagenames = R
     } else {
       throw Rcpp::exception("Vector maxage should be the same length as vector sizes.", false);
     }
-    //if (no_age) { // We don't really need this any more.
-    //  throw Rcpp::exception("Vector minage is required if vector maxage is provided.", false);
-    //}
-  } // else if (!no_age) { // We do not really need this bit
-    //throw Rcpp::exception("Vector maxage is required if vector minage is provided.", false);
-  //}
+  }
   
   if (repstatus.isNotNull()) {
     Rcpp::IntegerVector repstatus_thru(repstatus);
@@ -2038,9 +2029,7 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
   Nullable<DataFrame> overwrite, Nullable<NumericMatrix> repmatrix,
   bool agemat = false, bool historical = false, int format = 1) {
   
-  bool skiprepmat = false;
   bool supp_provided = false;
-  bool repm_provided = false;
   bool over_provided = false;
   
   Rcpp::DataFrame supplement_true;
@@ -2122,8 +2111,6 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
   }
   
   if (repmatrix.isNotNull()) {
-    repm_provided = true;
-    
     NumericMatrix repmatrix_thru(repmatrix);
     repmatrix_true = as<arma::mat>(repmatrix_thru);
     
@@ -2131,12 +2118,12 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
     arma::vec rep_rowsums = sum(repmatrix_true, 1);
     double repmat_sum = sum(rep_sums);
     
-    if (rep_sums.n_elem != stageframe_length) {
+    if (static_cast<int>(rep_sums.n_elem) != stageframe_length) {
       throw Rcpp::exception("Object repmatrix must have the rows and columns equal to the number of rows in the stageframe.", false);
     }
     
     if (repmat_sum > 0) {
-      for (int i = 0; i < rep_sums.n_elem; i++) {
+      for (int i = 0; i < static_cast<int>(rep_sums.n_elem); i++) {
         if (rep_sums(i) > 0) {
           repvec(i) = 1;
         } else {
@@ -2164,8 +2151,8 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
       arma::uvec rep_calls = find(repvec);
       
       if (repentry_calls.n_elem > 0 && rep_calls.n_elem > 0) {
-        for (int i = 0; i < repentry_calls.n_elem; i++) {
-          for (int j = 0; j < rep_calls.n_elem; j++) {
+        for (int i = 0; i < static_cast<int>(repentry_calls.n_elem); i++) {
+          for (int j = 0; j < static_cast<int>(rep_calls.n_elem); j++) {
             token_mat(repentry_calls(i), rep_calls(j)) = 1;
           }
         }
@@ -2256,19 +2243,17 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
       arma::uvec neededrep_calls = find(needed_reprods);
       
       if (repentry_calls.n_elem > 0 && neededrep_calls.n_elem > 0) {
-        for (int i = 0; i < repentry_calls.n_elem; i++) {
-          for (int j = 0; j < neededrep_calls.n_elem; j++) {
+        for (int i = 0; i < static_cast<int>(repentry_calls.n_elem); i++) {
+          for (int j = 0; j < static_cast<int>(neededrep_calls.n_elem); j++) {
             token_mat(repentry_calls(i), neededrep_calls(j)) = needed_mults(neededrep_calls(j));
           }
         }
       }
       repmatrix_true = token_mat;
-      skiprepmat = false;
-    
+      
     } else {
       arma::mat token_mat(stageframe_length, stageframe_length, fill::zeros);
       repmatrix_true = token_mat;
-      skiprepmat = true;
     }
   } else {
     for (int i = 0; i < stageframe_length; i++) {
@@ -2291,8 +2276,8 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
     arma::uvec rep_calls = find(repvec);
     
     if (repentry_calls.n_elem > 0 && rep_calls.n_elem > 0) {
-      for (int i = 0; i < repentry_calls.n_elem; i++) {
-        for (int j = 0; j < rep_calls.n_elem; j++) {
+      for (int i = 0; i < static_cast<int>(repentry_calls.n_elem); i++) {
+        for (int j = 0; j < static_cast<int>(rep_calls.n_elem); j++) {
           token_mat(repentry_calls(i), rep_calls(j)) = 1;
         }
       }
@@ -3612,27 +3597,20 @@ bool stringcompare_simple(std::string str1, std::string str2, bool lower = false
   int str2_length = str2.size();
   int rem_check {0};
   bool same = false;
-  unsigned int start_index {0};
-  
-  //int rem_check = str1_length;
   
   if (str1_length >= str2_length && str2_length > 0) {
     for (int i = 0; i < str1_length; i++) {
       if (!lower) {
         if (str1[i] != str2[rem_check]) {
           rem_check = 0;
-          // same = false;
         } else {
-          if (rem_check == 0) start_index = i;
           rem_check += 1;
           if (rem_check >= str2_length) break;
         }
       } else {
         if (tolower(str1[i]) != tolower(str2[rem_check])) {
           rem_check = 0;
-          // same = false;
         } else {
-          if (rem_check == 0) start_index = i;
           rem_check += 1;
           if (rem_check >= str2_length) break;
         }
@@ -4236,9 +4214,7 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
   if (style == 0 && format == 2) {
     
     if (ovrows > 1 || ovconvtype(0) != -1.0) {
-      for (int i = 0; i < ovrows; i++) { // Loop across overwrite rows\
-        
-        // Here are the new versions
+      for (int i = 0; i < ovrows; i++) {  // Loop across overwrite rows
         if (ovconvtype(i) > 1.0) { // Catches all changes to fecundity and reproductive multipliers
           ovindexold321(i) = (ovindex3(i) - 1) + (prior_stage * nostages) + 
             ((ovindex2(i) - 1) * nostages * nostages) + 
@@ -4430,11 +4406,11 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
     // lead to estimated elements only if a repentry stage occurs in time 2
     arma::uvec marked_only = find(marked_for_repentry);
     if (marked_only.n_elem > 0) {
-      for (int i = 0; i < marked_only.n_elem; i++) {
+      for (int i = 0; i < static_cast<int>(marked_only.n_elem); i++) {
         arma::uvec total_indices_to_change = find(stage2o == marked_only(i));
         
         if (total_indices_to_change.n_elem > 0) {
-          for (int j = 0; j < total_indices_to_change.n_elem; j++) {
+          for (int j = 0; j < static_cast<int>(total_indices_to_change.n_elem); j++) {
             repentry2o(total_indices_to_change(j)) = 1;
           }
         }
@@ -4443,7 +4419,7 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
     
     arma::uvec alm_only = find(almostborn1);
     if (alm_only.n_elem > 0) {
-      for (int i = 0; i < alm_only.n_elem; i++) {
+      for (int i = 0; i < static_cast<int>(alm_only.n_elem); i++) {
         if (repentry2o(alm_only(i)) < 1.0) {
           index321(alm_only(i)) = -1.0;
         }
@@ -10960,17 +10936,16 @@ List S3_extractor(List object) {
 //' @noRd
 List S4_extractor(S4 object) {
   String model_class = object.attr("class");
-  int model_type {0}; // 0 = unrecognized, 1 = vglm, 2 = merMod
   
   List output;
   
   if (stringcompare_hard(model_class, "vglm")) {
-    model_type = 1;
     output = vglm_extractor(object);
+    
   } else if (stringcompare_hard(model_class, "lmerMod") || 
       stringcompare_hard(model_class, "glmerMod")) {
-    model_type = 2;
     output = lme4_extractor(object);
+    
   } else {
     throw Rcpp::exception("Model type unrecognized.", false);
   }
@@ -13192,17 +13167,19 @@ List mothermccooney(DataFrame listofyears, List modelsuite, IntegerVector actual
 //' below when a \code{lefkoMat} object is used as input:
 //' \item{projection}{A list of lists of matrices showing the total number of
 //' individuals per stage per occasion. The first list corresponds to each
-//' pop-patch followed by each population. The inner list corresponds to
+//' pop-patch followed by each population (this top-level list is a single
+//' element in \code{f_projection3()}). The inner list corresponds to
 //' replicates within each pop-patch or population.}
 //' \item{stage_dist}{A list of lists of the actual stage distribution in each
-//' occasion in each replicate in each pop-patch or population. The list order
-//' is the same as in \code{projection}.}
+//' occasion in each replicate in each pop-patch or population. The list
+//' structure is the same as in \code{\link{projection3}()}.}
 //' \item{rep_value}{A list of lists of the actual reproductive value in each
-//' occasion in each replicate in each pop-patch or population. The list order
-//' is the same as in \code{projection}.}
+//' occasion in each replicate in each pop-patch or population. The list
+//' structure is the same as in \code{\link{projection3}()}.}
 //' \item{pop_size}{A list of matrices showing the total population size in each
 //' occasion per replicate (row within data frame) per pop-patch or population
-//' (list element).}
+//' (list element). Only a single pop-patch or population is allowed in
+//' \code{f_projection3()}}
 //' \item{labels}{A data frame showing the order of populations and patches in
 //' item \code{projection}.}
 //' \item{ahstages}{The original stageframe used in the study.}
@@ -14533,17 +14510,17 @@ Rcpp::List f_projection3(DataFrame data, int format, bool prebreeding = true,
     start_elems = start_elems - 1;
     arma::vec start_values = as<arma::vec>(start_thru["value"]);
     
-    if (start_elems.max() > (meanmatrows - 1)) {
+    if (static_cast<int>(start_elems.max()) > (meanmatrows - 1)) {
       throw Rcpp::exception("Start vector input frame includes element indices too high for this MPM.",
         false);
     }
-    for (int i = 0; i < start_elems.n_elem; i++) {
+    for (int i = 0; i < static_cast<int>(start_elems.n_elem); i++) {
       startvec(start_elems(i)) = start_values(i);
     }
     
   } else if (start_vec.isNotNull()) {
     startvec = as<arma::vec>(start_vec);
-    if (startvec.n_elem != meanmatrows) {
+    if (static_cast<int>(startvec.n_elem) != meanmatrows) {
       throw Rcpp::exception("Start vector must be the same length as the number of rows in each matrix.",
         false);
     }
@@ -14562,7 +14539,6 @@ Rcpp::List f_projection3(DataFrame data, int format, bool prebreeding = true,
   double changing_colsum {0.0};
   
   int time_delay {1};
-  int dens_switch {0};
   bool warn_trigger_neg = false;
   bool warn_trigger_1 = false;
   
@@ -14581,7 +14557,6 @@ Rcpp::List f_projection3(DataFrame data, int format, bool prebreeding = true,
     }
     Rcpp::DataFrame dens_thru(density);
     dens_input = dens_thru;
-    dens_switch = 1;
     
     Rcpp::StringVector di_stage3 = as<StringVector>(dens_input["stage3"]);
     Rcpp::StringVector di_stage2 = as<StringVector>(dens_input["stage2"]);
@@ -15135,12 +15110,21 @@ Rcpp::List f_projection3(DataFrame data, int format, bool prebreeding = true,
   List all_R_list(1);
   all_R_list(0) = all_R;
   
+  List projections(1);
+  projections(0) = all_projections;
+  
+  List stagedist(1);
+  stagedist(0) = all_stagedist;
+  
+  List repvalues(1);
+  repvalues(0) = all_repvalues;
+  
   if (err_check) {
     List output_err(37);
     
-    output_err(0) = all_projections;
-    output_err(1) = all_stagedist;
-    output_err(2) = all_repvalues;
+    output_err(0) = projections;
+    output_err(1) = stagedist;
+    output_err(2) = repvalues;
     output_err(3) = all_R_list;
     output_err(4) = ahstages;
     output_err(5) = hstages;
@@ -15191,9 +15175,9 @@ Rcpp::List f_projection3(DataFrame data, int format, bool prebreeding = true,
   } else {
     List output_noerr(10);
     
-    output_noerr(0) = all_projections;
-    output_noerr(1) = all_stagedist;
-    output_noerr(2) = all_repvalues;
+    output_noerr(0) = projections;
+    output_noerr(1) = stagedist;
+    output_noerr(2) = repvalues;
     output_noerr(3) = all_R_list;
     output_noerr(4) = ahstages;
     output_noerr(5) = hstages;
@@ -15455,7 +15439,8 @@ List turbogeodiesel(DataFrame loy, List Umats, List Fmats, DataFrame hstages,
           hsindexl(counter) = (i1 * numhstages) + i2;
           counter++;
           
-        } else if (hstage2nin(i2) == numstages || hstage3in(i1) == numstages) {
+        } else if (static_cast<int>(hstage2nin(i2)) == numstages || 
+            static_cast<int>(hstage3in(i1)) == numstages) {
           hsindexl(counter) = (i1 * numhstages) + i2;
           counter++;
         }
@@ -17317,13 +17302,9 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
     DataFrame agestages = as<DataFrame>(mpm["agestages"]);
     
     historical = false;
-    bool agebystage = false;
     
     if (hstages.length() > 1) {
       historical = true;
-    }
-    if (agestages.length() > 1) {
-      agebystage = true;
     }
     
     if (density.isNotNull()) { 
@@ -17539,7 +17520,7 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
     arma::vec twinput;
     if (tweights.isNotNull()) {
       twinput = as<arma::vec>(tweights);
-      if (twinput.n_elem != yl) {
+      if (static_cast<int>(twinput.n_elem) != yl) {
         throw Rcpp::exception("Time weight vector must be the same length as the number of occasions represented in the lefkoMat object used as input.", false);
       }
       if (!stochastic) throw Rcpp::exception("Option tweights can only be used when stochastic = TRUE.", false);
@@ -17618,17 +17599,17 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
       start_elems = start_elems - 1;
       arma::vec start_values = as<arma::vec>(start_thru["value"]);
       
-      if (start_elems.max() > (meanmatrows - 1)) {
+      if (static_cast<int>(start_elems.max()) > (meanmatrows - 1)) {
         throw Rcpp::exception("Start vector input frame includes element indices too high for this MPM.",
           false);
       }
-      for (int i = 0; i < start_elems.n_elem; i++) {
+      for (int i = 0; i < static_cast<int>(start_elems.n_elem); i++) {
         startvec(start_elems(i)) = start_values(i);
       }
       
     } else if (start_vec.isNotNull()) {
       startvec = as<arma::vec>(start_vec);
-      if (startvec.n_elem != meanmatrows) {
+      if (static_cast<int>(startvec.n_elem) != meanmatrows) {
         throw Rcpp::exception("Start vector must be the same length as the number of rows in each matrix.",
           false);
       }
@@ -17907,7 +17888,7 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
     
     if (tweights.isNotNull()) {
       twinput = as<arma::vec>(tweights);
-      if (twinput.n_elem != yl) {
+      if (static_cast<int>(twinput.n_elem) != yl) {
         throw Rcpp::exception("Time weight vector must be the same length as the number of occasions represented in the lefkoMat object used as input.", false);
       }
       
@@ -17918,7 +17899,7 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
     
     if (start_vec.isNotNull()) {
       startvec = as<arma::vec>(start_vec);
-      if (startvec.n_elem != matrows) {
+      if (static_cast<int>(startvec.n_elem) != matrows) {
         throw Rcpp::exception("Start vector must be the same length as the number of rows in each matrix.", 
           false);
       }
@@ -17938,7 +17919,7 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
       int member_sum {0};
       for (int i = 0; i < years_.length(); i++) {
         for (int j = 0; j < yl; j++) {
-          if (years_[i] == uniqueyears[j]) member_sum++;
+          if (years_[i] == static_cast<int>(uniqueyears[j])) member_sum++;
         }
         if (member_sum == 0) {
           throw Rcpp::exception("Option year includes time indices that do not exist in the input lefkoMat object.", false);
@@ -18214,7 +18195,7 @@ DataFrame slambda3(List mpm, int times = 10000, bool historical = false,
     arma::vec twinput;
     if (tweights.isNotNull()) {
       twinput = as<arma::vec>(tweights);
-      if (twinput.n_elem != yl) {
+      if (static_cast<int>(twinput.n_elem) != yl) {
         throw Rcpp::exception("Time weight vector must be the same length as the number of occasions represented in the lefkoMat object used as input.", false);
       }
       
@@ -18414,7 +18395,7 @@ DataFrame slambda3(List mpm, int times = 10000, bool historical = false,
     
     if (tweights.isNotNull()) {
       twinput = as<arma::vec>(tweights);
-      if (twinput.n_elem != yl) {
+      if (static_cast<int>(twinput.n_elem) != yl) {
         throw Rcpp::exception("Time weight vector must be the same length as the number of occasions represented in the lefkoMat object used as input.", false);
       }
       
@@ -18578,7 +18559,7 @@ Rcpp::List stoch_senselas(List mpm, int times = 10000, bool historical = false,
     arma::vec twinput;
     if (tweights.isNotNull()) {
       twinput = as<arma::vec>(tweights);
-      if (twinput.n_elem != yl) {
+      if (static_cast<int>(twinput.n_elem) != yl) {
         throw Rcpp::exception("Time weight vector must be the same length as the number of occasions represented in the lefkoMat object used as input.", false);
       }
       
@@ -18944,7 +18925,7 @@ Rcpp::List stoch_senselas(List mpm, int times = 10000, bool historical = false,
     
     if (tweights.isNotNull()) {
       twinput = as<arma::vec>(tweights);
-      if (twinput.n_elem != yl) {
+      if (static_cast<int>(twinput.n_elem) != yl) {
         throw Rcpp::exception("Time weight vector must be the same length as the number of occasions represented in the lefkoMat object used as input.", false);
       }
       
@@ -19447,31 +19428,31 @@ List demolition3(arma::mat e_amat, DataFrame bambesque,
     
     arma::uvec fec_trans = find(categories == 4);
     if (fec_trans.n_elem > 0) {
-      for (int i = 0; i < fec_trans.n_elem; i ++) {
+      for (int i = 0; i < static_cast<int>(fec_trans.n_elem); i ++) {
         fmat(eindices(fec_trans(i))) = 1;
       }
     }
     fec_trans = find(categories == 20);
     if (fec_trans.n_elem > 0) {
-      for (int i = 0; i < fec_trans.n_elem; i ++) {
+      for (int i = 0; i < static_cast<int>(fec_trans.n_elem); i ++) {
         fmat(eindices(fec_trans(i))) = 1;
       }
     }
     fec_trans = find(categories == 21);
     if (fec_trans.n_elem > 0) {
-      for (int i = 0; i < fec_trans.n_elem; i ++) {
+      for (int i = 0; i < static_cast<int>(fec_trans.n_elem); i ++) {
         fmat(eindices(fec_trans(i))) = 1;
       }
     }
     fec_trans = find(categories == 22);
     if (fec_trans.n_elem > 0) {
-      for (int i = 0; i < fec_trans.n_elem; i ++) {
+      for (int i = 0; i < static_cast<int>(fec_trans.n_elem); i ++) {
         fmat(eindices(fec_trans(i))) = 1;
       }
     }
     fec_trans = find(categories == 26);
     if (fec_trans.n_elem > 0) {
-      for (int i = 0; i < fec_trans.n_elem; i ++) {
+      for (int i = 0; i < static_cast<int>(fec_trans.n_elem); i ++) {
         fmat(eindices(fec_trans(i))) = 1;
       }
     }
@@ -20681,7 +20662,7 @@ Rcpp::List sltre3matrix(List Amats, DataFrame loy, Rcpp::IntegerVector refnum,
     // Time weights
     if (tweights_.isNotNull()) {
       tweights = as<arma::vec>(tweights_);
-      if (tweights.n_elem != numyears) {
+      if (static_cast<int>(tweights.n_elem) != numyears) {
         throw Rcpp::exception("Time weight vector must be the same length as the number of occasions in the reference matrix set.", false);
       }
     } else {
@@ -20949,7 +20930,7 @@ Rcpp::List sltre3matrix(List Amats, DataFrame loy, Rcpp::IntegerVector refnum,
     // Time weights
     if (tweights_.isNotNull()) {
       tweights = as<arma::vec>(tweights_);
-      if (tweights.n_elem != numyears) {
+      if (static_cast<int>(tweights.n_elem) != numyears) {
         throw Rcpp::exception("Time weight vector must be the same length as the number of occasions in the reference matrix set.", false);
       }
       
