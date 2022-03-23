@@ -1998,7 +1998,7 @@ Rcpp::List sf_create (NumericVector sizes, Nullable<StringVector> stagenames = R
 
 //' Standardize Stageframe For MPM Analysis
 //' 
-//' Function \code{.sf_reassess()} takes a stageframe as input, and uses
+//' Function \code{sf_reassess()} takes a stageframe as input, and uses
 //' information supplied there and through the supplement, reproduction and
 //' overwrite tables to rearrange this into a format usable by the matrix
 //' creation functions, \code{\link{flefko3}()}, \code{\link{flefko2}()},
@@ -2104,7 +2104,7 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
     eststage2_supp = supplement_true["eststage2"];
     eststage1_supp = supplement_true["eststage1"];
     givenrate_supp = supplement_true["givenrate"];
-    multiplier_supp = supplement_true["multiplier"]; // Not in overwrite()
+    multiplier_supp = supplement_true["multiplier"];
     convtype_supp = supplement_true["convtype"];
     convtype_t12_supp = supplement_true["convtype_t12"];
     supp_rows = stage3_supp.length();
@@ -4749,7 +4749,7 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
         if (deadandnasty == 0.0) {
           aliveequal(currentindex) = (stage3(currentindex) - 1) + 
             ((stage2n(currentindex) - 1) * nostages_nodead);
-
+          
           index321(currentindex) = (stage3(currentindex) - 1) + 
             ((stage2n(currentindex) - 1) * nostages);
           index21(currentindex) = (stage2n(currentindex) - 1);
@@ -8437,7 +8437,7 @@ List jerzeibalowski(DataFrame AllStages, DataFrame stageframe, int matrixformat,
       if (rightindex.n_elem > 0) {
         proxyindex = aliveandequal(rightindex(0));
         
-        ov_mult = ovsurvmult(i);
+        ov_mult = ovsurvmult(repindex);
         if (ov_mult < 0.0) ov_mult = 1.0;
         
         survtransmat(properindex) = survtransmat(proxyindex) * ov_mult;
@@ -8455,7 +8455,7 @@ List jerzeibalowski(DataFrame AllStages, DataFrame stageframe, int matrixformat,
       if (rightindex.n_elem > 0) {
         proxyindex = aliveandequal(rightindex(0));
         
-        ov_mult = ovfecmult(i);
+        ov_mult = ovfecmult(repindex);
         if (ov_mult < 0.0) ov_mult = 1.0;
         
         fectransmat(properindex) = fectransmat(proxyindex) * ov_mult;
@@ -9344,7 +9344,7 @@ List jerzeibalowski_sp(DataFrame AllStages, DataFrame stageframe, int matrixform
       if (rightindex.n_elem > 0) {
         proxyindex = aliveandequal(rightindex(0));
         
-        ov_mult = ovsurvmult(i);
+        ov_mult = ovsurvmult(repindex);
         if (ov_mult < 0.0) ov_mult = 1.0;
         
         survtransmat(properindex) = survtransmat(proxyindex) * ov_mult;
@@ -9362,7 +9362,7 @@ List jerzeibalowski_sp(DataFrame AllStages, DataFrame stageframe, int matrixform
       if (rightindex.n_elem > 0) {
         proxyindex = aliveandequal(rightindex(0));
         
-        ov_mult = ovfecmult(i);
+        ov_mult = ovfecmult(repindex);
         if (ov_mult < 0.0) ov_mult = 1.0;
         
         fectransmat(properindex) = fectransmat(proxyindex) * ov_mult;

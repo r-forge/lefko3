@@ -2180,7 +2180,7 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 
 #' Standardize Stageframe For MPM Analysis
 #' 
-#' Function \code{.sf_reassess()} takes a stageframe as input, and uses
+#' Function \code{sf_reassess()} takes a stageframe as input, and uses
 #' information supplied there and through the supplement, reproduction and
 #' overwrite tables to rearrange this into a format usable by the matrix
 #' creation functions, \code{\link{flefko3}()}, \code{\link{flefko2}()},

@@ -20,6 +20,8 @@ CHANGES IN VERSION 5.1.0 (2022-03-XX)
     2. Cleaned up minor memory issues in some functions.
     3. Corrected class lefkoProj structure output by function f_projection3()
        to correspond exactly to that produced by function projection3().
+    4. Fixed bug preventing proxy multipliers from being properly integrated in
+       function-based MPMs.
 
 
 CHANGES IN VERSION 5.0.1 (2022-03-08)
