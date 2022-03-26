@@ -7386,6 +7386,9 @@ double preouterator(List modelproxy, NumericVector maincoefs, arma::imat randind
           
           if (modeltrunc == 1) {
             double den_corr = (1.0 - (exp(-1 * lambda)));
+            if (den_corr == 0.0 || NumericVector::is_na(den_corr)) {
+              den_corr = 1 / (exp_tol * exp_tol);
+            }
             all_out = all_out / den_corr;
           }
           // Rcout << "Poisson cdf: upper_boundary_int: " << upper_boundary_int << 
@@ -7407,6 +7410,9 @@ double preouterator(List modelproxy, NumericVector maincoefs, arma::imat randind
             
             double den_corr {1.0};
             if (modeltrunc == 1) den_corr = (1.0 - (exp(-1 * lambda)));
+            if (den_corr == 0.0 || NumericVector::is_na(den_corr)) {
+              den_corr = 1 / (exp_tol * exp_tol);
+            }
             
             current_prob += ((pow(lambda, Used_size3) * exp(-1.0 * lambda)) / sizefac) / den_corr;
           }
@@ -7440,6 +7446,9 @@ double preouterator(List modelproxy, NumericVector maincoefs, arma::imat randind
         double log_mid = -1.0 * theta * log(1.0 + (alpha * mu));
         double den_corr {1.0};
         if (modeltrunc == 1) den_corr = 1.0 - exp(log_mid);
+        if (den_corr == 0.0 || NumericVector::is_na(den_corr)) {
+          den_corr = 1 / (exp_tol * exp_tol);
+        }
         
         double current_prob {0.0};
         
