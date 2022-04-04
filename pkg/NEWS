@@ -1,7 +1,7 @@
 LEFKO3 NEWS
 -----------
 
-CHANGES IN VERSION 5.1.0 (2022-04-XX)
+CHANGES IN VERSION 5.1.0 (2022-04-01)
 -------------------------------------
   NEW FEATURES
     1. Added ability to run ordered annual matrix progressions in function
@@ -13,6 +13,8 @@ CHANGES IN VERSION 5.1.0 (2022-04-XX)
   USER-VISIBLE CHANGES
     1. Added cancel handling to verticalize3(), historicalize3(), slambda3(),
        sensitivity3(), elasticity3(), and ltre3().
+    2. Added transitions to some supplemental() in function examples and
+       vignettes, reflecting more exact transition specification.
 
   BUG FIXES
     1. Fixed incorrect substochastic correction in projection3() and
@@ -21,7 +23,7 @@ CHANGES IN VERSION 5.1.0 (2022-04-XX)
     3. Corrected class lefkoProj structure output by function f_projection3()
        to correspond exactly to that produced by function projection3().
     4. Fixed bug preventing proxy multipliers from being properly integrated in
-       function-based MPMs.
+       function-based and raw MPMs.
     5. Corrected issue in which truncated distributions occasionally led to NA
        size probabilities when the probability of a 0 under the un-truncated
        distribution was sufficiently high.

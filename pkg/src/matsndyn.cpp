@@ -5673,7 +5673,7 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
 
 //' Estimate All Elements of Raw Historical Matrix
 //' 
-//' Function \code{.specialpatrolgroup()} swiftly calculates matrix transitions
+//' Function \code{specialpatrolgroup()} swiftly calculates matrix transitions
 //' in raw historical matrices, and serves as the core workhorse function behind
 //' \code{\link{rlefko3}()}.
 //' 
@@ -5703,35 +5703,35 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
 List specialpatrolgroup(DataFrame sge9l, DataFrame sge3, DataFrame MainData,
   DataFrame StageFrame, int format, int err_switch) {
   
-  arma::vec sge9stage3 = sge9l["stage3"];
-  arma::vec sge9fec32 = sge9l["repentry3"];
-  arma::vec sge9rep2 = sge9l["rep2o"];
-  arma::vec sge9indata32 = sge9l["indata"];
-  arma::vec sge9ovgivent = sge9l["ovgiven_t"];
-  arma::vec sge9ovgivenf = sge9l["ovgiven_f"];
-  arma::vec sge9ovestt = sge9l["ovest_t"];
-  arma::vec sge9ovestf = sge9l["ovest_f"];
-  arma::vec sge9ovsurvmult = sge9l["ovsurvmult"];
-  arma::vec sge9ovfecmult = sge9l["ovfecmult"];
-  arma::vec sge9index321 = sge9l["index321"];
-  arma::vec sge9index21 = sge9l["index21"]; // This is sge92index - not sure if this is needed
-  arma::vec aliveandequal = sge9l["aliveandequal"];
+  arma::vec sge9stage3 = as<arma::vec>(sge9l["stage3"]);
+  arma::vec sge9fec32 = as<arma::vec>(sge9l["repentry3"]);
+  arma::vec sge9rep2 = as<arma::vec>(sge9l["rep2o"]);
+  arma::vec sge9indata32 = as<arma::vec>(sge9l["indata"]);
+  arma::vec sge9ovgivent = as<arma::vec>(sge9l["ovgiven_t"]);
+  arma::vec sge9ovgivenf = as<arma::vec>(sge9l["ovgiven_f"]);
+  arma::vec sge9ovestt = as<arma::vec>(sge9l["ovest_t"]);
+  arma::vec sge9ovestf = as<arma::vec>(sge9l["ovest_f"]);
+  arma::vec sge9ovsurvmult = as<arma::vec>(sge9l["ovsurvmult"]);
+  arma::vec sge9ovfecmult = as<arma::vec>(sge9l["ovfecmult"]);
+  arma::vec sge9index321 = as<arma::vec>(sge9l["index321"]);
+  arma::vec sge9index21 = as<arma::vec>(sge9l["index21"]);
+  arma::vec aliveandequal = as<arma::vec>(sge9l["aliveandequal"]);
   
-  arma::vec sge3rep2 = sge3["rep2n"];
-  arma::vec sge3fec32 = sge3["fec32n"];
-  arma::vec sge3index21 = sge3["index21"];
-  arma::vec sge3stage2n = sge3["stage2n"];
-  arma::vec sge3stage3 = sge3["stage3"];
+  arma::vec sge3rep2 = as<arma::vec>(sge3["rep2n"]);
+  arma::vec sge3fec32 = as<arma::vec>(sge3["fec32n"]);
+  arma::vec sge3index21 = as<arma::vec>(sge3["index21"]);
+  arma::vec sge3stage2n = as<arma::vec>(sge3["stage2n"]);
+  arma::vec sge3stage3 = as<arma::vec>(sge3["stage3"]);
   
-  arma::vec dataindex321 = MainData["index321"];
-  arma::vec dataindex21 = MainData["pairindex21"];
-  arma::vec dataalive3 = MainData["alive3"];
-  arma::vec datausedfec2 = MainData["usedfec2"];
-  arma::vec dataindex3 = MainData["index3"];
-  arma::vec dataindex2 = MainData["index2"];
-  arma::vec dataindex1 = MainData["index1"];
+  arma::vec dataindex321 = as<arma::vec>(MainData["index321"]);
+  arma::vec dataindex21 = as<arma::vec>(MainData["pairindex21"]);
+  arma::vec dataalive3 = as<arma::vec>(MainData["alive3"]);
+  arma::vec datausedfec2 = as<arma::vec>(MainData["usedfec2"]);
+  arma::vec dataindex3 = as<arma::vec>(MainData["index3"]);
+  arma::vec dataindex2 = as<arma::vec>(MainData["index2"]);
+  arma::vec dataindex1 = as<arma::vec>(MainData["index1"]);
 
-  arma::vec sfsizes = StageFrame["sizebin_center"];
+  arma::vec sfsizes = as<arma::vec>(StageFrame["sizebin_center"]);
   int nostages = sfsizes.n_elem;
   
   int n = dataindex321.n_elem;
@@ -5753,7 +5753,7 @@ List specialpatrolgroup(DataFrame sge9l, DataFrame sge3, DataFrame MainData,
   probsrates2.zeros();
   probsrates3.zeros();
   
-  arma::mat stage2fec(sge3index21.n_elem, 3, fill::zeros); //1st col = # indivs total, 2nd col = no indivs alive, 3rd col = sum fec
+  arma::mat stage2fec(sge3index21.n_elem, 3, fill::zeros); // col1 = #inds, col2 = #alive, col3 = sum fec
   
   // These next structures develop the prior stage
   arma::vec probsrates0p(noelems, fill::zeros); // 1st vec = # indivs (3 trans)
@@ -5761,7 +5761,7 @@ List specialpatrolgroup(DataFrame sge9l, DataFrame sge3, DataFrame MainData,
   arma::vec probsrates2p(noelems, fill::zeros); // 3rd vec = total indivs alive for pair stage
   arma::vec probsrates3p(noelems, fill::zeros); // 4th vec = total fec for pair stage
   
-  arma::mat stage2fecp(sge3index21.n_elem, 3, fill::zeros); //1st col = # indivs total, 2nd col = no indivs alive, 3rd col = sum fec
+  arma::mat stage2fecp(sge3index21.n_elem, 3, fill::zeros); // col1 = #inds, col2 = #alive, col3 = sum fec
   
   // The final matrices, though empty
   arma::mat tmatrix(matrixdim, matrixdim, fill::zeros); // Main output U matrix
@@ -5790,10 +5790,10 @@ List specialpatrolgroup(DataFrame sge9l, DataFrame sge3, DataFrame MainData,
   for (int i = 0; i < n; i++) { 
     arma::uvec choiceelement = find(sge9index321 == dataindex321(i)); // Added this now
     
-    stage2fec((dataindex21(i)), 0) = stage2fec((dataindex21(i)), 0) + 1; // Yields sum of all individuals with particular transition
+    stage2fec((dataindex21(i)), 0) = stage2fec((dataindex21(i)), 0) + 1; // Yields sum of indivs with particular transition
     
     if (choiceelement.n_elem > 0) {
-      probsrates0(choiceelement(0)) = probsrates0(choiceelement(0)) + 1; // Yields sum of all individuals with particular transition
+      probsrates0(choiceelement(0)) = probsrates0(choiceelement(0)) + 1; // Yields sum of indivs with particular transition
       
       if (dataalive3(i) > 0) {
         stage2fec((dataindex21(i)), 1) = stage2fec((dataindex21(i)), 1) + 1;
@@ -5898,7 +5898,11 @@ List specialpatrolgroup(DataFrame sge9l, DataFrame sge3, DataFrame MainData,
       arma::uvec replacement = find(sge9index321 == sge9ovestt(ovesttind(i)));
       
       if (replacement.n_elem > 0) {
-        tmatrix(aliveandequal(ovesttind(i))) = tmatrix(aliveandequal(replacement(0)));
+        double correction = sge9ovsurvmult(ovesttind(i));
+        if (correction == -1.0) correction = 1.0;
+      
+        tmatrix(aliveandequal(ovesttind(i))) = tmatrix(aliveandequal(replacement(0))) *
+          correction;
       }
       
     }
@@ -5909,7 +5913,11 @@ List specialpatrolgroup(DataFrame sge9l, DataFrame sge3, DataFrame MainData,
       arma::uvec replacement = find(sge9index321 == sge9ovestf(ovestfind(i)));
       
       if (replacement.n_elem > 0) {
-        fmatrix(aliveandequal(ovestfind(i))) = fmatrix(aliveandequal(replacement(0)));
+        double correction = sge9ovfecmult(ovesttind(i));
+        if (correction == -1.0) correction = 1.0;
+      
+        fmatrix(aliveandequal(ovestfind(i))) = fmatrix(aliveandequal(replacement(0))) *
+          correction;
       }
     }
   }
@@ -5943,7 +5951,7 @@ List specialpatrolgroup(DataFrame sge9l, DataFrame sge3, DataFrame MainData,
 
 //' Estimate All Elements of Raw Ahistorical Population Projection Matrix
 //' 
-//' Function \code{.normalpatrolgroup()} swiftly calculates matrix transitions
+//' Function \code{normalpatrolgroup()} swiftly calculates matrix transitions
 //' in raw ahistorical matrices, and serves as the core workhorse function
 //' behind \code{\link{rlefko2}()}.
 //' 
@@ -5967,30 +5975,30 @@ List specialpatrolgroup(DataFrame sge9l, DataFrame sge3, DataFrame MainData,
 List normalpatrolgroup(DataFrame sge3, DataFrame sge2, DataFrame MainData,
   DataFrame StageFrame) {
   
-  arma::vec sge3fec32 = sge3["repentry3"];
-  arma::vec sge3rep2 = sge3["rep2n"];
-  arma::vec sge3indata32 = sge3["indata"];
-  arma::vec sge3ovgivent = sge3["ovgiven_t"];
-  arma::vec sge3ovgivenf = sge3["ovgiven_f"];
-  arma::vec sge3ovestt = sge3["ovest_t"];
-  arma::vec sge3ovestf = sge3["ovest_f"];
-  arma::vec sge3ovsurvmult = sge3["ovsurvmult"];
-  arma::vec sge3ovfecmult = sge3["ovfecmult"];
-  arma::vec sge3index32 = sge3["index321"];
-  arma::vec sge3index2 = sge3["stage2n"];
-  arma::vec aliveandequal = sge3["aliveandequal"];
+  arma::vec sge3fec32 = as<arma::vec>(sge3["repentry3"]);
+  arma::vec sge3rep2 = as<arma::vec>(sge3["rep2n"]);
+  arma::vec sge3indata32 = as<arma::vec>(sge3["indata"]);
+  arma::vec sge3ovgivent = as<arma::vec>(sge3["ovgiven_t"]);
+  arma::vec sge3ovgivenf = as<arma::vec>(sge3["ovgiven_f"]);
+  arma::vec sge3ovestt = as<arma::vec>(sge3["ovest_t"]);
+  arma::vec sge3ovestf = as<arma::vec>(sge3["ovest_f"]);
+  arma::vec sge3ovsurvmult = as<arma::vec>(sge3["ovsurvmult"]);
+  arma::vec sge3ovfecmult = as<arma::vec>(sge3["ovfecmult"]);
+  arma::vec sge3index32 = as<arma::vec>(sge3["index321"]);
+  arma::vec sge3index2 = as<arma::vec>(sge3["stage2n"]);
+  arma::vec aliveandequal = as<arma::vec>(sge3["aliveandequal"]);
   
-  arma::vec sge2rep2 = sge2["rep2"];
-  arma::vec sge2fec3 = sge2["fec3"];
-  arma::vec sge2index2 = sge2["index2"];
-  arma::vec sge2stage2 = sge2["stage2"];
+  arma::vec sge2rep2 = as<arma::vec>(sge2["rep2"]);
+  arma::vec sge2fec3 = as<arma::vec>(sge2["fec3"]);
+  arma::vec sge2index2 = as<arma::vec>(sge2["index2"]);
+  arma::vec sge2stage2 = as<arma::vec>(sge2["stage2"]);
   
-  arma::vec dataindex32 = MainData["index32"];
-  arma::vec dataindex2 = MainData["index2"];
-  arma::vec dataalive3 = MainData["alive3"];
-  arma::vec datausedfec2 = MainData["usedfec2"];
+  arma::vec dataindex32 = as<arma::vec>(MainData["index32"]);
+  arma::vec dataindex2 = as<arma::vec>(MainData["index2"]);
+  arma::vec dataalive3 = as<arma::vec>(MainData["alive3"]);
+  arma::vec datausedfec2 = as<arma::vec>(MainData["usedfec2"]);
   
-  arma::vec sfsizes = StageFrame["sizebin_center"];
+  arma::vec sfsizes = as<arma::vec>(StageFrame["sizebin_center"]);
   int nostages = sfsizes.n_elem;
   
   int n = dataindex32.n_elem;
@@ -6002,7 +6010,7 @@ List normalpatrolgroup(DataFrame sge3, DataFrame sge2, DataFrame MainData,
   arma::vec probsrates2(noelems, fill::zeros); // 3rd vec = total indivs alive for pair stage
   arma::vec probsrates3(noelems, fill::zeros); // 4th vec = total fec for pair stage
   
-  arma::mat stage2fec(no2stages, 3, fill::zeros); //1st col = # indivs total, 2nd col = no indivs alive, 3rd col = sum fec
+  arma::mat stage2fec(no2stages, 3, fill::zeros); // col1 = # inds total, col2 = no alive, col3 = sum fec
   
   arma::mat tmatrix((nostages-1), (nostages-1), fill::zeros); // Main output U matrix
   arma::mat fmatrix((nostages-1), (nostages-1), fill::zeros); // Main output F matrix
@@ -6085,7 +6093,11 @@ List normalpatrolgroup(DataFrame sge3, DataFrame sge2, DataFrame MainData,
     for (int i = 0; i < ovestn; i++) {
       arma::uvec replacement = find(sge3index32 == sge3ovestt(ovesttind(i)));
       
-      tmatrix(aliveandequal(ovesttind(i))) = tmatrix(aliveandequal(replacement(0)));
+      double correction = sge3ovsurvmult(ovesttind(i));
+      if (correction == -1.0) correction = 1.0;
+      
+      tmatrix(aliveandequal(ovesttind(i))) = tmatrix(aliveandequal(replacement(0))) *
+        correction;
     }
   }
   
@@ -6093,7 +6105,11 @@ List normalpatrolgroup(DataFrame sge3, DataFrame sge2, DataFrame MainData,
     for (int i = 0; i < ovesfn; i++) {
       arma::uvec replacement = find(sge3index32 == sge3ovestf(ovestfind(i)));
       
-      fmatrix(aliveandequal(ovestfind(i))) = fmatrix(aliveandequal(replacement(0)));
+      double correction = sge3ovfecmult(ovesttind(i));
+      if (correction == -1.0) correction = 1.0;
+      
+      fmatrix(aliveandequal(ovestfind(i))) = fmatrix(aliveandequal(replacement(0))) *
+        correction;
     }
   }
   
@@ -6108,7 +6124,7 @@ List normalpatrolgroup(DataFrame sge3, DataFrame sge2, DataFrame MainData,
 
 //' Estimate All Elements of Raw Ahistorical Population Projection Matrix
 //' 
-//' Function \code{.minorpatrolgroup()} swiftly calculates matrix transitions
+//' Function \code{minorpatrolgroup()} swiftly calculates matrix transitions
 //' in raw Leslie MPMs, and is used internally in \code{\link{rleslie}()}.
 //' 
 //' @name minorpatrolgroup
@@ -17241,22 +17257,23 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
 //'   NRasRep = TRUE)
 //' 
 //' cypsupp3r <- supplemental(stage3 = c("SD", "SD", "P1", "P1", "P2", "P3", "SL",
-//'     "D", "XSm", "Sm", "D", "XSm", "Sm", "SD", "P1"),
+//'     "D", "XSm", "Sm", "D", "XSm", "Sm", "mat", "mat", "mat", "SD", "P1"),
 //'   stage2 = c("SD", "SD", "SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL",
-//'     "SL", "SL", "rep", "rep"),
+//'     "SL", "SL", "D", "XSm", "Sm", "rep", "rep"),
 //'   stage1 = c("SD", "rep", "SD", "rep", "SD", "P1", "P2", "P3", "P3", "P3",
-//'     "SL", "SL", "SL", "mat", "mat"),
+//'     "SL", "SL", "SL", "SL", "SL", "SL", "mat", "mat"),
 //'   eststage3 = c(NA, NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", "D", "XSm", "Sm",
-//'     NA, NA),
+//'     "mat", "mat", "mat", NA, NA),
 //'   eststage2 = c(NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", "XSm", "XSm",
-//'     "XSm", NA, NA),
+//'     "XSm", "D", "XSm", "Sm", NA, NA),
 //'   eststage1 = c(NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", "XSm", "XSm",
-//'     "XSm", NA, NA),
+//'     "XSm", "XSm", "XSm", "XSm", NA, NA),
 //'   givenrate = c(0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.25, NA, NA, NA, NA, NA, NA,
-//'     NA, NA),
-//'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-//'   type = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
-//'   type_t12 = c(1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+//'     NA, NA, NA, NA, NA),
+//'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+//'     NA, 0.5, 0.5),
+//'   type = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+//'   type_t12 = c(1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
 //'   stageframe = cypframe_raw, historical = TRUE)
 //' 
 //' cypmatrix3r <- rlefko3(data = cypraw_v1, stageframe = cypframe_raw, 
@@ -18113,22 +18130,23 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
 //'   NRasRep = TRUE)
 //' 
 //' cypsupp3r <- supplemental(stage3 = c("SD", "SD", "P1", "P1", "P2", "P3", "SL",
-//'     "D", "XSm", "Sm", "D", "XSm", "Sm", "SD", "P1"),
+//'     "D", "XSm", "Sm", "D", "XSm", "Sm", "mat", "mat", "mat", "SD", "P1"),
 //'   stage2 = c("SD", "SD", "SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL",
-//'     "SL", "SL", "rep", "rep"),
+//'     "SL", "SL", "D", "XSm", "Sm", "rep", "rep"),
 //'   stage1 = c("SD", "rep", "SD", "rep", "SD", "P1", "P2", "P3", "P3", "P3",
-//'     "SL", "SL", "SL", "mat", "mat"),
+//'     "SL", "SL", "SL", "SL", "SL", "SL", "mat", "mat"),
 //'   eststage3 = c(NA, NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", "D", "XSm", "Sm",
-//'     NA, NA),
+//'     "mat", "mat", "mat", NA, NA),
 //'   eststage2 = c(NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", "XSm", "XSm",
-//'     "XSm", NA, NA),
+//'     "XSm", "D", "XSm", "Sm", NA, NA),
 //'   eststage1 = c(NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", "XSm", "XSm",
-//'     "XSm", NA, NA),
+//'     "XSm", "XSm", "XSm", "XSm", NA, NA),
 //'   givenrate = c(0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.25, NA, NA, NA, NA, NA, NA,
-//'     NA, NA),
-//'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-//'   type = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
-//'   type_t12 = c(1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+//'     NA, NA, NA, NA, NA),
+//'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+//'     NA, 0.5, 0.5),
+//'   type = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+//'   type_t12 = c(1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
 //'   stageframe = cypframe_raw, historical = TRUE)
 //' 
 //' cypmatrix3r <- rlefko3(data = cypraw_v1, stageframe = cypframe_raw, 

@@ -353,24 +353,24 @@
 #'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE, 
 #'   NRasRep = TRUE)
 #' 
-#' cypsupp3r <- supplemental(stage3 = c("SD", "SD", "P1", "P1", "P2", "P3",
-#'     "SL", "SL", "SL", "D", "XSm", "Sm", "D", "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL",
-#'     "SL", "SL", "SL", "SL", "SL", "rep", "rep"),
-#'   stage1 = c("SD", "rep", "SD", "rep", "SD", "P1", "P2", "P3", "SL", "P3",
-#'     "P3", "P3", "SL", "SL", "SL", "all", "all"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", "D",
-#'     "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm",
-#'     "XSm", "XSm", "XSm", NA, NA),
-#'   eststage1 = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm",
-#'     "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.25, 0.4, 0.4, NA, NA, NA, NA,
-#'     NA, NA, NA, NA),
+#' cypsupp3r <- supplemental(stage3 = c("SD", "SD", "P1", "P1", "P2", "P3", "SL",
+#'     "D", "XSm", "Sm", "D", "XSm", "Sm", "mat", "mat", "mat", "SD", "P1"),
+#'   stage2 = c("SD", "SD", "SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL",
+#'     "SL", "SL", "D", "XSm", "Sm", "rep", "rep"),
+#'   stage1 = c("SD", "rep", "SD", "rep", "SD", "P1", "P2", "P3", "P3", "P3",
+#'     "SL", "SL", "SL", "SL", "SL", "SL", "mat", "mat"),
+#'   eststage3 = c(NA, NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", "D", "XSm", "Sm",
+#'     "mat", "mat", "mat", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", "XSm", "XSm",
+#'     "XSm", "D", "XSm", "Sm", NA, NA),
+#'   eststage1 = c(NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", "XSm", "XSm",
+#'     "XSm", "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.25, NA, NA, NA, NA, NA, NA,
+#'     NA, NA, NA, NA, NA),
 #'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-#'     0.5, 0.5),
-#'   type = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
-#'   type_t12 = c(1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+#'     NA, 0.5, 0.5),
+#'   type = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   type_t12 = c(1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
 #'   stageframe = cypframe_raw, historical = TRUE)
 #' 
 #' cypmatrix3r <- rlefko3(data = cypraw_v1, stageframe = cypframe_raw,
@@ -458,21 +458,24 @@ cond_hmpm <- function(hmpm, matchoice = NULL, err_check = NULL) {
 #'     (0.5 * seeds_per_pod)),
 #'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
 #'   stageframe = cypframe_raw, historical = FALSE)
-#' cypsupp3_raw <- supplemental(stage3 = c("SD", "SD", "P1", "P1", "P2", "P3",
-#'     "SL", "SL", "SL", "D", "D", "SD", "P1"),
+#' cypsupp3_raw <- supplemental(stage3 = c("SD", "SD", "P1", "P1", "P2", "P3", "SL",
+#'     "D", "XSm", "Sm", "D", "XSm", "Sm", "mat", "mat", "mat", "SD", "P1"),
 #'   stage2 = c("SD", "SD", "SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL",
-#'     "rep", "rep"),
-#'   stage1 = c("SD", "rep", "SD", "rep", "SD", "P1", "P2", "P3", "SL", "P3",
-#'     "SL", "mat", "mat"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, "XSm", "D", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", NA, NA),
-#'   eststage1 = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.01, 0.05, 0.10, 0.20, 0.1, 0.1, 0.05, 0.05, 0.05, NA, NA,
-#'     NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-#'     (0.5 * seeds_per_pod), (0.5 * seeds_per_pod)),
-#'   type = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
-#'   type_t12 = c(1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+#'     "SL", "SL", "D", "XSm", "Sm", "rep", "rep"),
+#'   stage1 = c("SD", "rep", "SD", "rep", "SD", "P1", "P2", "P3", "P3", "P3",
+#'     "SL", "SL", "SL", "SL", "SL", "SL", "mat", "mat"),
+#'   eststage3 = c(NA, NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", "D", "XSm", "Sm",
+#'     "mat", "mat", "mat", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", "XSm", "XSm",
+#'     "XSm", "D", "XSm", "Sm", NA, NA),
+#'   eststage1 = c(NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", "XSm", "XSm",
+#'     "XSm", "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.25, NA, NA, NA, NA, NA, NA,
+#'     NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+#'     NA, 0.5, 0.5),
+#'   type = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   type_t12 = c(1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
 #'   stageframe = cypframe_raw, historical = TRUE)
 #' 
 #' cypmatrix2rp <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw,
@@ -2328,7 +2331,7 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 
 #' Estimate All Elements of Raw Historical Matrix
 #' 
-#' Function \code{.specialpatrolgroup()} swiftly calculates matrix transitions
+#' Function \code{specialpatrolgroup()} swiftly calculates matrix transitions
 #' in raw historical matrices, and serves as the core workhorse function behind
 #' \code{\link{rlefko3}()}.
 #' 
@@ -2360,7 +2363,7 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 
 #' Estimate All Elements of Raw Ahistorical Population Projection Matrix
 #' 
-#' Function \code{.normalpatrolgroup()} swiftly calculates matrix transitions
+#' Function \code{normalpatrolgroup()} swiftly calculates matrix transitions
 #' in raw ahistorical matrices, and serves as the core workhorse function
 #' behind \code{\link{rlefko2}()}.
 #' 
@@ -2386,7 +2389,7 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 
 #' Estimate All Elements of Raw Ahistorical Population Projection Matrix
 #' 
-#' Function \code{.minorpatrolgroup()} swiftly calculates matrix transitions
+#' Function \code{minorpatrolgroup()} swiftly calculates matrix transitions
 #' in raw Leslie MPMs, and is used internally in \code{\link{rleslie}()}.
 #' 
 #' @name minorpatrolgroup
@@ -4146,22 +4149,23 @@ f_projection3 <- function(data, format, prebreeding = TRUE, start_age = NA_integ
 #'   NRasRep = TRUE)
 #' 
 #' cypsupp3r <- supplemental(stage3 = c("SD", "SD", "P1", "P1", "P2", "P3", "SL",
-#'     "D", "XSm", "Sm", "D", "XSm", "Sm", "SD", "P1"),
+#'     "D", "XSm", "Sm", "D", "XSm", "Sm", "mat", "mat", "mat", "SD", "P1"),
 #'   stage2 = c("SD", "SD", "SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL",
-#'     "SL", "SL", "rep", "rep"),
+#'     "SL", "SL", "D", "XSm", "Sm", "rep", "rep"),
 #'   stage1 = c("SD", "rep", "SD", "rep", "SD", "P1", "P2", "P3", "P3", "P3",
-#'     "SL", "SL", "SL", "mat", "mat"),
+#'     "SL", "SL", "SL", "SL", "SL", "SL", "mat", "mat"),
 #'   eststage3 = c(NA, NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", "D", "XSm", "Sm",
-#'     NA, NA),
+#'     "mat", "mat", "mat", NA, NA),
 #'   eststage2 = c(NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", "XSm", "XSm",
-#'     "XSm", NA, NA),
+#'     "XSm", "D", "XSm", "Sm", NA, NA),
 #'   eststage1 = c(NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", "XSm", "XSm",
-#'     "XSm", NA, NA),
+#'     "XSm", "XSm", "XSm", "XSm", NA, NA),
 #'   givenrate = c(0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.25, NA, NA, NA, NA, NA, NA,
-#'     NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
-#'   type_t12 = c(1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+#'     NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+#'     NA, 0.5, 0.5),
+#'   type = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   type_t12 = c(1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
 #'   stageframe = cypframe_raw, historical = TRUE)
 #' 
 #' cypmatrix3r <- rlefko3(data = cypraw_v1, stageframe = cypframe_raw, 
@@ -4290,22 +4294,23 @@ projection3 <- function(mpm, nreps = 1L, times = 10000L, historical = FALSE, sto
 #'   NRasRep = TRUE)
 #' 
 #' cypsupp3r <- supplemental(stage3 = c("SD", "SD", "P1", "P1", "P2", "P3", "SL",
-#'     "D", "XSm", "Sm", "D", "XSm", "Sm", "SD", "P1"),
+#'     "D", "XSm", "Sm", "D", "XSm", "Sm", "mat", "mat", "mat", "SD", "P1"),
 #'   stage2 = c("SD", "SD", "SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL",
-#'     "SL", "SL", "rep", "rep"),
+#'     "SL", "SL", "D", "XSm", "Sm", "rep", "rep"),
 #'   stage1 = c("SD", "rep", "SD", "rep", "SD", "P1", "P2", "P3", "P3", "P3",
-#'     "SL", "SL", "SL", "mat", "mat"),
+#'     "SL", "SL", "SL", "SL", "SL", "SL", "mat", "mat"),
 #'   eststage3 = c(NA, NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", "D", "XSm", "Sm",
-#'     NA, NA),
+#'     "mat", "mat", "mat", NA, NA),
 #'   eststage2 = c(NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", "XSm", "XSm",
-#'     "XSm", NA, NA),
+#'     "XSm", "D", "XSm", "Sm", NA, NA),
 #'   eststage1 = c(NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", "XSm", "XSm",
-#'     "XSm", NA, NA),
+#'     "XSm", "XSm", "XSm", "XSm", NA, NA),
 #'   givenrate = c(0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.25, NA, NA, NA, NA, NA, NA,
-#'     NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
-#'   type_t12 = c(1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+#'     NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+#'     NA, 0.5, 0.5),
+#'   type = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   type_t12 = c(1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
 #'   stageframe = cypframe_raw, historical = TRUE)
 #' 
 #' cypmatrix3r <- rlefko3(data = cypraw_v1, stageframe = cypframe_raw, 
