@@ -6,6 +6,10 @@ CHANGES IN VERSION 5.X.X (2022-XX-XX)
   NEW FEATURES
     1. Option added to functions projection3() and f_projection3() to suppress
       warnings.
+    2. Function summary.lefkoProj() now has an option to interpret NaN values as
+       positive infinity, changing the count of replicates still alive in the
+       milepost section. This option, inf_alive, may also be set to FALSE to
+       count NaNs as evidence of extinction.
 
   USER-VISIBLE CHANGES
     1. Some error messages made more informative.

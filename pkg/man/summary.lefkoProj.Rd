@@ -4,13 +4,24 @@
 \alias{summary.lefkoProj}
 \title{Summarize lefkoProj Objects}
 \usage{
-\method{summary}{lefkoProj}(object, threshold = 1, milepost = c(0, 0.25, 0.5, 0.75, 1), ...)
+\method{summary}{lefkoProj}(
+  object,
+  threshold = 1,
+  inf_alive = TRUE,
+  milepost = c(0, 0.25, 0.5, 0.75, 1),
+  ...
+)
 }
 \arguments{
 \item{object}{A \code{lefkoProj} object.}
 
 \item{threshold}{A threshold population size to be searched for in
 projections. Defaults to 1.}
+
+\item{inf_alive}{A logical value indicating whether to treat infinitely
+large population size as indicating that the population is still extant.
+If \code{FALSE}, then the population is considered extinct. Defaults to
+\code{TRUE}.}
 
 \item{milepost}{A numeric vector indicating at which points in the projection
 to assess detailed results. Can be input as integer values, in which case
@@ -32,6 +43,23 @@ Function \code{summary.lefkoProj()} summarizes \code{lefkoProj} objects.
 Particularly, it breaks down the data frames provided in the 
 \code{projection} element in ways meaningful for those running simulations.
 }
+\section{Notes}{
+
+
+The \code{inf_alive} option assesses whether replicates have reached a value
+of \code{NaN}. If \code{inf_alive = TRUE} and a value of \code{NaN} is found,
+then the replicate is considered extant. If the setting is
+\code{inf_alive = FALSE}, then a value of \code{NaN} is considered evidence
+of extinction. Generally, leaving this option at its default setting works
+well because the most common situation in which a value of \code{NaN} is
+incorporated into a projection is because the population size reaches a value
+above the computational maximum. However, it is theoretically possible that
+an unusually small but positive number may also produce this result, in which
+case the population should be interpreted as having gone extinct. Users
+should always inspect their projections thoroughly to determine the proper
+interpretation.
+}
+
 \examples{
 # Lathyrus example
 data(lathyrus)
