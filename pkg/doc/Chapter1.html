@@ -516,7 +516,7 @@ examples of studies breaking these assumptions and using a
 some degree of individual history into matrix estimation and analysis
 <span class="citation">(Ehrlén 2000; Shefferson, Warren II, and Pulliam
 2014; Shefferson, Mizuta, and Hutchings 2017; Shefferson et al. 2018;
-Vries and Caswell 2018)</span>.
+deVries and Caswell 2018)</span>.
 </p>
 <p style="text-indent: 20px">
 The <strong>historical MPM</strong> (hMPM) is an extension of the matrix
@@ -527,7 +527,7 @@ only on its stage in occasion <em>t</em> but also on its stage in
 occasion <em>t</em>-1. Population ecologists considering this problem
 analytically might be inclined to add an extra dimension to the matrix
 to deal with this, thus creating a 3d array or cube. However, this is
-mathematically intractable, with many analyses becoming impossible <span class="citation">(Vries and Caswell 2018)</span>. Instead, we utilize
+mathematically intractable, with many analyses becoming impossible <span class="citation">(deVries and Caswell 2018)</span>. Instead, we utilize
 the approach developed by <span class="citation">Ehrlén (2000)</span>,
 in which rows and columns represent life history stages paired in
 consecutive occasions. Thus, columns now represent the
@@ -535,7 +535,7 @@ consecutive occasions. Thus, columns now represent the
 <em>t</em>-1), and rows now represent the <strong>To</strong> pair of
 stages (stage in occasions <em>t</em> and <em>t</em>+1), as in Figure
 1.2. This model is equivalent to the second-order model proposed by
-<span class="citation">Vries and Caswell (2018)</span>, although the
+<span class="citation">deVries and Caswell (2018)</span>, although the
 latter incorporates more history into transitions involving individuals
 just born (we explain the difference further in this vignette).
 </p>
@@ -872,10 +872,10 @@ supposed to occur in order to check their values properly.
 <div id="different-parameterizations-of-the-historical-mpm" class="section level3">
 <h3>Different parameterizations of the historical MPM</h3>
 <p style="text-indent: 20px">
-<span class="citation">Vries and Caswell (2018)</span> detail different
-approaches to the development of hMPMs, differing in how state or stage
-in occasion <em>t</em>-1 is incorporated into the matrix. <strong>Full
-prior stage dependence models</strong> deal with history by
+<span class="citation">deVries and Caswell (2018)</span> detail
+different approaches to the development of hMPMs, differing in how state
+or stage in occasion <em>t</em>-1 is incorporated into the matrix.
+<strong>Full prior stage dependence models</strong> deal with history by
 incorporating prior condition as the exact stage of an organism in
 occasion <em>t</em>-1, yielding a matrix showing stage pairs in occasion
 <em>t</em>-1 and <em>t</em> along the columns of the matrix, and stage
@@ -889,14 +889,14 @@ measure of condition can be used, such as growth (i.e. the change in
 size between occasions <em>t</em>-1 and <em>t</em>).
 </p>
 <p style="text-indent: 20px">
-One key feature proposed by <span class="citation">Vries and Caswell
+One key feature proposed by <span class="citation">deVries and Caswell
 (2018)</span> is the addition of a new stage to account for the prior
 status of newborn individuals. This reflects a slightly different
 interpretation from <span class="citation">Ehrlén (2000)</span> of the
 historical transition. In <span class="citation">Ehrlén (2000)</span>,
 all matrix elements simply reflect the order of the events in a single
 transition, including both fecundity and survival-transition events.
-However, in <span class="citation">Vries and Caswell (2018)</span>,
+However, in <span class="citation">deVries and Caswell (2018)</span>,
 these matrix elements must also reflect the history of specific
 individuals. In the latter case, the fact that a newborn in occasion
 <em>t</em> did not exist in occasion <em>t</em>-1 leads to the creation
@@ -955,7 +955,7 @@ n _{1,BC} \\
 n _{1,CC}
 \end{array}\right]  
 \end{equation}\]</span></p>
-<p>This hMPM becomes as follows in <span class="citation">Vries and
+<p>This hMPM becomes as follows in <span class="citation">deVries and
 Caswell (2018)</span> format:</p>
 <p><span class="math display">\[\begin{equation}
 \tag{9}
@@ -1027,14 +1027,14 @@ matrices developed with <code>lefko3</code> can be seen as falling
 within the <strong>prior condition model</strong> approach where prior
 condition is determined in the same way as current stage. We also
 implement both the <span class="citation">Ehrlén (2000)</span> format
-and the <span class="citation">Vries and Caswell (2018)</span> format,
+and the <span class="citation">deVries and Caswell (2018)</span> format,
 and use the former as the default. We leave it to the user to decide
 which approach to use.
 </p>
 <p style="text-indent: 20px">
-<span class="citation">Vries and Caswell (2018)</span> also suggest that
-hMPMs can be organized differently to yield more intuitive models. In
-particular, matrices may be as organized as block matrices where the
+<span class="citation">deVries and Caswell (2018)</span> also suggest
+that hMPMs can be organized differently to yield more intuitive models.
+In particular, matrices may be as organized as block matrices where the
 component blocks are essentially matrices showing the transitions from
 all stages in occasion <em>t</em> to stages in occasion <em>t</em>+1
 conditioned on individuals having been in the same stage in occasion
@@ -2321,6 +2321,12 @@ Components of Stochastic Population Growth in
 <em><span>Cypripedium</span> Calceolus</em>.”</span> <em>The American
 Naturalist</em> 181 (3): 410–20. <a href="https://doi.org/10.1086/669155">https://doi.org/10.1086/669155</a>.
 </div>
+<div id="ref-de_vries_demography_2018" class="csl-entry">
+deVries, Charlotte, and Hal Caswell. 2018. <span>“Demography When
+History Matters: Construction and Analysis of Second-Order Matrix
+Population Models.”</span> <em>Theoretical Ecology</em> 11 (2): 129–40.
+<a href="https://doi.org/10.1007/s12080-017-0353-0">https://doi.org/10.1007/s12080-017-0353-0</a>.
+</div>
 <div id="ref-doak_critical_2021" class="csl-entry">
 Doak, Daniel F., Ellen Waddle, Ryan E. Langendorf, Allison M. Louthan,
 Nathalie Isabelle Chardon, Reilly R. Dibner, Douglas A. Keinath, et al.
@@ -2423,12 +2429,6 @@ Matrix Analysis.”</span> <em>Methods in Ecology and Evolution</em> 3
 Stubben, Chris J., and Brook G. Milligan. 2007. <span>“Estimating and
 Analyzing Demographic Models Using the <em>Popbio</em> Package in
 <em>r</em>.”</span> <em>Journal of Statistical Software</em> 22: 11. <a href="https://doi.org/10.18637/jss.v022.i11">https://doi.org/10.18637/jss.v022.i11</a>.
-</div>
-<div id="ref-de_vries_demography_2018" class="csl-entry">
-Vries, Charlotte de, and Hal Caswell. 2018. <span>“Demography When
-History Matters: Construction and Analysis of Second-Order Matrix
-Population Models.”</span> <em>Theoretical Ecology</em> 11 (2): 129–40.
-<a href="https://doi.org/10.1007/s12080-017-0353-0">https://doi.org/10.1007/s12080-017-0353-0</a>.
 </div>
 <div id="ref-wardle_graph_1998" class="csl-entry">
 Wardle, Glenda M. 1998. <span>“A Graph Theory Approach to Demographic

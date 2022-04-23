@@ -1,6 +1,19 @@
 LEFKO3 NEWS
 -----------
 
+CHANGES IN VERSION 5.X.X (2022-XX-XX)
+-------------------------------------
+  NEW FEATURES
+    1. Option added to functions projection3() and f_projection3() to suppress
+      warnings.
+
+  USER-VISIBLE CHANGES
+    1. Some error messages made more informative.
+
+  BUG FIXES
+    1. 
+
+
 CHANGES IN VERSION 5.1.0 (2022-04-01)
 -------------------------------------
   NEW FEATURES
