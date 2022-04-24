@@ -48,16 +48,9 @@ Particularly, it breaks down the data frames provided in the
 
 The \code{inf_alive} option assesses whether replicates have reached a value
 of \code{NaN}. If \code{inf_alive = TRUE} and a value of \code{NaN} is found,
-then the replicate is considered extant. If the setting is
-\code{inf_alive = FALSE}, then a value of \code{NaN} is considered evidence
-of extinction. Generally, leaving this option at its default setting works
-well because the most common situation in which a value of \code{NaN} is
-incorporated into a projection is because the population size reaches a value
-above the computational maximum. However, it is theoretically possible that
-an unusually small but positive number may also produce this result, in which
-case the population should be interpreted as having gone extinct. Users
-should always inspect their projections thoroughly to determine the proper
-interpretation.
+then the replicate is considered extant if the preceding value is above the
+extinction threshold. If the setting is \code{inf_alive = FALSE}, then a
+value of \code{NaN} is considered evidence of extinction.
 }
 
 \examples{

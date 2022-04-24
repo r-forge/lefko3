@@ -4143,16 +4143,9 @@ summary.lefkoLTRE <- function(object, ...) {
 #' 
 #' The \code{inf_alive} option assesses whether replicates have reached a value
 #' of \code{NaN}. If \code{inf_alive = TRUE} and a value of \code{NaN} is found,
-#' then the replicate is considered extant. If the setting is
-#' \code{inf_alive = FALSE}, then a value of \code{NaN} is considered evidence
-#' of extinction. Generally, leaving this option at its default setting works
-#' well because the most common situation in which a value of \code{NaN} is
-#' incorporated into a projection is because the population size reaches a value
-#' above the computational maximum. However, it is theoretically possible that
-#' an unusually small but positive number may also produce this result, in which
-#' case the population should be interpreted as having gone extinct. Users
-#' should always inspect their projections thoroughly to determine the proper
-#' interpretation.
+#' then the replicate is considered extant if the preceding value is above the
+#' extinction threshold. If the setting is \code{inf_alive = FALSE}, then a
+#' value of \code{NaN} is considered evidence of extinction.
 #' 
 #' @examples
 #' # Lathyrus example
@@ -4278,28 +4271,35 @@ summary.lefkoProj <- function(object, threshold = 1, inf_alive = TRUE,
     milepost <- milepost + 1
   }
   
+  if (inf_alive) {
+    for (i in c(1:poppatches)) {
+      for (j in c(1:nreps)) {
+        for (k in c(1:times)) {
+          if (is.nan(object$pop_size[[i]][j, k]) & k > 1) {
+            object$pop_size[[i]][j, k] <- object$pop_size[[i]][j, (k - 1)]
+          }
+        }
+      }
+    }
+  }
+  
   if (nreps > 1) {
+    
     milepost_sums <- apply(as.matrix(c(1:poppatches)), 1, function (X) {
+      
       phew <- apply(as.matrix(object$pop_size[[X]][,milepost]), 2, function(Y) {
         above_vector <- which(as.vector(Y) >= threshold)
         
-        if (inf_alive) {
-          inf_runs <- which(is.nan(as.vector(Y)))
-          above_vector <- union(above_vector, inf_runs)
-        }
         return(length(above_vector))
       })
       return(phew)
     })
   } else {
-     milepost_sums <- apply(as.matrix(c(1:poppatches)), 1, function (X) {
+    milepost_sums <- apply(as.matrix(c(1:poppatches)), 1, function (X) {
+      
       phew <- apply(as.matrix(object$pop_size[[X]][,milepost]), 1, function(Y) {
         above_vector <- which(as.vector(Y) >= threshold)
         
-        if (inf_alive) {
-          inf_runs <- which(is.nan(as.vector(Y)))
-          above_vector <- union(above_vector, inf_runs)
-        }
         return(length(above_vector))
       })
       return(phew)
