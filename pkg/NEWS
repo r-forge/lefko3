@@ -10,12 +10,17 @@ CHANGES IN VERSION 5.X.X (2022-XX-XX)
        positive infinity, changing the count of replicates still alive in the
        milepost section. This option, inf_alive, may also be set to FALSE to
        count NaNs as evidence of extinction.
+    3. A new summary.hfvdata() function has been created to simplify quality
+       control checks on historical vertical format datasets.
 
   USER-VISIBLE CHANGES
     1. Some error messages made more informative.
 
   BUG FIXES
-    1. 
+    1. The stageframe developed with functions rleslie() and fleslie() has been
+       fixed to include stage_id, alive, and almost_born variables, allowing
+       Leslie-formatted lefkoMat objects to be passed to all lefko3 functions
+       analyzing them, including lmean().
 
 
 CHANGES IN VERSION 5.1.0 (2022-04-01)

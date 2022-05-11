@@ -2235,53 +2235,62 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' empty string variable that can be used to describe stages meaningfully.
 #' 
 #' Variables in this data frame include the following:
-#' \item{stage}{The unique names of the stages to be analyzed.}
-#' \item{size}{The typical or representative size at which each stage occurs.}
+#' \item{stage_id}{An unique integer representing each age, in order.}
+#' \item{stage}{The unique names of the ages to be analyzed.}
+#' \item{size}{The typical or representative size at which each stage occurs.
+#' Since ages are not characterized by size, this is generally \code{NA}.}
 #' \item{size_b}{Size at which each stage occurs in terms of a second size
-#' variable, if one exists.}
+#' variable, if one exists. In Leslie MPMs, generally \code{NA}.}
 #' \item{size_c}{Size at which each stage occurs in terms of a third size
-#' variable, if one exists.}
-#' \item{min_age}{The minimum age at which the stage may occur.}
-#' \item{max_age}{The maximum age at which the stage may occur.}
-#' \item{repstatus}{A binomial variable showing whether each stage is
+#' variable, if one exists. In Leslie MPMs, generally \code{NA}.}
+#' \item{min_age}{The minimum age at which the stage may occur. In Leslie MPMs,
+#' defaults to the current age.}
+#' \item{max_age}{The maximum age at which the stage may occur. In Leslie MPMs,
+#' will generally equal the current age or \code{NA}, depending on whether
+#' individuals are allowed to remain at the maximum age.}
+#' \item{repstatus}{A binomial variable showing whether each age is
 #' reproductive.}
-#' \item{obsstatus}{A binomial variable showing whether each stage is
+#' \item{obsstatus}{A binomial variable showing whether each age is
 #' observable.}
-#' \item{propstatus}{A binomial variable showing whether each stage is a
+#' \item{propstatus}{A binomial variable showing whether each age is a
 #' propagule.}
-#' \item{immstatus}{A binomial variable showing whether each stage can occur as
+#' \item{immstatus}{A binomial variable showing whether each age can occur as
 #' immature.}
-#' \item{matstatus}{A binomial variable showing whether each stage occurs in
+#' \item{matstatus}{A binomial variable showing whether each age occurs in
 #' maturity.}
-#' \item{indataset}{A binomial variable describing whether each stage occurs in
+#' \item{indataset}{A binomial variable describing whether each age occurs in
 #' the input dataset.}
 #' \item{binhalfwidth_raw}{The half-width of the size bin, as input.}
-#' \item{sizebin_min}{The minimum size at which the stage may occur.}
-#' \item{sizebin_max}{The maximum size at which the stage may occur.}
-#' \item{sizebin_center}{The midpoint of the size bin at which the stage may
-#' occur.}
-#' \item{sizebin_width}{The width of the size bin corresponding to the stage.}
+#' \item{sizebin_min}{The minimum primary size at which the age may occur.}
+#' \item{sizebin_max}{The maximum primary size at which the age may occur.}
+#' \item{sizebin_center}{The midpoint of the primary size bin at which the age
+#' may occur.}
+#' \item{sizebin_width}{The width of the primary size bin corresponding to the
+#' age.}
 #' \item{binhalfwidthb_raw}{The half-width of the size bin of a second size
 #' variable, as input.}
-#' \item{sizebinb_min}{The minimum size at which the stage may occur.}
-#' \item{sizebinb_max}{The maximum size at which the stage may occur.}
-#' \item{sizebinb_center}{The midpoint of the size bin at which the stage may
-#' occur, in terms of a second size variable.}
-#' \item{sizebinb_width}{The width of the size bin corresponding to the stage,
-#' in terms of a second size variable.}
+#' \item{sizebinb_min}{The minimum secondary size at which the age may occur.}
+#' \item{sizebinb_max}{The maximum secondary size at which the age may occur.}
+#' \item{sizebinb_center}{The midpoint of the secondary size bin at which the
+#' age may occur.}
+#' \item{sizebinb_width}{The width of the secondary size bin corresponding to
+#' the age.}
 #' \item{binhalfwidthc_raw}{The half-width of the size bin of a third size
 #' variable, as input.}
-#' \item{sizebinc_min}{The minimum size at which the stage may occur, in terms
-#' of a third size variable.}
-#' \item{sizebinc_max}{The maximum size at which the stage may occur, in terms
-#' of a third size variable.}
-#' \item{sizebinc_center}{The midpoint of the size bin at which the stage may
-#' occur, in terms of a third size variable.}
-#' \item{sizebinc_width}{The width of the size bin corresponding to the stage,
-#' in terms of a third size variable.}
+#' \item{sizebinc_min}{The minimum tertiary size at which the age may occur.}
+#' \item{sizebinc_max}{The maximum tertiary size at which the age may occur.}
+#' \item{sizebinc_center}{The midpoint of the tertiary size bin at which the
+#' age may occur.}
+#' \item{sizebinc_width}{The width of the tertiary size bin corresponding to
+#' the age.}
 #' \item{group}{An integer denoting the size classification group that the
-#' stage falls within.}
+#' age falls within.}
 #' \item{comments}{A text field for stage descriptions.}
+#' \item{alive}{An integer vector denoting whether the age is alive. Defaults
+#' to \code{1} for all ages.}
+#' \item{almost_born}{An integer vector denoting whether the age corresponds to
+#' the prior stage of a newly produced individual in a historical model. In
+#' Leslie MPMs, defaults to \code{0}.}
 #' 
 #' @keywords internal
 #' @noRd
