@@ -3189,7 +3189,9 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' models. If given, then \code{surv_model}, \code{fec_model}, and 
 #' \code{paramnames} are not required. No models should include size or
 #' reproductive status in any occasion, nor should they include any variable for
-#' occasion \emph{t}-1.
+#' occasion \emph{t}-1. Note that the modelsuite must have been created from a
+#' \code{modelsearch()} run in which \code{vitalrates = c("surv", "fec")} and
+#' the \code{suite} option was set to either \code{age} or \code{cons}.
 #' @param surv_model A linear model predicting survival probability. This can be
 #' a model of class \code{glm} or \code{glmer}, and requires a predicted
 #' binomial variable under a logit link. Ignored if \code{modelsuite} is

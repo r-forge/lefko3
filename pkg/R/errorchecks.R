@@ -1205,23 +1205,25 @@ summary_hfv <- function(object, popid = "popid", patchid = "patchid",
   totalindivs <- length(unique(demodata[, individ]))
   totalyears <- length(unique(demodata[, year2id]))
   
+  grammar_rows <- " rows, "
+  grammar_vars <- " variables, "
   grammar_pops <- " populations, "
   grammar_patches <- " patches, "
   grammar_indivs <- " individuals, and "
   grammar_years <- " time steps."
+  if (matdim[1] == 1) grammar_rows <- " row, "
+  if (matdim[2] == 1) grammar_vars <- " variable, "
   if (totalpops == 1) grammar_pops <- " population, "
   if (totalpatches == 1) grammar_patches <- " patch, "
   if (totalindivs == 1) grammar_indivs <- " individual, and "
   if (totalyears == 1) grammar_years <- " time step."
   
-  writeLines(paste0("\nThis hfv dataset contains ", totalpops, grammar_pops,
-      totalpatches, grammar_patches, totalindivs, grammar_indivs, totalyears,
-      grammar_years))
+  writeLines(paste0("\nThis hfv dataset contains ", matdim[1], grammar_rows,
+      matdim[2], grammar_vars, totalpops, grammar_pops, totalpatches,
+      grammar_patches, totalindivs, grammar_indivs, totalyears, grammar_years))
   
   if (full) {
     dethonthetoilet <- summary.data.frame(demodata)
-    
-    writeLines("\nSurvival probability sum check (each matrix represented by column in order):")
     print(dethonthetoilet, digits = 3)
   }
 }
