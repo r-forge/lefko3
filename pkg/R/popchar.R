@@ -705,7 +705,7 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
 #' Internal Test of Size and Fecundity For Overdispersion and Zero-Inflation
 #' 
 #' This internal function automates the testing of size and fecundity variables
-#' for overdispersion and zero-inflation, It is used within
+#' for overdispersion and zero-inflation. It is used within
 #' \code{\link{sf_distrib}()}.
 #' 
 #' @param data_used The modified data frame to be used, typically \code{sdata}.
@@ -888,15 +888,18 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
   }
 }
 
-#' Create a Data Frame of Elements Subject to Density Dependence
+#' Create a Data Frame of Density Dependence Relationships in Matrix Elements
 #' 
 #' Function \code{density_input()} provides all necessary data to incorporate
 #' density dependence into a \code{lefkoMat} object, a list of matrices, or a
-#' single matrix. Three forms of density dependence are allowed, including the
+#' single matrix. Four forms of density dependence are allowed, including the
 #' Ricker function, the Beverton-Holt function, the Usher function, and the
 #' logistic function. In each case, density must have an effect with at least a
-#' one time-step delay (see Notes).
+#' one time-step delay (see Notes). The resulting data frame provides a guide
+#' for other \code{lefko3} functions to modify matrix elements by density.
 #'
+#' @name density_input
+#' 
 #' @param mpm The \code{lefkoMat} object that will be subject to density
 #' dependent projection.
 #' @param stage3 A vector showing the name or number of the stage in occasion
@@ -921,10 +924,10 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
 #' function. If only a single code is provided, then all noted transitions are
 #' assumed to be subject to this style of density dependence. Defaults to
 #' \code{ricker}.
-#' @param time_delay A vector indicating the number of occasions back on which
-#' density dependence operates. Defaults to \code{1}, and may not equal any
-#' number less than 1. If a single number is input, then all noted transitions
-#' are assumed to be subject to this time delay.
+#' @param time_delay An integer vector indicating the number of occasions back
+#' on which density dependence operates. Defaults to \code{1}, and may not equal
+#' any integer less than 1. If a single number is input, then all noted
+#' transitions are assumed to be subject to this time delay.
 #' @param alpha A vector indicating the numeric values to use as the
 #' alpha term in the two parameter Ricker, Beverton-Holt, or Usher function, or
 #' the value of the carrying capacity \emph{K} to use in the logistic equation
@@ -975,6 +978,13 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
 #' (2).}
 #' 
 #' @section Notes:
+#' This function provides inputs when density dependence is operationalized
+#' directly on matrix elements. It can be used in both \code{projection3()} and
+#' \code{f_projection3()}. Users wishing to modify vital rate functions by
+#' density dependence functions for use in function-based projections with
+#' function \code{f_projection3()} should use function \code{density_vr()} to
+#' provide the correct inputs.
+#' 
 #' The parameters \code{alpha} and \code{beta} are applied according to the
 #' two-parameter Ricker function, the two-parameter Beverton-Holt function, the
 #' two-parameter Usher function, or the one-parameter logistic function.
@@ -1177,7 +1187,7 @@ density_input <- function(mpm, stage3, stage2, stage1 = NA, age2 = NA,
     
     style <- lstyle
   } else if (all(is.numeric(style))) {
-    if (any(style > 4) | any(style < 1)) {
+    if (any(style > 4) | any(style < 1) | any(style %% 1 > 0)) {
       stop("Unknown style code used. Please only use numbers 1, 2, 3, or 4.",
         call. = FALSE)
     }
@@ -1759,7 +1769,9 @@ density_input <- function(mpm, stage3, stage2, stage1 = NA, age2 = NA,
 #' Function \code{start_input()} creates a data frame summarizing the non-zero
 #' elements of the start vector for use in population projection analysis via
 #' function \code{\link{projection3}()}.
-#'
+#' 
+#' @name start_input
+#' 
 #' @param mpm The lefkoMat object to be used in projection analysis.
 #' @param stage2 A vector showing the name or number of a stage in occasion
 #' \emph{t} that should be set to a positive number of individuals in the start

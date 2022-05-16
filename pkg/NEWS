@@ -1,7 +1,7 @@
 LEFKO3 NEWS
 -----------
 
-CHANGES IN VERSION 5.X.X (2022-XX-XX)
+CHANGES IN VERSION 5.2.0 (2022-XX-XX)
 -------------------------------------
   NEW FEATURES
     1. Option added to functions projection3() and f_projection3() to suppress
@@ -28,13 +28,17 @@ CHANGES IN VERSION 5.X.X (2022-XX-XX)
        by fleslie().
     3. The documentation for functions modelsearch() and fleslie() have been
        updated to provide more information for handling Leslie MPMs.
-    4. Some error messages made more informative.
+    4. Added series of new error messages if expected data frame size input in
+       verticalize3() is too large.
+    5. Some error messages made more informative.
 
   BUG FIXES
     1. The stageframe developed with functions rleslie() and fleslie() has been
        fixed to include stage_id, alive, and almost_born variables, allowing
        Leslie-formatted lefkoMat objects to be passed to all lefko3 functions
        analyzing them, including lmean().
+    2. Fixed bug yielding vector leaks from other variables when using the
+       blocksize feature in verticalize3().
 
 
 CHANGES IN VERSION 5.1.0 (2022-04-01)

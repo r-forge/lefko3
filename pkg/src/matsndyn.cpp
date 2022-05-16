@@ -48,7 +48,6 @@ NumericVector concat_dbl(NumericVector x, NumericVector y) {
 //' @return Returns a new IntegerVector with elements of vector A followed by
 //' elements of vector B.
 //' 
-//'
 //' @keywords internal
 //' @noRd
 // [[Rcpp::export(.concat_int)]]
@@ -77,7 +76,6 @@ IntegerVector concat_int(IntegerVector x, IntegerVector y) {
 //' @return Returns a new StringVector with elements of vector A followed by
 //' elements of vector B.
 //' 
-//'
 //' @keywords internal
 //' @noRd
 // [[Rcpp::export(.concat_str)]]
@@ -103,6 +101,8 @@ StringVector concat_str(StringVector x, StringVector y) {
 //' \code{\link{flefko2}()}, \code{\link{aflefko2}()}, \code{\link{rlefko3}()},
 //' and \code{\link{rlefko2}()}, in which it determines how each stage is
 //' treated during matrix estimation.
+//' 
+//' @name sf_create
 //' 
 //' @param sizes A numeric vector of the typical or representative size of each
 //' life history stage. If making function-based MPMs, then this should be a
@@ -3311,6 +3311,8 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
 //' Function \code{sf_leslie()} returns a data frame describing each age in a
 //' Leslie MPM in terms of ahistorical stage information. This function is
 //' internal to \code{\link{rleslie}()} and \code{\link{fleslie}()}.
+//' 
+//' @name sf_leslie
 //' 
 //' @param min_age The first age to include in the matrix.
 //' @param max_age The maximum age to include in the matrix.

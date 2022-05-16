@@ -7,8 +7,8 @@
 #' creating the vertical structure and rearranging the data in that shape.
 #' 
 #' @param data The horizontal data file.
-#' @param stageframe The stageframe object identifying the life history model
-#' being operationalized. This should be the full stageframe.
+#' @param stageframe The stageframe object describing the life history model.
+#' This should be the full stageframe.
 #' @param noyears The number of years or observation periods in the dataset.
 #' @param firstyear The first year or time of observation.
 #' @param popidcol Column number corresponding to the identity of the
@@ -1882,7 +1882,6 @@ NULL
 #' @return Returns a new IntegerVector with elements of vector A followed by
 #' elements of vector B.
 #' 
-#'
 #' @keywords internal
 #' @noRd
 .concat_int <- function(x, y) {
@@ -1900,7 +1899,6 @@ NULL
 #' @return Returns a new StringVector with elements of vector A followed by
 #' elements of vector B.
 #' 
-#'
 #' @keywords internal
 #' @noRd
 .concat_str <- function(x, y) {
@@ -1915,6 +1913,8 @@ NULL
 #' \code{\link{flefko2}()}, \code{\link{aflefko2}()}, \code{\link{rlefko3}()},
 #' and \code{\link{rlefko2}()}, in which it determines how each stage is
 #' treated during matrix estimation.
+#' 
+#' @name sf_create
 #' 
 #' @param sizes A numeric vector of the typical or representative size of each
 #' life history stage. If making function-based MPMs, then this should be a
@@ -2218,6 +2218,8 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' Function \code{sf_leslie()} returns a data frame describing each age in a
 #' Leslie MPM in terms of ahistorical stage information. This function is
 #' internal to \code{\link{rleslie}()} and \code{\link{fleslie}()}.
+#' 
+#' @name sf_leslie
 #' 
 #' @param min_age The first age to include in the matrix.
 #' @param max_age The maximum age to include in the matrix.

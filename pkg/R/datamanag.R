@@ -5,6 +5,8 @@
 #' horizontally formatted input data frame. It also handles stage assignments
 #' if given an appropriate stageframe.
 #' 
+#' @name verticalize3
+#' 
 #' @param data The horizontal data file. A valid data frame is required as
 #' input.
 #' @param noyears The number of years or observation occasions in the dataset. A
@@ -1164,6 +1166,8 @@ verticalize3 <- function(data, noyears, firstyear = 1, popidcol = 0,
 #' vertically but ahistorically formatted data frame. This data frame is in
 #' standard \code{hfvdata} format and can be used in all functions in the
 #' package.
+#' 
+#' @name historicalize3
 #' 
 #' @param data The horizontal data file.
 #' @param popidcol A variable name or column number corresponding to the
