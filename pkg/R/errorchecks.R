@@ -1076,7 +1076,7 @@ diff_lM <- function(mpm1, mpm2) {
     stop("Function diff_lM() requires two lefkoMat objects as input.",
       call. = FALSE)
   }
-  if (class(mpm1) != "lefkoMat" | class(mpm2) != "lefkoMat") {
+  if (!is(mpm1, "lefkoMat") | !is(mpm2, "lefkoMat")) {
     stop("Function diff_lM() requires two lefkoMat objects as input.",
       call. = FALSE)
   }

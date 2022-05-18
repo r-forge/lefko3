@@ -111,10 +111,10 @@ in all matrices, or a vector of such values corresponding to each occasion in
 the dataset. Defaults to \code{NULL}.}
 
 \item{surv_dev}{A numeric value to be added to the y-intercept in the linear
-model for survival probability.}
+model for survival probability. Defaults to \code{0}.}
 
 \item{fec_dev}{A numeric value to be added to the y-intercept in the linear
-model for fecundity.}
+model for fecundity. Defaults to \code{0}.}
 
 \item{density}{A numeric value indicating density value to use to propagate
 matrices. Only needed if density is an explanatory term used in linear

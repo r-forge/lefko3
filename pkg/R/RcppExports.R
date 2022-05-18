@@ -1859,6 +1859,8 @@ NULL
 #' 
 #' This function appends one NumericVector fully to another.
 #' 
+#' @name concat_dbl
+#' 
 #' @param A Any NumericVector.
 #' @param B Any other NumericVector.
 #' 
@@ -1876,6 +1878,7 @@ NULL
 #' Returns a new IntegerVector with elements of vector A followed by
 #' elements of vector B.
 #' 
+#' @name concat_int
 #' @param A Any IntegerVector.
 #' @param B Any other IntegerVector.
 #' 
@@ -1892,6 +1895,8 @@ NULL
 #' 
 #' Returns a new StringVector with elements of vector A followed by
 #' elements of vector B.
+#' 
+#' @name concat_str
 #' 
 #' @param A Any StringVector.
 #' @param B Any other StringVector.
@@ -2190,6 +2195,8 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' \code{\link{aflefko2}()}, \code{\link{rlefko3}()}, and
 #' \code{\link{rlefko2}()}.
 #' 
+#' @name sf_reassess
+#' 
 #' @param stageframe The original stageframe.
 #' @param supplement The original supplemental data input
 #' (class \code{lefkoSD}). Can also equal NA.
@@ -2311,19 +2318,18 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #'
 #' @param StageFrame The stageframe object identifying the life history model
 #' being operationalized.
-#' @param OverWrite The overwrite table used in analysis, as modified by 
-#' \code{.overwrite_reassess}. Must be processed via \code{.overwrite_reassess}
-#' rather than being a raw overwrite or supplement table.
+#' @param OverWrite The supplement or overwrite table used in analysis, as
+#' modified by \code{.sf_reassess()}.
 #' @param repmatrix The reproductive matrix used in analysis.
 #' @param firstage The first age to be used in the analysis. Should typically
 #' be \code{0} for pre-breeding and \code{1} for post-breeding life history
 #' models. If not building age-by-stage MPMs, then should be set to \code{0}.
 #' @param finalage The final age to be used in analysis. If not building
 #' age-by-stage MPMs, then should be set to \code{0}.
-#' @param format Indicates whether historical matrices should be in (1) Ehrlen
-#' or (2) deVries format.
-#' @param style The style of analysis, where 0 is historical, 1 is ahistorical,
-#' and 2 is age-by-stage.
+#' @param format Indicates whether historical matrices should be in (\code{1})
+#' Ehrlen or (\code{2}) deVries format.
+#' @param style The style of analysis, where \code{0} is historical, \code{1}
+#' is ahistorical, and \code{2} is age-by-stage.
 #' @param cont Denotes whether age-by-stage matrix continues past the final
 #' age.
 #' @param filter An integer denoting whether to filter the DataFrame to
@@ -2358,13 +2364,14 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' @param StageFrame The full stageframe for the analysis.
 #' @param repmatrix The modified repmatrix used in the course of computation.
 #' This is used particularly when deVries-format hMPMs are desired.
-#' @param format Indicates whether to output Ehrlen-format hMPMs (1) or
-#' deVries-format hMPMs (2).
-#' @param err_switch If set to 1, then will also output probsrates and
+#' @param format Indicates whether to output Ehrlen-format hMPMs (\code{1}) or
+#' deVries-format hMPMs (\code{2}).
+#' @param err_switch If set to \code{1}, then will also output probsrates and
 #' stage2fec.
 #' 
-#' @return List of three matrices, including the survival-transition (U)
-#' matrix, the fecundity matrix (F), and the sum (A) matrix, with A first.
+#' @return List of three matrices, including the survival-transition (\code{U})
+#' matrix, the fecundity matrix (\code{F}), and the sum (\code{A}) matrix, with
+#' the \code{A} matrix first.
 #' 
 #' @keywords internal
 #' @noRd
@@ -2389,8 +2396,9 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' \code{usedstage} columns.
 #' @param StageFrame The full stageframe for the analysis.
 #' 
-#' @return List of three matrices, including the survival-transition (U)
-#' matrix, the fecundity matrix (F), and the sum (A) matrix, with A first.
+#' @return List of three matrices, including the survival-transition (\code{U})
+#' matrix, the fecundity matrix (\code{F}), and the sum (\code{A}) matrix, with
+#' the \code{A} matrix first.
 #' 
 #' @keywords internal
 #' @noRd
@@ -2414,8 +2422,9 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' @param lastage An integer coding for the last age to use in matrix
 #' construction.
 #' 
-#' @return List of three matrices, including the survival-transition (U)
-#' matrix, the fecundity matrix (F), and the sum (A) matrix, with A first.
+#' @return List of three matrices, including the survival-transition (\code{U})
+#' matrix, the fecundity matrix (\code{F}), and the sum (\code{A}) matrix, with
+#' the \code{A} matrix first.
 #' 
 #' @keywords internal
 #' @noRd
@@ -2444,8 +2453,9 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' @param cont A logical value indicating whether to lump survival past the
 #' last age into a final age transition set on the supermatrix diagonal.
 #' 
-#' @return List of three matrices, including the survival-transition (U)
-#' matrix, the fecundity matrix (F), and the sum (A) matrix, with A first.
+#' @return List of three matrices, including the survival-transition (\code{U})
+#' matrix, the fecundity matrix (\code{F}), and the sum (\code{A}) matrix, with
+#' the \code{A} matrix first.
 #' 
 #' @keywords internal
 #' @noRd
@@ -2527,7 +2537,20 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' size_b, size_c, reproductive status, fecundity, juvenile survival, juvenile
 #' observation status, juvenile size, juvenile size_b, juvenile size_c,
 #' juvenile reproductive status, and juvenile maturity status.
-#' @param dens A numeric value equal to the density to be used in calculations.
+#' @param dens_vr A logical value indicating whether any vital rates are
+#' density dependent.
+#' @param dvr_yn A logical vector indicating whether each vital rate is density
+#' dependent.
+#' @param dvr_style An integer vector indicating the style of density
+#' dependence for each vital rate.
+#' @param dvr_alpha A numeric vector indicating the value of alpha to use in
+#' density dependence for each vital rate.
+#' @param dvr_beta A numeric vector indicating the value of beta to use in
+#' density dependence for each vital rate.
+#' @param dens_n A numeric vector corresponding to the population size to use
+#' in vital rate density dependence calculations.
+#' @param dens A numeric value equal to the spatial density to be used in
+#' calculations.
 #' @param fecmod A scalar multiplier for fecundity.
 #' @param maxsize The maximum primary size to be used in element estimation.
 #' @param maxsizeb The maximum secondary size to be used in element estimation.
@@ -2585,8 +2608,8 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' 
 #' @keywords internal
 #' @noRd
-.jerzeibalowski <- function(AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, jmatstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, maxsize, maxsizeb, maxsizec, firstage, finalage, negfec, yearnumber, patchnumber, exp_tol = 700.0, theta_tol = 100000000.0, ipm_method = "cdf", err_check = FALSE, simplicity = FALSE) {
-    .Call('_lefko3_jerzeibalowski', PACKAGE = 'lefko3', AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, jmatstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, maxsize, maxsizeb, maxsizec, firstage, finalage, negfec, yearnumber, patchnumber, exp_tol, theta_tol, ipm_method, err_check, simplicity)
+.jerzeibalowski <- function(AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, jmatstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens_vr, dvr_yn, dvr_style, dvr_alpha, dvr_beta, dens_n, dens, fecmod, maxsize, maxsizeb, maxsizec, firstage, finalage, negfec, yearnumber, patchnumber, exp_tol = 700.0, theta_tol = 100000000.0, ipm_method = "cdf", err_check = FALSE, simplicity = FALSE) {
+    .Call('_lefko3_jerzeibalowski', PACKAGE = 'lefko3', AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, jmatstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens_vr, dvr_yn, dvr_style, dvr_alpha, dvr_beta, dens_n, dens, fecmod, maxsize, maxsizeb, maxsizec, firstage, finalage, negfec, yearnumber, patchnumber, exp_tol, theta_tol, ipm_method, err_check, simplicity)
 }
 
 #' Estimate All Elements of Function-based Population Projection Sparse Matrix
@@ -2662,7 +2685,20 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' size_b, size_c, reproductive status, fecundity, juvenile survival, juvenile
 #' observation status, juvenile size, juvenile size_b, juvenile size_c,
 #' juvenile reproductive status, and juvenile maturity status.
-#' @param dens A numeric value equal to the density to be used in calculations.
+#' @param dens_vr A logical value indicating whether any vital rates are
+#' density dependent.
+#' @param dvr_yn A logical vector indicating whether each vital rate is density
+#' dependent.
+#' @param dvr_style An integer vector indicating the style of density
+#' dependence for each vital rate.
+#' @param dvr_alpha A numeric vector indicating the value of alpha to use in
+#' density dependence for each vital rate.
+#' @param dvr_beta A numeric vector indicating the value of beta to use in
+#' density dependence for each vital rate.
+#' @param dens_n A numeric vector corresponding to the population size to use
+#' in vital rate density dependence calculations.
+#' @param dens A numeric value equal to the spatial density to be used in
+#' calculations.
 #' @param fecmod A scalar multiplier for fecundity.
 #' @param maxsize The maximum primary size to be used in element estimation.
 #' @param maxsizeb The maximum secondary size to be used in element estimation.
@@ -2721,8 +2757,8 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' 
 #' @keywords internal
 #' @noRd
-.jerzeibalowski_sp <- function(AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, jmatstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, maxsize, maxsizeb, maxsizec, firstage, finalage, negfec, yearnumber, patchnumber, exp_tol = 700.0, theta_tol = 100000000.0, ipm_method = "cdf", err_check = FALSE, simplicity = FALSE) {
-    .Call('_lefko3_jerzeibalowski_sp', PACKAGE = 'lefko3', AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, jmatstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, maxsize, maxsizeb, maxsizec, firstage, finalage, negfec, yearnumber, patchnumber, exp_tol, theta_tol, ipm_method, err_check, simplicity)
+.jerzeibalowski_sp <- function(AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, jmatstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens_vr, dvr_yn, dvr_style, dvr_alpha, dvr_beta, dens_n, dens, fecmod, maxsize, maxsizeb, maxsizec, firstage, finalage, negfec, yearnumber, patchnumber, exp_tol = 700.0, theta_tol = 100000000.0, ipm_method = "cdf", err_check = FALSE, simplicity = FALSE) {
+    .Call('_lefko3_jerzeibalowski_sp', PACKAGE = 'lefko3', AllStages, stageframe, matrixformat, survproxy, obsproxy, sizeproxy, sizebproxy, sizecproxy, repstproxy, fecproxy, jsurvproxy, jobsproxy, jsizeproxy, jsizebproxy, jsizecproxy, jrepstproxy, jmatstproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens_vr, dvr_yn, dvr_style, dvr_alpha, dvr_beta, dens_n, dens, fecmod, maxsize, maxsizeb, maxsizec, firstage, finalage, negfec, yearnumber, patchnumber, exp_tol, theta_tol, ipm_method, err_check, simplicity)
 }
 
 #' Create Historically Structured Version of ahMPM
@@ -2756,6 +2792,8 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' Function \code{motherbalowski()} swiftly calculates matrix elements in
 #' function-based Leslie population projection matrices. Used in
 #' \code{\link{fleslie}()}.
+#' 
+#' @name motherbalowski
 #' 
 #' @param actualages An integer vector of all actual ages to be included in the
 #' matrices, in order.
@@ -2813,6 +2851,18 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' @param patchnumber An integer specifying which patch to develop matrices
 #' for. Must be in reference to the \code{listofyears} object developed in the
 #' \code{R} matrix estimator function.
+#' @param dens_vr A logical value indicating whether any vital rates are
+#' density dependent.
+#' @param dvr_yn A logical vector indicating whether each vital rate is density
+#' dependent.
+#' @param dvr_style An integer vector indicating the style of density
+#' dependence for each vital rate.
+#' @param dvr_alpha A numeric vector indicating the value of alpha to use in
+#' density dependence for each vital rate.
+#' @param dvr_beta A numeric vector indicating the value of beta to use in
+#' density dependence for each vital rate.
+#' @param dens_n A numeric vector corresponding to the population size to use
+#' in vital rate density dependence calculations.
 #' @param exp_tol A numeric value indicating the maximum limit for the
 #' \code{exp()} function to be used in vital rate calculations. Defaults to
 #' \code{700.0}.
@@ -2828,8 +2878,8 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' 
 #' @keywords internal
 #' @noRd
-.motherbalowski <- function(actualages, ageframe, survproxy, fecproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, surv_dev, fec_dev, dens, fecmod, finalage, negfec, yearnumber, patchnumber, exp_tol = 700.0, theta_tol = 100000000.0, simplicity = FALSE) {
-    .Call('_lefko3_motherbalowski', PACKAGE = 'lefko3', actualages, ageframe, survproxy, fecproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, surv_dev, fec_dev, dens, fecmod, finalage, negfec, yearnumber, patchnumber, exp_tol, theta_tol, simplicity)
+.motherbalowski <- function(actualages, ageframe, survproxy, fecproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, surv_dev, fec_dev, dens, fecmod, finalage, negfec, yearnumber, patchnumber, dens_vr, dvr_yn, dvr_style, dvr_alpha, dvr_beta, dens_n, exp_tol = 700.0, theta_tol = 100000000.0, simplicity = FALSE) {
+    .Call('_lefko3_motherbalowski', PACKAGE = 'lefko3', actualages, ageframe, survproxy, fecproxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, surv_dev, fec_dev, dens, fecmod, finalage, negfec, yearnumber, patchnumber, dens_vr, dvr_yn, dvr_style, dvr_alpha, dvr_beta, dens_n, exp_tol, theta_tol, simplicity)
 }
 
 #' Extract Coefficients From Linear Vital Rate Models
@@ -2910,6 +2960,8 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' Function \code{raymccooney()} takes the various vital rate models and other
 #' parameters and coordinates them as input into the function-based matrix
 #' estimation functions.
+#' 
+#' @name raymccooney
 #' 
 #' @param listofyears A data frame where the rows designate the exact order of
 #' years and patches to produce matrices for.
@@ -3025,6 +3077,8 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' 
 #' This function takes the various vital rate models and other parameters and
 #' coordinates them as input into function \code{fleslie()}.
+#' 
+#' @name mothermccooney
 #' 
 #' @param listofyears A data frame where the rows designate the exact order of
 #' years and patches to produce matrices for.
@@ -3164,17 +3218,19 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' individuals projected in each stage at each occasion to the nearest
 #' integer. Defaults to \code{FALSE}.
 #' @param substoch An integer value indicating whether to force survival-
-#' transition matrices to be substochastic in density dependent simulations.
-#' Defaults to \code{0}, which does not force substochasticity. Alternatively,
-#' \code{1} forces all survival-transition elements to range from 0.0 to 1.0,
-#' and forces fecundity to be non-negative; and \code{2} forces all column rows
-#' in the survival-transition matrices to total no more than 1.0, in addition
-#' to the actions outlined for option \code{1}.
+#' transition matrices to be substochastic in density dependent and density
+#' independent simulations. Defaults to \code{0}, which does not enforce
+#' substochasticity. Alternatively, \code{1} forces all survival-transition
+#' elements to range from 0.0 to 1.0, and forces fecundity to be non-negative;
+#' and \code{2} forces all column rows in the survival-transition matrices to
+#' total no more than 1.0, in addition to the actions outlined for option
+#' \code{1}. Both settings \code{1} and \code{2} change negative fecundity
+#' elements to \code{0.0}.
 #' @param ipm_method A string indicating what method to use to estimate size
 #' transition probabilities, if size is treated as continuous. Options include:
 #' \code{"midpoint"}, which utilizes the midpoint method; and \code{"CDF"},
 #' which uses the cumulative distribution function. Defaults to \code{"CDF"}.
-#' @param nreps The number of replicate projections.
+#' @param nreps The number of replicate projections. Defaults to \code{1}.
 #' @param times Number of occasions to iterate per replicate. Defaults to
 #' \code{10000}.
 #' @param repmod A scalar multiplier of fecundity. Defaults to \code{1}.
@@ -3194,7 +3250,7 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' covariate \code{c} as a random, categorical variable. Otherwise is treated as
 #' a fixed, numeric variable. Defaults to \code{FALSE}.
 #' @param err_check A logical value indicating whether to append extra output
-#' for debugging purposes.
+#' for debugging purposes. Defaults to \code{FALSE}.
 #' @param quiet A logical value indicating whether warning messages should be
 #' suppressed. Defaults to \code{FALSE}.
 #' @param stageframe An object of class \code{stageframe}. These objects are
@@ -3353,6 +3409,10 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' dependence that they will be subject to. The data frame used should be an
 #' object of class \code{lefkoDens}, which is the output from function
 #' \code{\link{density_input}()}.
+#' @param density_vr An optional data frame describing density dependence
+#' relationships in vital rates, if such relationships are to be assumed. The
+#' data frame must be of class \code{lefkoDensVR}, which is the output from the
+#' function \code{\link{density_vr}()}.
 #' 
 #' @return A list of class \code{lefkoProj}, which always includes the first
 #' three elements of the following, and also includes the remaining elements
@@ -3384,6 +3444,8 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' number of occasions projected per replicate.}
 #' \item{density}{The data frame input under the density option. Only provided
 #' if input by the user.}
+#' \item{density_vr}{The data frame input under the density_vr option. Only
+#' provided if input by the user.}
 #' 
 #' @section Notes:
 #' Population projection can be a very time-consuming activity, and it is most
@@ -3391,7 +3453,7 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' created this function to be as quick as possible, but some options will slow
 #' the analysis down. First, the \code{err_check} option should always be set
 #' to \code{FALSE}, as the added created output will not only slow the analysis
-#' down but also potentially crash the memory, if matrices are large enough.
+#' down but also potentially crash the memory if matrices are large enough.
 #' Second, the \code{repvalue} option should be set to \code{FALSE} unless
 #' reproductive values are genuinely needed, since this step requires
 #' concurrent backward projection and so in some cases may double total run
@@ -3403,7 +3465,20 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' likely running time, try using a low number of iterations on a single
 #' replicate first. For example, set \code{nreps = 1} and \code{times = 10} for
 #' a trial run. If a full run is set and takes too long, press the STOP button
-#' in RStudio to cancel the projection run.
+#' in RStudio to cancel the projection run, or click \code{esc}.
+#' 
+#' This function currently allows three forms of density dependence. The first
+#' modifies matrix elements on the basis of the input provided in option
+#' \code{density}, and so alters matrix elements once the matrix has already
+#' been created. The second form alters the vital rates estimated, and so
+#' estimates matrix elements using vital rate values already modified by
+#' density. This second form uses the input provided in option
+#' \code{density_vr}. These two forms of density dependence utilize the
+#' projected population size at some time to make these alterations. The third
+#' form of density dependence also alters the vital rates, but using spatial
+#' density supplied via option \code{sp_density} and only in vital rates in
+#' which spatial density is included as a fixed factor in the associated
+#' vital rate model.
 #' 
 #' Consistently positive population growth can quickly lead to population size
 #' numbers larger than can be handled computationally. In that circumstance, a
@@ -3501,8 +3576,8 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' }
 #' 
 #' @export f_projection3
-f_projection3 <- function(data, format, prebreeding = TRUE, start_age = NA_integer_, last_age = NA_integer_, fecage_min = NA_integer_, fecage_max = NA_integer_, cont = TRUE, stochastic = FALSE, standardize = FALSE, growthonly = TRUE, repvalue = FALSE, integeronly = FALSE, substoch = 0L, ipm_method = "CDF", nreps = 1L, times = 10000L, repmod = 1.0, exp_tol = 700.0, theta_tol = 100000000.0, random_inda = FALSE, random_indb = FALSE, random_indc = FALSE, err_check = FALSE, quiet = FALSE, stageframe = NULL, supplement = NULL, repmatrix = NULL, overwrite = NULL, modelsuite = NULL, paramnames = NULL, year = NULL, patch = NULL, sp_density = NULL, ind_terms = NULL, dev_terms = NULL, surv_model = NULL, obs_model = NULL, size_model = NULL, sizeb_model = NULL, sizec_model = NULL, repst_model = NULL, fec_model = NULL, jsurv_model = NULL, jobs_model = NULL, jsize_model = NULL, jsizeb_model = NULL, jsizec_model = NULL, jrepst_model = NULL, jmatst_model = NULL, start_vec = NULL, start_frame = NULL, tweights = NULL, density = NULL) {
-    .Call('_lefko3_f_projection3', PACKAGE = 'lefko3', data, format, prebreeding, start_age, last_age, fecage_min, fecage_max, cont, stochastic, standardize, growthonly, repvalue, integeronly, substoch, ipm_method, nreps, times, repmod, exp_tol, theta_tol, random_inda, random_indb, random_indc, err_check, quiet, stageframe, supplement, repmatrix, overwrite, modelsuite, paramnames, year, patch, sp_density, ind_terms, dev_terms, surv_model, obs_model, size_model, sizeb_model, sizec_model, repst_model, fec_model, jsurv_model, jobs_model, jsize_model, jsizeb_model, jsizec_model, jrepst_model, jmatst_model, start_vec, start_frame, tweights, density)
+f_projection3 <- function(data, format, prebreeding = TRUE, start_age = NA_integer_, last_age = NA_integer_, fecage_min = NA_integer_, fecage_max = NA_integer_, cont = TRUE, stochastic = FALSE, standardize = FALSE, growthonly = TRUE, repvalue = FALSE, integeronly = FALSE, substoch = 0L, ipm_method = "CDF", nreps = 1L, times = 10000L, repmod = 1.0, exp_tol = 700.0, theta_tol = 100000000.0, random_inda = FALSE, random_indb = FALSE, random_indc = FALSE, err_check = FALSE, quiet = FALSE, stageframe = NULL, supplement = NULL, repmatrix = NULL, overwrite = NULL, modelsuite = NULL, paramnames = NULL, year = NULL, patch = NULL, sp_density = NULL, ind_terms = NULL, dev_terms = NULL, surv_model = NULL, obs_model = NULL, size_model = NULL, sizeb_model = NULL, sizec_model = NULL, repst_model = NULL, fec_model = NULL, jsurv_model = NULL, jobs_model = NULL, jsize_model = NULL, jsizeb_model = NULL, jsizec_model = NULL, jrepst_model = NULL, jmatst_model = NULL, start_vec = NULL, start_frame = NULL, tweights = NULL, density = NULL, density_vr = NULL) {
+    .Call('_lefko3_f_projection3', PACKAGE = 'lefko3', data, format, prebreeding, start_age, last_age, fecage_min, fecage_max, cont, stochastic, standardize, growthonly, repvalue, integeronly, substoch, ipm_method, nreps, times, repmod, exp_tol, theta_tol, random_inda, random_indb, random_indc, err_check, quiet, stageframe, supplement, repmatrix, overwrite, modelsuite, paramnames, year, patch, sp_density, ind_terms, dev_terms, surv_model, obs_model, size_model, sizeb_model, sizec_model, repst_model, fec_model, jsurv_model, jobs_model, jsize_model, jsizeb_model, jsizec_model, jrepst_model, jmatst_model, start_vec, start_frame, tweights, density, density_vr)
 }
 
 #' Estimates Mean LefkoMat Object for Historical MPM
