@@ -2534,14 +2534,18 @@ start_input <- function(mpm, stage2, stage1 = NA, age2 = NA, value = 1) {
   return(output_tab)
 }
 
-#' Calculate Actual Stage, Age-Stage, or Stage-Pair Distributions
+#' Calculate Actual Stage, Age, Stage-Pair, or Age-Stage Distributions
 #' 
 #' Function \code{actualstage3()} shows the frequencies and proportions of
-#' each stage or stage pair in each year.
+#' each stage, stage pair, age-stage, or age in each year.
 #' 
 #' @name actualstage3
 #' 
 #' @param data A demographic dataset in hfv format.
+#' @param check_stage A logical value indicating whether to assess frequencies
+#' and proportions of stages. Defaults to \code{TRUE}.
+#' @param check_age A logical value indicating whether to assess frequencies and
+#' proportions of ages. Defaults to \code{FALSE}.
 #' @param historical A logical value indicating whether the stage structure
 #' should be ahistorical (\code{FALSE}) or historical (\code{TRUE}). Defaults to
 #' \code{FALSE}.
@@ -2553,16 +2557,23 @@ start_input <- function(mpm, stage2, stage1 = NA, age2 = NA, value = 1) {
 #' @param stagecol A vector of three strings, indicating the stage name columns
 #' for times \emph{t}+1, \emph{t}, and \emph{t}-1, respectively, in \code{data}.
 #' Defaults to \code{stagecol = c("stage3", "stage2", "stage1")}.
+#' @param agecol A single string indicating the age of individuals in time
+#' \emph{t}. Defaults to \code{obsage}.
 #' @param remove.stage A string vector indicating the names of stages to remove
 #' from consideration. Defaults to \code{"NotAlive"}.
 #' 
 #' @return A data frame with the following variables:
 #' \item{rowid}{A string identifier term, equal to the monitoring occasion in
 #' time \emph{t} and the stage index.}
-#' \item{stageindex}{The stageframe index of the stage.}
-#' \item{stage}{The name of each stage, or \code{NA}.}
-#' \item{stage2}{The name of the stage in time \emph{t}.}
-#' \item{stage1}{The name of the stage in time \emph{t}-1, or \code{NA}.}
+#' \item{stageindex}{The stageframe index of the stage. Only output if
+#' \code{check_stage = TRUE}.}
+#' \item{stage}{The name of each stage, or \code{NA}. Only output if
+#' \code{check_stage = TRUE}.}
+#' \item{stage2}{The name of the stage in time \emph{t}. Only output if
+#' \code{check_stage = TRUE}.}
+#' \item{stage1}{The name of the stage in time \emph{t}-1, or \code{NA}. Only
+#' output if \code{check_stage = TRUE}.}
+#' \item{age}{The age at time \emph{t}. Only output if \code{check_age = TRUE}.}
 #' \item{year2}{Monitoring occasion in time \emph{t}.}
 #' \item{frequency}{The number of individuals in the respective stage and time.}
 #' \item{actual_prop}{The proportion of individuals alive in time \emph{t} in
@@ -2578,6 +2589,13 @@ start_input <- function(mpm, stage2, stage1 = NA, age2 = NA, value = 1) {
 #' last time, which is generally found in the \code{stage3} columns of the last
 #' \code{year2} entry in object \code{data}. The default is to treat the
 #' \code{year2} entry for that time as \code{max(year2) + 1}.
+#' 
+#' If \code{check_stage = TRUE} and \code{check_age = FALSE}, then this function
+#' will assess frequencies and proportions of stages or historical stage-pairs.
+#' If both \code{check_stage = TRUE} and \code{check_age = TRUE}, then this
+#' function will assess frequencies and proportions of age-stages. If
+#' \code{check_stage = FALSE} and \code{check_age = TRUE}, then the frequencies
+#' and proportions of ages only will be assessed.
 #' 
 #' Note that no stageframe is required for this function to operate. Stage
 #' names and their order are inferred directly from the object \code{data}.
@@ -2614,24 +2632,38 @@ start_input <- function(mpm, stage2, stage1 = NA, age2 = NA, value = 1) {
 #' all_stage_props
 #' 
 #' @export
-actualstage3 <- function(data, historical = FALSE, year2 = "year2",
+actualstage3 <- function(data, check_stage = TRUE, check_age = FALSE,
+  historical = FALSE, year2 = "year2",
   indices = c("stage3index", "stage2index", "stage1index"),
-  stagecol = c("stage3", "stage2", "stage1"), remove.stage = "NotAlive") {
+  stagecol = c("stage3", "stage2", "stage1"), agecol = "obsage",
+  remove.stage = "NotAlive") {
   
-  aaa.data <- ordered_stages <- ordered_indices <- NULL
+  aaa_data <- age_data <- ordered_stages <- ordered_indices <- NULL
   stagenames <- FALSE
+  
+  if (!check_stage & !check_age) {
+    stop("Options check_stage and check_age cannot both be FALSE.", call. = FALSE)
+  }
+  if (check_age & historical) {
+    stop("Options check_age and historical cannot both be TRUE.", call. = FALSE)
+  }
   
   if (length(indices) < 2) {
     stop("Object indices must contain the names of 3 variables corresponding to stage index
       in times t+1, t, and t-1, respectively", call. = FALSE)
   }
-  if (!all(is.element(indices, names(data)))) {
+  if (check_stage & !all(is.element(indices, names(data)))) {
     stop("Object indices must contain the names of 3 variables corresponding to stage index
       in times t+1, t, and t-1, respectively", call. = FALSE)
   }
   
   if (all(is.element(stagecol, names(data)))) {
     stagenames <- TRUE
+  }
+  
+  if (check_age & (!all(is.element(agecol, names(data))) | length(agecol) != 1)) {
+    stop("Option agecol must match the name of the variable coding for age in time t.",
+      call. = FALSE)
   }
   
   if (length(year2) != 1) {
@@ -2642,121 +2674,176 @@ actualstage3 <- function(data, historical = FALSE, year2 = "year2",
     stop("Object year2 must equal the name of the variable denoting monitoring occasion in time t",
       call. = FALSE)
   }
-  stage3index <- indices[1]
-  stage2index <- indices[2]
-  stage1index <- indices[3]
   
-  names(data)[which(names(data) == stage3index)] <- "stage3index"
-  names(data)[which(names(data) == stage2index)] <- "stage2index"
-  names(data)[which(names(data) == stage1index)] <- "stage1index"
-  names(data)[which(names(data) == year2)] <- "year2"
-  
-  if (stagenames) {
-    stage3name <- stagecol[1]
-    stage2name <- stagecol[2]
-    stage1name <- stagecol[3]
-    names(data)[which(names(data) == stage3name)] <- "stage3"
-    names(data)[which(names(data) == stage2name)] <- "stage2"
-    names(data)[which(names(data) == stage1name)] <- "stage1"
+  if (check_stage) {
+    stage3index <- indices[1]
+    stage2index <- indices[2]
+    stage1index <- indices[3]
+    
+    names(data)[which(names(data) == stage3index)] <- "stage3index"
+    names(data)[which(names(data) == stage2index)] <- "stage2index"
+    names(data)[which(names(data) == stage1index)] <- "stage1index"
+    names(data)[which(names(data) == year2)] <- "year2"
+    
+    if (stagenames) {
+      stage3name <- stagecol[1]
+      stage2name <- stagecol[2]
+      stage1name <- stagecol[3]
+      names(data)[which(names(data) == stage3name)] <- "stage3"
+      names(data)[which(names(data) == stage2name)] <- "stage2"
+      names(data)[which(names(data) == stage1name)] <- "stage1"
+    }
   }
   
-  data <- data[, c("year2", "stage1", "stage2", "stage3", "stage1index", "stage2index", "stage3index")]
-  all_years <- sort(unique(data$year2), decreasing = TRUE)
-  bits_to_tack_on <- data[which(data$year2 == all_years[1]),]
-  bits_to_tack_on$stage1index <- bits_to_tack_on$stage2index
-  bits_to_tack_on$stage2index <- bits_to_tack_on$stage3index
-  bits_to_tack_on$stage1 <- bits_to_tack_on$stage2
-  bits_to_tack_on$stage2 <- bits_to_tack_on$stage3
+  if (check_age) {
+    names(data)[which(names(data) == agecol)] <- "age"
+  }
+  
+  if (check_stage & check_age) {
+    data <- data[, c("year2", "stage1", "stage2", "stage3", "stage1index",
+      "stage2index", "stage3index", "age")]
+    all_years <- sort(unique(data$year2), decreasing = TRUE)
+    
+    bits_to_tack_on <- data[which(data$year2 == all_years[1]),]
+    bits_to_tack_on$stage1index <- bits_to_tack_on$stage2index
+    bits_to_tack_on$stage2index <- bits_to_tack_on$stage3index
+    bits_to_tack_on$stage1 <- bits_to_tack_on$stage2
+    bits_to_tack_on$stage2 <- bits_to_tack_on$stage3
+    bits_to_tack_on$age <- bits_to_tack_on$age+1
+    
+  } else if (check_stage & !check_age) {
+    data <- data[, c("year2", "stage1", "stage2", "stage3", "stage1index",
+      "stage2index", "stage3index")]
+    all_years <- sort(unique(data$year2), decreasing = TRUE)
+    
+    bits_to_tack_on <- data[which(data$year2 == all_years[1]),]
+    bits_to_tack_on$stage1index <- bits_to_tack_on$stage2index
+    bits_to_tack_on$stage2index <- bits_to_tack_on$stage3index
+    bits_to_tack_on$stage1 <- bits_to_tack_on$stage2
+    bits_to_tack_on$stage2 <- bits_to_tack_on$stage3
+    
+  } else if (!check_stage & check_age) {
+    data <- data[, c("year2", "age")]
+    all_years <- sort(unique(data$year2), decreasing = TRUE)
+    
+    bits_to_tack_on <- data[which(data$year2 == all_years[1]),]
+    bits_to_tack_on$age <- bits_to_tack_on$age+1
+  }
   bits_to_tack_on$year2 <- all_years[1] + 1
   data <- rbind.data.frame(data, bits_to_tack_on)
   
-  allstages <- unique(data$stage2)
-  
-  if (any(nchar(remove.stage) > 0)) {
-    blank.stage <- which(nchar(remove.stage) == 0)
+  if (check_stage) {
+    allstages <- unique(data$stage2)
     
-    if (length(blank.stage) > 0) {
-      remove.stage <- remove.stage[-which(nchar(remove.stage) == 0)]
+    if (any(nchar(remove.stage) > 0)) {
+      blank.stage <- which(nchar(remove.stage) == 0)
+      
+      if (length(blank.stage) > 0) {
+        remove.stage <- remove.stage[-which(nchar(remove.stage) == 0)]
+      }
+      
+      if (any(!is.element(remove.stage, allstages))) {
+        stop("Setting remove.stage includes stages not found in dataset.", call. = FALSE)
+      }
+       rows_to_remove <- which(is.element(data$stage2, remove.stage))
+       if (length(rows_to_remove) > 0) {
+         data <- data[-rows_to_remove,]
+       }
     }
-    
-    if (any(!is.element(remove.stage, allstages))) {
-      stop("Setting remove.stage includes stages not found in dataset.", call. = FALSE)
-    }
-     rows_to_remove <- which(is.element(data$stage2, remove.stage))
-     if (length(rows_to_remove) > 0) {
-       data <- data[-rows_to_remove,]
-     }
   }
   
-  if (!historical) {
-    if (stagenames) {
-      data$stages <- data$stage2
-    }
-    data$stageindex <- data$stage2index
-    
-    aaa.data <- as.data.frame(xtabs(~ stage2index + year2, data), stringsAsFactors = FALSE)
-    names(aaa.data)[which(names(aaa.data) == "stage2index")] <- "stageindex"
-    
-    aaa.data$stage2 <- apply(as.matrix(aaa.data$stageindex), 1, function(X) {
-      data$stage2[which(data$stage2index == X)[1]]
-    })
-    aaa.data$stage1 <- NA
-    
-    ordered_indices <- sort(unique(as.numeric(aaa.data$stageindex)))
-  } else {
-    data$stageindex <- apply(as.matrix(c(1:dim(data)[1])), 1, function(X) {
-      paste(data$stage1index[X], data$stage2index[X])
-    })
-    
-    if (stagenames) {
-      data$stages <- apply(as.matrix(c(1:dim(data)[1])), 1, function(X) {
-        paste(data$stage1[X], data$stage2[X])
+  if (check_stage) {
+    if (!historical) {
+      if (stagenames) {
+        data$stages <- data$stage2
+      }
+      data$stageindex <- data$stage2index
+      
+      if (!check_age) {
+        aaa_data <- as.data.frame(xtabs(~ stage2index + year2, data), stringsAsFactors = FALSE)
+      } else {
+        aaa_data <- as.data.frame(xtabs(~ stage2index + age + year2, data), stringsAsFactors = FALSE)
+      }
+      names(aaa_data)[which(names(aaa_data) == "stage2index")] <- "stageindex"
+      
+      aaa_data$stage2 <- apply(as.matrix(aaa_data$stageindex), 1, function(X) {
+        data$stage2[which(data$stage2index == X)[1]]
       })
+      aaa_data$stage1 <- NA
+      
+      ordered_indices <- sort(unique(as.numeric(aaa_data$stageindex)))
+    } else {
+      data$stageindex <- apply(as.matrix(c(1:dim(data)[1])), 1, function(X) {
+        paste(data$stage1index[X], data$stage2index[X])
+      })
+      
+      if (stagenames) {
+        data$stages <- apply(as.matrix(c(1:dim(data)[1])), 1, function(X) {
+          paste(data$stage1[X], data$stage2[X])
+        })
+      }
+      
+      aaa_data <- as.data.frame(xtabs(~ stageindex + year2, data),
+        stringsAsFactors = FALSE)
+      
+      aaa_data$stage2 <- apply(as.matrix(aaa_data$stageindex), 1, function(X) {
+        data$stage2[which(data$stageindex == X)[1]]
+      })
+      aaa_data$stage1 <- apply(as.matrix(aaa_data$stageindex), 1, function(X) {
+        data$stage1[which(data$stageindex == X)[1]]
+      })
+      
+      ordered_indices <- sort(unique(aaa_data$stageindex))
     }
     
-    aaa.data <- as.data.frame(xtabs(~ stageindex + year2, data), stringsAsFactors = FALSE)
-    
-    aaa.data$stage2 <- apply(as.matrix(aaa.data$stageindex), 1, function(X) {
-      data$stage2[which(data$stageindex == X)[1]]
+    ordered_stages <- apply(as.matrix(ordered_indices), 1, function(X) {
+      acmecanning <- data$stages[which(data$stageindex == X)[1]]
+      if (length(acmecanning) < 1) {
+        acmecanning <- NA
+      }
+      return(acmecanning)
     })
-    aaa.data$stage1 <- apply(as.matrix(aaa.data$stageindex), 1, function(X) {
-      data$stage1[which(data$stageindex == X)[1]]
-    })
     
-    ordered_indices <- sort(unique(aaa.data$stageindex))
+    if (stagenames) {
+      aaa_data$stage <- apply(as.matrix(aaa_data$stageindex), 1, function(X) {
+        return(ordered_stages[which(ordered_indices == X)])
+      })
+    } else {
+      aaa_data$stage <- NA
+    }
+  } else if (check_age) {
+    aaa_data <- as.data.frame(xtabs(~ age + year2, data), stringsAsFactors = FALSE)
   }
-  
-  ordered_stages <- apply(as.matrix(ordered_indices), 1, function(X) {
-    acmecanning <- data$stages[which(data$stageindex == X)[1]]
-    if (length(acmecanning) < 1) {
-      acmecanning <- NA
-    }
-    return(acmecanning)
-  })
   
   totalr <- as.data.frame(xtabs(~ year2, data), stringsAsFactors = FALSE)
   
-  aaa.data$actual_prop <- apply(as.matrix(c(1:dim(aaa.data)[1])), 1, function(X) {
-    a <- aaa.data$Freq[X] / totalr$Freq[which(totalr$year2 == aaa.data$year2[X])]
+  aaa_data$actual_prop <- apply(as.matrix(c(1:dim(aaa_data)[1])), 1, function(X) {
+    a <- aaa_data$Freq[X] / totalr$Freq[which(totalr$year2 == aaa_data$year2[X])]
     return(a)
   })
   
-  aaa.data$rowid <- apply(as.matrix(c(1:dim(aaa.data)[1])), 1, function(X) {
-    paste(aaa.data$year2[X], aaa.data$stageindex[X])
+  aaa_data$rowid <- apply(as.matrix(c(1:dim(aaa_data)[1])), 1, function(X) {
+    if (check_stage & !check_age) {
+      finalout <- paste(aaa_data$year2[X], aaa_data$stageindex[X])
+    } else if (check_stage & check_age) {
+      finalout <- paste(aaa_data$year2[X], aaa_data$stageindex[X], aaa_data$age[X])
+    } else {
+      finalout <- paste(aaa_data$year2[X], aaa_data$age[X])
+    }
+    return(finalout)
   })
   
-  if (stagenames) {
-    aaa.data$stage <- apply(as.matrix(aaa.data$stageindex), 1, function(X) {
-      return(ordered_stages[which(ordered_indices == X)])
-    })
+  if (check_stage & check_age) {
+    aaa_data <- aaa_data[, c("rowid", "stageindex", "stage", "stage2", "stage1",
+      "age", "year2", "Freq", "actual_prop")]
+  } else if (check_stage & !check_age) {
+    aaa_data <- aaa_data[, c("rowid", "stageindex", "stage", "stage2", "stage1",
+      "year2", "Freq", "actual_prop")]
   } else {
-    aaa.data$stage <- NA
+    aaa_data <- aaa_data[, c("rowid", "age", "year2", "Freq", "actual_prop")]
   }
+  names(aaa_data)[which(names(aaa_data) == "Freq")] <- "frequency"
   
-  aaa.data <- aaa.data[, c("rowid", "stageindex", "stage", "stage2", "stage1",
-    "year2", "Freq", "actual_prop")]
-  names(aaa.data)[which(names(aaa.data) == "Freq")] <- "frequency"
-  
-  return(aaa.data)
+  return(aaa_data)
 }
 

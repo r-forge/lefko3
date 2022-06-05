@@ -4,7 +4,8 @@ LEFKO3 NEWS
 CHANGES IN VERSION 5.X.X (2022-0X-XX)
 -------------------------------------
   NEW FEATURES
-    1. 
+    1. Function actualstage3() now also outputs proportions of ages and age-
+       stages within hfv datasets.
 
   USER-VISIBLE CHANGES
     1. 
