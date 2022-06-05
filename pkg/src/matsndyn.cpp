@@ -15269,7 +15269,7 @@ Rcpp::List f_projection3(DataFrame data, int format, bool prebreeding = true,
   double pop_size {0};
   double changing_element_U {0.0};
   double changing_element_F {0.0};
-  double changing_colsum {0.0};
+  // double changing_colsum {0.0};
   
   int time_delay {1};
   bool dens_elems = false;
@@ -15559,23 +15559,27 @@ Rcpp::List f_projection3(DataFrame data, int format, bool prebreeding = true,
                 (1 - used_popsize / dyn_alpha(j)); // Fi*(1 - ALPHA/n)
             }
             
-            if (substoch == 1) {
-              if (changing_element_U > 1.0 && dyn_type(j) == 1) {
+            if (substoch == 1 && dyn_type(j) == 1) {
+              if (changing_element_U > 1.0) {
                 changing_element_U = 1.0;
               } else if (changing_element_U < 0.0) {
                 changing_element_U = 0.0;
               }
             } else if (substoch == 2 && dyn_type(j) == 1) {
-              double barnyard_antics {0.0};
               arma::vec given_col = Umat.col(dyn_index_col(j));
               arma::uvec gc_negs = find(given_col < 0.0);
-              if (gc_negs.n_elem > 0) {
-                barnyard_antics = sum(given_col(gc_negs));
-              }
-              changing_colsum = sum(given_col) - Umat(dyn_index321(j)) - barnyard_antics;
+              arma::uvec gc_pos = find(given_col > 0.0);
               
-              if (changing_element_U > (1.0 - changing_colsum)) {
-                changing_element_U = (1.0 - changing_colsum);
+              double barnyard_antics = sum(given_col(gc_pos)) - Umat(dyn_index321(j)) + changing_element_U;
+              
+              if (barnyard_antics > 1.0 && changing_element_U > 0.0) {
+                double proposed_element_U = changing_element_U - barnyard_antics * (changing_element_U / barnyard_antics);
+                
+                if (proposed_element_U >= 0.0) {
+                  changing_element_U = proposed_element_U;
+                } else {
+                  changing_element_U = 0.0;
+                }
               } else if (changing_element_U < 0.0) {
                 changing_element_U = 0.0;
               }
@@ -15757,28 +15761,31 @@ Rcpp::List f_projection3(DataFrame data, int format, bool prebreeding = true,
                 (1 - used_popsize / dyn_alpha(j)); // Fi*(1 - ALPHA/n)
             }
             
-            if (substoch == 1) {
-              if (changing_element_U > 1.0 && dyn_type(j) == 1) {
+            if (substoch == 1 && dyn_type(j) == 1) {
+              if (changing_element_U > 1.0) {
                 changing_element_U = 1.0;
               } else if (changing_element_U < 0.0) {
                 changing_element_U = 0.0;
               }
               
             } else if (substoch == 2 && dyn_type(j) == 1) {
-              double barnyard_antics {0.0};
               arma::vec given_col = arma::vec(Umat_sp.col(dyn_index_col(j)));
               arma::uvec gc_negs = find(given_col < 0.0);
-              if (gc_negs.n_elem > 0) {
-                barnyard_antics = sum(given_col(gc_negs));
-              }
-              changing_colsum = sum(given_col) - Umat_sp(dyn_index321(j)) - barnyard_antics;
+              arma::uvec gc_pos = find(given_col > 0.0);
               
-              if (changing_element_U > (1.0 - changing_colsum)) {
-                changing_element_U = (1.0 - changing_colsum);
+              double barnyard_antics = sum(given_col(gc_pos)) - Umat_sp(dyn_index321(j)) + changing_element_U;
+              
+              if (barnyard_antics > 1.0 && changing_element_U > 0.0) {
+                double proposed_element_U = changing_element_U - barnyard_antics * (changing_element_U / barnyard_antics);
+                
+                if (proposed_element_U >= 0.0) {
+                  changing_element_U = proposed_element_U;
+                } else {
+                  changing_element_U = 0.0;
+                }
               } else if (changing_element_U < 0.0) {
                 changing_element_U = 0.0;
               }
-              
             } else if (substoch > 0 && dyn_type(j) == 2) {
               if (changing_element_F < 0.0) {
                 changing_element_F = 0.0;
@@ -17571,7 +17578,7 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
   }
   
   double changing_element {0.0};
-  double changing_colsum {0.0};
+  // double changing_colsum {0.0};
   
   if (sparse_switch == 0) {
     // Dense matrix projection
@@ -17608,23 +17615,27 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
               (1 - used_popsize / dyn_alpha(j)); // Fi*(1 - ALPHA/n)
           }
           
-          if (substoch == 1) {
-            if (changing_element > 1.0 && dyn_type(j) == 1) {
+          if (substoch == 1 && dyn_type(j) == 1) {
+            if (changing_element > 1.0) {
               changing_element = 1.0;
             } else if (changing_element < 0.0) {
               changing_element = 0.0;
             }
           } else if (substoch == 2 && dyn_type(j) == 1) {
-            double barnyard_antics {0.0};
             arma::vec given_col = theprophecy.col(dyn_index_col(j));
             arma::uvec gc_negs = find(given_col < 0.0);
-            if (gc_negs.n_elem > 0) {
-              barnyard_antics = sum(given_col(gc_negs));
-            }
-            changing_colsum = sum(given_col) - theprophecy(dyn_index321(j)) - barnyard_antics;
+            arma::uvec gc_pos = find(given_col > 0.0);
             
-            if (changing_element > (1.0 - changing_colsum)) {
-              changing_element = (1.0 - changing_colsum);
+            double barnyard_antics = sum(given_col(gc_pos)) - theprophecy(dyn_index321(j)) + changing_element;
+            
+            if (barnyard_antics > 1.0 && changing_element > 0.0) {
+              double proposed_element = changing_element - barnyard_antics * (changing_element / barnyard_antics);
+              
+              if (proposed_element >= 0.0) {
+                changing_element = proposed_element;
+              } else {
+                changing_element = 0.0;
+              }
             } else if (changing_element < 0.0) {
               changing_element = 0.0;
             }
@@ -17725,16 +17736,20 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
               changing_element = 0.0;
             }
           } else if (substoch == 2 && dyn_type(j) == 1) {
-            double barnyard_antics {0.0};
             arma::vec given_col = arma::vec(sparse_prophecy.col(dyn_index_col(j)));
             arma::uvec gc_negs = find(given_col < 0.0);
-            if (gc_negs.n_elem > 0) {
-              barnyard_antics = sum(given_col(gc_negs));
-            }
-            changing_colsum = sum(given_col) - sparse_prophecy(dyn_index321(j)) - barnyard_antics;
+            arma::uvec gc_pos = find(given_col > 0.0);
             
-            if (changing_element > (1.0 - changing_colsum)) {
-              changing_element = (1.0 - changing_colsum);
+            double barnyard_antics = sum(given_col(gc_pos)) - sparse_prophecy(dyn_index321(j)) + changing_element;
+            
+            if (barnyard_antics > 1.0 && changing_element > 0.0) {
+              double proposed_element = changing_element - barnyard_antics * (changing_element / barnyard_antics);
+              
+              if (proposed_element >= 0.0) {
+                changing_element = proposed_element;
+              } else {
+                changing_element = 0.0;
+              }
             } else if (changing_element < 0.0) {
               changing_element = 0.0;
             }

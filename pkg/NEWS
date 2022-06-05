@@ -1,6 +1,22 @@
 LEFKO3 NEWS
 -----------
 
+CHANGES IN VERSION 5.X.X (2022-0X-XX)
+-------------------------------------
+  NEW FEATURES
+    1. 
+
+  USER-VISIBLE CHANGES
+    1. 
+
+  BUG FIXES
+    1. Fixed bug causing substochasticity setting 2 in functions projection3()
+       and f_projection3() to yield negative survival probabilities under some
+       circumstances in which survival column sums totaled more than 1.0.
+    2. Fix bug omitting substochasticity correction in fecundity under some
+       conditions when function f_projection3() is run with substoch = 2.
+
+
 CHANGES IN VERSION 5.2.0 (2022-05-18)
 -------------------------------------
   NEW FEATURES
