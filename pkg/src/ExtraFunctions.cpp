@@ -13,6 +13,8 @@ using namespace arma;
 //' \eqn{\phi_{t+1} = \phi_t \alpha e^{-\beta n_t}}. Here, if no
 //' \code{separate_N} vector is provided, then \eqn{n_t = \phi_t}.
 //' 
+//' @name ricker3
+//' 
 //' @param start_value A positive number to start the return vector in time 0.
 //' @param alpha The alpha parameter in the two-parameter Ricker function. Must
 //' be non-negative.
@@ -145,6 +147,8 @@ Rcpp::NumericVector ricker3(double start_value, double alpha, double beta,
 //' The two-parameter Beverton-Holt function is given as 
 //' \eqn{\phi_{t+1} = \phi_t \alpha / (1 + \beta n_t)}. Here, if no
 //' \code{separate_N} vector is provided, then \eqn{n_t = \phi_t}.
+//' 
+//' @name beverton3
 //' 
 //' @param start_value A positive number to start the return vector in time 0.
 //' @param alpha The alpha parameter in the two-parameter Beverton-Holt
@@ -281,6 +285,8 @@ Rcpp::NumericVector beverton3(double start_value, double alpha, double beta,
 //' \eqn{\phi_{t+1} = \phi_t / (1 + e^{\alpha n_t + \beta})}. Here,
 //' if no \code{separate_N} vector is provided, then \eqn{n_t = \phi_t}.
 //' 
+//' @name usher3
+//' 
 //' @param start_value A positive number to start the return vector in time 0.
 //' @param alpha The alpha parameter in the two-parameter Usher
 //' function.
@@ -413,6 +419,8 @@ Rcpp::NumericVector usher3(double start_value, double alpha, double beta,
 //' \eqn{\phi_{t+1} = \phi_t \lambda (1 - n_t / K)}. Here,
 //' if no \code{separate_N} vector is provided, then \eqn{n_t = \phi_t}. If
 //' \eqn{\lambda} is not provided, then it defaults to \code{1.0}.
+//' 
+//' @name logistic3
 //' 
 //' @param start_value A positive number to start the return vector in time 0.
 //' @param alpha The carrying capacity K.

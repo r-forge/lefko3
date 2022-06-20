@@ -304,7 +304,6 @@ overwrite <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
 #' ehrlen3mean$A[[1]]
 #' 
 #' # Cypripedium example
-#' rm(list=ls(all=TRUE))
 #' data(cypdata)
 #' 
 #' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
@@ -613,8 +612,6 @@ supplemental <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
 #'   repst = c("repstatus3", "repstatus2"), zifec = FALSE)
 #' 
 #' # Cypripedium example
-#' rm(list=ls(all=TRUE))
-#' 
 #' data(cypdata)
 #' 
 #' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)

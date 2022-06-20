@@ -675,8 +675,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // modelextract
-List modelextract(RObject object, DataFrame paramnames, NumericVector mainyears, CharacterVector mainpatches, RObject maingroups, RObject mainindcova, RObject mainindcovb, RObject mainindcovc);
-RcppExport SEXP _lefko3_modelextract(SEXP objectSEXP, SEXP paramnamesSEXP, SEXP mainyearsSEXP, SEXP mainpatchesSEXP, SEXP maingroupsSEXP, SEXP mainindcovaSEXP, SEXP mainindcovbSEXP, SEXP mainindcovcSEXP) {
+List modelextract(RObject object, DataFrame paramnames, NumericVector mainyears, CharacterVector mainpatches, RObject maingroups, RObject mainindcova, RObject mainindcovb, RObject mainindcovc, bool nodata);
+RcppExport SEXP _lefko3_modelextract(SEXP objectSEXP, SEXP paramnamesSEXP, SEXP mainyearsSEXP, SEXP mainpatchesSEXP, SEXP maingroupsSEXP, SEXP mainindcovaSEXP, SEXP mainindcovbSEXP, SEXP mainindcovcSEXP, SEXP nodataSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -688,13 +688,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< RObject >::type mainindcova(mainindcovaSEXP);
     Rcpp::traits::input_parameter< RObject >::type mainindcovb(mainindcovbSEXP);
     Rcpp::traits::input_parameter< RObject >::type mainindcovc(mainindcovcSEXP);
-    rcpp_result_gen = Rcpp::wrap(modelextract(object, paramnames, mainyears, mainpatches, maingroups, mainindcova, mainindcovb, mainindcovc));
+    Rcpp::traits::input_parameter< bool >::type nodata(nodataSEXP);
+    rcpp_result_gen = Rcpp::wrap(modelextract(object, paramnames, mainyears, mainpatches, maingroups, mainindcova, mainindcovb, mainindcovc, nodata));
     return rcpp_result_gen;
 END_RCPP
 }
 // raymccooney
-List raymccooney(DataFrame listofyears, List modelsuite, NumericVector mainyears, CharacterVector mainpatches, RObject maingroups, RObject mainindcova, RObject mainindcovb, RObject mainindcovc, DataFrame StageFrame, DataFrame OverWrite, arma::mat repmatrix, NumericVector f2_inda, NumericVector f1_inda, NumericVector f2_indb, NumericVector f1_indb, NumericVector f2_indc, NumericVector f1_indc, StringVector r2_inda, StringVector r1_inda, StringVector r2_indb, StringVector r1_indb, StringVector r2_indc, StringVector r1_indc, NumericVector dev_terms, double dens, double fecmod, int firstage, int finalage, int format, int style, int cont, int filter, bool negfec, double exp_tol, double theta_tol, String ipm_method, bool err_check, bool simplicity);
-RcppExport SEXP _lefko3_raymccooney(SEXP listofyearsSEXP, SEXP modelsuiteSEXP, SEXP mainyearsSEXP, SEXP mainpatchesSEXP, SEXP maingroupsSEXP, SEXP mainindcovaSEXP, SEXP mainindcovbSEXP, SEXP mainindcovcSEXP, SEXP StageFrameSEXP, SEXP OverWriteSEXP, SEXP repmatrixSEXP, SEXP f2_indaSEXP, SEXP f1_indaSEXP, SEXP f2_indbSEXP, SEXP f1_indbSEXP, SEXP f2_indcSEXP, SEXP f1_indcSEXP, SEXP r2_indaSEXP, SEXP r1_indaSEXP, SEXP r2_indbSEXP, SEXP r1_indbSEXP, SEXP r2_indcSEXP, SEXP r1_indcSEXP, SEXP dev_termsSEXP, SEXP densSEXP, SEXP fecmodSEXP, SEXP firstageSEXP, SEXP finalageSEXP, SEXP formatSEXP, SEXP styleSEXP, SEXP contSEXP, SEXP filterSEXP, SEXP negfecSEXP, SEXP exp_tolSEXP, SEXP theta_tolSEXP, SEXP ipm_methodSEXP, SEXP err_checkSEXP, SEXP simplicitySEXP) {
+List raymccooney(DataFrame listofyears, List modelsuite, NumericVector mainyears, CharacterVector mainpatches, RObject maingroups, RObject mainindcova, RObject mainindcovb, RObject mainindcovc, DataFrame StageFrame, DataFrame OverWrite, arma::mat repmatrix, NumericVector f2_inda, NumericVector f1_inda, NumericVector f2_indb, NumericVector f1_indb, NumericVector f2_indc, NumericVector f1_indc, StringVector r2_inda, StringVector r1_inda, StringVector r2_indb, StringVector r1_indb, StringVector r2_indc, StringVector r1_indc, NumericVector dev_terms, double dens, double fecmod, int firstage, int finalage, int format, int style, int cont, int filter, bool negfec, bool nodata, double exp_tol, double theta_tol, String ipm_method, bool err_check, bool simplicity);
+RcppExport SEXP _lefko3_raymccooney(SEXP listofyearsSEXP, SEXP modelsuiteSEXP, SEXP mainyearsSEXP, SEXP mainpatchesSEXP, SEXP maingroupsSEXP, SEXP mainindcovaSEXP, SEXP mainindcovbSEXP, SEXP mainindcovcSEXP, SEXP StageFrameSEXP, SEXP OverWriteSEXP, SEXP repmatrixSEXP, SEXP f2_indaSEXP, SEXP f1_indaSEXP, SEXP f2_indbSEXP, SEXP f1_indbSEXP, SEXP f2_indcSEXP, SEXP f1_indcSEXP, SEXP r2_indaSEXP, SEXP r1_indaSEXP, SEXP r2_indbSEXP, SEXP r1_indbSEXP, SEXP r2_indcSEXP, SEXP r1_indcSEXP, SEXP dev_termsSEXP, SEXP densSEXP, SEXP fecmodSEXP, SEXP firstageSEXP, SEXP finalageSEXP, SEXP formatSEXP, SEXP styleSEXP, SEXP contSEXP, SEXP filterSEXP, SEXP negfecSEXP, SEXP nodataSEXP, SEXP exp_tolSEXP, SEXP theta_tolSEXP, SEXP ipm_methodSEXP, SEXP err_checkSEXP, SEXP simplicitySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -731,18 +732,19 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type cont(contSEXP);
     Rcpp::traits::input_parameter< int >::type filter(filterSEXP);
     Rcpp::traits::input_parameter< bool >::type negfec(negfecSEXP);
+    Rcpp::traits::input_parameter< bool >::type nodata(nodataSEXP);
     Rcpp::traits::input_parameter< double >::type exp_tol(exp_tolSEXP);
     Rcpp::traits::input_parameter< double >::type theta_tol(theta_tolSEXP);
     Rcpp::traits::input_parameter< String >::type ipm_method(ipm_methodSEXP);
     Rcpp::traits::input_parameter< bool >::type err_check(err_checkSEXP);
     Rcpp::traits::input_parameter< bool >::type simplicity(simplicitySEXP);
-    rcpp_result_gen = Rcpp::wrap(raymccooney(listofyears, modelsuite, mainyears, mainpatches, maingroups, mainindcova, mainindcovb, mainindcovc, StageFrame, OverWrite, repmatrix, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, firstage, finalage, format, style, cont, filter, negfec, exp_tol, theta_tol, ipm_method, err_check, simplicity));
+    rcpp_result_gen = Rcpp::wrap(raymccooney(listofyears, modelsuite, mainyears, mainpatches, maingroups, mainindcova, mainindcovb, mainindcovc, StageFrame, OverWrite, repmatrix, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, firstage, finalage, format, style, cont, filter, negfec, nodata, exp_tol, theta_tol, ipm_method, err_check, simplicity));
     return rcpp_result_gen;
 END_RCPP
 }
 // mothermccooney
-List mothermccooney(DataFrame listofyears, List modelsuite, IntegerVector actualages, NumericVector mainyears, CharacterVector mainpatches, RObject maingroups, RObject mainindcova, RObject mainindcovb, RObject mainindcovc, DataFrame ageframe, NumericVector f2_inda, NumericVector f1_inda, NumericVector f2_indb, NumericVector f1_indb, NumericVector f2_indc, NumericVector f1_indc, StringVector r2_inda, StringVector r1_inda, StringVector r2_indb, StringVector r1_indb, StringVector r2_indc, StringVector r1_indc, NumericVector dev_terms, double dens, double fecmod, int finalage, int cont, bool negfec, double exp_tol, double theta_tol, bool err_check, bool simplicity);
-RcppExport SEXP _lefko3_mothermccooney(SEXP listofyearsSEXP, SEXP modelsuiteSEXP, SEXP actualagesSEXP, SEXP mainyearsSEXP, SEXP mainpatchesSEXP, SEXP maingroupsSEXP, SEXP mainindcovaSEXP, SEXP mainindcovbSEXP, SEXP mainindcovcSEXP, SEXP ageframeSEXP, SEXP f2_indaSEXP, SEXP f1_indaSEXP, SEXP f2_indbSEXP, SEXP f1_indbSEXP, SEXP f2_indcSEXP, SEXP f1_indcSEXP, SEXP r2_indaSEXP, SEXP r1_indaSEXP, SEXP r2_indbSEXP, SEXP r1_indbSEXP, SEXP r2_indcSEXP, SEXP r1_indcSEXP, SEXP dev_termsSEXP, SEXP densSEXP, SEXP fecmodSEXP, SEXP finalageSEXP, SEXP contSEXP, SEXP negfecSEXP, SEXP exp_tolSEXP, SEXP theta_tolSEXP, SEXP err_checkSEXP, SEXP simplicitySEXP) {
+List mothermccooney(DataFrame listofyears, List modelsuite, IntegerVector actualages, NumericVector mainyears, CharacterVector mainpatches, RObject maingroups, RObject mainindcova, RObject mainindcovb, RObject mainindcovc, DataFrame ageframe, NumericVector f2_inda, NumericVector f1_inda, NumericVector f2_indb, NumericVector f1_indb, NumericVector f2_indc, NumericVector f1_indc, StringVector r2_inda, StringVector r1_inda, StringVector r2_indb, StringVector r1_indb, StringVector r2_indc, StringVector r1_indc, NumericVector dev_terms, double dens, double fecmod, int finalage, int cont, bool negfec, bool nodata, double exp_tol, double theta_tol, bool err_check, bool simplicity);
+RcppExport SEXP _lefko3_mothermccooney(SEXP listofyearsSEXP, SEXP modelsuiteSEXP, SEXP actualagesSEXP, SEXP mainyearsSEXP, SEXP mainpatchesSEXP, SEXP maingroupsSEXP, SEXP mainindcovaSEXP, SEXP mainindcovbSEXP, SEXP mainindcovcSEXP, SEXP ageframeSEXP, SEXP f2_indaSEXP, SEXP f1_indaSEXP, SEXP f2_indbSEXP, SEXP f1_indbSEXP, SEXP f2_indcSEXP, SEXP f1_indcSEXP, SEXP r2_indaSEXP, SEXP r1_indaSEXP, SEXP r2_indbSEXP, SEXP r1_indbSEXP, SEXP r2_indcSEXP, SEXP r1_indcSEXP, SEXP dev_termsSEXP, SEXP densSEXP, SEXP fecmodSEXP, SEXP finalageSEXP, SEXP contSEXP, SEXP negfecSEXP, SEXP nodataSEXP, SEXP exp_tolSEXP, SEXP theta_tolSEXP, SEXP err_checkSEXP, SEXP simplicitySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -774,11 +776,12 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type finalage(finalageSEXP);
     Rcpp::traits::input_parameter< int >::type cont(contSEXP);
     Rcpp::traits::input_parameter< bool >::type negfec(negfecSEXP);
+    Rcpp::traits::input_parameter< bool >::type nodata(nodataSEXP);
     Rcpp::traits::input_parameter< double >::type exp_tol(exp_tolSEXP);
     Rcpp::traits::input_parameter< double >::type theta_tol(theta_tolSEXP);
     Rcpp::traits::input_parameter< bool >::type err_check(err_checkSEXP);
     Rcpp::traits::input_parameter< bool >::type simplicity(simplicitySEXP);
-    rcpp_result_gen = Rcpp::wrap(mothermccooney(listofyears, modelsuite, actualages, mainyears, mainpatches, maingroups, mainindcova, mainindcovb, mainindcovc, ageframe, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, finalage, cont, negfec, exp_tol, theta_tol, err_check, simplicity));
+    rcpp_result_gen = Rcpp::wrap(mothermccooney(listofyears, modelsuite, actualages, mainyears, mainpatches, maingroups, mainindcova, mainindcovb, mainindcovc, ageframe, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, dev_terms, dens, fecmod, finalage, cont, negfec, nodata, exp_tol, theta_tol, err_check, simplicity));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1219,9 +1222,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_lefko3_jerzeibalowski_sp", (DL_FUNC) &_lefko3_jerzeibalowski_sp, 51},
     {"_lefko3_thefifthhousemate", (DL_FUNC) &_lefko3_thefifthhousemate, 4},
     {"_lefko3_motherbalowski", (DL_FUNC) &_lefko3_motherbalowski, 33},
-    {"_lefko3_modelextract", (DL_FUNC) &_lefko3_modelextract, 8},
-    {"_lefko3_raymccooney", (DL_FUNC) &_lefko3_raymccooney, 38},
-    {"_lefko3_mothermccooney", (DL_FUNC) &_lefko3_mothermccooney, 32},
+    {"_lefko3_modelextract", (DL_FUNC) &_lefko3_modelextract, 9},
+    {"_lefko3_raymccooney", (DL_FUNC) &_lefko3_raymccooney, 39},
+    {"_lefko3_mothermccooney", (DL_FUNC) &_lefko3_mothermccooney, 33},
     {"_lefko3_f_projection3", (DL_FUNC) &_lefko3_f_projection3, 55},
     {"_lefko3_turbogeodiesel", (DL_FUNC) &_lefko3_turbogeodiesel, 8},
     {"_lefko3_geodiesel", (DL_FUNC) &_lefko3_geodiesel, 7},

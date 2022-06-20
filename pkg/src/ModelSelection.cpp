@@ -8,7 +8,9 @@ using namespace arma;
 //'
 //' Function \code{.stovokor()} creates formulae to be used as input in the
 //' global model calls used in function \code{\link{modelsearch}()}.
-//'
+//' 
+//' @name .stovokor
+//' 
 //' @param surv A vector of strings indicating the names of the variables coding
 //' survival.
 //' @param obs A vector of strings indicating the names of the variables coding
