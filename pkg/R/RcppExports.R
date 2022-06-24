@@ -783,6 +783,42 @@ logistic3 <- function(start_value, alpha, beta = 0.0, lambda = 1.0, time_steps =
     .Call('_lefko3_logistic3', PACKAGE = 'lefko3', start_value, alpha, beta, lambda, time_steps, time_lag, pre0_subs, pre0_value, substoch, separate_N)
 }
 
+#' Function to Test Whether a Numeric Vector Is Composed Only of Integers
+#' 
+#' Function \code{.integer_test()} tests whether the elements of a numeric
+#' vector are integers.
+#' 
+#' @name .integer_test
+#' 
+#' @param numeric_input A numeric vector to be tested.
+#' 
+#' @return This function returns an integer equal to the number of elements
+#' that are not integers in \code{numeric_input}.
+#' 
+#' @keywords internal
+#' @noRd
+.integer_test <- function(numeric_input) {
+    .Call('_lefko3_integer_test', PACKAGE = 'lefko3', numeric_input)
+}
+
+#' Function to Test Whether an Integer Vector Is Entirely Binomial
+#' 
+#' Function \code{.binomial_test()} tests whether an integer vector is composed
+#' only of \code{0} and \code{1} elements.
+#' 
+#' @name .binomial_test
+#' 
+#' @param integer_input An integer vector to be tested.
+#' 
+#' @return This function returns an integer equal to the number of elements
+#' that are not \code{0}s and \code{1}s.
+#' 
+#' @keywords internal
+#' @noRd
+.binomial_test <- function(integer_input) {
+    .Call('_lefko3_binomial_test', PACKAGE = 'lefko3', integer_input)
+}
+
 #' Main Formula Creation for Function \code{modelsearch()}
 #'
 #' Function \code{.stovokor()} creates formulae to be used as input in the
@@ -870,6 +906,40 @@ logistic3 <- function(start_value, alpha, beta = 0.0, lambda = 1.0, time_steps =
 #' @noRd
 .stovokor <- function(surv, obs, size, sizeb, sizec, repst, fec, matstat, vitalrates, historical, suite, approach, nojuvs, age, indcova, indcovb, indcovc, indiv, patch, year, pasrand, yasrand, iaasrand, ibasrand, icasrand, fectime, juvsize, sizebused, sizecused, grouptest, densitycol, densityused, indcovaused, indcovbused, indcovcused) {
     .Call('_lefko3_stovokor', PACKAGE = 'lefko3', surv, obs, size, sizeb, sizec, repst, fec, matstat, vitalrates, historical, suite, approach, nojuvs, age, indcova, indcovb, indcovc, indiv, patch, year, pasrand, yasrand, iaasrand, ibasrand, icasrand, fectime, juvsize, sizebused, sizecused, grouptest, densitycol, densityused, indcovaused, indcovbused, indcovcused)
+}
+
+#' Creates a Skeleton Paramnames Object for Use in Function-based Modeling
+#' 
+#' Creates a simple skeleton \code{paramnames} object that can be entered as
+#' input in functions \code{\link{flefko2}()}, \code{\link{flefko3}()}, and
+#' \code{\link{aflefko2}()}.
+#' 
+#' @name create_pm
+#' 
+#' @param name_terms A logical value indicating whether to start each variable
+#' name as \code{none} if \code{FALSE}, or as the default \code{modelparams}
+#' name if \code{TRUE}. Defaults to \code{FALSE}.
+#' 
+#' @return A three column data frame, of which the first describes the
+#' parameters in reasonably plain English, the second gives the name of the
+#' parameter within the MPM generating functions, and the third is to be
+#' edited with the names of the variables as they appear in the models.
+#' 
+#' @section Notes:
+#' The third column in the resulting object should be edited with the names only
+#' of those variables actually used in vital rate modeling. This
+#' \code{paramnames} object should apply to all models used in a single MPM
+#' building exercise. So, for example, if the models used include random terms,
+#' then they should all have the same random terms. Fixed terms can vary,
+#' however.
+#' 
+#' @examples 
+#' our_pm <- create_pm()
+#' our_pm
+#' 
+#' @export
+create_pm <- function(name_terms = FALSE) {
+    .Call('_lefko3_create_pm', PACKAGE = 'lefko3', name_terms)
 }
 
 #' Compares Two Strings Literally
@@ -1882,8 +1952,8 @@ NULL
 
 #' Extract Key Components of vrm_input Objects
 #' 
-#' This function extracts the components of an \code{vrm_input} for functions
-#' \code{jerzeibalowski()} and \code{motherbalowski()}.
+#' This function extracts the components of a \code{vrm_input} object for
+#' functions \code{jerzeibalowski()} and \code{motherbalowski()}.
 #' 
 #' @name vrm_extractor
 #' 
@@ -1896,27 +1966,32 @@ NULL
 #' poisson, \code{1} = negbin, \code{2} = gaussian, \code{3} = gamma, \code{4}
 #' = binomial, and \code{5} = constant.}
 #' \item{zero_inflated}{A logical value indicating whether the distribution is
-#' zero-inflated. Not used in \code{lm}/\code{glm}/\code{negbin} objects.}
+#' zero-inflated. Not used in \code{lm}/\code{glm}/\code{negbin} objects. Will
+#' equal \code{FALSE} if \code{dist = 5}.}
 #' \item{zero_truncated}{A logical value indicating whether the distribution is
-#' zero-truncated. Not used in \code{lm}/\code{glm}/\code{negbin} objects.}
+#' zero-truncated. Not used in \code{lm}/\code{glm}/\code{negbin} objects. Will
+#' equal \code{FALSE} if \code{dist = 5}.}
 #' \item{all_vars}{A vector holding the names of each variable used by
-#' \code{object}.}
-#' \item{fixed_vars}{A string vector holding the names of the fixed variables.}
+#' \code{object}. Will equal only the intercept if \code{dist = 5}.}
+#' \item{fixed_vars}{A string vector holding the names of the fixed variables.
+#' Will equal only the intercept if \code{dist = 5}.}
 #' \item{fixed_slopes}{A numeric vector holding the slope coefficients of the
-#' fixed variables, in the same order as \code{fixed_vars}.}
+#' fixed variables, in the same order as \code{fixed_vars}. Will equal only the
+#' intercept if \code{dist = 5}.}
 #' \item{fixed_zi_vars}{A string vector holding the names of the zero-inflated
-#' fixed variables. Not used in \code{lm}/\code{glm}/\code{negbin} objects.}
+#' fixed variables. Not used in \code{lm}/\code{glm}/\code{negbin} objects.
+#' Will equal \code{NULL} is \code{dist = 5}.}
 #' \item{fixed_zi_slopes}{A numeric vector holding the slope coefficients of
 #' the zero-inflated fixed variables, in the same order as
 #' \code{fixed_zi_vars}. Not used in \code{lm}/\code{glm}/\code{negbin}
-#' objects.}
+#' objects. Will equal \code{NULL} is \code{dist = 5}.}
 #' \item{random_zi_vars}{A string vector holding the names of the random
 #' variables in the zero-inflation model. Not used in \code{lm}/\code{glm}/
-#' \code{negbin} objects.}
+#' \code{negbin} objects. Will equal \code{NULL} is \code{dist = 5}.}
 #' \item{random_zi_slopes}{A numeric vector holding the slope coefficients of
 #' the random variables in the zero-inflation model, in the same order as
 #' \code{random_zi_vars}. Not used in \code{lm}/\code{glm}/\code{negbin}
-#' objects.}
+#' objects. Will equal \code{NULL} is \code{dist = 5}.}
 #' \item{sigma}{The residual standard deviation of the model. Defaults to
 #' \code{1.0}.}
 #' \item{theta}{The estimated theta, if the response is negative binomial.
@@ -3673,8 +3748,8 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' }
 #' 
 #' @export f_projection3
-f_projection3 <- function(data, format, prebreeding = TRUE, start_age = NA_integer_, last_age = NA_integer_, fecage_min = NA_integer_, fecage_max = NA_integer_, cont = TRUE, stochastic = FALSE, standardize = FALSE, growthonly = TRUE, repvalue = FALSE, integeronly = FALSE, substoch = 0L, ipm_method = "CDF", nreps = 1L, times = 10000L, repmod = 1.0, exp_tol = 700.0, theta_tol = 100000000.0, random_inda = FALSE, random_indb = FALSE, random_indc = FALSE, err_check = FALSE, quiet = FALSE, stageframe = NULL, supplement = NULL, repmatrix = NULL, overwrite = NULL, modelsuite = NULL, paramnames = NULL, year = NULL, patch = NULL, sp_density = NULL, ind_terms = NULL, dev_terms = NULL, surv_model = NULL, obs_model = NULL, size_model = NULL, sizeb_model = NULL, sizec_model = NULL, repst_model = NULL, fec_model = NULL, jsurv_model = NULL, jobs_model = NULL, jsize_model = NULL, jsizeb_model = NULL, jsizec_model = NULL, jrepst_model = NULL, jmatst_model = NULL, start_vec = NULL, start_frame = NULL, tweights = NULL, density = NULL, density_vr = NULL) {
-    .Call('_lefko3_f_projection3', PACKAGE = 'lefko3', data, format, prebreeding, start_age, last_age, fecage_min, fecage_max, cont, stochastic, standardize, growthonly, repvalue, integeronly, substoch, ipm_method, nreps, times, repmod, exp_tol, theta_tol, random_inda, random_indb, random_indc, err_check, quiet, stageframe, supplement, repmatrix, overwrite, modelsuite, paramnames, year, patch, sp_density, ind_terms, dev_terms, surv_model, obs_model, size_model, sizeb_model, sizec_model, repst_model, fec_model, jsurv_model, jobs_model, jsize_model, jsizeb_model, jsizec_model, jrepst_model, jmatst_model, start_vec, start_frame, tweights, density, density_vr)
+f_projection3 <- function(format, prebreeding = TRUE, start_age = NA_integer_, last_age = NA_integer_, fecage_min = NA_integer_, fecage_max = NA_integer_, cont = TRUE, stochastic = FALSE, standardize = FALSE, growthonly = TRUE, repvalue = FALSE, integeronly = FALSE, substoch = 0L, ipm_method = "CDF", nreps = 1L, times = 10000L, repmod = 1.0, exp_tol = 700.0, theta_tol = 100000000.0, random_inda = FALSE, random_indb = FALSE, random_indc = FALSE, err_check = FALSE, quiet = FALSE, data = NULL, stageframe = NULL, supplement = NULL, repmatrix = NULL, overwrite = NULL, modelsuite = NULL, paramnames = NULL, year = NULL, patch = NULL, sp_density = NULL, ind_terms = NULL, dev_terms = NULL, surv_model = NULL, obs_model = NULL, size_model = NULL, sizeb_model = NULL, sizec_model = NULL, repst_model = NULL, fec_model = NULL, jsurv_model = NULL, jobs_model = NULL, jsize_model = NULL, jsizeb_model = NULL, jsizec_model = NULL, jrepst_model = NULL, jmatst_model = NULL, start_vec = NULL, start_frame = NULL, tweights = NULL, density = NULL, density_vr = NULL) {
+    .Call('_lefko3_f_projection3', PACKAGE = 'lefko3', format, prebreeding, start_age, last_age, fecage_min, fecage_max, cont, stochastic, standardize, growthonly, repvalue, integeronly, substoch, ipm_method, nreps, times, repmod, exp_tol, theta_tol, random_inda, random_indb, random_indc, err_check, quiet, data, stageframe, supplement, repmatrix, overwrite, modelsuite, paramnames, year, patch, sp_density, ind_terms, dev_terms, surv_model, obs_model, size_model, sizeb_model, sizec_model, repst_model, fec_model, jsurv_model, jobs_model, jsize_model, jsizeb_model, jsizec_model, jrepst_model, jmatst_model, start_vec, start_frame, tweights, density, density_vr)
 }
 
 #' Estimates Mean LefkoMat Object for Historical MPM

@@ -1,7 +1,7 @@
 LEFKO3 NEWS
 -----------
 
-CHANGES IN VERSION 5.3.0 (2022-0X-XX)
+CHANGES IN VERSION 5.3.0 (2022-06-24)
 -------------------------------------
   NEW FEATURES
     1. Function actualstage3() now also outputs proportions of ages and age-
@@ -12,9 +12,16 @@ CHANGES IN VERSION 5.3.0 (2022-0X-XX)
     3. Functions flefko3(), flefko2(), aflefko2(), fleslie(), and
        f_projection3() have been updated to allow the use of vrm_input objects,
        allowing slope coefficients to be imported directly.
+    4. Function hfv_qc() developed to test hfv datasets for quality control
+       using the same parameterizations and subsetting strategies used in
+       function modelsearch().
 
   USER-VISIBLE CHANGES
-    1. Tweaks and corrections to help files.
+    1. Function create_pm() can now yield paramnames objects with default
+       model variable names used instead of "none" strings.
+    2. Vignettes updated with new functions. Particularly, material for
+       sf_distrib() replaced with material for hfv_qc().
+    3. Tweaks and corrections to help files.
 
   BUG FIXES
     1. Fixed bug causing substochasticity setting 2 in functions projection3()

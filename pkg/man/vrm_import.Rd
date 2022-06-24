@@ -14,13 +14,14 @@ vrm_import(
   cat.indcovb = NULL,
   cat.indcovc = NULL,
   dist.sizea = "gaussian",
-  dist.sizeb = "gaussian",
-  dist.sizec = "gaussian",
+  dist.sizeb = "constant",
+  dist.sizec = "constant",
   dist.fec = "gaussian",
   trunc.sizea = FALSE,
   trunc.sizeb = FALSE,
   trunc.sizec = FALSE,
-  trunc.fec = FALSE
+  trunc.fec = FALSE,
+  use.juv = FALSE
 )
 }
 \arguments{
@@ -56,18 +57,18 @@ numeric.}
 
 \item{dist.sizea}{A string value giving the distribution of the variable
 coding primary size. Can equal \code{"none"}, \code{"gamma"},
-\code{"gaussian"}, \code{"poisson"}, or \code{"negbin"}. Defaults to
-\code{"gaussian"}.}
+\code{"gaussian"}, \code{"poisson"}, \code{"negbin"}, or \code{"constant"}.
+Defaults to \code{"gaussian"}.}
 
 \item{dist.sizeb}{A string value giving the distribution of the variable
 coding secondary size. Can equal \code{"none"}, \code{"gamma"},
-\code{"gaussian"}, \code{"poisson"}, or \code{"negbin"}. Defaults to
-\code{"gaussian"}.}
+\code{"gaussian"}, \code{"poisson"}, \code{"negbin"}, or \code{"constant"}.
+Defaults to \code{"constant"}.}
 
 \item{dist.sizec}{A string value giving the distribution of the variable
 coding tertiary size. Can equal \code{"none"}, \code{"gamma"},
-\code{"gaussian"}, \code{"poisson"}, or \code{"negbin"}. Defaults to
-\code{"gaussian"}.}
+\code{"gaussian"}, \code{"poisson"}, \code{"negbin"}, or \code{"constant"}.
+Defaults to \code{"constant"}.}
 
 \item{dist.fec}{A string value giving the distribution of the variable
 coding fecundity. Can equal \code{"none"}, \code{"gamma"},
@@ -89,9 +90,13 @@ Currently only works with the Poisson and negative binomial distributions.}
 \item{trunc.fec}{A logical value indicating whether the distribution of the
 fecundity variable should be zero-truncated. Defaults to \code{FALSE}.
 Currently only works with the Poisson and negative binomial distributions.}
+
+\item{use.juv}{A logical value indicating whether to utilize juvenile vital
+rates. If \code{FALSE}, then all juvenile vital rates will be set to
+\code{constant} distributions. Defaults to \code{FALSE}.}
 }
 \value{
-A list of class \code{vrm_input}, with 8 elements including:
+A list of class \code{vrm_input}, with up to 13 elements including:
 \item{vrm_frame}{A data frame holding the main slope coefficients for the
 linear vital rate models.}
 \item{year_frame}{A data frame holding the main slope coefficients for the
@@ -102,8 +107,9 @@ patch terms in the linear vital rate models.}
 stage group terms in time \emph{t} in the linear vital rate models.}
 \item{group1_frame}{A data frame holding the main slope coefficients for the
 stage group terms in time \emph{t}-1 in the linear vital rate models.}
-\item{dist_frame}{A data frame giving the distributions of primary,
-secondary, and tertiary size, and fecundity.}
+\item{dist_frame}{A data frame giving the distributions of all variables,
+including primary, secondary, and tertiary size, and fecundity. Some
+variables begin as \code{constant}.}
 \item{indcova2_frame}{A data frame holding the main slope coefficients for
 the categorical individual covariate a terms in time \emph{t} in the linear
 vital rate models.}
@@ -192,12 +198,17 @@ projections.
 }
 \section{Notes}{
 
-All coefficients across all data frames are initially set to 0. After using
-this function to create the skeleton list, all relevant coefficient values
-should be set to non-zero values equal to the respective slope from the
-appropriate linear model. If no values are manually edited, then
-function-based MPM generator functions will not be able to generate valid
-MPMs.
+All coefficients across all data frames are initially set to \code{0}. After
+using this function to create the skeleton list, all relevant coefficient
+values should be set to non-zero values equal to the respective slope from
+the appropriate linear model, and any vital rate model to be used should
+have its distribution set to \code{"binom"}, \code{"gaussian"},
+\code{"gamma"}, \code{"poisson"}, or \code{"negbin"}. Unused vital rates
+should be set to \code{"constant"}, and the first element of the correspoding
+column in \code{vrm_frame} (corresponding to the y-intercept) should be set
+to the constant value to utilize (generally \code{1}). If no values are
+manually edited, then function-based MPM generator functions will not be able
+to generate valid MPMs.
 
 Users should never change the labels or the order of terms in the data frames
 and vectors produced via this function, nor should they ever changes the
@@ -221,25 +232,71 @@ creation.
 }
 
 \examples{
-data(cypdata)
+data(lathyrus)
 
-sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
-stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
-  "XLg")
-repvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
-obsvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
-matvector <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
-immvector <- c(0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
-propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
-binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 2.5, 7)
+sizevector <- c(0, 100, 0, 1, 7100)
+stagevector <- c("Sd", "Sdl", "Dorm", "ipm", "ipm")
+repvector <- c(0, 0, 0, 1, 1)
+obsvector <- c(0, 1, 0, 1, 1)
+matvector <- c(0, 0, 1, 1, 1)
+immvector <- c(1, 1, 0, 0, 0)
+propvector <- c(1, 0, 0, 0, 0)
+indataset <- c(0, 1, 1, 1, 1)
+binvec <- c(0, 100, 0.5, 1, 1)
+comments <- c("Dormant seed", "Seedling", "Dormant", "ipm adult stage",
+  "ipm adult stage")
+lathframeipm <- sf_create(sizes = sizevector, stagenames = stagevector, 
+  repstatus = repvector, obsstatus = obsvector, propstatus = propvector,
+  immstatus = immvector, matstatus = matvector, comments = comments,
+  indataset = indataset, binhalfwidth = binvec, ipmbins = 100, roundsize = 3)
 
-cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector,
-  repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
-  propstatus = propvector, immstatus = immvector, indataset = indataset,
-  binhalfwidth = binvec)
+lathsupp2 <- supplemental(stage3 = c("Sd", "Sdl", "Sd", "Sdl"),
+  stage2 = c("Sd", "Sd", "rep", "rep"),
+  givenrate = c(0.345, 0.054, NA, NA),
+  multiplier = c(NA, NA, 0.345, 0.054),
+  type = c(1, 1, 3, 3), stageframe = lathframeipm, historical = FALSE)
 
-cyp_slope_skeleton <- vrm_import(years = c(2004:2009),
-  patches = c("A", "B", "C"), interactions = TRUE)
+lath_vrm <- vrm_import(years = c(1988:1990), zi = TRUE, dist.fec = "negbin",
+  use.juv = TRUE)
+
+lath_vrm$vrm_frame$surv[1] <- 2.32571
+lath_vrm$vrm_frame$surv[2] <- 0.00109
+lath_vrm$vrm_frame$obs[1] <- 2.230
+lath_vrm$vrm_frame$sizea[1] <- 164.0695
+lath_vrm$vrm_frame$sizea[2] <- 0.6211
+lath_vrm$vrm_frame$fec[1] <- 1.517
+lath_vrm$vrm_frame$fec_zi[1] <- 6.252765
+lath_vrm$vrm_frame$fec_zi[2] <- -0.007313
+lath_vrm$vrm_frame$jsurv[1] <- 1.03
+lath_vrm$vrm_frame$jobs[1] <- 10.390
+lath_vrm$vrm_frame$jsizea[1] <- 3.0559
+lath_vrm$vrm_frame$jsizea[2] <- 0.8482
+
+lath_vrm$year_frame$fec[c(1:3)] <- c(-0.41749627, 0.51421684, -0.07964038)
+lath_vrm$year_frame$fec_zi[c(1:3)] <- c(3.741475e-07, -7.804715e-08,
+  -2.533755e-07)
+lath_vrm$year_frame$sizea[c(1:3)] <- c(96.3244, -240.8036, 144.4792)
+lath_vrm$year_frame$jobs[c(1:3)] <- c(-0.7459843, 0.6118826, -0.9468618)
+lath_vrm$year_frame$jsizea[c(1:3)] <- c(0.5937962, 1.4551236, -2.0489198)
+
+lath_vrm$dist_frame$dist[2] <- "binom"
+lath_vrm$dist_frame$dist[9] <- "binom"
+
+lath_vrm$st_frame[3] <- 503.6167
+lath_vrm$st_frame[7] <- 0.2342114
+lath_vrm$st_frame[10] <- 5.831
+
+lath_vrm$vrm_frame$sizeb[1] <- 1
+lath_vrm$vrm_frame$sizec[1] <- 1
+lath_vrm$vrm_frame$repst[1] <- 1
+lath_vrm$vrm_frame$jsizeb[1] <- 1
+lath_vrm$vrm_frame$jsizec[1] <- 1
+lath_vrm$vrm_frame$jrepst[1] <- 1
+lath_vrm$vrm_frame$jmatst[1] <- 1
+
+lathmat2_importipm <- flefko2(stageframe = lathframeipm,
+  modelsuite = lath_vrm, supplement = lathsupp2, reduce = FALSE)
+
+summary(lathmat2_importipm)
 
 }

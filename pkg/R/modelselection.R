@@ -3575,58 +3575,6 @@ summary.lefkoMod <- function(object, ...) {
   }
 }
 
-#' Creates a Skeleton Paramnames Object for Use in Function-based Modeling
-#' 
-#' Creates a simple skeleton \code{paramnames} object that can be entered as
-#' input in functions \code{\link{flefko2}()}, \code{\link{flefko3}()}, and
-#' \code{\link{aflefko2}()}.
-#' 
-#' @name create_pm
-#' 
-#' @return A three column data frame, of which the first describes the
-#' parameters in reasonably plain English, the second gives the name of the
-#' parameter within the MPM generating functions, and the third is to be
-#' edited with the names of the variables as they appear in the models.
-#' 
-#' @section Notes:
-#' The third column in the resulting object should be edited with the names only
-#' of those variables actually used in vital rate modeling. This
-#' \code{paramnames} object should apply to all models used in a single MPM
-#' building exercise. So, for example, if the models used include random terms,
-#' then they should all have the same random terms. Fixed terms can vary,
-#' however.
-#' 
-#' @examples 
-#' our_pm <- create_pm()
-#' our_pm
-#' 
-#' @export
-create_pm <- function() {
-  parameter_names <- c("time t", "individual", "patch", "alive in time t+1",
-    "observed in time t+1", "sizea in time t+1", "sizeb in time t+1",
-    "sizec in time t+1", "reproductive status in time t+1",
-    "fecundity in time t+1", "fecundity in time t", "sizea in time t",
-    "sizea in time t-1", "sizeb in time t", "sizeb in time t-1",
-    "sizec in time t", "sizec in time t-1", "reproductive status in time t",
-    "reproductive status in time t-1", "maturity status in time t+1",
-    "maturity status in time t", "age in time t", "density in time t",
-    "individual covariate a in time t", "individual covariate a in time t-1",
-    "individual covariate b in time t", "individual covariate b in time t-1",
-    "individual covariate c in time t", "individual covariate c in time t-1",
-    "stage group in time t", "stage group in time t-1")
-  mainparams <- c("year2", "individ", "patch", "surv3", "obs3", "size3",
-    "sizeb3", "sizec3", "repst3", "fec3", "fec2", "size2", "size1", "sizeb2",
-    "sizeb1", "sizec2", "sizec1", "repst2", "repst1", "matst3", "matst2", "age",
-    "density", "indcova2", "indcova1", "indcovb2", "indcovb1", "indcovc2",
-    "indcovc1", "group2", "group1")
-  modelparams <- c("none", "none", "none", "none", "none", "none", "none",
-    "none", "none", "none", "none", "none", "none", "none", "none", "none",
-    "none", "none", "none", "none", "none", "none", "none", "none", "none",
-    "none", "none", "none", "none", "none", "none")
-  
-  output <- cbind.data.frame(parameter_names, mainparams, modelparams)
-}
-
 #' Import Vital Rate Model Factor Values for Function-based MPM Development
 #' 
 #' Function \code{vrm_import()} builds a skeleton list holding data frames and
@@ -3660,16 +3608,16 @@ create_pm <- function() {
 #' numeric.
 #' @param dist.sizea A string value giving the distribution of the variable
 #' coding primary size. Can equal \code{"none"}, \code{"gamma"},
-#' \code{"gaussian"}, \code{"poisson"}, or \code{"negbin"}. Defaults to
-#' \code{"gaussian"}.
+#' \code{"gaussian"}, \code{"poisson"}, \code{"negbin"}, or \code{"constant"}.
+#' Defaults to \code{"gaussian"}.
 #' @param dist.sizeb A string value giving the distribution of the variable
 #' coding secondary size. Can equal \code{"none"}, \code{"gamma"},
-#' \code{"gaussian"}, \code{"poisson"}, or \code{"negbin"}. Defaults to
-#' \code{"gaussian"}.
+#' \code{"gaussian"}, \code{"poisson"}, \code{"negbin"}, or \code{"constant"}.
+#' Defaults to \code{"constant"}.
 #' @param dist.sizec A string value giving the distribution of the variable
 #' coding tertiary size. Can equal \code{"none"}, \code{"gamma"},
-#' \code{"gaussian"}, \code{"poisson"}, or \code{"negbin"}. Defaults to
-#' \code{"gaussian"}.
+#' \code{"gaussian"}, \code{"poisson"}, \code{"negbin"}, or \code{"constant"}.
+#' Defaults to \code{"constant"}.
 #' @param dist.fec A string value giving the distribution of the variable
 #' coding fecundity. Can equal \code{"none"}, \code{"gamma"},
 #' \code{"gaussian"}, \code{"poisson"}, or \code{"negbin"}. Defaults to
@@ -3686,8 +3634,11 @@ create_pm <- function() {
 #' @param trunc.fec A logical value indicating whether the distribution of the
 #' fecundity variable should be zero-truncated. Defaults to \code{FALSE}.
 #' Currently only works with the Poisson and negative binomial distributions.
+#' @param use.juv A logical value indicating whether to utilize juvenile vital
+#' rates. If \code{FALSE}, then all juvenile vital rates will be set to
+#' \code{constant} distributions. Defaults to \code{FALSE}.
 #' 
-#' @return A list of class \code{vrm_input}, with 8 elements including:
+#' @return A list of class \code{vrm_input}, with up to 13 elements including:
 #' \item{vrm_frame}{A data frame holding the main slope coefficients for the
 #' linear vital rate models.}
 #' \item{year_frame}{A data frame holding the main slope coefficients for the
@@ -3698,8 +3649,9 @@ create_pm <- function() {
 #' stage group terms in time \emph{t} in the linear vital rate models.}
 #' \item{group1_frame}{A data frame holding the main slope coefficients for the
 #' stage group terms in time \emph{t}-1 in the linear vital rate models.}
-#' \item{dist_frame}{A data frame giving the distributions of primary,
-#' secondary, and tertiary size, and fecundity.}
+#' \item{dist_frame}{A data frame giving the distributions of all variables,
+#' including primary, secondary, and tertiary size, and fecundity. Some
+#' variables begin as \code{constant}.}
 #' \item{indcova2_frame}{A data frame holding the main slope coefficients for
 #' the categorical individual covariate a terms in time \emph{t} in the linear
 #' vital rate models.}
@@ -3781,12 +3733,17 @@ create_pm <- function() {
 #' zero-inflated models are being used.}
 #' 
 #' @section Notes:
-#' All coefficients across all data frames are initially set to 0. After using
-#' this function to create the skeleton list, all relevant coefficient values
-#' should be set to non-zero values equal to the respective slope from the
-#' appropriate linear model. If no values are manually edited, then
-#' function-based MPM generator functions will not be able to generate valid
-#' MPMs.
+#' All coefficients across all data frames are initially set to \code{0}. After
+#' using this function to create the skeleton list, all relevant coefficient
+#' values should be set to non-zero values equal to the respective slope from
+#' the appropriate linear model, and any vital rate model to be used should
+#' have its distribution set to \code{"binom"}, \code{"gaussian"},
+#' \code{"gamma"}, \code{"poisson"}, or \code{"negbin"}. Unused vital rates
+#' should be set to \code{"constant"}, and the first element of the correspoding
+#' column in \code{vrm_frame} (corresponding to the y-intercept) should be set
+#' to the constant value to utilize (generally \code{1}). If no values are
+#' manually edited, then function-based MPM generator functions will not be able
+#' to generate valid MPMs.
 #' 
 #' Users should never change the labels or the order of terms in the data frames
 #' and vectors produced via this function, nor should they ever changes the
@@ -3809,56 +3766,104 @@ create_pm <- function() {
 #' creation.
 #' 
 #' @examples
-#' data(cypdata)
+#' data(lathyrus)
 #' 
-#' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
-#' stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
-#'   "XLg")
-#' repvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
-#' obsvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
-#' matvector <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
-#' immvector <- c(0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
-#' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-#' indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
-#' binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 2.5, 7)
+#' sizevector <- c(0, 100, 0, 1, 7100)
+#' stagevector <- c("Sd", "Sdl", "Dorm", "ipm", "ipm")
+#' repvector <- c(0, 0, 0, 1, 1)
+#' obsvector <- c(0, 1, 0, 1, 1)
+#' matvector <- c(0, 0, 1, 1, 1)
+#' immvector <- c(1, 1, 0, 0, 0)
+#' propvector <- c(1, 0, 0, 0, 0)
+#' indataset <- c(0, 1, 1, 1, 1)
+#' binvec <- c(0, 100, 0.5, 1, 1)
+#' comments <- c("Dormant seed", "Seedling", "Dormant", "ipm adult stage",
+#'   "ipm adult stage")
+#' lathframeipm <- sf_create(sizes = sizevector, stagenames = stagevector, 
+#'   repstatus = repvector, obsstatus = obsvector, propstatus = propvector,
+#'   immstatus = immvector, matstatus = matvector, comments = comments,
+#'   indataset = indataset, binhalfwidth = binvec, ipmbins = 100, roundsize = 3)
 #' 
-#' cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector,
-#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
-#'   propstatus = propvector, immstatus = immvector, indataset = indataset,
-#'   binhalfwidth = binvec)
+#' lathsupp2 <- supplemental(stage3 = c("Sd", "Sdl", "Sd", "Sdl"),
+#'   stage2 = c("Sd", "Sd", "rep", "rep"),
+#'   givenrate = c(0.345, 0.054, NA, NA),
+#'   multiplier = c(NA, NA, 0.345, 0.054),
+#'   type = c(1, 1, 3, 3), stageframe = lathframeipm, historical = FALSE)
 #' 
-#' cyp_slope_skeleton <- vrm_import(years = c(2004:2009),
-#'   patches = c("A", "B", "C"), interactions = TRUE)
+#' lath_vrm <- vrm_import(years = c(1988:1990), zi = TRUE, dist.fec = "negbin",
+#'   use.juv = TRUE)
+#' 
+#' lath_vrm$vrm_frame$surv[1] <- 2.32571
+#' lath_vrm$vrm_frame$surv[2] <- 0.00109
+#' lath_vrm$vrm_frame$obs[1] <- 2.230
+#' lath_vrm$vrm_frame$sizea[1] <- 164.0695
+#' lath_vrm$vrm_frame$sizea[2] <- 0.6211
+#' lath_vrm$vrm_frame$fec[1] <- 1.517
+#' lath_vrm$vrm_frame$fec_zi[1] <- 6.252765
+#' lath_vrm$vrm_frame$fec_zi[2] <- -0.007313
+#' lath_vrm$vrm_frame$jsurv[1] <- 1.03
+#' lath_vrm$vrm_frame$jobs[1] <- 10.390
+#' lath_vrm$vrm_frame$jsizea[1] <- 3.0559
+#' lath_vrm$vrm_frame$jsizea[2] <- 0.8482
+#' 
+#' lath_vrm$year_frame$fec[c(1:3)] <- c(-0.41749627, 0.51421684, -0.07964038)
+#' lath_vrm$year_frame$fec_zi[c(1:3)] <- c(3.741475e-07, -7.804715e-08,
+#'   -2.533755e-07)
+#' lath_vrm$year_frame$sizea[c(1:3)] <- c(96.3244, -240.8036, 144.4792)
+#' lath_vrm$year_frame$jobs[c(1:3)] <- c(-0.7459843, 0.6118826, -0.9468618)
+#' lath_vrm$year_frame$jsizea[c(1:3)] <- c(0.5937962, 1.4551236, -2.0489198)
+#' 
+#' lath_vrm$dist_frame$dist[2] <- "binom"
+#' lath_vrm$dist_frame$dist[9] <- "binom"
+#' 
+#' lath_vrm$st_frame[3] <- 503.6167
+#' lath_vrm$st_frame[7] <- 0.2342114
+#' lath_vrm$st_frame[10] <- 5.831
+#' 
+#' lath_vrm$vrm_frame$sizeb[1] <- 1
+#' lath_vrm$vrm_frame$sizec[1] <- 1
+#' lath_vrm$vrm_frame$repst[1] <- 1
+#' lath_vrm$vrm_frame$jsizeb[1] <- 1
+#' lath_vrm$vrm_frame$jsizec[1] <- 1
+#' lath_vrm$vrm_frame$jrepst[1] <- 1
+#' lath_vrm$vrm_frame$jmatst[1] <- 1
+#' 
+#' lathmat2_importipm <- flefko2(stageframe = lathframeipm,
+#'   modelsuite = lath_vrm, supplement = lathsupp2, reduce = FALSE)
+#' 
+#' summary(lathmat2_importipm)
 #' 
 #' @export
 vrm_import <- function(years = NULL, patches = c(1), groups = c(0),
   interactions = FALSE, zi = FALSE, cat.indcova = NULL, cat.indcovb = NULL,
-  cat.indcovc = NULL, dist.sizea = "gaussian", dist.sizeb = "gaussian",
-  dist.sizec = "gaussian", dist.fec = "gaussian", trunc.sizea = FALSE,
-  trunc.sizeb = FALSE, trunc.sizec = FALSE, trunc.fec = FALSE) {
+  cat.indcovc = NULL, dist.sizea = "gaussian", dist.sizeb = "constant",
+  dist.sizec = "constant", dist.fec = "gaussian", trunc.sizea = FALSE,
+  trunc.sizeb = FALSE, trunc.sizec = FALSE, trunc.fec = FALSE,
+  use.juv = FALSE) {
   
   dist.sizea <- tolower(dist.sizea)
   dist.sizeb <- tolower(dist.sizeb)
   dist.sizec <- tolower(dist.sizec)
   dist.fec <- tolower(dist.fec)
   
-  dist.possibilities <- c("none", "gamma", "gaussian", "poisson", "negbin")
+  dist.possibilities <- c("none", "gamma", "gaussian", "poisson", "negbin",
+    "constant")
   
   if (length(dist.sizea) != 1 | !is.element(dist.sizea[1], dist.possibilities)) {
     stop("Option dist.sizea must be set to a single value. Options include:
-      none, gamma, gaussian, poisson, or negbin.", call. = FALSE)
+      none, gamma, gaussian, poisson, negbin, or constant.", call. = FALSE)
   }
   if (length(dist.sizeb) != 1 | !is.element(dist.sizeb[1], dist.possibilities)) {
     stop("Option dist.sizeb must be set to a single value. Options include:
-      none, gamma, gaussian, poisson, or negbin.", call. = FALSE)
+      none, gamma, gaussian, poisson, negbin, or constant.", call. = FALSE)
   }
   if (length(dist.sizec) != 1 | !is.element(dist.sizec[1], dist.possibilities)) {
     stop("Option dist.sizec must be set to a single value. Options include:
-      none, gamma, gaussian, poisson, or negbin.", call. = FALSE)
+      none, gamma, gaussian, poisson, negbin, or constant.", call. = FALSE)
   }
   if (length(dist.fec) != 1 | !is.element(dist.fec[1], dist.possibilities)) {
     stop("Option dist.fec must be set to a single value. Options include:
-      none, gamma, gaussian, poisson, or negbin.", call. = FALSE)
+      none, gamma, gaussian, poisson, negbin, or constant.", call. = FALSE)
   }
   
   if (trunc.sizea) {
@@ -4113,8 +4118,15 @@ vrm_import <- function(years = NULL, patches = c(1), groups = c(0),
   }
   
   dist_frame <- cbind.data.frame(response = term_names,
-    dist = c("binom", "binom", dist.sizea, dist.sizeb, dist.sizec, "binom", dist.fec,
-      "binom", "binom", dist.sizea, dist.sizeb, dist.sizec, "binom", "binom"))
+    dist = c("binom", "constant", dist.sizea, dist.sizeb, dist.sizec, "constant",
+      dist.fec, "binom", "constant", dist.sizea, dist.sizeb, dist.sizec,
+      "constant", "constant"))
+  if (!use.juv) {
+    dist_frame$dist[8] = "constant"
+    dist_frame$dist[10] = "constant"
+    dist_frame$dist[11] = "constant"
+    dist_frame$dist[12] = "constant"
+  }
   st_frame <- rep(1.0, 14)
   names(st_frame) <- term_names
   

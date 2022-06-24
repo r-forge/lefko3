@@ -11682,8 +11682,8 @@ List S4_extractor(S4 object) {
 
 //' Extract Key Components of vrm_input Objects
 //' 
-//' This function extracts the components of an \code{vrm_input} for functions
-//' \code{jerzeibalowski()} and \code{motherbalowski()}.
+//' This function extracts the components of a \code{vrm_input} object for
+//' functions \code{jerzeibalowski()} and \code{motherbalowski()}.
 //' 
 //' @name vrm_extractor
 //' 
@@ -11696,27 +11696,32 @@ List S4_extractor(S4 object) {
 //' poisson, \code{1} = negbin, \code{2} = gaussian, \code{3} = gamma, \code{4}
 //' = binomial, and \code{5} = constant.}
 //' \item{zero_inflated}{A logical value indicating whether the distribution is
-//' zero-inflated. Not used in \code{lm}/\code{glm}/\code{negbin} objects.}
+//' zero-inflated. Not used in \code{lm}/\code{glm}/\code{negbin} objects. Will
+//' equal \code{FALSE} if \code{dist = 5}.}
 //' \item{zero_truncated}{A logical value indicating whether the distribution is
-//' zero-truncated. Not used in \code{lm}/\code{glm}/\code{negbin} objects.}
+//' zero-truncated. Not used in \code{lm}/\code{glm}/\code{negbin} objects. Will
+//' equal \code{FALSE} if \code{dist = 5}.}
 //' \item{all_vars}{A vector holding the names of each variable used by
-//' \code{object}.}
-//' \item{fixed_vars}{A string vector holding the names of the fixed variables.}
+//' \code{object}. Will equal only the intercept if \code{dist = 5}.}
+//' \item{fixed_vars}{A string vector holding the names of the fixed variables.
+//' Will equal only the intercept if \code{dist = 5}.}
 //' \item{fixed_slopes}{A numeric vector holding the slope coefficients of the
-//' fixed variables, in the same order as \code{fixed_vars}.}
+//' fixed variables, in the same order as \code{fixed_vars}. Will equal only the
+//' intercept if \code{dist = 5}.}
 //' \item{fixed_zi_vars}{A string vector holding the names of the zero-inflated
-//' fixed variables. Not used in \code{lm}/\code{glm}/\code{negbin} objects.}
+//' fixed variables. Not used in \code{lm}/\code{glm}/\code{negbin} objects.
+//' Will equal \code{NULL} is \code{dist = 5}.}
 //' \item{fixed_zi_slopes}{A numeric vector holding the slope coefficients of
 //' the zero-inflated fixed variables, in the same order as
 //' \code{fixed_zi_vars}. Not used in \code{lm}/\code{glm}/\code{negbin}
-//' objects.}
+//' objects. Will equal \code{NULL} is \code{dist = 5}.}
 //' \item{random_zi_vars}{A string vector holding the names of the random
 //' variables in the zero-inflation model. Not used in \code{lm}/\code{glm}/
-//' \code{negbin} objects.}
+//' \code{negbin} objects. Will equal \code{NULL} is \code{dist = 5}.}
 //' \item{random_zi_slopes}{A numeric vector holding the slope coefficients of
 //' the random variables in the zero-inflation model, in the same order as
 //' \code{random_zi_vars}. Not used in \code{lm}/\code{glm}/\code{negbin}
-//' objects.}
+//' objects. Will equal \code{NULL} is \code{dist = 5}.}
 //' \item{sigma}{The residual standard deviation of the model. Defaults to
 //' \code{1.0}.}
 //' \item{theta}{The estimated theta, if the response is negative binomial.
@@ -11750,13 +11755,14 @@ List vrm_extractor(List object) {
   } else if (stringcompare_simple(distrib, "binom")) {
     resp_family = "binomial";
     dist = 4;
+  } else if (stringcompare_simple(distrib, "cons")) {
+    resp_family = "constant";
+    dist = 5;
   }
   
   if (stringcompare_simple(distrib, "trunc")) {
     if (dist == 0 || dist == 1) zero_truncation = true; 
   }
-  
-  // Should probably check to see if all entries in coefs is 0, and change the first element to 1 if so
   
   NumericVector coefs = as<NumericVector>(object["fixed_slopes"]);
   NumericVector zi_coefs = as<NumericVector>(object["fixed_zi"]);
@@ -11903,14 +11909,30 @@ List vrm_extractor(List object) {
     zi_coefs = concat_dbl(zi_coefs, group1_zi);
   }
   
-  Rcpp::List output = List::create(_["class"] = object_class,
-    _["family"] = resp_family, _["dist"] = dist,
-    _["zero_inflated"] = zero_inflation, _["zero_truncated"] = zero_truncation,
-    _["all_vars"] = all_vars, _["fixed_vars"] = all_vars,
-    _["fixed_slopes"] = coefs, _["fixed_zi_vars"] = zi_vars,
-    _["fixed_zi_slopes"] = zi_coefs, _["random_vars"] = random_names,
-    _["random_slopes"] = random_slopes, _["random_zi_vars"] = random_names,
-    _["random_zi_slopes"] = random_zi, _["sigma"] = sigma, _["theta"] = theta);
+  Rcpp::List output;
+  if (dist == 5) {
+    CharacterVector simple_vars = {"Intercept"};
+    NumericVector simple_coefs (1);
+    simple_coefs(0) = coefs(0);
+    
+    output = List::create(_["class"] = object_class, _["family"] = resp_family,
+      _["dist"] = dist, _["zero_inflated"] = false, _["zero_truncated"] = false,
+      _["all_vars"] = simple_vars, _["fixed_vars"] = simple_vars,
+      _["fixed_slopes"] = simple_coefs, _["fixed_zi_vars"] = R_NilValue,
+      _["fixed_zi_slopes"] = R_NilValue, _["random_vars"] = R_NilValue,
+      _["random_slopes"] = R_NilValue, _["random_zi_vars"] = R_NilValue,
+      _["random_zi_slopes"] = R_NilValue, _["sigma"] = sigma, _["theta"] = theta);
+    
+  } else  {
+    output = List::create(_["class"] = object_class, _["family"] = resp_family,
+      _["dist"] = dist, _["zero_inflated"] = zero_inflation,
+      _["zero_truncated"] = zero_truncation, _["all_vars"] = all_vars,
+      _["fixed_vars"] = all_vars, _["fixed_slopes"] = coefs,
+      _["fixed_zi_vars"] = zi_vars, _["fixed_zi_slopes"] = zi_coefs,
+      _["random_vars"] = random_names, _["random_slopes"] = random_slopes,
+      _["random_zi_vars"] = random_names, _["random_zi_slopes"] = random_zi,
+      _["sigma"] = sigma, _["theta"] = theta);
+  }
   
   return output;
 }
@@ -15795,14 +15817,14 @@ List mothermccooney(DataFrame listofyears, List modelsuite, IntegerVector actual
 //' 
 //' @export f_projection3
 // [[Rcpp::export]]
-Rcpp::List f_projection3(DataFrame data, int format, bool prebreeding = true,
-  int start_age = NA_INTEGER, int last_age = NA_INTEGER, int fecage_min = NA_INTEGER,
-  int fecage_max = NA_INTEGER, bool cont = true, bool stochastic = false,
-  bool standardize = false, bool growthonly = true, bool repvalue = false,
-  bool integeronly = false, int substoch = 0, String ipm_method = "CDF",
-  int nreps = 1, int times = 10000, double repmod = 1.0, double exp_tol = 700.0,
-  double theta_tol = 100000000.0, bool random_inda = false, bool random_indb = false,
-  bool random_indc = false, bool err_check = false, bool quiet = false,
+Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA_INTEGER,
+  int last_age = NA_INTEGER, int fecage_min = NA_INTEGER, int fecage_max = NA_INTEGER,
+  bool cont = true, bool stochastic = false, bool standardize = false,
+  bool growthonly = true, bool repvalue = false, bool integeronly = false,
+  int substoch = 0, String ipm_method = "CDF", int nreps = 1, int times = 10000,
+  double repmod = 1.0, double exp_tol = 700.0, double theta_tol = 100000000.0,
+  bool random_inda = false, bool random_indb = false, bool random_indc = false,
+  bool err_check = false, bool quiet = false, Nullable<DataFrame> data = R_NilValue,
   Nullable<DataFrame> stageframe = R_NilValue, Nullable<DataFrame> supplement = R_NilValue,
   Nullable<NumericMatrix> repmatrix = R_NilValue, Nullable<DataFrame> overwrite = R_NilValue,
   Nullable<List> modelsuite = R_NilValue, Nullable<DataFrame> paramnames = R_NilValue,
@@ -17133,7 +17155,8 @@ Rcpp::List f_projection3(DataFrame data, int format, bool prebreeding = true,
       pmn_provided = true;
     }
   }
-  if (modelcheck == 0) {
+  
+  if (modelcheck == 0 && !nodata) {
     throw Rcpp::exception("This function requires a lefkoMod object or vital rate models.", false);
   }
   if (!pmn_provided) {
@@ -17164,7 +17187,6 @@ Rcpp::List f_projection3(DataFrame data, int format, bool prebreeding = true,
   }
   
   // Demographic data
-  int no_vars = data.length();
   int used_yearcol {-1};
   int used_patchcol {-1};
   int used_agecol {-1};
@@ -17185,46 +17207,69 @@ Rcpp::List f_projection3(DataFrame data, int format, bool prebreeding = true,
   std::string group2var = as<std::string>(modelparam_names(29));
   std::string group1var = as<std::string>(modelparam_names(30));
   
-  CharacterVector data_names = data.attr("names");
-  
-  for (int i = 0; i < no_vars; i++) {
-    if (stringcompare_hard(as<std::string>(data_names(i)), year2var)) {
-      used_yearcol = i;
-    }
-    if (stringcompare_hard(as<std::string>(data_names(i)), patchvar)) {
-      used_patchcol = i;
-    }
-    if (stringcompare_hard(as<std::string>(data_names(i)), agevar)) {
-      used_agecol = i;
-    }
-    if (stringcompare_hard(as<std::string>(data_names(i)), indcova2var)) {
-      used_indacol = i;
-    }
-    if (stringcompare_hard(as<std::string>(data_names(i)), indcovb2var)) {
-      used_indbcol = i;
-    }
-    if (stringcompare_hard(as<std::string>(data_names(i)), indcovc2var)) {
-      used_indccol = i;
-    }
-  }
-  if (used_yearcol < 0 || used_yearcol > (no_vars - 1)) {
-    throw Rcpp::exception("Correct variable in dataset for time t not found. Is paramnames object correct?", 
-      false);
-  }
-  IntegerVector all_years = as<IntegerVector>(data[used_yearcol]);
-  IntegerVector all_years_x = unique(all_years);
-  IntegerVector mainyears_int = int_sort(all_years_x);
-  NumericVector mainyears = as<NumericVector>(mainyears_int);
-  
+  IntegerVector mainyears_int;
+  NumericVector mainyears;
   CharacterVector mainpatches;
+  DataFrame true_data;
   
-  if (used_patchcol > -1) {
-    CharacterVector all_patches = as<CharacterVector>(data[used_patchcol]);
-    CharacterVector mainpatches_int = unique(all_patches);
+  if (data.isNotNull() && !nodata) {
+    true_data = DataFrame(data);
+    int no_vars = true_data.length();
+    CharacterVector data_names = true_data.attr("names");
     
-    mainpatches = stringsort(mainpatches_int);
+    for (int i = 0; i < no_vars; i++) {
+      if (stringcompare_hard(as<std::string>(data_names(i)), year2var)) {
+        used_yearcol = i;
+      }
+      if (stringcompare_hard(as<std::string>(data_names(i)), patchvar)) {
+        used_patchcol = i;
+      }
+      if (stringcompare_hard(as<std::string>(data_names(i)), agevar)) {
+        used_agecol = i;
+      }
+      if (stringcompare_hard(as<std::string>(data_names(i)), indcova2var)) {
+        used_indacol = i;
+      }
+      if (stringcompare_hard(as<std::string>(data_names(i)), indcovb2var)) {
+        used_indbcol = i;
+      }
+      if (stringcompare_hard(as<std::string>(data_names(i)), indcovc2var)) {
+        used_indccol = i;
+      }
+    }
+    if (used_yearcol < 0 || used_yearcol > (no_vars - 1)) {
+      throw Rcpp::exception("Correct variable in dataset for time t not found. Is paramnames object correct?", 
+        false);
+    }
+    IntegerVector all_years = as<IntegerVector>(true_data[used_yearcol]);
+    IntegerVector all_years_x = unique(all_years);
+    mainyears_int = int_sort(all_years_x);
+    mainyears = as<NumericVector>(mainyears_int);
+    
+    if (used_patchcol > -1) {
+      CharacterVector all_patches = as<CharacterVector>(true_data[used_patchcol]);
+      CharacterVector mainpatches_int = unique(all_patches);
+      
+      mainpatches = stringsort(mainpatches_int);
+    } else {
+      mainpatches = {NA_STRING};
+    }
+  
+  } else if (!data.isNotNull() && !nodata) {
+    throw Rcpp::exception("Please also supply the original hfv dataset if using a lefkoMod object.",
+      false);
+      
   } else {
-    mainpatches = {NA_STRING};
+    DataFrame year_frame = as<DataFrame>(msuite["year_frame"]);
+    IntegerVector year_names = as<IntegerVector>(year_frame["years"]);
+    mainyears_int = year_names;
+    mainyears = as<NumericVector>(mainyears_int);
+    
+    DataFrame patch_frame = as<DataFrame>(msuite["patch_frame"]);
+    CharacterVector all_patches = as<CharacterVector>(patch_frame["patches"]);
+    CharacterVector mainpatches_int = unique(all_patches);
+    mainpatches = stringsort(mainpatches_int);
+    
   }
   
   IntegerVector mainages;
@@ -17232,13 +17277,6 @@ Rcpp::List f_projection3(DataFrame data, int format, bool prebreeding = true,
   int age_limit {0};
   
   if (format > 3) { // Age and age-by-stage cases
-    if (used_agecol > -1) {
-      IntegerVector all_ages = as<IntegerVector>(data[used_agecol]);
-      IntegerVector mainages_pre = unique(all_ages);
-      mainages = int_sort(mainages_pre);
-    }
-    age_limit = max(mainages) + 1;
-    
     if (IntegerVector::is_na(start_age)) {
       if (prebreeding) {
         start_age = 1;
@@ -17246,6 +17284,29 @@ Rcpp::List f_projection3(DataFrame data, int format, bool prebreeding = true,
         start_age = 0;
       }
     }
+    
+    if (data.isNotNull() && !nodata) {
+      if (used_agecol > -1) {
+        IntegerVector all_ages = as<IntegerVector>(true_data[used_agecol]);
+        IntegerVector mainages_pre = unique(all_ages);
+        mainages = int_sort(mainages_pre);
+        
+      }
+    } else {
+      if (IntegerVector::is_na(last_age)) {
+        throw Rcpp::exception("Option last_age must be entered if using a vrm_input object.",
+          false);
+      }
+      
+      if (last_age <= start_age) {
+        throw Rcpp::exception("Option last_age must be greater than start_age.",
+          false);
+      }
+      mainages = seq(last_age, start_age);
+    }
+    
+    age_limit = max(mainages) + 1;
+    
     if (IntegerVector::is_na(last_age)) {
       last_age = max(mainages) + 1;
     }
@@ -17281,61 +17342,113 @@ Rcpp::List f_projection3(DataFrame data, int format, bool prebreeding = true,
   CharacterVector indb_names_ch;
   CharacterVector indc_names_ch;
   
-  if (used_indacol > -1) {
-    if (random_inda) {
-      CharacterVector inda_data = as<CharacterVector>(data[used_indacol]);
-      CharacterVector unique_a = unique(inda_data);
-      CharacterVector sorted_a = stringsort(unique_a);
-      inda_names_ch = sorted_a;
-      
-      inda_names = as<RObject>(sorted_a);
-      
+  if (!nodata) {
+    if (used_indacol > -1) {
+      if (random_inda) {
+        CharacterVector inda_data = as<CharacterVector>(true_data[used_indacol]);
+        CharacterVector unique_a = unique(inda_data);
+        CharacterVector sorted_a = stringsort(unique_a);
+        inda_names_ch = sorted_a;
+        
+        inda_names = as<RObject>(sorted_a);
+        
+      } else {
+        IntegerVector notrandom_a = {0};
+        inda_names = as<RObject>(notrandom_a);
+      }
     } else {
       IntegerVector notrandom_a = {0};
       inda_names = as<RObject>(notrandom_a);
+      random_inda = false;
     }
-  } else {
-    IntegerVector notrandom_a = {0};
-    inda_names = as<RObject>(notrandom_a);
-    random_inda = false;
-  }
-  
-  if (used_indbcol > -1) {
-    if (random_indb) {
-      CharacterVector indb_data = as<CharacterVector>(data[used_indbcol]);
-      CharacterVector unique_b = unique(indb_data);
-      CharacterVector sorted_b = stringsort(unique_b);
-      indb_names_ch = sorted_b;
-      
-      indb_names = as<RObject>(sorted_b);
-      
+    
+    if (used_indbcol > -1) {
+      if (random_indb) {
+        CharacterVector indb_data = as<CharacterVector>(true_data[used_indbcol]);
+        CharacterVector unique_b = unique(indb_data);
+        CharacterVector sorted_b = stringsort(unique_b);
+        indb_names_ch = sorted_b;
+        
+        indb_names = as<RObject>(sorted_b);
+        
+      } else {
+        IntegerVector notrandom_b = {0};
+        indb_names = as<RObject>(notrandom_b);
+      }
     } else {
       IntegerVector notrandom_b = {0};
       indb_names = as<RObject>(notrandom_b);
+      random_indb = false;
     }
-  } else {
-    IntegerVector notrandom_b = {0};
-    indb_names = as<RObject>(notrandom_b);
-    random_indb = false;
-  }
-  
-  if (used_indccol > -1) {
-    if (random_indc) {
-      CharacterVector indc_data = as<CharacterVector>(data[used_indccol]);
-      CharacterVector unique_c = unique(indc_data);
-      CharacterVector sorted_c = stringsort(unique_c);
-      indc_names_ch = sorted_c;
-      
-      indc_names = as<RObject>(sorted_c);
-      
+    
+    if (used_indccol > -1) {
+      if (random_indc) {
+        CharacterVector indc_data = as<CharacterVector>(true_data[used_indccol]);
+        CharacterVector unique_c = unique(indc_data);
+        CharacterVector sorted_c = stringsort(unique_c);
+        indc_names_ch = sorted_c;
+        
+        indc_names = as<RObject>(sorted_c);
+        
+      } else {
+        IntegerVector notrandom_c = {0};
+        indc_names = as<RObject>(notrandom_c);
+      }
     } else {
       IntegerVector notrandom_c = {0};
       indc_names = as<RObject>(notrandom_c);
+      random_indc = false;
     }
   } else {
-    IntegerVector notrandom_c = {0};
-    indc_names = as<RObject>(notrandom_c);
-    random_indc = false;
+    CharacterVector ms_names = msuite.attr("names");
+    bool indcova_inc = false;
+    bool indcovb_inc = false;
+    bool indcovc_inc = false;
+    
+    for (int i = 0; i < ms_names.length(); i++) {
+      if (stringcompare_simple(as<std::string>(ms_names(i)), "indcova2_frame")) indcova_inc = true;
+      if (stringcompare_simple(as<std::string>(ms_names(i)), "indcovb2_frame")) indcovb_inc = true;
+      if (stringcompare_simple(as<std::string>(ms_names(i)), "indcovc2_frame")) indcovc_inc = true;
+    }
+    
+    if (indcova_inc) {
+      DataFrame ica_frame = as<DataFrame>(msuite["indcova2_frame"]);
+      CharacterVector sorted_a = as<CharacterVector>(ica_frame["indcova"]);
+      
+      inda_names_ch = sorted_a;
+      
+      inda_names = as<RObject>(sorted_a);
+    } else {
+      IntegerVector notrandom_a = {0};
+      inda_names = as<RObject>(notrandom_a);
+      random_inda = false;
+    }
+    
+    if (indcovb_inc) {
+      DataFrame icb_frame = as<DataFrame>(msuite["indcovb2_frame"]);
+      CharacterVector sorted_b = as<CharacterVector>(icb_frame["indcovb"]);
+      
+      indb_names_ch = sorted_b;
+      
+      indb_names = as<RObject>(sorted_b);
+    } else {
+      IntegerVector notrandom_b = {0};
+      indb_names = as<RObject>(notrandom_b);
+      random_indb = false;
+    }
+    
+    if (indcovc_inc) {
+      DataFrame icc_frame = as<DataFrame>(msuite["indcovc2_frame"]);
+      CharacterVector sorted_c = as<CharacterVector>(icc_frame["indcovc"]);
+      
+      indc_names_ch = sorted_c;
+      
+      indc_names = as<RObject>(sorted_c);
+    } else {
+      IntegerVector notrandom_c = {0};
+      indc_names = as<RObject>(notrandom_c);
+      random_indc = false;
+    }
   }
   
   // Check years and patches entries

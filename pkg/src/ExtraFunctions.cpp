@@ -552,3 +552,60 @@ Rcpp::NumericVector logistic3(double start_value, double alpha,
   }
   return output;
 }
+
+//' Function to Test Whether a Numeric Vector Is Composed Only of Integers
+//' 
+//' Function \code{.integer_test()} tests whether the elements of a numeric
+//' vector are integers.
+//' 
+//' @name .integer_test
+//' 
+//' @param numeric_input A numeric vector to be tested.
+//' 
+//' @return This function returns an integer equal to the number of elements
+//' that are not integers in \code{numeric_input}.
+//' 
+//' @keywords internal
+//' @noRd
+// [[Rcpp::export(.integer_test)]]
+int integer_test(NumericVector numeric_input) {
+  int vec_length = numeric_input.length();
+  int non_ints = 0;
+  
+  for (int i = 0; i < vec_length; i++) {
+    if (floor(numeric_input(i)) != ceil(numeric_input(i))) {
+      non_ints++;
+    }
+  }
+  
+  return non_ints;
+}
+
+//' Function to Test Whether an Integer Vector Is Entirely Binomial
+//' 
+//' Function \code{.binomial_test()} tests whether an integer vector is composed
+//' only of \code{0} and \code{1} elements.
+//' 
+//' @name .binomial_test
+//' 
+//' @param integer_input An integer vector to be tested.
+//' 
+//' @return This function returns an integer equal to the number of elements
+//' that are not \code{0}s and \code{1}s.
+//' 
+//' @keywords internal
+//' @noRd
+// [[Rcpp::export(.binomial_test)]]
+int binomial_test(NumericVector integer_input) {
+  int vec_length = integer_input.length();
+  int non_bins = 0;
+  
+  for (int i = 0; i < vec_length; i++) {
+    if (integer_input(i) < 0 || integer_input(i) > 1) {
+      non_bins++;
+    }
+  }
+  
+  return non_bins;
+}
+
