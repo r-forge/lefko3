@@ -1,6 +1,21 @@
 LEFKO3 NEWS
 -----------
 
+CHANGES IN VERSION 5.X.X (2022-07-XX)
+-------------------------------------
+  NEW FEATURES
+    1. 
+
+  USER-VISIBLE CHANGES
+    1. Updates and corrections to help files.
+
+  BUG FIXES
+    1. Lathyrus vignettes corrected to account for duplicated individual
+       identity across subpopulations.
+    2. Corrected issue in repvalue3 causing warnings in MPMs with certain rare
+       conditions.
+
+
 CHANGES IN VERSION 5.3.0 (2022-06-24)
 -------------------------------------
   NEW FEATURES

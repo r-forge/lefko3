@@ -1561,7 +1561,7 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
     } else if (is.list(mats$A)) {
       final <- unlist(lapply(mats$A, function(X) {
         almost_final <- .rv3matrix(X, sparsemethod)
-        return(almost_final/almost_final[which(almost_final == min(almost_final[which(almost_final > 0)])[1])])
+        return(almost_final/almost_final[which(almost_final == min(almost_final[which(almost_final > 0)])[1])[1]])
       }))
     } else {
       stop("Input not recognized.")
