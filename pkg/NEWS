@@ -12,8 +12,10 @@ CHANGES IN VERSION 5.X.X (2022-07-XX)
   BUG FIXES
     1. Lathyrus vignettes corrected to account for duplicated individual
        identity across subpopulations.
-    2. Corrected issue in repvalue3 causing warnings in MPMs with certain rare
+    2. Corrected issue in repvalue3() causing warnings in MPMs with certain rare
        conditions.
+    3. Corrected issue in lambda3() causing rare eigen analysis failure in
+       sparse matrices.
 
 
 CHANGES IN VERSION 5.3.0 (2022-06-24)
