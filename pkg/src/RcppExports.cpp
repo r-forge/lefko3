@@ -1126,6 +1126,26 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// actualstage3
+List actualstage3(RObject data, bool check_stage, bool check_age, bool historical, Nullable<RObject> year2, Nullable<RObject> indices, Nullable<RObject> stagecol, Nullable<RObject> agecol, Nullable<RObject> remove_stage, Nullable<RObject> t1_allow);
+RcppExport SEXP _lefko3_actualstage3(SEXP dataSEXP, SEXP check_stageSEXP, SEXP check_ageSEXP, SEXP historicalSEXP, SEXP year2SEXP, SEXP indicesSEXP, SEXP stagecolSEXP, SEXP agecolSEXP, SEXP remove_stageSEXP, SEXP t1_allowSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< RObject >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< bool >::type check_stage(check_stageSEXP);
+    Rcpp::traits::input_parameter< bool >::type check_age(check_ageSEXP);
+    Rcpp::traits::input_parameter< bool >::type historical(historicalSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type year2(year2SEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type indices(indicesSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type stagecol(stagecolSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type agecol(agecolSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type remove_stage(remove_stageSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type t1_allow(t1_allowSEXP);
+    rcpp_result_gen = Rcpp::wrap(actualstage3(data, check_stage, check_age, historical, year2, indices, stagecol, agecol, remove_stage, t1_allow));
+    return rcpp_result_gen;
+END_RCPP
+}
 // lambda3
 RObject lambda3(RObject mpm, String sparse);
 RcppExport SEXP _lefko3_lambda3(SEXP mpmSEXP, SEXP sparseSEXP) {
@@ -1190,6 +1210,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_lefko3_sltre3matrix", (DL_FUNC) &_lefko3_sltre3matrix, 8},
     {"_lefko3_stovokor", (DL_FUNC) &_lefko3_stovokor, 35},
     {"_lefko3_create_pm", (DL_FUNC) &_lefko3_create_pm, 1},
+    {"_lefko3_actualstage3", (DL_FUNC) &_lefko3_actualstage3, 10},
     {"_lefko3_lambda3", (DL_FUNC) &_lefko3_lambda3, 2},
     {NULL, NULL, 0}
 };

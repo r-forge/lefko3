@@ -819,6 +819,1151 @@ logistic3 <- function(start_value, alpha, beta = 0.0, lambda = 1.0, time_steps =
     .Call('_lefko3_binomial_test', PACKAGE = 'lefko3', integer_input)
 }
 
+#' Append NumericVector to the End of Another NumericVector
+#' 
+#' This function appends one NumericVector fully to another.
+#' 
+#' @name concat_dbl
+#' 
+#' @param A Any NumericVector.
+#' @param B Any other NumericVector.
+#' 
+#' @return Returns a new NumericVector with elements of vector A followed by
+#' elements of vector B.
+#'
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Append IntegerVector to the End of Another IntegerVector
+#' 
+#' Returns a new IntegerVector with elements of vector A followed by
+#' elements of vector B.
+#' 
+#' @name concat_int
+#' 
+#' @param A Any IntegerVector.
+#' @param B Any other IntegerVector.
+#' 
+#' @return Returns a new IntegerVector with elements of vector A followed by
+#' elements of vector B.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Append StringVector to the End of Another StringVector
+#' 
+#' Returns a new StringVector with elements of vector A followed by
+#' elements of vector B.
+#' 
+#' @name concat_str
+#' 
+#' @param A Any StringVector.
+#' @param B Any other StringVector.
+#' 
+#' @return Returns a new StringVector with elements of vector A followed by
+#' elements of vector B.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Compares Two Strings Literally
+#' 
+#' This function compares two strings element by element. Returns \code{FALSE}
+#' in case of any differences whatsoever.
+#' 
+#' @name stringcompare_hard
+#' 
+#' @param str1 The first string
+#' @param str2 The second string
+#' 
+#' @return A logical value. In case of any difference at all, it will return
+#' \code{FALSE}.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Compares Two Strings, Assessing Inclusion
+#' 
+#' This function compares two strings, and will assess whether \code{str2} is
+#' contained within \code{str1}.
+#' 
+#' @name stringcompare_soft
+#' 
+#' @param str1 The first string
+#' @param str2 The second string
+#' 
+#' @return A list of two values. The first is a logical value indicating
+#' whether \code{str2} occurs within \code{str1}. The second element is an
+#' integer indicating at what element of \code{str1} \code{str2} begins.
+#' \code{FALSE}.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Compares Two Strings, Assessing Inclusion
+#' 
+#' This function compares two strings, and will assess whether \code{str2} is
+#' contained within \code{str1}. It is a simpler version of 
+#' \code{stringcompare_soft()} that yields only the logical result.
+#' 
+#' @name stringcompare_simple
+#' 
+#' @param str1 The first string
+#' @param str2 The second string
+#' @param lower A logical value indicating whether to change all inputs to
+#' lower case before checking.
+#' 
+#' @return A logical value indicating whether \code{str2} occurs within
+#' \code{str1}.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Compares Three Strings for Interaction Notation
+#' 
+#' This function compares checks to see if one string is composed of the other
+#' two strings in R's interaction notation.
+#' 
+#' @name stringcompare_x
+#' 
+#' @param str1 The first string. Used for comparison.
+#' @param str2 The second string. Will be incorporated into interaction format.
+#' @param str3 The third string. Will be incorporated into interaction format.
+#' 
+#' @return A logical value. In case of any difference at all, it will return
+#' \code{FALSE}.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Sort String Elements
+#' 
+#' This function is based on code obtained from R Bloggers
+#' (see https://www.r-bloggers.com/2013/01/handling-strings-with-rcpp/). It
+#' sorts the elements of a string vector in alphabetical order.
+#' 
+#' @name stringsort
+#' 
+#' @param string_input A string vector.
+#' 
+#' @return The sorted string vector.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Sort Integer Elements
+#' 
+#' This function is based on code obtained from the Rcpp Gallery by Ross
+#' Bennett (see https://gallery.rcpp.org/articles/sorting/). It sorts the
+#' elements of an integer vector.
+#' 
+#' @name int_sort
+#' 
+#' @param int_input An integer vector.
+#' 
+#' @return The sorted integer vector.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Function to Index a Numeric Vector According to a Reference Vector
+#' 
+#' Function \code{refsort_num()} takes a numeric matrix and replaces it with an
+#' integer vector showing the position of each element in the input vector
+#' within the reference vector.
+#' 
+#' @name refsort_num
+#' 
+#' @param vec The matrix to index
+#' @param ref The vector to use as a reference
+#' 
+#' @return An integer vector with integers referring to elements in vector
+#' \code{ref}.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Function to Index a Numeric Vector According to a Reference Vector
+#' 
+#' Function \code{refsort_str()} takes a string vector and replaces it with an
+#' integer vector showing the position of each element in the input vector
+#' within the reference vector.
+#' 
+#' @name refsort_str
+#' 
+#' @param vec The vector to index
+#' @param ref The vector to use as a reference
+#' 
+#' @return An integer vector with integers referring to elements in vector
+#' \code{ref}.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Vectorize Matrix for Historical Mean Matrix Estimation
+#' 
+#' Function \code{flagrantcrap()} vectorizes core indices of matrices
+#' input as list elements.
+#' 
+#' @name flagrantcrap
+#' 
+#' @param Xmat A matrix originally a part of a list object.
+#' @param allindices A vector of indices to remove from the matrix
+#' 
+#' @return A column vector of specifically called elements from the input
+#' matrix.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Vectorize Matrix for Ahistorical Mean Matrix Estimation
+#' 
+#' Function \code{moreflagrantcrap()} vectorizes matrices input as list
+#' elements.
+#' 
+#' @name moreflagrantcrap
+#' 
+#' @param Xmat A matrix originally a part of a list object.
+#' 
+#' @return A column vector of the input matrix.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Calculate Logarithms of Non-Zero Elements of Sparse Matrix
+#' 
+#' Function \code{spmat_log} finds the non-zero elements in a sparse matrix,
+#' calculates their logs, and inserts them back into the matrix and returns it.
+#' Based on code developed by Coatless Professor and posted by him on
+#' StackOverflow.
+#' 
+#' @name spmat_log
+#' 
+#' @param B A sparse matrix. Note that this is assumed to be a population
+#' projection matrix, meaning that all values are either 0 or positive.
+#' 
+#' @return A sparse matrix with non-zero values as logs of the elements in the
+#' input matrix.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Resize an IntegerVector
+#' 
+#' This function resizes an IntegerVector. It is based on code provided by Dirk
+#' Eddelbuettel on StackExchange
+#' (https://stackoverflow.com/questions/13782943/how-to-resize-a-numericvector).
+#' 
+#' @name shrink
+#' 
+#' @param x_int An IntegerVector.
+#' 
+#' @return A new IntegerVector exactly one element smaller than \code{x_int}.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Create hstages Index Object
+#' 
+#' Function \code{hst_maker()} creates \code{hstages} index data frames from
+#' \code{stageframe} inputs.
+#' 
+#' @name hst_maker
+#' 
+#' @param sframe The ahistorical stageframe used in MPM development.
+#' 
+#' @return A data frame with the following columns:
+#' \item{stage_id_2}{Integer index of stage in time \emph{t}+1.}
+#' \item{stage_id_1}{Integer index of stage in time \emph{t}.}
+#' \item{stage_2}{String name of stage in time \emph{t}+1.}
+#' \item{stage_1}{String name of stage in time \emph{t}.}
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Create agestages Index Object
+#' 
+#' Function \code{age_maker()} creates \code{agestages} index data frames from
+#' \code{stageframe} inputs.
+#' 
+#' @name age_maker
+#' 
+#' @param sframe The ahistorical stageframe used in MPM development.
+#' 
+#' @return A data frame with the following columns:
+#' \item{stage_id}{Integer index of stage.}
+#' \item{stage}{String name of stage.}
+#' \item{age}{The age of stage in current time.}
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Extract Key Components from Simple Numerical Model
+#' 
+#' This function creates a skeleton list needed for functions
+#' \code{jerzeibalowski()} and \code{motherbalowski()}, when a vital rate model
+#' is simply a scalar.
+#' 
+#' @name numeric_extractor
+#' 
+#' @param object A numerical value, typical \code{1} or \code{0}.
+#' 
+#' @return A list with the following elements:
+#' \item{class}{The exact class of \code{object}. Will generally be
+#' \code{numeric}.}
+#' \item{family}{The response distribution. Here, given as \code{constant}.}
+#' \item{dist}{An integer representing the response distribution. \code{0} = 
+#' poisson, \code{1} = negbin, \code{2} = gaussian, \code{3} = gamma, \code{4}
+#' = binomial, and \code{5} = constant.}
+#' \item{zero_inflated}{A logical value indicating whether the distribution is
+#' zero-inflated.}
+#' \item{zero_truncated}{A logical value indicating whether the distribution is
+#' zero-truncated.}
+#' \item{all_vars}{A vector holding the names of each variable used by
+#' \code{object}. Here, given as \code{NULL}.}
+#' \item{fixed_vars}{A string vector holding the names of the fixed variables.
+#' Here, given as \code{NULL}.}
+#' \item{fixed_slopes}{A numeric vector holding the slope coefficients of the
+#' fixed variables, in the same order as \code{fixed_vars}. Here, given as
+#' \code{NULL}.}
+#' \item{fixed_zi_vars}{A string vector holding the names of the zero-inflated
+#' fixed variables. Not used in \code{lm}/\code{glm}/\code{negbin} objects.
+#' Here, given as \code{NULL}.}
+#' \item{fixed_zi_slopes}{A numeric vector holding the slope coefficients of
+#' the zero-inflated fixed variables, in the same order as
+#' \code{fixed_zi_vars}. Here, given as \code{NULL}.}
+#' \item{random_zi_vars}{A string vector holding the names of the random
+#' variables in the zero-inflation model. Here, given as \code{NULL}.}
+#' \item{random_zi_slopes}{A numeric vector holding the slope coefficients of
+#' the random variables in the zero-inflation model, in the same order as
+#' \code{random_zi_vars}. Here, given as \code{NULL}.}
+#' \item{sigma}{The residual standard deviation of the model. Defaults to
+#' \code{1.0}.}
+#' \item{theta}{The estimated theta, if the response is negative binomial.
+#' Otherwise, will equal \code{1.0}.}
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Extract Key Components of lm/glm/negbin Objects
+#' 
+#' This function extracts the components of an \code{lm}, \code{glm}, or
+#' \code{negbin} (function \code{glm.nb()}) object needed for functions
+#' \code{jerzeibalowski()} and \code{motherbalowski()}.
+#' 
+#' @name glm_extractor
+#' 
+#' @param object An \code{lm}, \code{glm}, or \code{negbin} object.
+#' 
+#' @return A list with the following elements:
+#' \item{class}{The exact class of \code{object}. Will generally be either
+#' \code{lm} or \code{glm}.}
+#' \item{family}{The response distribution.}
+#' \item{dist}{An integer representing the response distribution. \code{0} = 
+#' poisson, \code{1} = negbin, \code{2} = gaussian, \code{3} = gamma, \code{4}
+#' = binomial, and \code{5} = constant.}
+#' \item{zero_inflated}{A logical value indicating whether the distribution is
+#' zero-inflated. Not used in \code{lm}/\code{glm}/\code{negbin} objects.}
+#' \item{zero_truncated}{A logical value indicating whether the distribution is
+#' zero-truncated. Not used in \code{lm}/\code{glm}/\code{negbin} objects.}
+#' \item{all_vars}{A vector holding the names of each variable used by
+#' \code{object}.}
+#' \item{fixed_vars}{A string vector holding the names of the fixed variables.}
+#' \item{fixed_slopes}{A numeric vector holding the slope coefficients of the
+#' fixed variables, in the same order as \code{fixed_vars}.}
+#' \item{fixed_zi_vars}{A string vector holding the names of the zero-inflated
+#' fixed variables. Not used in \code{lm}/\code{glm}/\code{negbin} objects.}
+#' \item{fixed_zi_slopes}{A numeric vector holding the slope coefficients of
+#' the zero-inflated fixed variables, in the same order as
+#' \code{fixed_zi_vars}. Not used in \code{lm}/\code{glm}/\code{negbin}
+#' objects.}
+#' \item{random_zi_vars}{A string vector holding the names of the random
+#' variables in the zero-inflation model. Not used in \code{lm}/\code{glm}/
+#' \code{negbin} objects.}
+#' \item{random_zi_slopes}{A numeric vector holding the slope coefficients of
+#' the random variables in the zero-inflation model, in the same order as
+#' \code{random_zi_vars}. Not used in \code{lm}/\code{glm}/\code{negbin}
+#' objects.}
+#' \item{sigma}{The residual standard deviation of the model. Defaults to
+#' \code{1.0}.}
+#' \item{theta}{The estimated theta, if the response is negative binomial.
+#' Otherwise, will equal \code{1.0}.}
+#' 
+#' @section Notes:
+#' Output from function \code{glm.nb()} is technically of class \code{negbin},
+#' but is treated as class \code{glm} here.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Extract Key Components of vglm Objects
+#' 
+#' This function extracts the components of a \code{vglm} object needed for
+#' functions \code{jerzeibalowski()} and \code{motherbalowski()}.
+#' 
+#' @name vglm_extractor
+#' 
+#' @param object A \code{vglm} object.
+#' 
+#' @return A list with the following elements:
+#' \item{class}{The exact class of \code{object}.}
+#' \item{family}{The response distribution.}
+#' \item{dist}{An integer representing the response distribution. \code{0} = 
+#' poisson, \code{1} = negbin, \code{2} = gaussian, \code{3} = gamma, \code{4}
+#' = binomial, and \code{5} = constant.}
+#' \item{zero_inflated}{A logical value indicating whether the distribution is
+#' zero-inflated. Not used in \code{vglm} objects.}
+#' \item{zero_truncated}{A logical value indicating whether the distribution is
+#' zero-truncated. Always \code{TRUE} for \code{vglm} objects.}
+#' \item{all_vars}{A vector holding the names of each variable used by
+#' \code{object}.}
+#' \item{fixed_vars}{A string vector holding the names of the fixed variables.}
+#' \item{fixed_slopes}{A numeric vector holding the slope coefficients of the
+#' fixed variables, in the same order as \code{fixed_vars}.}
+#' \item{fixed_zi_vars}{A string vector holding the names of the zero-inflated
+#' fixed variables. Not used in \code{vglm} objects.}
+#' \item{fixed_zi_slopes}{A numeric vector holding the slope coefficients of
+#' the zero-inflated fixed variables, in the same order as
+#' \code{fixed_zi_vars}. Not used in \code{vglm} objects.}
+#' \item{random_zi_vars}{A string vector holding the names of the random
+#' variables in the zero-inflation model. Not used in \code{vglm} objects.}
+#' \item{random_zi_slopes}{A numeric vector holding the slope coefficients of
+#' the random variables in the zero-inflation model, in the same order as
+#' \code{random_zi_vars}. Not used in \code{vglm} objects.}
+#' \item{sigma}{The residual standard deviation of the model. Defaults to 1.0.}
+#' \item{theta}{The estimated theta, if the response is negative binomial.
+#' Otherwise, will equal \code{1.0}.}
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Extract Key Components of zeroinfl Objects
+#' 
+#' This function extracts the components of a \code{zeroinfl} object needed for
+#' functions \code{jerzeibalowski()} and \code{motherbalowski()} to work.
+#' 
+#' @name zeroinfl_extractor
+#' 
+#' @param object A \code{zeroinfl} object.
+#' 
+#' @return A list with the following elements:
+#' \item{class}{The exact class of \code{object}. Will always be
+#' \code{glmmTMB}.}
+#' \item{family}{The response distribution.}
+#' \item{dist}{An integer representing the response distribution. \code{0} = 
+#' poisson, \code{1} = negbin, \code{2} = gaussian, \code{3} = gamma, \code{4}
+#' = binomial, and \code{5} = constant.}
+#' \item{zero_inflated}{A logical value indicating whether the distribution is
+#' zero-inflated.}
+#' \item{zero_truncated}{A logical value indicating whether the distribution is
+#' zero-truncated. Defaults to \code{FALSE} for \code{zeroinfl} objects.}
+#' \item{all_vars}{A vector holding the names of each variable used by
+#' \code{object}.}
+#' \item{fixed_vars}{A string vector holding the names of the fixed variables.}
+#' \item{fixed_slopes}{A numeric vector holding the slope coefficients of the
+#' fixed variables, in the same order as \code{fixed_vars}.}
+#' \item{fixed_zi_vars}{A string vector holding the names of the zero-inflated
+#' fixed variables.}
+#' \item{fixed_zi_slopes}{A numeric vector holding the slope coefficients of
+#' the zero-inflated fixed variables, in the same order as
+#' \code{fixed_zi_vars}.}
+#' \item{random_vars}{A string vector holding the names of the random
+#' variables. Not used in \code{zeroinfl} objects.}
+#' \item{random_slopes}{A numeric vector holding the slope coefficients of the
+#' random variables, in the same order as \code{random_vars}. Not used in
+#' \code{zeroinfl} objects.}
+#' \item{random_zi_vars}{A string vector holding the names of the random
+#' variables in the zero-inflation model. Not used in \code{zeroinfl} objects.}
+#' \item{random_zi_slopes}{A numeric vector holding the slope coefficients of
+#' the random variables in the zero-inflation model, in the same order as
+#' \code{random_zi_vars}. Not used in \code{zeroinfl} objects.}
+#' \item{sigma}{The residual standard deviation of the model. Defaults to 1.0.
+#' Equivalent output to lme4's \code{sigma()} function.}
+#' \item{theta}{The scale parameter theta used in the negative binomial
+#' distribution. Defaults to \code{1.0}.}
+#' 
+#' @section Notes:
+#' This function will only work in the case where random terms are given as
+#' \code{(1 | ranterm)}, where \code{ranterm} is the name of the random
+#' variable.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Extract Key Components of merMod Objects
+#' 
+#' This function extracts the components of a \code{merMod} object needed for
+#' functions \code{jerzeibalowski()} and \code{motherbalowski()} to work.
+#' 
+#' @name lme4_extractor
+#' 
+#' @param object A \code{merMod} object.
+#' 
+#' @return A list with the following elements:
+#' \item{class}{The exact class of \code{object}. Will generally be either
+#' \code{lmerMod} or \code{glmerMod}.}
+#' \item{family}{The response distribution.}
+#' \item{dist}{An integer representing the response distribution. \code{0} = 
+#' poisson, \code{1} = negbin, \code{2} = gaussian, \code{3} = gamma, \code{4}
+#' = binomial, and \code{5} = constant.}
+#' \item{zero_inflated}{A logical value indicating whether the distribution is
+#' zero-inflated. Not used in lme4.}
+#' \item{zero_truncated}{A logical value indicating whether the distribution is
+#' zero-truncated. Not used in lme4.}
+#' \item{all_vars}{A vector holding the names of each variable used by
+#' \code{object}.}
+#' \item{fixed_vars}{A string vector holding the names of the fixed variables.}
+#' \item{fixed_slopes}{A numeric vector holding the slope coefficients of the
+#' fixed variables, in the same order as \code{fixed_vars}.}
+#' \item{fixed_zi_vars}{A string vector holding the names of the zero-inflated
+#' fixed variables. Not used in lme4 objects.}
+#' \item{fixed_zi_slopes}{A numeric vector holding the slope coefficients of
+#' the zero-inflated fixed variables, in the same order as
+#' \code{fixed_zi_vars}. Not used in lme4 objects.}
+#' \item{random_vars}{A string vector holding the names of the random
+#' variables.}
+#' \item{random_slopes}{A numeric vector holding the slope coefficients of the
+#' random variables, in the same order as \code{random_vars}.}
+#' \item{random_zi_vars}{A string vector holding the names of the random
+#' variables in the zero-inflation model. Not used in lme4.}
+#' \item{random_zi_slopes}{A numeric vector holding the slope coefficients of
+#' the random variables in the zero-inflation model, in the same order as
+#' \code{random_zi_vars}. Not used in lme4.}
+#' \item{sigma}{The residual standard deviation of the model. Defaults to 1.0.
+#' Equivalent output to lme4's \code{sigma()} function.}
+#' \item{theta}{Not used in lme4 output. Defaults to \code{1.0}.}
+#' 
+#' @section Notes:
+#' This function will only work in the case where random terms are given as
+#' \code{(1 | ranterm)}, where \code{ranterm} is the name of the random
+#' variable.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Extract Key Components of glmmTMB Objects
+#' 
+#' This function extracts the components of a \code{glmmTMB} object needed for
+#' functions \code{jerzeibalowski()} and \code{motherbalowski()} to work.
+#' 
+#' @name glmmTMB_extractor
+#' 
+#' @param object A \code{glmmTMB} object.
+#' 
+#' @return A list with the following elements:
+#' \item{class}{The exact class of \code{object}. Will always be
+#' \code{glmmTMB}.}
+#' \item{family}{The response distribution.}
+#' \item{dist}{An integer representing the response distribution. \code{0} = 
+#' poisson, \code{1} = negbin, \code{2} = gaussian, \code{3} = gamma, \code{4}
+#' = binomial, and \code{5} = constant.}
+#' \item{zero_inflated}{A logical value indicating whether the distribution is
+#' zero-inflated.}
+#' \item{zero_truncated}{A logical value indicating whether the distribution is
+#' zero-truncated.}
+#' \item{all_vars}{A vector holding the names of each variable used by
+#' \code{object}.}
+#' \item{fixed_vars}{A string vector holding the names of the fixed variables.}
+#' \item{fixed_slopes}{A numeric vector holding the slope coefficients of the
+#' fixed variables, in the same order as \code{fixed_vars}.}
+#' \item{fixed_zi_vars}{A string vector holding the names of the zero-inflated
+#' fixed variables.}
+#' \item{fixed_zi_slopes}{A numeric vector holding the slope coefficients of
+#' the zero-inflated fixed variables, in the same order as
+#' \code{fixed_zi_vars}.}
+#' \item{random_vars}{A string vector holding the names of the random
+#' variables.}
+#' \item{random_slopes}{A numeric vector holding the slope coefficients of the
+#' random variables, in the same order as \code{random_vars}.}
+#' \item{random_zi_vars}{A string vector holding the names of the random
+#' variables in the zero-inflation model.}
+#' \item{random_zi_slopes}{A numeric vector holding the slope coefficients of
+#' the random variables in the zero-inflation model, in the same order as
+#' \code{random_zi_vars}.}
+#' \item{sigma}{The residual standard deviation of the model. Defaults to 1.0.
+#' Equivalent output to lme4's \code{sigma()} function.}
+#' \item{theta}{The scale parameter theta used in the negative binomial
+#' distribution. Defaults to \code{1.0}.}
+#' 
+#' @section Notes:
+#' This function will only work in the case where random terms are given as
+#' \code{(1 | ranterm)}, where \code{ranterm} is the name of the random
+#' variable.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Function Extracting Core Components From S3 Vital Rate Models
+#' 
+#' Function \code{S3_extractor()} extracts all needed terms from S3 objects
+#' used as vital rate models.
+#' 
+#' @name S3_extractor
+#' 
+#' @param object An S3 vital rate model other than objects of class
+#' \code{vrm_input}. Currently, this should be output from functions
+#' \code{lm()}, \code{glm()}, \code{glm.nb()}, \code{zeroinfl()}, and
+#' \code{glmmTMB()}.
+#' 
+#' @return A list describing the vital rate model in standard output required
+#' from function \code{modelextract()} to operate. Elements currently include:
+#' \item{class}{The exact class of \code{object}.}
+#' \item{family}{The response distribution.}
+#' \item{dist}{An integer representing the response distribution. \code{0} = 
+#' poisson, \code{1} = negbin, \code{2} = gaussian, \code{3} = gamma, \code{4}
+#' = binomial, and \code{5} = constant.}
+#' \item{zero_inflated}{A logical value indicating whether the distribution is
+#' zero-inflated.}
+#' \item{zero_truncated}{A logical value indicating whether the distribution is
+#' zero-truncated.}
+#' \item{all_vars}{A vector holding the names of each variable used by
+#' \code{object}.}
+#' \item{fixed_vars}{A string vector holding the names of the fixed variables.}
+#' \item{fixed_slopes}{A numeric vector holding the slope coefficients of the
+#' fixed variables, in the same order as \code{fixed_vars}.}
+#' \item{fixed_zi_vars}{A string vector holding the names of the zero-inflated
+#' fixed variables.}
+#' \item{fixed_zi_slopes}{A numeric vector holding the slope coefficients of
+#' the zero-inflated fixed variables, in the same order as
+#' \code{fixed_zi_vars}.}
+#' \item{random_vars}{A string vector holding the names of the random
+#' variables.}
+#' \item{random_slopes}{A numeric vector holding the slope coefficients of the
+#' random variables, in the same order as \code{random_vars}.}
+#' \item{random_zi_vars}{A string vector holding the names of the random
+#' variables in the zero-inflation model.}
+#' \item{random_zi_slopes}{A numeric vector holding the slope coefficients of
+#' the random variables in the zero-inflation model, in the same order as
+#' \code{random_zi_vars}.}
+#' \item{sigma}{The residual standard deviation of the model. Defaults to 1.0.
+#' Equivalent output to lme4's \code{sigma()} function.}
+#' \item{theta}{The scale parameter theta used in the negative binomial
+#' distribution. Defaults to \code{1.0}.}
+#' 
+#' @section Notes:
+#' This function currently handles models developed with functions \code{lm()}
+#' and \code{glm()} from package \code{stats}, function \code{glm.nb()} from
+#' package \code{MASS}, function \code{zeroinfl()} from package \code{pscl},
+#' and function \code{glmmTMB()} from package \code{glmmTMB}.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Function Extracting Core Components From S4 Vital Rate Models
+#' 
+#' Function \code{S4_extractor()} extracts all needed terms from S4 objects
+#' used as vital rate models.
+#' 
+#' @name S4_extractor
+#' 
+#' @param object An S4 vital rate model. Currently, this should be output from
+#' functions \code{vglm()}, \code{lmer()}, and \code{glmer()}.
+#' 
+#' @return A list describing the vital rate model in standard output required
+#' from function \code{modelextract()} to operate. Elements currently include:
+#' \item{class}{The exact class of \code{object}.}
+#' \item{family}{The response distribution.}
+#' \item{dist}{An integer representing the response distribution. \code{0} = 
+#' poisson, \code{1} = negbin, \code{2} = gaussian, \code{3} = gamma, \code{4}
+#' = binomial, and \code{5} = constant.}
+#' \item{zero_inflated}{A logical value indicating whether the distribution is
+#' zero-inflated.}
+#' \item{zero_truncated}{A logical value indicating whether the distribution is
+#' zero-truncated.}
+#' \item{all_vars}{A vector holding the names of each variable used by
+#' \code{object}.}
+#' \item{fixed_vars}{A string vector holding the names of the fixed variables.}
+#' \item{fixed_slopes}{A numeric vector holding the slope coefficients of the
+#' fixed variables, in the same order as \code{fixed_vars}.}
+#' \item{fixed_zi_vars}{A string vector holding the names of the zero-inflated
+#' fixed variables.}
+#' \item{fixed_zi_slopes}{A numeric vector holding the slope coefficients of
+#' the zero-inflated fixed variables, in the same order as
+#' \code{fixed_zi_vars}.}
+#' \item{random_vars}{A string vector holding the names of the random
+#' variables.}
+#' \item{random_slopes}{A numeric vector holding the slope coefficients of the
+#' random variables, in the same order as \code{random_vars}.}
+#' \item{random_zi_vars}{A string vector holding the names of the random
+#' variables in the zero-inflation model.}
+#' \item{random_zi_slopes}{A numeric vector holding the slope coefficients of
+#' the random variables in the zero-inflation model, in the same order as
+#' \code{random_zi_vars}.}
+#' \item{sigma}{The residual standard deviation of the model. Defaults to 1.0.
+#' Equivalent output to lme4's \code{sigma()} function.}
+#' \item{theta}{The scale parameter theta used in the negative binomial
+#' distribution. Defaults to \code{1.0}.}
+#' 
+#' @section Notes:
+#' This function currently handles models developed with function \code{vglm()}
+#' from package \code{VGAM}, and functions \code{lmer()} and \code{glmer()}
+#' from package \code{lme4}.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Extract Key Components of vrm_input Objects
+#' 
+#' This function extracts the components of a \code{vrm_input} object for
+#' functions \code{jerzeibalowski()} and \code{motherbalowski()}.
+#' 
+#' @name vrm_extractor
+#' 
+#' @param object A \code{vrm_input} object.
+#' 
+#' @return A list with the following elements:
+#' \item{class}{The exact class of \code{object}. Will be \code{vrm_input}.}
+#' \item{family}{The response distribution.}
+#' \item{dist}{An integer representing the response distribution. \code{0} = 
+#' poisson, \code{1} = negbin, \code{2} = gaussian, \code{3} = gamma, \code{4}
+#' = binomial, and \code{5} = constant.}
+#' \item{zero_inflated}{A logical value indicating whether the distribution is
+#' zero-inflated. Not used in \code{lm}/\code{glm}/\code{negbin} objects. Will
+#' equal \code{FALSE} if \code{dist = 5}.}
+#' \item{zero_truncated}{A logical value indicating whether the distribution is
+#' zero-truncated. Not used in \code{lm}/\code{glm}/\code{negbin} objects. Will
+#' equal \code{FALSE} if \code{dist = 5}.}
+#' \item{all_vars}{A vector holding the names of each variable used by
+#' \code{object}. Will equal only the intercept if \code{dist = 5}.}
+#' \item{fixed_vars}{A string vector holding the names of the fixed variables.
+#' Will equal only the intercept if \code{dist = 5}.}
+#' \item{fixed_slopes}{A numeric vector holding the slope coefficients of the
+#' fixed variables, in the same order as \code{fixed_vars}. Will equal only the
+#' intercept if \code{dist = 5}.}
+#' \item{fixed_zi_vars}{A string vector holding the names of the zero-inflated
+#' fixed variables. Not used in \code{lm}/\code{glm}/\code{negbin} objects.
+#' Will equal \code{NULL} is \code{dist = 5}.}
+#' \item{fixed_zi_slopes}{A numeric vector holding the slope coefficients of
+#' the zero-inflated fixed variables, in the same order as
+#' \code{fixed_zi_vars}. Not used in \code{lm}/\code{glm}/\code{negbin}
+#' objects. Will equal \code{NULL} is \code{dist = 5}.}
+#' \item{random_zi_vars}{A string vector holding the names of the random
+#' variables in the zero-inflation model. Not used in \code{lm}/\code{glm}/
+#' \code{negbin} objects. Will equal \code{NULL} is \code{dist = 5}.}
+#' \item{random_zi_slopes}{A numeric vector holding the slope coefficients of
+#' the random variables in the zero-inflation model, in the same order as
+#' \code{random_zi_vars}. Not used in \code{lm}/\code{glm}/\code{negbin}
+#' objects. Will equal \code{NULL} is \code{dist = 5}.}
+#' \item{sigma}{The residual standard deviation of the model. Defaults to
+#' \code{1.0}.}
+#' \item{theta}{The estimated theta, if the response is negative binomial.
+#' Otherwise, will equal \code{1.0}.}
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Creates Matrices of Year and Patch Terms in Models
+#' 
+#' Function \code{revelations()} creates a matrix holding either the year or
+#' patch coefficients from all vital rate models. This reduces memory load in
+#' functions \code{\link{jerzeibalowski}()}, which may be important in some
+#' systems or compilers.
+#' 
+#' @name revelations
+#' 
+#' @param survproxy The proxy vital rate model covering survival from the main
+#' matrix estimator function.
+#' @param obsproxy The proxy vital rate model covering observation status from
+#' the main matrix estimator function.
+#' @param sizeproxy The proxy vital rate model covering primary size from the
+#' main matrix estimator function.
+#' @param sizebproxy The proxy vital rate model covering secondary size from
+#' the main matrix estimator function.
+#' @param sizecproxy The proxy vital rate model covering tertiary size from the
+#' main matrix estimator function.
+#' @param repstproxy The proxy vital rate model covering reproductive status
+#' from the main matrix estimator function.
+#' @param fecproxy The proxy vital rate model covering fecundity from the main
+#' matrix estimator function.
+#' @param jsurvproxy The proxy vital rate model covering juvenile survival from
+#' the main matrix estimator function.
+#' @param jobsproxy The proxy vital rate model covering juvenile observation
+#' status from the main matrix estimator function.
+#' @param jsizeproxy The proxy vital rate model covering juvenile primary size
+#' from the main matrix estimator function.
+#' @param jsizebproxy The proxy vital rate model covering juvenile secondary
+#' size from the main matrix estimator function.
+#' @param jsizecproxy The proxy vital rate model covering juvenile tertiary
+#' size from the main matrix estimator function.
+#' @param jrepstproxy The proxy vital rate model covering juvenile reproductive
+#' status from the main matrix estimator function.
+#' @param jmatstproxy The proxy vital rate model covering juvenile probability
+#' of becoming mature from the main matrix estimator function.
+#' @param mat_switch An integer coding for year (\code{1}) or patch (\code{2}).
+#' 
+#' @return A matrix with 14 columns corresponding to the number of vital rates
+#' and number of columns equal to the number of year or patches.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Creates a Summation of Most Terms Needed in Vital Rate Calculation
+#' 
+#' Function \code{rimeotam()} provides the majority of the work in creating
+#' the linear model sum to be used in vital rate estimation in the MPM. Works
+#' specifically with functions \code{\link{jerzeibalowski}()} and
+#' \code{\link{motherbalowski}()}.
+#' 
+#' @name rimeotam
+#' 
+#' @param maincoefs The coefficients portion of the vital rate model proxy.
+#' @param fl1_i Reproductive status in time \emph{t}*-1.
+#' @param fl2n_i Reproductive status in time \emph{t}.
+#' @param sz1_i Primary size in time \emph{t}-1.
+#' @param sz2o_i Primary size in time \emph{t}.
+#' @param szb1_i Secondary size in time \emph{t}-1.
+#' @param szb2o_i Secondary size in time \emph{t}.
+#' @param szc1_i Tertiary size in time \emph{t}-1.
+#' @param szc2o_i Tertiary size in time \emph{t}.
+#' @param aage2_i Used age in time \emph{t}.
+#' @param inda_1 Value of numeric individual covariate a in time \emph{t}-1.
+#' @param inda_2 Value of numeric individual covariate a in time \emph{t}.
+#' @param indb_1 Value of numeric individual covariate b in time \emph{t}-1.
+#' @param indb_2 Value of numeric individual covariate b in time \emph{t}.
+#' @param indc_1 Value of numeric individual covariate c in time \emph{t}-1.
+#' @param indc_2 Value of numeric individual covariate c in time \emph{t}.
+#' @param used_dens Density value used.
+#' @param zi A logical value indicating whether model coefficients refer to the
+#' zero inflation portion of a model.
+#' 
+#' @return A single numeric value giving the sum of the products of the linear
+#' coefficients and the used status values.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Counts Numbers of Elements in Each Random Individual Covariate Portion of
+#' Model
+#' 
+#' Function \code{foi_counter()} counts the number of elements in each random
+#' individual covariate and returns that as a vector.
+#' 
+#' @name foi_counter
+#' 
+#' @param modelproxy A list holding the contents of a model processed with
+#' function \code{\link{.modelextract}()}
+#' @param zi A logical value indicating whether to focus on the zero-inflation
+#' parameters.
+#' 
+#' @return A 6 element vector holding the numbers of elements in each random
+#' individual covariate in a model (either the cont portion or the zi portion).
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Create Vector of Random Individual Covariate Terms
+#' 
+#' Function \code{flightoficarus()} creates vectors of random covariate
+#' terms.
+#' 
+#' @name flightoficarus
+#' 
+#' @param modelproxy A model proxy list extracted with function
+#' \code{\link{.modelextract}()}.
+#' 
+#' @return A vector of numeric values for random categorical terms. The order
+#' is: 1) cov a time 2, 2) cov a time 1, 3) cov b time 2, 4) cov b time 1,
+#' 5) cov c time 2, and 6) cov c time 1. Rows may vary, but must be the same
+#' length for each model.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Create Concatenated Vector of Random Individual Covariate Term Names
+#' 
+#' Function \code{bootson()} creates a concatenated string vector holding all
+#' covariate term names.
+#' 
+#' @name bootson
+#' 
+#' @param modelproxy A model proxy list extracted with function
+#' \code{\link{.modelextract}()}.
+#' 
+#' @return A vector holding all covariate name terms. The order is: 1) cov a
+#' time 2, 2) cov a time 1, 3) cov b time 2, 4) cov b time 1, 5) cov c time 2,
+#' and 6) cov c time 1. Note that the element order is the same as in function
+#' \code{\link{.flightoficarus}()}.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Create Vector of Random Individual Covariate Terms for Zero-Inflated Models
+#' 
+#' Function \code{zero_flightoficarus()} creates vectors of random covariate
+#' terms from the binomial portion of a zero-inflated model.
+#' 
+#' @name zero_flightoficarus
+#' 
+#' @param modelproxy A model proxy list extracted with function
+#' \code{\link{.modelextract}()}.
+#' 
+#' @return A vector of numeric values for random categorical terms. The order
+#' is: 1) cov a time 2, 2) cov a time 1, 3) cov b time 2, 4) cov b time 1,
+#' 5) cov c time 2, and 6) cov c time 1. Rows may vary, but must be the same
+#' length for each model.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Create Concatenated Vector of Random Individual Covariate Term Names from
+#' a Zero-Inflated Model
+#' 
+#' Function \code{zero_bootson()} creates a concatenated string vector holding
+#' all covariate term names from the binomial portion of a zero-inflated model.
+#' 
+#' @name zero_bootson
+#' 
+#' @param modelproxy A model proxy list extracted with function
+#' \code{\link{.modelextract}()}.
+#' 
+#' @return A vector holding all covariate name terms. The order is: 1) cov a
+#' time 2, 2) cov a time 1, 3) cov b time 2, 4) cov b time 1, 5) cov c time 2,
+#' and 6) cov c time 1. Note that the element order is the same as in function
+#' \code{\link{.zero_flightoficarus}()}.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Create Index of Element Numbers for Random Individual Covariate Terms
+#' 
+#' Function \code{foi_index()} creates a matrix indexing the end points of
+#' each random individual covariate in the utilized vectors.
+#' 
+#' @name foi_index
+#' 
+#' @param surv_proxy Adult survival model proxy.
+#' @param obs_proxy Adult observation status model proxy.
+#' @param size_proxy Adult primary size model proxy.
+#' @param sizeb_proxy Adult secondary size model proxy.
+#' @param sizec_proxy Adult tertiary size model proxy.
+#' @param repst_proxy Adult reproductive status model proxy.
+#' @param fec_proxy Adult fecundity model proxy.
+#' @param jsurv_proxy Juvenile survival model proxy.
+#' @param jobs_proxy Juvenile observation status model proxy.
+#' @param jsize_proxy Juvenile primary size model proxy.
+#' @param jsizeb_proxy Juvenile secondary size model proxy.
+#' @param jsizec_proxy Juvenile tertiary size model proxy.
+#' @param jrepst_proxy Juvenile reproductive status model proxy.
+#' @param jmatst_proxy Juvenile maturity status model proxy.
+#' 
+#' @return An integer matrix with 6 rows and 20 columns. The columns contain
+#' the number of elements in each random individual covariate term, with the
+#' row order being: 1) cov a t2, 2) cov a t1, 3) cov b t2, 4) cov b t1,
+#' 5) cov c t2, and 6) cov c t1.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Creates Matrices of Year and Patch Terms in Leslie Models
+#' 
+#' Function \code{revelations_leslie()} creates a matrix holding either the
+#' year or patch coefficients from Leslie vital rate models. This reduces
+#' memory load in function \code{\link{motherbalowski}()}.
+#' 
+#' @name revelations_leslie
+#' 
+#' @param survproxy The proxy vital rate model covering survival from the main
+#' matrix estimator function.
+#' @param fecproxy The proxy vital rate model covering fecundity from the main
+#' matrix estimator function.
+#' 
+#' @return A matrix with 2 columns corresponding to the number of vital rates
+#' and number of columns equal to the number of year or patches.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Create Index of Element Numbers for Random Individual Covariate Terms in
+#' Leslie Models
+#' 
+#' Function \code{foi_index_leslie()} creates a matrix indexing the end points
+#' of each random individual covariate in the utilized vectors. Used in
+#' function \code{\link{motherbalowski}()}.
+#' 
+#' @name foi_index_leslie
+#' 
+#' @param surv_proxy Adult survival model proxy.
+#' @param fec_proxy Adult fecundity model proxy.
+#' 
+#' @return An integer matrix with 6 rows and 3 columns. The columns contain the
+#' number of elements in each random individual covariate term, with the row
+#' order being: 1) cov a t2, 2) cov a t1, 3) cov b t2, 4) cov b t1,
+#' 5) cov c t2, and 6) cov c t1.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Extract Coefficients From Linear Vital Rate Models
+#' 
+#' Function \code{modelextract()} extracts coefficient values from linear
+#' models estimated through various linear modeling functions in R, to estimate
+#' vital rates in \code{lefko3}. Used to supply coefficients to
+#' \code{\link{flefko3}()}, \code{\link{flefko2}()}, \code{\link{fleslie()}},
+#' and \code{\link{aflefko2}()}.
+#' 
+#' @name modelextract
+#' 
+#' @param object A linear model estimated through one of the methods used in
+#' function \code{\link{modelsearch}()}, or a \code{vrm_input} object.
+#' @param paramnames Data frame giving the names of standard coefficients
+#' required by matrix creation functions.
+#' @param mainyears A vector of the names of the monitoring occasions.
+#' @param mainpatches A vector of the names of the patches. Should be \code{NA}
+#' if no patches specified.
+#' @param maingroups A vector of the names of all stage groups.
+#' @param mainindcova A vector denoting values of individual covariate
+#' \code{a}, when that individual covariate is categorical.
+#' @param mainindcovb A vector denoting values of individual covariate
+#' \code{b}, when that individual covariate is categorical.
+#' @param mainindcovc A vector denoting values of individual covariate
+#' \code{c}, when that individual covariate is categorical.
+#' @param nodata A logical value used to determine whether to use
+#' \code{vrm_input} methods. Defaults to \code{FALSE}, in which case models
+#' were developed with function \code{modelsearch()}.
+#' 
+#' @return This function returns a list with the following elements:
+#' \item{coefficients}{Vector of fixed effect coefficients.}
+#' \item{years}{Vector of occasion coefficients, typically random.}
+#' \item{zeroyear}{Vector of zero-inflated occasion coefficients, typically
+#' random.}
+#' \item{patches}{Vector of patch coefficients, typically random.}
+#' \item{zeropatch}{Vector of zero-inflated patch coefficients, typically
+#' random.}
+#' \item{groups2}{Vector of group coefficients for time t.}
+#' \item{groups1}{Vector of group coefficients for time t-1.}
+#' \item{zerogroups2}{Vector of zero-inflated group coefficients for time t.}
+#' \item{zerogroups1}{Vector of zero-inflated group coefficients for time t-1.}
+#' \item{indcova2s}{Vector of individual covariate \code{a} values for time t.}
+#' \item{indcova1s}{Vector of individual covariate \code{a} values for time t-1.}
+#' \item{indcovb2s}{Vector of individual covariate \code{b} values for time t.}
+#' \item{indcovb1s}{Vector of individual covariate \code{b} values for time t-1.}
+#' \item{indcovc2s}{Vector of individual covariate \code{c} values for time t.}
+#' \item{indcovc1s}{Vector of individual covariate \code{c} values for time t-1.}
+#' \item{zeroindcova2s}{Vector of zero-inflated individual covariate \code{a}
+#' values for time t.}
+#' \item{zeroindcova1s}{Vector of zero-inflated individual covariate \code{a}
+#' values for time t-1.}
+#' \item{zeroindcovb2s}{Vector of zero-inflated individual covariate \code{b}
+#' values for time t.}
+#' \item{zeroindcovb1s}{Vector of zero-inflated individual covariate \code{b}
+#' values for time t-1.}
+#' \item{zeroindcovc2s}{Vector of zero-inflated individual covariate \code{c}
+#' values for time t.}
+#' \item{zeroindcovc1s}{Vector of zero-inflated individual covariate \code{c}
+#' values for time t-1.}
+#' \item{class}{The R class of the vital rate model.}
+#' \item{family}{The response distribution.}
+#' \item{dist}{An integer representing the response distribution. \code{0} = 
+#' poisson, \code{1} = negbin, \code{2} = gaussian, \code{3} = gamma, \code{4}
+#' = binomial, and \code{5} = constant.}
+#' \item{zero_inflated}{A logical value indicating whether the distribution is
+#' zero-inflated.}
+#' \item{zero_truncated}{A logical value indicating whether the distribution is
+#' zero-truncated.}
+#' \item{sigma}{The residual standard deviation of the model. Defaults to
+#' \code{1.0}. Equivalent output to package lme4's \code{sigma()} function.}
+#' \item{theta}{The scale parameter theta used in the negative binomial
+#' distribution. Defaults to \code{1.0}.}
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Full Eigen Analysis of a Single Dense Matrix
+#' 
+#' Function \code{decomp3()} returns all eigenvalues, right eigenvectors, and
+#' left eigenvectors estimated for a matrix by the \code{eig_gen}() function
+#' in the C++ Armadillo library. Works with dense matrices.
+#' 
+#' @name decomp3
+#' 
+#' @param Amat A population projection matrix of class \code{matrix}.
+#'
+#' @return This function returns all estimated eigenvalues, right
+#' eigenvectors, and left eigenvectors of a single matrix. This output is
+#' provided as a list with three parts, named appropriately.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Full Eigen Analysis of a Single Sparse Matrix
+#' 
+#' Function \code{decomp3sp()} returns all eigenvalues, right eigenvectors, and
+#' left eigenvectors estimated for a matrix by the \code{eigs_gen}() function
+#' in the C++ Armadillo library. Works with sparse matrices.
+#' 
+#' @name decomp3sp
+#' 
+#' @param Amat A population projection matrix of class \code{matrix}.
+#'
+#' @return This function returns all estimated eigenvalues, right
+#' eigenvectors, and left eigenvectors of a single matrix. This output is
+#' provided as a list with three parts, named appropriately.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
+#' Full Eigen Analysis of a Single Sparse Matrix, with Sparse Input
+#' 
+#' \code{decomp3sp_inp()} returns all eigenvalues, right eigenvectors, and left
+#' eigenvectors estimated for a matrix by the \code{eigs_gen}() function
+#' in the C++ Armadillo library. Works with sparse matrices.
+#' 
+#' @name decomp3sp_inp
+#' 
+#' @param Amat A population projection matrix of class \code{matrix}.
+#'
+#' @return This function returns all estimated eigenvalues, right
+#' eigenvectors, and left eigenvectors of a single matrix. This output is
+#' provided as a list with three parts, named appropriately.
+#' 
+#' @section Notes:
+#' This function works slightly differently from function \code{decomp3sp()} in
+#' that the latter function requires a sparse matrix provided in dense format,
+#' while this function requires a sparse matrix in sparse format.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
 #' Re-index Projection Matrix On Basis of Overwrite Table
 #' 
 #' Function \code{ovreplace()} takes matrix indices provided by functions
@@ -3648,26 +4793,116 @@ create_pm <- function(name_terms = FALSE) {
     .Call('_lefko3_create_pm', PACKAGE = 'lefko3', name_terms)
 }
 
-#' Compares Two Strings, Assessing Inclusion
+#' Calculate Actual Stage, Age, Stage-Pair, or Age-Stage Distributions
 #' 
-#' This function compares two strings, and will assess whether \code{str2} is
-#' contained within \code{str1}. It is a simpler version of 
-#' \code{stringcompare_pop()} that yields only the logical result. This is
-#' actually the same function as \code{stringcompare_soft()}.
+#' Function \code{actualstage3()} shows the frequencies and proportions of
+#' each stage, stage pair, age-stage, or age in each year.
 #' 
-#' @name stringcompare_pop
+#' @name actualstage3
 #' 
-#' @param str1 The first string
-#' @param str2 The second string
-#' @param lower A logical value indicating whether to change all inputs to
-#' lower case before checking.
+#' @param data A demographic dataset in hfv format.
+#' @param check_stage A logical value indicating whether to assess frequencies
+#' and proportions of stages. Defaults to \code{TRUE}.
+#' @param check_age A logical value indicating whether to assess frequencies and
+#' proportions of ages. Defaults to \code{FALSE}.
+#' @param historical A logical value indicating whether the stage structure
+#' should be ahistorical (\code{FALSE}) or historical (\code{TRUE}). Defaults to
+#' \code{FALSE}.
+#' @param year2 A string value indicating the name of the variable coding for
+#' monitoring occasion at time \emph{t}. Defaults to \code{"year2"}.
+#' @param indices A vector of three strings, indicating the stage indices for
+#' times \emph{t}+1, \emph{t}, and \emph{t}-1, respectively, in \code{data}.
+#' Defaults to \code{c("stage3index", "stage2index", "stage1index")}.
+#' @param stagecol A vector of three strings, indicating the stage name columns
+#' for times \emph{t}+1, \emph{t}, and \emph{t}-1, respectively, in \code{data}.
+#' Defaults to \code{stagecol = c("stage3", "stage2", "stage1")}.
+#' @param agecol A single string indicating the age of individuals in time
+#' \emph{t}. Defaults to \code{"obsage"}.
+#' @param remove_stage A string vector indicating the names of stages to remove
+#' from consideration. Defaults to \code{"NotAlive"}.
+#' @param t1_allow A string vector indicating which stages to be removed should
+#' be allowed in the stage at time \emph{t}-1 portion of historical stage
+#' pairs, if \code{historical = TRUE}. Defaults to \code{"NotAlive"}. Can also
+#' be set to \code{"none"}.
 #' 
-#' @return A logical value indicating whether \code{str2} occurs within
-#' \code{str1}.
+#' @return A data frame with the following variables:
+#' \item{rowid}{A string identifier term, equal to the monitoring occasion in
+#' time \emph{t} and the stage index.}
+#' \item{stageindex}{The stageframe index of the stage. Only output if
+#' \code{check_stage = TRUE}.}
+#' \item{stage}{The name of each stage, or \code{NA}. Only output if
+#' \code{check_stage = TRUE}.}
+#' \item{stage2}{The name of the stage in time \emph{t}. Only output if
+#' \code{check_stage = TRUE}.}
+#' \item{stage1}{The name of the stage in time \emph{t}-1, or \code{NA}. Only
+#' output if \code{check_stage = TRUE}.}
+#' \item{age}{The age at time \emph{t}. Only output if \code{check_age = TRUE}.}
+#' \item{year2}{Monitoring occasion in time \emph{t}.}
+#' \item{frequency}{The number of individuals in the respective stage and time.}
+#' \item{actual_prop}{The proportion of individuals alive in time \emph{t} in
+#' the respective stage.}
 #' 
-#' @keywords internal
-#' @noRd
-NULL
+#' @section Notes:
+#' This function produces frequencies and proportions of stages in hfv formatted
+#' data using stage index variables rather than stage name variables, and so
+#' requires the former. The latter is only required if the user wants to know
+#' the associated stage names.
+#' 
+#' Frequencies and proportions will be calculated for all times, including the
+#' last time, which is generally found in the \code{stage3} columns of the last
+#' \code{year2} entry in object \code{data}. The default is to treat the
+#' \code{year2} entry for that time as \code{max(year2) + 1}.
+#' 
+#' If \code{check_stage = TRUE} and \code{check_age = FALSE}, then this function
+#' will assess frequencies and proportions of stages or historical stage-pairs.
+#' If both \code{check_stage = TRUE} and \code{check_age = TRUE}, then this
+#' function will assess frequencies and proportions of age-stages. If
+#' \code{check_stage = FALSE} and \code{check_age = TRUE}, then the frequencies
+#' and proportions of ages only will be assessed.
+#' 
+#' Note that no stageframe is required for this function to operate. Stage
+#' names and their order are inferred directly from the object \code{data}.
+#' 
+#' @examples
+#' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 3, 6, 11, 19.5)
+#' stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
+#'   "XLg")
+#' repvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
+#' obsvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
+#' matvector <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
+#' immvector <- c(0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
+#' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+#' indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
+#' binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1.5, 1.5, 3.5, 5)
+#' comments <- c("Dormant seed", "1st yr protocorm", "2nd yr protocorm",
+#'   "3rd yr protocorm", "Seedling", "Dormant adult",
+#'   "Extra small adult (1 shoot)", "Small adult (2-4 shoots)",
+#'   "Medium adult (5-7 shoots)", "Large adult (8-14 shoots)",
+#'   "Extra large adult (>14 shoots)")
+#' cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector, 
+#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
+#'   propstatus = propvector, immstatus = immvector, indataset = indataset, 
+#'   binhalfwidth = binvec, comments = comments)
+#' 
+#' cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004, 
+#'   patchidcol = "patch", individcol = "plantid", blocksize = 4,
+#'   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04",
+#'   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
+#'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
+#'   NRasRep = TRUE, age_offset = 4)
+#' 
+#' all_stage_props_ah <- actualstage3(cypraw_v1)
+#' all_stage_props_h <- actualstage3(cypraw_v1, historical = TRUE)
+#' all_stage_props_h_NANotAllow <- actualstage3(cypraw_v1, historical = TRUE,
+#'   t1_allow = "none")
+#' all_stage_props_as <- actualstage3(cypraw_v1, check_age = TRUE)
+#' all_age_props <- actualstage3(cypraw_v1, check_stage = FALSE,
+#'   check_age = TRUE)
+#' 
+#' @export actualstage3
+actualstage3 <- function(data, check_stage = TRUE, check_age = FALSE, historical = FALSE, year2 = NULL, indices = NULL, stagecol = NULL, agecol = NULL, remove_stage = NULL, t1_allow = NULL) {
+    .Call('_lefko3_actualstage3', PACKAGE = 'lefko3', data, check_stage, check_age, historical, year2, indices, stagecol, agecol, remove_stage, t1_allow)
+}
 
 #' Function \code{lambda3()} is a generic function that returns the dominant
 #' eigenvalue of a matrix, set of dominant eigenvalues of a set of matrices,

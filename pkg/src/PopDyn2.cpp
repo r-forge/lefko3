@@ -1,61 +1,11 @@
 #include <RcppArmadillo.h>
 // [[Rcpp::depends(RcppArmadillo)]]
+#include "LefkoUtils.h"
 
 using namespace Rcpp;
 using namespace arma;
+using namespace LefkoUtils;
 
-
-//' Compares Two Strings, Assessing Inclusion
-//' 
-//' This function compares two strings, and will assess whether \code{str2} is
-//' contained within \code{str1}. It is a simpler version of 
-//' \code{stringcompare_pop()} that yields only the logical result. This is
-//' actually the same function as \code{stringcompare_soft()}.
-//' 
-//' @name stringcompare_pop
-//' 
-//' @param str1 The first string
-//' @param str2 The second string
-//' @param lower A logical value indicating whether to change all inputs to
-//' lower case before checking.
-//' 
-//' @return A logical value indicating whether \code{str2} occurs within
-//' \code{str1}.
-//' 
-//' @keywords internal
-//' @noRd
-bool stringcompare_pop(std::string str1, std::string str2, bool lower = false) {
-  int str1_length = str1.size();
-  int str2_length = str2.size();
-  int rem_check {0};
-  bool same = false;
-  
-  if (str1_length >= str2_length && str2_length > 0) {
-    for (int i = 0; i < str1_length; i++) {
-      if (!lower) {
-        if (str1[i] != str2[rem_check]) {
-          rem_check = 0;
-        } else {
-          rem_check += 1;
-          if (rem_check >= str2_length) break;
-        }
-      } else {
-        if (tolower(str1[i]) != tolower(str2[rem_check])) {
-          rem_check = 0;
-        } else {
-          rem_check += 1;
-          if (rem_check >= str2_length) break;
-        }
-      }
-    }
-    
-    if (rem_check == str2_length) {
-      same = true;
-    }
-  }
-  
-  return same;
-}
 
 //' Function \code{lambda3()} is a generic function that returns the dominant
 //' eigenvalue of a matrix, set of dominant eigenvalues of a set of matrices,
@@ -183,13 +133,13 @@ RObject lambda3(RObject mpm, String sparse = "auto") {
   
   int sparse_check = 0;
   
-  if (stringcompare_pop(sparse, "aut")) {
+  if (stringcompare_simple(sparse, "aut", false)) {
     sparse_check = 2; // Auto decision
     
-  } else if (stringcompare_pop(sparse, "y") || stringcompare_pop(sparse, "t")) {
+  } else if (stringcompare_simple(sparse, "y", false) || stringcompare_simple(sparse, "t", false)) {
     sparse_check = 1; // Forced sparse matrix
     
-  } else if (stringcompare_pop(sparse, "n") || stringcompare_pop(sparse, "f")) {
+  } else if (stringcompare_simple(sparse, "n", false) || stringcompare_simple(sparse, "f", false)) {
     sparse_check = 0; // Forced dense matrix
   }
   
@@ -201,12 +151,12 @@ RObject lambda3(RObject mpm, String sparse = "auto") {
     
     bool A_check = false;
     for (int i = 0; i < no_mpm_names; i++) {
-      if (stringcompare_pop(as<std::string>(mpm_names(i)), "A")) A_check = true;
+      if (stringcompare_simple(as<std::string>(mpm_names(i)), "A", false)) A_check = true;
     }
     
     bool labels_check = false;
     for (int i = 0; i < no_mpm_names; i++) {
-      if (stringcompare_pop(as<std::string>(mpm_names(i)), "labels")) labels_check = true;
+      if (stringcompare_simple(as<std::string>(mpm_names(i)), "labels", false)) labels_check = true;
     }
     
     if (!A_check || !labels_check) {
