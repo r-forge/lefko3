@@ -2949,8 +2949,10 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' @name .thefifthhousemate
 #' 
 #' @param mpm The original ahMPM, supplied as a \code{lefkoMat} object.
-#' @param allstages The index dataframe developed by
-#' \code{\link{.simplepizzle}()}.
+#' @param allstages The index dataframe named \code{allstages}, in the third
+#' element of output developed by \code{\link{.simplepizzle}()}.
+#' @param hstages The index dataframe named \code{hstages}, in the second
+#' element of output developed by \code{\link{.simplepizzle}()}.
 #' @param stageframe The ahistorical stageframe supplied by
 #' \code{\link{.simplepizzle}()}.
 #' @param format Integer indicating whether historical matrices should be in
@@ -2962,8 +2964,8 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' 
 #' @keywords internal
 #' @noRd
-.thefifthhousemate <- function(mpm, allstages, stageframe, format) {
-    .Call('_lefko3_thefifthhousemate', PACKAGE = 'lefko3', mpm, allstages, stageframe, format)
+.thefifthhousemate <- function(mpm, allstages, hstages, stageframe, imp_allowed, format) {
+    .Call('_lefko3_thefifthhousemate', PACKAGE = 'lefko3', mpm, allstages, hstages, stageframe, imp_allowed, format)
 }
 
 #' Estimate All Elements of Function-based Population Projection Matrix

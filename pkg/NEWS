@@ -4,10 +4,12 @@ LEFKO3 NEWS
 CHANGES IN VERSION 5.X.X (2022-07-XX)
 -------------------------------------
   NEW FEATURES
-    1. Function actualstgae3() has been rewritten in C++ to handle all stage,
+    1. Function actualstage3() has been rewritten in C++ to handle all stage,
        age-by-stage, and age inputs. Can now remove stages as necessary, and
        allows different stages to be removed in times t1 and t2 in historical
        stage pair assessments.
+    2. Function hist_null() can now produce historically-formatted ahistorical
+       matrices that do not include impossible transitions.
 
   USER-VISIBLE CHANGES
     1. Updates and corrections to help files.

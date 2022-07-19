@@ -12607,8 +12607,10 @@ List jerzeibalowski_sp(DataFrame AllStages, DataFrame stageframe, int matrixform
 //' @name .thefifthhousemate
 //' 
 //' @param mpm The original ahMPM, supplied as a \code{lefkoMat} object.
-//' @param allstages The index dataframe developed by
-//' \code{\link{.simplepizzle}()}.
+//' @param allstages The index dataframe named \code{allstages}, in the third
+//' element of output developed by \code{\link{.simplepizzle}()}.
+//' @param hstages The index dataframe named \code{hstages}, in the second
+//' element of output developed by \code{\link{.simplepizzle}()}.
 //' @param stageframe The ahistorical stageframe supplied by
 //' \code{\link{.simplepizzle}()}.
 //' @param format Integer indicating whether historical matrices should be in
@@ -12621,8 +12623,8 @@ List jerzeibalowski_sp(DataFrame AllStages, DataFrame stageframe, int matrixform
 //' @keywords internal
 //' @noRd
 // [[Rcpp::export(.thefifthhousemate)]]
-Rcpp::List thefifthhousemate (List mpm, DataFrame allstages,
-  DataFrame stageframe, int format) {
+Rcpp::List thefifthhousemate (List mpm, DataFrame allstages, DataFrame hstages,
+  DataFrame stageframe, bool imp_allowed, int format) {
   Rcpp::List old_Umats = mpm["U"];
   Rcpp::List old_Fmats = mpm["F"];
   
@@ -12635,6 +12637,10 @@ Rcpp::List thefifthhousemate (List mpm, DataFrame allstages,
   Rcpp::IntegerVector old_index = allstages["index21"];
   Rcpp::IntegerVector new_indexu = allstages["index321u"];
   Rcpp::IntegerVector new_indexf = allstages["index321f"];
+  arma::ivec stage2o_all = as<arma::ivec>(allstages["stage2o"]);
+  arma::ivec stage1_all = as<arma::ivec>(allstages["stage1"]);
+  arma::ivec hst_s_id_1 = as<arma::ivec>(hstages["stage_id_1"]);
+  arma::ivec hst_s_id_2 = as<arma::ivec>(hstages["stage_id_2"]);
   
   int num_mats = old_Umats.length();
   int index_elems = new_indexu.length();
@@ -12649,6 +12655,32 @@ Rcpp::List thefifthhousemate (List mpm, DataFrame allstages,
   arma::mat old_U(nostages, nostages, fill::zeros);
   arma::mat old_F(nostages, nostages, fill::zeros);
   
+  IntegerVector col21;
+  
+  if (!imp_allowed) {
+    IntegerVector col21_1 (stage2o_all.n_elem);
+    
+    for (int i = 0; i < stage2o_all.n_elem; i++) {
+      arma::uvec s1 = find(hst_s_id_1 == stage1_all(i));
+      arma::uvec s2 = find(hst_s_id_2 == stage2o_all(i));
+      
+      arma::uvec s21 = intersect(s1, s2);
+      
+      col21_1(i) = s21(0);
+    }
+    
+    if (format ==2) {
+      IntegerVector col21_2 (nostages);
+      for (int i = 0; i < nostages; i ++) {
+        col21_2(i) = 1;
+      }
+      
+      col21 = LefkoUtils::concat_int(col21_1, col21_2);
+    } else {
+      col21 = col21_1;
+    }
+  }
+  
   for (int i = 0; i < num_mats; i++) {
     new_U.zeros();
     new_F.zeros();
@@ -12659,12 +12691,34 @@ Rcpp::List thefifthhousemate (List mpm, DataFrame allstages,
     old_U = as<arma::mat>(old_Umats(i));
     old_F = as<arma::mat>(old_Fmats(i));
     
-    for (int j = 0; j < index_elems; j++) {
-      if (new_indexu(j) > -1.0) {
-        new_U(new_indexu(j)) = old_U(old_index(j));
+    if (!imp_allowed) {
+      int col21_counter = 0;
+      bool parley = false;
+      
+      for (int j = 0; j < index_elems; j++) {
+        parley = false;
+        if (new_indexu(j) > -1.0) {
+          if (old_U(col21(col21_counter)) != 0.0) {
+            new_U(new_indexu(j)) = old_U(old_index(j));
+            parley = true;
+          }
+        }
+        if (new_indexf(j) > -1.0) {
+          if (old_F(col21(col21_counter)) != 0.0) {
+            new_F(new_indexf(j)) = old_F(old_index(j));
+            parley = true;
+          }
+        }
+        if (parley) col21_counter++;
       }
-      if (new_indexf(j) > -1.0) {
-        new_F(new_indexf(j)) = old_F(old_index(j));
+    } else {
+      for (int j = 0; j < index_elems; j++) {
+        if (new_indexu(j) > -1.0) {
+          new_U(new_indexu(j)) = old_U(old_index(j));
+        }
+        if (new_indexf(j) > -1.0) {
+          new_F(new_indexf(j)) = old_F(old_index(j));
+        }
       }
     }
     

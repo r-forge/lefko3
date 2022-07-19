@@ -559,16 +559,18 @@ BEGIN_RCPP
 END_RCPP
 }
 // thefifthhousemate
-Rcpp::List thefifthhousemate(List mpm, DataFrame allstages, DataFrame stageframe, int format);
-RcppExport SEXP _lefko3_thefifthhousemate(SEXP mpmSEXP, SEXP allstagesSEXP, SEXP stageframeSEXP, SEXP formatSEXP) {
+Rcpp::List thefifthhousemate(List mpm, DataFrame allstages, DataFrame hstages, DataFrame stageframe, bool imp_allowed, int format);
+RcppExport SEXP _lefko3_thefifthhousemate(SEXP mpmSEXP, SEXP allstagesSEXP, SEXP hstagesSEXP, SEXP stageframeSEXP, SEXP imp_allowedSEXP, SEXP formatSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type mpm(mpmSEXP);
     Rcpp::traits::input_parameter< DataFrame >::type allstages(allstagesSEXP);
+    Rcpp::traits::input_parameter< DataFrame >::type hstages(hstagesSEXP);
     Rcpp::traits::input_parameter< DataFrame >::type stageframe(stageframeSEXP);
+    Rcpp::traits::input_parameter< bool >::type imp_allowed(imp_allowedSEXP);
     Rcpp::traits::input_parameter< int >::type format(formatSEXP);
-    rcpp_result_gen = Rcpp::wrap(thefifthhousemate(mpm, allstages, stageframe, format));
+    rcpp_result_gen = Rcpp::wrap(thefifthhousemate(mpm, allstages, hstages, stageframe, imp_allowed, format));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1183,7 +1185,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_lefko3_subvertedpatrolgroup", (DL_FUNC) &_lefko3_subvertedpatrolgroup, 7},
     {"_lefko3_jerzeibalowski", (DL_FUNC) &_lefko3_jerzeibalowski, 51},
     {"_lefko3_jerzeibalowski_sp", (DL_FUNC) &_lefko3_jerzeibalowski_sp, 51},
-    {"_lefko3_thefifthhousemate", (DL_FUNC) &_lefko3_thefifthhousemate, 4},
+    {"_lefko3_thefifthhousemate", (DL_FUNC) &_lefko3_thefifthhousemate, 6},
     {"_lefko3_motherbalowski", (DL_FUNC) &_lefko3_motherbalowski, 33},
     {"_lefko3_raymccooney", (DL_FUNC) &_lefko3_raymccooney, 39},
     {"_lefko3_mothermccooney", (DL_FUNC) &_lefko3_mothermccooney, 33},
