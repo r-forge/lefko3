@@ -10,6 +10,8 @@ CHANGES IN VERSION 5.X.X (2022-07-XX)
        stage pair assessments.
     2. Function hist_null() can now produce historically-formatted ahistorical
        matrices that do not include impossible transitions.
+    3. Anthyllis matrices are now also provided as a new dataset, in lefkoMat
+       format.
 
   USER-VISIBLE CHANGES
     1. Updates and corrections to help files.
