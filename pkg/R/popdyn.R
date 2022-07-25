@@ -1,7 +1,7 @@
 #' Estimate Mean Projection Matrices
 #' 
-#' \code{lmean()} estimates mean projection matrices as element-wise arithmetic
-#' means.
+#' Function \code{lmean()} estimates mean projection matrices as element-wise
+#' arithmetic means.
 #' 
 #' @name lmean
 #' 
@@ -3242,7 +3242,7 @@ ltre3.lefkoMat <- function(mats, refmats = NA, ref = NA, stochastic = FALSE,
   }
   
   if (all(is.na(refmats))) {
-    warning("Matrices input as mats will also be used as reference matrices.", call. = FALSE)
+    warning("Matrices input as mats will also be used in reference matrix calculation.", call. = FALSE)
   } else if (is(refmats, "lefkoMat")) {
     refmats <- refmats$A
   } else if (is.matrix(refmats)) {
@@ -3258,7 +3258,7 @@ ltre3.lefkoMat <- function(mats, refmats = NA, ref = NA, stochastic = FALSE,
       }
     }
   } else if (all(is.na(ref))) {
-    message("Using all refmats matrices as reference matrices.")
+    message("Using all refmats matrices in reference matrix calculation.")
     
     if (!all(is.na(refmats))) {
       ref <- c(1:length(refmats))

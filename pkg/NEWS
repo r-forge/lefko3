@@ -1,7 +1,7 @@
 LEFKO3 NEWS
 -----------
 
-CHANGES IN VERSION 5.X.X (2022-07-XX)
+CHANGES IN VERSION 5.4.0 (2022-07-21)
 -------------------------------------
   NEW FEATURES
     1. Function actualstage3() has been rewritten in C++ to handle all stage,
@@ -23,6 +23,7 @@ CHANGES IN VERSION 5.X.X (2022-07-XX)
        conditions.
     3. Corrected issue in lambda3() causing rare eigen analysis failure in
        sparse matrices.
+    4. Reference matrix warnings in ltre3() have been corrected.
 
 
 CHANGES IN VERSION 5.3.0 (2022-06-24)

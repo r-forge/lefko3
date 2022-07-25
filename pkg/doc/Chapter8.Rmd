@@ -1,5 +1,5 @@
 ---
-title: "Lathyrus vernus function-based age-by-stage MPMs"
+title: "Lathyrus vernus function-based age-by-stage MPMs, LTRE and sLTRE analysis"
 author: Richard P. Shefferson, Shun Kurokawa, and Johan Ehrlén
 output: rmarkdown::html_vignette
 bibliography: Lefko3Tutorial.bib
