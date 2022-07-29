@@ -1,6 +1,14 @@
 LEFKO3 NEWS
 -----------
 
+CHANGES IN VERSION 5.4.1 (2022-07-29)
+-------------------------------------
+  USER-VISIBLE CHANGES
+    1. Output to summary_hfv() now fits within screen width.
+    2. Exponent tolerance limits and warnings added to functions projection3()
+       and f_projection3(). Warnings and help file notes have also been added.
+
+
 CHANGES IN VERSION 5.4.0 (2022-07-21)
 -------------------------------------
   NEW FEATURES

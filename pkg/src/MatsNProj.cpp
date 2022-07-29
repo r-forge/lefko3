@@ -15403,6 +15403,16 @@ List mothermccooney(DataFrame listofyears, List modelsuite, IntegerVector actual
 //' which spatial density is included as a fixed factor in the associated
 //' vital rate model.
 //' 
+//' When running density dependent simulations involving user-set exponents,
+//' such as the alpha term in the Ricker function and both the alpha and beta
+//' terms in the Usher function, values above or below the computer limits may
+//' cause unpredictable behavior. Noted odd behavior includes sudden shifts in
+//' population size to negative values. This function produces warnings when
+//' such values are used, and the values used for warnings may be reset with the
+//' \code{exp_tol} term. In addition, this function resets alpha values for the
+//' Ricker function automatically to positive or negative \code{exp_tol}, giving
+//' a warning when doing so.
+//' 
 //' Consistently positive population growth can quickly lead to population size
 //' numbers larger than can be handled computationally. In that circumstance, a
 //' continuously rising population size will suddenly become \code{NaN} for the
@@ -17886,6 +17896,43 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     NumericVector dvr_alpha_ = as<NumericVector>(dens_vr_thru["alpha"]);
     NumericVector dvr_beta_ = as<NumericVector>(dens_vr_thru["beta"]);
     
+    for (int i = 0; i < dvr_style_.length(); i++) {
+      if (dvr_yn_(i) == true) {
+        if (dvr_style_(i) < 1 || dvr_style_(i) > 4) {
+          throw Rcpp::exception("Some density inputs are stated as yielding density dependence but not in an accepted style.");
+        }
+        
+        if (NumericVector::is_na(dvr_alpha_(i))) {
+          throw Rcpp::exception("Values input for alpha in density depenence relationships must be set to real values within tolerance limits.");
+        }
+        if (NumericVector::is_na(dvr_beta_(i))) {
+          throw Rcpp::exception("Values input for beta in density depenence relationships must be set to real values within tolerance limits.");
+        }
+        
+        if (dvr_style_(i) == 1) {
+          if (dvr_alpha_(i) > exp_tol) {
+            Rf_warningcall(R_NilValue,
+              "Values of alpha used in the Ricker function should be set to limits within positive and negative exp_tol values. Resetting...");
+            dvr_alpha_(i) = exp_tol;
+          } else if (dvr_alpha_(i) < (-1.0 * exp_tol)) {
+            Rf_warningcall(R_NilValue,
+              "Values of alpha used in the Ricker function should be set to limits within positive and negative exp_tol values. Resetting...");
+            dvr_alpha_(i) = -1 * exp_tol;
+          }
+        } else if (dvr_style_(i) == 3) {
+          double summed_stuff = dvr_alpha_(i) + dvr_beta_(i);
+          
+          if (summed_stuff > exp_tol) {
+            Rf_warningcall(R_NilValue,
+              "Values of alpha and beta used in the Usher function may be too high. Results may be unpredictable.");
+          } else if (summed_stuff < (-1.0 * exp_tol)) {
+            Rf_warningcall(R_NilValue,
+              "Values of alpha and beta used in the Usher function may be too high. Results may be unpredictable.");
+          }
+        }
+      }
+    }
+    
     dvr_yn = dvr_yn_;
     dvr_style = dvr_style_;
     dvr_delay = dvr_delay_;
@@ -18157,6 +18204,33 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     dyn_type = as<arma::uvec>(dens_input["type"]);
     n_dyn_elems = dyn_index321.n_elem;
     
+    for (int i = 0; i < dyn_style.n_elem; i++) {
+      if (dyn_style(i) < 1 || dyn_style(i) > 4) {
+        throw Rcpp::exception("Some density inputs are stated as yielding density dependence but not in an accepted style.");
+      }
+      
+      if (dyn_style(i) == 1) {
+        if (dyn_alpha(i) > exp_tol) {
+          Rf_warningcall(R_NilValue,
+            "Values of alpha used in the Ricker function should be set to limits within positive and negative exp_tol values. Resetting...");
+          dyn_alpha(i) = exp_tol;
+        } else if (dyn_alpha(i) < (-1.0 * exp_tol)) {
+          Rf_warningcall(R_NilValue,
+            "Values of alpha used in the Ricker function should be set to limits within positive and negative exp_tol values. Resetting...");
+          dyn_alpha(i) = -1 * exp_tol;
+        }
+      } else if (dyn_style(i) == 3) {
+        double summed_stuff = dyn_alpha(i) + dyn_beta(i);
+        
+        if (summed_stuff > exp_tol) {
+          Rf_warningcall(R_NilValue,
+            "Values of alpha and beta used in the Usher function may be too high. Results may be unpredictable.");
+        } else if (summed_stuff < (-1.0 * exp_tol)) {
+          Rf_warningcall(R_NilValue,
+            "Values of alpha and beta used in the Usher function may be too high. Results may be unpredictable.");
+        }
+      }
+    }
     dens_elems = true;
   }
   
@@ -20337,6 +20411,9 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
 //' and forces fecundity to be non-negative; and \code{2} forces all column rows
 //' in the survival-transition matrices to total no more than 1.0, in addition
 //' to the actions outlined for option \code{1}.
+//' @param exp_tol A numeric value used to indicate a maximum value to set
+//' exponents to in the core kernel to prevent numerical overflow. Defaults to
+//' \code{700}.
 //' @param sub_warnings A logical value indicating whether to warn the user if
 //' density dependence yields matrix values outside of the realm of possibility.
 //' Generally, this means that survival-transition elements altered to values
@@ -20428,6 +20505,14 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
 //' \code{density} is input. If this object is not included, then density
 //' independent projections will be set up. Note that currently, density
 //' dependent projections can only be performed with \code{lefkoMat} objects.
+//' 
+//' When running density dependent simulations involving user-set exponents,
+//' such as the alpha term in the Ricker function and both the alpha and beta
+//' terms in the Usher function, values above or below the computer limits may
+//' cause unpredictable behavior. Noted odd behavior includes sudden shifts in
+//' population size to negative values. This function produces warnings when
+//' such values are used, and the values used for warnings may be reset with the
+//' \code{exp_tol} term.
 //' 
 //' The stage distributions and reproductive values produced are not the
 //' asymptotic values as would be given by the standardized right and left
@@ -20550,9 +20635,10 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
 Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
   bool historical = false, bool stochastic = false, bool standardize = false,
   bool growthonly = true, bool integeronly = false, int substoch = 0,
-  bool sub_warnings = true, bool quiet = false, Nullable<IntegerVector> year = R_NilValue,
-  Nullable<NumericVector> start_vec = R_NilValue, Nullable<DataFrame> start_frame = R_NilValue,
-  Nullable<NumericVector> tweights = R_NilValue, Nullable<DataFrame> density = R_NilValue) {
+  double exp_tol = 700.0, bool sub_warnings = true, bool quiet = false, 
+  Nullable<IntegerVector> year = R_NilValue, Nullable<NumericVector> start_vec = R_NilValue,
+  Nullable<DataFrame> start_frame = R_NilValue, Nullable<NumericVector> tweights = R_NilValue,
+  Nullable<DataFrame> density = R_NilValue) {
   
   Rcpp::List dens_index;
   Rcpp::DataFrame dens_input;
@@ -20729,6 +20815,36 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
         
         dens_index = Rcpp::List::create(_["index3"] = di_stage32_id,
           _["index2"] = di_stage21_id, _["index321"] = di_index);
+      }
+      
+      arma::uvec dyn_style = as<arma::uvec>(dens_input["style"]);
+      arma::vec dyn_alpha = as<arma::vec>(dens_input["alpha"]);
+      arma::vec dyn_beta = as<arma::vec>(dens_input["beta"]);
+      
+      for (int i = 0; i < dyn_style.n_elem; i++) {
+        if (dyn_style(i) < 1 || dyn_style(i) > 4) {
+          throw Rcpp::exception("Some density inputs are stated as yielding density dependence but not in an accepted style.");
+        }
+        
+        if (dyn_style(i) == 1) {
+          if (dyn_alpha(i) > exp_tol) {
+            Rf_warningcall(R_NilValue,
+              "Values of alpha used in the Ricker function may be too high. Results may be unpredictable.");
+          } else if (dyn_alpha(i) < (-1.0 * exp_tol)) {
+            Rf_warningcall(R_NilValue,
+              "Values of alpha used in the Ricker function may be too high. Results may be unpredictable.");
+          }
+        } else if (dyn_style(i) == 3) {
+          double summed_stuff = dyn_alpha(i) + dyn_beta(i);
+          
+          if (summed_stuff > exp_tol) {
+            Rf_warningcall(R_NilValue,
+              "Values of alpha and beta used in the Usher function may be too high. Results may be unpredictable.");
+          } else if (summed_stuff < (-1.0 * exp_tol)) {
+            Rf_warningcall(R_NilValue,
+              "Values of alpha and beta used in the Usher function may be too high. Results may be unpredictable.");
+          }
+        }
       }
     }
     

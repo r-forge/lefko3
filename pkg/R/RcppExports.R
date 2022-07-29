@@ -3598,6 +3598,16 @@ sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, re
 #' which spatial density is included as a fixed factor in the associated
 #' vital rate model.
 #' 
+#' When running density dependent simulations involving user-set exponents,
+#' such as the alpha term in the Ricker function and both the alpha and beta
+#' terms in the Usher function, values above or below the computer limits may
+#' cause unpredictable behavior. Noted odd behavior includes sudden shifts in
+#' population size to negative values. This function produces warnings when
+#' such values are used, and the values used for warnings may be reset with the
+#' \code{exp_tol} term. In addition, this function resets alpha values for the
+#' Ricker function automatically to positive or negative \code{exp_tol}, giving
+#' a warning when doing so.
+#' 
 #' Consistently positive population growth can quickly lead to population size
 #' numbers larger than can be handled computationally. In that circumstance, a
 #' continuously rising population size will suddenly become \code{NaN} for the
@@ -4090,6 +4100,9 @@ f_projection3 <- function(format, prebreeding = TRUE, start_age = NA_integer_, l
 #' and forces fecundity to be non-negative; and \code{2} forces all column rows
 #' in the survival-transition matrices to total no more than 1.0, in addition
 #' to the actions outlined for option \code{1}.
+#' @param exp_tol A numeric value used to indicate a maximum value to set
+#' exponents to in the core kernel to prevent numerical overflow. Defaults to
+#' \code{700}.
 #' @param sub_warnings A logical value indicating whether to warn the user if
 #' density dependence yields matrix values outside of the realm of possibility.
 #' Generally, this means that survival-transition elements altered to values
@@ -4181,6 +4194,14 @@ f_projection3 <- function(format, prebreeding = TRUE, start_age = NA_integer_, l
 #' \code{density} is input. If this object is not included, then density
 #' independent projections will be set up. Note that currently, density
 #' dependent projections can only be performed with \code{lefkoMat} objects.
+#' 
+#' When running density dependent simulations involving user-set exponents,
+#' such as the alpha term in the Ricker function and both the alpha and beta
+#' terms in the Usher function, values above or below the computer limits may
+#' cause unpredictable behavior. Noted odd behavior includes sudden shifts in
+#' population size to negative values. This function produces warnings when
+#' such values are used, and the values used for warnings may be reset with the
+#' \code{exp_tol} term.
 #' 
 #' The stage distributions and reproductive values produced are not the
 #' asymptotic values as would be given by the standardized right and left
@@ -4299,8 +4320,8 @@ f_projection3 <- function(format, prebreeding = TRUE, start_age = NA_integer_, l
 #' cypstoch <- projection3(cypmatrix3r, nreps = 5, stochastic = TRUE)
 #' 
 #' @export projection3
-projection3 <- function(mpm, nreps = 1L, times = 10000L, historical = FALSE, stochastic = FALSE, standardize = FALSE, growthonly = TRUE, integeronly = FALSE, substoch = 0L, sub_warnings = TRUE, quiet = FALSE, year = NULL, start_vec = NULL, start_frame = NULL, tweights = NULL, density = NULL) {
-    .Call('_lefko3_projection3', PACKAGE = 'lefko3', mpm, nreps, times, historical, stochastic, standardize, growthonly, integeronly, substoch, sub_warnings, quiet, year, start_vec, start_frame, tweights, density)
+projection3 <- function(mpm, nreps = 1L, times = 10000L, historical = FALSE, stochastic = FALSE, standardize = FALSE, growthonly = TRUE, integeronly = FALSE, substoch = 0L, exp_tol = 700.0, sub_warnings = TRUE, quiet = FALSE, year = NULL, start_vec = NULL, start_frame = NULL, tweights = NULL, density = NULL) {
+    .Call('_lefko3_projection3', PACKAGE = 'lefko3', mpm, nreps, times, historical, stochastic, standardize, growthonly, integeronly, substoch, exp_tol, sub_warnings, quiet, year, start_vec, start_frame, tweights, density)
 }
 
 #' Estimate Stochastic Population Growth Rate
