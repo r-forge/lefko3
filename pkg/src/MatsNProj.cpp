@@ -15404,12 +15404,12 @@ List mothermccooney(DataFrame listofyears, List modelsuite, IntegerVector actual
 //' vital rate model.
 //' 
 //' When running density dependent simulations involving user-set exponents,
-//' such as the alpha term in the Ricker function and both the alpha and beta
+//' such as the beta term in the Ricker function and both the alpha and beta
 //' terms in the Usher function, values above or below the computer limits may
 //' cause unpredictable behavior. Noted odd behavior includes sudden shifts in
 //' population size to negative values. This function produces warnings when
 //' such values are used, and the values used for warnings may be reset with the
-//' \code{exp_tol} term. In addition, this function resets alpha values for the
+//' \code{exp_tol} term. In addition, this function resets beta values for the
 //' Ricker function automatically to positive or negative \code{exp_tol}, giving
 //' a warning when doing so.
 //' 
@@ -17910,14 +17910,14 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
         }
         
         if (dvr_style_(i) == 1) {
-          if (dvr_alpha_(i) > exp_tol) {
+          if (dvr_beta_(i) > exp_tol) {
             Rf_warningcall(R_NilValue,
-              "Values of alpha used in the Ricker function should be set to limits within positive and negative exp_tol values. Resetting...");
-            dvr_alpha_(i) = exp_tol;
-          } else if (dvr_alpha_(i) < (-1.0 * exp_tol)) {
+              "Values of beta used in the Ricker function should be set to limits within positive and negative exp_tol values. Resetting...");
+            dvr_beta_(i) = exp_tol;
+          } else if (dvr_beta_(i) < (-1.0 * exp_tol)) {
             Rf_warningcall(R_NilValue,
-              "Values of alpha used in the Ricker function should be set to limits within positive and negative exp_tol values. Resetting...");
-            dvr_alpha_(i) = -1 * exp_tol;
+              "Values of beta used in the Ricker function should be set to limits within positive and negative exp_tol values. Resetting...");
+            dvr_beta_(i) = -1 * exp_tol;
           }
         } else if (dvr_style_(i) == 3) {
           double summed_stuff = dvr_alpha_(i) + dvr_beta_(i);
@@ -18210,14 +18210,14 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
       }
       
       if (dyn_style(i) == 1) {
-        if (dyn_alpha(i) > exp_tol) {
+        if (dyn_beta(i) > exp_tol) {
           Rf_warningcall(R_NilValue,
-            "Values of alpha used in the Ricker function should be set to limits within positive and negative exp_tol values. Resetting...");
-          dyn_alpha(i) = exp_tol;
-        } else if (dyn_alpha(i) < (-1.0 * exp_tol)) {
+            "Values of beta used in the Ricker function should be set to limits within positive and negative exp_tol values. Resetting...");
+          dyn_beta(i) = exp_tol;
+        } else if (dyn_beta(i) < (-1.0 * exp_tol)) {
           Rf_warningcall(R_NilValue,
-            "Values of alpha used in the Ricker function should be set to limits within positive and negative exp_tol values. Resetting...");
-          dyn_alpha(i) = -1 * exp_tol;
+            "Values of beta used in the Ricker function should be set to limits within positive and negative exp_tol values. Resetting...");
+          dyn_beta(i) = -1 * exp_tol;
         }
       } else if (dyn_style(i) == 3) {
         double summed_stuff = dyn_alpha(i) + dyn_beta(i);
@@ -20507,7 +20507,7 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
 //' dependent projections can only be performed with \code{lefkoMat} objects.
 //' 
 //' When running density dependent simulations involving user-set exponents,
-//' such as the alpha term in the Ricker function and both the alpha and beta
+//' such as the beta term in the Ricker function and both the alpha and beta
 //' terms in the Usher function, values above or below the computer limits may
 //' cause unpredictable behavior. Noted odd behavior includes sudden shifts in
 //' population size to negative values. This function produces warnings when
@@ -20827,12 +20827,12 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
         }
         
         if (dyn_style(i) == 1) {
-          if (dyn_alpha(i) > exp_tol) {
+          if (dyn_beta(i) > exp_tol) {
             Rf_warningcall(R_NilValue,
-              "Values of alpha used in the Ricker function may be too high. Results may be unpredictable.");
-          } else if (dyn_alpha(i) < (-1.0 * exp_tol)) {
+              "Values of beta used in the Ricker function may be too high. Results may be unpredictable.");
+          } else if (dyn_beta(i) < (-1.0 * exp_tol)) {
             Rf_warningcall(R_NilValue,
-              "Values of alpha used in the Ricker function may be too high. Results may be unpredictable.");
+              "Values of beta used in the Ricker function may be too high. Results may be unpredictable.");
           }
         } else if (dyn_style(i) == 3) {
           double summed_stuff = dyn_alpha(i) + dyn_beta(i);

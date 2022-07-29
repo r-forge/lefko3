@@ -177,7 +177,7 @@ independent projections will be set up. Note that currently, density
 dependent projections can only be performed with \code{lefkoMat} objects.
 
 When running density dependent simulations involving user-set exponents,
-such as the alpha term in the Ricker function and both the alpha and beta
+such as the beta term in the Ricker function and both the alpha and beta
 terms in the Usher function, values above or below the computer limits may
 cause unpredictable behavior. Noted odd behavior includes sudden shifts in
 population size to negative values. This function produces warnings when
