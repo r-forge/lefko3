@@ -323,9 +323,13 @@ evaluated. Defaults to \code{FALSE}.}
 models. See \code{Notes} section for details on hoew accuracy is assessed.
 Defaults to \code{TRUE}.}
 
-\item{quiet}{If set to TRUE, then model building and selection will proceed
-with most warnings and diagnostic messages silenced. Defaults to
-\code{FALSE}.}
+\item{quiet}{May be a logical value, or any one of the strings \code{"yes"},
+\code{"no"}, or \code{"partial"}. If set to \code{TRUE} or \code{"yes"}, then
+model building and selection will proceed with most warnings and diagnostic
+messages silenced. If set to \code{FALSE} or |code{"no"}, then all warnings
+and diagnostic messages will be displayed. If set to \code{"partial"}, then
+only messages related to transitions between different vital rate models will
+be displayed. Defaults to \code{FALSE}.}
 }
 \value{
 This function yields an object of class \code{lefkoMod}, which is a
