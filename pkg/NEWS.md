@@ -5,6 +5,8 @@
 * Function modelsearch() now allows "partial" option, which shows model milepost
   messages but silences all others. Also allows "yes" and "no" in place of TRUE
   and FALSE.
+* Function density_input() has been rewritten to handle all standard stage
+  shorthand codes.
 
 ## USER-VISIBLE CHANGES
 
