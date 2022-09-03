@@ -370,10 +370,9 @@
 #' distribution, including survival, observation status, reproductive status,
 #' and juvenile version of these, accuracy is calculated as the percent of
 #' predicted responses equal to actual responses. In all other models, accuracy
-#' is actually the conditional R-wquared using package \code{MuMIn}'s
-#' \code{\link[MuMIn]{r.squaredGLMM}()} function, estimated via the delta
-#' method. When this method fails, \code{modelsearch()} calculates McFadden's
-#' pseudo R-squared. If this fails, then \code{NA} is returned.
+#' is actually assessed as a simple R-squared in which the observed response
+#' values per data subset are compared to the predicted response values
+#' according to each best-fit model.
 #' 
 #' Care must be taken to build models that test the impacts of state in occasion
 #' \emph{t}-1 for historical models, and that do not test these impacts for
@@ -452,7 +451,7 @@
 #'   vitalrates = c("surv", "obs", "size", "repst", "fec"), juvestimate = "Sdl",
 #'   bestfit = "AICc&k", sizedist = "gaussian", fecdist = "poisson", 
 #'   indiv = "individ", patch = "patchid", year = "year2",year.as.random = TRUE,
-#'   patch.as.random = TRUE, show.model.tables = TRUE, quiet = TRUE)
+#'   patch.as.random = TRUE, show.model.tables = TRUE, quiet = "partial")
 #' 
 #' # Here we use supplemental() to provide overwrite and reproductive info
 #' lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "mat", "Sd", "Sdl"), 
@@ -530,7 +529,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
   }
   
   #Input testing, input standardization, and exception handling
-  if (all(class(data) != "hfvdata")) {
+  if (all(!is(data, "hfvdata"))) {
     warning("This function was made to work with standardized historically
       formatted vertical datasets, as provided by the verticalize() and
       historicalize() functions. Failure to format the input data properly and
@@ -542,7 +541,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     if (is.null(stageframe)) {
       stop("Cannot test groups without inclusion of appropriate stageframe.",
         call. = FALSE)
-    } else if (!is.element("stageframe", class(stageframe))) {
+    } else if (!is(stageframe, "stageframe")) {
       stop("Cannot test groups without inclusion of appropriate stageframe.",
         call. = FALSE)
     } else {
@@ -2580,7 +2579,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
   global.model <- .levindurosier(usedformula, subdata, approach, binom.model,
     dist, truncz, zero, quiet)
   
-  if (any(class(global.model) == "try-error")) {
+  if (any(is(global.model, "try-error"))) {
     if (!is.na(alt_formula)) {
       nox.model <- alt_formula
     } else {
@@ -2596,7 +2595,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
         dist, truncz, zero, quiet)
     }
     
-    if (any(class(global.model) == "try-error")) {
+    if (any(is(global.model, "try-error"))) {
       nopat.model <- nox.model
       
       if (!is.na(correction.patch)) {
@@ -2613,7 +2612,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
       }
     }
     
-    if (any(class(global.model) == "try-error")) {
+    if (any(is(global.model, "try-error"))) {
       noyr.model <- nopat.model
       
       if (!is.na(correction.year)) {
@@ -2630,7 +2629,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
       }
     }
     
-    if (any(class(global.model) == "try-error")) {
+    if (any(is(global.model, "try-error"))) {
       nocovs.model <- alt_nocovsformula
       
       if (!quiet) {
@@ -2641,7 +2640,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
         dist, truncz, zero, quiet)
     }
     
-    if (any(class(global.model) == "try-error")) {
+    if (any(is(global.model, "try-error"))) {
       nocovpat.model <- nocovs.model
       
       if (!is.na(correction.patch)) {
@@ -2658,7 +2657,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
       }
     }
     
-    if (any(class(global.model) == "try-error")) {
+    if (any(is(global.model, "try-error"))) {
       nocovyr.model <- nocovpat.model
       
       if (!is.na(correction.year)) {
@@ -2675,7 +2674,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
       }
     }
     
-    if (any(class(global.model) == "try-error")) {
+    if (any(is(global.model, "try-error"))) {
       noind.model <- usedformula
       
       if (!is.na(correction.indiv)) {
@@ -2693,7 +2692,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     }
     
     # The no random term version
-    if (any(class(global.model) == "try-error") & approach == "mixed") {
+    if (any(is(global.model, "try-error")) & approach == "mixed") {
       noran.model <- alt_glmformula
       
       if (!quiet) {
@@ -2704,7 +2703,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
         binom.model, dist, truncz, zero, quiet)
     }
     
-    if (any(class(global.model) == "try-error")) {
+    if (any(is(global.model, "try-error"))) {
       if (!quiet.mil) {
         if (vrate == 1) {
           message("\nCould not properly estimate a global model for survival probability.")
@@ -2785,7 +2784,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     if (extra_fac > 0) override <- TRUE
     
     #This is the section where we dredge the models
-    if (override & !global.only & !any(class(global.model) == "vglm")) {
+    if (override & !global.only & !any(is(global.model, "vglm"))) {
   
       if (usedformula != 1) {
         options(na.action = "na.fail")
@@ -2797,7 +2796,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
         }
         null.model.num <- which(model.table$df == min(model.table$df))[1]
         
-        if (any(class(model.table) == "try-error") & !quiet.mil) {
+        if (any(is(model.table, "try-error")) & !quiet.mil) {
           if (vrate == 1) {
             message("\nDredge of survival probability failed.\n")
           } else if (vrate == 2) {
@@ -2833,7 +2832,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     
     #Here we extract the best-fit model
     if (length(grep("&k", bestfit)) > 0) {
-      if (any(class(model.table) == "model.selection")) {
+      if (any(is(model.table, "model.selection"))) {
         if (!quiet) {
           if (vrate == 1) {
             message("\nExtracting best-fit model of survival probability.\n")
@@ -2887,7 +2886,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
       }
       
     } else {
-      if (any(class(model.table) == "model.selection")) {
+      if (any(is(model.table, "model.selection"))) {
         if (!quiet) {
           message("\nExtracting best-fit model.\n")
         }
@@ -3122,12 +3121,12 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
 #' distribution, including survival, observation status, reproductive status,
 #' and juvenile version of these, accuracy is calculated as the percent of
 #' predicted responses equal to actual responses. In all other models, accuracy
-#' is actually the conditional R\textsuperscript{2} using package \code{MuMIn}'s
-#' \code{\link[MuMIn]{r.squaredGLMM}()} function, estimated via the delta
-#' method. When this method fails, \code{modelsearch()} calculates McFadden's
-#' pseudo-R\textsuperscript{2}. If this fails, then \code{NA} is returned.
-#' #' currently only handles this for binomial models, and performs it as a
-#' comparison of the actual and predicted responses from the respective model.
+#' is assessed as a basic R\textsuperscript{2} in which the function predicts
+#' the expected value for each data point in the model subset according to the
+#' given best-fit model, and the sum of squared differences between these
+#' predicted and observed values are used in the classic sum of squares
+#' calculation of R\textsuperscript{2}. If this fails, then \code{NA} is 
+#' returned.
 #' 
 #' @name .accu_predict
 #' 
@@ -3156,15 +3155,21 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
   pred_vec <- NULL
   accuracy <- NA 
   
-  if (check & !any(class(bestfitmodel) == "vglm")) {
-    if (!is.numeric(bestfitmodel) & !is.element("NULL", class(bestfitmodel))) {
-      if (style == 1) {
-        
+  #if (check & !any(class(bestfitmodel) == "vglm")) {
+    if (!is.numeric(bestfitmodel) & !is(bestfitmodel, "NULL")) {
+      
+      if (is(bestfitmodel, "vglm")) {
+        pred_vec <- VGAM::predictvglm(bestfitmodel, newdata = subdata,
+          type = "response")
+      } else {
         pred_vec <- stats::predict(bestfitmodel, newdata = subdata,
           type = "response")
+      }
+      
+      test_vec <- subdata[,which(names(subdata) == param)]
+      
+      if (style == 1) {
         pred_vec <- round(pred_vec)
-        
-        test_vec <- subdata[,which(names(subdata) == param)]
         
         results_vec <- pred_vec - test_vec
         
@@ -3172,42 +3177,57 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
         
       } else if (style == 2) {
         
-        if (quiet) {
-          accuracy.table <- suppressWarnings(suppressMessages(try(MuMIn::r.squaredGLMM(bestfitmodel),
-              silent = quiet)))
-        } else {
-          accuracy.table <- try(MuMIn::r.squaredGLMM(bestfitmodel), silent = quiet)
-        }
+        results_vec <- pred_vec - test_vec
+        results_vec <- results_vec[!is.na(results_vec)]
         
-        if (any(class(accuracy.table) == "try-error")) {
-          if (all(is.numeric(bestfitmodel))) {
-            all_dat_values <- unique(subdata[,which(names(subdata) == param)])
-            if (length(all_dat_values) == 1) {
-              accuracy <- 1
-            }
-          } else {
-            bf_log <- logLik(bestfitmodel)[1]
-            null_log <- logLik(nullmodel)[1]
-          
-            accuracy <- 1 - (bf_log / null_log)
-          }
-          
-          if (is.numeric(accuracy)) {
-            if (!is.na(accuracy)) {
-              if (accuracy < 0 | accuracy > 1) accuracy <- NA
-            }
-          } else {accuracy <- NA}
-          
-        } else if (!suppressWarnings(all(is.na(nullmodel)))) {
-          if (is.element("delta", rownames(accuracy.table))) {
-            accuracy <- accuracy.table["delta","R2c"]
-          } else {
-            accuracy <- accuracy.table[1,"R2c"]
-          }
-        }
+        squares_vec <- (results_vec * results_vec)
+        sum_squares <- sum(squares_vec)
+        
+        mean_y <- mean(test_vec, na.rm = TRUE)
+        
+        base_total <- test_vec - mean_y
+        base_total <- base_total[!is.na(base_total)]
+        base_squares <- base_total * base_total
+        sum_base_squares <- sum(base_squares)
+        
+        accuracy <- 1.000 - (sum_squares / sum_base_squares)
+        
+        # if (quiet) {
+        #   accuracy.table <- suppressWarnings(suppressMessages(try(MuMIn::r.squaredGLMM(bestfitmodel),
+        #       silent = quiet)))
+        # } else {
+        #   accuracy.table <- try(MuMIn::r.squaredGLMM(bestfitmodel), silent = quiet)
+        # }
+        # 
+        # if (any(class(accuracy.table) == "try-error")) {
+        #   if (all(is.numeric(bestfitmodel))) {
+        #     all_dat_values <- unique(subdata[,which(names(subdata) == param)])
+        #     if (length(all_dat_values) == 1) {
+        #       accuracy <- 1
+        #     }
+        #   } else {
+        #     bf_log <- logLik(bestfitmodel)[1]
+        #     null_log <- logLik(nullmodel)[1]
+        #   
+        #     accuracy <- 1 - (bf_log / null_log)
+        #   }
+        #   
+        #   if (is.numeric(accuracy)) {
+        #     if (!is.na(accuracy)) {
+        #       if (accuracy < 0 | accuracy > 1) accuracy <- NA
+        #     }
+        #   } else {accuracy <- NA}
+        #   
+        # } else if (!suppressWarnings(all(is.na(nullmodel)))) {
+        #   if (is.element("delta", rownames(accuracy.table))) {
+        #     accuracy <- accuracy.table["delta","R2c"]
+        #   } else {
+        #     accuracy <- accuracy.table[1,"R2c"]
+        #   }
+        # }
       }
     }
-  }
+  # }
   
   return(accuracy)
 }
@@ -3276,7 +3296,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
 #'   bestfit = "AICc&k", sizedist = "gaussian", fecdist = "poisson",
 #'   indiv = "individ", patch = "patchid", year = "year2",
 #'   year.as.random = TRUE, patch.as.random = TRUE, show.model.tables = TRUE,
-#'   quiet = TRUE)
+#'   quiet = "partial")
 #' 
 #' summary(lathmodelsln2)
 #' }
@@ -3342,7 +3362,7 @@ summary.lefkoMod <- function(object, ...) {
   
   writeLines(paste0("\n\n\n"))
   if (!is.logical(modelsuite$survival_model) & 
-      is.element("model.selection", class(modelsuite$survival_table))) {
+      is(modelsuite$survival_table, "model.selection")) {
     writeLines(paste0("\nNumber of models in survival table: ", 
         dim(modelsuite$survival_table)[1]))
   } else if (!is.logical(modelsuite$survival_model)) {
@@ -3352,7 +3372,7 @@ summary.lefkoMod <- function(object, ...) {
   }
   
   if (!is.logical(modelsuite$observation_model) & 
-      is.element("model.selection", class(modelsuite$observation_table))) {
+      is(modelsuite$observation_table, "model.selection")) {
     writeLines(paste0("\nNumber of models in observation table: ", 
         dim(modelsuite$observation_table)[1]))
   } else if (!is.logical(modelsuite$observation_model)) {
@@ -3362,7 +3382,7 @@ summary.lefkoMod <- function(object, ...) {
   }
   
   if (!is.logical(modelsuite$size_model) & 
-      is.element("model.selection", class(modelsuite$size_table))) {
+      is(modelsuite$size_table, "model.selection")) {
     writeLines(paste0("\nNumber of models in size table: ", 
         dim(modelsuite$size_table)[1]))
   } else if (!is.logical(modelsuite$size_model)) {
@@ -3372,7 +3392,7 @@ summary.lefkoMod <- function(object, ...) {
   }
   
   if (!is.logical(modelsuite$sizeb_model) & 
-      is.element("model.selection", class(modelsuite$sizeb_table))) {
+      is(modelsuite$sizeb_table, "model.selection")) {
     writeLines(paste0("\nNumber of models in secondary size table: ", 
         dim(modelsuite$sizeb_table)[1]))
   } else if (!is.logical(modelsuite$sizeb_model)) {
@@ -3382,7 +3402,7 @@ summary.lefkoMod <- function(object, ...) {
   }
   
   if (!is.logical(modelsuite$sizec_model) & 
-      is.element("model.selection", class(modelsuite$sizec_table))) {
+      is(modelsuite$sizec_table, "model.selection")) {
     writeLines(paste0("\nNumber of models in tertiary size table: ", 
         dim(modelsuite$sizec_table)[1]))
   } else if (!is.logical(modelsuite$sizec_model)) {
@@ -3392,7 +3412,7 @@ summary.lefkoMod <- function(object, ...) {
   }
   
   if (!is.logical(modelsuite$repstatus_model) & 
-      is.element("model.selection", class(modelsuite$repstatus_table))) {
+      is(modelsuite$repstatus_table, "model.selection")) {
     writeLines(paste0("\nNumber of models in reproduction status table: ", 
         dim(modelsuite$repstatus_table)[1]))
   } else if (!is.logical(modelsuite$repstatus_model)) {
@@ -3402,7 +3422,7 @@ summary.lefkoMod <- function(object, ...) {
   }
   
   if (!is.logical(modelsuite$fecundity_model) & 
-      is.element("model.selection", class(modelsuite$fecundity_table))) {
+      is(modelsuite$fecundity_table, "model.selection")) {
     writeLines(paste0("\nNumber of models in fecundity table: ", 
         dim(modelsuite$fecundity_table)[1]))
   } else if (!is.logical(modelsuite$fecundity_model)) {
@@ -3412,7 +3432,7 @@ summary.lefkoMod <- function(object, ...) {
   }
   
   if (!is.logical(modelsuite$juv_survival_model) & 
-      is.element("model.selection", class(modelsuite$juv_survival_table))) {
+      is(modelsuite$juv_survival_table, "model.selection")) {
     writeLines(paste0("\nNumber of models in juvenile survival table: ", 
         dim(modelsuite$juv_survival_table)[1]))
   } else if (!is.logical(modelsuite$juv_survival_model)) {
@@ -3422,7 +3442,7 @@ summary.lefkoMod <- function(object, ...) {
   }
   
   if (!is.logical(modelsuite$juv_observation_model) & 
-      is.element("model.selection", class(modelsuite$juv_observation_table))) {
+      is(modelsuite$juv_observation_table, "model.selection")) {
     writeLines(paste0("\nNumber of models in juvenile observation table: ", 
         dim(modelsuite$juv_observation_table)[1]))
   } else if (!is.logical(modelsuite$juv_observation_model)) {
@@ -3432,7 +3452,7 @@ summary.lefkoMod <- function(object, ...) {
   }
   
   if (!is.logical(modelsuite$juv_size_model) & 
-      is.element("model.selection", class(modelsuite$juv_size_table))) {
+      is(modelsuite$juv_size_table, "model.selection")) {
     writeLines(paste0("\nNumber of models in juvenile size table: ", 
         dim(modelsuite$juv_size_table)[1]))
   } else if (!is.logical(modelsuite$juv_size_model)) {
@@ -3442,7 +3462,7 @@ summary.lefkoMod <- function(object, ...) {
   }
   
   if (!is.logical(modelsuite$juv_sizeb_model) & 
-      is.element("model.selection", class(modelsuite$juv_sizeb_table))) {
+      is(modelsuite$juv_sizeb_table, "model.selection")) {
     writeLines(paste0("\nNumber of models in juvenile secondary size table: ", 
         dim(modelsuite$juv_sizeb_table)[1]))
   } else if (!is.logical(modelsuite$juv_sizeb_model)) {
@@ -3452,7 +3472,7 @@ summary.lefkoMod <- function(object, ...) {
   }
   
   if (!is.logical(modelsuite$juv_sizec_model) & 
-      is.element("model.selection", class(modelsuite$juv_sizec_table))) {
+      is(modelsuite$juv_sizec_table, "model.selection")) {
     writeLines(paste0("\nNumber of models in juvenile tertiary size table: ", 
         dim(modelsuite$juv_sizec_table)[1]))
   } else if (!is.logical(modelsuite$juv_sizec_model)) {
@@ -3462,7 +3482,7 @@ summary.lefkoMod <- function(object, ...) {
   }
   
   if (!is.logical(modelsuite$juv_reproduction_model) & 
-      is.element("model.selection", class(modelsuite$juv_reproduction_table))) {
+      is(modelsuite$juv_reproduction_table, "model.selection")) {
     writeLines(paste0("\nNumber of models in juvenile reproduction table: ", 
         dim(modelsuite$juv_reproduction_table)[1]))
   } else if (!is.logical(modelsuite$juv_reproduction_model)) {
@@ -3472,7 +3492,7 @@ summary.lefkoMod <- function(object, ...) {
   }
   
   if (!is.logical(modelsuite$juv_maturity_model) & 
-      is.element("model.selection", class(modelsuite$juv_maturity_table))) {
+      is(modelsuite$juv_maturity_table, "model.selection")) {
     writeLines(paste0("\nNumber of models in juvenile maturity table: ", 
         dim(modelsuite$juv_maturity_table)[1]))
   } else if (!is.logical(modelsuite$juv_maturity_model)) {
@@ -3489,124 +3509,124 @@ summary.lefkoMod <- function(object, ...) {
   writeLines(paste0("\n\n\n"))
   writeLines("\nQuality control:\n")
   if (modelsuite$qc[1,2] > 0) {
-    writeLines(paste0("Survival estimated with ", modelsuite$qc[1,2], 
+    writeLines(paste0("Survival model estimated with ", modelsuite$qc[1,2], 
         " individuals and ", modelsuite$qc[1,3], " individual transitions."))
-    writeLines(paste0("Survival accuracy is ", round(modelsuite$qc[1,"accuracy"], 3), "."))
+    writeLines(paste0("Survival model accuracy is ", round(modelsuite$qc[1,"accuracy"], 3), "."))
   } else {
-    writeLines("Survival not estimated.")
+    writeLines("Survival model not estimated.")
   }
   
   if (modelsuite$qc[2,2] > 0) {
-    writeLines(paste0("Observation estimated with ", modelsuite$qc[2,2], 
+    writeLines(paste0("Observation status model estimated with ", modelsuite$qc[2,2], 
         " individuals and ", modelsuite$qc[2,3], " individual transitions."))
-    writeLines(paste0("Observation accuracy is ", round(modelsuite$qc[2,"accuracy"], 3), "."))
+    writeLines(paste0("Observation status model accuracy is ", round(modelsuite$qc[2,"accuracy"], 3), "."))
   } else {
-    writeLines("Observation probability not estimated.")
+    writeLines("Observation status model not estimated.")
   }
   
   if (modelsuite$qc[3,2] > 0) {
-    writeLines(paste0("Primary size estimated with ", modelsuite$qc[3,2], 
+    writeLines(paste0("Primary size model estimated with ", modelsuite$qc[3,2], 
         " individuals and ", modelsuite$qc[3,3], " individual transitions."))
-    writeLines(paste0("Primary size pseudo R-squared is ",
+    writeLines(paste0("Primary size model R-squared is ",
       round(modelsuite$qc[3,"accuracy"], 3), "."))
   } else {
-    writeLines("Primary size transition not estimated.")
+    writeLines("Primary size model not estimated.")
   }
   
   if (modelsuite$qc[4,2] > 0) {
-    writeLines(paste0("Secondary size estimated with ", modelsuite$qc[4,2], 
+    writeLines(paste0("Secondary size model estimated with ", modelsuite$qc[4,2], 
         " individuals and ", modelsuite$qc[4,3], " individual transitions."))
-    writeLines(paste0("Secondary size pseudo R-squared is ",
+    writeLines(paste0("Secondary size model R-squared is ",
       round(modelsuite$qc[4,"accuracy"], 3), "."))
   } else {
-    writeLines("Secondary size transition not estimated.")
+    writeLines("Secondary size model not estimated.")
   }
   
   if (modelsuite$qc[5,2] > 0) {
-    writeLines(paste0("Tertiary size estimated with ", modelsuite$qc[5,2], 
+    writeLines(paste0("Tertiary size model estimated with ", modelsuite$qc[5,2], 
         " individuals and ", modelsuite$qc[5,3], " individual transitions."))
-    writeLines(paste0("Tertiary size pseudo R-squared is ",
+    writeLines(paste0("Tertiary size model R-squared is ",
       round(modelsuite$qc[5,"accuracy"], 3), "."))
   } else {
-    writeLines("Tertiary size transition not estimated.")
+    writeLines("Tertiary size model not estimated.")
   }
   
   if (modelsuite$qc[6,2] > 0) {
-    writeLines(paste0("Reproductive status estimated with ", modelsuite$qc[6,2], 
+    writeLines(paste0("Reproductive status model estimated with ", modelsuite$qc[6,2], 
         " individuals and ", modelsuite$qc[6,3], " individual transitions."))
-   writeLines(paste0("Reproductive status accuracy is ", round(modelsuite$qc[6,"accuracy"], 3), "."))
+   writeLines(paste0("Reproductive status model accuracy is ", round(modelsuite$qc[6,"accuracy"], 3), "."))
    } else {
-    writeLines("Reproduction probability not estimated.")
+    writeLines("Reproductive status model not estimated.")
   }
   
   if (modelsuite$qc[7,2] > 0) {
-    writeLines(paste0("Fecundity estimated with ", modelsuite$qc[7,2], 
+    writeLines(paste0("Fecundity model estimated with ", modelsuite$qc[7,2], 
         " individuals and ", modelsuite$qc[7,3], " individual transitions."))
-    writeLines(paste0("Fecundity pseudo R-squared is ",
+    writeLines(paste0("Fecundity model R-squared is ",
         round(modelsuite$qc[7,"accuracy"], 3), "."))
   } else {
-    writeLines("Fecundity not estimated.")
+    writeLines("Fecundity model not estimated.")
   }
   
   if (modelsuite$qc[8,2] > 0) {
-    writeLines(paste0("Juvenile survival estimated with ", modelsuite$qc[8,2], 
+    writeLines(paste0("Juvenile survival model estimated with ", modelsuite$qc[8,2], 
         " individuals and ", modelsuite$qc[8,3], " individual transitions."))
-   writeLines(paste0("Juvenile survival accuracy is ", round(modelsuite$qc[8,"accuracy"], 3), "."))
+   writeLines(paste0("Juvenile survival model accuracy is ", round(modelsuite$qc[8,"accuracy"], 3), "."))
    } else {
-    writeLines("Juvenile survival not estimated.")
+    writeLines("Juvenile survival model not estimated.")
   }
   
   if (modelsuite$qc[9,2] > 0) {
-    writeLines(paste0("Juvenile observation estimated with ", modelsuite$qc[9,2], 
+    writeLines(paste0("Juvenile observation status model estimated with ", modelsuite$qc[9,2], 
         " individuals and ", modelsuite$qc[9,3], " individual transitions."))
-   writeLines(paste0("Juvenile observation accuracy is ", round(modelsuite$qc[9,"accuracy"], 3), "."))
+   writeLines(paste0("Juvenile observation status model accuracy is ", round(modelsuite$qc[9,"accuracy"], 3), "."))
   } else {
-    writeLines("Juvenile observation probability not estimated.")
+    writeLines("Juvenile observation status model not estimated.")
   }
   
   if (modelsuite$qc[10,2] > 0) {
-    writeLines(paste0("Juvenile primary size estimated with ", modelsuite$qc[10,2], 
+    writeLines(paste0("Juvenile primary size model estimated with ", modelsuite$qc[10,2], 
         " individuals and ", modelsuite$qc[10,3], " individual transitions."))
-    writeLines(paste0("Juvenile primary size pseudo R-squared is ",
+    writeLines(paste0("Juvenile primary size model R-squared is ",
       round(modelsuite$qc[10,"accuracy"], 3), "."))
   } else {
-    writeLines("Juvenile primary size transition not estimated.")
+    writeLines("Juvenile primary size model not estimated.")
   }
   
   if (modelsuite$qc[11,2] > 0) {
-    writeLines(paste0("Juvenile secondary size estimated with ", modelsuite$qc[11,2],
+    writeLines(paste0("Juvenile secondary size model estimated with ", modelsuite$qc[11,2],
         " individuals and ", modelsuite$qc[11,3], " individual transitions."))
-    writeLines(paste0("Juvenile secondary size pseudo R-squared is ",
+    writeLines(paste0("Juvenile secondary size model R-squared is ",
       round(modelsuite$qc[11,"accuracy"], 3), "."))
   } else {
-    writeLines("Juvenile secondary size transition not estimated.")
+    writeLines("Juvenile secondary size model not estimated.")
   }
   
   if (modelsuite$qc[12,2] > 0) {
-    writeLines(paste0("Juvenile tertiary size estimated with ", modelsuite$qc[12,2],
+    writeLines(paste0("Juvenile tertiary size model estimated with ", modelsuite$qc[12,2],
         " individuals and ", modelsuite$qc[12,3], " individual transitions."))
-    writeLines(paste0("Juvenile tertiary size pseudo R-squared is ",
+    writeLines(paste0("Juvenile tertiary size model R-squared is ",
       round(modelsuite$qc[12,"accuracy"], 3), "."))
   } else {
-    writeLines("Juvenile tertiary size transition not estimated.")
+    writeLines("Juvenile tertiary size model not estimated.")
   }
   
   if (modelsuite$qc[13,2] > 0) {
-    writeLines(paste0("Juvenile reproduction estimated with ", modelsuite$qc[13,2],
+    writeLines(paste0("Juvenile reproductive status model estimated with ", modelsuite$qc[13,2],
         " individuals and ", modelsuite$qc[13,3], " individual transitions."))
-    writeLines(paste0("Juvenile reproductive status accuracy is ",
+    writeLines(paste0("Juvenile reproductive status model accuracy is ",
         round(modelsuite$qc[13,"accuracy"], 3), "."))
   } else {
-    writeLines("Juvenile reproduction probability not estimated.")
+    writeLines("Juvenile reproductive status model not estimated.")
   }
   
   if (modelsuite$qc[14,2] > 0) {
-    writeLines(paste0("Juvenile maturity estimated with ", modelsuite$qc[14,2],
+    writeLines(paste0("Juvenile maturity model estimated with ", modelsuite$qc[14,2],
         " individuals and ", modelsuite$qc[14,3], " individual transitions."))
-    writeLines(paste0("Juvenile maturity status accuracy is ",
+    writeLines(paste0("Juvenile maturity status model accuracy is ",
         round(modelsuite$qc[14,"accuracy"], 3), "."))
   } else {
-    writeLines("Juvenile maturity probability not estimated.")
+    writeLines("Juvenile maturity status model not estimated.")
   }
 }
 

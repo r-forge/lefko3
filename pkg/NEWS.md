@@ -11,6 +11,9 @@
 ## USER-VISIBLE CHANGES
 
 * NEWS file corrected to show version numbers.
+* Function modelsearch() now uses a simple R-squared approach to assess
+  accuracy of all models except binomial models, which is assessed as
+  traditional logistic accuracy.
 
 # lefko3 5.4.2 (2022-08-08)
 

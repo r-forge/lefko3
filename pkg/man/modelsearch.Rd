@@ -490,10 +490,9 @@ rate and assumed distribution. For all vital rates assuming a binomial
 distribution, including survival, observation status, reproductive status,
 and juvenile version of these, accuracy is calculated as the percent of
 predicted responses equal to actual responses. In all other models, accuracy
-is actually the conditional R-wquared using package \code{MuMIn}'s
-\code{\link[MuMIn]{r.squaredGLMM}()} function, estimated via the delta
-method. When this method fails, \code{modelsearch()} calculates McFadden's
-pseudo R-squared. If this fails, then \code{NA} is returned.
+is actually assessed as a simple R-squared in which the observed response
+values per data subset are compared to the predicted response values
+according to each best-fit model.
 
 Care must be taken to build models that test the impacts of state in occasion
 \emph{t}-1 for historical models, and that do not test these impacts for
@@ -573,7 +572,7 @@ lathmodelsln3 <- modelsearch(lathvertln, historical = TRUE,
   vitalrates = c("surv", "obs", "size", "repst", "fec"), juvestimate = "Sdl",
   bestfit = "AICc&k", sizedist = "gaussian", fecdist = "poisson", 
   indiv = "individ", patch = "patchid", year = "year2",year.as.random = TRUE,
-  patch.as.random = TRUE, show.model.tables = TRUE, quiet = TRUE)
+  patch.as.random = TRUE, show.model.tables = TRUE, quiet = "partial")
 
 # Here we use supplemental() to provide overwrite and reproductive info
 lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "mat", "Sd", "Sdl"), 
