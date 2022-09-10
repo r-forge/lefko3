@@ -14,6 +14,14 @@
 * Function modelsearch() now uses a simple R-squared approach to assess
   accuracy of all models except binomial models, which is assessed as
   traditional logistic accuracy.
+* Vignettes updated to reflect changes to accuracy calculation.
+
+## BUG FIXES
+
+* Corrected issue causing Linux-based matrix estimation to yield negative matrix
+  element values in some instances involving truncated distributions.
+* Fixed issue in density adjustment protocol used by function f_projection3()
+  that would force all density adjustment onto survival probability.
 
 # lefko3 5.4.2 (2022-08-08)
 

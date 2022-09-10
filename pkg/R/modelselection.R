@@ -1466,8 +1466,8 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
   
   if(any(!suppressWarnings(!is.na(as.numeric(as.character(surv.data[, which(names(surv.data) == size[1])])))))) {
     warning("Modelsearch(), flefko3(), flefko2(), and aflefko2() are made to work
-      with numeric size variables. Use of categorical variables may result in
-      errors and unexpected behavior.", call. = FALSE)
+      with numeric size variables. Omitting size or using categorical size variables may
+      result in errors or unexpected behavior.", call. = FALSE)
   }
   if (suite == "full" | suite == "main" | suite == "size") {
     if (any(is.na(surv.data[, which(names(surv.data) == size[2])]))) {
@@ -3192,42 +3192,8 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
         
         accuracy <- 1.000 - (sum_squares / sum_base_squares)
         
-        # if (quiet) {
-        #   accuracy.table <- suppressWarnings(suppressMessages(try(MuMIn::r.squaredGLMM(bestfitmodel),
-        #       silent = quiet)))
-        # } else {
-        #   accuracy.table <- try(MuMIn::r.squaredGLMM(bestfitmodel), silent = quiet)
-        # }
-        # 
-        # if (any(class(accuracy.table) == "try-error")) {
-        #   if (all(is.numeric(bestfitmodel))) {
-        #     all_dat_values <- unique(subdata[,which(names(subdata) == param)])
-        #     if (length(all_dat_values) == 1) {
-        #       accuracy <- 1
-        #     }
-        #   } else {
-        #     bf_log <- logLik(bestfitmodel)[1]
-        #     null_log <- logLik(nullmodel)[1]
-        #   
-        #     accuracy <- 1 - (bf_log / null_log)
-        #   }
-        #   
-        #   if (is.numeric(accuracy)) {
-        #     if (!is.na(accuracy)) {
-        #       if (accuracy < 0 | accuracy > 1) accuracy <- NA
-        #     }
-        #   } else {accuracy <- NA}
-        #   
-        # } else if (!suppressWarnings(all(is.na(nullmodel)))) {
-        #   if (is.element("delta", rownames(accuracy.table))) {
-        #     accuracy <- accuracy.table["delta","R2c"]
-        #   } else {
-        #     accuracy <- accuracy.table[1,"R2c"]
-        #   }
-        # }
       }
     }
-  # }
   
   return(accuracy)
 }

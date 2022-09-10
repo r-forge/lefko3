@@ -353,7 +353,7 @@ supplemental <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
   eststage2 = NA, eststage1 = NA, givenrate = NA, multiplier = 1, type = NA,
   type_t12 = NA, stageframe, historical = TRUE) {
   
-  if (all(class(stageframe) != "stageframe")) {
+  if (all(!is(stageframe, "stageframe"))) {
     stop("A regular stageframe, as output from the sf_create() function, is
       required for function supplemental().", call. = FALSE)
   }
@@ -648,7 +648,7 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
   
   alive3 <- NULL
   
-  if (!any(class(data) == "hfvdata")) {
+  if (!is(data, "hfvdata")) {
     stop("Function sf_distrib requires an object of class hfvdata as input.",
       call. = FALSE)
   }
@@ -1272,7 +1272,7 @@ start_input <- function(mpm, stage2, stage1 = NA, age2 = NA, value = 1) {
   
   mpmrows <- stage2_id <- stage1_id <- start_vec <- full_length <- NULL
   
-  if (all(class(mpm) != "lefkoMat")) {
+  if (all(!is(mpm, "lefkoMat"))) {
     stop("A regular lefkoMat object is required as input.", call. = FALSE)
   }
   
@@ -2070,7 +2070,7 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
   total_vars <- length(names(data))
   
   #Input testing, input standardization, and exception handling
-  if (all(class(data) != "hfvdata")) {
+  if (all(!is(data, "hfvdata"))) {
     warning("This function was made to work with standardized historically
       formatted vertical datasets, as provided by the verticalize() and
       historicalize() functions. Failure to format the input data properly and
@@ -2082,7 +2082,7 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
     if (is.null(stageframe)) {
       stop("Cannot test groups without inclusion of appropriate stageframe.",
         call. = FALSE)
-    } else if (!is.element("stageframe", class(stageframe))) {
+    } else if (!is(stageframe, "stageframe")) {
       stop("Cannot test groups without inclusion of appropriate stageframe.",
         call. = FALSE)
     } else {

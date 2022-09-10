@@ -9722,7 +9722,7 @@ List subvertedpatrolgroup(DataFrame sge3, DataFrame sge2, DataFrame MainData,
 //' Estimate Value for Vital Rate Based on Inputs
 //' 
 //' Function \code{preouterator()} calculates the value of the vital rate called
-//' for by the function \code{jerzeibalowski()}..
+//' for by the function \code{jerzeibalowski()}.
 //' 
 //' @name preouterator
 //' 
@@ -10055,6 +10055,7 @@ double preouterator(List modelproxy, NumericVector maincoefs, arma::imat randind
           } else {
             all_out = main_out;
           }
+          if (all_out < 0.0) all_out = 0.0; // Eliminates issues in some versions of Linux
           
           if (modeltrunc == 1) {
             double den_corr = (1.0 - (exp(-1 * lambda)));
@@ -10083,7 +10084,7 @@ double preouterator(List modelproxy, NumericVector maincoefs, arma::imat randind
             double den_corr {1.0};
             if (modeltrunc == 1) den_corr = (1.0 - (exp(-1 * lambda)));
             if (den_corr == 0.0 || NumericVector::is_na(den_corr)) {
-              den_corr = 1 / (exp_tol * exp_tol);
+              den_corr = 1.0 / (exp_tol * exp_tol);
             }
             
             current_prob += ((pow(lambda, Used_size3) * exp(-1.0 * lambda)) / sizefac) / den_corr;
@@ -10136,6 +10137,7 @@ double preouterator(List modelproxy, NumericVector maincoefs, arma::imat randind
           current_prob += exp(raw_prob) / den_corr;
         }
         all_out = current_prob;
+        if (all_out < 0.0) all_out = 0.0; // Eliminates issues in some versions of Linux
         
         // Rcout << "Negbin: y: " << y << " y0: " << y0 << " alpha: " << alpha <<
         //   " mu: " << mu << " current_prob: " << current_prob << "\n";
@@ -10820,182 +10822,182 @@ List jerzeibalowski(DataFrame AllStages, DataFrame stageframe, int matrixformat,
     // Adult observation
     if (dvr_yn(1)) {
       if (dvr_style(1) == 1) {
-        vr1_dcorr = dvr_alpha(1) * exp(-1 * dvr_beta(1) * dens_n(1));
+        vr2_dcorr = dvr_alpha(1) * exp(-1 * dvr_beta(1) * dens_n(1));
       } else if (dvr_style(1) == 2) {
-        vr1_dcorr = dvr_alpha(1) / (1 + dvr_beta(1) * dens_n(1));
+        vr2_dcorr = dvr_alpha(1) / (1 + dvr_beta(1) * dens_n(1));
       } else if (dvr_style(1) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(1) * dens_n(1) + dvr_beta(1)));
+        vr2_dcorr = 1 / (1 + exp(dvr_alpha(1) * dens_n(1) + dvr_beta(1)));
       } else if (dvr_style(1) == 4) {
-        vr1_dcorr = 1 - (dens_n(1) / dvr_alpha(1));
-        if (dvr_beta(1) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr2_dcorr = 1 - (dens_n(1) / dvr_alpha(1));
+        if (dvr_beta(1) != 0 && vr2_dcorr < -1.0) vr2_dcorr = 0.0; 
       }
     }
     
     // Adult sizea
     if (dvr_yn(2)) {
       if (dvr_style(2) == 1) {
-        vr1_dcorr = dvr_alpha(2) * exp(-1 * dvr_beta(2) * dens_n(2));
+        vr3_dcorr = dvr_alpha(2) * exp(-1 * dvr_beta(2) * dens_n(2));
       } else if (dvr_style(2) == 2) {
-        vr1_dcorr = dvr_alpha(2) / (1 + dvr_beta(2) * dens_n(2));
+        vr3_dcorr = dvr_alpha(2) / (1 + dvr_beta(2) * dens_n(2));
       } else if (dvr_style(2) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(2) * dens_n(2) + dvr_beta(2)));
+        vr3_dcorr = 1 / (1 + exp(dvr_alpha(2) * dens_n(2) + dvr_beta(2)));
       } else if (dvr_style(2) == 4) {
-        vr1_dcorr = 1 - (dens_n(2) / dvr_alpha(2));
-        if (dvr_beta(2) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr3_dcorr = 1 - (dens_n(2) / dvr_alpha(2));
+        if (dvr_beta(2) != 0 && vr3_dcorr < -1.0) vr3_dcorr = 0.0; 
       }
     }
     
     // Adult sizeb
     if (dvr_yn(3)) {
       if (dvr_style(3) == 1) {
-        vr1_dcorr = dvr_alpha(3) * exp(-1 * dvr_beta(3) * dens_n(3));
+        vr4_dcorr = dvr_alpha(3) * exp(-1 * dvr_beta(3) * dens_n(3));
       } else if (dvr_style(3) == 2) {
-        vr1_dcorr = dvr_alpha(3) / (1 + dvr_beta(3) * dens_n(3));
+        vr4_dcorr = dvr_alpha(3) / (1 + dvr_beta(3) * dens_n(3));
       } else if (dvr_style(3) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(3) * dens_n(3) + dvr_beta(3)));
+        vr4_dcorr = 1 / (1 + exp(dvr_alpha(3) * dens_n(3) + dvr_beta(3)));
       } else if (dvr_style(3) == 4) {
-        vr1_dcorr = 1 - (dens_n(3) / dvr_alpha(3));
-        if (dvr_beta(3) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr4_dcorr = 1 - (dens_n(3) / dvr_alpha(3));
+        if (dvr_beta(3) != 0 && vr4_dcorr < -1.0) vr4_dcorr = 0.0; 
       }
     }
     
     // Adult sizec
     if (dvr_yn(4)) {
       if (dvr_style(4) == 1) {
-        vr1_dcorr = dvr_alpha(4) * exp(-1 * dvr_beta(4) * dens_n(4));
+        vr5_dcorr = dvr_alpha(4) * exp(-1 * dvr_beta(4) * dens_n(4));
       } else if (dvr_style(4) == 2) {
-        vr1_dcorr = dvr_alpha(4) / (1 + dvr_beta(4) * dens_n(4));
+        vr5_dcorr = dvr_alpha(4) / (1 + dvr_beta(4) * dens_n(4));
       } else if (dvr_style(4) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(4) * dens_n(4) + dvr_beta(4)));
+        vr5_dcorr = 1 / (1 + exp(dvr_alpha(4) * dens_n(4) + dvr_beta(4)));
       } else if (dvr_style(4) == 4) {
-        vr1_dcorr = 1 - (dens_n(4) / dvr_alpha(4));
-        if (dvr_beta(4) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr5_dcorr = 1 - (dens_n(4) / dvr_alpha(4));
+        if (dvr_beta(4) != 0 && vr5_dcorr < -1.0) vr5_dcorr = 0.0; 
       }
     }
     
     // Adult reproduction
     if (dvr_yn(5)) {
       if (dvr_style(5) == 1) {
-        vr1_dcorr = dvr_alpha(5) * exp(-1 * dvr_beta(5) * dens_n(5));
+        vr6_dcorr = dvr_alpha(5) * exp(-1 * dvr_beta(5) * dens_n(5));
       } else if (dvr_style(5) == 2) {
-        vr1_dcorr = dvr_alpha(5) / (1 + dvr_beta(5) * dens_n(5));
+        vr6_dcorr = dvr_alpha(5) / (1 + dvr_beta(5) * dens_n(5));
       } else if (dvr_style(5) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(5) * dens_n(5) + dvr_beta(5)));
+        vr6_dcorr = 1 / (1 + exp(dvr_alpha(5) * dens_n(5) + dvr_beta(5)));
       } else if (dvr_style(5) == 4) {
-        vr1_dcorr = 1 - (dens_n(5) / dvr_alpha(5));
-        if (dvr_beta(5) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr6_dcorr = 1 - (dens_n(5) / dvr_alpha(5));
+        if (dvr_beta(5) != 0 && vr6_dcorr < -1.0) vr6_dcorr = 0.0; 
       }
     }
     
     // Adult fecundity
     if (dvr_yn(6)) {
       if (dvr_style(6) == 1) {
-        vr1_dcorr = dvr_alpha(6) * exp(-1 * dvr_beta(6) * dens_n(6));
+        vr7_dcorr = dvr_alpha(6) * exp(-1 * dvr_beta(6) * dens_n(6));
       } else if (dvr_style(6) == 2) {
-        vr1_dcorr = dvr_alpha(6) / (1 + dvr_beta(6) * dens_n(6));
+        vr7_dcorr = dvr_alpha(6) / (1 + dvr_beta(6) * dens_n(6));
       } else if (dvr_style(6) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(6) * dens_n(6) + dvr_beta(6)));
+        vr7_dcorr = 1 / (1 + exp(dvr_alpha(6) * dens_n(6) + dvr_beta(6)));
       } else if (dvr_style(6) == 4) {
-        vr1_dcorr = 1 - (dens_n(6) / dvr_alpha(6));
-        if (dvr_beta(6) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr7_dcorr = 1 - (dens_n(6) / dvr_alpha(6));
+        if (dvr_beta(6) != 0 && vr7_dcorr < -1.0) vr7_dcorr = 0.0; 
       }
     }
     
     // Juvenile survival
     if (dvr_yn(7)) {
       if (dvr_style(7) == 1) {
-        vr1_dcorr = dvr_alpha(7) * exp(-1 * dvr_beta(7) * dens_n(7));
+        vr8_dcorr = dvr_alpha(7) * exp(-1 * dvr_beta(7) * dens_n(7));
       } else if (dvr_style(7) == 2) {
-        vr1_dcorr = dvr_alpha(7) / (1 + dvr_beta(7) * dens_n(7));
+        vr8_dcorr = dvr_alpha(7) / (1 + dvr_beta(7) * dens_n(7));
       } else if (dvr_style(7) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(7) * dens_n(7) + dvr_beta(7)));
+        vr8_dcorr = 1 / (1 + exp(dvr_alpha(7) * dens_n(7) + dvr_beta(7)));
       } else if (dvr_style(7) == 4) {
-        vr1_dcorr = 1 - (dens_n(7) / dvr_alpha(7));
-        if (dvr_beta(7) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr8_dcorr = 1 - (dens_n(7) / dvr_alpha(7));
+        if (dvr_beta(7) != 0 && vr8_dcorr < -1.0) vr8_dcorr = 0.0; 
       }
     }
     
     // Juvenile observation
     if (dvr_yn(8)) {
       if (dvr_style(8) == 1) {
-        vr1_dcorr = dvr_alpha(8) * exp(-1 * dvr_beta(8) * dens_n(8));
+        vr9_dcorr = dvr_alpha(8) * exp(-1 * dvr_beta(8) * dens_n(8));
       } else if (dvr_style(8) == 2) {
-        vr1_dcorr = dvr_alpha(8) / (1 + dvr_beta(8) * dens_n(8));
+        vr9_dcorr = dvr_alpha(8) / (1 + dvr_beta(8) * dens_n(8));
       } else if (dvr_style(8) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(8) * dens_n(8) + dvr_beta(8)));
+        vr9_dcorr = 1 / (1 + exp(dvr_alpha(8) * dens_n(8) + dvr_beta(8)));
       } else if (dvr_style(8) == 4) {
-        vr1_dcorr = 1 - (dens_n(8) / dvr_alpha(8));
-        if (dvr_beta(8) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr9_dcorr = 1 - (dens_n(8) / dvr_alpha(8));
+        if (dvr_beta(8) != 0 && vr9_dcorr < -1.0) vr9_dcorr = 0.0; 
       }
     }
     
     // Juvenile sizea
     if (dvr_yn(9)) {
       if (dvr_style(9) == 1) {
-        vr1_dcorr = dvr_alpha(9) * exp(-1 * dvr_beta(9) * dens_n(9));
+        vr10_dcorr = dvr_alpha(9) * exp(-1 * dvr_beta(9) * dens_n(9));
       } else if (dvr_style(9) == 2) {
-        vr1_dcorr = dvr_alpha(9) / (1 + dvr_beta(9) * dens_n(9));
+        vr10_dcorr = dvr_alpha(9) / (1 + dvr_beta(9) * dens_n(9));
       } else if (dvr_style(9) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(9) * dens_n(9) + dvr_beta(9)));
+        vr10_dcorr = 1 / (1 + exp(dvr_alpha(9) * dens_n(9) + dvr_beta(9)));
       } else if (dvr_style(9) == 4) {
-        vr1_dcorr = 1 - (dens_n(9) / dvr_alpha(9));
-        if (dvr_beta(9) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr10_dcorr = 1 - (dens_n(9) / dvr_alpha(9));
+        if (dvr_beta(9) != 0 && vr10_dcorr < -1.0) vr10_dcorr = 0.0; 
       }
     }
     
     // Juvenile sizeb
     if (dvr_yn(10)) {
       if (dvr_style(10) == 1) {
-        vr1_dcorr = dvr_alpha(10) * exp(-1 * dvr_beta(10) * dens_n(10));
+        vr11_dcorr = dvr_alpha(10) * exp(-1 * dvr_beta(10) * dens_n(10));
       } else if (dvr_style(10) == 2) {
-        vr1_dcorr = dvr_alpha(10) / (1 + dvr_beta(10) * dens_n(10));
+        vr11_dcorr = dvr_alpha(10) / (1 + dvr_beta(10) * dens_n(10));
       } else if (dvr_style(10) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(10) * dens_n(10) + dvr_beta(10)));
+        vr11_dcorr = 1 / (1 + exp(dvr_alpha(10) * dens_n(10) + dvr_beta(10)));
       } else if (dvr_style(10) == 4) {
-        vr1_dcorr = 1 - (dens_n(10) / dvr_alpha(10));
-        if (dvr_beta(10) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr11_dcorr = 1 - (dens_n(10) / dvr_alpha(10));
+        if (dvr_beta(10) != 0 && vr11_dcorr < -1.0) vr11_dcorr = 0.0; 
       }
     }
     
     // Juvenile sizec
     if (dvr_yn(11)) {
       if (dvr_style(11) == 1) {
-        vr1_dcorr = dvr_alpha(11) * exp(-1 * dvr_beta(11) * dens_n(11));
+        vr12_dcorr = dvr_alpha(11) * exp(-1 * dvr_beta(11) * dens_n(11));
       } else if (dvr_style(11) == 2) {
-        vr1_dcorr = dvr_alpha(11) / (1 + dvr_beta(11) * dens_n(11));
+        vr12_dcorr = dvr_alpha(11) / (1 + dvr_beta(11) * dens_n(11));
       } else if (dvr_style(11) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(11) * dens_n(11) + dvr_beta(11)));
+        vr12_dcorr = 1 / (1 + exp(dvr_alpha(11) * dens_n(11) + dvr_beta(11)));
       } else if (dvr_style(11) == 4) {
-        vr1_dcorr = 1 - (dens_n(11) / dvr_alpha(11));
-        if (dvr_beta(11) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr12_dcorr = 1 - (dens_n(11) / dvr_alpha(11));
+        if (dvr_beta(11) != 0 && vr12_dcorr < -1.0) vr12_dcorr = 0.0; 
       }
     }
     
     // Juvenile reproduction
     if (dvr_yn(12)) {
       if (dvr_style(12) == 1) {
-        vr1_dcorr = dvr_alpha(12) * exp(-1 * dvr_beta(12) * dens_n(12));
+        vr13_dcorr = dvr_alpha(12) * exp(-1 * dvr_beta(12) * dens_n(12));
       } else if (dvr_style(12) == 2) {
-        vr1_dcorr = dvr_alpha(12) / (1 + dvr_beta(12) * dens_n(12));
+        vr13_dcorr = dvr_alpha(12) / (1 + dvr_beta(12) * dens_n(12));
       } else if (dvr_style(12) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(12) * dens_n(12) + dvr_beta(12)));
+        vr13_dcorr = 1 / (1 + exp(dvr_alpha(12) * dens_n(12) + dvr_beta(12)));
       } else if (dvr_style(12) == 4) {
-        vr1_dcorr = 1 - (dens_n(12) / dvr_alpha(12));
-        if (dvr_beta(12) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr13_dcorr = 1 - (dens_n(12) / dvr_alpha(12));
+        if (dvr_beta(12) != 0 && vr13_dcorr < -1.0) vr13_dcorr = 0.0; 
       }
     }
     
     // Juvenile maturity
     if (dvr_yn(13)) {
       if (dvr_style(13) == 1) {
-        vr1_dcorr = dvr_alpha(13) * exp(-1 * dvr_beta(13) * dens_n(13));
+        vr14_dcorr = dvr_alpha(13) * exp(-1 * dvr_beta(13) * dens_n(13));
       } else if (dvr_style(13) == 2) {
-        vr1_dcorr = dvr_alpha(13) / (1 + dvr_beta(13) * dens_n(13));
+        vr14_dcorr = dvr_alpha(13) / (1 + dvr_beta(13) * dens_n(13));
       } else if (dvr_style(13) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(13) * dens_n(13) + dvr_beta(13)));
+        vr14_dcorr = 1 / (1 + exp(dvr_alpha(13) * dens_n(13) + dvr_beta(13)));
       } else if (dvr_style(13) == 4) {
-        vr1_dcorr = 1 - (dens_n(13) / dvr_alpha(13));
-        if (dvr_beta(13) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr14_dcorr = 1 - (dens_n(13) / dvr_alpha(13));
+        if (dvr_beta(13) != 0 && vr14_dcorr < -1.0) vr14_dcorr = 0.0; 
       }
     }
   }
@@ -11005,11 +11007,12 @@ List jerzeibalowski(DataFrame AllStages, DataFrame stageframe, int matrixformat,
   // 3 size, 4 size_b, 5 size_c, 6 matst, >6 are test variables
   if (err_check) {
     NumericMatrix zeroform(n, 7);
+    std::fill(zeroform.begin(), zeroform.end(), 0.0); // Added for Linux issues
     out = zeroform;
     CharacterVector out_names = {"surv", "obs", "repst", "sizea", "sizeb", "sizec", "matst"};
     colnames(out) = out_names;
   }
-  NumericVector out_vec(7);
+  NumericVector out_vec(7, 0.0);
   
   arma::mat survtransmat(matrixdim, matrixdim, fill::zeros);
   arma::mat fectransmat(matrixdim, matrixdim, fill::zeros);
@@ -11018,6 +11021,7 @@ List jerzeibalowski(DataFrame AllStages, DataFrame stageframe, int matrixformat,
   double jsurv_coefsadded = sum(jsurvcoefs);
   double mat_predicted {0.0};
   unsigned int k {0};
+  
   // The following loop runs through each line of AllStages, and so runs through
   // each estimable element in the matrix
   for(int i = 0; i < n; i++) {
@@ -11338,7 +11342,7 @@ List jerzeibalowski(DataFrame AllStages, DataFrame stageframe, int matrixformat,
         survtransmat(k) = out_vec(0) * out_vec(1) * out_vec(2) * out_vec(3) *
           out_vec(4) * out_vec(5) * out_vec(6);
       }
-    } else if (ovgivent(i) != -1) {
+    } else if (ovgivent(i) != -1.0) {
       // All other transitions
       
       survtransmat(k) = ovgivent(i);
@@ -11358,17 +11362,17 @@ List jerzeibalowski(DataFrame AllStages, DataFrame stageframe, int matrixformat,
           stage2n(i), nostages, fectrunc);
         fectransmat(k) = fectransmat(k) * vr7_dcorr;
         
-      } else if (ovgivenf(i) != -1 ) {
+      } else if (ovgivenf(i) != -1.0) {
         fectransmat(k) = ovgivenf(i);
         fectransmat(k) = fectransmat(k) * vr7_dcorr;
       }
-    } else if (ovgivenf(i) != -1 ) {
+    } else if (ovgivenf(i) != -1.0) {
       fectransmat(k) = ovgivenf(i);
       fectransmat(k) = fectransmat(k) * vr7_dcorr;
     }
   }
   
-  double ov_mult {0};
+  double ov_mult {0.0};
   if (replacementst > 0) {
     for (int i = 0; i < replacementst; i++) {
       
@@ -11988,182 +11992,182 @@ List jerzeibalowski_sp(DataFrame AllStages, DataFrame stageframe, int matrixform
     // Adult observation
     if (dvr_yn(1)) {
       if (dvr_style(1) == 1) {
-        vr1_dcorr = dvr_alpha(1) * exp(-1 * dvr_beta(1) * dens_n(1));
+        vr2_dcorr = dvr_alpha(1) * exp(-1 * dvr_beta(1) * dens_n(1));
       } else if (dvr_style(1) == 2) {
-        vr1_dcorr = dvr_alpha(1) / (1 + dvr_beta(1) * dens_n(1));
+        vr2_dcorr = dvr_alpha(1) / (1 + dvr_beta(1) * dens_n(1));
       } else if (dvr_style(1) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(1) * dens_n(1) + dvr_beta(1)));
+        vr2_dcorr = 1 / (1 + exp(dvr_alpha(1) * dens_n(1) + dvr_beta(1)));
       } else if (dvr_style(1) == 4) {
-        vr1_dcorr = 1 - (dens_n(1) / dvr_alpha(1));
-        if (dvr_beta(1) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr2_dcorr = 1 - (dens_n(1) / dvr_alpha(1));
+        if (dvr_beta(1) != 0 && vr2_dcorr < -1.0) vr2_dcorr = 0.0; 
       }
     }
     
     // Adult sizea
     if (dvr_yn(2)) {
       if (dvr_style(2) == 1) {
-        vr1_dcorr = dvr_alpha(2) * exp(-1 * dvr_beta(2) * dens_n(2));
+        vr3_dcorr = dvr_alpha(2) * exp(-1 * dvr_beta(2) * dens_n(2));
       } else if (dvr_style(2) == 2) {
-        vr1_dcorr = dvr_alpha(2) / (1 + dvr_beta(2) * dens_n(2));
+        vr3_dcorr = dvr_alpha(2) / (1 + dvr_beta(2) * dens_n(2));
       } else if (dvr_style(2) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(2) * dens_n(2) + dvr_beta(2)));
+        vr3_dcorr = 1 / (1 + exp(dvr_alpha(2) * dens_n(2) + dvr_beta(2)));
       } else if (dvr_style(2) == 4) {
-        vr1_dcorr = 1 - (dens_n(2) / dvr_alpha(2));
-        if (dvr_beta(2) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr3_dcorr = 1 - (dens_n(2) / dvr_alpha(2));
+        if (dvr_beta(2) != 0 && vr3_dcorr < -1.0) vr3_dcorr = 0.0; 
       }
     }
     
     // Adult sizeb
     if (dvr_yn(3)) {
       if (dvr_style(3) == 1) {
-        vr1_dcorr = dvr_alpha(3) * exp(-1 * dvr_beta(3) * dens_n(3));
+        vr4_dcorr = dvr_alpha(3) * exp(-1 * dvr_beta(3) * dens_n(3));
       } else if (dvr_style(3) == 2) {
-        vr1_dcorr = dvr_alpha(3) / (1 + dvr_beta(3) * dens_n(3));
+        vr4_dcorr = dvr_alpha(3) / (1 + dvr_beta(3) * dens_n(3));
       } else if (dvr_style(3) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(3) * dens_n(3) + dvr_beta(3)));
+        vr4_dcorr = 1 / (1 + exp(dvr_alpha(3) * dens_n(3) + dvr_beta(3)));
       } else if (dvr_style(3) == 4) {
-        vr1_dcorr = 1 - (dens_n(3) / dvr_alpha(3));
-        if (dvr_beta(3) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr4_dcorr = 1 - (dens_n(3) / dvr_alpha(3));
+        if (dvr_beta(3) != 0 && vr4_dcorr < -1.0) vr4_dcorr = 0.0; 
       }
     }
     
     // Adult sizec
     if (dvr_yn(4)) {
       if (dvr_style(4) == 1) {
-        vr1_dcorr = dvr_alpha(4) * exp(-1 * dvr_beta(4) * dens_n(4));
+        vr5_dcorr = dvr_alpha(4) * exp(-1 * dvr_beta(4) * dens_n(4));
       } else if (dvr_style(4) == 2) {
-        vr1_dcorr = dvr_alpha(4) / (1 + dvr_beta(4) * dens_n(4));
+        vr5_dcorr = dvr_alpha(4) / (1 + dvr_beta(4) * dens_n(4));
       } else if (dvr_style(4) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(4) * dens_n(4) + dvr_beta(4)));
+        vr5_dcorr = 1 / (1 + exp(dvr_alpha(4) * dens_n(4) + dvr_beta(4)));
       } else if (dvr_style(4) == 4) {
-        vr1_dcorr = 1 - (dens_n(4) / dvr_alpha(4));
-        if (dvr_beta(4) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr5_dcorr = 1 - (dens_n(4) / dvr_alpha(4));
+        if (dvr_beta(4) != 0 && vr5_dcorr < -1.0) vr5_dcorr = 0.0; 
       }
     }
     
     // Adult reproduction
     if (dvr_yn(5)) {
       if (dvr_style(5) == 1) {
-        vr1_dcorr = dvr_alpha(5) * exp(-1 * dvr_beta(5) * dens_n(5));
+        vr6_dcorr = dvr_alpha(5) * exp(-1 * dvr_beta(5) * dens_n(5));
       } else if (dvr_style(5) == 2) {
-        vr1_dcorr = dvr_alpha(5) / (1 + dvr_beta(5) * dens_n(5));
+        vr6_dcorr = dvr_alpha(5) / (1 + dvr_beta(5) * dens_n(5));
       } else if (dvr_style(5) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(5) * dens_n(5) + dvr_beta(5)));
+        vr6_dcorr = 1 / (1 + exp(dvr_alpha(5) * dens_n(5) + dvr_beta(5)));
       } else if (dvr_style(5) == 4) {
-        vr1_dcorr = 1 - (dens_n(5) / dvr_alpha(5));
-        if (dvr_beta(5) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr6_dcorr = 1 - (dens_n(5) / dvr_alpha(5));
+        if (dvr_beta(5) != 0 && vr6_dcorr < -1.0) vr6_dcorr = 0.0; 
       }
     }
     
     // Adult fecundity
     if (dvr_yn(6)) {
       if (dvr_style(6) == 1) {
-        vr1_dcorr = dvr_alpha(6) * exp(-1 * dvr_beta(6) * dens_n(6));
+        vr7_dcorr = dvr_alpha(6) * exp(-1 * dvr_beta(6) * dens_n(6));
       } else if (dvr_style(6) == 2) {
-        vr1_dcorr = dvr_alpha(6) / (1 + dvr_beta(6) * dens_n(6));
+        vr7_dcorr = dvr_alpha(6) / (1 + dvr_beta(6) * dens_n(6));
       } else if (dvr_style(6) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(6) * dens_n(6) + dvr_beta(6)));
+        vr7_dcorr = 1 / (1 + exp(dvr_alpha(6) * dens_n(6) + dvr_beta(6)));
       } else if (dvr_style(6) == 4) {
-        vr1_dcorr = 1 - (dens_n(6) / dvr_alpha(6));
-        if (dvr_beta(6) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr7_dcorr = 1 - (dens_n(6) / dvr_alpha(6));
+        if (dvr_beta(6) != 0 && vr7_dcorr < -1.0) vr7_dcorr = 0.0; 
       }
     }
     
     // Juvenile survival
     if (dvr_yn(7)) {
       if (dvr_style(7) == 1) {
-        vr1_dcorr = dvr_alpha(7) * exp(-1 * dvr_beta(7) * dens_n(7));
+        vr8_dcorr = dvr_alpha(7) * exp(-1 * dvr_beta(7) * dens_n(7));
       } else if (dvr_style(7) == 2) {
-        vr1_dcorr = dvr_alpha(7) / (1 + dvr_beta(7) * dens_n(7));
+        vr8_dcorr = dvr_alpha(7) / (1 + dvr_beta(7) * dens_n(7));
       } else if (dvr_style(7) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(7) * dens_n(7) + dvr_beta(7)));
+        vr8_dcorr = 1 / (1 + exp(dvr_alpha(7) * dens_n(7) + dvr_beta(7)));
       } else if (dvr_style(7) == 4) {
-        vr1_dcorr = 1 - (dens_n(7) / dvr_alpha(7));
-        if (dvr_beta(7) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr8_dcorr = 1 - (dens_n(7) / dvr_alpha(7));
+        if (dvr_beta(7) != 0 && vr8_dcorr < -1.0) vr8_dcorr = 0.0; 
       }
     }
     
     // Juvenile observation
     if (dvr_yn(8)) {
       if (dvr_style(8) == 1) {
-        vr1_dcorr = dvr_alpha(8) * exp(-1 * dvr_beta(8) * dens_n(8));
+        vr9_dcorr = dvr_alpha(8) * exp(-1 * dvr_beta(8) * dens_n(8));
       } else if (dvr_style(8) == 2) {
-        vr1_dcorr = dvr_alpha(8) / (1 + dvr_beta(8) * dens_n(8));
+        vr9_dcorr = dvr_alpha(8) / (1 + dvr_beta(8) * dens_n(8));
       } else if (dvr_style(8) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(8) * dens_n(8) + dvr_beta(8)));
+        vr9_dcorr = 1 / (1 + exp(dvr_alpha(8) * dens_n(8) + dvr_beta(8)));
       } else if (dvr_style(8) == 4) {
-        vr1_dcorr = 1 - (dens_n(8) / dvr_alpha(8));
-        if (dvr_beta(8) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr9_dcorr = 1 - (dens_n(8) / dvr_alpha(8));
+        if (dvr_beta(8) != 0 && vr9_dcorr < -1.0) vr9_dcorr = 0.0; 
       }
     }
     
     // Juvenile sizea
     if (dvr_yn(9)) {
       if (dvr_style(9) == 1) {
-        vr1_dcorr = dvr_alpha(9) * exp(-1 * dvr_beta(9) * dens_n(9));
+        vr10_dcorr = dvr_alpha(9) * exp(-1 * dvr_beta(9) * dens_n(9));
       } else if (dvr_style(9) == 2) {
-        vr1_dcorr = dvr_alpha(9) / (1 + dvr_beta(9) * dens_n(9));
+        vr10_dcorr = dvr_alpha(9) / (1 + dvr_beta(9) * dens_n(9));
       } else if (dvr_style(9) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(9) * dens_n(9) + dvr_beta(9)));
+        vr10_dcorr = 1 / (1 + exp(dvr_alpha(9) * dens_n(9) + dvr_beta(9)));
       } else if (dvr_style(9) == 4) {
-        vr1_dcorr = 1 - (dens_n(9) / dvr_alpha(9));
-        if (dvr_beta(9) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr10_dcorr = 1 - (dens_n(9) / dvr_alpha(9));
+        if (dvr_beta(9) != 0 && vr10_dcorr < -1.0) vr10_dcorr = 0.0; 
       }
     }
     
     // Juvenile sizeb
     if (dvr_yn(10)) {
       if (dvr_style(10) == 1) {
-        vr1_dcorr = dvr_alpha(10) * exp(-1 * dvr_beta(10) * dens_n(10));
+        vr11_dcorr = dvr_alpha(10) * exp(-1 * dvr_beta(10) * dens_n(10));
       } else if (dvr_style(10) == 2) {
-        vr1_dcorr = dvr_alpha(10) / (1 + dvr_beta(10) * dens_n(10));
+        vr11_dcorr = dvr_alpha(10) / (1 + dvr_beta(10) * dens_n(10));
       } else if (dvr_style(10) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(10) * dens_n(10) + dvr_beta(10)));
+        vr11_dcorr = 1 / (1 + exp(dvr_alpha(10) * dens_n(10) + dvr_beta(10)));
       } else if (dvr_style(10) == 4) {
-        vr1_dcorr = 1 - (dens_n(10) / dvr_alpha(10));
-        if (dvr_beta(10) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr11_dcorr = 1 - (dens_n(10) / dvr_alpha(10));
+        if (dvr_beta(10) != 0 && vr11_dcorr < -1.0) vr11_dcorr = 0.0; 
       }
     }
     
     // Juvenile sizec
     if (dvr_yn(11)) {
       if (dvr_style(11) == 1) {
-        vr1_dcorr = dvr_alpha(11) * exp(-1 * dvr_beta(11) * dens_n(11));
+        vr12_dcorr = dvr_alpha(11) * exp(-1 * dvr_beta(11) * dens_n(11));
       } else if (dvr_style(11) == 2) {
-        vr1_dcorr = dvr_alpha(11) / (1 + dvr_beta(11) * dens_n(11));
+        vr12_dcorr = dvr_alpha(11) / (1 + dvr_beta(11) * dens_n(11));
       } else if (dvr_style(11) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(11) * dens_n(11) + dvr_beta(11)));
+        vr12_dcorr = 1 / (1 + exp(dvr_alpha(11) * dens_n(11) + dvr_beta(11)));
       } else if (dvr_style(11) == 4) {
-        vr1_dcorr = 1 - (dens_n(11) / dvr_alpha(11));
-        if (dvr_beta(11) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr12_dcorr = 1 - (dens_n(11) / dvr_alpha(11));
+        if (dvr_beta(11) != 0 && vr12_dcorr < -1.0) vr12_dcorr = 0.0; 
       }
     }
     
     // Juvenile reproduction
     if (dvr_yn(12)) {
       if (dvr_style(12) == 1) {
-        vr1_dcorr = dvr_alpha(12) * exp(-1 * dvr_beta(12) * dens_n(12));
+        vr13_dcorr = dvr_alpha(12) * exp(-1 * dvr_beta(12) * dens_n(12));
       } else if (dvr_style(12) == 2) {
-        vr1_dcorr = dvr_alpha(12) / (1 + dvr_beta(12) * dens_n(12));
+        vr13_dcorr = dvr_alpha(12) / (1 + dvr_beta(12) * dens_n(12));
       } else if (dvr_style(12) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(12) * dens_n(12) + dvr_beta(12)));
+        vr13_dcorr = 1 / (1 + exp(dvr_alpha(12) * dens_n(12) + dvr_beta(12)));
       } else if (dvr_style(12) == 4) {
-        vr1_dcorr = 1 - (dens_n(12) / dvr_alpha(12));
-        if (dvr_beta(12) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr13_dcorr = 1 - (dens_n(12) / dvr_alpha(12));
+        if (dvr_beta(12) != 0 && vr13_dcorr < -1.0) vr13_dcorr = 0.0; 
       }
     }
     
     // Juvenile maturity
     if (dvr_yn(13)) {
       if (dvr_style(13) == 1) {
-        vr1_dcorr = dvr_alpha(13) * exp(-1 * dvr_beta(13) * dens_n(13));
+        vr14_dcorr = dvr_alpha(13) * exp(-1 * dvr_beta(13) * dens_n(13));
       } else if (dvr_style(13) == 2) {
-        vr1_dcorr = dvr_alpha(13) / (1 + dvr_beta(13) * dens_n(13));
+        vr14_dcorr = dvr_alpha(13) / (1 + dvr_beta(13) * dens_n(13));
       } else if (dvr_style(13) == 3) {
-        vr1_dcorr = 1 / (1 + exp(dvr_alpha(13) * dens_n(13) + dvr_beta(13)));
+        vr14_dcorr = 1 / (1 + exp(dvr_alpha(13) * dens_n(13) + dvr_beta(13)));
       } else if (dvr_style(13) == 4) {
-        vr1_dcorr = 1 - (dens_n(13) / dvr_alpha(13));
-        if (dvr_beta(13) != 0 && vr1_dcorr < -1.0) vr1_dcorr = 0.0; 
+        vr14_dcorr = 1 - (dens_n(13) / dvr_alpha(13));
+        if (dvr_beta(13) != 0 && vr14_dcorr < -1.0) vr14_dcorr = 0.0; 
       }
     }
   }
@@ -14578,7 +14582,7 @@ List raymccooney(DataFrame listofyears, List modelsuite, NumericVector mainyears
   return NewOutput;
   */
   
-  // Now we create the matrices and order them within the correct lsit structure
+  // Now we create the matrices and order them within the correct list structure
   List A_mats(loy_length);
   List F_mats(loy_length);
   List U_mats(loy_length);

@@ -2000,7 +2000,7 @@ NULL
 #' Estimate Value for Vital Rate Based on Inputs
 #' 
 #' Function \code{preouterator()} calculates the value of the vital rate called
-#' for by the function \code{jerzeibalowski()}..
+#' for by the function \code{jerzeibalowski()}.
 #' 
 #' @name preouterator
 #' 
