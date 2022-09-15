@@ -1,4 +1,4 @@
-# lefko3 5.5.0 (2022-XX-XX)
+# lefko3 5.5.0 (2022-09-14)
 
 ## NEW FEATURES
 
@@ -15,6 +15,8 @@
   accuracy of all models except binomial models, which is assessed as
   traditional logistic accuracy.
 * Vignettes updated to reflect changes to accuracy calculation.
+* End-of-line characters added to most warnings to prevent all warnings mixing
+  together into single messages.
 
 ## BUG FIXES
 
@@ -22,6 +24,8 @@
   element values in some instances involving truncated distributions.
 * Fixed issue in density adjustment protocol used by function f_projection3()
   that would force all density adjustment onto survival probability.
+* Corrected issue causing negative accuracy to be estimated for zero-truncated
+  models in modelsearch().
 
 # lefko3 5.4.2 (2022-08-08)
 

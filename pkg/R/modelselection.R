@@ -1926,9 +1926,9 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     size.bf <- size.global.list$bf.model
     size.null <- size.global.list$null.model
     
-    size.accuracy <- .accu_predict(bestfitmodel = size.bf,
-      subdata = size.data, param = size[1], style = 2,
-      nullmodel = size.null, quiet = quiet, check = accuracy)
+    size.accuracy <- .accu_predict(bestfitmodel = size.bf, subdata = size.data,
+      param = size[1], style = 2, nullmodel = size.null, dist = sizedist,
+      trunc = size.trunc, approach = approach, quiet = quiet, check = accuracy)
     
   } else {
     size.global.model <- 1
@@ -1958,9 +1958,9 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     sizeb.bf <- sizeb.global.list$bf.model
     sizeb.null <- sizeb.global.list$null.model
     
-    sizeb.accuracy <- .accu_predict(bestfitmodel = sizeb.bf,
-      subdata = sizeb.data, param = sizeb[1], style = 2,
-      nullmodel = sizeb.null, quiet = quiet, check = accuracy)
+    sizeb.accuracy <- .accu_predict(bestfitmodel = sizeb.bf, subdata = sizeb.data,
+      param = sizeb[1], style = 2, nullmodel = sizeb.null, dist = sizebdist,
+      trunc = sizeb.trunc, approach = approach, quiet = quiet, check = accuracy)
     
   } else {
     sizeb.global.model <- 1
@@ -1990,9 +1990,9 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     sizec.bf <- sizec.global.list$bf.model
     sizec.null <- sizec.global.list$null.model
     
-    sizec.accuracy <- .accu_predict(bestfitmodel = sizec.bf,
-      subdata = sizec.data, param = sizec[1], style = 2,
-      nullmodel = sizec.null, quiet = quiet, check = accuracy)
+    sizec.accuracy <- .accu_predict(bestfitmodel = sizec.bf, subdata = sizec.data,
+      param = sizec[1], style = 2, nullmodel = sizec.null, dist = sizecdist,
+      trunc = sizec.trunc, approach = approach, quiet = quiet, check = accuracy)
     
   } else {
     sizec.global.model <- 1
@@ -2071,7 +2071,8 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     
     fec.accuracy <- .accu_predict(bestfitmodel = fec.bf, subdata = fec.data,
       param = names(fec.data)[usedfec], style = 2, nullmodel = fec.null,
-      quiet = quiet, check = accuracy)
+      dist = fecdist, trunc = fec.trunc, approach = approach, quiet = quiet,
+      check = accuracy)
     
   } else {
     fec.global.model <- 1
@@ -2247,7 +2248,8 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     
     juvsize.accuracy <- .accu_predict(bestfitmodel = juvsize.bf,
       subdata = juvsize.data, param = size[1], style = 2,
-      nullmodel = juvsize.null, quiet = quiet, check = accuracy)
+      nullmodel = juvsize.null, dist = sizedist, trunc = jsize.trunc,
+      approach = approach, quiet = quiet, check = accuracy)
     
   } else {
     juv.size.global.model <- 1
@@ -2279,7 +2281,8 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     
     juvsizeb.accuracy <- .accu_predict(bestfitmodel = juvsizeb.bf,
       subdata = juvsizeb.data, param = sizeb[1], style = 2,
-      nullmodel = juvsizeb.null, quiet = quiet, check = accuracy)
+      nullmodel = juvsizeb.null, dist = sizebdist, trunc = jsizeb.trunc,
+      approach = approach, quiet = quiet, check = accuracy)
     
   } else {
     juv.sizeb.global.model <- 1
@@ -2311,7 +2314,8 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     
     juvsizec.accuracy <- .accu_predict(bestfitmodel = juvsizec.bf,
       subdata = juvsizec.data, param = sizec[1], style = 2,
-      nullmodel = juvsizec.null, quiet = quiet, check = accuracy)
+      nullmodel = juvsizec.null, dist = sizecdist, trunc = jsizec.trunc,
+      approach = approach, quiet = quiet, check = accuracy)
     
   } else {
     juv.sizec.global.model <- 1
@@ -3138,6 +3142,11 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
 #' or package \code{MuMIn}'s conditional R2 (2). Defaults to \code{1}.
 #' @param nullmodel A null (y-intercept only) model from the model table. Only
 #' used to calculate McFadden's pseudo-R2. Defaults to \code{NA}.
+#' @param dist The core probability distribution to assume.
+#' @param trunc A logical value indicating whether the probability distribution
+#' to be used should be zero-truncated.
+#' @param approach A text value indicating whether th use \code{"glm"} or
+#' \code{"mixed"} models.
 #' @param quiet A logical value indicating whether to allow warning messages to
 #' be displayed (\code{FALSE}) or suppressed (\code{TRUE}).
 #' Defaults to \code{FALSE}.
@@ -3150,7 +3159,8 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
 #' @keywords internal
 #' @noRd
 .accu_predict <- function(bestfitmodel, subdata = NA, param, style = 1,
-  nullmodel = NA, quiet = FALSE, check = TRUE) {
+  nullmodel = NA, dist = "binom", trunc = FALSE, approach = "mixed",
+  quiet = FALSE, check = TRUE) {
   
   pred_vec <- NULL
   accuracy <- NA 
@@ -3172,11 +3182,20 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
         pred_vec <- round(pred_vec)
         
         results_vec <- pred_vec - test_vec
+        results_vec <- results_vec[!is.na(results_vec)]
         
         accuracy <- length(which(results_vec == 0)) / length(results_vec)
         
       } else if (style == 2) {
         
+        if (approach == "mixed") {
+          if (dist == "poisson" | dist == "negbin") {
+            pred_vec <- round(pred_vec)
+            if (trunc) {
+              pred_vec <- pred_vec + 1
+            }
+          }
+        }
         results_vec <- pred_vec - test_vec
         results_vec <- results_vec[!is.na(results_vec)]
         

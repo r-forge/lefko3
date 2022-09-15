@@ -661,7 +661,7 @@ Rcpp::List sf_create (NumericVector sizes, Nullable<StringVector> stagenames = R
   if (ipmbins < 2) {
     throw Rcpp::exception("Please enter a valid integer greater than 1 for ipmbins option.", false);
   } else if (ipmbins > 100) {
-    Rf_warningcall(R_NilValue, "High ipmbin numbers may lead to dramatic decreases in statistical power and overparameterized matrices.");
+    Rf_warningcall(R_NilValue, "High ipmbin numbers may lead to dramatic decreases in statistical power and overparameterized matrices.\n");
   }
   
   // Now the automated size classification processing
@@ -2073,7 +2073,7 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
       
       if (rev_checksum == 0) {
         repentryvec(0) = 1;
-        Rf_warningcall(R_NilValue, "No information on reproductive entry stages provided. Assuming the first stage is the entry stage into the life cycle.");
+        Rf_warningcall(R_NilValue, "No information on reproductive entry stages provided. Assuming the first stage is the entry stage into the life cycle.\n");
       }
       
       arma::mat token_mat(stageframe_length, stageframe_length, fill::zeros);
@@ -2198,7 +2198,7 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
     int rev_checksum = sum(repentryvec);
     if(rev_checksum == 0) {
       repentryvec(0) = 1;
-      Rf_warningcall(R_NilValue, "No information on reproductive entry stages provided. Assuming the first stage is the entry stage into the life cycle.");
+      Rf_warningcall(R_NilValue, "No information on reproductive entry stages provided. Assuming the first stage is the entry stage into the life cycle.\n");
     }
     
     arma::mat token_mat(stageframe_length, stageframe_length, fill::zeros);
@@ -15551,12 +15551,12 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     throw Rcpp::exception("Option times must equal a positive integer.", false);
   }
   if (format < 4 && (!IntegerVector::is_na(start_age) || !IntegerVector::is_na(last_age))) {
-    if (!quiet) Rf_warningcall(R_NilValue, "Start and final ages cannot be used with matrix formats 1-3. Resetting these parameters....");
+    if (!quiet) Rf_warningcall(R_NilValue, "Start and final ages cannot be used with matrix formats 1-3. Resetting these parameters....\n");
     start_age = 0;
     last_age = 0;
   }
   if (growthonly && repvalue) {
-    if (!quiet) Rf_warningcall(R_NilValue, "Option repvalue cannot be set to TRUE if growthonly is set to TRUE. Resetting repvalue to FALSE.");
+    if (!quiet) Rf_warningcall(R_NilValue, "Option repvalue cannot be set to TRUE if growthonly is set to TRUE. Resetting repvalue to FALSE.\n");
     repvalue = false;
   }
   
@@ -15568,7 +15568,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
   } else if (ipm_check_mid) {
     ipm_method = "midpoint";
   } else {
-    if (!quiet) Rf_warningcall(R_NilValue, "Option ipm_method is not understood. Will use cdf option.");
+    if (!quiet) Rf_warningcall(R_NilValue, "Option ipm_method is not understood. Will use cdf option.\n");
     ipm_method = "cdf";
   }
 
@@ -17016,11 +17016,11 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     
     if (start_age > age_limit || last_age > age_limit) {
       if (!quiet) Rf_warningcall(R_NilValue,
-        "Entered start_age or last_age is beyond what is found in the dataset.");
+        "Entered start_age or last_age is beyond what is found in the dataset.\n");
     }
     if (fecage_min > age_limit || fecage_max > age_limit) {
       if (!quiet) Rf_warningcall(R_NilValue,
-        "Entered fecage_min or fecage_max is beyond what is found in the dataset.");
+        "Entered fecage_min or fecage_max is beyond what is found in the dataset.\n");
     }
     
     if (last_age < (start_age + 1)) {
@@ -17166,7 +17166,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
   } else if (!stochastic) {
     NumericVector year_int = clone(mainyears);
     years_topull = year_int;
-    if (!quiet) Rf_warningcall(R_NilValue, "Option year not set, so will cycle through existing years.");
+    if (!quiet) Rf_warningcall(R_NilValue, "Option year not set, so will cycle through existing years.\n");
   }
   
   NumericVector twinput;
@@ -17209,7 +17209,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     CharacterVector patch_one (1);
     patch_one(0) = mainpatches(0);
     patches_topull = patch_one;
-    if (!quiet) Rf_warningcall(R_NilValue, "Option patch not set, so will set to first patch/population.");
+    if (!quiet) Rf_warningcall(R_NilValue, "Option patch not set, so will set to first patch/population.\n");
   }
   
   // Handle spatial density vector
@@ -17317,7 +17317,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     
     if (is<NumericVector>(inda_whatever)) {
       if (random_inda) {
-        if (!quiet) Rf_warningcall(R_NilValue, "Indcov a appears to be numeric. Will assume that random_inda = FALSE. To alter this behavior, please convert indcov a into a character vector.");
+        if (!quiet) Rf_warningcall(R_NilValue, "Indcov a appears to be numeric. Will assume that random_inda = FALSE. To alter this behavior, please convert indcov a into a character vector.\n");
         random_inda = false;
       }
       NumericVector inda_another_int = as<NumericVector>(inda_whatever);
@@ -17331,7 +17331,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
       
     } else if (is<CharacterVector>(inda_whatever)) {
       if (!random_inda) {
-        if (!quiet) Rf_warningcall(R_NilValue, "Indcov a appears to be categorical. Will assume that random_inda = TRUE. To alter this behavior, please convert indcov a into a numeric vector.");
+        if (!quiet) Rf_warningcall(R_NilValue, "Indcov a appears to be categorical. Will assume that random_inda = TRUE. To alter this behavior, please convert indcov a into a numeric vector.\n");
         random_inda = true;
       }
       CharacterVector inda_another_int = as<CharacterVector>(inda_whatever);
@@ -17356,7 +17356,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     
     if (is<NumericVector>(indb_whatever)) {
       if (random_indb) {
-        if (!quiet) Rf_warningcall(R_NilValue, "Indcov b appears to be numeric. Will assume that random_indb = FALSE. To alter this behavior, please convert indcov b into a character vector.");
+        if (!quiet) Rf_warningcall(R_NilValue, "Indcov b appears to be numeric. Will assume that random_indb = FALSE. To alter this behavior, please convert indcov b into a character vector.\n");
         random_indb = false;
       }
       NumericVector indb_another_int = as<NumericVector>(indb_whatever);
@@ -17370,7 +17370,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
       
     } else if (is<CharacterVector>(indb_whatever)) {
       if (!random_indb) {
-        if (!quiet) Rf_warningcall(R_NilValue, "Indcov b appears to be categorical. Will assume that random_indb = TRUE. To alter this behavior, please convert indcov b into a numeric vector.");
+        if (!quiet) Rf_warningcall(R_NilValue, "Indcov b appears to be categorical. Will assume that random_indb = TRUE. To alter this behavior, please convert indcov b into a numeric vector.\n");
         random_indb = true;
       }
       CharacterVector indb_another_int = as<CharacterVector>(indb_whatever);
@@ -17395,7 +17395,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     
     if (is<NumericVector>(indc_whatever)) {
       if (random_indc) {
-        if (!quiet) Rf_warningcall(R_NilValue, "Indcov c appears to be numeric. Will assume that random_indc = FALSE. To alter this behavior, please convert indcov c into a character vector.");
+        if (!quiet) Rf_warningcall(R_NilValue, "Indcov c appears to be numeric. Will assume that random_indc = FALSE. To alter this behavior, please convert indcov c into a character vector.\n");
         random_indc = false;
       }
       NumericVector indc_another_int = as<NumericVector>(indc_whatever);
@@ -17409,7 +17409,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
       
     } else if (is<CharacterVector>(indc_whatever)) {
       if (!random_indc) {
-        if (!quiet) Rf_warningcall(R_NilValue, "Indcov c appears to be categorical. Will assume that random_indc = TRUE. To alter this behavior, please convert indcov c into a numeric vector.");
+        if (!quiet) Rf_warningcall(R_NilValue, "Indcov c appears to be categorical. Will assume that random_indc = TRUE. To alter this behavior, please convert indcov c into a numeric vector.\n");
         random_indc = true;
       }
       CharacterVector indc_another_int = as<CharacterVector>(indc_whatever);
@@ -17443,10 +17443,10 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
   
   if (!quiet) {
     if (greaterthan_warning) {
-      Rf_warningcall(R_NilValue, "More values of individual covariates have been supplied than required, so some will be cut.");
+      Rf_warningcall(R_NilValue, "More values of individual covariates have been supplied than required, so some will be cut.\n");
     }
     if (lessthan_warning) {
-      Rf_warningcall(R_NilValue, "Fewer values of individual covariates have been supplied than required, so input values will be cycled.");
+      Rf_warningcall(R_NilValue, "Fewer values of individual covariates have been supplied than required, so input values will be cycled.\n");
     }
   }
   
@@ -17659,10 +17659,10 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
   
   if (!quiet) {
     if (greaterthan_warning_dev) {
-      Rf_warningcall(R_NilValue, "More values of intercept deviations have been supplied than required, so some will be cut.");
+      Rf_warningcall(R_NilValue, "More values of intercept deviations have been supplied than required, so some will be cut.\n");
     }
     if (lessthan_warning_dev) {
-      Rf_warningcall(R_NilValue, "Fewer values of intercept deviations have been supplied than required, so input values will be cycled.");
+      Rf_warningcall(R_NilValue, "Fewer values of intercept deviations have been supplied than required, so input values will be cycled.\n");
     }
   }
   
@@ -17916,11 +17916,11 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
         if (dvr_style_(i) == 1) {
           if (dvr_beta_(i) > exp_tol) {
             Rf_warningcall(R_NilValue,
-              "Values of beta used in the Ricker function should be set to limits within positive and negative exp_tol values. Resetting...");
+              "Values of beta used in the Ricker function should be set to limits within positive and negative exp_tol values. Resetting...\n");
             dvr_beta_(i) = exp_tol;
           } else if (dvr_beta_(i) < (-1.0 * exp_tol)) {
             Rf_warningcall(R_NilValue,
-              "Values of beta used in the Ricker function should be set to limits within positive and negative exp_tol values. Resetting...");
+              "Values of beta used in the Ricker function should be set to limits within positive and negative exp_tol values. Resetting...\n");
             dvr_beta_(i) = -1 * exp_tol;
           }
         } else if (dvr_style_(i) == 3) {
@@ -17928,10 +17928,10 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
           
           if (summed_stuff > exp_tol) {
             Rf_warningcall(R_NilValue,
-              "Values of alpha and beta used in the Usher function may be too high. Results may be unpredictable.");
+              "Values of alpha and beta used in the Usher function may be too high. Results may be unpredictable.\n");
           } else if (summed_stuff < (-1.0 * exp_tol)) {
             Rf_warningcall(R_NilValue,
-              "Values of alpha and beta used in the Usher function may be too high. Results may be unpredictable.");
+              "Values of alpha and beta used in the Usher function may be too high. Results may be unpredictable.\n");
           }
         }
       }
@@ -18216,11 +18216,11 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
       if (dyn_style(i) == 1) {
         if (dyn_beta(i) > exp_tol) {
           Rf_warningcall(R_NilValue,
-            "Values of beta used in the Ricker function should be set to limits within positive and negative exp_tol values. Resetting...");
+            "Values of beta used in the Ricker function should be set to limits within positive and negative exp_tol values. Resetting...\n");
           dyn_beta(i) = exp_tol;
         } else if (dyn_beta(i) < (-1.0 * exp_tol)) {
           Rf_warningcall(R_NilValue,
-            "Values of beta used in the Ricker function should be set to limits within positive and negative exp_tol values. Resetting...");
+            "Values of beta used in the Ricker function should be set to limits within positive and negative exp_tol values. Resetting...\n");
           dyn_beta(i) = -1 * exp_tol;
         }
       } else if (dyn_style(i) == 3) {
@@ -18228,10 +18228,10 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
         
         if (summed_stuff > exp_tol) {
           Rf_warningcall(R_NilValue,
-            "Values of alpha and beta used in the Usher function may be too high. Results may be unpredictable.");
+            "Values of alpha and beta used in the Usher function may be too high. Results may be unpredictable.\n");
         } else if (summed_stuff < (-1.0 * exp_tol)) {
           Rf_warningcall(R_NilValue,
-            "Values of alpha and beta used in the Usher function may be too high. Results may be unpredictable.");
+            "Values of alpha and beta used in the Usher function may be too high. Results may be unpredictable.\n");
         }
       }
     }
@@ -18239,7 +18239,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
   }
   
   if (dens_vr && dens_elems) {
-    Rf_warningcall(R_NilValue, "Density dependence should usually be operationalized via either vital rate model parameterization or matrix element operationalization. However, inputs have been provided for both methods.");
+    Rf_warningcall(R_NilValue, "Density dependence should usually be operationalized via either vital rate model parameterization or matrix element operationalization. However, inputs have been provided for both methods.\n");
   }
   
   // Main projection loop
@@ -18399,11 +18399,11 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
             if (dyn_type(j) == 1 && Umat(dyn_index321(j)) > 1.0 && !warn_trigger_1) {
               warn_trigger_1 = true;
               if (!quiet) Rf_warningcall(R_NilValue,
-                "Some probabilities with value > 1.0 produced during density adjustment.");
+                "Some probabilities with value > 1.0 produced during density adjustment.\n");
             } else if ((Umat(dyn_index321(j)) < 0.0 || Fmat(dyn_index321(j)) < 0.0) && !warn_trigger_neg) {
               warn_trigger_neg = true;
               if (!quiet) Rf_warningcall(R_NilValue,
-                "Some matrix elements with value < 0.0 produced during density adjustment.");
+                "Some matrix elements with value < 0.0 produced during density adjustment.\n");
             }
           }
         }
@@ -18602,12 +18602,12 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
             if (dyn_type(j) == 1 && Umat_sp(dyn_index321(j)) > 1.0 && !warn_trigger_1) {
               warn_trigger_1 = true;
               if (!quiet) Rf_warningcall(R_NilValue,
-                "Some probabilities with value > 1.0 produced during density adjustment.");
+                "Some probabilities with value > 1.0 produced during density adjustment.\n");
             } else if ((Umat_sp(dyn_index321(j)) < 0.0 || Fmat_sp(dyn_index321(j)) < 0.0) &&
               !warn_trigger_neg) {
               warn_trigger_neg = true;
               if (!quiet) Rf_warningcall(R_NilValue,
-                "Some matrix elements with value < 0.0 produced during density adjustment.");
+                "Some matrix elements with value < 0.0 produced during density adjustment.\n");
             }
           }
         }
@@ -20221,10 +20221,10 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
           if (allow_warnings) {
             if (dyn_type(j) == 1 && theprophecy(dyn_index321(j)) > 1.0 && !warn_trigger_1) {
               warn_trigger_1 = true;
-              Rf_warningcall(R_NilValue, "Some probabilities with value > 1.0 produced during density adjustment.");
+              Rf_warningcall(R_NilValue, "Some probabilities with value > 1.0 produced during density adjustment.\n");
             } else if (theprophecy(dyn_index321(j)) < 0.0 && !warn_trigger_neg) {
               warn_trigger_neg = true;
-              Rf_warningcall(R_NilValue, "Some matrix elements with value < 0.0 produced during density adjustment.");
+              Rf_warningcall(R_NilValue, "Some matrix elements with value < 0.0 produced during density adjustment.\n");
             }
           }
         }
@@ -20335,10 +20335,10 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
           if (allow_warnings) {
             if (dyn_type(j) == 1 && sparse_prophecy(dyn_index321(j)) > 1.0 && !warn_trigger_1) {
               warn_trigger_1 = true;
-              Rf_warningcall(R_NilValue, "Some probabilities with value > 1.0 produced during density adjustment.");
+              Rf_warningcall(R_NilValue, "Some probabilities with value > 1.0 produced during density adjustment.\n");
             } else if (sparse_prophecy(dyn_index321(j)) < 0.0 && !warn_trigger_neg) {
               warn_trigger_neg = true;
-              Rf_warningcall(R_NilValue, "Some matrix elements with value < 0.0 produced during density adjustment.");
+              Rf_warningcall(R_NilValue, "Some matrix elements with value < 0.0 produced during density adjustment.\n");
             }
           }
         }
@@ -20833,20 +20833,20 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
         if (dyn_style(i) == 1) {
           if (dyn_beta(i) > exp_tol) {
             Rf_warningcall(R_NilValue,
-              "Values of beta used in the Ricker function may be too high. Results may be unpredictable.");
+              "Values of beta used in the Ricker function may be too high. Results may be unpredictable.\n");
           } else if (dyn_beta(i) < (-1.0 * exp_tol)) {
             Rf_warningcall(R_NilValue,
-              "Values of beta used in the Ricker function may be too high. Results may be unpredictable.");
+              "Values of beta used in the Ricker function may be too high. Results may be unpredictable.\n");
           }
         } else if (dyn_style(i) == 3) {
           double summed_stuff = dyn_alpha(i) + dyn_beta(i);
           
           if (summed_stuff > exp_tol) {
             Rf_warningcall(R_NilValue,
-              "Values of alpha and beta used in the Usher function may be too high. Results may be unpredictable.");
+              "Values of alpha and beta used in the Usher function may be too high. Results may be unpredictable.\n");
           } else if (summed_stuff < (-1.0 * exp_tol)) {
             Rf_warningcall(R_NilValue,
-              "Values of alpha and beta used in the Usher function may be too high. Results may be unpredictable.");
+              "Values of alpha and beta used in the Usher function may be too high. Results may be unpredictable.\n");
           }
         }
       }
@@ -20860,7 +20860,7 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
       
       for (int i = 0; i < label_elements.length(); i++) {
         if (stringcompare_hard(as<std::string>(label_elements(i)), "patch")) {
-          if (!quiet) Rf_warningcall(R_NilValue, "This function takes annual matrices as input. This lefkoMat object appears to be a set of mean matrices, and may lack annual matrices. Will project only the mean.");
+          if (!quiet) Rf_warningcall(R_NilValue, "This function takes annual matrices as input. This lefkoMat object appears to be a set of mean matrices, and may lack annual matrices. Will project only the mean.\n");
         }
       }
       
@@ -21921,7 +21921,7 @@ Rcpp::List stoch_senselas(List mpm, int times = 10000, bool historical = false,
     DataFrame agestages = as<DataFrame>(mpm["agestages"]);
     
     if (labels.length() < 3) {
-      Rf_warningcall(R_NilValue, "This function takes annual matrices as input. This lefkoMat object appears to be a set of mean matrices, and may lack annual matrices.");
+      Rf_warningcall(R_NilValue, "This function takes annual matrices as input. This lefkoMat object appears to be a set of mean matrices, and may lack annual matrices.\n");
     }
     
     // Here we assess ahistorical versions of historical
