@@ -1,3 +1,10 @@
+# lefko3 5.6.0 (2022-XX-XX)
+
+## NEW FEATURES
+
+* Function summary_hfv() now includes an error checking function that searches
+  hfv data frames for problems in stage assignment.
+
 # lefko3 5.5.0 (2022-09-14)
 
 ## NEW FEATURES

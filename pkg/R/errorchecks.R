@@ -1156,11 +1156,23 @@ diff_lM <- function(mpm1, mpm2) {
 #' @param full A logical value indicating whether to include basic data frame
 #' summary information in addition to hfvdata-specific summary information.
 #' Defaults to \code{TRUE}.
+#' @param err_check A logical value indicating whether to check for errors in
+#' stage assignment.
 #' @param ... Other parameters.
 #' 
 #' @return A summary of the object. The first line shows the numbers of
 #' populations, patches, individuals, and time steps. If \code{full = TRUE}, 
 #' then this is followed by a standard data frame summary of the hfv dataset.
+#' If \code{err_check = TRUE}, then a subset of the original data frame input
+#' as \code{object} is exported with only rows showing stage assignment issues.
+#' 
+#' @section Notes:
+#' Stage assignment issue identified by option \code{err_check} fall under two
+#' categories. First, all rows showing \code{NoMatch} as the identified stage
+#' for \code{stage1}, \code{stage2}, or \code{stage3} are identified. Second,
+#' all rows showing \code{stage1 = "NotAlive"} and \code{alive1 = 1},
+#' \code{stage2 = "NotAlive"} and \code{alive2 = 1}, or
+#' \code{stage3 = "NotAlive"} and \code{alive3 = 1} are identified.
 #' 
 #' @examples
 #' data(cypdata)
@@ -1192,7 +1204,10 @@ diff_lM <- function(mpm1, mpm2) {
 #' 
 #' @export
 summary_hfv <- function(object, popid = "popid", patchid = "patchid",
-  individ = "individ", year2id = "year2", full = TRUE, ...) {
+  individ = "individ", year2id = "year2", full = TRUE, err_check = TRUE, ...) {
+  
+  identified_problems <- NULL
+  need_return <- FALSE
   
   demodata <- object
   
@@ -1239,9 +1254,40 @@ summary_hfv <- function(object, popid = "popid", patchid = "patchid",
   writeLines(paste0(totalpatches, grammar_patches, totalindivs, grammar_indivs,
       totalyears, grammar_years))
   
+  if (err_check) {
+    stage1_NoMatches <- which(demodata[, "stage1"] == "NoMatch")
+    stage2_NoMatches <- which(demodata[, "stage2"] == "NoMatch")
+    stage3_NoMatches <- which(demodata[, "stage3"] == "NoMatch")
+    
+    stage1_NotAlive <- which(demodata[, "stage1"] == "NotAlive")
+    stage2_NotAlive <- which(demodata[, "stage2"] == "NotAlive")
+    stage3_NotAlive <- which(demodata[, "stage3"] == "NotAlive")
+    
+    alive1 <- which(demodata[, "alive1"] == 1)
+    alive2 <- which(demodata[, "alive2"] == 1)
+    alive3 <- which(demodata[, "alive3"] == 1)
+    
+    s1_NotA_al <- intersect(stage1_NotAlive, alive1)
+    s2_NotA_al <- intersect(stage2_NotAlive, alive2)
+    s3_NotA_al <- intersect(stage3_NotAlive, alive3)
+    
+    problem_rows <- sort(unique(c(stage1_NoMatches, stage2_NoMatches,
+      stage3_NoMatches, s1_NotA_al, s2_NotA_al, s3_NotA_al)))
+    
+    if (length(problem_rows) > 0) {
+      need_return <- TRUE
+      writeLines(paste0("Problems in stage assignment identified in rows:\n"))
+      print(problem_rows)
+      
+      identified_problems <- demodata[problem_rows,]
+    }
+  }
+  
   if (full) {
     dethonthetoilet <- summary.data.frame(demodata)
     print(dethonthetoilet, digits = 3)
   }
+  
+  if (err_check & need_return) return(identified_problems)
 }
 
