@@ -34,17 +34,12 @@ List hoffmannofstuttgart(arma::mat mainmat, DataFrame indices, int ahstages,
   arma::mat newmatrix(ahstages, ahstages);
   newmatrix.zeros();
   
+  Rcpp::List condlist (ahstages);
+  
   arma::uvec condidx = find(stage1 == 1);
   int condlength = condidx.n_elem;
   
-  for (int i = 0; i < condlength; i++) {
-    if (mainmat(main_index(condidx(i))) > 0) newmatrix(new_index(condidx(i))) = 
-      newmatrix(new_index(condidx(i))) + mainmat(main_index(condidx(i)));
-  }
-  
-  Rcpp::List condlist = List::create(Named("1") = newmatrix);
-  
-  for (int i = 1; i < ahstages; i++) {
+  for (int i = 0; i < ahstages; i++) {
     newmatrix.zeros();
     
     condidx = find(stage1 == (i+1));
@@ -55,7 +50,7 @@ List hoffmannofstuttgart(arma::mat mainmat, DataFrame indices, int ahstages,
         newmatrix(new_index(condidx(j))) + mainmat(main_index(condidx(j)));
     }
     
-    condlist.push_back(newmatrix);
+    condlist(i) = newmatrix;
   }
   condlist.names() = stagenames;
   
@@ -91,6 +86,8 @@ List hoffmannofstuttgart(arma::mat mainmat, DataFrame indices, int ahstages,
 //' ahistorical stages.}
 //' \item{labels}{A data frame showing the patch and year of each input full A 
 //' matrix in order.}
+//' \item{err_check}{An optional data frame showing the order of used element
+//' indices to create conditional matrices.}
 //' 
 //' @examples
 //' data(cypdata)
@@ -290,44 +287,51 @@ Rcpp::List cond_hmpm(List hmpm, Nullable<CharacterVector> matchoice = R_NilValue
     _["new_index"] = new_index);
   
   // This next line creates the conditional matrices in list form
-  List mats1 = hoffmannofstuttgart(amats(0), loveontherocks, ahmpm_rows, stagenames);
+  List allout (numofmats);
+  List mats1;
   
   if (iusedmats == 3) {
-    mats1 = hoffmannofstuttgart(fmats(0), loveontherocks, ahmpm_rows, stagenames);
-  } else if (iusedmats == 2) {
-    mats1 = hoffmannofstuttgart(umats(0), loveontherocks, ahmpm_rows, stagenames);
-  } 
-  
-  List allout = List::create(Named("1") = mats1);
-  
-  if (iusedmats == 3) {
-    for (int i = 1; i < numofmats; i++) {
+    for (int i = 0; i < numofmats; i++) {
       mats1 = hoffmannofstuttgart(fmats(i), loveontherocks, ahmpm_rows, stagenames);
       
-      allout.push_back(mats1);
+      allout(i) = mats1;
     }
   } else if (iusedmats == 2) {
-    for (int i = 1; i < numofmats; i++) {
+    for (int i = 0; i < numofmats; i++) {
       mats1 = hoffmannofstuttgart(umats(i), loveontherocks, ahmpm_rows, stagenames);
       
-      allout.push_back(mats1);
+      allout(i) = mats1;
     }
   } else {
-    for (int i = 1; i < numofmats; i++) {
+    for (int i = 0; i < numofmats; i++) {
       mats1 = hoffmannofstuttgart(amats(i), loveontherocks, ahmpm_rows, stagenames);
       
-      allout.push_back(mats1);
+      allout(i) = mats1;
     }
   }
   allout.names() = matnames;
   
-  List panama = List::create(Named("Mcond") = allout, _["hstages"] = hstages,
-    _["ahstages"] = stageframe, _["labels"] = labels);
+  int panama_parts = 4;
+  if (err_c) panama_parts = 5;
+  
+  List panama (panama_parts);
+  
+  panama(0) = allout;
+  panama(1) = hstages;
+  panama(2) = stageframe;
+  panama(3) = labels;
   
   if (err_c) {
-    Rcpp::List morestuff = List::create(_["err_check"] = loveontherocks);
-    panama.push_back(morestuff);
+    panama(4) = loveontherocks;
+    
+    StringVector pan_1 = {"Mcond", "hstages", "ahstages", "labels", "err_check"};
+    panama.names() = pan_1;
+    
+  } else {
+    StringVector pan_2 = {"Mcond", "hstages", "ahstages", "labels"};
+    panama.names() = pan_2;
   }
+  
   panama.attr("class") = "lefkoCondMat";
   
   return panama;
@@ -365,6 +369,8 @@ Rcpp::List cond_hmpm(List hmpm, Nullable<CharacterVector> matchoice = R_NilValue
 //' ahistorical stages.}
 //' \item{labels}{A data frame showing the patch and year of each input full A 
 //' matrix in order.}
+//' \item{err_check}{An optional data frame showing the order of used element
+//' indices to create conditional matrices.}
 //' 
 //' @examples
 //' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 3, 6, 11, 19.5)
@@ -627,44 +633,51 @@ Rcpp::List cond_diff(List lDiff, int ref = 1,
     _["new_index"] = new_index);
   
   // This next line creates the conditional matrices in list form
-  List mats1 = hoffmannofstuttgart(amats(0), loveontherocks, ahmpm_rows, stagenames);
+  List allout (numofmats);
+  List mats1;
   
   if (iusedmats == 3) {
-    mats1 = hoffmannofstuttgart(fmats(0), loveontherocks, ahmpm_rows, stagenames);
-  } else if (iusedmats == 2) {
-    mats1 = hoffmannofstuttgart(umats(0), loveontherocks, ahmpm_rows, stagenames);
-  } 
-  
-  List allout = List::create(Named("1") = mats1);
-  
-  if (iusedmats == 3) {
-    for (int i = 1; i < numofmats; i++) {
+    for (int i = 0; i < numofmats; i++) {
       mats1 = hoffmannofstuttgart(fmats(i), loveontherocks, ahmpm_rows, stagenames);
       
-      allout.push_back(mats1);
+      allout(i) = mats1;
     }
   } else if (iusedmats == 2) {
-    for (int i = 1; i < numofmats; i++) {
+    for (int i = 0; i < numofmats; i++) {
       mats1 = hoffmannofstuttgart(umats(i), loveontherocks, ahmpm_rows, stagenames);
       
-      allout.push_back(mats1);
+      allout(i) = mats1;
     }
   } else {
-    for (int i = 1; i < numofmats; i++) {
+    for (int i = 0; i < numofmats; i++) {
       mats1 = hoffmannofstuttgart(amats(i), loveontherocks, ahmpm_rows, stagenames);
       
-      allout.push_back(mats1);
+      allout(i) = mats1;
     }
   }
   allout.names() = matnames;
   
-  List panama = List::create(Named("Mcond") = allout, _["hstages"] = hstages,
-    _["ahstages"] = stageframe, _["labels"] = labels);
+  int panama_parts = 4;
+  if (err_c) panama_parts = 5;
+  
+  List panama (panama_parts);
+  
+  panama(0) = allout;
+  panama(1) = hstages;
+  panama(2) = stageframe;
+  panama(3) = labels;
   
   if (err_c) {
-    Rcpp::List morestuff = List::create(_["err_check"] = loveontherocks);
-    panama.push_back(morestuff);
+    panama(4) = loveontherocks;
+    
+    StringVector pan_1 = {"Mcond", "hstages", "ahstages", "labels", "err_check"};
+    panama.names() = pan_1;
+    
+  } else {
+    StringVector pan_2 = {"Mcond", "hstages", "ahstages", "labels"};
+    panama.names() = pan_2;
   }
+  
   panama.attr("class") = "lefkoCondDiffMat";
   
   return panama;

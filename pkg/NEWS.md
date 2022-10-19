@@ -5,6 +5,10 @@
 * Function summary_hfv() now includes an error checking function that searches
   hfv data frames for problems in stage assignment.
 
+## USER-VISIBLE CHANGES
+* Functions cond_hmpm() and cond_diff()  now perform faster, with better memory
+  management, and with corrected list structure under err_check mode.
+
 # lefko3 5.5.0 (2022-09-14)
 
 ## NEW FEATURES

@@ -124,7 +124,7 @@ summary.lefkoCondMat <- function(object, ...) {
   matdim <- dim(firstcondmat)
   
   writeLines(paste0("\nThis lefkoCondMat object contains ", prevstages,
-      " conditional matrices per historical matrix,"))
+      " conditional matrices per historical matrix."))
   writeLines(paste0("It covers ", numhistmats, " main historical matrices."))
   writeLines(paste0("Each conditional matrix is a square matrix with ", matdim[1],
       " rows and columns, and a total of ", matdim[1]*matdim[1], " elements."))

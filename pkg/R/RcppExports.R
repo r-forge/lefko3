@@ -338,6 +338,8 @@
 #' ahistorical stages.}
 #' \item{labels}{A data frame showing the patch and year of each input full A 
 #' matrix in order.}
+#' \item{err_check}{An optional data frame showing the order of used element
+#' indices to create conditional matrices.}
 #' 
 #' @examples
 #' data(cypdata)
@@ -431,6 +433,8 @@ cond_hmpm <- function(hmpm, matchoice = NULL, err_check = NULL) {
 #' ahistorical stages.}
 #' \item{labels}{A data frame showing the patch and year of each input full A 
 #' matrix in order.}
+#' \item{err_check}{An optional data frame showing the order of used element
+#' indices to create conditional matrices.}
 #' 
 #' @examples
 #' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 3, 6, 11, 19.5)
