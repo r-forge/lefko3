@@ -1,6 +1,6 @@
 #include <RcppArmadillo.h>
 // [[Rcpp::depends(RcppArmadillo)]]
-#include "LefkoUtils.h"
+#include <LefkoUtils.h>
 
 using namespace Rcpp;
 using namespace arma;

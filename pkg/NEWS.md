@@ -8,6 +8,10 @@
 ## USER-VISIBLE CHANGES
 * Functions cond_hmpm() and cond_diff()  now perform faster, with better memory
   management, and with corrected list structure under err_check mode.
+* Cpp header files are now visible to other packages.
+* Function hist_null() no longer attempts to remove impossible transitions.
+* Overhead cut on projection3(), and related function that involve projecting
+  matrices forward or backward.
 
 # lefko3 5.5.0 (2022-09-14)
 
