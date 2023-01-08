@@ -18,7 +18,7 @@ f_projection3(
   repvalue = FALSE,
   integeronly = FALSE,
   substoch = 0L,
-  ipm_method = "CDF",
+  ipm_cdf = TRUE,
   nreps = 1L,
   times = 10000L,
   repmod = 1,
@@ -123,10 +123,10 @@ total no more than 1.0, in addition to the actions outlined for option
 \code{1}. Both settings \code{1} and \code{2} change negative fecundity
 elements to \code{0.0}.}
 
-\item{ipm_method}{A string indicating what method to use to estimate size
-transition probabilities, if size is treated as continuous. Options include:
-\code{"midpoint"}, which utilizes the midpoint method; and \code{"CDF"},
-which uses the cumulative distribution function. Defaults to \code{"CDF"}.}
+\item{ipm_cdf}{A logical value indicating whether to estimate size
+transitions using the cumulative density function in cases with continuous
+distributions. Defaults to \code{TRUE}, with the midpoint method used if
+\code{FALSE}.}
 
 \item{nreps}{The number of replicate projections. Defaults to \code{1}.}
 
@@ -374,15 +374,15 @@ structure is the same as in \code{\link{projection3}()}.}
 \item{pop_size}{A list of matrices showing the total population size in each
 occasion per replicate (row within data frame) per pop-patch or population
 (list element). Only a single pop-patch or population is allowed in
-\code{f_projection3()}}
+\code{f_projection3()}.}
 \item{labels}{A data frame showing the order of populations and patches in
 item \code{projection}.}
 \item{ahstages}{The original stageframe used in the study.}
 \item{hstages}{A data frame showing the order of historical stage pairs.}
 \item{agestages}{A data frame showing the order of age-stage pairs.}
-\item{labels}{A short data frame indicating the population (always \code{1},
+\item{labels}{A short data frame indicating the population (always \code{1}),
 and patch (either the numeric index of the single chosen patch, or \code{1}
-in all other cases).)}
+in all other cases).}
 \item{control}{A short vector indicating the number of replicates and the
 number of occasions projected per replicate.}
 \item{density}{The data frame input under the density option. Only provided

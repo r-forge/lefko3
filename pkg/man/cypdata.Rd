@@ -102,9 +102,6 @@ cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw,
   size = c("size3added", "size2added"), supplement = cypsupp2r,
   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
                        
-cypmatrix2r$A[[intersect(which(cypmatrix2r$labels$patch == "A"), 
-  which(cypmatrix2r$labels$year2 == 2004))]]
-
 lambda3(cypmatrix2r)
 
 # Cypripedium example using partial repeat patterns with blocksize and part
@@ -151,9 +148,6 @@ cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw,
   size = c("size3added", "size2added"), supplement = cypsupp2r,
   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
                        
-cypmatrix2r$A[[intersect(which(cypmatrix2r$labels$patch == "A"), 
-  which(cypmatrix2r$labels$year2 == 2004))]]
-
 lambda3(cypmatrix2r)
 }
 \keyword{datasets}

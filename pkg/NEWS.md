@@ -1,17 +1,61 @@
-# lefko3 5.6.0 (2022-XX-XX)
+# lefko3 6.0.0 (2022-XX-XX)
 
 ## NEW FEATURES
 
 * Function summary_hfv() now includes an error checking function that searches
   hfv data frames for problems in stage assignment.
+* New functon mpm_create() is now the workhorse function handling all MPM
+  creation. All previous matrix creation functions have been rewritten as
+  wrapper functions for this new function, with arguments and handling as before
+  to prevent compatibility issues.
+* Function modelsearch() can now handle fixed factor individual covariates, and
+  can use a different suite of independent factors for the global model of each
+  vital rate.
+* Function mpm_create() and all matrix creation functions now handle fixed
+  factor variables as independent covariates, as well as random covariates
+  and fixed quantitative variables.
+* Function lmean() can produce arithmetic mean matrices for simple lists of
+  square, equidimensional matrices.
 
 ## USER-VISIBLE CHANGES
-* Functions cond_hmpm() and cond_diff()  now perform faster, with better memory
+
+* Functions cond_hmpm() and cond_diff() now perform faster, with better memory
   management, and with corrected list structure under err_check mode.
 * Cpp header files are now visible to other packages.
 * Function hist_null() no longer attempts to remove impossible transitions.
 * Overhead cut on projection3(), and related function that involve projecting
   matrices forward or backward.
+* Function modelsearch() now throws an informative error if too many parameters
+  are tested for exhaustive model dredging to operate.
+* Function modelsearch() now simplifies certain zero-inflated models if they
+  run past the limits of MuMIn's dredge() function.
+* Substantial speed up to function-based matrix creation, particular when
+  reducing matrices.
+* All matrix creation functions now have the ability to output only U and F
+  matrices ("simple" option), and to produce error-checking output ("err_check"
+  option).
+* Observation status variables may now be set in all raw MPM creation functions.
+* NRasRep option added in raw matrix creation functions for cases where stages
+  have not been assigned.
+* Functions verticalize3() and historicalize3() now standardize datasets almost
+  2x more quickly.
+* Function modelsearch() now automatically subsets datasets down to complete
+  cases of the variables used in the modeling to prevent failures.
+
+## BUG FIXES
+
+* Function hfv_qc() no longer gives an error when secondary or tertiary size
+  variable names are provided.
+* Functions rleslie() and fleslie() now properly create stageframe age IDs.
+* Functions rlefko3() and rlefko2() now properly parse non-standard observation
+  and maturity status variables for stage determination when an hfv data frame
+  is provided without stages already determined.
+* Corrected inaccurate age-stage indexing in object agestages resulting from
+  function arlefko2().
+* Corrected assignment of population matrix tags to the labels data frame in
+  lefkoMat objects produced by lmean() under the "patch" option.
+* Fixed fatal error when using summary.lefkoMat() with vrm_imported function-
+  based MPMs.
 
 # lefko3 5.5.0 (2022-09-14)
 

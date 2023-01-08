@@ -56,6 +56,7 @@ aflefko2(
   negfec = FALSE,
   ipm_method = "CDF",
   reduce = FALSE,
+  simple = FALSE,
   err_check = FALSE,
   exp_tol = 700,
   theta_tol = 1e+08
@@ -311,11 +312,13 @@ associated solely with \code{0} transitions. These are only removed in cases
 where the associated row and column sums in ALL matrices estimated equal 0. 
 Defaults to \code{FALSE}.}
 
-\item{err_check}{A logical value indicating whether to append matrices of
-vital rate probabilities associated with each matrix to the \code{lefkoMat}
-object generated. These matrices are developed internally and can be used for
-error checking (see element \code{out} in Value section below for details).
-Defaults to \code{FALSE}.}
+\item{simple}{A logical value indicating whether to produce \code{A},
+\code{U}, and \code{F} matrices, or only the latter two. Defaults to
+\code{FALSE}, in which case all three are output.}
+
+\item{err_check}{A logical value indicating whether to append extra
+information used in matrix calculation within the output list. Defaults to
+\code{FALSE}.}
 
 \item{exp_tol}{A numeric value used to indicate a maximum value to set
 exponents to in the core kernel to prevent numerical overflow. Defaults to
@@ -348,9 +351,11 @@ ahistorical stages, in the form of a modified stageframe that includes
 status as an entry stage through reproduction.}
 \item{labels}{A data frame giving the patch and year of each matrix in order.
 In \code{aflefko2()}, only one population may be analyzed at once.}
-\item{matrixqc}{A short vector describing the number of non-zero elements
-in \code{U} and \code{F} matrices, and the number of annual matrices.}
-\item{modelqc}{This is the \code{qc} portion of the modelsuite input.}
+\item{dataqc}{A vector showing the numbers of individuals and rows in the
+vertical dataset used as input.}
+\item{matrixqc}{A short vector describing the number of non-zero elements in
+\code{U} and \code{F} matrices, and the number of annual matrices.}
+\item{modelqc}{This is the \code{qc} portion of the \code{modelsuite} input.}
 \item{prob_out}{An optional element only added if \code{err_check = TRUE}.
 This is a list of vital rate probability matrices, with 7 columns in the
 order of survival, observation probability, reproduction probability, primary

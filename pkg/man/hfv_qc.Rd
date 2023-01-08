@@ -121,7 +121,7 @@ where patches are defined as permanent subgroups within the study population.
 Defaults to \code{NA}.}
 
 \item{year}{A text value indicating the variable coding for observation
-occasion \emph{t}. Defaults to \code{year2}.}
+occasion \emph{t}. Defaults to \code{"year2"}.}
 
 \item{density}{A text value indicating the name of the variable coding for
 spatial density, should the user wish to test spatial density as a fixed

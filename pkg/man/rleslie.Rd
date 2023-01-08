@@ -16,18 +16,21 @@ rleslie(
   fec = c("feca3", "feca2", "feca1"),
   agecol = "obsage",
   year = "all",
-  pop = NA,
-  patch = NA,
-  yearcol = NA,
-  popcol = NA,
-  patchcol = NA,
-  indivcol = NA,
+  pop = NULL,
+  patch = NULL,
+  yearcol = NULL,
+  popcol = NULL,
+  patchcol = NULL,
+  indivcol = NULL,
   censor = FALSE,
-  censorcol = NA,
+  censorcol = NULL,
   censorkeep = 0,
   fectime = 2,
   fecmod = 1,
-  prebreeding = TRUE
+  prebreeding = TRUE,
+  reduce = FALSE,
+  simple = FALSE,
+  err_check = FALSE
 )
 }
 \arguments{
@@ -110,6 +113,19 @@ the variable given for \code{fec} in time \emph{t} (\code{2}) or time
 
 \item{prebreeding}{A logical value indicating whether the life history model
 is a pre-breeding model. Defaults to \code{TRUE}.}
+
+\item{reduce}{A logical value denoting whether to remove ages associated with
+only zero transitions. These are removed only if the respective row and
+column sums in ALL matrices estimated equal 0. Defaults to \code{FALSE}, and
+should generally not be used in age-based MPMs.}
+
+\item{simple}{A logical value indicating whether to produce \code{A},
+\code{U}, and \code{F} matrices, or only the latter two. Defaults to
+\code{FALSE}, in which case all three are output.}
+
+\item{err_check}{A logical value indicating whether to append extra
+information used in matrix calculation within the output list. Defaults to
+\code{FALSE}.}
 }
 \value{
 If all inputs are properly formatted, then this function will return
@@ -132,10 +148,12 @@ ahistorical stages, in the form of a modified stageframe that includes
 status as an entry stage through reproduction.}
 \item{labels}{A data frame giving the population, patch, and year of each 
 matrix in order.}
-\item{matrixqc}{A short vector describing the number of non-zero elements
-in \code{U} and \code{F} matrices, and the number of annual matrices.}
 \item{dataqc}{A vector showing the numbers of individuals and rows in the
 vertical dataset used as input.}
+\item{matrixqc}{A short vector describing the number of non-zero elements in
+\code{U} and \code{F} matrices, and the number of annual matrices.}
+\item{modelqc}{This is the \code{qc} portion of the \code{modelsuite} input
+in function-based MPMs. Empty in this function.}
 }
 \description{
 Function \code{rleslie()} returns raw Leslie MPMs, including the
@@ -161,7 +179,6 @@ lead to erroneous calculations, and may lead to fatal errors.
 }
 
 \examples{
-# Cypripedium example
 data(cypdata)
 
 cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
@@ -172,8 +189,7 @@ cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
 
 cyp_rl <- rleslie(data = cypraw_v1, start_age = 0, last_age = 4, continue = TRUE,
   fecage_min = 3, fecage_max = 4, year = "all", pop = NA, patch = "all",
-  yearcol = "year2", popcol = NA, patchcol = "patchid", indivcol = "individ")
-cyp_rl
+  yearcol = "year2", patchcol = "patchid", indivcol = "individ")
 
 }
 \seealso{

@@ -205,6 +205,9 @@ treated during matrix estimation.
 }
 \section{Notes}{
 
+Vectors used to create a stageframe may not mix \code{NA} values with
+non-\code{NA} values.
+
 If an IPM or function-based matrix with automated size classification is
 desired, then two stages that occur within the dataset and represent the
 lower and upper size limits of the IPM must be marked with \code{ipm} in

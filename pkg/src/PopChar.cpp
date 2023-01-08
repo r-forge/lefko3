@@ -159,6 +159,9 @@ using namespace LefkoUtils;
 //' \item{comments}{A text field for stage descriptions.}
 //' 
 //' @section Notes:
+//' Vectors used to create a stageframe may not mix \code{NA} values with
+//' non-\code{NA} values.
+//' 
 //' If an IPM or function-based matrix with automated size classification is
 //' desired, then two stages that occur within the dataset and represent the
 //' lower and upper size limits of the IPM must be marked with \code{ipm} in
@@ -3102,7 +3105,7 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
 //' @name density_reassess
 //' 
 //' @param stageframe The correct stageframe, already modified by
-//' \code{\link{.sf_reassess}()}.
+//' \code{\link{sf_reassess}()}.
 //' @param dens_inp The density input data frame as is toward the end of
 //' \code{\link{density_input}()}.
 //' @param agestages The agestages element from the used \code{lefkoMat} object.
@@ -5098,7 +5101,10 @@ DataFrame density_input(List mpm, RObject stage3, RObject stage2,
   bool agebystage = false;
   
   // Check quality of mpm input
-  StringVector mpm_class_vec  = mpm.attr("class");
+  StringVector mpm_class_vec;
+  if (mpm.hasAttribute("class")) {
+    mpm_class_vec = mpm.attr("class");
+  } else mpm_class_vec = {"list"};
   std::string mpm_class = as<std::string>(mpm_class_vec(0));
   
   CharacterVector mpm_elems = mpm.names();

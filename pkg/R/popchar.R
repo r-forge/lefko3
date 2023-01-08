@@ -1054,7 +1054,7 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
 #' 
 #' trial7_dvr <- f_projection3(format = 1, data = lathvertln,
 #'   modelsuite = lathmodelsln3, stageframe = lathframeln, nreps = 2,
-#'   times = 1000, stochastic = TRUE, standardize = FALSE, growthonly = TRUE,
+#'   times = 100, stochastic = TRUE, standardize = FALSE, growthonly = TRUE,
 #'   integeronly = FALSE, substoch = 0, sp_density = 0, start_frame = e3m_sv,
 #'   density_vr = e3d_vr)
 #' summary(trial7_dvr)
@@ -1909,7 +1909,7 @@ start_input <- function(mpm, stage2, stage1 = NA, age2 = NA, value = 1) {
 #' where patches are defined as permanent subgroups within the study population.
 #' Defaults to \code{NA}.
 #' @param year A text value indicating the variable coding for observation
-#' occasion \emph{t}. Defaults to \code{year2}.
+#' occasion \emph{t}. Defaults to \code{"year2"}.
 #' @param density A text value indicating the name of the variable coding for
 #' spatial density, should the user wish to test spatial density as a fixed
 #' factor affecting vital rates. Defaults to \code{NA}.
@@ -2061,7 +2061,6 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
   sizeb.data <- sizec.data <- juvsizeb.data <- juvsizec.data <- NULL
   repst.data <- fec.data <- juvsurv.data <- juvobs.data <- NULL
   juvsize.data <- juvrepst.data <- usedfec <- NULL
-  sizebdist <- sizecdist <- NULL
   patchcol <- yearcol <- extra_factors <- 0
   
   sizeb_used <- sizec_used <- density_used <- indcova_used <- FALSE
@@ -2295,9 +2294,6 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
       stop("Size variables must match data frame.", call. = FALSE)
     }
     if (all(!is.na(sizeb))) {
-      if (is.na(sizebdist)) {
-        stop("Need valid choice of distribution for secondary size.", call. = FALSE)
-      }
       if (length(sizeb) > 3 | length(sizeb) == 1) {
         stop("This function requires 2 (if ahistorical) or 3 (if historical)
           secondary size variables as input parameters.",
@@ -2317,9 +2313,6 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
       sizeb_used <- 1
     }
     if (all(!is.na(sizec))) {
-      if (is.na(sizecdist)) {
-        stop("Need valid choice of distribution for tertiary size.", call. = FALSE)
-      }
       if (length(sizec) > 3 | length(sizec) == 1) {
         stop("This function requires 2 (if ahistorical) or 3 (if historical)
           tertiary size variables as input parameters.",

@@ -8,28 +8,31 @@ rlefko3(
   data,
   stageframe,
   year = "all",
-  pop = NA,
-  patch = NA,
+  pop = NULL,
+  patch = NULL,
   censor = FALSE,
-  stages = NA,
+  stages = NULL,
   alive = c("alive3", "alive2", "alive1"),
+  obsst = NULL,
   size = c("sizea3", "sizea2", "sizea1"),
-  sizeb = c(NA, NA, NA),
-  sizec = c(NA, NA, NA),
+  sizeb = NULL,
+  sizec = NULL,
   repst = c("repstatus3", "repstatus2", "repstatus1"),
   matst = c("matstatus3", "matstatus2", "matstatus1"),
   fec = c("feca3", "feca2", "feca1"),
   supplement = NULL,
   repmatrix = NULL,
   overwrite = NULL,
-  yearcol = NA,
-  popcol = NA,
-  patchcol = NA,
-  indivcol = NA,
-  censorcol = NA,
+  yearcol = NULL,
+  popcol = NULL,
+  patchcol = NULL,
+  indivcol = NULL,
+  censorcol = NULL,
   censorkeep = 0,
+  NRasRep = FALSE,
   format = "ehrlen",
   reduce = FALSE,
+  simple = FALSE,
   err_check = FALSE
 )
 }
@@ -72,17 +75,22 @@ characteristics noted in the associated \code{stageframe}.}
 as alive (\code{1}) or dead (\code{0}) in occasions \emph{t}+1, \emph{t}, and
 \emph{t}-1, respectively.}
 
+\item{obsst}{A vector of names of binomial variables corresponding to
+observation status in occasions \emph{t}+1, \emph{t}, and \emph{t}-1,
+respectively. Defaults to \code{NULL}, in which case observation status is
+not used.}
+
 \item{size}{A vector of names of variables coding the primary size variable
 in occasions \emph{t}+1, \emph{t}, and \emph{t}-1, respectively. Defaults to 
 \code{c("sizea3", "sizea2", "sizea1")}.}
 
 \item{sizeb}{A vector of names of variables coding the secondary size
 variable in occasions \emph{t}+1, \emph{t}, and \emph{t}-1, respectively.
-Defaults to \code{c(NA, NA, NA)}.}
+Defaults to \code{NULL}, in which case this variable is not used.}
 
 \item{sizec}{A vector of names of variables coding the tertiary size
 variable in occasions \emph{t}+1, \emph{t}, and \emph{t}-1, respectively.
-Defaults to \code{c(NA, NA, NA)}.}
+Defaults to \code{NULL}, in which case this variable is not used.}
 
 \item{repst}{A vector of names of variables coding reproductive status in
 occasions \emph{t}+1, \emph{t}, and \emph{t}-1, respectively. Defaults to 
@@ -143,6 +151,10 @@ status. Only needed if \code{censor = TRUE}.}
 \item{censorkeep}{The value of the censor variable denoting data elements to
 keep. Defaults to \code{0}.}
 
+\item{NRasRep}{If \code{data} does not include stage assignments, then this
+option determines whether non-reproductive and reproductive individuals
+should be lumped into the same stages. Defaults to \code{FALSE}.}
+
 \item{format}{A string indicating whether to estimate matrices in
 \code{ehrlen} format or \code{deVries} format. The latter adds one unborn
 prior stage to account for the prior state of newborns. Defaults to
@@ -153,9 +165,13 @@ associated exclusively with zero transitions. These are removed only if the
 respective row and column sums in ALL matrices estimated equal 0. Defaults to
 \code{FALSE}.}
 
+\item{simple}{A logical value indicating whether to produce \code{A},
+\code{U}, and \code{F} matrices, or only the latter two. Defaults to
+\code{FALSE}, in which case all three are output.}
+
 \item{err_check}{A logical value indicating whether to append extra
-information used in matrix calculation within the output list. Used for
-development debugging purposes. Defaults to \code{FALSE}.}
+information used in matrix calculation within the output list. Defaults to
+\code{FALSE}.}
 }
 \value{
 If all inputs are properly formatted, then this function will return
@@ -178,10 +194,12 @@ ahistorical stages, in the form of a modified stageframe that includes
 status as an entry stage through reproduction.}
 \item{labels}{A data frame giving the population, patch, and year of each 
 matrix in order.}
-\item{matrixqc}{A short vector describing the number of non-zero elements in
-\code{U} and \code{F} matrices, and the number of annual matrices.}
 \item{dataqc}{A vector showing the numbers of individuals and rows in the
 vertical dataset used as input.}
+\item{matrixqc}{A short vector describing the number of non-zero elements in
+\code{U} and \code{F} matrices, and the number of annual matrices.}
+\item{modelqc}{This is the \code{qc} portion of the \code{modelsuite} input
+in function-based MPMs. Empty in this function.}
 }
 \description{
 Function \code{rlefko3()} returns raw historical MPMs, including the

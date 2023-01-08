@@ -8,14 +8,15 @@ arlefko2(
   data,
   stageframe,
   year = "all",
-  pop = NA,
-  patch = NA,
+  pop = NULL,
+  patch = NULL,
   censor = FALSE,
-  stages = NA,
+  stages = NULL,
   alive = c("alive3", "alive2"),
+  obsst = NULL,
   size = c("sizea3", "sizea2"),
-  sizeb = c(NA, NA),
-  sizec = c(NA, NA),
+  sizeb = NULL,
+  sizec = NULL,
   repst = c("repstatus3", "repstatus2"),
   matst = c("matstatus3", "matstatus2"),
   fec = c("feca3", "feca2"),
@@ -23,16 +24,19 @@ arlefko2(
   repmatrix = NULL,
   overwrite = NULL,
   agecol = "obsage",
-  yearcol = NA,
-  popcol = NA,
-  patchcol = NA,
-  indivcol = NA,
-  censorcol = NA,
+  yearcol = NULL,
+  popcol = NULL,
+  patchcol = NULL,
+  indivcol = NULL,
+  censorcol = NULL,
   censorkeep = 0,
   final_age = NA,
   continue = TRUE,
   prebreeding = TRUE,
-  reduce = FALSE
+  NRasRep = FALSE,
+  reduce = FALSE,
+  simple = FALSE,
+  err_check = FALSE
 )
 }
 \arguments{
@@ -75,17 +79,22 @@ noted in the associated \code{stageframe}.}
 as alive (\code{1}) or dead (\code{0}) in occasions \emph{t}+1 ans \emph{t},
 respectively.}
 
+\item{obsst}{A vector of names of binomial variables corresponding to
+observation status in occasions \emph{t}+1, \emph{t}, and \emph{t}-1,
+respectively. Defaults to \code{NULL}, in which case observation status is
+not used.}
+
 \item{size}{A vector of names of variables coding the primary size variable
 in occasions \emph{t}+1 and \emph{t}, respectively. Defaults to
 \code{c("sizea3", "sizea2")}.}
 
 \item{sizeb}{A vector of names of variables coding the secondary size
 variable in occasions \emph{t}+1 and \emph{t}, respectively. Defaults to
-\code{c(NA, NA)}.}
+\code{NULL}, in which case this variable is not used.}
 
 \item{sizec}{A vector of names of variables coding the tertiary size
 variable in occasions \emph{t}+1 and \emph{t}, respectively. Defaults to
-\code{c(NA, NA)}.}
+\code{NULL}, in which case this variable is not used.}
 
 \item{repst}{A vector of names of variables coding reproductive status in
 occasions \emph{t}+1 and \emph{t}, respectively. Defaults to 
@@ -157,9 +166,21 @@ demographic characteristics of the final age. Defaults to \code{TRUE}.}
 \item{prebreeding}{A logical value indicating whether the life history model
 is a pre-breeding model. Defaults to \code{TRUE}.}
 
-\item{reduce}{A logical value denoting whether to remove historical stages
+\item{NRasRep}{If \code{data} does not include stage assignments, then this
+option determines whether non-reproductive and reproductive individuals
+should be lumped into the same stages. Defaults to \code{FALSE}.}
+
+\item{reduce}{A logical value denoting whether to remove age-stages
 associated with only zero transitions. These are removed only if the
 respective row and column sums in ALL matrices estimated equal 0. Defaults to
+\code{FALSE}.}
+
+\item{simple}{A logical value indicating whether to produce \code{A},
+\code{U}, and \code{F} matrices, or only the latter two. Defaults to
+\code{FALSE}, in which case all three are output.}
+
+\item{err_check}{A logical value indicating whether to append extra
+information used in matrix calculation within the output list. Defaults to
 \code{FALSE}.}
 }
 \value{
@@ -186,14 +207,12 @@ status as an entry stage through reproduction.}
 \item{labels}{A data frame giving the patch and year of each matrix in order.
 In \code{aflefko2()}, only one population may be analyzed at once, and so
 \code{pop = NA}}
-\item{matrixqc}{A short vector describing the number of non-zero elements
-in \code{U} and \code{F} matrices, and the number of annual matrices.}
-\item{modelqc}{This is the \code{qc} portion of the modelsuite input.}
-\item{prob_out}{An optional element only added if \code{err_check = TRUE}.
-This is a list of vital rate probability matrices, with 6 columns in the
-order of survival, observation probability, reproduction probability, primary
-size transition probability, secondary size transition probability, and
-tertiary size transition probability.}
+\item{dataqc}{A vector showing the numbers of individuals and rows in the
+vertical dataset used as input.}
+\item{matrixqc}{A short vector describing the number of non-zero elements in
+\code{U} and \code{F} matrices, and the number of annual matrices.}
+\item{modelqc}{This is the \code{qc} portion of the \code{modelsuite} input
+in function-based MPMs. Empty in this function.}
 }
 \description{
 Function \code{arlefko2()} returns raw ahistorical age x stage MPMs

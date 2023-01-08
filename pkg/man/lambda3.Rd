@@ -2,12 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{lambda3}
 \alias{lambda3}
-\title{Function \code{lambda3()} is a generic function that returns the dominant
-eigenvalue of a matrix, set of dominant eigenvalues of a set of matrices,
-or set of dominant eigenvalues for a \code{lefkoMat} object. It can handle
-large and sparse matrices supplied as \code{lefkoMat} objects or as
-individual matrices, and can be used with large historical matrices, IPMs, 
-age x stage matrices, as well as smaller ahistorical matrices.}
+\title{Estimate Deterministic Population Growth Rate As Dominant Eigenvalue}
 \usage{
 lambda3(mpm, sparse = "auto")
 }

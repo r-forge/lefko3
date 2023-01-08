@@ -5,8 +5,12 @@
 using namespace Rcpp;
 using namespace arma;
 using namespace LefkoUtils;
+using namespace LefkoMats;
 
 
+
+//' Estimate Deterministic Population Growth Rate As Dominant Eigenvalue
+//' 
 //' Function \code{lambda3()} is a generic function that returns the dominant
 //' eigenvalue of a matrix, set of dominant eigenvalues of a set of matrices,
 //' or set of dominant eigenvalues for a \code{lefkoMat} object. It can handle
@@ -127,7 +131,7 @@ using namespace LefkoUtils;
 //' 
 //' @export lambda3
 // [[Rcpp::export(lambda3)]]
-RObject lambda3(RObject mpm, String sparse = "auto") {
+RObject lambda3(RObject& mpm, String sparse = "auto") {
   
   RObject output;
   
@@ -146,7 +150,8 @@ RObject lambda3(RObject mpm, String sparse = "auto") {
   if (is<List>(mpm)) {
     List mpm_ = as<List>(mpm);
     
-    CharacterVector mpm_names = mpm_.attr("names");
+    CharacterVector mpm_names;
+    if (mpm_.hasAttribute("names")) mpm_names = mpm_.attr("names");
     int no_mpm_names = mpm_names.length();
     
     bool A_check = false;
@@ -160,6 +165,8 @@ RObject lambda3(RObject mpm, String sparse = "auto") {
     }
     
     if (!A_check || !labels_check) {
+      // List of matrices input
+      
       if (!Rf_isMatrix(mpm_[0])) {
         throw Rcpp::exception("Object mpm list structure is not recognized.", false);
       }
@@ -222,7 +229,7 @@ RObject lambda3(RObject mpm, String sparse = "auto") {
           
           arma::uvec max_elems = find(all_eigenvalues == maxval);
           if (max_elems.n_elem == 0) {
-            throw Rcpp::exception("Eigenanalysis failed.", false);
+            throw Rcpp::exception("Eigen analysis failed.", false);
           }
           arma::vec chosen_eigvals = all_eigenvalues.elem(max_elems);
           arma::uvec pos_max_eigvals = find(chosen_eigvals > 0);
@@ -233,10 +240,16 @@ RObject lambda3(RObject mpm, String sparse = "auto") {
       output = lambda_prog;
       
     } else {
+      // lefkoMat input
+      
       List A_list = mpm_["A"];
       DataFrame labels = as<DataFrame>(mpm_["labels"]);
       
-      if (!Rf_isMatrix(A_list[0])) throw Rcpp::exception("Object mpm does not appear to contain matrices", false);
+      if (!Rf_isMatrix(A_list[0])) {
+        throw Rcpp::exception("Object mpm does not appear to contain matrices",
+          false);
+      }
+      
       int no_matrices = A_list.length();
       
       if (sparse_check == 2) {
@@ -248,7 +261,8 @@ RObject lambda3(RObject mpm, String sparse = "auto") {
         arma::uvec nonzeros = find(a1);
         int no_nonzeros = nonzeros.n_elem;
         
-        double density = static_cast<double>(no_nonzeros) / static_cast<double>(total_elems);
+        double density = static_cast<double>(no_nonzeros) /
+          static_cast<double>(total_elems);
         
         if (density <= 0.5 && total_elems > 400) {
           sparse_check = 1;
@@ -281,6 +295,7 @@ RObject lambda3(RObject mpm, String sparse = "auto") {
           arma::uvec pos_max_eigvals = find(chosen_eigvals > 0);
           
           lambda_prog(i) = chosen_eigvals(pos_max_eigvals(0));
+          
         } else {
           arma::sp_mat spAmat(as<arma::mat>(A_list(i)));
           
@@ -294,23 +309,25 @@ RObject lambda3(RObject mpm, String sparse = "auto") {
           
           arma::uvec max_elems = find(all_eigenvalues == maxval);
           if (max_elems.n_elem == 0) {
-            throw Rcpp::exception("Eigenanalysis failed.", false);
+            throw Rcpp::exception("Eigen analysis failed.", false);
           }
           arma::vec chosen_eigvals = all_eigenvalues.elem(max_elems);
           arma::uvec pos_max_eigvals = find(chosen_eigvals > 0);
           
-          if (pos_max_eigvals.n_elem > 0) lambda_prog(i) = chosen_eigvals(pos_max_eigvals(0));
+          if (pos_max_eigvals.n_elem > 0) {
+            lambda_prog(i) = chosen_eigvals(pos_max_eigvals(0));
+          }
         }
       }
-      DataFrame new_out;
       
+      DataFrame new_out;
       CharacterVector l_pop = labels["pop"];
       CharacterVector l_patch = labels["patch"];
       
       int l_length = labels.length();
       
       if (l_length == 3) {
-        NumericVector l_year2 = labels["year2"];
+        CharacterVector l_year2 = labels["year2"];
         
         new_out = DataFrame::create(_["pop"] = l_pop, _["patch"] = l_patch,
           _["year2"] = l_year2, _["lambda"] = lambda_prog);
@@ -319,10 +336,11 @@ RObject lambda3(RObject mpm, String sparse = "auto") {
           _["lambda"] = lambda_prog);
       }
       output = new_out;
-      
     }
     
   } else if(Rf_isMatrix(mpm)) {
+    // Single matrix input
+    
     arma::mat mpm_ = as<arma::mat>(mpm);
     
     if (sparse_check == 2) {
@@ -333,7 +351,8 @@ RObject lambda3(RObject mpm, String sparse = "auto") {
       arma::uvec nonzeros = find(mpm_);
       int no_nonzeros = nonzeros.n_elem;
       
-      double density = static_cast<double>(no_nonzeros) / static_cast<double>(total_elems);
+      double density = static_cast<double>(no_nonzeros) /
+        static_cast<double>(total_elems);
       
       if (density <= 0.5 && total_elems > 400) {
         sparse_check = 1;
@@ -343,7 +362,6 @@ RObject lambda3(RObject mpm, String sparse = "auto") {
     }
     
     NumericVector lambda_prog (1);
-    
     if (sparse_check == 0) {
       arma::cx_vec Aeigval;
       arma::cx_mat Aeigvecl;
@@ -357,13 +375,14 @@ RObject lambda3(RObject mpm, String sparse = "auto") {
       
       arma::uvec max_elems = find(all_eigenvalues == maxval);
       if (max_elems.n_elem == 0) {
-        throw Rcpp::exception("Eigenanalysis failed.", false);
+        throw Rcpp::exception("Eigen analysis failed.", false);
       }
       
       arma::vec chosen_eigvals = all_eigenvalues.elem(max_elems);
       arma::uvec pos_max_eigvals = find(chosen_eigvals > 0);
       
       lambda_prog(0) = chosen_eigvals(pos_max_eigvals(0));
+      
     } else {
       arma::sp_mat spAmat(mpm_);
       
@@ -378,7 +397,7 @@ RObject lambda3(RObject mpm, String sparse = "auto") {
       
       arma::uvec max_elems = find(all_eigenvalues == maxval);
       if (max_elems.n_elem == 0) {
-        throw Rcpp::exception("Eigenanalysis failed.", false);
+        throw Rcpp::exception("Eigen analysis failed.", false);
       }
       
       arma::vec chosen_eigvals = all_eigenvalues.elem(max_elems);
@@ -389,7 +408,8 @@ RObject lambda3(RObject mpm, String sparse = "auto") {
     
     output = lambda_prog;
   } else {
-    throw Rcpp::exception("Object mpm does not appear to be an appropriate MPM.", false);
+    throw Rcpp::exception("Object mpm does not appear to be an appropriate MPM.",
+      false);
   }
   
   return output;

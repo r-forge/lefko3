@@ -1,220 +1,3 @@
-#' Estimate Mean Projection Matrices
-#' 
-#' Function \code{lmean()} estimates mean projection matrices as element-wise
-#' arithmetic means.
-#' 
-#' @name lmean
-#' 
-#' @param mats A \code{lefkoMat} object.
-#' @param matsout A string identifying which means to estimate. Option
-#' \code{"pop"} indicates population-level only, \code{"patch"} indicates
-#' patch-level only, and \code{"all"} indicates that both patch- and
-#' population-level means should be estimated. Defaults to \code{"all"}.
-#' 
-#' @return Yields a \code{lefkoMat} object with the following characteristics:
-#' 
-#' \item{A}{A list of full mean projection matrices in order of sorted
-#' populations, patches, and years. These are typically estimated as the sums of
-#' the associated mean \code{U} and \code{F} matrices. All matrices output in
-#' the \code{matrix} class.}
-#' \item{U}{A list of mean survival-transition matrices sorted as in \code{A}.
-#' All matrices output in the \code{matrix} class.}
-#' \item{F}{A list of mean fecundity matrices sorted as in \code{A}. All
-#' matrices output in the \code{matrix} class.}
-#' \item{hstages}{A data frame showing the pairing of ahistorical stages used to
-#' create historical stage pairs. Given if the MPM is historical.}
-#' \item{ahstages}{A data frame detailing the characteristics of associated
-#' ahistorical stages.}
-#' \item{labels}{A data frame detailing the order of population, patch, and year 
-#' of each mean matrix. If \code{pop}, \code{patch}, or \code{year2} are NA in
-#' the original \code{labels} set, then these will be re-labeled as \code{A},
-#' \code{1}, or \code{1}, respectively.}
-#' \item{matrixqc}{A short vector describing the number of non-zero elements in
-#' \code{U} and \code{F} mean matrices, and the number of annual matrices.}
-#' \item{modelqc}{This is the \code{qc} portion of the \code{modelsuite} input.
-#' Only output from \code{lefkoMat} objects resulting from function-based
-#' estimation.}
-#' \item{dataqc}{A vector showing the numbers of individuals and rows in the
-#' vertical dataset used as input. Only output from \code{lefkoMat} objects
-#' resulting from raw matrix estimation.}
-#' 
-#' @examples
-#' # Lathyrus example
-#' data(lathyrus)
-#' 
-#' sizevector <- c(0, 100, 13, 127, 3730, 3800, 0)
-#' stagevector <- c("Sd", "Sdl", "VSm", "Sm", "VLa", "Flo", "Dorm")
-#' repvector <- c(0, 0, 0, 0, 0, 1, 0)
-#' obsvector <- c(0, 1, 1, 1, 1, 1, 0)
-#' matvector <- c(0, 0, 1, 1, 1, 1, 1)
-#' immvector <- c(1, 1, 0, 0, 0, 0, 0)
-#' propvector <- c(1, 0, 0, 0, 0, 0, 0)
-#' indataset <- c(0, 1, 1, 1, 1, 1, 1)
-#' binvec <- c(0, 100, 11, 103, 3500, 3800, 0.5)
-#' 
-#' lathframe <- sf_create(sizes = sizevector, stagenames = stagevector,
-#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
-#'   immstatus = immvector, indataset = indataset, binhalfwidth = binvec,
-#'   propstatus = propvector)
-#' 
-#' lathvert <- verticalize3(lathyrus, noyears = 4, firstyear = 1988,
-#'   patchidcol = "SUBPLOT", individcol = "GENET", blocksize = 9,
-#'   juvcol = "Seedling1988", sizeacol = "Volume88", repstracol = "FCODE88",
-#'   fecacol = "Intactseed88", deadacol = "Dead1988",
-#'   nonobsacol = "Dormant1988", stageassign = lathframe, stagesize = "sizea",
-#'   censorcol = "Missing1988", censorkeep = NA, censor = TRUE)
-#' 
-#' lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "Sd", "Sdl", "mat"),
-#'   stage2 = c("Sd", "Sd", "Sd", "Sd", "rep", "rep", "Sdl"),
-#'   stage1 = c("Sd", "rep", "Sd", "rep", "npr", "npr", "Sd"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "mat"),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "Sdl"),
-#'   eststage1 = c(NA, NA, NA, NA, NA, NA, "NotAlive"),
-#'   givenrate = c(0.345, 0.345, 0.054, 0.054, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, 0.345, 0.054, NA),
-#'   type = c(1, 1, 1, 1, 3, 3, 1), type_t12 = c(1, 2, 1, 2, 1, 1, 1),
-#'   stageframe = lathframe, historical = TRUE)
-#' 
-#' ehrlen3 <- rlefko3(data = lathvert, stageframe = lathframe, year = "all", 
-#'   stages = c("stage3", "stage2", "stage1"), supplement = lathsupp3,
-#'   yearcol = "year2", indivcol = "individ")
-#' 
-#' ehrlen3mean <- lmean(ehrlen3)
-#' ehrlen3mean$A[[1]]
-#' 
-#' # Cypripedium example
-#' data(cypdata)
-#' 
-#' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
-#' stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
-#'   "XLg")
-#' repvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
-#' obsvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
-#' matvector <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
-#' immvector <- c(0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
-#' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-#' indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
-#' binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 2.5, 7)
-#' 
-#' cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector,
-#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
-#'   propstatus = propvector, immstatus = immvector, indataset = indataset,
-#'   binhalfwidth = binvec)
-#' 
-#' cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
-#'   patchidcol = "patch", individcol = "plantid", blocksize = 4,
-#'   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04",
-#'   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
-#'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
-#'   NRasRep = TRUE)
-#' 
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
-#'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
-#'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
-#'   stageframe = cypframe_raw, historical = FALSE)
-#' 
-#' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
-#'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
-#'   size = c("size3added", "size2added"), supplement = cypsupp2r,
-#'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
-#' 
-#' cyp2mean <- lmean(cypmatrix2r)
-#' cyp2mean
-#' 
-#' @export
-lmean <- function(mats, matsout = "all") {
-  
-  agestages <- NA
-  
-  if (!is(mats, "lefkoMat")) {
-    stop("An object of class lefkoMat is required as input.")
-  }
-  
-  if (is.element("agestages", names(mats))) {
-    agestages <- mats$agestages
-  }
-  
-  matsout.possible <- c("all", "pop", "patch")
-  
-  if (!is.element(tolower(matsout), matsout.possible)) {
-    stop("The matsout option must take a value of all, pop, or patch.")
-  }
-  
-  #First we create an index based on the input lefkoMat object
-  listofyears <- mats$labels
-  
-  if (all(is.na(listofyears$pop))) {
-    listofyears$pop <- "1"
-  }
-  
-  if (all(is.na(listofyears$patch))) {
-    listofyears$patch <- "1"
-  }
-  
-  if (all(is.na(listofyears$year2))) {
-    listofyears$year2 <- 1
-  }
-  
-  listofyears$poppatch <- apply(as.matrix(c(1:dim(listofyears)[1])), 1, function(X) {
-    paste(listofyears$pop[X], listofyears$patch[X])
-  })
-  
-  listofyears$popc <- apply(as.matrix(listofyears$pop), 1, function(X) {which(unique(listofyears$pop) == X)-1})
-  listofyears$poppatchc <- apply(as.matrix(listofyears$poppatch), 1, function(X) {which(unique(listofyears$poppatch) == X)-1})
-  listofyears$year2c <- apply(as.matrix(listofyears$year2), 1, function(X) {which(unique(listofyears$year2) == X)-1})
-  
-  listofyears$patchesinpop <- apply(as.matrix(c(1:length(listofyears$poppatchc))), 1, function(X) {length(unique(listofyears$poppatchc[which(listofyears$popc == listofyears$popc[X])]))})
-  listofyears$yearsinpatch <- apply(as.matrix(c(1:length(listofyears$year2c))), 1, function(X) {length(unique(listofyears$year2c[which(listofyears$poppatchc == listofyears$poppatchc[X])]))})
-  
-  numofpops <- length(unique(listofyears$popc))
-  numofpatches <- length(unique(listofyears$poppatchc))
-  numofyears <- length(unique(listofyears$year2c))
-  
-  listofyears$poppatchc <- as.numeric(listofyears$poppatchc)
-  
-  if (matsout == "all") {
-    poponly <- 1;
-    patchonly <- 1;
-  } else if (matsout == "patch") {
-    poponly <- 0;
-    patchonly <- 1;
-  } else {
-    poponly <- 1;
-    patchonly <- 0;
-  }
-  
-  if (length(unique(listofyears$poppatchc)) == 1) {
-    poponly <- 0
-    patchonly <- 1
-  }
-  
-  if (!all(is.na(mats$hstages))) {
-    output <- .turbogeodiesel(listofyears, mats$U, mats$F, mats$hstages, 
-      agestages, mats$ahstages, patchonly, poponly)
-  } else {
-    output <- .geodiesel(listofyears, mats$U, mats$F, agestages, mats$ahstages,
-      patchonly, poponly)
-    output$hstages <- NA
-  }
-  
-  if (is.element("dataqc", names(mats))) {
-    output$dataqc <- mats$dataqc
-  }
-  if (is.element("modelqc", names(mats))) {
-    output$modelqc <- mats$modelqc
-  }
-  
-  class(output) <- "lefkoMat"
-  
-  return(output)
-}
-
 #' Estimate Stable Stage Distribution
 #' 
 #' \code{stablestage3()} is a generic function that returns the stable stage 
@@ -733,7 +516,6 @@ stablestage3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
 #' @seealso \code{\link{stablestage3.lefkoMat}()}
 #' 
 #' @examples
-#' #Lathyrus example
 #' data(lathyrus)
 #' 
 #' sizevector <- c(0, 100, 13, 127, 3730, 3800, 0)
@@ -775,51 +557,6 @@ stablestage3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
 #' 
 #' ehrlen3mean <- lmean(ehrlen3)
 #' stablestage3(ehrlen3mean$A[[1]])
-#' 
-#' # Cypripedium stochastic example
-#' data(cypdata)
-#' 
-#' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
-#' stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
-#'   "XLg")
-#' repvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
-#' obsvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
-#' matvector <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
-#' immvector <- c(0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
-#' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-#' indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
-#' binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 2.5, 7)
-#' 
-#' cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector,
-#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
-#'   propstatus = propvector, immstatus = immvector, indataset = indataset,
-#'   binhalfwidth = binvec)
-#' 
-#' cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
-#'   patchidcol = "patch", individcol = "plantid", blocksize = 4,
-#'   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04",
-#'   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
-#'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
-#'   NRasRep = TRUE)
-#' 
-#' # Here we use supplemental() to provide overwrite and reproductive info
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
-#'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
-#'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
-#'   stageframe = cypframe_raw, historical = FALSE)
-#' 
-#' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
-#'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
-#'   size = c("size3added", "size2added"), supplement = cypsupp2r,
-#'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
-#' 
-#' stablestage3(cypmatrix2r$A[[1]])
 #' 
 #' @export
 stablestage3.matrix <- function(mats, sparse = "auto", ...)
@@ -1443,7 +1180,6 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
 #' @seealso \code{\link{repvalue3.lefkoMat}()}
 #' 
 #' @examples
-#' # Lathyrus example
 #' data(lathyrus)
 #' 
 #' sizevector <- c(0, 100, 13, 127, 3730, 3800, 0)
@@ -1485,51 +1221,6 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
 #' 
 #' ehrlen3mean <- lmean(ehrlen3)
 #' repvalue3(ehrlen3mean$A[[1]])
-#' 
-#' # Cypripedium example
-#' data(cypdata)
-#' 
-#' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
-#' stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
-#'   "XLg")
-#' repvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
-#' obsvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
-#' matvector <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
-#' immvector <- c(0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
-#' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-#' indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
-#' binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 2.5, 7)
-#' 
-#' cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector,
-#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
-#'   propstatus = propvector, immstatus = immvector, indataset = indataset,
-#'   binhalfwidth = binvec)
-#' 
-#' cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
-#'   patchidcol = "patch", individcol = "plantid", blocksize = 4,
-#'   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04",
-#'   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
-#'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
-#'   NRasRep = TRUE)
-#' 
-#' # Here we use supplemental() to provide overwrite and reproductive info
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
-#'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
-#'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
-#'   stageframe = cypframe_raw, historical = FALSE)
-#' 
-#' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
-#'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
-#'   size = c("size3added", "size2added"), supplement = cypsupp2r,
-#'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
-#' 
-#' repvalue3(cypmatrix2r$A[[1]])
 #' 
 #' @export
 repvalue3.matrix <- function(mats, sparse = "auto", ...)
@@ -1615,52 +1306,7 @@ repvalue3.matrix <- function(mats, sparse = "auto", ...)
 #'   stages = c("stage3", "stage2", "stage1"), supplement = lathsupp3,
 #'   yearcol = "year2", indivcol = "individ")
 #' 
-#' ehrlen3mean <- lmean(ehrlen3)
-#' sensitivity3(ehrlen3mean)
-#' 
-#' # Cypripedium example
-#' data(cypdata)
-#' 
-#' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
-#' stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
-#'   "XLg")
-#' repvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
-#' obsvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
-#' matvector <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
-#' immvector <- c(0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
-#' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-#' indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
-#' binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 2.5, 7)
-#' 
-#' cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector,
-#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
-#'   propstatus = propvector, immstatus = immvector, indataset = indataset,
-#'   binhalfwidth = binvec)
-#' 
-#' cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
-#'   patchidcol = "patch", individcol = "plantid", blocksize = 4,
-#'   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04",
-#'   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
-#'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
-#'   NRasRep = TRUE)
-#' 
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
-#'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
-#'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
-#'   stageframe = cypframe_raw, historical = FALSE)
-#' 
-#' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
-#'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
-#'   size = c("size3added", "size2added"), supplement = cypsupp2r,
-#'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
-#' 
-#' sensitivity3(cypmatrix2r)
+#' sensitivity3(ehrlen3)
 #' 
 #' @export
 sensitivity3 <- function(mats, ...) UseMethod("sensitivity3")
@@ -1759,50 +1405,6 @@ sensitivity3 <- function(mats, ...) UseMethod("sensitivity3")
 #'   yearcol = "year2", indivcol = "individ")
 #' 
 #' sensitivity3(ehrlen3, stochastic = TRUE)
-#' 
-#' # Cypripedium example
-#' data(cypdata)
-#' 
-#' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
-#' stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
-#'   "XLg")
-#' repvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
-#' obsvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
-#' matvector <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
-#' immvector <- c(0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
-#' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-#' indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
-#' binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 2.5, 7)
-#' 
-#' cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector,
-#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
-#'   propstatus = propvector, immstatus = immvector, indataset = indataset,
-#'   binhalfwidth = binvec)
-#' 
-#' cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
-#'   patchidcol = "patch", individcol = "plantid", blocksize = 4,
-#'   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04",
-#'   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
-#'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
-#'   NRasRep = TRUE)
-#' 
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
-#'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
-#'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
-#'   stageframe = cypframe_raw, historical = FALSE)
-#' 
-#' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
-#'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
-#'   size = c("size3added", "size2added"), supplement = cypsupp2r,
-#'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
-#' 
-#' sensitivity3(cypmatrix2r)
 #' 
 #' @export
 sensitivity3.lefkoMat <- function(mats, stochastic = FALSE, steps = 10000,
@@ -1975,50 +1577,6 @@ sensitivity3.lefkoMat <- function(mats, stochastic = FALSE, steps = 10000,
 #' 
 #' ehrlen3mean <- lmean(ehrlen3)
 #' sensitivity3(ehrlen3mean$A[[1]])
-#' 
-#' # Cypripedium example
-#' data(cypdata)
-#' 
-#' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
-#' stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
-#'   "XLg")
-#' repvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
-#' obsvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
-#' matvector <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
-#' immvector <- c(0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
-#' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-#' indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
-#' binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 2.5, 7)
-#' 
-#' cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector,
-#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
-#'   propstatus = propvector, immstatus = immvector, indataset = indataset,
-#'   binhalfwidth = binvec)
-#' 
-#' cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
-#'   patchidcol = "patch", individcol = "plantid", blocksize = 4,
-#'   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04",
-#'   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
-#'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
-#'   NRasRep = TRUE)
-#' 
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
-#'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
-#'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
-#'   stageframe = cypframe_raw, historical = FALSE)
-#' 
-#' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
-#'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
-#'   size = c("size3added", "size2added"), supplement = cypsupp2r,
-#'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
-#' 
-#' sensitivity3(cypmatrix2r$A[[1]])
 #' 
 #' @export
 sensitivity3.matrix <- function(mats, sparse = "auto", ...)
@@ -2677,50 +2235,6 @@ elasticity3.lefkoMat <- function(mats, stochastic = FALSE, steps = 10000,
 #' 
 #' ehrlen3mean <- lmean(ehrlen3)
 #' elasticity3(ehrlen3mean$A[[1]])
-#' 
-#' # Cypripedium example
-#' data(cypdata)
-#' 
-#' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
-#' stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
-#'   "XLg")
-#' repvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
-#' obsvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
-#' matvector <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
-#' immvector <- c(0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
-#' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-#' indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
-#' binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 2.5, 7)
-#' 
-#' cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector,
-#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
-#'   propstatus = propvector, immstatus = immvector, indataset = indataset,
-#'   binhalfwidth = binvec)
-#' 
-#' cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
-#'   patchidcol = "patch", individcol = "plantid", blocksize = 4,
-#'   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04",
-#'   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
-#'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
-#'   NRasRep = TRUE)
-#' 
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
-#'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
-#'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
-#'   stageframe = cypframe_raw, historical = FALSE)
-#' 
-#' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
-#'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
-#'   size = c("size3added", "size2added"), supplement = cypsupp2r,
-#'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
-#' 
-#' elasticity3(cypmatrix2r$A[[1]])
 #' 
 #' @export
 elasticity3.matrix <- function(mats, sparse = "auto", ...)

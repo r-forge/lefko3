@@ -6,7 +6,7 @@
 \usage{
 fleslie(
   year = "all",
-  patch = "all",
+  patch = NULL,
   prebreeding = TRUE,
   data = NULL,
   modelsuite = NULL,
@@ -29,6 +29,9 @@ fleslie(
   random.indb = FALSE,
   random.indc = FALSE,
   negfec = FALSE,
+  reduce = FALSE,
+  simple = FALSE,
+  err_check = FALSE,
   exp_tol = 700,
   theta_tol = 1e+08
 )
@@ -140,6 +143,19 @@ a fixed, numeric variable. Defaults to \code{FALSE}.}
 \item{negfec}{A logical value denoting whether fecundity values estimated to
 be negative should be reset to \code{0}. Defaults to \code{FALSE}.}
 
+\item{reduce}{A logical value denoting whether to remove ages associated
+solely with \code{0} transitions. These are only removed in cases where the
+associated row and column sums in ALL matrices estimated equal 0. Defaults to
+\code{FALSE}, and should generally not be used in age-based MPMs.}
+
+\item{simple}{A logical value indicating whether to produce \code{A},
+\code{U}, and \code{F} matrices, or only the latter two. Defaults to
+\code{FALSE}, in which case all three are output.}
+
+\item{err_check}{A logical value indicating whether to append extra
+information used in matrix calculation within the output list. Defaults to
+\code{FALSE}.}
+
 \item{exp_tol}{A numeric value used to indicate a maximum value to set
 exponents to in the core kernel to prevent numerical overflow. Defaults to
 \code{700}.}
@@ -166,9 +182,17 @@ output in R's \code{matrix} class.}
 ages, in the form of a modified stageframe including reproduction status.}
 \item{labels}{A data frame giving the patch and year of each matrix in order.
 In \code{fleslie()}, only one population may be analyzed at once.}
-\item{matrixqc}{A short vector describing the number of non-zero elements
-in \code{U} and \code{F} matrices, and the number of annual matrices.}
-\item{modelqc}{This is the \code{qc} portion of the modelsuite input.}
+\item{dataqc}{A vector showing the numbers of individuals and rows in the
+vertical dataset used as input.}
+\item{matrixqc}{A short vector describing the number of non-zero elements in
+\code{U} and \code{F} matrices, and the number of annual matrices.}
+\item{modelqc}{This is the \code{qc} portion of the \code{modelsuite} input.}
+\item{prob_out}{An optional element only added if \code{err_check = TRUE}.
+This is a list of vital rate probability matrices, with 7 columns in the
+order of survival, observation probability, reproduction probability, primary
+size transition probability, secondary size transition probability, tertiary
+size transition probability, and probability of juvenile transition to
+maturity.}
 }
 \description{
 Function \code{fleslie()} returns age-based (Leslie) MPMs corresponding to

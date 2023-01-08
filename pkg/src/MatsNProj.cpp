@@ -13,42 +13,40 @@ using namespace LefkoMats;
 
 // Pop Char
 
-// This slot held for sf_create()
-
-
 //' Standardize Stageframe For MPM Analysis
 //' 
 //' Function \code{sf_reassess()} takes a stageframe as input, and uses
 //' information supplied there and through the supplement, reproduction and
 //' overwrite tables to rearrange this into a format usable by the matrix
-//' creation functions, \code{\link{flefko3}()}, \code{\link{flefko2}()},
-//' \code{\link{aflefko2}()}, \code{\link{rlefko3}()}, and
-//' \code{\link{rlefko2}()}.
+//' creation functions, \code{mpm_create()}, \code{flefko3()},
+//' \code{flefko2()}, \code{aflefko2()}, \code{rlefko3()}, and \code{rlefko2()}.
 //' 
 //' @name .sf_reassess
 //' 
 //' @param stageframe The original stageframe.
-//' @param supplement The original supplemental data input
-//' (class \code{lefkoSD}). Can also equal NA.
+//' @param supplement The original supplemental data input (class
+//' \code{lefkoSD}). Can also equal NA.
 //' @param overwrite An overwrite table.
-//' @param repmatrix The original reproduction matrix. Can also equal NA or 0.
+//' @param repmatrix The original reproduction matrix. Can also equal \code{NA}
+//' or \code{0}.
 //' @param agemat A logical value indicating whether MPM is age-by-stage.
 //' @param historical A logical value indicating whether MPM is historical.
-//' @param format An integer indicating whether matrices will be in Ehrlen format
-//' (if set to 1), or deVries format (if set to 2). Setting to deVries format
-//' adds one extra stage to account for the prior status of newborns.
+//' @param format An integer indicating whether matrices will be in Ehrlen
+//' format (if set to 1), or deVries format (if set to 2). Setting to deVries
+//' format adds one extra stage to account for the prior status of newborns.
 //' 
-//' @return This function returns a list with a modified stageframe usable in MPM
-//' construction, an associated reproduction matrix, and a general supplement
-//' table that takes over the input supplement and overwrite tables. Note that
-//' if a supplement is provided and a repmatrix is not, or if repmatrix is set
-//' to 0, then it will be assumed that a repmatrix should not be used.
+//' @return This function returns a list with a modified \code{stageframe}
+//' usable in MPM construction, an associated \code{repmatrix}, and a general
+//' \code{supplement} table that takes over for any input \code{supplement} or
+//' \code{overwrite} table. Note that if a \code{supplement} is provided and a
+//' \code{repmatrix} is not, or if \code{repmatrix} is set to 0, then it will be
+//' assumed that a \code{repmatrix} should not be used.
 //' 
 //' @keywords internal
 //' @noRd
 // [[Rcpp::export(.sf_reassess)]]
-Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
-  Nullable<DataFrame> overwrite, Nullable<NumericMatrix> repmatrix,
+Rcpp::List sf_reassess(const DataFrame& stageframe, Nullable<DataFrame> supplement = R_NilValue,
+  Nullable<DataFrame> overwrite = R_NilValue, Nullable<NumericMatrix> repmatrix = R_NilValue,
   bool agemat = false, bool historical = false, int format = 1) {
   
   bool supp_provided = false;
@@ -100,12 +98,12 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
   IntegerVector convtype_t12_supp;
   int supp_rows {0};
   
-  int stageframe_length = repvec.n_elem;
+  int stageframe_length {static_cast<int>(repvec.n_elem)};
   arma::uvec repentryvec(stageframe_length, fill::zeros);
   
   // Identify all groups in the stageframe
   arma::ivec all_groups = unique(groupvec);
-  int no_groups = all_groups.n_elem;
+  int no_groups {static_cast<int>(all_groups.n_elem)};
   StringVector group_text(no_groups);
   
   for (int i = 0; i < no_groups; i++) {
@@ -138,7 +136,7 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
     
     arma::rowvec rep_sums = sum(repmatrix_true, 0);
     arma::vec rep_rowsums = sum(repmatrix_true, 1);
-    double repmat_sum = sum(rep_sums);
+    double repmat_sum {static_cast<double>(sum(rep_sums))};
     
     if (static_cast<int>(rep_sums.n_elem) != stageframe_length) {
       throw Rcpp::exception("Object repmatrix must have the rows and columns equal to the number of rows in the stageframe.", false);
@@ -160,7 +158,7 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
       }
     } else {
       repentryvec = propvec + immvec;
-      int rev_checksum = sum(repentryvec);
+      int rev_checksum {static_cast<int>(sum(repentryvec))};
       
       if (rev_checksum == 0) {
         repentryvec(0) = 1;
@@ -185,8 +183,7 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
     arma::ivec cv_supp_arma = as<arma::ivec>(convtype_supp);
     arma::uvec mult_elems = find(cv_supp_arma == 3);
     
-    int fec_mults = mult_elems.n_elem;
-    // arma::uvec needed_reprods(fec_mults, fill::zeros);
+    int fec_mults {static_cast<int>(mult_elems.n_elem)};
     for (int i = 0; i < fec_mults; i++) {
       for (int j = 0; j < stageframe_length; j++) {
         if (stage3_supp(mult_elems(i)) == stagevec(j)) {
@@ -307,7 +304,7 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
     repmatrix_true = token_mat;
   }
   
-  // Now we reorder the stageframe
+  // Reorder the stageframe
   arma::uvec prop_stages = find(propvec);
   arma::uvec prop0_stages = find(propvec == 0);
   arma::uvec imm_stages = find(immvec);
@@ -323,9 +320,9 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
   arma::uvec neworder(stageframe_length, fill::zeros);
   arma::uvec tracked_elems(stageframe_length, fill::ones);
   
-  int no_prop_stages = prop_stages.n_elem;
-  int no_p0_im_stages = p0_im_stages.n_elem;
-  int no_r0_im_mt_stages = rep0_mat_imm0_stages.n_elem;
+  int no_prop_stages {static_cast<int>(prop_stages.n_elem)};
+  int no_p0_im_stages {static_cast<int>(p0_im_stages.n_elem)};
+  int no_r0_im_mt_stages {static_cast<int>(rep0_mat_imm0_stages.n_elem)};
   
   int counter {0};
   for (int j = 0; j < no_prop_stages; j++) {
@@ -598,8 +595,8 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
     StringVector unique_stages = unique(newstagevec);
     StringVector extra_terms = {"rep", "nrep", "immat", "mat", "prop", "npr", "all", "obs", "nobs"};
     
-    int no_newstages = unique_stages.length();
-    int no_extraterms = extra_terms.length();
+    int no_newstages {static_cast<int>(unique_stages.length())};
+    int no_extraterms {static_cast<int>(extra_terms.length())};
     
     StringVector all_possible_stage_terms(no_newstages + no_extraterms + no_groups);
     for (int i = 0; i < no_newstages; i++) {
@@ -613,20 +610,20 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
     }
     
     // Check for good entries in the supplement or overwrite table
-    for (int i = 0; i < stage3_supp.length(); i++) {
+    for (int i = 0; i < static_cast<int>(stage3_supp.length()); i++) {
       int s3supp_count {0};
       int s2supp_count {0};
       int s1supp_count {0};
       
-      bool ests3_used = false;
-      bool ests2_used = false;
-      bool ests1_used = false;
+      bool ests3_used {false};
+      bool ests2_used {false};
+      bool ests1_used {false};
       
       int ests3supp_count {0};
       int ests2supp_count {0};
       int ests1supp_count {0};
       
-      for (int j = 0; j < all_possible_stage_terms.length(); j++) {
+      for (int j = 0; j < static_cast<int>(all_possible_stage_terms.length()); j++) {
         if (stage3_supp(i) == all_possible_stage_terms(j)) s3supp_count++;
         if (stage2_supp(i) == all_possible_stage_terms(j)) s2supp_count++;
         
@@ -1332,9 +1329,9 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
 //' 
 //' Function \code{sf_leslie()} returns a data frame describing each age in a
 //' Leslie MPM in terms of ahistorical stage information. This function is
-//' internal to \code{\link{rleslie}()} and \code{\link{fleslie}()}.
+//' internal to \code{rleslie()} and \code{fleslie()}.
 //' 
-//' @name .sf_leslie
+//' @name sf_leslie
 //' 
 //' @param min_age The first age to include in the matrix.
 //' @param max_age The maximum age to include in the matrix.
@@ -1354,12 +1351,13 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
 //' Variables in this data frame include the following:
 //' \item{stage_id}{An unique integer representing each age, in order.}
 //' \item{stage}{The unique names of the ages to be analyzed.}
-//' \item{size}{The typical or representative size at which each stage occurs.
-//' Since ages are not characterized by size, this is generally \code{NA}.}
-//' \item{size_b}{Size at which each stage occurs in terms of a second size
-//' variable, if one exists. In Leslie MPMs, generally \code{NA}.}
-//' \item{size_c}{Size at which each stage occurs in terms of a third size
-//' variable, if one exists. In Leslie MPMs, generally \code{NA}.}
+//' \item{original_size}{The typical or representative size at which each stage
+//' occurs. Since ages are not characterized by size, this is generally
+//' \code{NA}.}
+//' \item{original_size_b}{Size at which each stage occurs in terms of a second
+//' size variable, if one exists. In Leslie MPMs, generally \code{NA}.}
+//' \item{original_size_c}{Size at which each stage occurs in terms of a third
+//' size variable, if one exists. In Leslie MPMs, generally \code{NA}.}
 //' \item{min_age}{The minimum age at which the stage may occur. In Leslie MPMs,
 //' defaults to the current age.}
 //' \item{max_age}{The maximum age at which the stage may occur. In Leslie MPMs,
@@ -1411,26 +1409,25 @@ Rcpp::List sf_reassess(DataFrame stageframe, Nullable<DataFrame> supplement,
 //' 
 //' @keywords internal
 //' @noRd
-// [[Rcpp::export(.sf_leslie)]]
-Rcpp::List sf_leslie (int min_age, int max_age, int min_fecage,int max_fecage,
+Rcpp::List sf_leslie (int min_age, int max_age, int min_fecage, int max_fecage,
   bool cont) {
   
-  int age_range = max_age - min_age;
-  int total_ages = age_range + 1;
+  const int age_range {max_age - min_age};
+  const int total_ages {age_range + 1};
   if (age_range < 1) {
     throw Rcpp::exception("There must be at least two ages to create a Leslie MPM.", false);
   }
   
   Rcpp::List output_longlist(32);
-  Rcpp::CharacterVector varnames {"stage_id", "stage", "size", "size_b",
-    "size_c", "min_age", "max_age", "repstatus", "obsstatus", "propstatus",
+  Rcpp::CharacterVector varnames {"stage_id", "stage", "original_size", "original_size_b",
+    "original_size_c", "min_age", "max_age", "repstatus", "obsstatus", "propstatus",
     "immstatus", "matstatus", "indataset", "binhalfwidth_raw", "sizebin_min",
     "sizebin_max", "sizebin_center", "sizebin_width", "binhalfwidthb_raw",
     "sizebinb_min", "sizebinb_max", "sizebinb_center", "sizebinb_width",
     "binhalfwidthc_raw", "sizebinc_min", "sizebinc_max", "sizebinc_center",
     "sizebinc_width", "group", "comments", "alive", "almost_born"};
   
-  int matsize = total_ages;
+  int matsize {total_ages};
   
   IntegerVector stage_id (matsize, 1);
   StringVector agenames_true (matsize, NA_STRING);
@@ -1466,8 +1463,8 @@ Rcpp::List sf_leslie (int min_age, int max_age, int min_fecage,int max_fecage,
   IntegerVector almost_born (matsize, 0);
   
   for (int i = 0; i < total_ages; i++) {
-    stage_id = i + 1;
-    Rcpp::String part1("Age");
+    stage_id(i) = i + 1;
+    Rcpp::String part1 {"Age"};
     part1 += (static_cast<char>(i + min_age));
     agenames_true(i) = part1;
     
@@ -1532,6 +1529,7 @@ Rcpp::List sf_leslie (int min_age, int max_age, int min_fecage,int max_fecage,
   return output_longlist;
 }
 
+
 // Model stuff
 
 //' Create hstages Index Object
@@ -1551,7 +1549,7 @@ Rcpp::List sf_leslie (int min_age, int max_age, int min_fecage,int max_fecage,
 //' 
 //' @keywords internal
 //' @noRd
-DataFrame hst_maker (DataFrame sframe) {
+DataFrame hst_maker (const DataFrame& sframe) {
   StringVector stage_name = as<StringVector>(sframe["stage"]);
   int true_stages = stage_name.length();
   
@@ -1596,7 +1594,7 @@ DataFrame hst_maker (DataFrame sframe) {
 //' 
 //' @keywords internal
 //' @noRd
-DataFrame age_maker (DataFrame sframe, int start_age, int last_age) {
+DataFrame age_maker (const DataFrame& sframe, int start_age, int last_age) {
   StringVector stage_name = as<StringVector>(sframe["stage"]);
   int true_stages = stage_name.length();
   
@@ -1625,24 +1623,22 @@ DataFrame age_maker (DataFrame sframe, int start_age, int last_age) {
   return output;
 }
 
-// This slot held for model_extractors
-// This is followed by decomp3 and its relatives
 
 // Matrix Extimation
 
 //' Create Element Index for Matrix Estimation
 //' 
 //' Function \code{theoldpizzle()} creates a data frame object used by 
-//' functions \code{\link{specialpatrolgroup}()},
-//' \code{\link{normalpatrolgroup}()}, and \code{jerzeibalowski()} to estimate
-//' raw and function-derived matrices.
+//' functions \code{specialpatrolgroup()}, \code{normalpatrolgroup()},
+//' \code{subvertedpatrolgroup()}, and \code{jerzeibalowski()} to estimate
+//' raw and function-based matrices.
 //' 
-//' @name .theoldpizzle
+//' @name theoldpizzle
 //'
 //' @param StageFrame The stageframe object identifying the life history model
 //' being operationalized.
 //' @param OverWrite The supplement or overwrite table used in analysis, as
-//' modified by \code{.sf_reassess()}.
+//' modified by \code{sf_reassess()}.
 //' @param repmatrix The reproductive matrix used in analysis.
 //' @param firstage The first age to be used in the analysis. Should typically
 //' be \code{0} for pre-breeding and \code{1} for post-breeding life history
@@ -1655,7 +1651,7 @@ DataFrame age_maker (DataFrame sframe, int start_age, int last_age) {
 //' is ahistorical, and \code{2} is age-by-stage.
 //' @param cont Denotes whether age-by-stage matrix continues past the final
 //' age.
-//' @param filter An integer denoting whether to filter the DataFrame to
+//' @param filter An integer denoting whether to filter the output data frame to
 //' eliminate unusable rows, and if so, how to do so. Possible values: \code{0}:
 //' no filtering, \code{1}: filter out rows with \code{index321 == -1}, and
 //' \code{2}: filter out rows with \code{aliveandequal == -1}.
@@ -1665,9 +1661,8 @@ DataFrame age_maker (DataFrame sframe, int start_age, int last_age) {
 //' 
 //' @keywords internal
 //' @noRd
-// [[Rcpp::export(.theoldpizzle)]]
-Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
-  arma::mat repmatrix, int firstage, int finalage, int format, int style,
+Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
+  const arma::mat& repmatrix, int firstage, int finalage, int format, int style,
   int cont, int filter) {
   
   StringVector ovstage3 = as<StringVector>(OverWrite["stage3"]);
@@ -1830,8 +1825,8 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
   arma::vec grp1(totallength, fill::zeros);
   
   arma::vec actualage(totallength, fill::zeros);
-  arma::vec index321(totallength);
-  arma::vec index321d (totallength); // Version that does not remove transitions ending in death
+  arma::vec index321(totallength); // No death transitions
+  arma::vec index321d (totallength); // Death transitions included
   arma::vec index21(totallength);
   arma::vec indatalong(totallength, fill::zeros);
   arma::vec aliveequal(totallength);
@@ -3376,481 +3371,675 @@ Rcpp::List theoldpizzle(DataFrame StageFrame, DataFrame OverWrite,
 //' 
 //' Function \code{specialpatrolgroup()} swiftly calculates matrix transitions
 //' in raw historical matrices, and serves as the core workhorse function behind
-//' \code{\link{rlefko3}()}.
+//' \code{rlefko3()}.
 //' 
-//' @name .specialpatrolgroup
+//' @name specialpatrolgroup
 //' 
 //' @param sge9l The Allstages data frame developed for \code{rlefko3()}
 //' covering stage pairs across times \emph{t}+1, \emph{t} and \emph{t}-1.
 //' Generally termed \code{stageexpansion9}.
-//' @param sge3 The data frame covering all stages in times \emph{t} and
-//' \emph{t}-1. Generally termed \code{stageexpansion3}.
+//' @param sge3index21 Integer index vector of stages in times \emph{t}-1 and
+//' \emph{t}, from \code{stageexpansion3}.
 //' @param MainData The demographic dataset modified to hold \code{usedfec}
 //' columns.
 //' @param StageFrame The full stageframe for the analysis.
-//' @param repmatrix The modified repmatrix used in the course of computation.
-//' This is used particularly when deVries-format hMPMs are desired.
 //' @param format Indicates whether to output Ehrlen-format hMPMs (\code{1}) or
 //' deVries-format hMPMs (\code{2}).
-//' @param err_switch If set to \code{1}, then will also output probsrates and
-//' stage2fec.
+//' @param err_switch A logical value. If set to \code{TRUE}, then will also
+//' output \code{probsrates} and \code{stage2fec}. Defaults to \code{FALSE}.
+//' @param loypop A string vector giving the order of populations in the list of
+//' years.
+//' @param loypatch A string vector giving the order of patches in the list of
+//' years.
+//' @param loyyear2 A string vector giving the order of years at time \emph{t}
+//' in the list of years.
+//' @param yearorder The integer year order corresponding to \code{loyyear2}.
+//' @param pop_var_int The variable number coding for population in the main
+//' data set.
+//' @param patch_var_int The variable number coding for patch in the main data
+//' set.
+//' @param year_var_int The variable number coding for year in time \emph{t} in
+//' the main data set.
+//' @param loy_pop_used A logical value indicating whether the population
+//' variable is to be used.
+//' @param loy_patch_used A logical value indicating whether the patch variable
+//' is to be used.
+//' @param simplicity If \code{TRUE}, then only outputs matrices \code{U} and
+//' \code{F}, rather than also outputting matrix \code{A}. Defaults to
+//' \code{FALSE}.
 //' 
-//' @return List of three matrices, including the survival-transition (\code{U})
-//' matrix, the fecundity matrix (\code{F}), and the sum (\code{A}) matrix, with
-//' the \code{A} matrix first.
+//' @return If \code{err_switch = FALSE}, then will return a list of three
+//' matrices, including the survival-transition (\code{U}) matrix, the fecundity
+//' matrix (\code{F}), and the sum (\code{A}) matrix, with the \code{A} matrix
+//' first. If \code{err_switch = TRUE}, then will also output two further
+//' elements: \code{probsrates_all} and \code{stage2fec_all}. The former is a
+//' matrix composed of the following vectors in order: \code{sge9index321},
+//' which gives the historical index number for each transition possible and
+//' in order (from \code{stageexpansion9}); \code{aliveandequal}, which gives
+//' the element index in the matrix associated with that transition (or
+//' \code{-1} if the transition is impossible); \code{probsrates0}, which gives
+//' the total number of individuals counted for a particular historical
+//' transition; \code{probsrates1}, which gives the total number of individuals
+//' associated with a particular paired stage in times \emph{t}-1 and \emph{t};
+//' \code{probsrates2}, which gives the total number of individuals for each
+//' paired stage in times \emph{t}-1 and \emph{t} that survive into time
+//' \emph{t}+1; \code{probsrates3}, which gives the total fecundity found for
+//' the historical transition; \code{sge9fec32}, which gives the predicted
+//' reproductive status of the historical transition as given in the
+//' \code{repmatrix}; \code{probsrates0p}, which is \code{probsrates0} but
+//' assuming a prior stage; \code{probsrates1p}, which is \code{probsrates1} but
+//' assuming a prior stage; \code{probsrates2p}, which is \code{probsrates2} but
+//' assuming a prior stage; and \code{probsrates3p}, which is \code{probsrates3}
+//' but assuming a prior stage. Element \code{stage2fec_all} is a matrix
+//' composed of two vectors: \code{stage2fec} is the fecundity associated with
+//' each paired historical stage, and \code{stage2fecp} is the equivalent
+//' assuming a prior stage.
 //' 
 //' @keywords internal
 //' @noRd
-// [[Rcpp::export(.specialpatrolgroup)]]
-List specialpatrolgroup(DataFrame sge9l, DataFrame sge3, DataFrame MainData,
-  DataFrame StageFrame, int format, int err_switch) {
+List specialpatrolgroup(const DataFrame& sge9l, const arma::ivec& sge3index21,
+  const DataFrame& MainData, const DataFrame& StageFrame, int format,
+  int err_switch, StringVector loypop, StringVector loypatch,
+  StringVector loyyear2, IntegerVector yearorder, const int pop_var_int,
+  const int patch_var_int, const int year_var_int, const bool loy_pop_used,
+  const bool loy_patch_used, bool simplicity = false) {
   
-  arma::vec sge9stage3 = as<arma::vec>(sge9l["stage3"]);
+  arma::ivec sge9stage3 = as<arma::ivec>(sge9l["stage3"]);
   arma::vec sge9fec32 = as<arma::vec>(sge9l["repentry3"]);
-  arma::vec sge9rep2 = as<arma::vec>(sge9l["rep2o"]);
-  arma::vec sge9indata32 = as<arma::vec>(sge9l["indata"]);
+  arma::uvec sge9rep2 = as<arma::uvec>(sge9l["rep2o"]);
   arma::vec sge9ovgivent = as<arma::vec>(sge9l["ovgiven_t"]);
   arma::vec sge9ovgivenf = as<arma::vec>(sge9l["ovgiven_f"]);
-  arma::vec sge9ovestt = as<arma::vec>(sge9l["ovest_t"]);
-  arma::vec sge9ovestf = as<arma::vec>(sge9l["ovest_f"]);
+  arma::ivec sge9ovestt = as<arma::ivec>(sge9l["ovest_t"]);
+  arma::ivec sge9ovestf = as<arma::ivec>(sge9l["ovest_f"]);
   arma::vec sge9ovsurvmult = as<arma::vec>(sge9l["ovsurvmult"]);
   arma::vec sge9ovfecmult = as<arma::vec>(sge9l["ovfecmult"]);
-  arma::vec sge9index321 = as<arma::vec>(sge9l["index321"]);
-  arma::vec sge9index321d = as<arma::vec>(sge9l["index321d"]);
-  arma::vec sge9index21 = as<arma::vec>(sge9l["index21"]);
-  arma::vec aliveandequal = as<arma::vec>(sge9l["aliveandequal"]);
+  arma::ivec sge9index321 = as<arma::ivec>(sge9l["index321"]);
+  arma::ivec sge9index321d = as<arma::ivec>(sge9l["index321d"]);
+  arma::ivec sge9index21 = as<arma::ivec>(sge9l["index21"]);
+  arma::ivec aliveandequal = as<arma::ivec>(sge9l["aliveandequal"]);
   
-  arma::vec sge3rep2 = as<arma::vec>(sge3["rep2n"]);
-  arma::vec sge3fec32 = as<arma::vec>(sge3["fec32n"]);
-  arma::vec sge3index21 = as<arma::vec>(sge3["index21"]);
-  arma::vec sge3stage2n = as<arma::vec>(sge3["stage2n"]);
-  arma::vec sge3stage3 = as<arma::vec>(sge3["stage3"]);
+  arma::ivec dataindex321 = as<arma::ivec>(MainData["index321"]);
+  arma::ivec dataindex21 = as<arma::ivec>(MainData["pairindex21"]);
+  arma::uvec dataalive3 = as<arma::uvec>(MainData["alive3"]);
+  arma::vec datausedfec = as<arma::vec>(MainData["usedfec"]);
+  arma::ivec dataindex2 = as<arma::ivec>(MainData["index2"]);
+  arma::ivec dataindex1 = as<arma::ivec>(MainData["index1"]);
   
-  arma::vec dataindex321 = as<arma::vec>(MainData["index321"]);
-  arma::vec dataindex21 = as<arma::vec>(MainData["pairindex21"]);
-  arma::vec dataalive3 = as<arma::vec>(MainData["alive3"]);
-  arma::vec datausedfec2 = as<arma::vec>(MainData["usedfec2"]);
-  arma::vec dataindex3 = as<arma::vec>(MainData["index3"]);
-  arma::vec dataindex2 = as<arma::vec>(MainData["index2"]);
-  arma::vec dataindex1 = as<arma::vec>(MainData["index1"]);
-
-  arma::vec sfsizes = as<arma::vec>(StageFrame["sizebin_center"]);
-  int nostages = sfsizes.n_elem;
-  
-  int n = dataindex321.n_elem;
+  int nostages = static_cast<int>(StageFrame.nrows());
   int no2stages = nostages - 1;
   int noelems = sge9index321.n_elem;
-  
-  if (format == 2) {
-    no2stages = no2stages - 1;
-  }
-  
+  if (format == 2) no2stages = no2stages - 1;
   int matrixdim = (nostages - 1) * no2stages;
+  bool small_subset {false};
   
-  arma::vec probsrates0(noelems); // 1st vec = # indivs (3 trans)
-  arma::vec probsrates1(noelems); // 2nd vec = total indivs for pair stage
-  arma::vec probsrates2(noelems); // 3rd vec = total indivs alive for pair stage
-  arma::vec probsrates3(noelems); // 4th vec = total fec for pair stage
-  probsrates0.zeros();
-  probsrates1.zeros();
-  probsrates2.zeros();
-  probsrates3.zeros();
-  
-  arma::mat stage2fec(sge3index21.n_elem, 3, fill::zeros); // col1 = #inds, col2 = #alive, col3 = sum fec
-  
-  // These next structures develop the prior stage
-  arma::vec probsrates0p(noelems, fill::zeros); // 1st vec = # indivs (3 trans)
-  arma::vec probsrates1p(noelems, fill::zeros); // 2nd vec = total indivs for pair stage
-  arma::vec probsrates2p(noelems, fill::zeros); // 3rd vec = total indivs alive for pair stage
-  arma::vec probsrates3p(noelems, fill::zeros); // 4th vec = total fec for pair stage
-  
-  arma::mat stage2fecp(sge3index21.n_elem, 3, fill::zeros); // col1 = #inds, col2 = #alive, col3 = sum fec
-  
-  // The final matrices, though empty
-  arma::mat tmatrix(matrixdim, matrixdim, fill::zeros); // Main output U matrix
-  arma::mat fmatrix(matrixdim, matrixdim, fill::zeros); // Main output F matrix
-  
-  arma::uvec all_repentries = find(sge9fec32 > 0);
-  arma::vec all_entry_stages = arma::unique(sge9stage3(all_repentries));
+  arma::uvec all_repentries = find(sge9fec32 > 0.0);
+  arma::ivec all_entry_stages = arma::unique(sge9stage3(all_repentries));
   int aes_count = all_entry_stages.n_elem;
+  int n = dataindex321.n_elem;
   
   arma::mat dataindex321_prior(n, aes_count);
   dataindex321_prior.fill(-1);
   
   // This section creates an alternative index for use in fecundity calculations under deVries format
   if (format == 2) {
-    for (int i = 0; i < n; i++) {
+    for (int k = 0; k < n; k++) {
       for (int j = 0; j < aes_count; j++) {
-        dataindex321_prior(i, j) = (all_entry_stages(j) - 1) + ((nostages - 2) * nostages) + 
-          ((dataindex2(i) - 1) * nostages * nostages) + 
-          ((dataindex1(i) - 1) * nostages * nostages * nostages);
+        dataindex321_prior(k, j) = (all_entry_stages(j) - 1) + ((nostages - 2) * nostages) + 
+          ((dataindex2(k) - 1) * nostages * nostages) + 
+          ((dataindex1(k) - 1) * nostages * nostages * nostages);
       }
     }
   }
   
-  // This main loop counts individuals going through transitions and sums their
-  // fecundities, and then adds that info to the 3-trans and 2-trans tables
-  for (int i = 0; i < n; i++) {
-    // Survival portion and main individual counter
-    arma::uvec choiceelement = find(sge9index321 == dataindex321(i));
-    
-    stage2fec((dataindex21(i)), 0) = stage2fec((dataindex21(i)), 0) + 1; // Indiv sum with particular transition
-    
-    if (choiceelement.n_elem > 0) {
-      probsrates0(choiceelement(0)) = probsrates0(choiceelement(0)) + 1; // Indiv sum with particular transition
-      
-      if (dataalive3(i) > 0) {
-        stage2fec((dataindex21(i)), 1) = stage2fec((dataindex21(i)), 1) + 1;
-      }
-      
-    }
-    
-    // Fecundity sums
-    arma::uvec choiceelement_f = find(sge9index321d == dataindex321(i));
-    if (choiceelement_f.n_elem > 0) {
-      stage2fec((dataindex21(i)), 2) = stage2fec((dataindex21(i)), 2) + datausedfec2(i);
-    }
-    
-    if (format == 2) {
-      for (int j = 0; j < aes_count; j++) {
-        // Survival portion
-        arma::uvec choiceelementp = find(sge9index321 == dataindex321_prior(i, j));
-        
-        stage2fecp((dataindex21(i)), 0) = stage2fecp((dataindex21(i)), 0) + 1;
-      
-        if (choiceelementp.n_elem > 0) {
-          probsrates0p(choiceelementp(0)) = probsrates0p(choiceelementp(0)) + 1;
-          
-          if (dataalive3(i) > 0) {
-            stage2fecp((dataindex21(i)), 1) = stage2fecp((dataindex21(i)), 1) + 1;
-          }
-        }
-        
-        arma::uvec choiceelementp_f = find(sge9index321d == dataindex321_prior(i, j));
-        if (choiceelementp_f.n_elem > 0) {
-          stage2fecp((dataindex21(i)), 2) = stage2fecp((dataindex21(i)), 2) + datausedfec2(i);
-        }
-      }
-    }
-  }
+  int loy_length = yearorder.length();
+  List A_output (loy_length);
+  List U_output (loy_length);
+  List F_output (loy_length);
+  List conc_err (loy_length);
+  List s2f_err (loy_length);
+  List di321p_err (loy_length);
   
-  // The next bit puts together core data to be used to estimate matrix elements
-  for (int i = 0; i < noelems; i++) {
-    int baseindex21 = sge9index21(i);
-    
-    if (baseindex21 > -1) {
-      arma::uvec coreelementsforchoice = find(sge3index21 == baseindex21);
-      unsigned int thechosenone = coreelementsforchoice(0);
-      
-      probsrates1(i) = stage2fec(thechosenone, 0);
-      probsrates2(i) = stage2fec(thechosenone, 1);
-      probsrates3(i) = stage2fec(thechosenone, 2);
-      
-      if (format == 2) {
-        arma::uvec coreelementsforchoicep = find(sge3index21 == baseindex21);
-        unsigned int thechosenonep = coreelementsforchoicep(0);
-        
-        probsrates1p(i) = stage2fecp(thechosenonep, 0);
-        probsrates2p(i) = stage2fecp(thechosenonep, 1);
-        probsrates3p(i) = stage2fecp(thechosenonep, 2);
-      }
-    }
-  }
+  StringVector data_pop_;
+  StringVector data_patch_;
   
-  // Here we create the matrices
-  for (int elem3 = 0; elem3 < noelems; elem3++) {
-    
-    if (aliveandequal(elem3) != -1) {
-      if (sge9ovsurvmult(elem3) < 0) sge9ovsurvmult(elem3) = 1.0;
-      
-      tmatrix(aliveandequal(elem3)) = probsrates0(elem3)* sge9ovsurvmult(elem3) /
-        probsrates1(elem3); // Survival
-      
-      // Fecundity
-      if (sge9ovfecmult(elem3) < 0) sge9ovfecmult(elem3) = 1.0;
-      if (format == 2) {
-        fmatrix(aliveandequal(elem3)) = sge9fec32(elem3) * sge9rep2(elem3) *
-          probsrates3p(elem3) * sge9ovfecmult(elem3) / probsrates1p(elem3);
-      } else {
-        fmatrix(aliveandequal(elem3)) = sge9fec32(elem3) * sge9rep2(elem3) *
-          probsrates3(elem3) * sge9ovfecmult(elem3) / probsrates1(elem3);
-      }
-    }
-  }
+  if (loy_pop_used) data_pop_ = as<StringVector>(MainData[pop_var_int]);
+  if (loy_patch_used) data_patch_ = as<StringVector>(MainData[patch_var_int]);
+  StringVector data_year_ = as<StringVector>(MainData[year_var_int]);
   
-  // Now we will correct transitions and rates for given stuff
-  arma::uvec ovgiventind = find(sge9ovgivent != -1);
-  arma::uvec ovgivenfind = find(sge9ovgivenf != -1);
+  arma::uvec ovgiventind = find(sge9ovgivent != -1.0);
+  arma::uvec ovgivenfind = find(sge9ovgivenf != -1.0);
   int ovgtn = ovgiventind.n_elem;
   int ovgfn = ovgivenfind.n_elem;
   
-  if (ovgtn > 0) {
-    for (int i = 0; i < ovgtn; i++) {
-      int matrixelement2 = aliveandequal(ovgiventind(i));
-      
-      tmatrix(matrixelement2) = sge9ovgivent(ovgiventind(i));
-    }
-  }
-  
-  if (ovgfn > 0) {
-    for (int i = 0; i < ovgfn; i++) {
-      int matrixelement2 = aliveandequal(ovgivenfind(i));
-      
-      fmatrix(matrixelement2) = sge9ovgivenf(ovgivenfind(i));
-    }
-  }
-  
-  // This section replaces transitions for proxy values as given in the overwrite table  
   arma::uvec ovesttind = find(sge9ovestt != -1);
   arma::uvec ovestfind = find(sge9ovestf != -1);
   int ovestn = ovesttind.n_elem;
   int ovesfn = ovestfind.n_elem;
   
-  if (ovestn > 0) {
-    for (int i = 0; i < ovestn; i++) {
-      arma::uvec replacement = find(sge9index321 == sge9ovestt(ovesttind(i)));
-      
-      if (replacement.n_elem > 0) {
-        double correction = sge9ovsurvmult(ovesttind(i));
-        if (correction == -1.0) correction = 1.0;
-      
-        tmatrix(aliveandequal(ovesttind(i))) = tmatrix(aliveandequal(replacement(0))) *
-          correction;
-      }
-      
-    }
-  }
-  
-  if (ovesfn > 0) {
-    for (int i = 0; i < ovesfn; i++) {
-      arma::uvec replacement = find(sge9index321 == sge9ovestf(ovestfind(i)));
-      
-      if (replacement.n_elem > 0) {
-        double correction = sge9ovfecmult(ovesttind(i));
-        if (correction == -1.0) correction = 1.0;
-      
-        fmatrix(aliveandequal(ovestfind(i))) = fmatrix(aliveandequal(replacement(0))) *
-          correction;
-      }
-    }
-  }
-  
-  // The next bit changes NAs to 0
-  tmatrix(find_nonfinite(tmatrix)).zeros();
-  fmatrix(find_nonfinite(fmatrix)).zeros();
-  
-  arma::mat amatrix = tmatrix + fmatrix; // Create the A matrix
-  
-  if (err_switch == 1) {
-    arma::mat concatenated_crap = arma::join_horiz(sge9index321, aliveandequal);
-    concatenated_crap = arma::join_horiz(concatenated_crap, probsrates0);
-    concatenated_crap = arma::join_horiz(concatenated_crap, probsrates1);
-    concatenated_crap = arma::join_horiz(concatenated_crap, probsrates2);
-    concatenated_crap = arma::join_horiz(concatenated_crap, probsrates3);
-    concatenated_crap = arma::join_horiz(concatenated_crap, sge9fec32);
-    concatenated_crap = arma::join_horiz(concatenated_crap, probsrates0p);
-    concatenated_crap = arma::join_horiz(concatenated_crap, probsrates1p);
-    concatenated_crap = arma::join_horiz(concatenated_crap, probsrates2p);
-    concatenated_crap = arma::join_horiz(concatenated_crap, probsrates3p);
+  for (int i = 0; i < loy_length; i++) {
+    arma::uvec data_current_index = as<arma::uvec>(LefkoUtils::index_l3(data_year_, loyyear2(i)));
     
-    arma::mat s2f = arma::join_horiz(stage2fec, stage2fecp);
-
-    return List::create(Named("A") = amatrix, _["U"] = tmatrix, _["F"] = fmatrix,
-      _["concrp"] = concatenated_crap, _["s2f"] = s2f, _["dataprior"] = dataindex321_prior);
-  } else {
-    return List::create(Named("A") = amatrix, _["U"] = tmatrix, _["F"] = fmatrix);
+    if (loy_pop_used) {
+      arma::uvec data_current_pop = as<arma::uvec>(LefkoUtils::index_l3(data_pop_, loypop(i)));
+      data_current_index = intersect(data_current_index, data_current_pop);
+    }
+    
+    if (loy_patch_used) {
+      arma::uvec data_current_patch = as<arma::uvec>(LefkoUtils::index_l3(data_patch_, loypatch(i)));
+      data_current_index = intersect(data_current_index, data_current_patch);
+    }
+    
+    int data_subset_rows = static_cast<int>(data_current_index.n_elem);
+    if (data_subset_rows < 10 && !small_subset) {
+      small_subset = true;
+      Rf_warningcall(R_NilValue, "Extremely small data subsets are being used to populate matrices.");
+    }
+    if (data_subset_rows == 0) continue;
+    
+    arma::ivec dataindex321i = dataindex321.elem(data_current_index);
+    arma::ivec dataindex21i = dataindex21.elem(data_current_index);
+    arma::uvec dataalive3i = dataalive3.elem(data_current_index);
+    arma::vec datausedfeci = datausedfec.elem(data_current_index);
+    arma::ivec dataindex2i = dataindex2.elem(data_current_index);
+    arma::ivec dataindex1i = dataindex1.elem(data_current_index);
+    arma::mat dataindex321_priori = dataindex321_prior.rows(data_current_index);
+    
+    n = dataindex321i.n_elem;
+    
+    arma::vec probsrates0(noelems, fill::zeros); // 1st vec = # indivs (3 trans)
+    arma::vec probsrates1(noelems, fill::zeros); // 2nd vec = total indivs for pair stage
+    arma::vec probsrates2(noelems, fill::zeros); // 3rd vec = total indivs alive for pair stage
+    arma::vec probsrates3(noelems, fill::zeros); // 4th vec = total fec for pair stage
+    
+    arma::mat stage2fec(sge3index21.n_elem, 3, fill::zeros); // col1 = #inds, col2 = #alive, col3 = sum fec
+    
+    // These next structures develop the prior stage
+    arma::vec probsrates0p(noelems, fill::zeros); // 1st vec = # indivs (3 trans)
+    arma::vec probsrates1p(noelems, fill::zeros); // 2nd vec = total indivs for pair stage
+    arma::vec probsrates2p(noelems, fill::zeros); // 3rd vec = total indivs alive for pair stage
+    arma::vec probsrates3p(noelems, fill::zeros); // 4th vec = total fec for pair stage
+  
+    arma::mat stage2fecp(sge3index21.n_elem, 3, fill::zeros); // col1 = #inds, col2 = #alive, col3 = sum fec
+    
+    // Initialization of final matrices
+    arma::mat tmatrix(matrixdim, matrixdim, fill::zeros); // Main output U matrix
+    arma::mat fmatrix(matrixdim, matrixdim, fill::zeros); // Main output F matrix
+    
+    // This main loop counts individuals going through transitions and sums their
+    // fecundities, and then adds that info to the 3-trans and 2-trans tables
+    for (int j = 0; j < n; j++) {
+      // Survival portion and main individual counter
+      arma::uvec choiceelement = find(sge9index321 == dataindex321i(j));
+      
+      stage2fec((dataindex21i(j)), 0) = stage2fec((dataindex21i(j)), 0) + 1.0; // Indiv sum with particular transition
+      
+      if (choiceelement.n_elem > 0) {
+        probsrates0(choiceelement(0)) = probsrates0(choiceelement(0)) + 1.0; // Indiv sum with particular transition
+        
+        if (dataalive3i(j) > 0) {
+          stage2fec((dataindex21i(j)), 1) = stage2fec((dataindex21i(j)), 1) + 1.0;
+        }
+      }
+      
+      // Fecundity sums
+      arma::uvec choiceelement_f = find(sge9index321d == dataindex321i(j));
+      if (choiceelement_f.n_elem > 0) {
+        if (NumericVector::is_na(datausedfeci(j))) datausedfeci(j) = 0.0;
+        stage2fec((dataindex21i(j)), 2) = stage2fec((dataindex21i(j)), 2) + datausedfeci(j);
+      }
+      
+      if (format == 2) {
+        for (int k = 0; k < aes_count; k++) {
+          // Survival portion
+          arma::uvec choiceelementp = find(sge9index321 == dataindex321_priori(j, k));
+          
+          stage2fecp((dataindex21i(j)), 0) = stage2fecp((dataindex21i(j)), 0) + 1.0;
+        
+          if (choiceelementp.n_elem > 0) {
+            probsrates0p(choiceelementp(0)) = probsrates0p(choiceelementp(0)) + 1.0;
+            
+            if (dataalive3i(j) > 0) {
+              stage2fecp((dataindex21i(j)), 1) = stage2fecp((dataindex21i(j)), 1) + 1.0;
+            }
+          }
+          
+          arma::uvec choiceelementp_f = find(sge9index321d == dataindex321_priori(j, k));
+          if (choiceelementp_f.n_elem > 0) {
+            stage2fecp((dataindex21i(j)), 2) = stage2fecp((dataindex21i(j)), 2) + datausedfeci(j);
+          }
+        }
+      }
+    }
+    
+    // The next bit puts together core data to be used to estimate matrix elements
+    for (int j = 0; j < noelems; j++) {
+      int baseindex21 = sge9index21(j);
+      
+      if (baseindex21 > -1) {
+        arma::uvec coreelementsforchoice = find(sge3index21 == baseindex21);
+        unsigned int thechosenone = coreelementsforchoice(0);
+        
+        probsrates1(j) = stage2fec(thechosenone, 0);
+        probsrates2(j) = stage2fec(thechosenone, 1);
+        probsrates3(j) = stage2fec(thechosenone, 2);
+        
+        if (format == 2) {
+          probsrates1p(j) = stage2fecp(thechosenone, 0);
+          probsrates2p(j) = stage2fecp(thechosenone, 1);
+          probsrates3p(j) = stage2fecp(thechosenone, 2);
+        }
+      }
+    }
+    
+    // Here we create the matrices
+    for (int elem3 = 0; elem3 < noelems; elem3++) {
+      if (aliveandequal(elem3) != -1) {
+        if (sge9ovsurvmult(elem3) < 0.0) sge9ovsurvmult(elem3) = 1.0;
+        tmatrix(aliveandequal(elem3)) = probsrates0(elem3)* sge9ovsurvmult(elem3) /
+          probsrates1(elem3); // Survival
+        
+        // Fecundity
+        if (sge9ovfecmult(elem3) < 0.0) sge9ovfecmult(elem3) = 1.0;
+        if (format == 2) {
+          fmatrix(aliveandequal(elem3)) = (sge9fec32(elem3)) * static_cast<double>(sge9rep2(elem3)) *
+            probsrates3p(elem3) * sge9ovfecmult(elem3) / probsrates1p(elem3);
+        } else {
+          fmatrix(aliveandequal(elem3)) = (sge9fec32(elem3)) * static_cast<double>(sge9rep2(elem3)) *
+            probsrates3(elem3) * sge9ovfecmult(elem3) / probsrates1(elem3);
+        }
+      }
+    }
+    
+    // Now we will correct transitions and rates for given stuff
+    if (ovgtn > 0) {
+      for (int j = 0; j < ovgtn; j++) {
+        int matrixelement2 = aliveandequal(ovgiventind(j));
+        tmatrix(matrixelement2) = sge9ovgivent(ovgiventind(j));
+      }
+    }
+    
+    if (ovgfn > 0) {
+      for (int j = 0; j < ovgfn; j++) {
+        int matrixelement2 = aliveandequal(ovgivenfind(j));
+        fmatrix(matrixelement2) = sge9ovgivenf(ovgivenfind(j));
+      }
+    }
+    
+    // This section replaces transitions for proxy values as given in the overwrite table  
+    if (ovestn > 0) {
+      for (int j = 0; j < ovestn; j++) {
+        arma::uvec replacement = find(sge9index321 == sge9ovestt(ovesttind(j)));
+        
+        if (replacement.n_elem > 0) {
+          double correction = sge9ovsurvmult(ovesttind(j));
+          if (correction == -1.0) correction = 1.0;
+          tmatrix(aliveandequal(ovesttind(j))) = tmatrix(aliveandequal(replacement(0))) *
+            correction;
+        }
+      }
+    }
+    
+    if (ovesfn > 0) {
+      for (int j = 0; j < ovesfn; j++) {
+        arma::uvec replacement = find(sge9index321 == sge9ovestf(ovestfind(j)));
+        
+        if (replacement.n_elem > 0) {
+          double correction = sge9ovfecmult(ovesttind(j));
+          if (correction == -1.0) correction = 1.0;
+          fmatrix(aliveandequal(ovestfind(j))) = fmatrix(aliveandequal(replacement(0))) *
+            correction;
+        }
+      }
+    }
+    
+    // The next bit changes NAs to 0
+    tmatrix(find_nonfinite(tmatrix)).zeros();
+    fmatrix(find_nonfinite(fmatrix)).zeros();
+    
+    U_output(i) = tmatrix;
+    F_output(i) = fmatrix;
+    
+    if (!simplicity) {
+      arma::mat amatrix = tmatrix + fmatrix; // Create the A matrix
+      A_output(i) = amatrix;
+    }
+    
+    if (err_switch) {
+      DataFrame concatenated_crap = DataFrame::create(_["sge9index321"] = sge9index321,
+        _["aliveandequal"] = aliveandequal, _["probsrates0"] = probsrates0,
+        _["probsrates1"] = probsrates1, _["probsrates2"] = probsrates2,
+        _["probsrates3"] = probsrates3, _["sge9fec32"] = sge9fec32,
+        _["probsrates0p"] = probsrates0p, _["probsrates1p"] = probsrates1p,
+        _["probsrates2p"] = probsrates2p, _["probsrates3p"] = probsrates3p);
+      
+      arma::mat s2f = arma::join_horiz(stage2fec, stage2fecp);
+      
+      conc_err(i) = concatenated_crap;
+      s2f_err(i) = s2f;
+      di321p_err(i) = dataindex321_prior;
+    }
   }
+  
+  List final_output;
+  
+  if (err_switch) {
+    List out_dude = List::create(Named("A") = A_output, _["U"] = U_output,
+      _["F"] = F_output, _["ahstages"] = R_NilValue, _["agestages"] = R_NilValue,
+      _["hstages"] = R_NilValue, _["labels"] = R_NilValue,
+      _["matrixqc"] = R_NilValue, _["dataqc"] = R_NilValue,
+      _["probsrates_all"] = conc_err, _["s2f"] = s2f_err,
+      _["dataprior"] = di321p_err);
+    final_output = out_dude;
+    
+  } else {
+    List out_dude = List::create(Named("A") = A_output, _["U"] = U_output,
+      _["F"] = F_output, _["ahstages"] = R_NilValue, _["agestages"] = R_NilValue,
+      _["hstages"] = R_NilValue, _["labels"] = R_NilValue,
+      _["matrixqc"] = R_NilValue, _["dataqc"] = R_NilValue);
+    final_output = out_dude;
+  }
+  
+  return final_output;
 }
 
 //' Estimate All Elements of Raw Ahistorical Population Projection Matrix
 //' 
 //' Function \code{normalpatrolgroup()} swiftly calculates matrix transitions
 //' in raw ahistorical matrices, and serves as the core workhorse function
-//' behind \code{\link{rlefko2}()}.
+//' behind \code{rlefko2()}.
 //' 
-//' @name .normalpatrolgroup
+//' @name normalpatrolgroup
 //' 
 //' @param sge3 The Allstages data frame developed for \code{rlefko2()} covering
 //' stage pairs across times \emph{t}+1 and \emph{t}. Generally termed
 //' \code{stageexpansion3}.
-//' @param sge2 The data frame covering all stages in time \emph{t}. Generally
-//' termed \code{stageexpansion2}.
+//' @param sge2stage2 An integer index vector giving the stage in time \emph{t},
+//' from \code{stageexpansion2}.
 //' @param MainData The demographic dataset modified to hold \code{usedfec} and
 //' \code{usedstage} columns.
 //' @param StageFrame The full stageframe for the analysis.
+//' @param err_switch A logical value. If set to \code{TRUE}, then will also
+//' output \code{probsrates} and \code{stage2fec}.
+//' @param loypop A string vector giving the order of populations in the list of
+//' years.
+//' @param loypatch A string vector giving the order of patches in the list of
+//' years.
+//' @param loyyear2 A string vector giving the order of years at time \emph{t}
+//' in the list of years.
+//' @param yearorder The integer year order corresponding to \code{loyyear2}.
+//' @param pop_var_int The variable number coding for population in the main
+//' data set.
+//' @param patch_var_int The variable number coding for patch in the main data
+//' set.
+//' @param year_var_int The variable number coding for year in time \emph{t} in
+//' the main data set.
+//' @param loy_pop_used A logical value indicating whether the population
+//' variable is to be used.
+//' @param loy_patch_used A logical value indicating whether the patch variable
+//' is to be used.
+//' @param simplicity If \code{TRUE}, then only outputs matrices \code{U} and
+//' \code{F}, rather than also outputting matrix \code{A}. Defaults to
+//' \code{FALSE}.
 //' 
-//' @return List of three matrices, including the survival-transition (\code{U})
-//' matrix, the fecundity matrix (\code{F}), and the sum (\code{A}) matrix, with
-//' the \code{A} matrix first.
+//' @return In the standard output, a list of three lists, called \code{A},
+//' \code{U}, and \code{F}, each containing A, U, or F matrices, respectively.
 //' 
 //' @keywords internal
 //' @noRd
-// [[Rcpp::export(.normalpatrolgroup)]]
-List normalpatrolgroup(DataFrame sge3, DataFrame sge2, DataFrame MainData,
-  DataFrame StageFrame) {
+List normalpatrolgroup(const DataFrame& sge3, const arma::ivec& sge2stage2, 
+  const DataFrame& MainData, const DataFrame& StageFrame, int err_switch,
+  StringVector loypop, StringVector loypatch, StringVector loyyear2,
+  IntegerVector yearorder, const int pop_var_int, const int patch_var_int,
+  const int year_var_int, const bool loy_pop_used, const bool loy_patch_used,
+  bool simplicity = false) {
   
   arma::vec sge3fec32 = as<arma::vec>(sge3["repentry3"]);
-  arma::vec sge3rep2 = as<arma::vec>(sge3["rep2n"]);
-  arma::vec sge3indata32 = as<arma::vec>(sge3["indata"]);
+  arma::uvec sge3rep2 = as<arma::uvec>(sge3["rep2n"]);
   arma::vec sge3ovgivent = as<arma::vec>(sge3["ovgiven_t"]);
-  arma::vec sge3ovgivenf = as<arma::vec>(sge3["ovgiven_f"]);
-  arma::vec sge3ovestt = as<arma::vec>(sge3["ovest_t"]);
-  arma::vec sge3ovestf = as<arma::vec>(sge3["ovest_f"]);
+  arma::ivec sge3ovgivenf = as<arma::ivec>(sge3["ovgiven_f"]);
+  arma::ivec sge3ovestt = as<arma::ivec>(sge3["ovest_t"]);
+  arma::ivec sge3ovestf = as<arma::ivec>(sge3["ovest_f"]);
   arma::vec sge3ovsurvmult = as<arma::vec>(sge3["ovsurvmult"]);
   arma::vec sge3ovfecmult = as<arma::vec>(sge3["ovfecmult"]);
-  arma::vec sge3index32 = as<arma::vec>(sge3["index321"]);
-  arma::vec sge3index2 = as<arma::vec>(sge3["stage2n"]);
-  arma::vec aliveandequal = as<arma::vec>(sge3["aliveandequal"]);
+  arma::ivec sge3index32 = as<arma::ivec>(sge3["index321"]);
+  arma::ivec aliveandequal = as<arma::ivec>(sge3["aliveandequal"]);
   
-  arma::vec sge2rep2 = as<arma::vec>(sge2["rep2"]);
-  arma::vec sge2fec3 = as<arma::vec>(sge2["fec3"]);
-  arma::vec sge2index2 = as<arma::vec>(sge2["index2"]);
-  arma::vec sge2stage2 = as<arma::vec>(sge2["stage2"]);
+  arma::ivec dataindex32 = as<arma::ivec>(MainData["index32"]);
+  arma::ivec dataindex2 = as<arma::ivec>(MainData["index2"]);
+  arma::uvec dataalive3 = as<arma::uvec>(MainData["alive3"]);
+  arma::vec datausedfec = as<arma::vec>(MainData["usedfec"]);
   
-  arma::vec dataindex32 = as<arma::vec>(MainData["index32"]);
-  arma::vec dataindex2 = as<arma::vec>(MainData["index2"]);
-  arma::vec dataalive3 = as<arma::vec>(MainData["alive3"]);
-  arma::vec datausedfec2 = as<arma::vec>(MainData["usedfec2"]);
-  
-  arma::vec sfsizes = as<arma::vec>(StageFrame["sizebin_center"]);
-  int nostages = sfsizes.n_elem;
-  
-  int n = dataindex32.n_elem;
-  int no2stages = sge2index2.n_elem - 1; // The -1 removes the dead stage, which is still within sge2
+  int nostages = static_cast<int>(StageFrame.nrows());
+  int no2stages = sge2stage2.n_elem - 1; // The -1 removes the dead stage, which is still within sge2
   int noelems = sge3index32.n_elem;
+  bool small_subset {false};
   
-  arma::vec probsrates0(noelems, fill::zeros); // 1st vec = # indivs (3 trans)
-  arma::vec probsrates1(noelems, fill::zeros); // 2nd vec = total indivs for pair stage
-  arma::vec probsrates2(noelems, fill::zeros); // 3rd vec = total indivs alive for pair stage
-  arma::vec probsrates3(noelems, fill::zeros); // 4th vec = total fec for pair stage
+  int loy_length = yearorder.length();
+  List A_output (loy_length);
+  List U_output (loy_length);
+  List F_output (loy_length);
+  List conc_err (loy_length);
+  List s2f_err (loy_length);
+
+  StringVector data_pop_;
+  StringVector data_patch_;
   
-  arma::mat stage2fec(no2stages, 3, fill::zeros); // col1 = # inds total, col2 = no alive, col3 = sum fec
+  if (loy_pop_used) data_pop_ = as<StringVector>(MainData[pop_var_int]);
+  if (loy_patch_used) data_patch_ = as<StringVector>(MainData[patch_var_int]);
+  StringVector data_year_ = as<StringVector>(MainData[year_var_int]);
   
-  arma::mat tmatrix((nostages-1), (nostages-1), fill::zeros); // Main output U matrix
-  arma::mat fmatrix((nostages-1), (nostages-1), fill::zeros); // Main output F matrix
-  
-  // This main loop counts individuals going through transitions and sums their
-  // fecundities, and then adds that info to the 3-trans and 2-trans tables
-  for (int i = 0; i < n; i++) { 
-    
-    // The next line yields sum of all individuals with particular transition
-    probsrates0(dataindex32(i)) = probsrates0(dataindex32(i)) + 1; 
-    
-    // The next line yields sum of all individuals with particular transition
-    stage2fec((dataindex2(i)), 0) = stage2fec((dataindex2(i)), 0) + 1; 
-    if (dataalive3(i) > 0) {
-      stage2fec((dataindex2(i)), 1) = stage2fec((dataindex2(i)), 1) + 1;
-    }
-    
-    stage2fec((dataindex2(i)), 2) = stage2fec((dataindex2(i)), 2) + datausedfec2(i);
-    
-  }
-  
-  // This next loop populates vectors of individuals according to stage in time t
-  for (int i = 0; i < no2stages; i++) {
-    unsigned int foradding = ((sge2stage2(i) - 1) * nostages);
-    
-    for (int j = 0; j < nostages; j++) {
-      unsigned int entry = foradding + j;
-      
-      probsrates1(entry) = stage2fec(i, 0);
-      probsrates2(entry) = stage2fec(i, 1);
-      probsrates3(entry) = stage2fec(i, 2);
-    }
-  }
-  
-  // Here we populate the main U and F matrices
-  for (int elem3 = 0; elem3 < noelems; elem3++) {
-    
-    if (aliveandequal(elem3) != -1) {
-      
-      // The next lines DO leave NaNs in the matrices when 0 individuals are summed through in probsrates1
-      if (sge3ovsurvmult(elem3) < 0) sge3ovsurvmult(elem3) = 1.0;
-      tmatrix(aliveandequal(elem3)) = probsrates0(elem3) * sge3ovsurvmult(elem3) / 
-        probsrates1(elem3);
-        
-      if (sge3ovfecmult(elem3) < 0) sge3ovfecmult(elem3) = 1.0;
-      fmatrix(aliveandequal(elem3)) = sge3fec32(elem3) * sge3rep2(elem3) * 
-        probsrates3(elem3) * sge3ovfecmult(elem3) / probsrates1(elem3);
-    }
-  }
-  
-  // This section corrects for transitions given in the overwrite table
-  arma::uvec ovgiventind = find(sge3ovgivent != -1);
-  arma::uvec ovgivenfind = find(sge3ovgivenf != -1);
+  arma::uvec ovgiventind = find(sge3ovgivent != -1.0);
+  arma::uvec ovgivenfind = find(sge3ovgivenf != -1.0);
   int ovgtn = ovgiventind.n_elem;
   int ovgfn = ovgivenfind.n_elem;
   
-  if (ovgtn > 0) {
-    for (int i = 0; i < ovgtn; i++) {
-      int matrixelement2 = aliveandequal(ovgiventind(i));
-      
-      tmatrix(matrixelement2) = sge3ovgivent(ovgiventind(i));
-    }
-  }
-  
-  if (ovgfn > 0) {
-    for (int i = 0; i < ovgfn; i++) {
-      int matrixelement2 = aliveandequal(ovgivenfind(i));
-      
-      fmatrix(matrixelement2) = sge3ovgivenf(ovgivenfind(i));
-    }
-  }
-  
-  // This section replaces transitions with proxies as given in the overwrite table
   arma::uvec ovesttind = find(sge3ovestt != -1);
   arma::uvec ovestfind = find(sge3ovestf != -1);
   int ovestn = ovesttind.n_elem;
   int ovesfn = ovestfind.n_elem;
   
-  if (ovestn > 0) {
-    for (int i = 0; i < ovestn; i++) {
-      arma::uvec replacement = find(sge3index32 == sge3ovestt(ovesttind(i)));
+  for (int i = 0; i < loy_length; i++) {
+    arma::uvec data_current_index = as<arma::uvec>(LefkoUtils::index_l3(data_year_, loyyear2(i)));
+    
+    if (loy_pop_used) {
+      arma::uvec data_current_pop = as<arma::uvec>(LefkoUtils::index_l3(data_pop_, loypop(i)));
+      data_current_index = intersect(data_current_index, data_current_pop);
+    }
+    
+    if (loy_patch_used) {
+      arma::uvec data_current_patch = as<arma::uvec>(LefkoUtils::index_l3(data_patch_, loypatch(i)));
+      data_current_index = intersect(data_current_index, data_current_patch);
+    }
+    
+    int data_subset_rows = static_cast<int>(data_current_index.n_elem);
+    if (data_subset_rows < 10 && !small_subset) {
+      small_subset = true;
+      Rf_warningcall(R_NilValue, "Extremely small data subsets are being used to populate matrices.");
+    }
+    if (data_subset_rows == 0) continue;
+    
+    arma::ivec dataindex32i = dataindex32.elem(data_current_index);
+    arma::ivec dataindex2i = dataindex2.elem(data_current_index);
+    arma::uvec dataalive3i = dataalive3.elem(data_current_index);
+    arma::vec datausedfeci = datausedfec.elem(data_current_index);
+    
+    dataindex32i.resize(data_subset_rows);
+    dataindex2i.resize(data_subset_rows);
+    dataalive3i.resize(data_subset_rows);
+    datausedfeci.resize(data_subset_rows);
+    
+    int n = dataindex32i.n_elem;
+    
+    arma::vec probsrates0(noelems, fill::zeros); // 1st vec = # indivs (3 trans)
+    arma::vec probsrates1(noelems, fill::zeros); // 2nd vec = total indivs for pair stage
+    arma::vec probsrates2(noelems, fill::zeros); // 3rd vec = total indivs alive for pair stage
+    arma::vec probsrates3(noelems, fill::zeros); // 4th vec = total fec for pair stage
+    
+    arma::mat stage2fec(no2stages, 3, fill::zeros); // col1 = # inds total, col2 = no alive, col3 = sum fec
+    
+    arma::mat tmatrix((nostages-1), (nostages-1), fill::zeros); // Main output U matrix
+    arma::mat fmatrix((nostages-1), (nostages-1), fill::zeros); // Main output F matrix
+    
+    // This main loop counts individuals going through transitions and sums their
+    // fecundities, and then adds that info to the 3-trans and 2-trans tables
+    for (int j = 0; j < n; j++) { 
+      // The next line yields sum of all individuals with particular transition
+      probsrates0(dataindex32i(j)) = probsrates0(dataindex32i(j)) + 1.0; 
       
-      double correction = sge3ovsurvmult(ovesttind(i));
-      if (correction == -1.0) correction = 1.0;
+      // The next line yields sum of all individuals with particular transition
+      stage2fec((dataindex2i(j)), 0) = stage2fec((dataindex2i(j)), 0) + 1.0; 
+      if (dataalive3i(j) > 0) {
+        stage2fec((dataindex2i(j)), 1) = stage2fec((dataindex2i(j)), 1) + 1.0;
+      }
       
-      tmatrix(aliveandequal(ovesttind(i))) = tmatrix(aliveandequal(replacement(0))) *
-        correction;
+      if (NumericVector::is_na(datausedfeci(j))) datausedfeci(j) = 0.0;
+      stage2fec((dataindex2i(j)), 2) = stage2fec((dataindex2i(j)), 2) + datausedfeci(j);
+    }
+    
+    // This next loop populates vectors of individuals according to stage in time t
+    for (int k = 0; k < no2stages; k++) {
+      unsigned int foradding = ((sge2stage2(k) - 1) * nostages);
+      
+      for (int j = 0; j < nostages; j++) {
+        unsigned int entry = foradding + j;
+        
+        probsrates1(entry) = stage2fec(k, 0);
+        probsrates2(entry) = stage2fec(k, 1);
+        probsrates3(entry) = stage2fec(k, 2);
+      }
+    }
+    
+    // Here we populate the main U and F matrices
+    for (int elem3 = 0; elem3 < noelems; elem3++) {
+      if (aliveandequal(elem3) != -1) {
+        
+        // The next lines DO leave NaNs in the matrices when 0 individuals are summed through in probsrates1
+        if (sge3ovsurvmult(elem3) < 0.0) sge3ovsurvmult(elem3) = 1.0;
+        tmatrix(aliveandequal(elem3)) = probsrates0(elem3) * sge3ovsurvmult(elem3) / 
+          probsrates1(elem3);
+          
+        if (sge3ovfecmult(elem3) < 0.0) sge3ovfecmult(elem3) = 1.0;
+        fmatrix(aliveandequal(elem3)) = sge3fec32(elem3) * static_cast<double>(sge3rep2(elem3)) * 
+          probsrates3(elem3) * sge3ovfecmult(elem3) / probsrates1(elem3);
+      }
+    }
+    
+    // This section corrects for transitions given in the overwrite table
+    if (ovgtn > 0) {
+      for (int j = 0; j < ovgtn; j++) {
+        int matrixelement2 = aliveandequal(ovgiventind(j));
+        tmatrix(matrixelement2) = sge3ovgivent(ovgiventind(j));
+      }
+    }
+    
+    if (ovgfn > 0) {
+      for (int j = 0; j < ovgfn; j++) {
+        int matrixelement2 = aliveandequal(ovgivenfind(j));
+        fmatrix(matrixelement2) = sge3ovgivenf(ovgivenfind(j));
+      }
+    }
+    
+    // This section replaces transitions with proxies as given in the overwrite table
+    if (ovestn > 0) {
+      for (int j = 0; j < ovestn; j++) {
+        arma::uvec replacement = find(sge3index32 == sge3ovestt(ovesttind(j)));
+        
+        double correction = sge3ovsurvmult(ovesttind(j));
+        if (correction == -1.0) correction = 1.0;
+        tmatrix(aliveandequal(ovesttind(j))) = tmatrix(aliveandequal(replacement(0))) *
+          correction;
+      }
+    }
+    
+    if (ovesfn > 0) {
+      for (int j = 0; j < ovesfn; j++) {
+        arma::uvec replacement = find(sge3index32 == sge3ovestf(ovestfind(j)));
+        
+        double correction = sge3ovfecmult(ovesttind(j));
+        if (correction == -1.0) correction = 1.0;
+        fmatrix(aliveandequal(ovestfind(j))) = fmatrix(aliveandequal(replacement(0))) *
+          correction;
+      }
+    }
+    
+    // The next bit changes NAs to 0
+    tmatrix(find_nonfinite(tmatrix)).zeros();
+    fmatrix(find_nonfinite(fmatrix)).zeros();
+    
+    U_output(i) = tmatrix;
+    F_output(i) = fmatrix;
+    
+    if (!simplicity) {
+      arma::mat amatrix = tmatrix + fmatrix; // Create the A matrix
+      A_output(i) = amatrix;
+    }
+    
+    if (err_switch) {
+      DataFrame concatenated_crap = DataFrame::create(_["sge3index32"] = sge3index32,
+        _["aliveandequal"] = aliveandequal, _["probsrates0"] = probsrates0,
+        _["probsrates1"] = probsrates1, _["probsrates2"] = probsrates2,
+        _["probsrates3"] = probsrates3, _["sge3fec32"] = sge3fec32);
+      
+      conc_err(i) = concatenated_crap;
+      s2f_err(i) = stage2fec;
     }
   }
   
-  if (ovesfn > 0) {
-    for (int i = 0; i < ovesfn; i++) {
-      arma::uvec replacement = find(sge3index32 == sge3ovestf(ovestfind(i)));
-      
-      double correction = sge3ovfecmult(ovesttind(i));
-      if (correction == -1.0) correction = 1.0;
-      
-      fmatrix(aliveandequal(ovestfind(i))) = fmatrix(aliveandequal(replacement(0))) *
-        correction;
-    }
+  List final_output;
+  
+  if (err_switch) {
+    List out_dude = List::create(Named("A") = A_output, _["U"] = U_output,
+      _["F"] = F_output, _["ahstages"] = R_NilValue, _["agestages"] = R_NilValue,
+      _["hstages"] = R_NilValue, _["labels"] = R_NilValue,
+      _["matrixqc"] = R_NilValue, _["dataqc"] = R_NilValue,
+      _["probsrates_all"] = conc_err, _["s2f"] = s2f_err);
+    final_output = out_dude;
+    
+  } else {
+    List out_dude = List::create(Named("A") = A_output, _["U"] = U_output,
+      _["F"] = F_output, _["ahstages"] = R_NilValue, _["agestages"] = R_NilValue,
+      _["hstages"] = R_NilValue, _["labels"] = R_NilValue,
+      _["matrixqc"] = R_NilValue, _["dataqc"] = R_NilValue);
+    final_output = out_dude;
   }
   
-  // The next bit changes NAs to 0
-  tmatrix(find_nonfinite(tmatrix)).zeros();
-  fmatrix(find_nonfinite(fmatrix)).zeros();
-  
-  arma::mat amatrix = tmatrix + fmatrix; // Create the A matrix
-  
-  return List::create(Named("A") = amatrix, _["U"] = tmatrix, _["F"] = fmatrix);
+  return final_output;
 }
 
 //' Estimate All Elements of Raw Ahistorical Population Projection Matrix
 //' 
 //' Function \code{minorpatrolgroup()} swiftly calculates matrix transitions
-//' in raw Leslie MPMs, and is used internally in \code{\link{rleslie}()}.
+//' in raw Leslie MPMs, and is used internally in \code{rleslie()}.
 //' 
-//' @name .minorpatrolgroup
+//' @name minorpatrolgroup
 //' 
 //' @param MainData The demographic dataset modified internally to have needed
 //' variables for living status, reproduction status, and fecundity.
 //' @param StageFrame The full stageframe for the analysis.
-//' @param fectime An integer coding to estimate fecundity using time \emph{t}
-//' (\code{2}) or time \emph{t}+1 \code{(3)}.
 //' @param cont Should a self-loop transition be estimated for the final age.
-//' @param lastage An integer coding for the last age to use in matrix
-//' construction.
+//' @param fec_mod A multiplier on raw fecundity to estimate true fecundity.
+//' @param err_switch A logical value. If set to \code{TRUE}, then will also
+//' output \code{probsrates} and \code{stage2fec}.
+//' @param loypop A string vector giving the order of populations in the list of
+//' years.
+//' @param loypatch A string vector giving the order of patches in the list of
+//' years.
+//' @param loyyear2 A string vector giving the order of years at time \emph{t}
+//' in the list of years.
+//' @param yearorder The integer year order corresponding to \code{loyyear2}.
+//' @param pop_var_int The variable number coding for population in the main
+//' data set.
+//' @param patch_var_int The variable number coding for patch in the main data
+//' set.
+//' @param year_var_int The variable number coding for year in time \emph{t} in
+//' the main data set.
+//' @param loy_pop_used A logical value indicating whether the population
+//' variable is to be used.
+//' @param loy_patch_used A logical value indicating whether the patch variable
+//' is to be used.
+//' @param simplicity If \code{TRUE}, then only outputs matrices \code{U} and
+//' \code{F}, rather than also outputting matrix \code{A}. Defaults to
+//' \code{FALSE}.
 //' 
 //' @return List of three matrices, including the survival-transition (\code{U})
 //' matrix, the fecundity matrix (\code{F}), and the sum (\code{A}) matrix, with
@@ -3858,90 +4047,171 @@ List normalpatrolgroup(DataFrame sge3, DataFrame sge2, DataFrame MainData,
 //' 
 //' @keywords internal
 //' @noRd
-// [[Rcpp::export(.minorpatrolgroup)]]
-Rcpp::List minorpatrolgroup(DataFrame MainData, DataFrame StageFrame,
-  int fectime, bool cont, double fec_mod) {
+Rcpp::List minorpatrolgroup(const DataFrame& MainData, const DataFrame& StageFrame,
+  bool cont, double fec_mod, int err_switch, StringVector loypop,
+  StringVector loypatch, StringVector loyyear2, IntegerVector yearorder,
+  const int pop_var_int, const int patch_var_int, const int year_var_int,
+  const bool loy_pop_used, const bool loy_patch_used, bool simplicity = false) {
   
-  arma::ivec data_age = MainData["usedobsage"];
-  arma::vec data_alive2 = MainData["usedalive2"];
-  arma::vec data_alive3 = MainData["usedalive3"];
-  arma::vec data_usedfec = MainData["usedfec2"];
-  arma::vec data_usedfec3 = MainData["usedfec3"];
-  arma::vec data_usedrepst2 = MainData["usedrepst2"];
-  arma::vec data_usedrepst3 = MainData["usedrepst3"];
-
-  if (fectime == 3) {
-    data_usedfec = data_usedfec3;
-  }
+  arma::ivec dataage = as<arma::ivec>(MainData["usedage"]);
+  arma::uvec dataalive2 = as<arma::uvec>(MainData["alive2"]);
+  arma::uvec dataalive3 = as<arma::uvec>(MainData["alive3"]);
+  arma::vec datausedfec = as<arma::vec>(MainData["usedfec"]);
   
   IntegerVector sf_minage = StageFrame["min_age"];
-  IntegerVector sf_maxage = StageFrame["max_age"];
   IntegerVector sf_repstatus = StageFrame["repstatus"];
   int noages = sf_minage.length();
+  bool small_subset {false};
   
-  arma::vec probsrates0(noages, fill::zeros); // 1st vec = total indivs in t
-  arma::vec probsrates1(noages, fill::zeros); // 2nd vec = total indivs alive in t+1
-  arma::vec probsrates2(noages, fill::zeros); // 3rd vec = total fec
+  int loy_length = yearorder.length();
+  List A_output (loy_length);
+  List U_output (loy_length);
+  List F_output (loy_length);
+  List conc_err (loy_length);
   
-  arma::mat tmatrix(noages, noages, fill::zeros); // Main output U matrix
-  arma::mat fmatrix(noages, noages, fill::zeros); // Main output F matrix
+  StringVector data_pop_;
+  StringVector data_patch_;
   
-  // This main loop counts individuals going through transitions and calculates
-  // survival and fecundity
-  arma::uvec data_allalive = find(data_alive2);
-  int survsum {0};
-  double fecsum {0};
+  if (loy_pop_used) data_pop_ = as<StringVector>(MainData[pop_var_int]);
+  if (loy_patch_used) data_patch_ = as<StringVector>(MainData[patch_var_int]);
+  StringVector data_year_ = as<StringVector>(MainData[year_var_int]);
   
-  for (int i = 0; i < noages; i++) { 
+  /*
+  arma::uvec ovgiventind = find(sge3ovgivent != -1.0);
+  arma::uvec ovgivenfind = find(sge3ovgivenf != -1.0);
+  int ovgtn = ovgiventind.n_elem;
+  int ovgfn = ovgivenfind.n_elem;
+  
+  arma::uvec ovesttind = find(sge3ovestt != -1);
+  arma::uvec ovestfind = find(sge3ovestf != -1);
+  int ovestn = ovesttind.n_elem;
+  int ovesfn = ovestfind.n_elem;
+  */
+  
+  for (int i = 0; i < loy_length; i++) {
+    arma::uvec data_current_index = as<arma::uvec>(LefkoUtils::index_l3(data_year_, loyyear2(i)));
     
-    arma::uvec data_indices = find(data_age == sf_minage(i));
-    arma::uvec aget_alive = intersect(data_allalive, data_indices);
-    int num_aget_alive = aget_alive.n_elem;
+    if (loy_pop_used) {
+      arma::uvec data_current_pop = as<arma::uvec>(LefkoUtils::index_l3(data_pop_, loypop(i)));
+      data_current_index = intersect(data_current_index, data_current_pop);
+    }
     
-    if (num_aget_alive > 0) {
-      for (int j = 0; j < num_aget_alive; j++) {
-        if (data_alive3(aget_alive(j)) > 0) survsum++;
-        fecsum = fecsum + data_usedfec(aget_alive(j));
+    if (loy_patch_used) {
+      arma::uvec data_current_patch = as<arma::uvec>(LefkoUtils::index_l3(data_patch_, loypatch(i)));
+      data_current_index = intersect(data_current_index, data_current_patch);
+    }
+    
+    int data_subset_rows = static_cast<int>(data_current_index.n_elem);
+    if (data_subset_rows < 10 && !small_subset) {
+      small_subset = true;
+      Rf_warningcall(R_NilValue, "Extremely small data subsets are being used to populate matrices.");
+    }
+    if (data_subset_rows == 0) continue;
+    
+    arma::ivec dataagei = dataage.elem(data_current_index);
+    arma::uvec dataalive2i = dataalive2.elem(data_current_index);
+    arma::uvec dataalive3i = dataalive3.elem(data_current_index);
+    arma::vec datausedfeci = datausedfec.elem(data_current_index);
+    
+    dataagei.resize(data_subset_rows);
+    dataalive2i.resize(data_subset_rows);
+    dataalive3i.resize(data_subset_rows);
+    datausedfeci.resize(data_subset_rows);
+    
+    arma::vec probsrates0(noages, fill::zeros); // 1st vec = total indivs in t
+    arma::vec probsrates1(noages, fill::zeros); // 2nd vec = total indivs alive in t+1
+    arma::vec probsrates2(noages, fill::zeros); // 3rd vec = total fec
+    
+    arma::mat tmatrix(noages, noages, fill::zeros); // Main output U matrix
+    arma::mat fmatrix(noages, noages, fill::zeros); // Main output F matrix
+    
+    // This main loop counts individuals going through transitions and calculates
+    // survival and fecundity
+    arma::uvec data_allalivei = find(dataalive2i);
+    int survsum {0};
+    double fecsum {0};
+    
+    for (int k = 0; k < noages; k++) { 
+      arma::uvec data_indices = find(dataagei == sf_minage(k));
+      arma::uvec aget_alive = intersect(data_allalivei, data_indices);
+      int num_aget_alive = aget_alive.n_elem;
+      
+      if (num_aget_alive > 0) {
+        for (int j = 0; j < num_aget_alive; j++) {
+          if (dataalive3i(aget_alive(j)) > 0) survsum++;
+          fecsum = fecsum + datausedfeci(aget_alive(j));
+        }
       }
+      
+      probsrates0(k) = num_aget_alive;
+      if (num_aget_alive > 0) {
+        probsrates1(k) = static_cast<double>(survsum) / static_cast<double>(num_aget_alive);
+        if (sf_repstatus(k) > 0) probsrates2(k) = fec_mod * fecsum / static_cast<double>(num_aget_alive);
+      } else {
+        probsrates1(k) = 0.0;
+        probsrates2(k) = 0.0;
+      }
+      
+      if (k < (noages - 1)) tmatrix(k+1, k) = probsrates1(k);
+      fmatrix(0, k) = probsrates2(k);
+      
+      survsum = 0;
+      fecsum = 0.0;
     }
     
-    probsrates0(i) = num_aget_alive;
-    if (num_aget_alive > 0) {
-      probsrates1(i) = static_cast<double>(survsum) / static_cast<double>(num_aget_alive);
-      if (sf_repstatus(i) > 0) probsrates2(i) = fec_mod * fecsum / static_cast<double>(num_aget_alive);
-    } else {
-      probsrates1(i) = 0;
-      probsrates2(i) = 0;
+    tmatrix(find_nonfinite(tmatrix)).zeros();
+    fmatrix(find_nonfinite(fmatrix)).zeros();
+    
+    U_output(i) = tmatrix;
+    F_output(i) = fmatrix;
+    
+    if (!simplicity) {
+      arma::mat amatrix = tmatrix + fmatrix; // Create the A matrix
+      A_output(i) = amatrix;
     }
     
-    if (i < (noages - 1)) tmatrix(i+1, i) = probsrates1(i);
-    fmatrix(0, i) = probsrates2(i);
-    
-    survsum = 0;
-    fecsum = 0;
+    if (err_switch) {
+      DataFrame concatenated_crap = DataFrame::create(_["probsrates0"] = probsrates0,
+        _["probsrates1"] = probsrates1, _["probsrates2"] = probsrates2);
+      
+      conc_err(i) = concatenated_crap;
+    }
   }
   
-  tmatrix(find_nonfinite(tmatrix)).zeros();
-  fmatrix(find_nonfinite(fmatrix)).zeros();
+  List final_output;
   
-  arma::mat amatrix = tmatrix + fmatrix; // Create the A matrix
+  if (err_switch) {
+    List out_dude = List::create(Named("A") = A_output, _["U"] = U_output,
+      _["F"] = F_output, _["ahstages"] = R_NilValue, _["agestages"] = R_NilValue,
+      _["hstages"] = R_NilValue, _["labels"] = R_NilValue,
+      _["matrixqc"] = R_NilValue, _["dataqc"] = R_NilValue,
+      _["probsrates_all"] = conc_err);
+    final_output = out_dude;
+    
+  } else {
+    List out_dude = List::create(Named("A") = A_output, _["U"] = U_output,
+      _["F"] = F_output, _["ahstages"] = R_NilValue, _["agestages"] = R_NilValue,
+      _["hstages"] = R_NilValue, _["labels"] = R_NilValue,
+      _["matrixqc"] = R_NilValue, _["dataqc"] = R_NilValue);
+    final_output = out_dude;
+  }
   
-  return List::create(Named("A") = amatrix, _["U"] = tmatrix, _["F"] = fmatrix);
+  return final_output;
 }
 
 //' Estimate All Elements of Raw Age-By-Stage Population Projection Matrix
 //' 
-//' Function \code{.subvertedpatrolgroup()} swiftly calculates matrix
-//' transitions in raw ahistorical matrices, and serves as the core workhorse
-//' function behind \code{\link{arlefko2}()}.
+//' Function \code{subvertedpatrolgroup()} swiftly calculates matrix
+//' transitions in raw age-by-stage matrices, and serves as the core workhorse
+//' function behind \code{arlefko2()}.
 //' 
-//' @name .subvertedpatrolgroup
+//' @name subvertedpatrolgroup
 //' 
 //' @param sge3 The Allstages data frame developed for \code{rlefko2()} covering
 //' stage pairs across times \emph{t}+1 and \emph{t}. Generally termed
 //' \code{stageexpansion3}.
-//' @param sge2 The data frame covering all stages in time \emph{t}. Generally
-//' termed \code{stageexpansion2}.
+//' @param sge2index21 An integer index vector of stage in times \emph{t}-1 and
+//' \emph{t} from \code{stageexpansion2}.
 //' @param MainData The demographic dataset modified to hold \code{usedfec} and
 //' \code{usedstage} columns.
 //' @param StageFrame The full stageframe for the analysis.
@@ -3949,182 +4219,268 @@ Rcpp::List minorpatrolgroup(DataFrame MainData, DataFrame StageFrame,
 //' @param finalage The last true age to estimate.
 //' @param cont A logical value indicating whether to lump survival past the
 //' last age into a final age transition set on the supermatrix diagonal.
+//' @param err_switch A logical value. If set to \code{TRUE}, then will also
+//' output \code{probsrates} and \code{stage2fec}.
+//' @param loypop A string vector giving the order of populations in the list of
+//' years.
+//' @param loypatch A string vector giving the order of patches in the list of
+//' years.
+//' @param loyyear2 A string vector giving the order of years at time \emph{t}
+//' in the list of years.
+//' @param yearorder The integer year order corresponding to \code{loyyear2}.
+//' @param pop_var_int The variable number coding for population in the main
+//' data set.
+//' @param patch_var_int The variable number coding for patch in the main data
+//' set.
+//' @param year_var_int The variable number coding for year in time \emph{t} in
+//' the main data set.
+//' @param loy_pop_used A logical value indicating whether the population
+//' variable is to be used.
+//' @param loy_patch_used A logical value indicating whether the patch variable
+//' is to be used.
+//' @param simplicity If \code{TRUE}, then only outputs matrices \code{U} and
+//' \code{F}, rather than also outputting matrix \code{A}. Defaults to
+//' \code{FALSE}.
 //' 
-//' @return List of three matrices, including the survival-transition (\code{U})
-//' matrix, the fecundity matrix (\code{F}), and the sum (\code{A}) matrix, with
-//' the \code{A} matrix first.
+//' @return In the standard output, a list of three lists, called \code{A},
+//' \code{U}, and \code{F}, each containing A, U, or F matrices, respectively.
 //' 
 //' @keywords internal
 //' @noRd
-// [[Rcpp::export(.subvertedpatrolgroup)]]
-List subvertedpatrolgroup(DataFrame sge3, DataFrame sge2, DataFrame MainData,
-  DataFrame StageFrame, int firstage, int finalage, bool cont) {
+List subvertedpatrolgroup(const DataFrame& sge3, const arma::ivec& sge2index21,
+  const DataFrame& MainData, const DataFrame& StageFrame, int firstage, int finalage,
+  bool cont, int err_switch, StringVector loypop, StringVector loypatch,
+  StringVector loyyear2, IntegerVector yearorder, const int pop_var_int,
+  const int patch_var_int, const int year_var_int, const bool loy_pop_used,
+  const bool loy_patch_used, bool simplicity = false) {
   
-  arma::vec sge3fec32 = sge3["repentry3"];
-  arma::vec sge3rep2 = sge3["rep2n"];
-  arma::vec sge3indata32 = sge3["indata"];
-  arma::vec sge3ovgivent = sge3["ovgiven_t"];
-  arma::vec sge3ovgivenf = sge3["ovgiven_f"];
-  arma::vec sge3ovestt = sge3["ovest_t"];
-  arma::vec sge3ovestf = sge3["ovest_f"];
-  arma::vec sge3ovsurvmult = sge3["ovsurvmult"];
-  arma::vec sge3ovfecmult = sge3["ovfecmult"];
-  arma::vec sge3index321 = sge3["index321"];
-  arma::vec sge3index21 = sge3["index21"];
-  arma::vec sge3index2 = sge3["stage2n"];
-  arma::vec aliveandequal = sge3["aliveandequal"];
+  arma::vec sge3fec32 = as<arma::vec>(sge3["repentry3"]);
+  arma::uvec sge3rep2 = as<arma::uvec>(sge3["rep2n"]);
+  arma::vec sge3ovgivent = as<arma::vec>(sge3["ovgiven_t"]);
+  arma::vec sge3ovgivenf = as<arma::vec>(sge3["ovgiven_f"]);
+  arma::ivec sge3ovestt = as<arma::ivec>(sge3["ovest_t"]);
+  arma::ivec sge3ovestf = as<arma::ivec>(sge3["ovest_f"]);
+  arma::vec sge3ovsurvmult = as<arma::vec>(sge3["ovsurvmult"]);
+  arma::vec sge3ovfecmult = as<arma::vec>(sge3["ovfecmult"]);
+  arma::ivec sge3index321 = as<arma::ivec>(sge3["index321"]);
+  arma::ivec sge3index21 = as<arma::ivec>(sge3["index21"]);
+  arma::ivec sge3index2 = as<arma::ivec>(sge3["stage2n"]);
+  arma::ivec aliveandequal = as<arma::ivec>(sge3["aliveandequal"]);
   
-  arma::vec sge2rep2 = sge2["rep2"];
-  arma::vec sge2fec3 = sge2["fec3"];
-  arma::vec sge2index21 = sge2["index21"];
-  arma::vec sge2stage2 = sge2["stage2"];
-  
-  arma::vec dataindex321 = MainData["index321"];
-  arma::vec dataindex21 = MainData["index21"];
-  arma::vec dataalive3 = MainData["alive3"];
-  arma::vec datausedfec2 = MainData["usedfec2"];
+  arma::ivec dataindex321 = as<arma::ivec>(MainData["index321"]);
+  arma::ivec dataindex21 = as<arma::ivec>(MainData["index21"]);
+  arma::uvec dataalive3 = as<arma::uvec>(MainData["alive3"]);
+  arma::vec datausedfec = as<arma::vec>(MainData["usedfec"]);
   
   int totalages = finalage - firstage + 1;
-  
-  arma::vec sfsizes = StageFrame["sizebin_center"];
-  int nostages = sfsizes.n_elem;
-  
-  int n = dataindex321.n_elem;
-  int no21stages = sge2index21.n_elem; // This includes the dead stage in every age
+  int nostages = static_cast<int>(StageFrame.nrows());
+  int no21stages = sge2index21.n_elem; // Includes Dead stage in every age
   int noelems = sge3index321.n_elem;
-  unsigned int the_chosen_bun {0};
+  bool small_subset {false};
   
-  arma::vec probsrates0(noelems, fill::zeros); // 1st vec = # indivs (3 trans)
-  arma::vec probsrates1(noelems, fill::zeros); // 2nd vec = total indivs for pair stage
-  arma::vec probsrates2(noelems, fill::zeros); // 3rd vec = total indivs alive for pair stage
-  arma::vec probsrates3(noelems, fill::zeros); // 4th vec = total fec for pair stage
+  int loy_length = yearorder.length();
+  List A_output (loy_length);
+  List U_output (loy_length);
+  List F_output (loy_length);
+  List conc_err (loy_length);
+  List s2f_err (loy_length);
   
-  arma::mat stage21fec(no21stages, 3, fill::zeros); //1st col = # indivs total, 2nd col = no indivs alive, 3rd col = sum fec
+  StringVector data_pop_;
+  StringVector data_patch_;
   
-  arma::mat tmatrix(((nostages-1) * totalages), ((nostages-1) * totalages), fill::zeros); // Main output U matrix
-  arma::mat fmatrix(((nostages-1) * totalages), ((nostages-1) * totalages), fill::zeros); // Main output F matrix
+  if (loy_pop_used) data_pop_ = as<StringVector>(MainData[pop_var_int]);
+  if (loy_patch_used) data_patch_ = as<StringVector>(MainData[patch_var_int]);
+  StringVector data_year_ = as<StringVector>(MainData[year_var_int]);
   
-  // This main loop counts individuals going through transitions and sums their
-  // fecundities, and then adds that info to the 3-trans and 2-trans tables
-  for (int i = 0; i < n; i++) { 
-    
-    // The next line yields sum of all individuals with particular transition
-    arma::uvec chosen_index321_vec = find(sge3index321 == dataindex321(i));
-    
-    if (chosen_index321_vec.n_elem > 0) {
-      int chosen_index321 = chosen_index321_vec(0);
-      probsrates0(chosen_index321) = probsrates0(chosen_index321) + 1; 
-    }
-    
-    // The next line yields sum of all individuals with particular transition
-    arma::uvec chosen_index21_vec = find(sge2index21 == dataindex21(i));
-    int chosen_index21 = chosen_index21_vec(0);
-    
-    stage21fec(chosen_index21, 0) = stage21fec(chosen_index21, 0) + 1; 
-    if (dataalive3(i) > 0) {
-      stage21fec(chosen_index21, 1) = stage21fec(chosen_index21, 1) + 1;
-    }
-    
-    stage21fec(chosen_index21, 2) = stage21fec(chosen_index21, 2) + datausedfec2(i);
-  }
-  
-  // This next loop populates vectors of individuals according to stage in time t
-  for (int i = 0; i < noelems; i++) {
-    arma::uvec classy_aks = find(sge2index21 == sge3index21(i));
-    
-
-    if (classy_aks.n_elem > 0) {
-      the_chosen_bun = classy_aks(0);
-      
-      probsrates1(i) = stage21fec(the_chosen_bun, 0);
-      probsrates2(i) = stage21fec(the_chosen_bun, 1);
-      probsrates3(i) = stage21fec(the_chosen_bun, 2);
-    }
-  }
-  
-  // Here we populate the main U and F matrices
-  for (int elem3 = 0; elem3 < noelems; elem3++) {
-    
-    if (aliveandequal(elem3) != -1) {
-      
-      // The next lines DO leave NaNs in the matrices when 0 individuals are summed through in probsrates1
-      if (sge3ovsurvmult(elem3) < 0) sge3ovsurvmult(elem3) = 1.0;
-      tmatrix(aliveandequal(elem3)) = probsrates0(elem3) * sge3ovsurvmult(elem3) / 
-        probsrates1(elem3);
-        
-      if (sge3ovfecmult(elem3) < 0) sge3ovfecmult(elem3) = 1.0;
-      fmatrix(aliveandequal(elem3)) = sge3fec32(elem3) * sge3rep2(elem3) * 
-        probsrates3(elem3) * sge3ovfecmult(elem3) / probsrates1(elem3);
-    }
-  }
-  
-  // This section corrects for transitions given in the overwrite table
   arma::uvec ovgiventind = find(sge3ovgivent != -1);
   arma::uvec ovgivenfind = find(sge3ovgivenf != -1);
   int ovgtn = ovgiventind.n_elem;
   int ovgfn = ovgivenfind.n_elem;
   
-  if (ovgtn > 0) {
-    for (int i = 0; i < ovgtn; i++) {
-      int matrixelement2 = aliveandequal(ovgiventind(i));
-      
-      if (matrixelement2 != -1) tmatrix(matrixelement2) = sge3ovgivent(ovgiventind(i));
-    }
-  }
-  
-  if (ovgfn > 0) {
-    for (int i = 0; i < ovgfn; i++) {
-      int matrixelement2 = aliveandequal(ovgivenfind(i));
-      
-      if (matrixelement2 != -1) fmatrix(matrixelement2) = sge3ovgivenf(ovgivenfind(i));
-    }
-  }
-  
-  // This section replaces transitions with proxies as given in the overwrite table
   arma::uvec ovesttind = find(sge3ovestt != -1);
   arma::uvec ovestfind = find(sge3ovestf != -1);
   int ovestn = ovesttind.n_elem;
   int ovesfn = ovestfind.n_elem;
   
-  if (ovestn > 0) {
-    for (int i = 0; i < ovestn; i++) {
-      arma::uvec replacement = find(sge3index321 == sge3ovestt(ovesttind(i)));
+  for (int i = 0; i < loy_length; i++) {
+    arma::uvec data_current_index = as<arma::uvec>(LefkoUtils::index_l3(data_year_, loyyear2(i)));
+    
+    if (loy_pop_used) {
+      arma::uvec data_current_pop = as<arma::uvec>(LefkoUtils::index_l3(data_pop_, loypop(i)));
+      data_current_index = intersect(data_current_index, data_current_pop);
+    }
+    
+    if (loy_patch_used) {
+      arma::uvec data_current_patch = as<arma::uvec>(LefkoUtils::index_l3(data_patch_, loypatch(i)));
+      data_current_index = intersect(data_current_index, data_current_patch);
+    }
+    
+    int data_subset_rows = static_cast<int>(data_current_index.n_elem);
+    if (data_subset_rows < 10 && !small_subset) {
+      small_subset = true;
+      Rf_warningcall(R_NilValue, "Extremely small data subsets were used to populate matrices.");
+    }
+    if (data_subset_rows == 0) continue;
+  
+    arma::ivec dataindex321i = dataindex321.elem(data_current_index);
+    arma::ivec dataindex21i = dataindex21.elem(data_current_index);
+    arma::uvec dataalive3i = dataalive3.elem(data_current_index);
+    arma::vec datausedfeci = datausedfec.elem(data_current_index);
+    
+    dataindex321i.resize(data_subset_rows);
+    dataindex21i.resize(data_subset_rows);
+    dataalive3i.resize(data_subset_rows);
+    datausedfeci.resize(data_subset_rows);
+    
+    int n = dataindex321i.n_elem;
+    unsigned int the_chosen_bun {0};
+    
+    arma::vec probsrates0(noelems, fill::zeros); // 1st vec = # indivs (3 trans)
+    arma::vec probsrates1(noelems, fill::zeros); // 2nd vec = total indivs for pair stage
+    arma::vec probsrates2(noelems, fill::zeros); // 3rd vec = total indivs alive for pair stage
+    arma::vec probsrates3(noelems, fill::zeros); // 4th vec = total fec for pair stage
+    
+    arma::mat stage21fec(no21stages, 3, fill::zeros); // col0 = #indivs total, col2 = #indivs alive, col3 = sum fec
+    
+    arma::mat tmatrix(((nostages-1) * totalages), ((nostages-1) * totalages), fill::zeros); // Main output U matrix
+    arma::mat fmatrix(((nostages-1) * totalages), ((nostages-1) * totalages), fill::zeros); // Main output F matrix
+  
+    // This main loop counts individuals going through transitions and sums their
+    // fecundities, and then adds that info to the 3-trans and 2-trans tables
+    for (int j = 0; j < n; j++) { 
+      // The next line yields sum of all individuals with particular transition
+      arma::uvec chosen_index321_vec = find(sge3index321 == dataindex321i(j));
       
-      if (aliveandequal(ovesttind(i)) != -1 && aliveandequal(replacement(0)) != -1) {
-        tmatrix(aliveandequal(ovesttind(i))) = tmatrix(aliveandequal(replacement(0)));
+      if (chosen_index321_vec.n_elem > 0) {
+        int chosen_index321 = chosen_index321_vec(0);
+        probsrates0(chosen_index321) = probsrates0(chosen_index321) + 1.0; 
       }
+      
+      // The next line yields sum of all individuals with particular transition
+      arma::uvec chosen_index21_vec = find(sge2index21 == dataindex21i(j));
+      int chosen_index21 = chosen_index21_vec(0);
+      
+      stage21fec(chosen_index21, 0) = stage21fec(chosen_index21, 0) + 1.0; 
+      if (dataalive3i(j) > 0) {
+        stage21fec(chosen_index21, 1) = stage21fec(chosen_index21, 1) + 1.0;
+      }
+      
+      stage21fec(chosen_index21, 2) = stage21fec(chosen_index21, 2) + datausedfeci(j);
+    }
+    
+    // This next loop populates vectors of individuals according to stage in time t
+    for (int j = 0; j < noelems; j++) {
+      arma::uvec classy_aks = find(sge2index21 == sge3index21(j));
+      
+      if (classy_aks.n_elem > 0) {
+        the_chosen_bun = classy_aks(0);
+        
+        probsrates1(j) = stage21fec(the_chosen_bun, 0);
+        probsrates2(j) = stage21fec(the_chosen_bun, 1);
+        probsrates3(j) = stage21fec(the_chosen_bun, 2);
+      }
+    }
+    
+    // Here we populate the main U and F matrices
+    for (int elem3 = 0; elem3 < noelems; elem3++) {
+      if (aliveandequal(elem3) != -1) {
+        
+        // The next lines DO leave NaNs in the matrices when 0 individuals are summed through in probsrates1
+        if (sge3ovsurvmult(elem3) < 0.0) sge3ovsurvmult(elem3) = 1.0;
+        tmatrix(aliveandequal(elem3)) = probsrates0(elem3) * sge3ovsurvmult(elem3) / 
+          probsrates1(elem3);
+          
+        if (sge3ovfecmult(elem3) < 0.0) sge3ovfecmult(elem3) = 1.0;
+        fmatrix(aliveandequal(elem3)) = static_cast<double>(sge3fec32(elem3)) * static_cast<double>(sge3rep2(elem3)) * 
+          probsrates3(elem3) * sge3ovfecmult(elem3) / probsrates1(elem3);
+      }
+    }
+    
+    // This section corrects for transitions given in the overwrite table
+    if (ovgtn > 0) {
+      for (int j = 0; j < ovgtn; j++) {
+        int matrixelement2 = aliveandequal(ovgiventind(j));
+        if (matrixelement2 != -1) tmatrix(matrixelement2) = sge3ovgivent(ovgiventind(j));
+      }
+    }
+    
+    if (ovgfn > 0) {
+      for (int j = 0; j < ovgfn; j++) {
+        int matrixelement2 = aliveandequal(ovgivenfind(j));
+        if (matrixelement2 != -1) fmatrix(matrixelement2) = sge3ovgivenf(ovgivenfind(j));
+      }
+    }
+    
+    // This section replaces transitions with proxies as given in the overwrite table
+    if (ovestn > 0) {
+      for (int j = 0; j < ovestn; j++) {
+        arma::uvec replacement = find(sge3index321 == sge3ovestt(ovesttind(j)));
+        if (aliveandequal(ovesttind(j)) != -1 && aliveandequal(replacement(0)) != -1) {
+          tmatrix(aliveandequal(ovesttind(j))) = tmatrix(aliveandequal(replacement(0)));
+        }
+      }
+    }
+    
+    if (ovesfn > 0) {
+      for (int j = 0; j < ovesfn; j++) {
+        arma::uvec replacement = find(sge3index321 == sge3ovestf(ovestfind(j)));
+        if (aliveandequal(ovestfind(j)) != -1 && aliveandequal(replacement(0)) != -1) {
+          fmatrix(aliveandequal(ovestfind(j))) = fmatrix(aliveandequal(replacement(0)));
+        }
+      }
+    }
+    
+    // The next bit changes NAs to 0
+    tmatrix(find_nonfinite(tmatrix)).zeros();
+    fmatrix(find_nonfinite(fmatrix)).zeros();
+    
+    U_output(i) = tmatrix;
+    F_output(i) = fmatrix;
+    
+    if (!simplicity) {
+      arma::mat amatrix = tmatrix + fmatrix; // Create the A matrix
+      A_output(i) = amatrix;
+    }
+    
+    if (err_switch) {
+      DataFrame concatenated_crap = DataFrame::create(_["sge3index321"] = sge3index321,
+        _["aliveandequal"] = aliveandequal, _["probsrates0"] = probsrates0,
+        _["probsrates1"] = probsrates1, _["probsrates2"] = probsrates2,
+        _["probsrates3"] = probsrates3, _["sge3fec32"] = sge3fec32);
+      
+      conc_err(i) = concatenated_crap;
+      s2f_err(i) = stage21fec;
     }
   }
   
-  if (ovesfn > 0) {
-    for (int i = 0; i < ovesfn; i++) {
-      arma::uvec replacement = find(sge3index321 == sge3ovestf(ovestfind(i)));
-      
-      if (aliveandequal(ovestfind(i)) != -1 && aliveandequal(replacement(0)) != -1) {
-        fmatrix(aliveandequal(ovestfind(i))) = fmatrix(aliveandequal(replacement(0)));
-      }
-    }
+  List final_output;
+  
+  if (err_switch) {
+    List out_dude = List::create(Named("A") = A_output, _["U"] = U_output,
+      _["F"] = F_output, _["ahstages"] = R_NilValue, _["agestages"] = R_NilValue,
+      _["hstages"] = R_NilValue, _["labels"] = R_NilValue,
+      _["matrixqc"] = R_NilValue, _["dataqc"] = R_NilValue,
+      _["probsrates_all"] = conc_err, _["s2f"] = s2f_err);
+    final_output = out_dude;
+    
+  } else {
+    List out_dude = List::create(Named("A") = A_output, _["U"] = U_output,
+      _["F"] = F_output, _["ahstages"] = R_NilValue, _["agestages"] = R_NilValue,
+      _["hstages"] = R_NilValue, _["labels"] = R_NilValue,
+      _["matrixqc"] = R_NilValue, _["dataqc"] = R_NilValue);
+    final_output = out_dude;
   }
   
-  // The next bit changes NAs to 0
-  tmatrix(find_nonfinite(tmatrix)).zeros();
-  fmatrix(find_nonfinite(fmatrix)).zeros();
-  
-  arma::mat amatrix = tmatrix + fmatrix; // Create the A matrix
-  
-  return List::create(Named("A") = amatrix, _["U"] = tmatrix, _["F"] = fmatrix);
+  return final_output;
 }
-
-// preouterator
-// jerzeibalowski, jerzeibalowaki_sp, and motherbalowski
 
 //' Key Function Passing Models and Other Parameters to Matrix Estimators
 //' 
-//' Function \code{.raymccooney()} takes the various vital rate models and other
+//' Function \code{raymccooney()} takes the various vital rate models and other
 //' parameters and coordinates them as input into the function-based matrix
 //' estimation functions.
 //' 
-//' @name .raymccooney
+//' @name raymccooney
 //' 
 //' @param listofyears A data frame where the rows designate the exact order of
 //' years and patches to produce matrices for.
@@ -4132,7 +4488,7 @@ List subvertedpatrolgroup(DataFrame sge3, DataFrame sge2, DataFrame MainData,
 //' list object, or a \code{vrm_input} object. All 14 vital rate models and the
 //' \code{paramnames} data frame are required if not using a \code{vrm_input}
 //' object.
-//' @param mainyears A numeric vector of all times at time \emph{t}.
+//' @param mainyears A string vector of all times at time \emph{t}.
 //' @param mainpatches A string vector of patch names.
 //' @param maingroups A string vector of stage group names.
 //' @param mainindcova Typically a string vector of individual covariate
@@ -4147,42 +4503,60 @@ List subvertedpatrolgroup(DataFrame sge3, DataFrame sge2, DataFrame MainData,
 //' \code{.overwrite_reassess}. Must be processed via \code{.overwrite_reassess}
 //' rather than being a raw overwrite or supplement table.
 //' @param repmatrix The reproductive matrix used in analysis.
-//' @param f2_inda A numeric vector of length equal to the number of years,
+//' @param f2_inda_num A numeric vector of length equal to the number of years,
 //' holding values equal to the mean value of individual covariate \code{a} at
 //' each time \emph{t} to be used in analysis.
-//' @param f1_inda A numeric vector of length equal to the number of years,
+//' @param f1_inda_num A numeric vector of length equal to the number of years,
 //' holding values equal to the mean value of individual covariate \code{a} at
 //' each time \emph{t}-1 to be used in analysis.
-//' @param f2_indb A numeric vector of length equal to the number of years,
+//' @param f2_indb_num A numeric vector of length equal to the number of years,
 //' holding values equal to the mean value of individual covariate \code{b} at
 //' each time \emph{t} to be used in analysis.
-//' @param f1_indb A numeric vector of length equal to the number of years,
+//' @param f1_indb_num A numeric vector of length equal to the number of years,
 //' holding values equal to the mean value of individual covariate \code{b} at
 //' each time \emph{t}-1 to be used in analysis.
-//' @param f2_indc A numeric vector of length equal to the number of years,
+//' @param f2_indc_num A numeric vector of length equal to the number of years,
 //' holding values equal to the mean value of individual covariate \code{c} at
 //' each time \emph{t} to be used in analysis.
-//' @param f1_indc A numeric vector of length equal to the number of years,
+//' @param f1_indc_num A numeric vector of length equal to the number of years,
 //' holding values equal to the mean value of individual covariate \code{c} at
 //' each time \emph{t}-1 to be used in analysis.
-//' @param r2_inda A numeric vector of length equal to the number of years,
-//' holding values equal to the mean value of individual random covariate
-//' \code{a} at each time \emph{t} to be used in analysis.
-//' @param r1_inda A numeric vector of length equal to the number of years,
-//' holding values equal to the mean value of individual random covariate
-//' \code{a} at each time \emph{t}-1 to be used in analysis.
-//' @param r2_indb A numeric vector of length equal to the number of years,
-//' holding values equal to the mean value of individual random covariate
-//' \code{b} at each time \emph{t} to be used in analysis.
-//' @param r1_indb A numeric vector of length equal to the number of years,
-//' holding values equal to the mean value of individual random covariate
-//' \code{b} at each time \emph{t}-1 to be used in analysis.
-//' @param r2_indc A numeric vector of length equal to the number of years,
-//' holding values equal to the mean value of individual random covariate
-//' \code{c} at each time \emph{t} to be used in analysis.
-//' @param r1_indc A numeric vector of length equal to the number of years,
-//' holding values equal to the mean value of individual random covariate
-//' \code{c} at each time \emph{t}-1 to be used in analysis.
+//' @param f2_inda_cat A string vector of length equal to the number of years,
+//' holding categories of individual covariate \code{a} at each time \emph{t} to
+//' be used in analysis.
+//' @param f1_inda_cat A string vector of length equal to the number of years,
+//' holding categories of individual covariate \code{a} at each time \emph{t-1}
+//' to be used in analysis.
+//' @param f2_indb_cat A string vector of length equal to the number of years,
+//' holding categories of individual covariate \code{b} at each time \emph{t} to
+//' be used in analysis.
+//' @param f1_indb_cat A string vector of length equal to the number of years,
+//' holding categories of individual covariate \code{b} at each time \emph{t-1}
+//' to be used in analysis.
+//' @param f2_indc_cat A string vector of length equal to the number of years,
+//' holding categories of individual covariate \code{c} at each time \emph{t} to
+//' be used in analysis.
+//' @param f1_indc_cat A string vector of length equal to the number of years,
+//' holding categories of individual covariate \code{c} at each time \emph{t-1}
+//' to be used in analysis.
+//' @param r2_inda A string vector of length equal to the number of years,
+//' holding categories of individual random covariate \code{a} at each time
+//' \emph{t} to be used in analysis.
+//' @param r1_inda A string vector of length equal to the number of years,
+//' holding categories of individual random covariate \code{a} at each time
+//' \emph{t-1} to be used in analysis.
+//' @param r2_indb A string vector of length equal to the number of years,
+//' holding categories of individual random covariate \code{b} at each time
+//' \emph{t} to be used in analysis.
+//' @param r1_indb A string vector of length equal to the number of years,
+//' holding categories of individual random covariate \code{b} at each time
+//' \emph{t-1} to be used in analysis.
+//' @param r2_indc A string vector of length equal to the number of years,
+//' holding categories of individual random covariate \code{c} at each time
+//' \emph{t} to be used in analysis.
+//' @param r1_indc A string vector of length equal to the number of years,
+//' holding categories of individual random covariate \code{c} at each time
+//' \emph{t-1} to be used in analysis.
 //' @param dev_terms A numeric vector containing the deviations to the linear
 //' models input by the user. The order is: survival, observation status, size,
 //' size_b, size_c, reproductive status, fecundity, juvenile survival, juvenile
@@ -4206,7 +4580,7 @@ List subvertedpatrolgroup(DataFrame sge3, DataFrame sge2, DataFrame MainData,
 //' no filtering, \code{1}: filter out rows with \code{index321 == -1}, and
 //' \code{2}: filter out rows with \code{aliveandequal == -1}.
 //' @param negfec A logical value denoting whether to change negative estimated
-//' fecundity to 0.
+//' fecundity to 0. Defaults to \code{FALSE}.
 //' @param nodata A logical value indicating whether the modelsuite contains
 //' all parameter coefficients and no hfv dataset is provided (\code{TRUE}), or
 //' whether an hfv dataset and a true modelsuite are provided (\code{FALSE}).
@@ -4217,10 +4591,10 @@ List subvertedpatrolgroup(DataFrame sge3, DataFrame sge2, DataFrame MainData,
 //' @param theta_tol A numeric value indicating a maximum value for theta in
 //' negative binomial probability density estimation. Defaults to
 //' \code{100000000.0}.
-//' @param ipm_method A string indicating which method should be used to
-//' estimate size transitions in cases with continuous distributions. Options
-//' include \code{"midpoint"}, which uses the midpoint method, and \code{"cdf"},
-//' which uses the cumulative density function.
+//' @param cdf A logical value indicating whether to estimate size transitions
+//' using the cumulative density function in cases with continuous
+//' distributions. Defaults to \code{TRUE}, with the midpoint method used if
+//' \code{FALSE}.
 //' @param err_check If \code{TRUE}, then also output objects \code{prob_out}
 //' and \code{allstages} for error checking purposes.
 //' @param simplicity If \code{TRUE}, then only outputs matrices \code{U} and
@@ -4237,18 +4611,20 @@ List subvertedpatrolgroup(DataFrame sge3, DataFrame sge2, DataFrame MainData,
 //' 
 //' @keywords internal
 //' @noRd
-// [[Rcpp::export(.raymccooney)]]
-List raymccooney(DataFrame listofyears, List modelsuite, NumericVector mainyears,
-  CharacterVector mainpatches, RObject maingroups, RObject mainindcova,
-  RObject mainindcovb, RObject mainindcovc, DataFrame StageFrame,
-  DataFrame OverWrite, arma::mat repmatrix, NumericVector f2_inda,
-  NumericVector f1_inda, NumericVector f2_indb, NumericVector f1_indb,
-  NumericVector f2_indc, NumericVector f1_indc, StringVector r2_inda,
+List raymccooney(const DataFrame& listofyears, const List& modelsuite,
+  const CharacterVector& mainyears, const CharacterVector& mainpatches,
+  RObject maingroups, RObject mainindcova, RObject mainindcovb,
+  RObject mainindcovc, const DataFrame& StageFrame, const DataFrame& OverWrite,
+  const arma::mat& repmatrix, NumericVector f2_inda_num,
+  NumericVector f1_inda_num, NumericVector f2_indb_num, NumericVector f1_indb_num,
+  NumericVector f2_indc_num, NumericVector f1_indc_num, StringVector f2_inda_cat,
+  StringVector f1_inda_cat, StringVector f2_indb_cat, StringVector f1_indb_cat,
+  StringVector f2_indc_cat, StringVector f1_indc_cat, StringVector r2_inda,
   StringVector r1_inda, StringVector r2_indb, StringVector r1_indb,
-  StringVector r2_indc, StringVector r1_indc, NumericVector dev_terms,
+  StringVector r2_indc, StringVector r1_indc, const NumericVector& dev_terms,
   double dens, double fecmod, int firstage, int finalage, int format, int style,
-  int cont, int filter, bool negfec, bool nodata = false, double exp_tol = 700.0,
-  double theta_tol = 100000000.0, String ipm_method = "cdf",
+  int cont, int filter, bool negfec = false, bool nodata = false,
+  double exp_tol = 700.0, double theta_tol = 100000000.0, bool cdf = true,
   bool err_check = false, bool simplicity = false) {
   
   // Dud dens_vr inputs
@@ -4343,7 +4719,6 @@ List raymccooney(DataFrame listofyears, List modelsuite, NumericVector mainyears
     NumericVector group_names = as<NumericVector>(group2_frame["groups"]);
     
     bool zi_yn = false;
-    
     int vrm_length = vrm_frame.length();
     
     NumericVector surv_num = as<NumericVector>(vrm_frame["surv"]);
@@ -5425,6 +5800,7 @@ List raymccooney(DataFrame listofyears, List modelsuite, NumericVector mainyears
       _["mainparams"] = mainparams, _["modelparams"] = modelparams);
       
   } else {
+    // Standard lefkoMod modelsuite input
     surv_model = modelsuite["survival_model"];
     obs_model = modelsuite["observation_model"];
     size_model = modelsuite["size_model"];
@@ -5458,6 +5834,7 @@ List raymccooney(DataFrame listofyears, List modelsuite, NumericVector mainyears
     mainpatches, maingroups, mainindcova, mainindcovb, mainindcovc, nodata);
   List fec_proxy = modelextract(fec_model, paramnames, mainyears, mainpatches,
     maingroups, mainindcova, mainindcovb, mainindcovc, nodata);
+  
   List jsurv_proxy = modelextract(jsurv_model, paramnames, mainyears,
     mainpatches, maingroups, mainindcova, mainindcovb, mainindcovc, nodata);
   List jobs_proxy = modelextract(jobs_model, paramnames, mainyears, mainpatches,
@@ -5473,47 +5850,7 @@ List raymccooney(DataFrame listofyears, List modelsuite, NumericVector mainyears
   List jmatst_proxy = modelextract(jmatst_model, paramnames, mainyears,
     mainpatches, maingroups, mainindcova, mainindcovb, mainindcovc, nodata);
   
-  /*
-  // Here is a temporary output list for testing purposes
-  List NewOutput_a(15);
-  NewOutput_a(0) = surv_model;
-  NewOutput_a(1) = obs_model;
-  NewOutput_a(2) = size_model;
-  NewOutput_a(3) = sizeb_model;
-  NewOutput_a(4) = sizec_model;
-  NewOutput_a(5) = repst_model;
-  NewOutput_a(6) = fec_model;
-  NewOutput_a(7) = jsurv_model;
-  NewOutput_a(8) = jobs_model;
-  NewOutput_a(9) = jsize_model;
-  NewOutput_a(10) = jsizeb_model;
-  NewOutput_a(11) = jsizec_model;
-  NewOutput_a(12) = jrepst_model;
-  NewOutput_a(13) = jmatst_model;
-  NewOutput_a(14) = paramnames;
-  
-  List NewOutput_b(14);
-  NewOutput_b(0) = surv_proxy;
-  NewOutput_b(1) = obs_proxy;
-  NewOutput_b(2) = size_proxy;
-  NewOutput_b(3) = sizeb_proxy;
-  NewOutput_b(4) = sizec_proxy;
-  NewOutput_b(5) = repst_proxy;
-  NewOutput_b(6) = fec_proxy;
-  NewOutput_b(7) = jsurv_proxy;
-  NewOutput_b(8) = jobs_proxy;
-  NewOutput_b(9) = jsize_proxy;
-  NewOutput_b(10) = jsizeb_proxy;
-  NewOutput_b(11) = jsizec_proxy;
-  NewOutput_b(12) = jrepst_proxy;
-  NewOutput_b(13) = jmatst_proxy;
-  
-  List NewOutput = List::create(_["Part1"] = NewOutput_a, _["Part2"] = NewOutput_b);
-  
-  return NewOutput;
-  */
-  
-  // Now we create the matrices and order them within the correct list structure
+  // lefkoMat structure
   List A_mats(loy_length);
   List F_mats(loy_length);
   List U_mats(loy_length);
@@ -5533,18 +5870,19 @@ List raymccooney(DataFrame listofyears, List modelsuite, NumericVector mainyears
     0.0, 0.0, 0.0, 0.0};
   
   for (int i = 0; i < loy_length; i++) {
+    yearnumber = years(i);
+    patchnumber = patches(i);
     
-    yearnumber = years(i) - 1;
-    patchnumber = patches(i) - 1;
-    
-    List madsexmadrigal_oneyear = LefkoUtils::jerzeibalowski(allstages, StageFrame,
+    List madsexmadrigal_oneyear = jerzeibalowski(allstages, StageFrame,
       matrixformat, surv_proxy, obs_proxy, size_proxy, sizeb_proxy, sizec_proxy,
       repst_proxy, fec_proxy, jsurv_proxy, jobs_proxy, jsize_proxy, jsizeb_proxy,
-      jsizec_proxy, jrepst_proxy, jmatst_proxy, f2_inda, f1_inda, f2_indb, f1_indb,
-      f2_indc, f1_indc, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc, r1_indc,
-      dev_terms, false, dvr_yn, dvr_style, dvr_alpha, dvr_beta, dvr_dens, dens,
-      fecmod, maxsize, maxsizeb, maxsizec, firstage, finalage, negfec, yearnumber,
-      patchnumber, exp_tol, theta_tol, ipm_method, err_check, simplicity);
+      jsizec_proxy, jrepst_proxy, jmatst_proxy, f2_inda_num, f1_inda_num, f2_indb_num,
+      f1_indb_num, f2_indc_num, f1_indc_num, f2_inda_cat, f1_inda_cat, f2_indb_cat,
+      f1_indb_cat, f2_indc_cat, f1_indc_cat, r2_inda, r1_inda, r2_indb, r1_indb,
+      r2_indc, r1_indc, dev_terms, false, dvr_yn, dvr_style, dvr_alpha, dvr_beta,
+      dvr_dens, dens, fecmod, maxsize, maxsizeb, maxsizec, firstage, finalage,
+      negfec, yearnumber, patchnumber, exp_tol, theta_tol, cdf, err_check,
+      simplicity, false);
     
     if (!simplicity) A_mats(i) = madsexmadrigal_oneyear["A"];
     F_mats(i) = madsexmadrigal_oneyear["F"];
@@ -5574,7 +5912,7 @@ List raymccooney(DataFrame listofyears, List modelsuite, NumericVector mainyears
 //' This function takes the various vital rate models and other parameters and
 //' coordinates them as input into function \code{fleslie()}.
 //' 
-//' @name .mothermccooney
+//' @name mothermccooney
 //' 
 //' @param listofyears A data frame where the rows designate the exact order of
 //' years and patches to produce matrices for.
@@ -5594,24 +5932,42 @@ List raymccooney(DataFrame listofyears, List modelsuite, NumericVector mainyears
 //' @param mainindcovc Typically a string vector of individual covariate
 //' category names.
 //' @param ageframe The modified stageframe used in matrix calculations.
-//' @param f2_inda A numeric vector of length equal to the number of years,
+//' @param f2_inda_num A numeric vector of length equal to the number of years,
 //' holding values equal to the mean value of individual covariate \code{a} at
 //' each time \emph{t} to be used in analysis.
-//' @param f1_inda A numeric vector of length equal to the number of years,
+//' @param f1_inda_num A numeric vector of length equal to the number of years,
 //' holding values equal to the mean value of individual covariate \code{a} at
 //' each time \emph{t}-1 to be used in analysis.
-//' @param f2_indb A numeric vector of length equal to the number of years,
+//' @param f2_indb_num A numeric vector of length equal to the number of years,
 //' holding values equal to the mean value of individual covariate \code{b} at
 //' each time \emph{t} to be used in analysis.
-//' @param f1_indb A numeric vector of length equal to the number of years,
+//' @param f1_indb_num A numeric vector of length equal to the number of years,
 //' holding values equal to the mean value of individual covariate \code{b} at
 //' each time \emph{t}-1 to be used in analysis.
-//' @param f2_indc A numeric vector of length equal to the number of years,
+//' @param f2_indc_num A numeric vector of length equal to the number of years,
 //' holding values equal to the mean value of individual covariate \code{c} at
 //' each time \emph{t} to be used in analysis.
-//' @param f1_indc A numeric vector of length equal to the number of years,
+//' @param f1_indc_num A numeric vector of length equal to the number of years,
 //' holding values equal to the mean value of individual covariate \code{c} at
 //' each time \emph{t}-1 to be used in analysis.
+//' @param f2_inda_cat A string vector of length equal to the number of years,
+//' holding categories of individual covariate \code{a} at each time \emph{t} to
+//' be used in analysis.
+//' @param f1_inda_cat A string vector of length equal to the number of years,
+//' holding categories of individual covariate \code{a} at each time \emph{t-1}
+//' to be used in analysis.
+//' @param f2_indb_cat A string vector of length equal to the number of years,
+//' holding categories of individual covariate \code{b} at each time \emph{t} to
+//' be used in analysis.
+//' @param f1_indb_cat A string vector of length equal to the number of years,
+//' holding categories of individual covariate \code{b} at each time \emph{t-1}
+//' to be used in analysis.
+//' @param f2_indc_cat A string vector of length equal to the number of years,
+//' holding categories of individual covariate \code{c} at each time \emph{t} to
+//' be used in analysis.
+//' @param f1_indc_cat A string vector of length equal to the number of years,
+//' holding categories of individual covariate \code{c} at each time \emph{t-1}
+//' to be used in analysis.
 //' @param r2_inda A numeric vector of length equal to the number of years,
 //' holding values equal to the mean value of individual random covariate
 //' \code{a} at each time \emph{t} to be used in analysis.
@@ -5638,7 +5994,7 @@ List raymccooney(DataFrame listofyears, List modelsuite, NumericVector mainyears
 //' @param cont Denotes whether age-by-stage matrix continues past the final
 //' age.
 //' @param negfec A logical value denoting whether to change negative estimated
-//' fecundity to 0.
+//' fecundity to 0. Defaults to \code{FALSE}.
 //' @param nodata A logical value indicating whether the modelsuite contains
 //' all parameter coefficients and no hfv dataset is provided (\code{TRUE}), or
 //' whether an hfv dataset and a true modelsuite are provided (\code{FALSE}).
@@ -5646,6 +6002,11 @@ List raymccooney(DataFrame listofyears, List modelsuite, NumericVector mainyears
 //' @param exp_tol A numeric value indicating the maximum limit for the
 //' \code{exp()} function to be used in vital rate calculations. Defaults to
 //' \code{700.0}.
+//' @param theta_tol A numeric value indicating a maximum value for theta in
+//' negative binomial probability density estimation. Defaults to
+//' \code{100000000.0}.
+//' @param err_check If \code{TRUE}, then also output objects \code{prob_out}
+//' and \code{allstages} for error checking purposes.
 //' @param simplicity If \code{TRUE}, then only outputs matrices \code{U} and
 //' \code{F}, rather than also outputting matrix \code{A}. Defaults to
 //' \code{FALSE}.
@@ -5660,16 +6021,18 @@ List raymccooney(DataFrame listofyears, List modelsuite, NumericVector mainyears
 //' 
 //' @keywords internal
 //' @noRd
-// [[Rcpp::export(.mothermccooney)]]
-List mothermccooney(DataFrame listofyears, List modelsuite, IntegerVector actualages,
-  NumericVector mainyears, CharacterVector mainpatches, RObject maingroups,
-  RObject mainindcova, RObject mainindcovb, RObject mainindcovc, DataFrame ageframe,
-  NumericVector f2_inda, NumericVector f1_inda, NumericVector f2_indb,
-  NumericVector f1_indb, NumericVector f2_indc, NumericVector f1_indc,
+List mothermccooney(const DataFrame& listofyears, const List& modelsuite,
+  const IntegerVector& actualages, const CharacterVector& mainyears,
+  const CharacterVector& mainpatches, RObject maingroups, RObject mainindcova,
+  RObject mainindcovb, RObject mainindcovc, DataFrame ageframe,
+  NumericVector f2_inda_num, NumericVector f1_inda_num, NumericVector f2_indb_num,
+  NumericVector f1_indb_num, NumericVector f2_indc_num, NumericVector f1_indc_num,
+  StringVector f2_inda_cat, StringVector f1_inda_cat, StringVector f2_indb_cat,
+  StringVector f1_indb_cat, StringVector f2_indc_cat, StringVector f1_indc_cat,
   StringVector r2_inda, StringVector r1_inda, StringVector r2_indb,
   StringVector r1_indb, StringVector r2_indc, StringVector r1_indc,
-  NumericVector dev_terms, double dens, double fecmod, int finalage, int cont,
-  bool negfec, bool nodata = false, double exp_tol = 700.0,
+  const NumericVector& dev_terms, double dens, double fecmod, int finalage, int cont,
+  bool negfec = false, bool nodata = false, double exp_tol = 700.0,
   double theta_tol = 100000000.0, bool err_check = false,
   bool simplicity = false) {
   
@@ -5823,7 +6186,7 @@ List mothermccooney(DataFrame listofyears, List modelsuite, IntegerVector actual
           fec_indcovb2_zi = indcovb2_frame["fec_zi"];
         }
       }
-      
+            
       if (stringcompare_hard(as<std::string>(modelsuite_names[i]), "indcovb1_frame")) {
         DataFrame indcovb1_frame = as<DataFrame>(modelsuite["indcovb1_frame"]);
         
@@ -5996,15 +6359,16 @@ List mothermccooney(DataFrame listofyears, List modelsuite, IntegerVector actual
     0.0, 0.0, 0.0, 0.0};
   
   for (int i = 0; i < loy_length; i++) {
+    yearnumber = years(i);
+    patchnumber = patches(i);
     
-    yearnumber = years(i) - 1;
-    patchnumber = patches(i) - 1;
-    
-    List madsexmadrigal_oneyear = LefkoUtils::motherbalowski(actualages, ageframe, surv_proxy,
-      fec_proxy, f2_inda, f1_inda, f2_indb, f1_indb, f2_indc, f1_indc, r2_inda,
-      r1_inda, r2_indb, r1_indb, r2_indc, r1_indc, surv_dev, fec_dev, dens, fecmod,
-      finalage, negfec, yearnumber, patchnumber, false, dvr_yn, dvr_style,
-      dvr_alpha, dvr_beta, dvr_dens, exp_tol, theta_tol, simplicity);
+    List madsexmadrigal_oneyear = motherbalowski(actualages, ageframe,
+      surv_proxy, fec_proxy, f2_inda_num, f1_inda_num, f2_indb_num, f1_indb_num,
+      f2_indc_num, f1_indc_num, f2_inda_cat, f1_inda_cat, f2_indb_cat, f1_indb_cat,
+      f2_indc_cat, f1_indc_cat, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc,
+      r1_indc, surv_dev, fec_dev, dens, fecmod, finalage, negfec, yearnumber,
+      patchnumber, false, dvr_yn, dvr_style, dvr_alpha, dvr_beta, dvr_dens,
+      exp_tol, theta_tol, simplicity);
     
     if (!simplicity) A_mats(i) = madsexmadrigal_oneyear["A"];
     F_mats(i) = madsexmadrigal_oneyear["F"];
@@ -6027,9 +6391,8 @@ List mothermccooney(DataFrame listofyears, List modelsuite, IntegerVector actual
 //' models. Unlike \code{\link{projection3}()}, which uses matrices provided as
 //' input via already created \code{lefkoMat} objects, function
 //' \code{f_projection3()} creates matrices at each time step from vital rate
-//' models and parameter inputs provided. Projections may be deterministic or
-//' stochastic, and may be density dependent in either case. Replicates may also
-//' be produced.
+//' models and parameter inputs provided. Projections may be stochastic or not,
+//' and may be density dependent in either case. Also handles replication.
 //' 
 //' @name f_projection3
 //' 
@@ -6084,10 +6447,10 @@ List mothermccooney(DataFrame listofyears, List modelsuite, IntegerVector actual
 //' total no more than 1.0, in addition to the actions outlined for option
 //' \code{1}. Both settings \code{1} and \code{2} change negative fecundity
 //' elements to \code{0.0}.
-//' @param ipm_method A string indicating what method to use to estimate size
-//' transition probabilities, if size is treated as continuous. Options include:
-//' \code{"midpoint"}, which utilizes the midpoint method; and \code{"CDF"},
-//' which uses the cumulative distribution function. Defaults to \code{"CDF"}.
+//' @param ipm_cdf A logical value indicating whether to estimate size
+//' transitions using the cumulative density function in cases with continuous
+//' distributions. Defaults to \code{TRUE}, with the midpoint method used if
+//' \code{FALSE}.
 //' @param nreps The number of replicate projections. Defaults to \code{1}.
 //' @param times Number of occasions to iterate per replicate. Defaults to
 //' \code{10000}.
@@ -6289,15 +6652,15 @@ List mothermccooney(DataFrame listofyears, List modelsuite, IntegerVector actual
 //' \item{pop_size}{A list of matrices showing the total population size in each
 //' occasion per replicate (row within data frame) per pop-patch or population
 //' (list element). Only a single pop-patch or population is allowed in
-//' \code{f_projection3()}}
+//' \code{f_projection3()}.}
 //' \item{labels}{A data frame showing the order of populations and patches in
 //' item \code{projection}.}
 //' \item{ahstages}{The original stageframe used in the study.}
 //' \item{hstages}{A data frame showing the order of historical stage pairs.}
 //' \item{agestages}{A data frame showing the order of age-stage pairs.}
-//' \item{labels}{A short data frame indicating the population (always \code{1},
+//' \item{labels}{A short data frame indicating the population (always \code{1}),
 //' and patch (either the numeric index of the single chosen patch, or \code{1}
-//' in all other cases).)}
+//' in all other cases).}
 //' \item{control}{A short vector indicating the number of replicates and the
 //' number of occasions projected per replicate.}
 //' \item{density}{The data frame input under the density option. Only provided
@@ -6364,7 +6727,6 @@ List mothermccooney(DataFrame listofyears, List modelsuite, IntegerVector actual
 //' 
 //' @examples
 //' \donttest{
-//' # Lathyrus projection example with historical matrices
 //' data(lathyrus)
 //' 
 //' sizevector <- c(0, 4.6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8,
@@ -6428,28 +6790,21 @@ List mothermccooney(DataFrame listofyears, List modelsuite, IntegerVector actual
 //'   stage2 = c("rep", "rep"), stage1 = c("all", "all"), style = 1,
 //'   time_delay = 1, alpha = 1, beta = 0, type = c(2, 2), type_t12 = c(1, 1))
 //' 
-//' trial7 <- f_projection3(format = 1, data = lathvertln,
-//'   modelsuite = lathmodelsln3, stageframe = lathframeln, nreps = 2,
-//'   times = 1000, stochastic = TRUE, standardize = FALSE, growthonly = TRUE,
-//'   integeronly = FALSE, substoch = 0)
-//' summary(trial7)
-//' 
-//' # Now with density dependence and a set start vector
 //' trial7a <- f_projection3(format = 1, data = lathvertln,
 //'   modelsuite = lathmodelsln3, stageframe = lathframeln, nreps = 2,
-//'   times = 1000, stochastic = TRUE, standardize = FALSE, growthonly = TRUE,
+//'   times = 100, stochastic = TRUE, standardize = FALSE, growthonly = TRUE,
 //'   integeronly = FALSE, substoch = 0, sp_density = 0, start_frame = e3m_sv,
 //'   density = e3d)
 //' summary(trial7a)
 //' }
 //' 
 //' @export f_projection3
-// [[Rcpp::export]]
+// [[Rcpp::export(f_projection3)]]
 Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA_INTEGER,
   int last_age = NA_INTEGER, int fecage_min = NA_INTEGER, int fecage_max = NA_INTEGER,
   bool cont = true, bool stochastic = false, bool standardize = false,
   bool growthonly = true, bool repvalue = false, bool integeronly = false,
-  int substoch = 0, String ipm_method = "CDF", int nreps = 1, int times = 10000,
+  int substoch = 0, bool ipm_cdf = true, int nreps = 1, int times = 10000,
   double repmod = 1.0, double exp_tol = 700.0, double theta_tol = 100000000.0,
   bool random_inda = false, bool random_indb = false, bool random_indc = false,
   bool err_check = false, bool quiet = false, Nullable<DataFrame> data = R_NilValue,
@@ -6491,18 +6846,6 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     repvalue = false;
   }
   
-  bool ipm_check_mid = stringcompare_simple(ipm_method, "mid", true);
-  bool ipm_check_cdf = stringcompare_simple(ipm_method, "cdf", true);
-  
-  if (ipm_check_cdf) {
-    ipm_method = "cdf";
-  } else if (ipm_check_mid) {
-    ipm_method = "midpoint";
-  } else {
-    if (!quiet) Rf_warningcall(R_NilValue, "Option ipm_method is not understood. Will use cdf option.\n");
-    ipm_method = "cdf";
-  }
-
   // Vital rate models
   List msuite;
   RObject surmodl;
@@ -7897,7 +8240,6 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     CharacterVector all_patches = as<CharacterVector>(patch_frame["patches"]);
     CharacterVector mainpatches_int = unique(all_patches);
     mainpatches = stringsort(mainpatches_int);
-    
   }
   
   IntegerVector mainages;
@@ -8175,8 +8517,8 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
   CharacterVector r_indb_topull;
   CharacterVector r_indc_topull;
   
-  bool lessthan_warning = false;
-  bool greaterthan_warning = false;
+  bool lessthan_warning {false};
+  bool greaterthan_warning {false};
   
   if (ind_terms.isNotNull()) {
     DataFrame it_ROint = RObject(ind_terms);
@@ -8754,33 +9096,34 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
   }
   
   // modelextract proxy lists
-  List surv_proxy = modelextract(surmodl, pmnames, mainyears, mainpatches,
+  CharacterVector my_char = as<CharacterVector>(mainyears);
+  List surv_proxy = modelextract(surmodl, pmnames, my_char, mainpatches,
     maingroups, inda_names, indb_names, indc_names, nodata);
-  List obs_proxy = modelextract(obsmodl, pmnames, mainyears, mainpatches,
+  List obs_proxy = modelextract(obsmodl, pmnames, my_char, mainpatches,
     maingroups, inda_names, indb_names, indc_names, nodata);
-  List size_proxy = modelextract(sizmodl, pmnames, mainyears, mainpatches,
+  List size_proxy = modelextract(sizmodl, pmnames, my_char, mainpatches,
     maingroups, inda_names, indb_names, indc_names, nodata);
-  List sizeb_proxy = modelextract(sibmodl, pmnames, mainyears, mainpatches,
+  List sizeb_proxy = modelextract(sibmodl, pmnames, my_char, mainpatches,
     maingroups, inda_names, indb_names, indc_names, nodata);
-  List sizec_proxy = modelextract(sicmodl, pmnames, mainyears, mainpatches,
+  List sizec_proxy = modelextract(sicmodl, pmnames, my_char, mainpatches,
     maingroups, inda_names, indb_names, indc_names, nodata);
-  List repst_proxy = modelextract(repmodl, pmnames, mainyears, mainpatches,
+  List repst_proxy = modelextract(repmodl, pmnames, my_char, mainpatches,
     maingroups, inda_names, indb_names, indc_names, nodata);
-  List fec_proxy = modelextract(fecmodl, pmnames, mainyears, mainpatches,
+  List fec_proxy = modelextract(fecmodl, pmnames, my_char, mainpatches,
     maingroups, inda_names, indb_names, indc_names, nodata);
-  List jsurv_proxy = modelextract(jsurmodl, pmnames, mainyears, mainpatches,
+  List jsurv_proxy = modelextract(jsurmodl, pmnames, my_char, mainpatches,
     maingroups, inda_names, indb_names, indc_names, nodata);
-  List jobs_proxy = modelextract(jobsmodl, pmnames, mainyears, mainpatches,
+  List jobs_proxy = modelextract(jobsmodl, pmnames, my_char, mainpatches,
     maingroups, inda_names, indb_names, indc_names, nodata);
-  List jsize_proxy = modelextract(jsizmodl, pmnames, mainyears, mainpatches,
+  List jsize_proxy = modelextract(jsizmodl, pmnames, my_char, mainpatches,
     maingroups, inda_names, indb_names, indc_names, nodata);
-  List jsizeb_proxy = modelextract(jsibmodl, pmnames, mainyears, mainpatches,
+  List jsizeb_proxy = modelextract(jsibmodl, pmnames, my_char, mainpatches,
     maingroups, inda_names, indb_names, indc_names, nodata);
-  List jsizec_proxy = modelextract(jsicmodl, pmnames, mainyears, mainpatches,
+  List jsizec_proxy = modelextract(jsicmodl, pmnames, my_char, mainpatches,
     maingroups, inda_names, indb_names, indc_names, nodata);
-  List jrepst_proxy = modelextract(jrepmodl, pmnames, mainyears, mainpatches,
+  List jrepst_proxy = modelextract(jrepmodl, pmnames, my_char, mainpatches,
     maingroups, inda_names, indb_names, indc_names, nodata);
-  List jmatst_proxy = modelextract(jmatmodl, pmnames, mainyears, mainpatches,
+  List jmatst_proxy = modelextract(jmatmodl, pmnames, my_char, mainpatches,
     maingroups, inda_names, indb_names, indc_names, nodata);
   
   // Main projection set-up
@@ -8882,28 +9225,36 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
   if (format < 5) {
     NumericVector st_dvr_dens = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
       1.0, 1.0, 1.0, 1.0, 1.0};
-    madsexmadrigal_oneyear = LefkoUtils::jerzeibalowski(allstages, new_stageframe,
+    
+    // The first set of random variables below should actually be fixed factors
+    madsexmadrigal_oneyear = jerzeibalowski(allstages, new_stageframe,
       format, surv_proxy, obs_proxy, size_proxy, sizeb_proxy, sizec_proxy,
       repst_proxy, fec_proxy, jsurv_proxy, jobs_proxy, jsize_proxy, jsizeb_proxy,
       jsizec_proxy, jrepst_proxy, jmatst_proxy, f2_inda_values, f1_inda_values,
       f2_indb_values, f1_indb_values, f2_indc_values, f1_indc_values,
       r2_inda_values, r1_inda_values, r2_indb_values, r1_indb_values,
-      r2_indc_values, r1_indc_values, used_devs, dens_vr, dvr_yn, dvr_style,
+      r2_indc_values, r1_indc_values, r2_inda_values, r1_inda_values,
+      r2_indb_values, r1_indb_values, r2_indc_values, r1_indc_values,
+      used_devs, dens_vr, dvr_yn, dvr_style,
       dvr_alpha, dvr_beta, st_dvr_dens, spdensity_projected(0),
       repmod, maxsize, maxsizeb, maxsizec, start_age, last_age, false,
-      yearnumber, patchnumber, exp_tol, theta_tol, ipm_method, err_check,
-      true);
+      yearnumber, patchnumber, exp_tol, theta_tol, ipm_cdf, err_check,
+      true, false);
     
   } else {
     NumericVector st_dvr_dens = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
       1.0, 1.0, 1.0, 1.0, 1.0};
-    madsexmadrigal_oneyear = LefkoUtils::motherbalowski(actualages, new_stageframe,
+    
+    // The first set of random variables below should actually be fixed factors
+    madsexmadrigal_oneyear = motherbalowski(actualages, new_stageframe,
       surv_proxy, fec_proxy, f2_inda_values, f1_inda_values, f2_indb_values,
       f1_indb_values, f2_indc_values, f1_indc_values, r2_inda_values,
       r1_inda_values, r2_indb_values, r1_indb_values, r2_indc_values,
-      r1_indc_values, sur_dev_values(0), fec_dev_values(0), spdensity_projected(0),
-      repmod, last_age, false, yearnumber, patchnumber, dens_vr, dvr_yn,
-      dvr_style, dvr_alpha, dvr_beta, st_dvr_dens, exp_tol, theta_tol, true);
+      r1_indc_values, r2_inda_values, r1_inda_values, r2_indb_values,
+      r1_indb_values, r2_indc_values, r1_indc_values, sur_dev_values(0),
+      fec_dev_values(0), spdensity_projected(0), repmod, last_age, false,
+      yearnumber, patchnumber, dens_vr, dvr_yn, dvr_style, dvr_alpha, dvr_beta,
+      st_dvr_dens, exp_tol, theta_tol, true);
   }
   
   Umat = as<arma::mat>(madsexmadrigal_oneyear["U"]);
@@ -9234,26 +9585,32 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
         }
         
         if (format < 5) {
-          madsexmadrigal_oneyear = LefkoUtils::jerzeibalowski(allstages, new_stageframe,
+          // The first set of random values should be fixed factors
+          
+          madsexmadrigal_oneyear = jerzeibalowski(allstages, new_stageframe,
             format, surv_proxy, obs_proxy, size_proxy, sizeb_proxy, sizec_proxy,
             repst_proxy, fec_proxy, jsurv_proxy, jobs_proxy, jsize_proxy, jsizeb_proxy,
             jsizec_proxy, jrepst_proxy, jmatst_proxy, f2_inda_values, f1_inda_values,
             f2_indb_values, f1_indb_values, f2_indc_values, f1_indc_values,
             r2_inda_values, r1_inda_values, r2_indb_values, r1_indb_values,
-            r2_indc_values, r1_indc_values, used_devs, dens_vr, dvr_yn, dvr_style,
-            dvr_alpha, dvr_beta, usable_densities, spdensity_projected(i),
-            repmod, maxsize, maxsizeb, maxsizec, start_age, last_age, false,
-            yearnumber, patchnumber, exp_tol, theta_tol, ipm_method, err_check,
-            true);
+            r2_indc_values, r1_indc_values, r2_inda_values, r1_inda_values,
+            r2_indb_values, r1_indb_values, r2_indc_values, r1_indc_values,
+            used_devs, dens_vr, dvr_yn, dvr_style, dvr_alpha, dvr_beta,
+            usable_densities, spdensity_projected(i), repmod, maxsize, maxsizeb,
+            maxsizec, start_age, last_age, false, yearnumber, patchnumber, exp_tol,
+            theta_tol, ipm_cdf, err_check, true, false);
         } else {
-          madsexmadrigal_oneyear = LefkoUtils::motherbalowski(actualages, new_stageframe,
+          // The first set of random values should be fixed factors
+          
+          madsexmadrigal_oneyear = motherbalowski(actualages, new_stageframe,
             surv_proxy, fec_proxy, f2_inda_values, f1_inda_values, f2_indb_values,
             f1_indb_values, f2_indc_values, f1_indc_values, r2_inda_values,
             r1_inda_values, r2_indb_values, r1_indb_values, r2_indc_values,
-            r1_indc_values, sur_dev_values(i), fec_dev_values(i), spdensity_projected(i),
-            repmod, last_age, false, yearnumber, patchnumber, dens_vr, dvr_yn,
-            dvr_style, dvr_alpha, dvr_beta, usable_densities, exp_tol, theta_tol,
-            true);
+            r1_indc_values, r2_inda_values, r1_inda_values, r2_indb_values,
+            r1_indb_values, r2_indc_values, r1_indc_values, sur_dev_values(i),
+            fec_dev_values(i), spdensity_projected(i), repmod, last_age, false,
+            yearnumber, patchnumber, dens_vr, dvr_yn, dvr_style, dvr_alpha, dvr_beta,
+            usable_densities, exp_tol, theta_tol, true);
         }
         
         Umat = as<arma::mat>(madsexmadrigal_oneyear["U"]);
@@ -9369,23 +9726,30 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
               jsic_dev_values(times - (i+1)), jrep_dev_values(times - (i+1)), jmat_dev_values(times - (i+1))};
             
             if (format < 5) {
-              madsexmadrigal_forward = LefkoUtils::jerzeibalowski(allstages, new_stageframe,
+              
+              // The first set of random values should be fixed factors
+              madsexmadrigal_forward = jerzeibalowski(allstages, new_stageframe,
                 format, surv_proxy, obs_proxy, size_proxy, sizeb_proxy, sizec_proxy,
                 repst_proxy, fec_proxy, jsurv_proxy, jobs_proxy, jsize_proxy, jsizeb_proxy,
                 jsizec_proxy, jrepst_proxy, jmatst_proxy, f2_inda_values, f1_inda_values,
                 f2_indb_values, f1_indb_values, f2_indc_values, f1_indc_values,
                 r2_inda_values, r1_inda_values, r2_indb_values, r1_indb_values,
-                r2_indc_values, r1_indc_values, used_devs, false, dvr_yn, dvr_style,
-                dvr_alpha, dvr_beta, usable_densities, spdensity_projected(times - (i+1)),
-                repmod, maxsize, maxsizeb, maxsizec, start_age, last_age, false,
-                yearnumber, patchnumber, exp_tol, theta_tol, ipm_method, err_check,
-                true);
+                r2_indc_values, r1_indc_values, r2_inda_values, r1_inda_values,
+                r2_indb_values, r1_indb_values, r2_indc_values, r1_indc_values,
+                used_devs, false, dvr_yn, dvr_style, dvr_alpha, dvr_beta,
+                usable_densities, spdensity_projected(times - (i+1)), repmod,
+                maxsize, maxsizeb, maxsizec, start_age, last_age, false, yearnumber,
+                patchnumber, exp_tol, theta_tol, ipm_cdf, err_check, true, false);
             } else {
-              madsexmadrigal_forward = LefkoUtils::motherbalowski(actualages, new_stageframe,
+              
+              // The first set of random values should be fixed factors
+              madsexmadrigal_forward = motherbalowski(actualages, new_stageframe,
                 surv_proxy, fec_proxy, f2_inda_values, f1_inda_values, f2_indb_values,
                 f1_indb_values, f2_indc_values, f1_indc_values, r2_inda_values,
                 r1_inda_values, r2_indb_values, r1_indb_values, r2_indc_values,
-                r1_indc_values, sur_dev_values(times - (i+1)), fec_dev_values(times - (i+1)),
+                r1_indc_values, r2_inda_values, r1_inda_values, r2_indb_values,
+                r1_indb_values, r2_indc_values, r1_indc_values,
+                sur_dev_values(times - (i+1)), fec_dev_values(times - (i+1)),
                 spdensity_projected(times - (i+1)), repmod, last_age, false, yearnumber,
                 patchnumber, false, dvr_yn, dvr_style, dvr_alpha, dvr_beta,
                 usable_densities, exp_tol, theta_tol, true);
@@ -9446,17 +9810,19 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
           }
         }
         
-        madsexmadrigal_oneyear = LefkoUtils::jerzeibalowski_sp(allstages, new_stageframe,
+        // The first set of random values should be fixed factors
+        madsexmadrigal_oneyear = jerzeibalowski(allstages, new_stageframe,
           format, surv_proxy, obs_proxy, size_proxy, sizeb_proxy, sizec_proxy,
           repst_proxy, fec_proxy, jsurv_proxy, jobs_proxy, jsize_proxy, jsizeb_proxy,
           jsizec_proxy, jrepst_proxy, jmatst_proxy, f2_inda_values, f1_inda_values,
           f2_indb_values, f1_indb_values, f2_indc_values, f1_indc_values,
           r2_inda_values, r1_inda_values, r2_indb_values, r1_indb_values,
-          r2_indc_values, r1_indc_values, used_devs, dens_vr, dvr_yn, dvr_style,
-          dvr_alpha, dvr_beta, usable_densities, spdensity_projected(i),
-          repmod, maxsize, maxsizeb, maxsizec, start_age, last_age, false,
-          yearnumber, patchnumber, exp_tol, theta_tol, ipm_method, err_check,
-          true);
+          r2_indc_values, r1_indc_values, r2_inda_values, r1_inda_values,
+          r2_indb_values, r1_indb_values, r2_indc_values, r1_indc_values,
+          used_devs, dens_vr, dvr_yn, dvr_style, dvr_alpha, dvr_beta,
+          usable_densities, spdensity_projected(i), repmod, maxsize, maxsizeb,
+          maxsizec, start_age, last_age, false, yearnumber, patchnumber, exp_tol,
+          theta_tol, ipm_cdf, err_check, true, true);
         
         Umat_sp = as<arma::sp_mat>(madsexmadrigal_oneyear["U"]);
         Fmat_sp = as<arma::sp_mat>(madsexmadrigal_oneyear["F"]);
@@ -9572,17 +9938,19 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
               jobs_dev_values(times - (i+1)), jsiz_dev_values(times - (i+1)), jsib_dev_values(times - (i+1)),
               jsic_dev_values(times - (i+1)), jrep_dev_values(times - (i+1)), jmat_dev_values(times - (i+1))};
             
-            madsexmadrigal_forward = LefkoUtils::jerzeibalowski_sp(allstages, new_stageframe,
+            // The first set of random values should be fixed factors
+            madsexmadrigal_forward = jerzeibalowski(allstages, new_stageframe,
               format, surv_proxy, obs_proxy, size_proxy, sizeb_proxy, sizec_proxy,
               repst_proxy, fec_proxy, jsurv_proxy, jobs_proxy, jsize_proxy, jsizeb_proxy,
               jsizec_proxy, jrepst_proxy, jmatst_proxy, f2_inda_values, f1_inda_values,
               f2_indb_values, f1_indb_values, f2_indc_values, f1_indc_values,
               r2_inda_values, r1_inda_values, r2_indb_values, r1_indb_values,
-              r2_indc_values, r1_indc_values, used_devs, false, dvr_yn, dvr_style,
-              dvr_alpha, dvr_beta, usable_densities, spdensity_projected(times - (i+1)),
-              repmod, maxsize, maxsizeb, maxsizec, start_age, last_age, false,
-              yearnumber, patchnumber, exp_tol, theta_tol, ipm_method, err_check,
-              true);
+              r2_indc_values, r1_indc_values, r2_inda_values, r1_inda_values,
+              r2_indb_values, r1_indb_values, r2_indc_values, r1_indc_values,
+              used_devs, false, dvr_yn, dvr_style, dvr_alpha, dvr_beta,
+              usable_densities, spdensity_projected(times - (i+1)), repmod,
+              maxsize, maxsizeb, maxsizec, start_age, last_age, false, yearnumber,
+              patchnumber, exp_tol, theta_tol, ipm_cdf, err_check, true, true);
               
             arma::sp_mat second_U = as<arma::sp_mat>(madsexmadrigal_forward["U"]);
             arma::sp_mat second_F = as<arma::sp_mat>(madsexmadrigal_forward["F"]);
@@ -9714,525 +10082,5107 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
   return output;
 }
 
-// Pop Dyn
-
-//' Estimates Mean LefkoMat Object for Historical MPM
+//' General matrix projection model creation
 //' 
-//' Function \code{turbogeodiesel()} estimates mean historical population
-//' projection matrices, treating the mean as element-wise arithmetic.
+//' Creates MPMs of all flavors and styles.
 //' 
-//' @name .turbogeodiesel
+//' Function \code{mpm_create()} is the core workhorse function that creates
+//' all flavors of MPM in \code{lefko3}. All other MPM creation functions act
+//' as wrappers for this function. As such, this function provides the most
+//' general and most detailed control over the MPM creation process.
 //' 
-//' @param loy A data frame denoting the population, patch, and occasion
-//' designation for each matrix. Includes a total of 9 variables.
-//' @param Umats A matrix with all U matrices turned into columns.
-//' @param Fmats A matrix with all F matrices turned into columns.
-//' @param hstages This is the \code{hstages} object held by \code{mats}.
-//' @param agestages This is the \code{agestages} object held by \code{mats}.
-//' @param stages This is the core stageframe held by \code{mats}, equivalent to
-//' \code{ahstages}.
-//' @param patchmats A logical value stating whether to estimate patch-level
-//' means.
-//' @param popmats A logical value stating whether to estimate population-level
-//' means.
+//' @name mpm_create
 //' 
-//' @return A list using the structure of a lefkoMat object.
-//' 
-//' @keywords internal
-//' @noRd
-// [[Rcpp::export(.turbogeodiesel)]]
-List turbogeodiesel(DataFrame loy, List Umats, List Fmats, DataFrame hstages, 
-  DataFrame agestages, DataFrame stages, bool patchmats, bool popmats) {
-  
-  StringVector pops = as<StringVector>(loy["pop"]);
-  arma::uvec pop_num = as<arma::uvec>(loy["popc"]);
-  StringVector patches = as<StringVector>(loy["patch"]);
-  arma::uvec year2 = as<arma::uvec>(loy["year2"]);
-  arma::uvec poppatchc = as<arma::uvec>(loy["poppatchc"]);
-  arma::uvec patchesinpop = as<arma::uvec>(loy["patchesinpop"]);
-  arma::uvec yearsinpatch = as<arma::uvec>(loy["yearsinpatch"]);
-  arma::uvec uniquepops = unique(pop_num);
-  arma::uvec uniquepoppatches = unique(poppatchc);
-  int loydim = pops.length();
-  int numofpops = uniquepops.n_elem;
-  int numofpatches = uniquepoppatches.n_elem;
-  
-  if (numofpatches == 1) popmats = 0;
-  
-  StringVector poporderlong(loydim);
-  arma::uvec poporderlong_num(loydim);
-  StringVector patchorderlong(loydim);
-  arma::uvec annmatriceslong(loydim);
-  arma::uvec meanassign(loydim);
-  poporderlong_num.zeros();
-  annmatriceslong.zeros();
-  meanassign.zeros();
-  
-  pop_num = pop_num + 1;
-  poppatchc = poppatchc + 1;
-  
-  poporderlong(0) = pops(0);
-  poporderlong_num(0) = pop_num(0);
-  patchorderlong(0) = patches(0);
-  annmatriceslong(0) = 1;
-  meanassign(0) = 1;
-  
-  int counter {0};
-  
-  StringVector uniquepops_str(numofpops);
-  uniquepops_str(0) = pops(0);
-  int popcounter {0};
-  
-  // Here we assess how many mean matrices we need, and their overall order
-  if (loydim > 1) {
-    for (int i = 1; i < loydim; i++) {
-      if (poppatchc(i) != poppatchc(i-1)) {
-        counter++;
-        poporderlong(counter) = pops(i);
-        poporderlong_num(counter) = pop_num(i);
-        patchorderlong(counter) = patches(i);
-        annmatriceslong(counter) = 1;
-        meanassign(i) = meanassign(i-1) + 1;
-        
-        if (pop_num(i) != pop_num(i-1)) {
-          popcounter += 1;
-          uniquepops_str(popcounter) = pops(i);
-        }
-        
-      } else {
-        annmatriceslong(counter) = annmatriceslong(counter) + 1;
-        meanassign(i) = meanassign(i-1);
-      }
-    }
-  }
-  
-  arma::uvec toestimate = find(poporderlong_num);
-  int popcount = toestimate.n_elem;
-  
-  int totalmatrices = toestimate.n_elem + numofpops;
-  
-  if (patchmats == 1 && popmats == 0) {
-    totalmatrices = toestimate.n_elem;
-  } else if (patchmats == 0 && popmats == 1) {
-    totalmatrices = numofpops;
-  }
-  
-  arma::uvec poporder = poporderlong_num.elem(toestimate);
-  arma::uvec patchorder = poppatchc.elem(toestimate);
-  arma::uvec annmatrices = annmatriceslong.elem(toestimate);
-  
-  StringVector poporder_str(popcount);
-  StringVector patchorder_str(popcount);
-  
-  for (int i = 0; i < popcount; i++) {
-    poporder_str(i) = pops(toestimate(i));
-    patchorder_str(i) = patches(toestimate(i));
-  }
-  
-  // This next chunk predicts which elements will be targeted for arithmetic mean estimation
-  int format_int {0};
-  arma::uvec astages = as<arma::uvec>(stages["stage_id"]);
-  StringVector stagenames = as<StringVector>(stages["stage"]);
-  int numstages = astages.n_elem;
-  
-  if (stagenames(numstages - 1) == "AlmostBorn") format_int = 1;
-  
-  arma::uvec hstage3in = as<arma::uvec>(hstages["stage_id_2"]);
-  arma::uvec hstage2nin = as<arma::uvec>(hstages["stage_id_1"]);
-  int numhstages = hstage3in.n_elem;
-  
-  int predictedsize = 2 * numstages * numstages * numstages;
-  
-  arma::uvec hsindexl(predictedsize);
-  hsindexl.zeros();
-  
-  counter = 0;
-  
-  if (format_int == 0) { // Ehrlen format
-    for (int i1 = 0; i1 < numhstages; i1++) {
-      for (int i2 = 0; i2 < numhstages; i2++) {
-        if (hstage3in(i1) == hstage2nin(i2)) {
-          hsindexl(counter) = (i1 * numhstages) + i2;
-          counter++;
-        }
-      }
-    }
-  } else { // deVries format
-    for (int i1 = 0; i1 < numhstages; i1++) {
-      for (int i2 = 0; i2 < numhstages; i2++) {
-        if (hstage3in(i1) == hstage2nin(i2)) {
-          hsindexl(counter) = (i1 * numhstages) + i2;
-          counter++;
-          
-        } else if (static_cast<int>(hstage2nin(i2)) == numstages || 
-            static_cast<int>(hstage3in(i1)) == numstages) {
-          hsindexl(counter) = (i1 * numhstages) + i2;
-          counter++;
-        }
-      }
-    }
-  }
-  
-  arma::uvec hsgood = find(hsindexl);
-  arma::uvec hsindex = hsindexl.elem(hsgood);
-  arma::uvec zerovec(1);
-  zerovec.zeros();
-  arma::uvec allindices = join_cols(zerovec, hsindex);
-  
-  // Now we build U and F matrices of element-wise arithmetic means, where
-  // each column corresponds to the predicted non-zero elements of each mean
-  // matrix, and each matrix is presented as a column vector within the 
-  // overall matrix. The A matrix is the sum of U and F.
-  int core_elem = counter;
-  
-  arma::mat umatvec(core_elem, totalmatrices);
-  arma::mat fmatvec(core_elem, totalmatrices);
-  umatvec.zeros();
-  fmatvec.zeros();
-  
-  int patchchoice {0};
-  int popchoice {0};
-  
-  pop_num = pop_num - 1;
-  poppatchc = poppatchc - 1;
-  
-  for (int i = 0; i < loydim; i++) {
-    if (patchmats == 1) {
-      patchchoice = poppatchc(i);
-      
-      umatvec.col(patchchoice) = umatvec.col(patchchoice) +
-        (flagrantcrap(as<arma::mat>(Umats[i]), allindices) / yearsinpatch(i));
-      fmatvec.col(patchchoice) = fmatvec.col(patchchoice) +
-        (flagrantcrap(as<arma::mat>(Fmats[i]), allindices) / yearsinpatch(i));
-    }
-    
-    if (popmats == 1) {
-      if (patchmats == 1) {
-        popchoice = numofpatches + pop_num(i);
-      } else {
-        popchoice = pop_num(i);
-      }
-      
-      umatvec.col(popchoice) = umatvec.col(popchoice) +
-        (flagrantcrap(as<arma::mat>(Umats[i]), allindices) / (yearsinpatch(i) * patchesinpop(i)));
-      fmatvec.col(popchoice) = fmatvec.col(popchoice) +
-        (flagrantcrap(as<arma::mat>(Fmats[i]), allindices) / (yearsinpatch(i) * patchesinpop(i)));
-    }
-  }
-  arma::mat amatvec = umatvec + fmatvec;
-  
-  // Here we create the cheat sheet algorithm
-  int cheatsheetlength {1};
-  if (numofpatches > 1) cheatsheetlength = numofpops + numofpatches;
-  StringVector poporder_redone(cheatsheetlength);
-  StringVector patchorder_redone(cheatsheetlength);
-  
-  if (numofpatches > 1) {
-    for (int i = 0; i < numofpatches; i++) {
-      poporder_redone(i) = poporderlong(i);
-      patchorder_redone(i) = patchorderlong(i);
-    }
-    
-    for (int i = 0; i < numofpops; i++) {
-      poporder_redone(i+numofpatches) = uniquepops_str(i);
-      patchorder_redone(i+numofpatches) = "0";
-    }
-    
-  } else {
-    poporder_redone(0) = poporderlong(0);
-    patchorder_redone(0) = patchorderlong(0);
-  }
-  DataFrame cheatsheet = DataFrame::create(Named("pop") = poporder_redone,
-    _["patch"] = patchorder_redone);
-  
-  // Now we will create the main list objects holding the matrices
-  List U(totalmatrices);
-  List F(totalmatrices);
-  List A(totalmatrices);
-  
-  arma::mat umat_base(numhstages, numhstages);
-  arma::mat fmat_base(numhstages, numhstages);
-  arma::mat amat_base(numhstages, numhstages);
-  
-  for (int i = 0; i < totalmatrices; i++) {
-    umat_base.zeros();
-    fmat_base.zeros();
-    amat_base.zeros();
-    
-    umat_base.elem(allindices) = umatvec.col(i);
-    fmat_base.elem(allindices) = fmatvec.col(i);
-    amat_base.elem(allindices) = amatvec.col(i);
-    
-    U(i) = umat_base;
-    F(i) = fmat_base;
-    A(i) = amat_base;
-  }
-
-  // Matrix QC output
-  arma::uvec utrans = find(umatvec);
-  arma::uvec ftrans = find(fmatvec);
-  int totalutrans = utrans.n_elem;
-  int totalftrans = ftrans.n_elem;
-  
-  NumericVector matrixqc(3);
-  matrixqc(0) = totalutrans; // summed number of non-zero u transitions
-  matrixqc(1) = totalftrans; // summed number of non-zero f transitions
-  matrixqc(2) = totalmatrices;
-  
-  // Final output
-  List output = List::create(Named("A") = A, _["U"] = U, _["F"] = F,
-    _["hstages"] = hstages, _["agestages"] = agestages, _["ahstages"] = stages,
-    _["labels"] = cheatsheet, _["matrixqc"] = matrixqc);
-  
-  return output;
-}
-
-//' Estimates Mean LefkoMat Object for Ahistorical MPM
-//' 
-//' Function \code{geodiesel()} estimates mean ahistorical population
-//' projection matrices, treating the mean as element-wise arithmetic. The
-//' function can handle both normal ahistorical MPMs and age x stage ahistorical
+//' @param historical A logical value indicating whether to build a historical
+//' MPM. Defaults to \code{FALSE}.
+//' @param stage A logical value indicating whether to build a stage-based MPM.
+//' If both \code{stage = TRUE} and \code{age = TRUE}, then will proceed to
+//' build an age-by-stage MPM. Defaults to \code{TRUE}.
+//' @param age A logical value indicating whether to build an age-based MPM. If
+//' both \code{stage = TRUE} and \code{age = TRUE}, then will proceed to build
+//' an age-by-stage MPM. Defaults to \code{FALSE}.
+//' @param devries  A logical value indicating whether to use deVries format
+//' for historical MPMs. Defaults to \code{FALSE}, in which case historical MPMs
+//' are created in Ehrlen format.
+//' @param reduce A logical value denoting whether to remove ages, ahistorical
+//' stages, or historical stages associated exclusively with zero transitions.
+//' These are removed only if the respective row and column sums in ALL matrices
+//' estimated equal 0. Defaults to \code{FALSE}.
+//' @param simple A logical value indicating whether to produce \code{A},
+//' \code{U}, and \code{F} matrices, or only the latter two. Defaults to
+//' \code{FALSE}, in which case all three are output.
+//' @param err_check A logical value indicating whether to append extra
+//' information used in matrix calculation within the output list. Defaults to
+//' \code{FALSE}.
+//' @param data A data frame of class \code{hfvdata}. Required for all MPMs,
+//' except for function-based MPMs in which \code{modelsuite} is set to a
+//' \code{vrm_input} object.
+//' @param year A variable corresponding to observation occasion, or a set of
+//' such values, given in values associated with the \code{year} term used in
+//' vital rate model development. Can also equal \code{"all"}, in which case
+//' matrices will be estimated for all occasions. Defaults to \code{"all"}.
+//' @param pop A variable designating which populations will have matrices
+//' estimated. Should be set to specific population names, or to \code{"all"} if
+//' all populations should have matrices estimated. Only used in raw MPMs.
+//' @param patch A variable designating which patches or subpopulations will have
+//' matrices estimated. Should be set to specific patch names, or to \code{"all"}
+//' if matrices should be estimated for all patches. Defaults to \code{NULL}, in
+//' which case patch designations are ignored.
+//' @param stageframe An object of class \code{stageframe}. These objects are
+//' generated by function \code{\link{sf_create}()}, and include information on
+//' the size, observation status, propagule status, reproduction status,
+//' immaturity status, maturity status, stage group, size bin widths, and other
+//' key characteristics of each ahistorical stage. Not needed for purely
+//' age-based MPMs.
+//' @param supplement An optional data frame of class \code{lefkoSD} that
+//' provides supplemental data that should be incorporated into the MPM. Three
+//' kinds of data may be integrated this way: transitions to be estimated via the
+//' use of proxy transitions, transition overwrites from the literature or
+//' supplemental studies, and transition multipliers for survival and fecundity.
+//' This data frame should be produced using the \code{\link{supplemental}()}
+//' function. Can be used in place of or in addition to an overwrite table (see 
+//' \code{overwrite} below) and a reproduction matrix (see \code{repmatrix}
+//' below).
+//' @param overwrite An optional data frame developed with the
+//' \code{\link{overwrite}()} function describing transitions to be overwritten
+//' either with given values or with other estimated transitions. Note that this
+//' function supplements overwrite data provided in \code{supplement}.
+//' @param repmatrix An optional reproduction matrix. This matrix is composed
+//' mostly of \code{0}s, with non-zero entries acting as element identifiers and
+//' multipliers for fecundity (with \code{1} equaling full fecundity). If left
+//' blank, and no \code{supplement} is provided, then all stages marked as
+//' reproductive produce offspring at 1x that of estimated fecundity, and that
+//' offspring production will yield the first stage noted as propagule or
+//' immature. May be the dimensions of either a historical or an ahistorical
+//' matrix. If the latter, then all stages will be used in occasion \emph{t}-1
+//' for each suggested ahistorical transition. Not used in purely age-based
 //' MPMs.
+//' @param alive A vector of names of binomial variables corresponding to status
+//' as alive (\code{1}) or dead (\code{0}) in occasions \emph{t}+1, \emph{t},
+//' and \emph{t}-1, respectively. Defaults to 
+//' \code{c("alive3", "alive2", "alive1")} for historical MPMs, and
+//' \code{c("alive3", "alive2")} for ahistorical MPMs. Only needed for raw MPMs.
+//' @param obsst A vector of names of binomial variables corresponding to
+//' observation status in occasions \emph{t}+1, \emph{t}, and \emph{t}-1,
+//' respectively. Defaults to \code{c("obsstatus3", "obsstatus2", "obsstatus1")}
+//' for historical MPMs, and \code{c("obsstatus3", "obsstatus2")} for
+//' ahistorical MPMs. Only needed for raw MPMs.
+//' @param size A vector of names of variables coding the primary size variable
+//' in occasions \emph{t}+1, \emph{t}, and \emph{t}-1, respectively. Defaults to 
+//' \code{c("sizea3", "sizea2", "sizea1")} for historical MPMs, and
+//' \code{c("sizea3", "sizea2")} for ahistorical MPMs. Only needed for raw,
+//' stage-based MPMs.
+//' @param sizeb A vector of names of variables coding the secondary size
+//' variable in occasions \emph{t}+1, \emph{t}, and \emph{t}-1, respectively.
+//' Defaults to an empty set, assuming that secondary size is not used. Only
+//' needed for raw, stage-based MPMs.
+//' @param sizec A vector of names of variables coding the tertiary size
+//' variable in occasions \emph{t}+1, \emph{t}, and \emph{t}-1, respectively.
+//' Defaults to an empty set, assuming that tertiary size is not used. Only
+//' needed for raw, stage-based MPMs.
+//' @param repst A vector of names of binomial variables corresponding to
+//' reproductive status in occasions \emph{t}+1, \emph{t}, and \emph{t}-1,
+//' respectively. Defaults to \code{c("repstatus3", "repstatus2", "repstatus1")}
+//' for historical MPMs, and \code{c("repstatus3", "repstatus2")} for
+//' ahistorical MPMs. Only needed for raw MPMs.
+//' @param matst A vector of names of binomial variables corresponding to
+//' maturity status in occasions \emph{t}+1, \emph{t}, and \emph{t}-1,
+//' respectively. Defaults to \code{c("matstatus3", "matstatus2", "matstatus1")}
+//' for historical MPMs, and \code{c("matstatus3", "matstatus2")} for
+//' ahistorical MPMs. Must be provided if building raw MPMs, and \code{stages}
+//' is not provided.
+//' @param fec A vector of names of variables coding for fecundity in occasions
+//' \emph{t}+1, \emph{t}, and \emph{t}-1, respectively. Defaults to
+//' \code{c("feca3", "feca2", "feca1")} for historical MPMs, and
+//' \code{c("feca3", "feca2")} for ahistorical MPMs. Only needed for raw,
+//' stage-based MPMs.
+//' @param stages An optional vector denoting the names of the variables within
+//' the main vertical dataset coding for the stages of each individual in
+//' occasions \emph{t}+1 and \emph{t}, and \emph{t}-1, if historical. The names
+//' of stages in these variables should match those used in the
+//' \code{stageframe} exactly. If left blank, then \code{rlefko3()} will attempt
+//' to infer stages by matching values of \code{alive}, \code{obsst},
+//' \code{size}, \code{sizev}, \code{sizec}, \code{repst}, and \code{matst} to
+//' characteristics noted in the associated \code{stageframe}. Only used in raw,
+//' stage-based MPMs.
+//' @param yearcol The variable name or column number corresponding to occasion
+//' \emph{t} in the dataset. Defaults to \code{"year2"}. Only needed for raw
+//' MPMs.
+//' @param popcol The variable name or column number corresponding to the
+//' identity of the population. Defaults to \code{"popid"} if a value is
+//' provided for \code{pop}; otherwise empty. Only needed for raw MPMs.
+//' @param patchcol The variable name or column number corresponding to patch in 
+//' the dataset. Defaults to \code{"patchid"} if a value is provided for
+//' \code{patch}; otherwise empty.  Only needed for raw MPMs.
+//' @param indivcol The variable name or column number coding individual
+//' identity. Only needed for raw MPMs.
+//' @param agecol The variable name or column corresponding to age in time
+//' \emph{t}. Defaults to \code{"obsage"}. Only used in raw age-based and
+//' age-by-stage MPMs.
+//' @param censorcol The variable name or column number denoting the censor
+//' status. Only needed in raw MPMs, and only if \code{censor = TRUE}.
+//' @param modelsuite One of three kinds of lists. The first is a
+//' \code{lefkoMod} object holding the vital rate models and associated
+//' metadata. Alternatively, an object of class \code{vrm_input} may be
+//' provided. Finally, this argument may simply be a list of models used to
+//' parameterize the MPM. In the final scenario, \code{data} and
+//' \code{paramnames} must also be given, and all variable names must match
+//' across all objects. If entered, then a function-based MPM will be developed.
+//' Otherwise, a raw MPM will be developed. Only used in function-based MPMs.
+//' @param paramnames A data frame with three columns, the first describing all
+//' terms used in linear modeling, the second (must be called \code{mainparams})
+//' giving the general model terms that will be used in matrix creation, and the
+//' third showing the equivalent terms used in modeling (must be named
+//' \code{modelparams}). Function \code{\link{create_pm}()} can be used to
+//' create a skeleton \code{paramnames} object, which can then be edited. Only
+//' required to build function-based MPMs if \code{modelsuite} is neither a
+//' \code{lefkoMod} object nor a \code{vrm_input} object.
+//' @param inda Can be a single value to use for individual covariate \code{a}
+//' in all matrices, a pair of values to use for times \emph{t} and \emph{t}-1
+//' in historical matrices, or a vector of such values corresponding to each
+//' occasion in the dataset. Defaults to \code{NULL}. Only used in
+//' function-based MPMs.
+//' @param indb Can be a single value to use for individual covariate \code{b}
+//' in all matrices, a pair of values to use for times \emph{t} and \emph{t}-1
+//' in historical matrices, or a vector of such values corresponding to each
+//' occasion in the dataset. Defaults to \code{NULL}. Only used in
+//' function-based MPMs.
+//' @param indc Can be a single value to use for individual covariate \code{c}
+//' in all matrices, a pair of values to use for times \emph{t} and \emph{t}-1
+//' in historical matrices, or a vector of such values corresponding to each
+//' occasion in the dataset. Defaults to \code{NULL}. Only used in
+//' function-based MPMs.
+//' @param dev_terms A numeric vector of 2 elements in the case of a Leslie MPM,
+//' and of 14 elements in all other cases. Consists of scalar additions to the
+//' y-intercepts of vital rate linear models used to estimate vital rates in
+//' function-based MPMs. Defaults to \code{0} values for all vital rates.
+//' @param density A numeric value indicating density value to use to propagate
+//' matrices. Only needed if density is an explanatory term used in one or more
+//' vital rate models. Defaults to \code{NA}. Only used in function_based MPMs.
+//' @param CDF A logical value indicating whether to use the cumulative
+//' distribution function to estimate size transition probabilities in
+//' function-based MPMs. Defaults to \code{TRUE}, and should only be changed to
+//' \code{FALSE} if approximate probabilities calculated via the midpoint method
+//' are preferred.
+//' @param random_inda A logical value denoting whether to treat individual
+//' covariate \code{a} as a random, categorical variable. Otherwise is treated
+//' as a fixed, numeric variable. Defaults to \code{FALSE}. Only used in
+//' function-based MPMs.
+//' @param random_indb A logical value denoting whether to treat individual
+//' covariate \code{b} as a random, categorical variable. Otherwise is treated
+//' as a fixed, numeric variable. Defaults to \code{FALSE}. Only used in
+//' function-based MPMs.
+//' @param random_indc A logical value denoting whether to treat individual
+//' covariate \code{c} as a random, categorical variable. Otherwise is treated
+//' as a fixed, numeric variable. Defaults to \code{FALSE}. Only used in
+//' function-based MPMs.
+//' @param negfec A logical value denoting whether fecundity values estimated to
+//' be negative should be reset to \code{0}. Defaults to \code{FALSE}.
+//' @param exp_tol A numeric value used to indicate a maximum value to set
+//' exponents to in the core kernel to prevent numerical overflow. Defaults to
+//' \code{700}. Only used in function-based MPMs.
+//' @param theta_tol A numeric value used to indicate a maximum value to theta
+//' as used in the negative binomial probability density kernel. Defaults to
+//' \code{100000000}, but can be reset to other values during error checking.
+//' Only used in function-based MPMs.
+//' @param censor If \code{TRUE}, then data will be removed according to the
+//' variable set in \code{censorcol}, such that only data with censor values
+//' equal to \code{censorkeep} will remain. Defaults to \code{FALSE}. Only
+//' used in raw MPMs.
+//' @param censorkeep The value of the censor variable denoting data elements to
+//' keep. Defaults to \code{0}. Only used in raw MPMs.
+//' @param start_age The age from which to start the matrix. Defaults to
+//' \code{NULL}, in which case age \code{1} is used if
+//' \code{prebreeding = TRUE}, and age \code{0} is used if
+//' \code{prebreeding = FALSE}. Only used in age-based MPMs.
+//' @param last_age The final age to use in the matrix. Defaults to \code{NULL},
+//' in which case the highest age in the dataset is used. Only used in age-based
+//' and age-by-stage MPMs.
+//' @param fecage_min The minimum age at which reproduction is possible.
+//' Defaults to \code{NULL}, which is interpreted to mean that fecundity should
+//' be assessed starting in the minimum age observed in the dataset. Only used
+//' in age-based MPMs.
+//' @param fecage_max The maximum age at which reproduction is possible.
+//' Defaults to \code{NULL}, which is interpreted to mean that fecundity should
+//' be assessed until the final observed age. Only used in age-based MPMs.
+//' @param fectime  An integer indicating whether to estimate fecundity using
+//' the variable given for \code{fec} in time \emph{t} (\code{2}) or time
+//' \emph{t}+1 (\code{3}). Only used for purely age-based MPMs. Defaults to
+//' \code{2}.
+//' @param fecmod A scalar multiplier for fecundity. Only used for purely
+//' age-based MPMs. Defaults to \code{1.0}.
+//' @param cont A logical value designating whether to allow continued survival
+//' of individuals past the final age noted in age-based and age-by-stage MPMs,
+//' using the demographic characteristics of the final age. Defaults to
+//' \code{TRUE}.
+//' @param prebreeding A logical value indicating whether the life history model
+//' is a pre-breeding model. Defaults to \code{TRUE}.
+//' @param stage_NRasRep A logical value indicating whether to treat
+//' non-reproductive individuals as reproductive. Used only in raw, stage-based
+//' MPMs in cases where stage assignment must still be handled. Not used in
+//' function-based MPMs, and in stage-based MPMs in which a valid \code{hfvdata}
+//' class data frame with stages already assigned is provided.
 //' 
-//' @name .geodiesel
+//' @return An object of class \code{lefkoMat}. This is a list that holds the
+//' matrix projection model and all of its metadata. The structure has the
+//' following elements:
 //' 
-//' @param loy A data frame denoting the population, patch, and occasion
-//' designation of each matrix. Includes a total of 9 variables.
-//' @param Umats A matrix with all U matrices turned into columns.
-//' @param Fmats A matrix with all F matrices turned into columns.
-//' @param agestages This is the \code{agestages} object held by \code{mats}.
-//' @param stages This is the core stageframe held by \code{mats}, equivalent to
-//' \code{ahstages}.
-//' @param patchmats A logical value stating whether to estimate patch-level
-//' means.
-//' @param popmats A logical value stating whether to estimate population-level
-//' means.
+//' \item{A}{A list of full projection matrices in order of sorted patches and
+//' occasion times. All matrices output in R's \code{matrix} class.}
+//' \item{U}{A list of survival transition matrices sorted as in \code{A}. All 
+//' matrices output in R's \code{matrix} class.}
+//' \item{F}{A list of fecundity matrices sorted as in \code{A}. All matrices 
+//' output in R's \code{matrix} class.}
+//' \item{hstages}{A data frame matrix showing the pairing of ahistorical stages
+//' used to create historical stage pairs. Only used in historical MPMs.}
+//' \item{agestages}{A data frame showing age-stage pairs. Only used in
+//' age-by-stage MPMs.}
+//' \item{ahstages}{A data frame detailing the characteristics of associated
+//' ahistorical stages, in the form of a modified stageframe that includes
+//' status as an entry stage through reproduction. Used in all stage-based and
+//' age-by-stage MPMs.}
+//' \item{labels}{A data frame giving the population, patch, and year of each
+//' matrix in order.}
+//' \item{dataqc}{A vector showing the numbers of individuals and rows in the
+//' vertical dataset used as input.}
+//' \item{matrixqc}{A short vector describing the number of non-zero elements in
+//' \code{U} and \code{F} matrices, and the number of annual matrices.}
+//' \item{modelqc}{This is the \code{qc} portion of the \code{modelsuite}
+//' input.}
+//' \item{prob_out}{An optional element only added if \code{err_check = TRUE}.
+//' This is a list of vital rate probability matrices, with 7 columns in the
+//' order of survival, observation probability, reproduction probability, primary
+//' size transition probability, secondary size transition probability, tertiary
+//' size transition probability, and probability of juvenile transition to
+//' maturity.}
+//' \item{allstages}{An optional element only added if \code{err_check = TRUE}.
+//' This is a data frame giving the values used to determine each matrix element
+//' capable of being estimated.}
 //' 
-//' @return A list using the structure of a LefkoMat object.
+//' @section Notes:
 //' 
-//' @keywords internal
-//' @noRd
-// [[Rcpp::export(.geodiesel)]]
-List geodiesel(DataFrame loy, List Umats, List Fmats, DataFrame agestages,
-  DataFrame stages, bool patchmats, bool popmats) {
+//' This function automatically determines whether to create a raw or
+//' function-based MPM given inputs supplied by the user.
+//' 
+//' If used, the reproduction matrix (field \code{repmatrix}) may be supplied as
+//' either historical or ahistorical. If provided as historical, then
+//' a historical MPM must be estimated.
+//' 
+//' @section Function-based MPM Notes:
+//' 
+//' Users may at times wish to estimate MPMs using a dataset incorporating
+//' multiple patches or subpopulations, but without discriminating between those
+//' patches or subpopulations. Should the aim of analysis be a general MPM that
+//' does not distinguish these patches or subpopulations, the
+//' \code{modelsearch()} run should not include patch terms.
+//' 
+//' Input options including multiple variable names must be entered in the order
+//' of variables in occasion \emph{t}+1, \emph{t}, and \emph{t}-1. Rearranging
+//' the order will lead to erroneous calculations, and will may lead to fatal
+//' errors.
+//' 
+//' This function provides two different means of estimating the probability of
+//' size transition. The midpoint method (\code{CDF = FALSE}) refers to the
+//' method in which the probability is estimated by first estimating the
+//' probability associated with transition from the exact size at the midpoint
+//' of the size class using the corresponding probability density function, and
+//' then multiplying that value by the bin width of the size class. Doak et al.
+//' 2021 (Ecological Monographs) noted that this method can produce biased
+//' results, with total size transitions associated with a specific size not
+//' totaling to 1.0 and even specific size transition probabilities capable of
+//' being estimated at values greater than 1.0. The alternative and default
+//' method (\code{CDF = TRUE}) uses the cumulative density function to estimate
+//' the probability of size transition as the cumulative probability of size
+//' transition at the greater limit of the size class minus the cumulative
+//' probability of size transition at the lower limit of the size class. This
+//' latter method avoids this bias. Note, however, that both methods are exact
+//' and unbiased for negative binomial and Poisson distributions.
+//' 
+//' Under the Gaussian and gamma size distributions, the number of estimated
+//' parameters may differ between the two \code{ipm_method} settings. Because
+//' the midpoint method has a tendency to incorporate upward bias in the
+//' estimation of size transition probabilities, it is more likely to yield non-
+//' zero values when the true probability is extremely close to 0. This will
+//' result in the \code{summary.lefkoMat()} function yielding higher numbers of
+//' estimated parameters than the \code{ipm_method = "CDF"} yields in some cases.
+//' 
+//' @examples
+//' \donttest{
+//' # Lathyrus historical function-based MPM example
+//' data(lathyrus)
+//' 
+//' sizevector <- c(0, 4.6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8,
+//'   9)
+//' stagevector <- c("Sd", "Sdl", "Dorm", "Sz1nr", "Sz2nr", "Sz3nr", "Sz4nr",
+//'   "Sz5nr", "Sz6nr", "Sz7nr", "Sz8nr", "Sz9nr", "Sz1r", "Sz2r", "Sz3r", 
+//'   "Sz4r", "Sz5r", "Sz6r", "Sz7r", "Sz8r", "Sz9r")
+//' repvector <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+//' obsvector <- c(0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+//' matvector <- c(0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+//' immvector <- c(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+//' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+//'   0)
+//' indataset <- c(0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+//' binvec <- c(0, 4.6, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 
+//'   0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5)
+//' 
+//' lathframeln <- sf_create(sizes = sizevector, stagenames = stagevector, 
+//'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector, 
+//'   immstatus = immvector, indataset = indataset, binhalfwidth = binvec, 
+//'   propstatus = propvector)
+//' 
+//' lathvertln <- verticalize3(lathyrus, noyears = 4, firstyear = 1988,
+//'   patchidcol = "SUBPLOT", individcol = "GENET", blocksize = 9, 
+//'   juvcol = "Seedling1988", sizeacol = "lnVol88", repstracol = "Intactseed88",
+//'   fecacol = "Intactseed88", deadacol = "Dead1988", 
+//'   nonobsacol = "Dormant1988", stageassign = lathframeln, stagesize = "sizea",
+//'   censorcol = "Missing1988", censorkeep = NA, NAas0 = TRUE, censor = TRUE)
+//' 
+//' lathvertln$feca2 <- round(lathvertln$feca2)
+//' lathvertln$feca1 <- round(lathvertln$feca1)
+//' lathvertln$feca3 <- round(lathvertln$feca3)
+//' 
+//' lathmodelsln3 <- modelsearch(lathvertln, historical = TRUE, 
+//'   approach = "mixed", suite = "main", 
+//'   vitalrates = c("surv", "obs", "size", "repst", "fec"), juvestimate = "Sdl",
+//'   bestfit = "AICc&k", sizedist = "gaussian", fecdist = "poisson", 
+//'   indiv = "individ", patch = "patchid", year = "year2", year.as.random = TRUE,
+//'   patch.as.random = TRUE, show.model.tables = TRUE, quiet = "partial")
+//' 
+//' lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "mat", "Sd", "Sdl"), 
+//'   stage2 = c("Sd", "Sd", "Sd", "Sd", "Sdl", "rep", "rep"),
+//'   stage1 = c("Sd", "rep", "Sd", "rep", "Sd", "mat", "mat"),
+//'   eststage3 = c(NA, NA, NA, NA, "mat", NA, NA),
+//'   eststage2 = c(NA, NA, NA, NA, "Sdl", NA, NA),
+//'   eststage1 = c(NA, NA, NA, NA, "Sdl", NA, NA),
+//'   givenrate = c(0.345, 0.345, 0.054, 0.054, NA, NA, NA),
+//'   multiplier = c(NA, NA, NA, NA, NA, 0.345, 0.054),
+//'   type = c(1, 1, 1, 1, 1, 3, 3), type_t12 = c(1, 2, 1, 2, 1, 1, 1),
+//'   stageframe = lathframeln, historical = TRUE)
+//' 
+//' lathmat3ln <- mpm_create(historical = TRUE, year = "all", patch = "all",
+//'   stageframe = lathframeln, modelsuite = lathmodelsln3, data = lathvertln,
+//'   supplement = lathsupp3)
+//' 
+//' summary(lathmat3ln)
+//' }
+//' 
+//' @export mpm_create
+// [[Rcpp::export(mpm_create)]]
+Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = false,
+  bool devries = false, bool reduce = false, bool simple = false,
+  bool err_check = false, Nullable<RObject> data = R_NilValue, 
+  Nullable<RObject> year = R_NilValue, Nullable<RObject> pop = R_NilValue,
+  Nullable<RObject> patch = R_NilValue, Nullable<RObject> stageframe = R_NilValue,
+  Nullable<RObject> supplement = R_NilValue, Nullable<RObject> overwrite = R_NilValue,
+  Nullable<RObject> repmatrix = R_NilValue, Nullable<RObject> alive = R_NilValue,
+  Nullable<RObject> obsst = R_NilValue, Nullable<RObject> size = R_NilValue,
+  Nullable<RObject> sizeb = R_NilValue, Nullable<RObject> sizec = R_NilValue,
+  Nullable<RObject> repst = R_NilValue, Nullable<RObject> matst = R_NilValue,
+  Nullable<RObject> fec = R_NilValue, Nullable<RObject> stages = R_NilValue,
+  Nullable<RObject> yearcol = R_NilValue, Nullable<RObject> popcol = R_NilValue,
+  Nullable<RObject> patchcol = R_NilValue, Nullable<RObject> indivcol = R_NilValue,
+  Nullable<RObject> agecol = R_NilValue, Nullable<RObject> censorcol = R_NilValue,
   
-  StringVector pops = as<StringVector>(loy["pop"]);
-  arma::uvec pop_num = as<arma::uvec>(loy["popc"]);
-  StringVector patches = as<StringVector>(loy["patch"]);
-  arma::uvec year2 = as<arma::uvec>(loy["year2"]);
-  arma::uvec poppatchc = as<arma::uvec>(loy["poppatchc"]);
-  arma::uvec patchesinpop = as<arma::uvec>(loy["patchesinpop"]);
-  arma::uvec yearsinpatch = as<arma::uvec>(loy["yearsinpatch"]);
-  arma::uvec uniquepops = unique(pop_num);
-  arma::uvec uniquepoppatches = unique(poppatchc);
-  int loydim = pops.length();
-  int numofpops = uniquepops.n_elem;
-  int numofpatches = uniquepoppatches.n_elem;
+  Nullable<RObject> modelsuite = R_NilValue, Nullable<RObject> paramnames = R_NilValue,
+  Nullable<RObject> inda = R_NilValue, Nullable<RObject> indb = R_NilValue,
+  Nullable<RObject> indc = R_NilValue, Nullable<RObject> dev_terms = R_NilValue,
+  double density = NA_REAL, bool CDF = true, bool random_inda = false,
+  bool random_indb = false, bool random_indc = false, bool negfec = false,
+  int exp_tol = 700, int theta_tol = 100000000,
   
-  if (numofpatches == 1) popmats = 0;
+  bool censor = false, Nullable<RObject> censorkeep = R_NilValue, int start_age = NA_INTEGER,
+  int last_age = NA_INTEGER, int fecage_min = NA_INTEGER, int fecage_max = NA_INTEGER,
+  int fectime = 2, double fecmod = 1.0, bool cont = true, bool prebreeding = true,
+  bool stage_NRasRep = false) {
   
-  StringVector poporderlong(loydim);
-  arma::uvec poporderlong_num(loydim);
-  StringVector patchorderlong(loydim);
-  arma::uvec annmatriceslong(loydim);
-  arma::uvec meanassign(loydim);
-  poporderlong_num.zeros();
-  annmatriceslong.zeros();
-  meanassign.zeros();
+  bool raw {true};
+  bool nodata {true};
+  int data_vars_no {0};
+  int data_points {0};
+  StringVector data_vars;
+  DataFrame data_;
+  IntegerVector dataqc_ = {0, 0};
   
-  pop_num = pop_num + 1;
-  poppatchc = poppatchc + 1;
+  if (data.isNotNull()) {
+    RObject data_input (data);
+    
+    if (is<DataFrame>(data_input)) {
+      data_ = as<DataFrame>(data_input);
+      
+      StringVector data_class (as<StringVector>(data_.attr("class")));
+      
+      int no_classes {static_cast<int>(data_class.length())};
+      int matches {0};
+      for (int i = 0; i < no_classes; i++) {
+        if (stringcompare_simple(String(data_class(i)), "hfv", false)) {
+          matches++;
+        }
+      }
+      if (matches == 0) throw Rcpp::exception("This function cannot proceed without a valid data frame in hfv format.", false);
+      
+      data_vars = as<StringVector>(data_.attr("names"));
+      data_vars_no = static_cast<int>(data_vars.length());
+      data_points = static_cast<int>(data_.nrows());
+      dataqc_(1) = data_points;
+      nodata = false;
+      
+    } else {
+      throw Rcpp::exception("This function cannot proceed without a valid data frame in hfv format.", false);
+    }
+  }
   
-  poporderlong(0) = pops(0);
-  poporderlong_num(0) = pop_num(0);
-  patchorderlong(0) = patches(0);
-  annmatriceslong(0) = 1;
-  meanassign(0) = 1;
+  DataFrame stageframe_;
+  if (stageframe.isNotNull()) {
+    RObject sf_input (stageframe);
+    
+    if (is<DataFrame>(sf_input)) {
+      stageframe_ = as<DataFrame>(sf_input);
+      
+      StringVector sf_class (as<StringVector>(stageframe_.attr("class")));
+      
+      int no_classes {static_cast<int>(sf_class.length())};
+      int matches {0};
+      for (int i = 0; i < no_classes; i++) {
+        if (stringcompare_simple(String(sf_class(i)), "stage", false)) {
+          matches++;
+        }
+      }
+      if (matches == 0) throw Rcpp::exception("Object entered as stageframe is not an object of class stageframe.", false);
+      
+      StringVector sf_vars (as<StringVector>(stageframe_.attr("names")));
+      
+      int no_sf_vars {static_cast<int>(sf_vars.length())};
+      StringVector sf_var_check {"size", "size_b", "size_c", "repstatus", "obsstatus", "matstatus", "indataset"};
+      
+      matches = 0;
+      for (int i = 0; i < static_cast<int>(sf_var_check.length()); i++) {
+        for (int j = 0; j < no_sf_vars; j++) {
+          if (stringcompare_hard(String(sf_var_check(i)), String(sf_vars(j)))) {
+            matches++;
+          }
+        }
+      }
+      if (matches != 7) throw Rcpp::exception("Object entered as stageframe is not an object of class stageframe.", false);
+      
+    } else {
+      throw Rcpp::exception("Object entered as stageframe is not an object of class stageframe.", false);
+    }
+  } else {
+    if (stage) throw Rcpp::exception("A valid stageframe is required for all stage-based MPMs.", false);
+  }
   
-  int counter {0};
+  DataFrame supplement_;
+  bool supplement_used {false};
   
-  StringVector uniquepops_str(numofpops);
-  uniquepops_str(0) = pops(0);
-  int popcounter {0};
+  if (supplement.isNotNull()) {
+    RObject supplement_input (supplement);
+    if (is<DataFrame>(supplement_input)) {
+      supplement_ = as<DataFrame>(supplement_input);
+      supplement_used = true;
+      
+      StringVector supplement_class (as<StringVector>(supplement_.attr("class")));
+      
+      int no_supp_classes {static_cast<int>(supplement_class.length())};
+      int matches {0};
+      for (int i = 0; i < no_supp_classes; i++) {
+        if (stringcompare_simple(String(supplement_class(i)), "SD", false)) {
+          matches++;
+        }
+      }
+      if (matches == 0) throw Rcpp::exception("If using supplemental data, please use only a valid data frame of class lefkoSD.", false);
+      
+    } else {
+      throw Rcpp::exception("If using supplemental data, please use only a valid data frame of class lefkoSD.", false);
+    }
+  }
   
-  // Here we assess how many mean matrices we need, and their overall order
-  if (loydim > 1) {
-    for (int i = 1; i < loydim; i++) {
-      if (poppatchc(i) != poppatchc(i-1)) {
-        counter++;
-        poporderlong(counter) = pops(i);
-        poporderlong_num(counter) = pop_num(i);
-        patchorderlong(counter) = patches(i);
-        annmatriceslong(counter) = 1;
-        meanassign(i) = meanassign(i-1) + 1;
+  DataFrame overwrite_;
+  bool overwrite_used {false};
+  
+  if (overwrite.isNotNull()) {
+    RObject overwrite_input (overwrite);
+    if (is<DataFrame>(overwrite_input)) {
+      overwrite_ = as<DataFrame>(overwrite_input);
+      overwrite_used = true;
+      
+      int no_ovr_vars {static_cast<int>(overwrite_.length())};
+      if (no_ovr_vars != 9) throw Rcpp::exception("This does not appear to be an overwite data frame. Please consider using a supplement instead.", false);
+      
+    } else {
+      throw Rcpp::exception("This does not appear to be an overwite data frame. Please consider using a supplement instead.", false);
+    }
+  }
+  
+  NumericMatrix repmatrix_;
+  bool repmatrix_used {false};
+  
+  if (repmatrix.isNotNull()) {
+    RObject repmatrix_input (repmatrix);
+    if (is<NumericMatrix>(repmatrix_input) || is<IntegerMatrix>(repmatrix_input)) {
+      repmatrix_ = as<NumericMatrix>(repmatrix_input);
+      
+      int repm_cols {static_cast<int>(repmatrix_.ncol())};
+      int repm_rows {static_cast<int>(repmatrix_.nrow())};
+      
+      if (repm_cols != repm_rows) throw Rcpp::exception("Option repmatrix must be a square numeric matrix.", false);
+      repmatrix_used = true;
+      
+    } else {
+      throw Rcpp::exception("Option repmatrix must be a square numeric matrix.", false);
+    }
+  }
+  
+  NumericVector dev_terms_;
+  
+  if (dev_terms.isNotNull()) {
+    RObject dev_terms_input = as<RObject>(dev_terms);
+    
+    if (is<NumericVector>(dev_terms_input) || is<IntegerVector>(dev_terms_input)) {
+      NumericVector dvi = as<NumericVector>(dev_terms_input);
+      int dvi_length = static_cast<int>(dvi.length());
+      
+      if (age && !stage) {
+        if (dvi_length != 2) throw Rcpp::exception("Argument dev_terms must be a numeric vector of 2 elements if suppplied for a leslie MPM.", false);
+      } else {
+        if (dvi_length != 14) throw Rcpp::exception("Argument dev_terms must be a numeric vector of 14 elements.", false);
+      }
+      dev_terms_ = dvi;
+    }
+  } else {
+    NumericVector basic_devs = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0};
+    dev_terms_ = basic_devs;
+  }
+  
+  // Parameter identity processing through modelsuite, paramnames, and raw variable identity entry
+  StringVector alive_;
+  IntegerVector alive_int;
+  
+  StringVector obsst_;
+  IntegerVector obsst_int;
+  
+  StringVector size_;
+  IntegerVector size_int;
+  StringVector sizeb_;
+  IntegerVector sizeb_int;
+  StringVector sizec_;
+  IntegerVector sizec_int;
+  
+  StringVector repst_;
+  IntegerVector repst_int;
+  
+  StringVector matst_;
+  IntegerVector matst_int;
+  
+  StringVector fec_;
+  IntegerVector fec_int;
+  
+  bool obsst_used {false};
+  bool sizeb_used {false};
+  bool sizec_used {false};
+  bool repst_used {false};
+  bool matst_used {false};
+  
+  String year_var;
+  int year_var_int {-1};
+  StringVector mainyears_;
+  
+  String pop_var;
+  int pop_var_int {-1};
+  String pop_var_type {"n"};
+  StringVector mainpops_;
+  
+  String patch_var;
+  int patch_var_int {-1};
+  String patch_var_type {"n"};
+  StringVector mainpatches_;
+  
+  String indiv_var;
+  int indiv_var_int {-1};
+  
+  String age_var;
+  int age_var_int {-1};
+  
+  String censor_var;
+  int censorcol_int {-1};
+    
+  NumericVector cs_keep_n;
+  IntegerVector cs_keep_i;
+  StringVector cs_keep_s;
+  LogicalVector cs_keep_l;
+  
+  bool cs_n {false};
+  bool cs_i {false};
+  bool cs_s {false};
+  bool cs_l {false};
+  bool censorkeep_is_NA {false};
+  
+  bool modelsuite_provided {false};
+  bool paramnames_provided {false};
+  bool modelsuite_vrm {false};
+  bool modelsuite_lM {false};
+  List modelsuite_;
+  DataFrame paramnames_;
+  DataFrame mod_qc_;
+  
+  if (modelsuite.isNotNull()) {
+    RObject modelsuite_entered = as<RObject>(modelsuite);
+    
+    if (is<List>(modelsuite_entered)) {
+      modelsuite_ = as<List>(modelsuite_entered);
+      
+    } else {
+      throw Rcpp::exception("Object modelsuite not recognized.", false);
+    }
+    
+    StringVector modelsuite_class = modelsuite_.attr("class");
+    for (int i = 0; i < modelsuite_class.length(); i++) {
+      if (stringcompare_hard(String(modelsuite_class(i)), "vrm_input")) modelsuite_vrm = true;
+      if (stringcompare_hard(String(modelsuite_class(i)), "lefkoMod")) modelsuite_lM = true;
+    }
+    
+    if (modelsuite_lM && !modelsuite_vrm) {
+      // lefkoMod
+      paramnames_ = modelsuite_["paramnames"];
+      
+      StringVector modelparams_ = paramnames_["modelparams"];
+      String year_var_ = String(modelparams_(0));
+      String indiv_var_ = String(modelparams_(1));
+      String patch_var_ = String(modelparams_(2));
+      String age_var_ = String(modelparams_(21));
+      
+      for (int i = 0; i < data_vars_no; i++) {
+        if (stringcompare_hard(String(data_vars(i)), indiv_var_)) {
+          indiv_var = indiv_var_;
+          indiv_var_int = i;
+        }
+        if (stringcompare_hard(String(data_vars(i)), year_var_)) {
+          year_var = year_var_;
+          year_var_int = i;
+        }
+        if (stringcompare_hard(String(data_vars(i)), patch_var_)) {
+          patch_var = patch_var_;
+          patch_var_int = i;
+        }
+        if (stringcompare_hard(String(data_vars(i)), age_var_)) {
+          age_var = age_var_;
+          age_var_int = i;
+        }
+      }
+      
+      mod_qc_ = as<DataFrame>(modelsuite_["qc"]);
+      
+    } else if (modelsuite_vrm) {
+      // vrm_input
+      nodata = true;
+      year_var_int = 0;
+      patch_var_int = 0;
+      
+      DataFrame pm_new = paramnames_skeleton(false);
+      
+      CharacterVector parameter_names = as<CharacterVector>(pm_new["parameter_names"]);
+      CharacterVector mainparams = as<CharacterVector>(pm_new["mainparams"]);
+      
+      CharacterVector modelparams = {"year2", "individ", "patch", "none", "none",
+        "none", "none", "none", "none", "none", "none", "none", "none", "none",
+        "none", "none", "none", "none", "none", "none", "none", "none", "none",
+        "none", "none", "none", "none", "none", "none", "none", "none"};
+      if (age) modelparams(21) = "age";
+      
+      DataFrame paramnames_created = DataFrame::create(_["parameter_names"] = parameter_names,
+        _["mainparams"] = mainparams, _["modelparams"] = modelparams);
+      
+      paramnames_ = paramnames_created;
+      
+      modelsuite_["paramnames"] = paramnames_;
+    } else {
+      // List of models
+      // Check modelsuite list structure
+      arma::ivec used_name_vector = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, -1, -1, -1};
+      StringVector ms_names_expected = {"survival_model", "observation_model", "size_model",
+        "sizeb_model", "sizec_model", "repstatus_model", "fecundity_model",
+        "juv_survival_model", "juv_observation_model", "juv_size_model",
+        "juv_sizeb_model", "juv_sizec_model", "juv_reproduction_model",
+        "juv_maturity_model", "paramnames"};
+      int ms_names_length {15};
+      int modelsuite_length = modelsuite_.length();
+      StringVector modelsuite_names = modelsuite_.attr("names");
+      
+      StringVector ms_names_true (15);
+      
+      for (int i = 0; i < modelsuite_length; i++) {
+        for (int j = 0; j < ms_names_length; j++) {
+          if (stringcompare_simple(String(modelsuite_names(i)), "j", true)) {
+            // Juvenile models
+              if (stringcompare_simple(String(modelsuite_names(i)), String("sur"), true)) {
+                used_name_vector(7) = j;
+                ms_names_true(i) = ms_names_expected(7);
+                
+              } else if (stringcompare_simple(String(modelsuite_names(i)), String("obs"), true)) {
+                used_name_vector(8) = j;
+                ms_names_true(i) = ms_names_expected(8);
+                
+              } else if (stringcompare_simple(String(modelsuite_names(i)), String("size_"), true) ||
+                stringcompare_simple(String(modelsuite_names(i)), String("sizea"), true) ||
+                stringcompare_simple(String(modelsuite_names(i)), String("siza"), true)) {
+                used_name_vector(9) = j;
+                ms_names_true(i) = ms_names_expected(9);
+                
+              } else if (stringcompare_simple(String(modelsuite_names(i)), String("zeb"), true) ||
+                stringcompare_simple(String(modelsuite_names(i)), String("zb"), true)) {
+                used_name_vector(10) = j;
+                ms_names_true(i) = ms_names_expected(10);
+                
+              } else if (stringcompare_simple(String(modelsuite_names(i)), String("zec"), true) ||
+                stringcompare_simple(String(modelsuite_names(i)), String("zc"), true)) {
+                used_name_vector(11) = j;
+                ms_names_true(i) = ms_names_expected(11);
+                
+              } else if (stringcompare_simple(String(modelsuite_names(i)), String("rep"), true)) {
+                used_name_vector(12) = j;
+                ms_names_true(i) = ms_names_expected(12);
+                
+              } else if (stringcompare_simple(String(modelsuite_names(i)), String("mat"), true)) {
+                used_name_vector(13) = j;
+                ms_names_true(i) = ms_names_expected(13);
+              }
+              
+            } else {
+            // Adult models
+            if (stringcompare_simple(String(modelsuite_names(i)), String("sur"), true)) {
+              used_name_vector(0) = j;
+              ms_names_true(i) = ms_names_expected(0);
+              
+            } else if (stringcompare_simple(String(modelsuite_names(i)), String("obs"), true)) {
+              used_name_vector(1) = j;
+              ms_names_true(i) = ms_names_expected(1);
+              
+            } else if (stringcompare_simple(String(modelsuite_names(i)), String("size_"), true) ||
+              stringcompare_simple(String(modelsuite_names(i)), String("sizea"), true) ||
+              stringcompare_simple(String(modelsuite_names(i)), String("siza"), true)) {
+              used_name_vector(2) = j;
+              ms_names_true(i) = ms_names_expected(2);
+              
+            } else if (stringcompare_simple(String(modelsuite_names(i)), String("zeb"), true) ||
+              stringcompare_simple(String(modelsuite_names(i)), String("zb"), true)) {
+              used_name_vector(3) = j;
+              ms_names_true(i) = ms_names_expected(3);
+              
+            } else if (stringcompare_simple(String(modelsuite_names(i)), String("zec"), true) ||
+              stringcompare_simple(String(modelsuite_names(i)), String("zc"), true)) {
+              used_name_vector(4) = j;
+              ms_names_true(i) = ms_names_expected(4);
+              
+            } else if (stringcompare_simple(String(modelsuite_names(i)), String("rep"), true)) {
+              used_name_vector(5) = j;
+              ms_names_true(i) = ms_names_expected(5);
+              
+            } else if (stringcompare_simple(String(modelsuite_names(i)), String("fec"), true)) {
+              used_name_vector(6) = j;
+              ms_names_true(i) = ms_names_expected(6);
+              
+            } else if (stringcompare_simple(String(modelsuite_names(i)), String("par"), true)) {
+              used_name_vector(14) = j;
+              ms_names_true(i) = ms_names_expected(14);
+              
+              paramnames_ = as<DataFrame>(modelsuite_(i));
+              StringVector modelparams_ = paramnames_["modelparams"];
+              String indiv_var_ = String(modelparams_(1));
+              String year_var_ = String(modelparams_(0));
+              String patch_var_ = String(modelparams_(2));
+              String age_var_ = String(modelparams_(21));
+              
+              for (int i = 0; i < data_vars_no; i++) {
+                if (stringcompare_hard(String(data_vars(i)), indiv_var_)) {
+                  indiv_var = indiv_var_;
+                  indiv_var_int = i;
+                }
+                if (stringcompare_hard(String(data_vars(i)), year_var_)) {
+                  year_var = year_var_;
+                  year_var_int = i;
+                }
+                if (stringcompare_hard(String(data_vars(i)), patch_var_)) {
+                  patch_var = patch_var_;
+                  patch_var_int = i;
+                }
+                if (stringcompare_hard(String(data_vars(i)), age_var_)) {
+                  age_var = age_var_;
+                  age_var_int = i;
+                }
+              }
+              
+              paramnames_provided = true;
+            }
+          }
+        }
+      }
+      
+      if (paramnames.isNotNull() && !paramnames_provided) {
+        RObject paramnames_entered (paramnames);
         
-        if (pop_num(i) != pop_num(i-1)) {
-          popcounter += 1;
-          uniquepops_str(popcounter) = pops(i);
+        if (is<DataFrame>(paramnames_entered)) {
+          paramnames_ = as<DataFrame>(paramnames_entered);
+        }
+        StringVector modelparams_ = paramnames_["modelparams"];
+        String indiv_var_ = String(modelparams_(1));
+        String year_var_ = String(modelparams_(0));
+        String patch_var_ = String(modelparams_(2));
+        String age_var_ = String(modelparams_(21));
+        
+        for (int i = 0; i < data_vars_no; i++) {
+          if (stringcompare_hard(String(data_vars(i)), indiv_var_)) {
+            indiv_var = indiv_var_;
+            indiv_var_int = i;
+          }
+          if (stringcompare_hard(String(data_vars(i)), year_var_)) {
+            year_var = year_var_;
+            year_var_int = i;
+          }
+          if (stringcompare_hard(String(data_vars(i)), patch_var_)) {
+            patch_var = patch_var_;
+            patch_var_int = i;
+          }
+          if (stringcompare_hard(String(data_vars(i)), age_var_)) {
+            age_var = age_var_;
+            age_var_int = i;
+          }
+        }
+        paramnames_provided = true;
+      } else if (!paramnames_provided) {
+        throw Rcpp::exception("If modelsuite is a list of models, then argument paramnames must also be entered.", false);
+      }
+      
+      NumericVector one_vec = {1};
+      List new_modelsuite (15);
+      
+      for (int i = 0; i < 14; i++) {
+        if (used_name_vector(i) != -1) {
+          new_modelsuite(i) = modelsuite_(used_name_vector(i));
+        } else {
+          new_modelsuite(i) = one_vec;
+        }
+      }
+      
+      new_modelsuite(14) = paramnames_;
+      modelsuite_ = new_modelsuite;
+    }
+    modelsuite_provided = true;
+    paramnames_provided = true;
+    raw = false;
+    
+    if (patch_var_int == -1) {
+      StringVector mainpatches = {NA_STRING};
+      mainpatches_ = mainpatches;
+    }
+  }
+  
+  // Processing age
+  if (agecol.isNotNull() && !paramnames_provided) {
+    RObject age_input (agecol);
+    
+    if (is<StringVector>(age_input)) {
+      StringVector age_ = as<StringVector>(age_input);
+      int age_no {static_cast<int>(age_.length())};
+      
+      if (age_no > 1) {
+        throw Rcpp::exception("Agecol term must be a single string value corresponding to the name of the variable coding for age at time t.", false);
+      }
+      
+      age_var = String(age_(0));
+      
+      int matches {0};
+      for (int i = 0; i < data_vars_no; i++) {
+        if (stringcompare_simple(age_var, String(data_vars(i)), false)) {
+          age_var_int = i;
+          matches++;
+        }
+      }
+      if (matches != age_no) {
+        throw Rcpp::exception("Age variable name does not match entered hfv data frame.", false);
+      }
+      
+    } else if (is<IntegerVector>(age_input) || is<NumericVector>(age_input)) {
+      IntegerVector age_int_(age_input);
+      int age_int_no {static_cast<int>(age_int_.length())};
+      
+      if (age_int_no > 1 || age_int_(0) < 1 || age_int_(0) > data_vars_no) {
+        throw Rcpp::exception("Invalid entry given for age variable.", false);
+      }
+      
+      age_var_int = age_int_(0) - 1;
+      age_var = data_vars(age_var_int);
+      
+    } else {
+      throw Rcpp::exception("Please enter a string showing the name of the variable coding for age at time t.", false);
+    }
+  } else if (age && raw && !paramnames_provided) {
+    String age_var_ {"obsage"};
+    age_var = age_var_;
+    
+    int matches {0};
+    for (int i = 0; i < data_vars_no; i++) {
+      if (stringcompare_simple(age_var, String(data_vars(i)), false)) {
+        age_var_int = i;
+        matches++;
+      }
+    }
+    if (matches != 1) {
+      throw Rcpp::exception("Default agecol variable name is not correct. Please supply correct variable name.", false);
+    }
+  }
+  
+  if (age && age_var_int > -1) {
+    IntegerVector data_ages = data_[age_var_int];
+    int data_age_min = min(data_ages);
+    int data_age_max = max(data_ages);
+    
+    if (IntegerVector::is_na(start_age)) {
+      if (prebreeding) {
+        start_age = 1;
+      } else {
+        start_age = 0;
+      }
+    }
+    
+    if (IntegerVector::is_na(last_age)) last_age = data_age_max + 1;
+    if (IntegerVector::is_na(fecage_min)) fecage_min = data_age_min;
+    if (IntegerVector::is_na(fecage_max)) fecage_max = last_age;
+  }
+  
+  // Edited and reformatted stageframe, supplement, and repmatrix
+  DataFrame melchett_stageframe_;
+  DataFrame melchett_ovtable_;
+  NumericMatrix melchett_repmatrix_;
+  arma::vec melchett_stageframe_size_;
+  arma::vec melchett_stageframe_sizeb_;
+  arma::vec melchett_stageframe_sizec_;
+  arma::uvec melchett_stageframe_repst_;
+  arma::uvec melchett_stageframe_obsst_;
+  arma::uvec melchett_stageframe_matst_;
+  arma::uvec melchett_stageframe_indataset_;
+  arma::uvec melchett_stageframe_alive_;
+  arma::ivec melchett_stageframe_stageid_;
+  IntegerVector melchett_stageframe_group_;
+  StringVector melchett_stageframe_stage_;
+  
+  IntegerVector maingroups_;
+  
+  int melchett_stageframe_length {0};
+  int melchett_ovtable_length {0};
+  int format_int {1};
+  
+  if (!historical) {
+    // Ahistorical MPMs
+    
+    if (stage) {
+      if (!age) {
+        if (repmatrix_used && supplement_used) {
+          List melchett = sf_reassess(stageframe_, supplement_, R_NilValue,
+            repmatrix_, false, false, 1);
+            
+          melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
+          melchett_ovtable_ = as<DataFrame>(melchett["ovtable"]);
+          melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
+          
+        } else if (repmatrix_used && !supplement_used && !overwrite_used) {
+          List melchett = sf_reassess(stageframe_, R_NilValue, R_NilValue,
+            repmatrix_, false, false, 1);
+            
+          melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
+          melchett_ovtable_ = as<DataFrame>(melchett["ovtable"]);
+          melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
+          
+        } else if (repmatrix_used && !supplement_used) {
+          List melchett = sf_reassess(stageframe_, R_NilValue, overwrite_,
+            repmatrix_, false, false, 1);
+            
+          melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
+          melchett_ovtable_ = as<DataFrame>(melchett["ovtable"]);
+          melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
+          
+        } else if (!repmatrix_used && supplement_used) {
+          List melchett = sf_reassess(stageframe_, supplement_, R_NilValue,
+            R_NilValue, false, false, 1);
+            
+          melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
+          melchett_ovtable_ = as<DataFrame>(melchett["ovtable"]);
+          melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
+          
+        } else {
+          List melchett = sf_reassess(stageframe_, R_NilValue, R_NilValue,
+            R_NilValue, false, false, 1);
+            
+          melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
+          melchett_ovtable_ = as<DataFrame>(melchett["ovtable"]);
+          melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
+          
+        }
+      } else {
+        // Age-by-stage MPMs
+        if (repmatrix_used && supplement_used) {
+          List melchett = sf_reassess(stageframe_, supplement_, R_NilValue,
+            repmatrix_, true, false, 1);
+            
+          melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
+          melchett_ovtable_ = as<DataFrame>(melchett["ovtable"]);
+          melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
+          
+        } else if (repmatrix_used && !supplement_used && !overwrite_used) {
+          List melchett = sf_reassess(stageframe_, R_NilValue, R_NilValue,
+            repmatrix_, true, false, 1);
+            
+          melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
+          melchett_ovtable_ = as<DataFrame>(melchett["ovtable"]);
+          melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
+          
+        } else if (repmatrix_used && !supplement_used) {
+          List melchett = sf_reassess(stageframe_, R_NilValue, overwrite_,
+            repmatrix_, true, false, 1);
+            
+          melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
+          melchett_ovtable_ = as<DataFrame>(melchett["ovtable"]);
+          melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
+          
+        } else if (!repmatrix_used && supplement_used) {
+          List melchett = sf_reassess(stageframe_, supplement_, R_NilValue,
+            R_NilValue, true, false, 1);
+            
+          melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
+          melchett_ovtable_ = as<DataFrame>(melchett["ovtable"]);
+          melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
+          
+        } else {
+          List melchett = sf_reassess(stageframe_, R_NilValue, R_NilValue,
+            R_NilValue, true, false, 1);
+            
+          melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
+          melchett_ovtable_ = as<DataFrame>(melchett["ovtable"]);
+          melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
+          
+        }
+      }
+      
+      melchett_ovtable_length = static_cast<int>(melchett_ovtable_.nrows());
+      
+      DataFrame mov_short = DataFrame::create(_["0"] = as<StringVector>(melchett_ovtable_[0]),
+        _["1"] = as<StringVector>(melchett_ovtable_[1]),
+        _["2"] = as<StringVector>(melchett_ovtable_[2]));
+      
+      if (LefkoUtils::df_duplicates(mov_short)) {
+        Rf_warningcall(R_NilValue, "Supplement table contains multiple entries for the same transition(s).");
+      }
+    } else {
+      if (age) {
+        // Pure age-based MPMs
+        melchett_stageframe_ = sf_leslie(start_age, last_age, fecage_min, fecage_max, cont);
+      }
+    }
+  } else {
+    // Historical MPMs
+    if (stage) {
+      if (!age) {
+        if (devries) format_int = 2;
+        
+        if (repmatrix_used && supplement_used) {
+          List melchett = sf_reassess(stageframe_, supplement_, R_NilValue,
+            repmatrix_, false, true, format_int);
+            
+          melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
+          melchett_ovtable_ = as<DataFrame>(melchett["ovtable"]);
+          melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
+          
+        } else if (repmatrix_used && !supplement_used && !overwrite_used) {
+          List melchett = sf_reassess(stageframe_, R_NilValue, R_NilValue,
+            repmatrix_, false, true, format_int);
+            
+          melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
+          melchett_ovtable_ = as<DataFrame>(melchett["ovtable"]);
+          melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
+          
+        } else if (repmatrix_used && !supplement_used) {
+          List melchett = sf_reassess(stageframe_, R_NilValue, overwrite_,
+            repmatrix_, false, true, format_int);
+            
+          melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
+          melchett_ovtable_ = as<DataFrame>(melchett["ovtable"]);
+          melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
+          
+        } else if (!repmatrix_used && supplement_used) {
+          List melchett = sf_reassess(stageframe_, supplement_, R_NilValue,
+            R_NilValue, false, true, format_int);
+            
+          melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
+          melchett_ovtable_ = as<DataFrame>(melchett["ovtable"]);
+          melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
+          
+        } else {
+          List melchett = sf_reassess(stageframe_, R_NilValue, R_NilValue,
+            R_NilValue, false, true, format_int);
+            
+          melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
+          melchett_ovtable_ = as<DataFrame>(melchett["ovtable"]);
+          melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
+        }
+      } else {
+        throw Rcpp::exception("Age-by-stage MPMs cannot be historical.", false);
+      }
+      
+      melchett_ovtable_length = static_cast<int>(melchett_ovtable_.nrows());
+      
+      DataFrame mov_short = DataFrame::create(_["0"] = as<StringVector>(melchett_ovtable_[0]),
+        _["1"] = as<StringVector>(melchett_ovtable_[1]),
+        _["2"] = as<StringVector>(melchett_ovtable_[2]));
+      
+      if (LefkoUtils::df_duplicates(mov_short)) {
+        Rf_warningcall(R_NilValue, "Supplement table contains multiple entries for the same transition(s).");
+      }
+    } else {
+      if (age) {
+        throw Rcpp::exception("Age-based MPMs cannot be historical.", false);
+      }
+    }
+  }
+  
+  melchett_stageframe_size_ = as<arma::vec>(melchett_stageframe_["original_size"]);
+  melchett_stageframe_sizeb_ = as<arma::vec>(melchett_stageframe_["original_size_b"]);
+  melchett_stageframe_sizec_ = as<arma::vec>(melchett_stageframe_["original_size_c"]);
+  melchett_stageframe_repst_ = as<arma::uvec>(melchett_stageframe_["repstatus"]);
+  melchett_stageframe_obsst_ = as<arma::uvec>(melchett_stageframe_["obsstatus"]);
+  melchett_stageframe_matst_ = as<arma::uvec>(melchett_stageframe_["matstatus"]);
+  melchett_stageframe_indataset_ = as<arma::uvec>(melchett_stageframe_["indataset"]);
+  melchett_stageframe_alive_ = as<arma::uvec>(melchett_stageframe_["alive"]);
+  melchett_stageframe_stage_ = as<StringVector>(melchett_stageframe_["stage"]);
+  melchett_stageframe_stageid_ = as<IntegerVector>(melchett_stageframe_["stage_id"]);
+  melchett_stageframe_length = static_cast<int>(melchett_stageframe_alive_.n_elem);
+  melchett_stageframe_group_ = as<IntegerVector>(melchett_stageframe_["group"]);
+  maingroups_ = seq(min(melchett_stageframe_group_), max(melchett_stageframe_group_));
+  
+  if (!paramnames_provided) {
+    // Processing data variables when paramnames is not provided
+    if (alive.isNotNull() && raw) {
+      RObject alive_input (alive);
+      
+      if (is<StringVector>(alive_input)) {
+        alive_ = as<StringVector>(alive_input);
+        int alive_no {static_cast<int>(alive_.length())};
+        IntegerVector alive_int_ (alive_no);
+        
+        if (alive_no < 2 || alive_no > 3) {
+          throw Rcpp::exception("Alive status must be entered as a string vector showing status in times t+1 and t, and time t-1 if a historical MPM is desired.", false);
+        }
+        
+        int matches {0};
+        for (int i = 0; i < alive_no; i++) {
+          for (int j = 0; j < data_vars_no; j++) {
+            if (stringcompare_simple(String(alive_(i)), String(data_vars(j)), false)) {
+              alive_int_(i) = j;
+              matches++;
+            }
+          }
+        }
+        if (matches != alive_no) {
+          throw Rcpp::exception("Alive status variable names do not match entered hfv data frame.", false);
+        }
+        alive_int = alive_int_;
+        
+      } else if (is<IntegerVector>(alive_input) || is<NumericVector>(alive_input)) {
+        IntegerVector alive_int_(alive_input);
+        
+        if (min(alive_int_) < 1 || max(alive_int_) > data_vars_no) {
+          throw Rcpp::exception("Invalid entries given for alive status.", false);
+        }
+        
+        int alive_int_no {static_cast<int>(alive_int_.length())};
+        StringVector alive_string (alive_int_no);
+        
+        for (int i = 0; i < alive_int_no; i++) {
+          alive_string(i) = data_vars(alive_int_(i) - 1);
+        }
+        alive_ = alive_string;
+        alive_int = alive_int_;
+        
+      } else {
+        throw Rcpp::exception("Please enter a string vector of valid variable names coding for alive status in times t+1 and t, and time t-1 if a historical MPM is desired.", false);
+      }
+    } else if (raw) {
+      int alive_no {3};
+      if (historical) {
+        alive_ = {"alive3", "alive2", "alive1"};
+      } else {
+        alive_ = {"alive3", "alive2"};
+        alive_no = 2;
+      }
+      
+      int matches {0};
+      for (int i = 0; i < alive_no; i++) {
+        for (int j = 0; j < data_vars_no; j++) {
+          if (stringcompare_simple(String(alive_(i)), String(data_vars(j)), false)) {
+            matches++;
+          }
+        }
+      }
+      if (matches != alive_no) {
+        throw Rcpp::exception("Default alive status variable names do not match entered hfv data frame.", false);
+      }
+    }
+    
+    // Here we use alive status info to subset the data for raw MPMs
+    if (raw) {
+      NumericVector living_only = {1.0};
+      StringVector alive_var_used = {alive_(1)};
+      
+      data_ = df_subset(data_, as<RObject>(living_only), false,
+        true, false, false, true, as<RObject>(alive_var_used));
+      
+      data_points = static_cast<int>(data_.nrows());
+    }
+    
+    if (obsst.isNotNull() && raw && stage) {
+      RObject obsst_input (obsst);
+      obsst_used = true;
+      
+      if (is<StringVector>(obsst_input)) {
+        obsst_ = as<StringVector>(obsst_input);
+        int obsst_no {static_cast<int>(obsst_.length())};
+        IntegerVector obsst_int_ (obsst_no);
+        
+        if (obsst_no < 2 || obsst_no > 3) {
+          throw Rcpp::exception("Observation status must be entered as a string vector showing status in times t+1 and t, and time t-1 if a historical MPM is desired.", false);
+        }
+        
+        int matches {0};
+        for (int i = 0; i < obsst_no; i++) {
+          for (int j = 0; j < data_vars_no; j++) {
+            if (stringcompare_simple(String(obsst_(i)), String(data_vars(j)), false)) {
+              obsst_int_(i) = j;
+              matches++;
+            }
+          }
+        }
+        if (matches != obsst_no) {
+          throw Rcpp::exception("Observation status variable names do not match entered hfv data frame.", false);
+        }
+        obsst_int = obsst_int_;
+        
+      } else if (is<IntegerVector>(obsst_input) || is<NumericVector>(obsst_input)) {
+        IntegerVector obsst_int_(obsst_input);
+        
+        if (min(obsst_int_) < 1 || max(obsst_int_) > data_vars_no) {
+          throw Rcpp::exception("Invalid entries given for observation status.", false);
+        }
+        
+        int obsst_int_no {static_cast<int>(obsst_int_.length())};
+        StringVector obsst_string (obsst_int_no);
+        
+        for (int i = 0; i < obsst_int_no; i++) {
+          obsst_string(i) = data_vars(obsst_int_(i) - 1);
+        }
+        obsst_ = obsst_string;
+        obsst_int = obsst_int_;
+        
+      } else {
+        throw Rcpp::exception("Please enter a string vector of valid variable names coding for observation status in times t+1 and t, and time t-1 if a historical MPM is desired.", false);
+      }
+      
+    } else if (raw && stage) {
+      arma::uvec mso;
+      
+      if (melchett_stageframe_alive_(melchett_stageframe_length - 1) == 0 && melchett_stageframe_length > 2) {
+        mso = melchett_stageframe_obsst_.subvec(0, (melchett_stageframe_length - 2));
+      } else if (melchett_stageframe_alive_(melchett_stageframe_length - 2) == 0 && melchett_stageframe_length > 2) {
+        mso = melchett_stageframe_obsst_.subvec(0, (melchett_stageframe_length - 3));
+      } else {
+        mso = melchett_stageframe_obsst_;
+      }
+      
+      for (int i = 0; i < static_cast<int>(mso.n_elem); i++) {
+        if (IntegerVector::is_na(mso(i))) mso(i) = 0.0;
+      }
+      
+      arma::uvec sf_obs_unique = unique(mso);
+      int obs_states = static_cast<int>(sf_obs_unique.n_elem);
+      
+      if (obs_states > 1) {
+        obsst_used = true;
+        int obsst_no {3};
+        
+        if (historical) {
+          obsst_ = {"obsstatus3", "obsstatus2", "obsstatus1"};
+        } else {
+          obsst_ = {"obsstatus3", "obsstatus2"};
+          obsst_no = 2;
+        }
+        
+        int matches {0};
+        for (int i = 0; i < obsst_no; i++) {
+          for (int j = 0; j < data_vars_no; j++) {
+            if (stringcompare_simple(String(obsst_(i)), String(data_vars(j)), false)) {
+              matches++;
+            }
+          }
+        }
+        if (matches != obsst_no) {
+          throw Rcpp::exception("Default observation status variable names do not match entered hfv data frame.", false);
+        }
+      }
+    }
+    
+    if (size.isNotNull() && raw && stage) {
+      RObject size_input (size);
+      
+      if (is<StringVector>(size_input)) {
+        size_ = as<StringVector>(size_input);
+        int size_no {static_cast<int>(size_.length())};
+        IntegerVector size_int_ (size_no);
+        
+        if (size_no < 2 || size_no > 3) {
+          throw Rcpp::exception("Size must be entered as a string vector showing status in times t+1 and t, and time t-1 if a historical MPM is desired.", false);
+        }
+        
+        int matches {0};
+        for (int i = 0; i < size_no; i++) {
+          for (int j = 0; j < data_vars_no; j++) {
+            if (stringcompare_simple(String(size_(i)), String(data_vars(j)), false)) {
+              size_int_(i) = j;
+              matches++;
+            }
+          }
+        }
+        if (matches != size_no) {
+          throw Rcpp::exception("Size variable names do not match entered hfv data frame.", false);
+        }
+        size_int = size_int_;
+        
+      } else if (is<IntegerVector>(size_input) || is<NumericVector>(size_input)) {
+        IntegerVector size_int_(size_input);
+        
+        if (min(size_int_) < 1 || max(size_int_) > data_vars_no) {
+          throw Rcpp::exception("Invalid entries given for size.", false);
+        }
+        
+        int size_int_no {static_cast<int>(size_int_.length())};
+        StringVector size_string (size_int_no);
+        
+        for (int i = 0; i < size_int_no; i++) {
+          size_string(i) = data_vars(size_int_(i) - 1);
+        }
+        size_ = size_string;
+        size_int = size_int_;
+        
+      } else {
+        throw Rcpp::exception("Please enter a string vector of valid variable names coding for size in times t+1 and t, and time t-1 if a historical MPM is desired.", false);
+      }
+    } else if (raw && stage) {
+      int size_no {3};
+      if (historical) {
+        size_ = {"sizea3", "sizea2", "sizea1"};
+      } else {
+        size_ = {"sizea3", "sizea2"};
+        size_no = 2;
+      }
+      
+      int matches {0};
+      for (int i = 0; i < size_no; i++) {
+        for (int j = 0; j < data_vars_no; j++) {
+          if (stringcompare_simple(String(size_(i)), String(data_vars(j)), false)) {
+            matches++;
+          }
+        }
+      }
+      if (matches != size_no) {
+        throw Rcpp::exception("Default primary size variable names do not match entered hfv data frame.", false);
+      }
+    }
+    
+    if (sizeb.isNotNull() && raw && stage) {
+      RObject sizeb_input (sizeb);
+      sizeb_used = true;
+      
+      if (is<StringVector>(sizeb_input)) {
+        sizeb_ = as<StringVector>(sizeb_input);
+        int sizeb_no {static_cast<int>(sizeb_.length())};
+        IntegerVector sizeb_int_ (sizeb_no);
+        
+        if (sizeb_no < 2 || sizeb_no > 3) {
+          throw Rcpp::exception("sizeb must be entered as a string vector showing status in times t+1 and t, and time t-1 if a historical MPM is desired.", false);
+        }
+        
+        int matches {0};
+        for (int i = 0; i < sizeb_no; i++) {
+          for (int j = 0; j < data_vars_no; j++) {
+            if (stringcompare_simple(String(sizeb_(i)), String(data_vars(j)), false)) {
+              sizeb_int_(i) = j;
+              matches++;
+            }
+          }
+        }
+        if (matches != sizeb_no) {
+          throw Rcpp::exception("sizeb status variable names do not match entered hfv data frame.", false);
+        }
+        sizeb_int = sizeb_int_;
+        
+      } else if (is<IntegerVector>(sizeb_input) || is<NumericVector>(sizeb_input)) {
+        IntegerVector sizeb_int_(sizeb_input);
+        
+        if (min(sizeb_int_) < 1 || max(sizeb_int_) > data_vars_no) {
+          throw Rcpp::exception("Invalid entries given for sizeb.", false);
+        }
+        
+        int sizeb_int_no {static_cast<int>(sizeb_int_.length())};
+        StringVector sizeb_string (sizeb_int_no);
+        
+        for (int i = 0; i < sizeb_int_no; i++) {
+          sizeb_string(i) = data_vars(sizeb_int_(i) - 1);
+        }
+        sizeb_ = sizeb_string;
+        sizeb_int = sizeb_int_;
+        
+      } else {
+        throw Rcpp::exception("Please enter a string vector of valid variable names coding for secondary size in times t+1 and t, and time t-1 if a historical MPM is desired.", false);
+      }
+    } else if (raw && stage) {
+      arma::vec mssb;
+      
+      if (melchett_stageframe_alive_(melchett_stageframe_length - 1) == 0 && 
+          melchett_stageframe_length > 2) {
+        mssb = melchett_stageframe_sizeb_.subvec(0, (melchett_stageframe_length - 2));
+        
+      } else if (melchett_stageframe_alive_(melchett_stageframe_length - 2) == 0 && 
+          melchett_stageframe_length > 2) {
+        mssb = melchett_stageframe_sizeb_.subvec(0, (melchett_stageframe_length - 3));
+        
+      } else {
+        mssb = melchett_stageframe_sizeb_;
+      }
+      
+      for (int i = 0; i < static_cast<int>(mssb.n_elem); i++) {
+        if (NumericVector::is_na(mssb(i))) mssb(i) = 0.0;
+      }
+      
+      arma::vec sf_sizeb_unique = unique(mssb);
+      int sizeb_states = static_cast<int>(sf_sizeb_unique.n_elem);
+      
+      if (sizeb_states > 1) {
+        sizeb_used = true;
+        int size_no {3};
+        
+        if (historical) {
+          sizeb_ = {"sizeb3", "sizeb2", "sizeb1"};
+        } else {
+          sizeb_ = {"sizeb3", "sizeb2"};
+          size_no = 2;
+        }
+        
+        int matches {0};
+        for (int i = 0; i < size_no; i++) {
+          for (int j = 0; j < data_vars_no; j++) {
+            if (stringcompare_simple(String(sizeb_(i)), String(data_vars(j)), false)) {
+              matches++;
+            }
+          }
+        }
+        if (matches != size_no) {
+          throw Rcpp::exception("Default secondary size variable names do not match entered hfv data frame.", false);
+        }
+      } else {
+        if (historical) {
+          sizeb_ = StringVector::create(NA_STRING, NA_STRING, NA_STRING);
+        } else {
+          sizeb_ = StringVector::create(NA_STRING, NA_STRING);
+        }
+      }
+    }
+    
+    if (sizec.isNotNull() && raw && stage) {
+      RObject sizec_input (sizec);
+      sizec_used = true;
+      
+      if (is<StringVector>(sizec_input)) {
+        sizec_ = as<StringVector>(sizec_input);
+        int sizec_no {static_cast<int>(sizec_.length())};
+        IntegerVector sizec_int_ (sizec_no);
+        
+        if (sizec_no < 2 || sizec_no > 3) {
+          throw Rcpp::exception("Tertiary size must be entered as a string vector showing status in times t+1 and t, and time t-1 if a historical MPM is desired.", false);
+        }
+        
+        int matches {0};
+        for (int i = 0; i < sizec_no; i++) {
+          for (int j = 0; j < data_vars_no; j++) {
+            if (stringcompare_simple(String(sizec_(i)), String(data_vars(j)), false)) {
+              sizec_int_(i) = j;
+              matches++;
+            }
+          }
+        }
+        if (matches != sizec_no) {
+          throw Rcpp::exception("Tertiary size variable names do not match entered hfv data frame.", false);
+        }
+        sizec_int = sizec_int_;
+        
+      } else if (is<IntegerVector>(sizec_input) || is<NumericVector>(sizec_input)) {
+        IntegerVector sizec_int_(sizec_input);
+        
+        if (min(sizec_int_) < 1 || max(sizec_int_) > data_vars_no) {
+          throw Rcpp::exception("Invalid entries given for tertiary size.", false);
+        }
+        
+        int sizec_int_no {static_cast<int>(sizec_int_.length())};
+        StringVector sizec_string (sizec_int_no);
+        
+        for (int i = 0; i < sizec_int_no; i++) {
+          sizec_string(i) = data_vars(sizec_int_(i) - 1);
+        }
+        sizec_ = sizec_string;
+        sizec_int = sizec_int_;
+        
+      } else {
+        throw Rcpp::exception("Please enter a string vector of valid variable names coding for tertiary size in times t+1 and t, and time t-1 if a historical MPM is desired.", false);
+      }
+    } else if (raw && stage) {
+      arma::vec mssc;
+      
+      if (melchett_stageframe_alive_(melchett_stageframe_length - 1) == 0 && melchett_stageframe_length > 2) {
+        mssc = melchett_stageframe_sizec_.subvec(0, (melchett_stageframe_length - 2));
+      } else if (melchett_stageframe_alive_(melchett_stageframe_length - 2) == 0 && melchett_stageframe_length > 2) {
+        mssc = melchett_stageframe_sizec_.subvec(0, (melchett_stageframe_length - 3));
+      } else {
+        mssc = melchett_stageframe_sizec_;
+      }
+      
+      for (int i = 0; i < static_cast<int>(mssc.n_elem); i++) {
+        if (NumericVector::is_na(mssc(i))) mssc(i) = 0.0;
+      }
+      
+      arma::vec sf_sizec_unique = unique(mssc);
+      int sizec_states = static_cast<int>(sf_sizec_unique.n_elem);
+      
+      if (sizec_states > 1) {
+        sizec_used = true;
+        int size_no {3};
+        
+        if (historical) {
+          sizec_ = {"sizec3", "sizec2", "sizec1"};
+        } else {
+          sizec_ = {"sizec3", "sizec2"};
+          size_no = 2;
+        }
+        
+        int matches {0};
+        for (int i = 0; i < size_no; i++) {
+          for (int j = 0; j < data_vars_no; j++) {
+            if (stringcompare_simple(String(sizec_(i)), String(data_vars(j)), false)) {
+              matches++;
+            }
+          }
+        }
+        if (matches != size_no) {
+          throw Rcpp::exception("Default tertiary size variable names do not match entered hfv data frame.", false);
+        }
+      } else {
+        if (historical) {
+          sizec_ = StringVector::create(NA_STRING, NA_STRING, NA_STRING);
+        } else {
+          sizec_ = StringVector::create(NA_STRING, NA_STRING);
+        }
+      }
+    }
+    
+    if (repst.isNotNull() && raw) {
+      RObject repst_input (repst);
+      repst_used = true;
+      
+      if (is<StringVector>(repst_input)) {
+        repst_ = as<StringVector>(repst_input);
+        int repst_no {static_cast<int>(repst_.length())};
+        IntegerVector repst_int_ (repst_no);
+        
+        if (repst_no < 2 || repst_no > 3) {
+          throw Rcpp::exception("Reproductive status must be entered as a string vector showing status in times t+1 and t, and time t-1 if a historical MPM is desired.", false);
+        }
+        
+        int matches {0};
+        for (int i = 0; i < repst_no; i++) {
+          for (int j = 0; j < data_vars_no; j++) {
+            if (stringcompare_simple(String(repst_(i)), String(data_vars(j)), false)) {
+              repst_int_(i) = j;
+              matches++;
+            }
+          }
+        }
+        if (matches != repst_no) {
+          throw Rcpp::exception("Reproductive status variable names do not match entered hfv data frame.", false);
+        }
+        repst_int = repst_int_;
+        
+      } else if (is<IntegerVector>(repst_input) || is<NumericVector>(repst_input)) {
+        IntegerVector repst_int_(repst_input);
+        
+        if (min(repst_int_) < 1 || max(repst_int_) > data_vars_no) {
+          throw Rcpp::exception("Invalid entries given for reproductive status.", false);
+        }
+        
+        int repst_int_no {static_cast<int>(repst_int_.length())};
+        StringVector repst_string (repst_int_no);
+        
+        for (int i = 0; i < repst_int_no; i++) {
+          repst_string(i) = data_vars(repst_int_(i) - 1);
+        }
+        repst_ = repst_string;
+        repst_int = repst_int_;
+        
+      } else {
+        throw Rcpp::exception("Please enter a string vector of valid variable names coding for reproductive status in times t+1 and t, and time t-1 if a historical MPM is desired.", false);
+      }
+    } else if (raw) {
+      arma::uvec msr;
+      
+      if (melchett_stageframe_alive_(melchett_stageframe_length - 1) == 0 && melchett_stageframe_length > 2) {
+        msr = melchett_stageframe_repst_.subvec(0, (melchett_stageframe_length - 2));
+      } else if (melchett_stageframe_alive_(melchett_stageframe_length - 2) == 0 && melchett_stageframe_length > 2) {
+        msr = melchett_stageframe_repst_.subvec(0, (melchett_stageframe_length - 3));
+      } else {
+        msr = melchett_stageframe_repst_;
+      }
+      
+      for (int i = 0; i < static_cast<int>(msr.n_elem); i++) {
+        if (IntegerVector::is_na(msr(i))) msr(i) = 0.0;
+      }
+      
+      arma::uvec sf_repst_unique = unique(msr);
+      int repst_states = static_cast<int>(sf_repst_unique.n_elem);
+      
+      if (repst_states > 1) {
+        repst_used = true;
+        int repst_no {3};
+        
+        if (historical) {
+          repst_ = {"repstatus3", "repstatus2", "repstatus1"};
+        } else {
+          repst_ = {"repstatus3", "repstatus2"};
+          repst_no = 2;
+        }
+        
+        int matches {0};
+        for (int i = 0; i < repst_no; i++) {
+          for (int j = 0; j < data_vars_no; j++) {
+            if (stringcompare_simple(String(repst_(i)), String(data_vars(j)), false)) {
+              matches++;
+            }
+          }
+        }
+        if (matches != repst_no) {
+          throw Rcpp::exception("Default reproductive status variable names do not match entered hfv data frame.", false);
+        }
+      }
+    }
+    
+    if (matst.isNotNull() && raw && stage) {
+      RObject matst_input (matst);
+      matst_used = true;
+      
+      if (is<StringVector>(matst_input)) {
+        matst_ = as<StringVector>(matst_input);
+        int matst_no {static_cast<int>(matst_.length())};
+        IntegerVector matst_int_ (matst_no);
+        
+        if (matst_no < 2 || matst_no > 3) {
+          throw Rcpp::exception("Maturity status must be entered as a string vector showing status in times t+1 and t, and time t-1 if a historical MPM is desired.", false);
+        }
+        
+        int matches {0};
+        for (int i = 0; i < matst_no; i++) {
+          for (int j = 0; j < data_vars_no; j++) {
+            if (stringcompare_simple(String(matst_(i)), String(data_vars(j)), false)) {
+              matst_int_(i) = j;
+              matches++;
+            }
+          }
+        }
+        if (matches != matst_no) {
+          throw Rcpp::exception("Maturity status variable names do not match entered hfv data frame.", false);
+        }
+        matst_int = matst_int_;
+        
+      } else if (is<IntegerVector>(matst_input) || is<NumericVector>(matst_input)) {
+        IntegerVector matst_int_(matst_input);
+        
+        if (min(matst_int_) < 1 || max(matst_int_) > data_vars_no) {
+          throw Rcpp::exception("Invalid entries given for maturity status.", false);
+        }
+        
+        int matst_int_no {static_cast<int>(matst_int_.length())};
+        StringVector matst_string (matst_int_no);
+        
+        for (int i = 0; i < matst_int_no; i++) {
+          matst_string(i) = data_vars(matst_int_(i) - 1);
+        }
+        matst_ = matst_string;
+        matst_int = matst_int_;
+        
+      } else {
+        throw Rcpp::exception("Please enter a string vector of valid variable names coding for maturity status in times t+1 and t, and time t-1 if a historical MPM is desired.", false);
+      }
+    } else if (raw && stage) {
+      arma::uvec msm;
+      
+      if (melchett_stageframe_alive_(melchett_stageframe_length - 1) == 0 && melchett_stageframe_length > 2) {
+        msm = melchett_stageframe_matst_.subvec(0, (melchett_stageframe_length - 2));
+      } else if (melchett_stageframe_alive_(melchett_stageframe_length - 2) == 0 && melchett_stageframe_length > 2) {
+        msm = melchett_stageframe_matst_.subvec(0, (melchett_stageframe_length - 3));
+      } else {
+        msm = melchett_stageframe_matst_;
+      }
+      
+      for (int i = 0; i < static_cast<int>(msm.n_elem); i++) {
+        if (IntegerVector::is_na(msm(i))) msm(i) = 0.0;
+      }
+      
+      arma::uvec sf_matst_unique = unique(msm);
+      int matst_states = sf_matst_unique.n_elem;
+      
+      if (matst_states > 1) {
+        matst_used = true;
+        int matst_no {3};
+        
+        if (historical) {
+          matst_ = {"matstatus3", "matstatus2", "matstatus1"};
+        } else {
+          matst_ = {"matstatus3", "matstatus2"};
+          matst_no = 2;
+        }
+        
+        int matches {0};
+        for (int i = 0; i < matst_no; i++) {
+          for (int j = 0; j < data_vars_no; j++) {
+            if (stringcompare_simple(String(matst_(i)), String(data_vars(j)), false)) {
+              matches++;
+            }
+          }
+        }
+        if (matches != matst_no) {
+          throw Rcpp::exception("Default maturity status variable names do not match entered hfv data frame.", false);
+        }
+      }
+    }
+    
+    if (fec.isNotNull() && raw) {
+      RObject fec_input (fec);
+      
+      if (is<StringVector>(fec_input)) {
+        fec_ = as<StringVector>(fec_input);
+        int fec_no {static_cast<int>(fec_.length())};
+        IntegerVector fec_int_ (fec_no);
+        
+        if (fec_no < 2 || fec_no > 3) {
+          throw Rcpp::exception("Fecundity must be entered as a string vector showing status in times t+1 and t, and time t-1 if a historical MPM is desired.", false);
+        }
+        
+        int matches {0};
+        for (int i = 0; i < fec_no; i++) {
+          for (int j = 0; j < data_vars_no; j++) {
+            if (stringcompare_simple(String(fec_(i)), String(data_vars(j)), false)) {
+              fec_int_(i) = j;
+              matches++;
+            }
+          }
+        }
+        if (matches != fec_no) {
+          throw Rcpp::exception("Fecundity variable names do not match entered hfv data frame.", false);
+        }
+        fec_int = fec_int_;
+        
+      } else if (is<IntegerVector>(fec_input) || is<NumericVector>(fec_input)) {
+        IntegerVector fec_int_(fec_input);
+        
+        if (min(fec_int_) < 1 || max(fec_int_) > data_vars_no) {
+          throw Rcpp::exception("Invalid entries given for fecundity.", false);
+        }
+        
+        int fec_int_no {static_cast<int>(fec_int_.length())};
+        StringVector fec_string (fec_int_no);
+        
+        for (int i = 0; i < fec_int_no; i++) {
+          fec_string(i) = data_vars(fec_int_(i) - 1);
+        }
+        fec_ = fec_string;
+        fec_int = fec_int_;
+        
+      } else {
+        throw Rcpp::exception("Please enter a string vector of valid variable names coding for fecundity in times t+1 and t, and time t-1 if a historical MPM is desired.", false);
+      }
+    } else if (raw) {
+      int fec_no {3};
+      if (historical) {
+        fec_ = {"feca3", "feca2", "feca1"};
+      } else {
+        fec_ = {"feca3", "feca2"};
+        fec_no = 2;
+      }
+      
+      IntegerVector fec_int_(fec_no);
+      int matches {0};
+      for (int i = 0; i < fec_no; i++) {
+        for (int j = 0; j < data_vars_no; j++) {
+          if (stringcompare_simple(String(fec_(i)), String(data_vars(j)), false)) {
+            fec_int_(i) = j;
+            matches++;
+          }
+        }
+      }
+      fec_int = fec_int_;
+      
+      if (matches != fec_no) {
+        throw Rcpp::exception("Default fecundity variable names do not match entered hfv data frame.", false);
+      }
+    }
+    
+    // Extra control variables for raw MPMs
+    if (yearcol.isNotNull()) {
+      RObject year_input (yearcol);
+      
+      if (is<StringVector>(year_input)) {
+        StringVector year_ = as<StringVector>(year_input);
+        int year_no {static_cast<int>(year_.length())};
+        
+        if (year_no > 1) {
+          throw Rcpp::exception("Year term must be a single string value corresponding to the name of the variable coding time at time t.", false);
+        }
+        
+        year_var = String(year_(0));
+        
+        int matches {0};
+        for (int i = 0; i < data_vars_no; i++) {
+          if (stringcompare_simple(year_var, String(data_vars(i)), false)) {
+            year_var_int = i;
+            matches++;
+          }
+        }
+        if (matches != year_no) {
+          throw Rcpp::exception("Year variable name does not match entered hfv data frame.", false);
+        }
+        
+      } else if (is<IntegerVector>(year_input) || is<NumericVector>(year_input)) {
+        IntegerVector year_int_(year_input);
+        int year_int_no {static_cast<int>(year_int_.length())};
+        
+        if (year_int_no > 1 || year_int_(0) < 1 || year_int_(0) > data_vars_no) {
+          throw Rcpp::exception("Invalid entry given for year at time t.", false);
+        }
+        
+        year_var_int = year_int_(0) - 1;
+        year_var = data_vars(year_var_int);
+        
+      } else {
+        throw Rcpp::exception("Please enter a string showing the name of the variable coding for time in time t.", false);
+      }
+      StringVector data_year = as<StringVector>(data_[year_var_int]);
+      StringVector mainyears = sort_unique(data_year);
+      mainyears_ = mainyears;
+      
+    } else {
+      // Need to adjust this for vrm_input
+      String year_default {"year2"};
+      
+      int matches {0};
+      for (int i = 0; i < data_vars_no; i++) {
+        if (stringcompare_simple(year_default, String(data_vars(i)), false)) {
+          year_var_int = i;
+          matches++;
+        }
+      }
+      if (matches != 1) throw Rcpp::exception("Could not locate variable coding for time in time t.", false);
+      
+      StringVector data_year = as<StringVector>(data_[year_var_int]);
+      StringVector mainyears = sort_unique(data_year);
+      mainyears_ = mainyears;
+    }
+    
+    if (popcol.isNotNull()) {
+      RObject pop_input (popcol);
+      
+      if (!raw) {
+        throw Rcpp::exception("Function-based MPMs cannot handle population terms. Please remove option popcol.", false);
+      }
+      
+      if (is<StringVector>(pop_input)) {
+        StringVector pop_ = as<StringVector>(pop_input);
+        int pop_no {static_cast<int>(pop_.length())};
+        
+        if (pop_no > 1) {
+          throw Rcpp::exception("Popcol term must be a single string value corresponding to the name of the variable coding for population identity.", false);
+        }
+        
+        pop_var = String(pop_(0));
+        
+        int matches {0};
+        for (int i = 0; i < data_vars_no; i++) {
+          if (stringcompare_simple(pop_var, String(data_vars(i)), false)) {
+            pop_var_int = i;
+            matches++;
+          }
+        }
+        if (matches != pop_no) {
+          throw Rcpp::exception("Population variable name does not match entered hfv data frame.", false);
+        }
+        pop_var_type = "s";
+        
+      } else if (is<NumericVector>(pop_input)) {
+        NumericVector pop_int_(pop_input);
+        int pop_int_no {static_cast<int>(pop_int_.length())};
+        
+        if (pop_int_no > 1 || pop_int_(0) < 1 || pop_int_(0) > data_vars_no) {
+          throw Rcpp::exception("Invalid entry given for population identity.", false);
+        }
+        
+        pop_var_int = pop_int_(0) - 1;
+        pop_var = data_vars(pop_var_int);
+        pop_var_type = "d";
+        
+      } else if (is<IntegerVector>(pop_input)) {
+        IntegerVector pop_int_(pop_input);
+        
+        int pop_int_no {static_cast<int>(pop_int_.length())};
+        
+        if (pop_int_no > 1 || pop_int_(0) < 1 || pop_int_(0) > data_vars_no) {
+          throw Rcpp::exception("Invalid entry given for population identity.", false);
+        }
+        
+        pop_var_int = pop_int_(0) - 1;
+        pop_var = data_vars(pop_var_int);
+        
+        bool pop_fac = pop_int_.hasAttribute("levels");
+        if (pop_fac) {
+          pop_var_type = "f";
+        } else {
+          pop_var_type = "i";
         }
         
       } else {
-        annmatriceslong(counter) = annmatriceslong(counter) + 1;
-        meanassign(i) = meanassign(i-1);
+        throw Rcpp::exception("Please enter a string showing the name of the variable coding for population identity.", false);
       }
-    }
-  }
-  arma::uvec toestimate = find(poporderlong_num);
-  int popcount = toestimate.n_elem;
-  
-  int totalmatrices = toestimate.n_elem + numofpops;
-  
-  if (patchmats == 1 && popmats == 0) {
-    totalmatrices = toestimate.n_elem;
-  } else if (patchmats == 0 && popmats == 1) {
-    totalmatrices = numofpops;
-  }
-  
-  arma::uvec poporder = poporderlong_num.elem(toestimate);
-  arma::uvec patchorder = poppatchc.elem(toestimate);
-  arma::uvec annmatrices = annmatriceslong.elem(toestimate);
-  
-  StringVector poporder_str(popcount);
-  StringVector patchorder_str(popcount);
-  
-  for (int i = 0; i < popcount; i++) {
-    poporder_str(i) = pops(toestimate(i));
-    patchorder_str(i) = patches(toestimate(i));
-  }
-  
-  // This next chunk predicts which elements will be targeted for arithmetic mean estimation
-  arma::uvec astages = as<arma::uvec>(stages["stage_id"]);
-  int initialstages = astages.n_elem;
-  
-  // Now we will tet for the presence of ages, and determine the matrix dimensions required
-  arma::mat initUmat = Umats(0);
-  int colsused = initUmat.n_cols;
-  int agemultiplier = colsused / initialstages;
-  
-  int numstages = astages.n_elem * agemultiplier;
-  
-  // Now we build U and F matrices of element-wise arithmetic means, where
-  // each column corresponds to the predicted non-zero elements of each mean
-  // matrix, and each matrix is presented as a column vector within the 
-  // overall matrix. The A matrix is the sum of U and F.
-  int core_elem = numstages * numstages;
-  
-  arma::mat umatvec(core_elem, totalmatrices);
-  arma::mat fmatvec(core_elem, totalmatrices);
-  umatvec.zeros();
-  fmatvec.zeros();
-  
-  int patchchoice {0};
-  int popchoice {0};
-  
-  pop_num = pop_num - 1;
-  poppatchc = poppatchc - 1;
-  
-  for (int i = 0; i < loydim; i ++) {
-    if (patchmats == 1) {
-      patchchoice = poppatchc(i);
       
-      umatvec.col(patchchoice) = umatvec.col(patchchoice) +
-        (moreflagrantcrap(as<arma::mat>(Umats[i])) / yearsinpatch(i));
-      fmatvec.col(patchchoice) = fmatvec.col(patchchoice) +
-        (moreflagrantcrap(as<arma::mat>(Fmats[i])) / yearsinpatch(i));
+      StringVector data_pops = as<StringVector>(data_[pop_var_int]);
+      StringVector mainpops = sort_unique(data_pops);
+      mainpops_ = mainpops;
     }
     
-    if (popmats == 1) {
-      if (patchmats == 1) {
-        popchoice = numofpatches + pop_num(i);
+    if (patchcol.isNotNull()) {
+      RObject patch_input (patchcol);
+      
+      if (is<StringVector>(patch_input)) {
+        StringVector patch_ = as<StringVector>(patch_input);
+        int patch_no {static_cast<int>(patch_.length())};
+        
+        if (patch_no > 1) {
+          throw Rcpp::exception("Patchcol term must be a single string value corresponding to the name of the variable coding for patch identity.", false);
+        }
+        
+        patch_var = String(patch_(0));
+        
+        int matches {0};
+        for (int i = 0; i < data_vars_no; i++) {
+          if (stringcompare_simple(patch_var, String(data_vars(i)), false)) {
+            patch_var_int = i;
+            matches++;
+          }
+        }
+        if (matches != patch_no) {
+          throw Rcpp::exception("Patch variable name does not match entered hfv data frame.", false);
+        }
+          patch_var_type = "s";
+        
+      } else if (is<NumericVector>(patch_input)) {
+        NumericVector patch_int_(patch_input);
+        int patch_int_no {static_cast<int>(patch_int_.length())};
+        
+        if (patch_int_no > 1 || patch_int_(0) < 1 || patch_int_(0) > data_vars_no) {
+          throw Rcpp::exception("Invalid entry given for patch identity.", false);
+        }
+        
+        patch_var_int = patch_int_(0) - 1;
+        patch_var = data_vars(patch_var_int);
+        
+        patch_var_type = "d";
+        
+      } else if (is<IntegerVector>(patch_input)) {
+        IntegerVector patch_int_(patch_input);
+        int patch_int_no {static_cast<int>(patch_int_.length())};
+        
+        if (patch_int_no > 1 || patch_int_(0) < 1 || patch_int_(0) > data_vars_no) {
+          throw Rcpp::exception("Invalid entry given for patch identity.", false);
+        }
+        
+        patch_var_int = patch_int_(0) - 1;
+        patch_var = data_vars(patch_var_int);
+        
+        bool patch_fac = patch_int_.hasAttribute("levels");
+        if (patch_fac) {
+          patch_var_type = "f";
+        } else {
+          patch_var_type = "i";
+        }
+        
       } else {
-        popchoice = pop_num(i);
+        throw Rcpp::exception("Please enter a string showing the name of the variable coding for patch identity.", false);
       }
       
-      umatvec.col(popchoice) = umatvec.col(popchoice) +
-        (moreflagrantcrap(as<arma::mat>(Umats[i])) / (yearsinpatch(i) * patchesinpop(i)));
-      fmatvec.col(popchoice) = fmatvec.col(popchoice) +
-        (moreflagrantcrap(as<arma::mat>(Fmats[i])) / (yearsinpatch(i) * patchesinpop(i)));
-    }
-  }
-  arma::mat amatvec = umatvec + fmatvec;
-  
-  // Here we create the cheat sheet algorithm
-  int cheatsheetlength {1};
-  if (numofpatches > 1) cheatsheetlength = numofpops + numofpatches;
-  StringVector poporder_redone(cheatsheetlength);
-  StringVector patchorder_redone(cheatsheetlength);
-  
-  if (numofpatches > 1) {
-    for (int i = 0; i < numofpatches; i++) {
-      poporder_redone(i) = poporderlong(i);
-      patchorder_redone(i) = patchorderlong(i);
+      StringVector data_patch = as<StringVector>(data_[patch_var_int]);
+      StringVector mainpatches = sort_unique(data_patch);
+      mainpatches_ = mainpatches;
+    } else {
+      StringVector mainpatches = {NA_STRING};
+      mainpatches_ = mainpatches;
     }
     
-    for (int i = 0; i < numofpops; i++) {
-      poporder_redone(i+numofpatches) = uniquepops_str(i);
-      patchorder_redone(i+numofpatches) = "0";
+    if (indivcol.isNotNull()) {
+      RObject indiv_input (indivcol);
+      
+      if (is<StringVector>(indiv_input)) {
+        StringVector indiv_ = as<StringVector>(indiv_input);
+        int indiv_no {static_cast<int>(indiv_.length())};
+        
+        if (indiv_no > 1) {
+          throw Rcpp::exception("Indivcol term must be a single string value corresponding to the name of the variable coding for individual identity.", false);
+        }
+        
+        indiv_var = String(indiv_(0));
+        
+        int matches {0};
+        for (int i = 0; i < data_vars_no; i++) {
+          if (stringcompare_simple(indiv_var, String(data_vars(i)), false)) {
+            indiv_var_int = i;
+            matches++;
+          }
+        }
+        if (matches != indiv_no) {
+          throw Rcpp::exception("Individual identity variable name does not match entered hfv data frame.", false);
+        }
+        
+      } else if (is<IntegerVector>(indiv_input) || is<NumericVector>(indiv_input)) {
+        IntegerVector indiv_int_(indiv_input);
+        int indiv_int_no {static_cast<int>(indiv_int_.length())};
+        
+        if (indiv_int_no > 1 || indiv_int_(0) < 1 || indiv_int_(0) > data_vars_no) {
+          throw Rcpp::exception("Invalid entry given for individual identity.", false);
+        }
+        
+        indiv_var_int = indiv_int_(0) - 1;
+        indiv_var = data_vars(indiv_var_int);
+        
+      } else {
+        throw Rcpp::exception("Please enter a string showing the name of the variable coding for individual identity.", false);
+      }
     }
     
+    if (censorcol.isNotNull() && censor) {
+      RObject censorcol_input (censorcol);
+      
+      if (is<StringVector>(censorcol_input)) {
+        StringVector censorcol_ = as<StringVector>(censorcol_input);
+        int censorcol_no {static_cast<int>(censorcol_.length())};
+        
+        if (censorcol_no > 1) {
+          throw Rcpp::exception("Option censorcol status must correspond to a single variable.", false);
+        }
+        
+        String censorcol_0 (censorcol_(0));
+        censor_var = censorcol_0;
+        
+        int matches {0};
+        for (int j = 0; j < data_vars_no; j++) {
+          if (stringcompare_simple(censorcol_0, String(data_vars(j)), false)) {
+            censorcol_int = j;
+            matches++;
+          }
+        }
+        if (matches != 1) {
+          throw Rcpp::exception("Censor variable either does not match entered hfv data frame, or matches more than one variable name.", false);
+        }
+        
+      } else if (is<IntegerVector>(censorcol_input) || is<NumericVector>(censorcol_input)) {
+        IntegerVector censorcol_int_(censorcol_input);
+        
+        if (min(censorcol_int_) < 1 || max(censorcol_int_) > data_vars_no) {
+          throw Rcpp::exception("Invalid entries given for censorcol variable.", false);
+        }
+        
+        int censorcol_int_no {static_cast<int>(censorcol_int_.length())};
+        if (censorcol_int_no != 1) {
+          throw Rcpp::exception("Please enter a single variable name for option censorcol.", false);
+        }
+        censorcol_int = censorcol_int_(0) - 1;
+        censor_var = data_vars(censorcol_int);
+        
+      } else {
+        throw Rcpp::exception("Please enter the variable name coding for censorcol.", false);
+      }
+    } else if (censor) {
+      throw Rcpp::exception("Please enter the variable name coding for censorcol.", false);
+    }
+    
+    if (censorkeep.isNotNull() && censor) {
+      RObject censorkeep_input (censorkeep);
+      
+      if (is<NumericVector>(censorkeep_input)) {
+        cs_keep_n = as<NumericVector>(censorkeep_input);
+        cs_n = true;
+        
+        if (NumericVector::is_na(cs_keep_n(0))) censorkeep_is_NA = true;
+        
+      } else if (is<IntegerVector>(censorkeep_input)) {
+        cs_keep_i = as<IntegerVector>(censorkeep_input);
+        cs_i = true;
+        
+        if (IntegerVector::is_na(cs_keep_i(0))) censorkeep_is_NA = true;
+        
+      } else if (is<StringVector>(censorkeep_input)) {
+        cs_keep_s = as<StringVector>(censorkeep_input);
+        cs_s = true;
+        
+        if (StringVector::is_na(cs_keep_s(0))) censorkeep_is_NA = true;
+        
+      } else if (is<LogicalVector>(censorkeep_input)) {
+        cs_keep_l = as<LogicalVector>(censorkeep_input);
+        cs_l = true;
+        
+        if (LogicalVector::is_na(cs_keep_l(0))) censorkeep_is_NA = true;
+        
+      } else {
+        throw Rcpp::exception("Option censorkeep is not a recognized input type.", false);
+      }
+      
+      StringVector data_censor (as<StringVector>(data_[censorcol_int]));
+    }
+    
+    if (raw && censor) {
+      IntegerVector cscol_vec = {censorcol_int};
+      
+      if (censorkeep_is_NA) {
+        if (cs_n) {
+          data_ = df_subset(data_, as<RObject>(cs_keep_n), true,
+            true, false, false, true, as<RObject>(cscol_vec));
+        } else if (cs_i) {
+          data_ = df_subset(data_, as<RObject>(cs_keep_i), true,
+            true, false, false, true, as<RObject>(cscol_vec));
+        } else if (cs_l) {
+          data_ = df_subset(data_, as<RObject>(cs_keep_l), true,
+            true, false, false, true, as<RObject>(cscol_vec));
+        } else if (cs_s) {
+          data_ = df_subset(data_, as<RObject>(cs_keep_s), true,
+            true, false, false, true, as<RObject>(cscol_vec));
+        }
+      } else {
+        if (cs_n) {
+          data_ = df_subset(data_, as<RObject>(cs_keep_n), false,
+            true, false, false, true, as<RObject>(cscol_vec));
+        } else if (cs_i) {
+          data_ = df_subset(data_, as<RObject>(cs_keep_i), false,
+            true, false, false, true, as<RObject>(cscol_vec));
+        } else if (cs_l) {
+          data_ = df_subset(data_, as<RObject>(cs_keep_l), false,
+            true, false, false, true, as<RObject>(cscol_vec));
+        } else if (cs_s) {
+          data_ = df_subset(data_, as<RObject>(cs_keep_s), false,
+            true, false, false, true, as<RObject>(cscol_vec));
+        }
+      }
+      data_points = static_cast<int>(data_.nrows());
+      if (data_points == 0) throw Rcpp::exception("Data censoring led to empty data subsets.", false);
+    }
+    
+    // If paramnames is not provided (raw MPM only section) ends
+  } else if (nodata && modelsuite_provided) {
+    // Section for vrm_input
+    DataFrame year_frame = as<DataFrame>(modelsuite_["year_frame"]);
+    DataFrame patch_frame = as<DataFrame>(modelsuite_["patch_frame"]);
+    
+    mainyears_ = as<StringVector>(year_frame["years"]);
+    mainpatches_ = as<StringVector>(patch_frame["patches"]);
   } else {
-    poporder_redone(0) = poporderlong(0);
-    patchorder_redone(0) = patchorderlong(0);
-  }
-  
-  DataFrame cheatsheet = DataFrame::create(Named("pop") = poporder_redone, 
-    _["patch"] = patchorder_redone);
-  
-  // Now we will create the main list objects to hold the matrices
-  List U(totalmatrices);
-  List F(totalmatrices);
-  List A(totalmatrices);
-  
-  arma::mat umat_base = umatvec.col(0);
-  arma::mat fmat_base = fmatvec.col(0);
-  arma::mat amat_base = amatvec.col(0);
-  
-  umat_base.reshape(numstages, numstages);
-  fmat_base.reshape(numstages, numstages);
-  amat_base.reshape(numstages, numstages);
-  
-  U(0) = umat_base;
-  F(0) = fmat_base;
-  A(0) = amat_base;
-  
-  if (totalmatrices > 1) {
-    for (int i = 1; i < totalmatrices; i++) {
-      umat_base.zeros();
-      fmat_base.zeros();
-      amat_base.zeros();
-      
-      umat_base = umatvec.col(i);
-      fmat_base = fmatvec.col(i);
-      amat_base = amatvec.col(i);
-      
-      umat_base.reshape(numstages, numstages);
-      fmat_base.reshape(numstages, numstages);
-      amat_base.reshape(numstages, numstages);
-      
-      U(i) = umat_base;
-      F(i) = fmat_base;
-      A(i) = amat_base;
+    // When both data and modelsuites are provided, guided by paramnames
+    if (pop_var_int > -1) {
+      StringVector data_pops = as<StringVector>(data_[pop_var_int]);
+      StringVector mainpops = sort_unique(data_pops);
+      mainpops_ = mainpops;
+    }
+    
+    if (patch_var_int > -1) {
+      StringVector data_patch = as<StringVector>(data_[patch_var_int]);
+      StringVector mainpatches = sort_unique(data_patch);
+      mainpatches_ = mainpatches;
+    }
+    
+    if (year_var_int > -1) { 
+      StringVector data_year = as<StringVector>(data_[year_var_int]);
+      StringVector mainyears = sort_unique(data_year);
+      mainyears_ = mainyears;
     }
   }
   
-  // Matrix QC output
-  arma::uvec utrans = find(umatvec);
-  arma::uvec ftrans = find(fmatvec);
-  int totalutrans = utrans.n_elem;
-  int totalftrans = ftrans.n_elem;
+  if (NumericVector::is_na(density)) {
+    density = 0.0;
+  }
   
-  NumericVector matrixqc(3);
-  matrixqc(0) = totalutrans; // summed number of U transitions
-  matrixqc(1) = totalftrans; // summed number of F transitions
-  matrixqc(2) = totalmatrices;
+  // Count individuals for dataqc
+  if (!nodata) {
+    int used_indiv_var = indiv_var_int;
+    
+    if (indiv_var_int == -1) {
+      for (int i = 0; i < data_vars_no; i++) {
+        if (stringcompare_simple(String(data_vars(i)), "indiv", false)) {
+          used_indiv_var = i;
+        }
+      }
+    }
+    
+    if (used_indiv_var > -1) {
+      StringVector data_indiv = as<StringVector>(data_[used_indiv_var]);
+      StringVector mainindivs = unique(data_indiv);
+      int no_indivs = static_cast<int>(mainindivs.length());
+      
+      dataqc_(0) = no_indivs;
+    }
+  }
   
-  // Final output
-  List output = List::create(Named("A") = A, _["U"] = U, _["F"] = F, 
-    _["hstages"] = R_NilValue, _["agestages"] = agestages, _["ahstages"] = stages,
-    _["labels"] = cheatsheet, _["matrixqc"] = matrixqc);
+  // LOY parameters - developed for all MPMs
   
-  return output;
+  // Need to adjust this for vrm_input situations in modelsuite ********************
+  StringVector year_;
+  
+  if (year.isNotNull()) {
+    StringVector year_input(year);
+    
+    if (year_var_int == -1) throw Rcpp::exception("Please input the variable coding for year in time t.", false);
+    
+    if (stringcompare_simple(String(year_input(0)), "all", false)) {
+      if (raw) {
+        int no_mainyears = static_cast<int>(mainyears_.length());
+        int hist_adj {0};
+        if (historical) hist_adj = 1;
+        
+        StringVector chosen_years (no_mainyears - hist_adj);
+        for (int i = 0; i < (no_mainyears - hist_adj); i++) {
+          chosen_years(i) = mainyears_(i + hist_adj);
+        }
+        year_ = chosen_years;
+        
+      } else {
+        year_ = mainyears_;
+      }
+      
+    } else {
+      for (int i = 0; i < year_input.length(); i++) {
+        int matches {0};
+        for (int j = 0; j < mainyears_.length(); j++) {
+          if (stringcompare_simple(String(year_input(i)), String(mainyears_(j)), false)) matches++;
+        }
+        if (matches == 0) throw Rcpp::exception("Year value not found in data.", false);
+      }
+      
+      year_ = year_input;
+    }
+  } else {
+    if (year_var_int == -1) throw Rcpp::exception("Please input the variable coding for year in time t.", false);
+    
+    if (raw) {
+      int no_mainyears = static_cast<int>(mainyears_.length());
+      int hist_adj {0};
+      if (historical) hist_adj = 1;
+      
+      StringVector chosen_years (no_mainyears - hist_adj);
+      for (int i = 0; i < (no_mainyears - hist_adj); i++) {
+        chosen_years(i) = mainyears_(i + hist_adj);
+      }
+      year_ = chosen_years;
+      
+    } else {
+      year_ = mainyears_;
+    }
+  }
+  
+  StringVector pop_;
+  
+  if (pop.isNotNull()) {
+    StringVector pop_input(pop);
+    
+    if (pop_var_int == -1) {
+      String pop_var_default {"popid"};
+      
+      int matches {0};
+      for (int i = 0; i < data_vars_no; i++) {
+        if (stringcompare_simple(String(data_vars(i)), pop_var_default, false)) {
+          pop_var = String(data_vars(i));
+          pop_var_int = i;
+          matches++;
+        }
+      }
+      if (matches != 1) throw Rcpp::exception("Please input the variable coding for population identity.", false);
+      
+      StringVector data_pop = as<StringVector>(data_[pop_var_int]);
+      StringVector mainpops = unique(data_pop);
+      mainpops_ = mainpops;
+    }
+    
+    if (StringVector::is_na(pop_input(0))) pop_input(0) = "all";
+    
+    if (stringcompare_simple(String(pop_input(0)), "all", false)) {
+      pop_ = mainpops_;
+      
+    } else {
+      for (int i = 0; i < pop_input.length(); i++) {
+        int matches {0};
+        for (int j = 0; j < mainpops_.length(); j++) {
+          if (stringcompare_simple(String(pop_input(i)), String(mainpops_(j)), false)) matches++;
+        }
+        if (matches == 0) throw Rcpp::exception("Population identity value not found in data.", false);
+      }
+      pop_ = pop_input;
+    }
+  } else if (pop_var_int != -1) {
+    pop_ = mainpops_;
+  }
+  
+  StringVector patch_;
+  
+  if (patch.isNotNull()) {
+    StringVector patch_input(patch);
+    
+    if (patch_var_int == -1) {
+      String patch_var_default {"patchid"};
+      
+      int matches {0};
+      for (int i = 0; i < data_vars_no; i++) {
+        if (stringcompare_simple(String(data_vars(i)), patch_var_default, false)) {
+          patch_var = String(data_vars(i));
+          patch_var_int = i;
+          matches++;
+        }
+      }
+      if (matches != 1) throw Rcpp::exception("Please input the variable coding for patch identity.", false);
+      
+      StringVector data_patch = as<StringVector>(data_[patch_var_int]);
+      StringVector mainpatches = unique(data_patch);
+      mainpatches_ = mainpatches;
+    }
+    
+    if (StringVector::is_na(patch_input(0))) patch_input(0) = "all";
+    
+    if (stringcompare_simple(String(patch_input(0)), "all", false)) {
+      patch_ = mainpatches_;
+      
+    } else {
+      for (int i = 0; i < patch_input.length(); i++) {
+        int matches {0};
+        for (int j = 0; j < mainpatches_.length(); j++) {
+          if (stringcompare_simple(String(patch_input(i)), String(mainpatches_(j)), false)) matches++;
+        }
+        if (matches == 0) throw Rcpp::exception("Patch identity value not found in data.", false);
+      }
+      patch_ = patch_input;
+      
+    }
+  } else if (patch_var_int != -1) {
+    patch_ = mainpatches_;
+  }
+  
+  // LOY (list of years) calculator
+  int no_pops {static_cast<int>(pop_.length())};
+  int no_patches {static_cast<int>(patch_.length())};
+  int no_years {static_cast<int>(year_.length())};
+  
+  IntegerVector poporder_;
+  IntegerVector patchorder_;
+  IntegerVector yearorder_;
+  
+  bool loy_pop_used {false};
+  bool loy_patch_used {false};
+  
+  DataFrame list_of_years;
+  DataFrame labels_;
+  StringVector loy_pop_;
+  StringVector loy_patch_;
+  StringVector loy_year2_;
+  
+  {
+    StringVector pop_new;
+    if (no_pops == 0) {
+      StringVector pop_new_default {"1"};
+      pop_new = pop_new_default;
+      no_pops = 1;
+      
+    } else {
+      pop_new = pop_;
+      loy_pop_used = true;
+    }
+    
+    StringVector patch_new;
+    if (no_patches == 0) {
+      StringVector patch_new_default {"1"};
+      patch_new = patch_new_default;
+      no_patches = 1;
+      
+    } else {
+      patch_new = patch_;
+      loy_patch_used = true;
+    }
+    
+    StringVector year_new;
+    if (no_years == 0) {
+      StringVector year_new_default {"1"};
+      year_new = year_new_default;
+      no_years = 1;
+      
+    } else {
+      year_new = year_;
+    }
+    
+    int loy_length = no_pops * no_patches * no_years; // May need to adjust years for historical...
+    
+    StringVector loy_pop (loy_length);
+    StringVector loy_patch (loy_length);
+    StringVector loy_year2 (loy_length);
+    
+    IntegerVector poporder (loy_length);
+    IntegerVector patchorder (loy_length);
+    IntegerVector yearorder (loy_length);
+    
+    for (int i = 0; i < no_pops; i++) {
+      for (int j = 0; j < no_patches; j++) {
+        for (int k = 0; k < no_years; k++) {
+          loy_pop((i * no_patches * no_years) + (j * no_years) + k) = pop_new(i);
+          loy_patch((i * no_patches * no_years) + (j * no_years) + k) = patch_new(j);
+          loy_year2((i * no_patches * no_years) + (j * no_years) + k) = year_new(k);
+          
+          poporder((i * no_patches * no_years) + (j * no_years) + k) = i;
+          patchorder((i * no_patches * no_years) + (j * no_years) + k) = j;
+          yearorder((i * no_patches * no_years) + (j * no_years) + k) = k;
+        }
+      }
+    }
+    
+    DataFrame loy = DataFrame::create(_["pop"] = loy_pop, _["patch"] = loy_patch,
+      _["year2"] = loy_year2, _["poporder"] = poporder, _["patchorder"] = patchorder,
+      _["yearorder"] = yearorder);
+    list_of_years = loy;
+    DataFrame labels = DataFrame::create(_["pop"] = loy_pop, _["patch"] = loy_patch,
+      _["year2"] = loy_year2);
+    labels_ = labels;
+    
+    poporder_ = poporder;
+    patchorder_ = patchorder;
+    yearorder_ = yearorder;
+    
+    loy_pop_ = loy_pop;
+    loy_patch_ = loy_patch;
+    loy_year2_ = loy_year2;
+  }
+  
+  // Dealing with stages in raw MPMs
+  StringVector stages_;
+  IntegerVector stages_int;
+  
+  IntegerVector new_stageid3 (data_points);
+  IntegerVector new_stageid2 (data_points);
+  IntegerVector new_stageid1 (data_points);
+  StringVector new_stage3 (data_points);
+  StringVector new_stage2 (data_points);
+  StringVector new_stage1 (data_points);
+  
+  bool new_stages_needed {false};
+  bool new_stage_indices_needed {false}; // For cases with stage calls without indices
+  
+  if (stages.isNotNull() && raw && stage) {
+    RObject stages_input (stages);
+    
+    if (is<StringVector>(stages_input)) {
+      stages_ = as<StringVector>(stages_input);
+      int stages_no {static_cast<int>(stages_.length())};
+      IntegerVector stages_int_ (stages_no);
+      
+      if (stages_no < 2 || stages_no > 3) {
+        throw Rcpp::exception("Option stages must be entered as a string vector showing status in times t+1 and t, and time t-1 if a historical MPM is desired.", false);
+      }
+      
+      int matches {0};
+      for (int i = 0; i < stages_no; i++) {
+        for (int j = 0; j < data_vars_no; j++) {
+          if (stringcompare_simple(String(stages_(i)), String(data_vars(j)), false)) {
+            stages_int_(i) = j;
+            matches++;
+          }
+        }
+      }
+      if (matches != stages_no) {
+        throw Rcpp::exception("Names in option stages do not match entered hfv data frame.", false);
+      }
+      stages_int = stages_int_;
+      
+    } else if (is<IntegerVector>(stages_input) || is<NumericVector>(stages_input)) {
+      IntegerVector stages_int_(stages_input);
+      
+      if (min(stages_int_) < 1 || max(stages_int_) > data_vars_no) {
+        throw Rcpp::exception("Invalid entries given for option stages.", false);
+      }
+      
+      int stages_int_no {static_cast<int>(stages_int_.length())};
+      StringVector stages_string (stages_int_no);
+      
+      for (int i = 0; i < stages_int_no; i++) {
+        stages_string(i) = data_vars(stages_int_(i) - 1);
+      }
+      stages_ = stages_string;
+      stages_int = stages_int_;
+      
+    } else {
+      throw Rcpp::exception("Please enter a string vector of valid variable names coding for option stages in times t+1 and t, and time t-1 if a historical MPM is desired.", false);
+    }
+    new_stage3 = as<StringVector>(data_[stages_int(0)]);
+    new_stage2 = as<StringVector>(data_[stages_int(1)]);
+    if (historical) new_stage1 = as<StringVector>(data_[stages_int(2)]);
+    
+    for (int i = 0; i < data_points; i++) {
+      for (int j = 0; j < melchett_stageframe_length; j++) {
+        if (stringcompare_hard(String(new_stage3(i)), String(melchett_stageframe_stage_(j)))) {
+          new_stageid3(i) = j + 1;
+        } else if (stringcompare_hard(String(new_stage3(i)), "NotAlive") || 
+            stringcompare_hard(String(new_stage3(i)), "Dead")) {
+          new_stageid3(i) = melchett_stageframe_length;
+        }
+        if (stringcompare_hard(String(new_stage2(i)), String(melchett_stageframe_stage_(j)))) {
+          new_stageid2(i) = j + 1;
+        } else if (stringcompare_hard(String(new_stage2(i)), "NotAlive") || 
+            stringcompare_hard(String(new_stage2(i)), "Dead")) {
+          new_stageid2(i) = melchett_stageframe_length;
+        }
+        
+        if (historical) {
+          if (stringcompare_hard(String(new_stage1(i)), String(melchett_stageframe_stage_(j)))) {
+            new_stageid1(i) = j + 1;
+          } else if (stringcompare_hard(String(new_stage1(i)), "NotAlive") || 
+              stringcompare_hard(String(new_stage1(i)), "Dead")) {
+            new_stageid1(i) = melchett_stageframe_length;
+          }
+        }
+      }
+    }
+    
+    // Check for stage indices
+    int ind_matches {0};
+    for (int i = 0; i < data_vars_no; i++) {
+      if (stringcompare_simple(String(data_vars(i)), "index"), false) {
+        if (is<IntegerVector>(data_[i])) ind_matches++;
+      }
+    }
+    if (ind_matches < 2 || ind_matches > 3) new_stage_indices_needed = true;
+    
+    StringVector d_rn = data_.attr("row.names");
+    
+    data_["usedstage3"] = new_stage3;
+    data_["usedstage2"] = new_stage2;
+    if (historical) data_["usedstage1"] = new_stage1;
+    
+    data_["index3"] = new_stageid3 - 1;
+    data_["index2"] = new_stageid2 - 1;
+    if (historical) data_["index1"] = new_stageid1 - 1;
+    
+    data_.attr("class") = "data.frame";
+    data_.attr("row.names") = d_rn;
+    
+  } else if (raw && stage) {
+    int stages_no {3};
+    
+    // Check for default values, and move on to assignment if nothing found
+    IntegerVector stages_int;
+    if (historical) {
+      IntegerVector stages3_int {-1, -1, -1};
+      stages_int = stages3_int;
+      
+      StringVector stages3 {"stage3", "stage2", "stage1"};
+      stages_ = stages3;
+    } else {
+      IntegerVector stages2_int {-1, -1};
+      stages_int = stages2_int;
+      
+      StringVector stages2 {"stage3", "stage2"};
+      stages_ = stages2;
+      stages_no = 2;
+    }
+    
+    int matches {0};
+    for (int i = 0; i < stages_no; i++) {
+      for (int j = 0; j < data_vars_no; j++) {
+        if (stringcompare_simple(String(stages_(i)), String(data_vars(j)), false)) {
+          if ((historical && matches < 4) || (!historical && matches < 3)) {
+            stages_int(matches) = j;
+          } else new_stages_needed = true;
+          
+          matches++;
+        }
+      }
+    }
+    
+    if (!new_stages_needed) {
+      IntegerVector unique_elems = unique(stages_int);
+      
+      for (int i = 0; i < static_cast<int>(unique_elems.length()); i++) {
+        if (stages_int(i) == -1) new_stages_needed = true;
+      }
+    }
+    
+    if (!new_stages_needed) {
+      StringVector stages3_trial = as<StringVector>(data_[stages_int(0)]);
+      StringVector stages3_trial_unique = unique(stages3_trial);
+      
+      int s3_tu_length = stages3_trial_unique.length();
+      if (s3_tu_length < 2) new_stages_needed = true;
+    }
+    
+    // Stage calls
+    IntegerVector msf_stageid = as<IntegerVector>(melchett_stageframe_["stage_id"]);
+    StringVector msf_stage = as<StringVector>(melchett_stageframe_["stage"]);
+    
+    if (new_stages_needed) {
+      // Imports all needed data from the hfv data frame
+      arma::uvec data_alive3_ = as<arma::uvec>(data_[String(alive_(0))]);
+      arma::uvec data_alive2_ = as<arma::uvec>(data_[String(alive_(1))]);
+      arma::uvec data_alive1_;
+      
+      arma::vec data_size3_ = as<arma::vec>(data_[String(size_(0))]);
+      arma::vec data_size2_ = as<arma::vec>(data_[String(size_(1))]);
+      arma::vec data_size1_;
+      
+      if (historical) {
+        data_alive1_ = as<arma::uvec>(data_[String(alive_(2))]);
+        data_size1_ = as<arma::vec>(data_[String(size_(2))]);
+      }
+      
+      arma::uvec data_obsst3_;
+      arma::uvec data_obsst2_;
+      arma::uvec data_obsst1_;
+      
+      if (repst_used) {
+        data_obsst3_ = as<arma::uvec>(data_[String(obsst_(0))]);
+        data_obsst2_ = as<arma::uvec>(data_[String(obsst_(1))]);
+
+        if (historical) {
+          data_obsst1_ = as<arma::uvec>(data_[String(obsst_(2))]);
+        }
+      }
+      
+      arma::vec data_sizeb3_;
+      arma::vec data_sizeb2_;
+      arma::vec data_sizeb1_;
+      
+      if (sizeb_used) {
+        data_sizeb3_ = as<arma::vec>(data_[String(sizeb_(0))]);
+        data_sizeb2_ = as<arma::vec>(data_[String(sizeb_(1))]);
+
+        if (historical) {
+          data_sizeb1_ = as<arma::vec>(data_[String(sizeb_(2))]);
+        }
+      }
+      
+      arma::vec data_sizec3_;
+      arma::vec data_sizec2_;
+      arma::vec data_sizec1_;
+      
+      if (sizec_used) {
+        data_sizec3_ = as<arma::vec>(data_[String(sizec_(0))]);
+        data_sizec2_ = as<arma::vec>(data_[String(sizec_(1))]);
+
+        if (historical) {
+          data_sizec1_ = as<arma::vec>(data_[String(sizec_(2))]);
+        }
+      }
+      
+      arma::uvec data_repst3_;
+      arma::uvec data_repst2_;
+      arma::uvec data_repst1_;
+      
+      if (repst_used) {
+        data_repst3_ = as<arma::uvec>(data_[String(repst_(0))]);
+        data_repst2_ = as<arma::uvec>(data_[String(repst_(1))]);
+
+        if (historical) {
+          data_repst1_ = as<arma::uvec>(data_[String(repst_(2))]);
+        }
+      }
+      
+      arma::uvec data_matst3_;
+      arma::uvec data_matst2_;
+      arma::uvec data_matst1_;
+      
+      if (matst_used) {
+        data_matst3_ = as<arma::uvec>(data_[String(matst_(0))]);
+        data_matst2_ = as<arma::uvec>(data_[String(matst_(1))]);
+
+        if (historical) {
+          data_matst1_ = as<arma::uvec>(data_[String(matst_(2))]);
+        }
+      }
+      
+      arma::vec msf_size_min = as<arma::vec>(melchett_stageframe_["sizebin_min"]);
+      arma::vec msf_size_max = as<arma::vec>(melchett_stageframe_["sizebin_max"]);
+      arma::vec msf_sizeb_min = as<arma::vec>(melchett_stageframe_["sizebinb_min"]);
+      arma::vec msf_sizeb_max = as<arma::vec>(melchett_stageframe_["sizebinb_max"]);
+      arma::vec msf_sizec_min = as<arma::vec>(melchett_stageframe_["sizebinc_min"]);
+      arma::vec msf_sizec_max = as<arma::vec>(melchett_stageframe_["sizebinc_max"]);
+      arma::uvec msf_matstatus = as<arma::uvec>(melchett_stageframe_["matstatus"]);
+      arma::uvec msf_obsstatus = as<arma::uvec>(melchett_stageframe_["obsstatus"]);
+      arma::uvec msf_repstatus = as<arma::uvec>(melchett_stageframe_["repstatus"]);
+      arma::uvec msf_indataset = as<arma::uvec>(melchett_stageframe_["indataset"]);
+      arma::uvec msf_alive = as<arma::uvec>(melchett_stageframe_["alive"]);
+      arma::uvec ind_stages = find(msf_indataset == 1);
+      
+      // This for loop assigns stages across the dataset
+      for (int i = 0; i < data_points; i++) {
+        // Stage 1
+        if (historical) {
+          
+          arma::uvec al_stages1a = find(msf_alive == data_alive1_(i));
+          
+          if (NumericVector::is_na(data_size1_(i))) data_size1_(i) = 0.0;
+          arma::uvec lo_stages1 = find(msf_size_min < data_size1_(i));
+          arma::uvec hi_stages1 = find(msf_size_max >= data_size1_(i));
+          arma::uvec mainstages1 = intersect(lo_stages1, hi_stages1);
+          mainstages1 = intersect(mainstages1, al_stages1a);
+          
+          if (sizeb_used) {
+            arma::uvec lo_stages1b = find(msf_sizeb_min < data_sizeb1_(i));
+            arma::uvec hi_stages1b = find(msf_sizeb_max >= data_sizeb1_(i));
+            arma::uvec mainstages1b = intersect(lo_stages1b, hi_stages1b);
+            
+            mainstages1 = intersect(mainstages1, mainstages1b);
+          }
+          
+          if (sizec_used) {
+            arma::uvec lo_stages1c = find(msf_sizec_min < data_sizec1_(i));
+            arma::uvec hi_stages1c = find(msf_sizec_max >= data_sizec1_(i));
+            arma::uvec mainstages1c = intersect(lo_stages1c, hi_stages1c);
+            
+            mainstages1 = intersect(mainstages1, mainstages1c);
+          }
+          
+          if (matst_used) {
+            arma::uvec mat_stages1m = find(msf_matstatus == data_matst1_(i));
+            mainstages1 = intersect(mainstages1, mat_stages1m);
+          }
+          
+          if (obsst_used) {
+            arma::uvec obs_stages1m = find(msf_obsstatus == data_obsst1_(i));
+            mainstages1 = intersect(mainstages1, obs_stages1m);
+          }
+          
+          if (repst_used && !stage_NRasRep) {
+            arma::uvec rep_stages1m = find(msf_repstatus == data_repst1_(i));
+            mainstages1 = intersect(mainstages1, rep_stages1m);
+          }
+          
+          mainstages1 = intersect(mainstages1, ind_stages);
+          
+          int no_mainstages1 = mainstages1.n_elem;
+          if (no_mainstages1 > 0) {
+            new_stageid1(i) = msf_stageid(static_cast<int>(mainstages1(0)));
+            new_stage1(i) = msf_stage(static_cast<int>(mainstages1(0)));
+          } else {
+            new_stageid1(i) = msf_stageid(melchett_stageframe_length - 1);
+            new_stage1(i) = msf_stage(melchett_stageframe_length - 1);
+          }
+        }
+        
+        // Stage 2
+        arma::uvec al_stages2a = find(msf_alive == data_alive2_(i));
+        
+        if (NumericVector::is_na(data_size2_(i))) data_size2_(i) = 0.0;
+        arma::uvec lo_stages2 = find(msf_size_min < data_size2_(i));
+        arma::uvec hi_stages2 = find(msf_size_max >= data_size2_(i));
+        arma::uvec mainstages2 = intersect(lo_stages2, hi_stages2);
+        mainstages2 = intersect(mainstages2, al_stages2a);
+        
+        if (sizeb_used) {
+          arma::uvec lo_stages2b = find(msf_sizeb_min < data_sizeb2_(i));
+          arma::uvec hi_stages2b = find(msf_sizeb_max >= data_sizeb2_(i));
+          arma::uvec mainstages2b = intersect(lo_stages2b, hi_stages2b);
+          
+          mainstages2 = intersect(mainstages2, mainstages2b);
+        }
+        
+        if (sizec_used) {
+          arma::uvec lo_stages2c = find(msf_sizec_min < data_sizec2_(i));
+          arma::uvec hi_stages2c = find(msf_sizec_max >= data_sizec2_(i));
+          arma::uvec mainstages2c = intersect(lo_stages2c, hi_stages2c);
+          
+          mainstages2 = intersect(mainstages2, mainstages2c);
+        }
+        
+        if (matst_used) {
+          arma::uvec mat_stages2m = find(msf_matstatus == data_matst2_(i));
+          mainstages2 = intersect(mainstages2, mat_stages2m);
+        }
+        
+        if (obsst_used) {
+          arma::uvec obs_stages2m = find(msf_obsstatus == data_obsst2_(i));
+          mainstages2 = intersect(mainstages2, obs_stages2m);
+        }
+        
+        if (repst_used && !stage_NRasRep) {
+          arma::uvec rep_stages2m = find(msf_repstatus == data_repst2_(i));
+          mainstages2 = intersect(mainstages2, rep_stages2m);
+        }
+        
+        mainstages2 = intersect(mainstages2, ind_stages);
+        
+        int no_mainstages2 = mainstages2.n_elem;
+        if (no_mainstages2 > 0) {
+          new_stageid2(i) = msf_stageid(static_cast<int>(mainstages2(0)));
+          new_stage2(i) = msf_stage(static_cast<int>(mainstages2(0)));
+        } else {
+          new_stageid2(i) = msf_stageid(melchett_stageframe_length - 1);
+          new_stage2(i) = msf_stage(melchett_stageframe_length - 1);
+        }
+        
+        // Stage 3
+        arma::uvec al_stages3a = find(msf_alive == data_alive3_(i));
+        
+        if (NumericVector::is_na(data_size3_(i))) data_size3_(i) = 0.0;
+        arma::uvec lo_stages3 = find(msf_size_min < data_size3_(i));
+        arma::uvec hi_stages3 = find(msf_size_max >= data_size3_(i));
+        arma::uvec mainstages3 = intersect(lo_stages3, hi_stages3);
+        mainstages3 = intersect(mainstages3, al_stages3a);
+        
+        if (sizeb_used) {
+          arma::uvec lo_stages3b = find(msf_sizeb_min < data_sizeb3_(i));
+          arma::uvec hi_stages3b = find(msf_sizeb_max >= data_sizeb3_(i));
+          arma::uvec mainstages3b = intersect(lo_stages3b, hi_stages3b);
+          
+          mainstages3 = intersect(mainstages3, mainstages3b);
+        }
+        
+        if (sizec_used) {
+          arma::uvec lo_stages3c = find(msf_sizec_min < data_sizec3_(i));
+          arma::uvec hi_stages3c = find(msf_sizec_max >= data_sizec3_(i));
+          arma::uvec mainstages3c = intersect(lo_stages3c, hi_stages3c);
+          
+          mainstages3 = intersect(mainstages3, mainstages3c);
+        }
+        
+        if (matst_used) {
+          arma::uvec mat_stages3m = find(msf_matstatus == data_matst3_(i));
+          mainstages3 = intersect(mainstages3, mat_stages3m);
+        }
+        
+        if (obsst_used) {
+          arma::uvec obs_stages3m = find(msf_obsstatus == data_obsst3_(i));
+          mainstages3 = intersect(mainstages3, obs_stages3m);
+        }
+        
+        if (repst_used && !stage_NRasRep) {
+          arma::uvec rep_stages3m = find(msf_repstatus == data_repst3_(i));
+          mainstages3 = intersect(mainstages3, rep_stages3m);
+        }
+        
+        mainstages3 = intersect(mainstages3, ind_stages);
+        
+        int no_mainstages3 = mainstages3.n_elem;
+        if (no_mainstages3 > 0) {
+          new_stageid3(i) = msf_stageid(static_cast<int>(mainstages3(0)));
+          new_stage3(i) = msf_stage(static_cast<int>(mainstages3(0)));
+        } else {
+          new_stageid3(i) = msf_stageid(melchett_stageframe_length - 1);
+          new_stage3(i) = msf_stage(melchett_stageframe_length - 1);
+        }
+      }
+      
+      // Put data frame back together
+      StringVector d_rn = data_.attr("row.names");
+      
+      data_["usedstage3"] = new_stage3;
+      data_["usedstage2"] = new_stage2;
+      if (historical) data_["usedstage1"] = new_stage1;
+      
+      data_["index3"] = new_stageid3 - 1;
+      data_["index2"] = new_stageid2 - 1;
+      if (historical) data_["index1"] = new_stageid1 - 1;
+      
+      bool new_s3i_needed {false};
+      int s3i_loc {-1};
+      StringVector data_var_allnames = data_.attr("names");
+      for (int i = 0; i < data_vars_no; i++) {
+        if (stringcompare_hard(String(data_var_allnames(i)), "stage3index")) {
+          s3i_loc = i;
+        }
+      }
+      if (s3i_loc != -1) {
+        IntegerVector s3i_check = as<IntegerVector>(data_[s3i_loc]);
+        IntegerVector s3i_unique = unique(s3i_check);
+        
+        if (s3i_unique.length() < 2) new_s3i_needed = true;
+      } else {
+        new_s3i_needed = true;
+      }
+      if (new_s3i_needed) {
+        data_["stage3index"] = new_stageid3;
+        data_["stage2index"] = new_stageid2;
+        if (historical) data_["stage1index"] = new_stageid1;
+      }
+      
+      data_.attr("class") = "data.frame";
+      data_.attr("row.names") = d_rn;
+      
+    } else {
+      int ind_matches {0};
+      for (int i = 0; i < data_vars_no; i++) {
+        if (stringcompare_simple(String(data_vars(i)), "index"), false) {
+          if (is<IntegerVector>(data_[i])) ind_matches++;
+        }
+      }
+      if (ind_matches < 2 || ind_matches > 3) new_stage_indices_needed = true;
+      
+      if (new_stage_indices_needed) {
+        IntegerVector new_s3index (data_points);
+        IntegerVector new_s2index (data_points);
+        IntegerVector new_s1index (data_points);
+        
+        StringVector stages3_trial = as<StringVector>(data_[stages_int(0)]);
+        StringVector stages2_trial = as<StringVector>(data_[stages_int(1)]);
+        
+        StringVector stages1_trial;
+        if (historical) stages1_trial = as<StringVector>(data_[stages_int(2)]);
+        
+        for (int i = 0; i < data_points; i++) {
+          for (int j = 0; j < melchett_stageframe_length; j++) {
+            if (stringcompare_hard(String(stages3_trial(i)), String(msf_stage(j)))) new_s3index(i) = (j + 1);
+            if (stringcompare_hard(String(stages2_trial(i)), String(msf_stage(j)))) new_s2index(i) = (j + 1);
+            
+            if (j == (melchett_stageframe_length - 1) && new_s3index(i) == 0) {
+              new_s3index(i) = melchett_stageframe_length;
+            }
+            
+            if (j == (melchett_stageframe_length - 1) && new_s2index(i) == 0) {
+              new_s2index(i) = melchett_stageframe_length;
+            }
+            
+            if (historical) {
+              if (stringcompare_hard(String(stages1_trial(i)), String(msf_stage(j)))) new_s1index(i) = (j + 1);
+              
+              if (j == (melchett_stageframe_length - 1) && new_s1index(i) == 0) {
+                new_s1index(i) = melchett_stageframe_length;
+              }
+            }
+          }
+        }
+        
+        StringVector d_rn = data_.attr("row.names");
+        
+        data_["stage3index"] = new_s3index;
+        data_["stage2index"] = new_s2index;
+        if (historical) data_["stage1index"] = new_s1index;
+        
+        data_["index3"] = new_s3index - 1;
+        data_["index2"] = new_s2index - 1;
+        if (historical) data_["index1"] = new_s1index - 1;
+        
+        data_.attr("class") = "data.frame";
+        data_.attr("row.names") = d_rn;
+      }
+    }
+  }
+  
+  // Individual covariate vectors for function-based MPMs
+  // Individual covariate a
+  StringVector inda_names; // All indcova categories, if factor
+  NumericVector f1_inda_num; // Numeric values entered as input
+  NumericVector f2_inda_num;
+  StringVector f1_inda_cat; // Categorical (factor) values entered as input - fixed
+  StringVector f2_inda_cat;
+  StringVector r1_inda; // Categorical (factor) values entered as input - random
+  StringVector r2_inda;
+  
+  if (inda.isNotNull() && !raw) {
+    RObject inda_input = as<RObject>(inda);
+    
+    NumericVector inda_num;
+    StringVector inda_cat;
+    
+    int no_mainyears = mainyears_.length();
+    
+    if (!paramnames_provided) throw Rcpp::exception("Use of individual covariates requires a valid paramnames object", false);
+    
+    if (!random_inda) {
+      // Fixed covariate
+      if (is<StringVector>(inda_input)) {
+        inda_cat = as<StringVector>(inda_input);
+        int inda_cat_length = static_cast<int>(inda_cat.length());
+        
+        if (inda_cat_length != 1 && inda_cat_length != 2) {
+          if (inda_cat_length != no_mainyears) {
+            throw Rcpp::exception("Individual covariate vector a must be empty, or include 1, 2, or as many elements as occasions in the dataset.", false);
+          }
+        }
+        
+        if (!nodata) {
+          StringVector mainparams = as<StringVector>(paramnames_["mainparams"]);
+          StringVector modelparams = as<StringVector>(paramnames_["modelparams"]);
+          
+          int no_params = static_cast<int>(mainparams.length());
+          
+          int indacol_pm {-1};
+          int indacol {-1};
+          for (int i = 0; i < no_params; i++) {
+            if (stringcompare_hard(String(mainparams(i)), "indcova2")) {
+              if (!stringcompare_hard(String(modelparams(i)), "none")) {
+                indacol_pm = i;
+              }
+            }
+          }
+          
+          if (indacol_pm != -1) {
+            for (int i = 0; i < data_vars_no; i++) {
+              if (stringcompare_hard(String(data_vars(i)), String(modelparams(indacol_pm)))) {
+                indacol = i;
+              }
+            }
+          }
+          
+          if (indacol == -1) {
+            throw Rcpp::exception("Individual covariate a not recognized in the paramnames object or modelsuite.", false);
+          }
+          
+          RObject test_inda(data_[indacol]);
+          if (is<IntegerVector>(test_inda)) {
+            
+            IntegerVector iac_int = as<IntegerVector>(test_inda);
+            if (iac_int.hasAttribute("levels")) {
+              inda_names = as<StringVector>(iac_int.attr("levels"));
+            } else {
+              StringVector inda_values = as<StringVector>(test_inda);
+              inda_names = sort_unique(inda_values);
+            }
+          } else {
+            StringVector inda_values = as<StringVector>(data_[indacol]);
+            inda_names = sort_unique(inda_values);
+          }
+        } else {
+          if (!modelsuite_vrm || !modelsuite_provided) {
+            throw Rcpp::exception("Individual covariate modeling requires a valid modelsuite.", false);
+          }
+          
+          StringVector ms_names = modelsuite_.attr("names");
+          int ms_length = ms_names.length();
+          
+          int indcova_frame_elem {-1};
+          for (int i = 0; i < ms_length; i++) {
+            if (stringcompare_hard(String(ms_names(i)), "indcova2_frame")) indcova_frame_elem = i;
+          }
+          
+          if (indcova_frame_elem == -1) {
+            throw Rcpp::exception("This function cannot use inda input with a vrm_input object that does not include an indcova_frame element.", false);
+          }
+          
+          DataFrame indca2 = as<DataFrame>(modelsuite_["indcova2_frame"]);
+          inda_names = as<StringVector>(indca2["indcova"]);
+        }
+        
+        int inda_names_length = static_cast<int>(inda_names.length());
+        
+        for (int i = 0; i < inda_cat_length; i++) {
+          int inda_matches {0};
+          
+          for (int j = 0; j < inda_names_length; j++) {
+            if (stringcompare_hard(String(inda_cat(i)), String(inda_names(j)))) inda_matches++;
+          }
+          if (inda_matches == 0) throw Rcpp::exception("Some values entered for inda do not match the data.", false);
+        }
+        
+        if (inda_cat_length == 1) {
+          StringVector sub_f1(no_mainyears);
+          StringVector sub_f2(no_mainyears);
+          
+          for (int i = 0; i < no_mainyears; i++) {
+            sub_f1(i) = inda_cat(0);
+            sub_f2(i) = inda_cat(0);
+          }
+          
+          f1_inda_cat = sub_f1;
+          f2_inda_cat = sub_f2;
+          
+        } else if (inda_cat_length == 2 && no_years != 2) {
+          StringVector sub_f1(no_mainyears);
+          StringVector sub_f2(no_mainyears);
+          
+          for (int i = 0; i < no_mainyears; i++) {
+            sub_f1(i) = inda_cat(0);
+            sub_f2(i) = inda_cat(1);
+          }
+          
+          f1_inda_cat = sub_f1;
+          f2_inda_cat = sub_f2;
+          
+        } else {
+          StringVector sub_f1(inda_cat_length);
+          sub_f1(0) = "none";
+          
+          for (int i = 0; i < (inda_cat_length - 1); i++) {
+            sub_f1(i + 1) = inda_cat(i);
+          }
+          f1_inda_cat = sub_f1;
+          
+          f2_inda_cat = inda_cat;
+        }
+        StringVector sub_r1(no_mainyears);
+        StringVector sub_r2(no_mainyears);
+        
+        for (int i = 0; i < no_mainyears; i++) {
+          sub_r1(i) = "none";
+          sub_r2(i) = "none";
+        }
+        
+        r1_inda = sub_r1;
+        r2_inda = sub_r2;
+        
+        f2_inda_num = rep(0, no_mainyears); // Need to choose appropriate numbers later
+        f1_inda_num = rep(0, no_mainyears);
+        
+      } else if (is<IntegerVector>(inda_input) || is<NumericVector>(inda_input)) {
+        // This bit is now going to handle the possibility of factor variables
+        inda_num = as<NumericVector>(inda_input);
+        int inda_num_length = static_cast<int>(inda_num.length());
+        bool factor_variable {false};
+        
+        if (inda_num_length != 1 && inda_num_length != 2) {
+          if (inda_num_length != no_mainyears) {
+            throw Rcpp::exception("Individual covariate vector a must be empty, or include 1, 2, or as many elements as occasions in the dataset.", false);
+          }
+        }
+        
+        if (!nodata) {
+          StringVector mainparams = as<StringVector>(paramnames_["mainparams"]);
+          StringVector modelparams = as<StringVector>(paramnames_["modelparams"]);
+          
+          int no_params = static_cast<int>(mainparams.length());
+          
+          int indacol_pm {-1};
+          int indacol {-1};
+          for (int i = 0; i < no_params; i++) {
+            if (stringcompare_hard(String(mainparams(i)), "indcova2")) {
+              if (!stringcompare_hard(String(modelparams(i)), "none")) {
+                indacol_pm = i;
+              }
+            }
+          }
+          
+          if (indacol_pm != -1) {
+            for (int i = 0; i < data_vars_no; i++) {
+              if (stringcompare_hard(String(data_vars(i)), String(modelparams(indacol_pm)))) {
+                indacol = i;
+              }
+            }
+          }
+          
+          if (indacol == -1) {
+            throw Rcpp::exception("Individual covariate a not recognized in the paramnames object or modelsuite.", false);
+          }
+          
+          RObject test_inda(data_[indacol]);
+          if (is<IntegerVector>(test_inda)) {
+            
+            IntegerVector iac_int = as<IntegerVector>(test_inda);
+            if (iac_int.hasAttribute("levels")) {
+              inda_names = as<StringVector>(iac_int.attr("levels"));
+              inda_cat = as<StringVector>(inda_input);
+              factor_variable = true;
+              
+            } else {
+              StringVector inda_values = as<StringVector>(test_inda);
+              inda_names = sort_unique(inda_values);
+            }
+          }
+        } else { /* need vrm input code*/ }
+        
+        if (!factor_variable) {
+          inda_names = {"0"};
+          
+          if (inda_num_length == 1) {
+            f1_inda_num = rep(inda_num(0), no_mainyears); // These calls need to be changed to f1_inda_cat and related
+            f2_inda_num = rep(inda_num(0), no_mainyears);
+            
+          } else if (inda_num_length == 2 && no_years != 2) {
+            f1_inda_num = rep(inda_num(0), no_mainyears);
+            f2_inda_num = rep(inda_num(1), no_mainyears);
+            
+          } else {
+            NumericVector sub_f1(inda_num_length);
+            sub_f1(0) = 0;
+            
+            for (int i = 0; i < (inda_num_length - 1); i++) {
+              sub_f1(i + 1) = inda_num(i);
+            }
+            f1_inda_num = sub_f1;
+            
+            f2_inda_num = inda_num;
+          }
+          StringVector sub_r1(no_mainyears);
+          StringVector sub_r2(no_mainyears);
+          
+          for (int i = 0; i < no_mainyears; i++) {
+            sub_r1(i) = "none";
+            sub_r2(i) = "none";
+          }
+          
+          r1_inda = sub_r1;
+          r2_inda = sub_r2;
+          
+          f1_inda_cat = clone(sub_r1);
+          f2_inda_cat = clone(sub_r2);
+          
+        } else { // If indcova is a factor variable
+          int inda_cat_length = inda_cat.length();
+          
+          if (inda_cat_length == 1) {
+            StringVector sub_f1(no_mainyears);
+            StringVector sub_f2(no_mainyears);
+            
+            for (int i = 0; i < no_mainyears; i++) {
+              sub_f1(i) = inda_cat(0);
+              sub_f2(i) = inda_cat(0);
+            }
+            
+            f1_inda_cat = sub_f1;
+            f2_inda_cat = sub_f2;
+            
+          } else if (inda_cat_length == 2 && no_years != 2) {
+            StringVector sub_f1(no_mainyears);
+            StringVector sub_f2(no_mainyears);
+            
+            for (int i = 0; i < no_mainyears; i++) {
+              sub_f1(i) = inda_cat(0);
+              sub_f2(i) = inda_cat(1);
+            }
+            
+            f1_inda_cat = sub_f1;
+            f2_inda_cat = sub_f2;
+            
+          } else {
+            StringVector sub_f1(inda_cat_length);
+            sub_f1(0) = "none";
+            
+            for (int i = 0; i < (inda_cat_length - 1); i++) {
+              sub_f1(i + 1) = inda_cat(i);
+            }
+            f1_inda_cat = sub_f1;
+            
+            f2_inda_cat = inda_cat;
+          }
+          StringVector sub_r1(no_mainyears);
+          StringVector sub_r2(no_mainyears);
+          
+          for (int i = 0; i < no_mainyears; i++) {
+            sub_r1(i) = "none";
+            sub_r2(i) = "none";
+          }
+          
+          r1_inda = sub_r1;
+          r2_inda = sub_r2;
+          
+          f2_inda_num = rep(0, no_mainyears);
+          f1_inda_num = rep(0, no_mainyears);
+        }
+      } else {
+        throw Rcpp::exception("Format of indcova not recognized.", false);
+      }
+      
+    } else {
+      // Random covariate
+      inda_cat = as<StringVector>(inda_input);
+      int inda_cat_length = static_cast<int>(inda_cat.length());
+      
+      if (inda_cat_length != 1 && inda_cat_length != 2) {
+        if (inda_cat_length != no_mainyears) {
+          throw Rcpp::exception("Individual covariate vector a must be empty, or include 1, 2, or as many elements as occasions in the dataset.", false);
+        }
+      }
+      
+      if (!nodata) {
+        StringVector mainparams = as<StringVector>(paramnames_["mainparams"]);
+        StringVector modelparams = as<StringVector>(paramnames_["modelparams"]);
+        
+        int no_params = static_cast<int>(mainparams.length());
+        
+        int indacol_pm {-1};
+        int indacol {-1};
+        for (int i = 0; i < no_params; i++) {
+          if (stringcompare_hard(String(mainparams(i)), "indcova2")) {
+            if (!stringcompare_hard(String(modelparams(i)), "none")) {
+              indacol_pm = i;
+            }
+          }
+        }
+        
+        if (indacol_pm != -1) {
+          for (int i = 0; i < data_vars_no; i++) {
+            if (stringcompare_hard(String(data_vars(i)), String(modelparams(indacol_pm)))) {
+              indacol = i;
+            }
+          }
+        }
+        
+        if (indacol == -1) {
+          throw Rcpp::exception("Individual covariate a not recognized in the paramnames object or modelsuite.", false);
+        }
+        
+        RObject test_inda(data_[indacol]);
+        if (is<IntegerVector>(test_inda)) {
+          
+          IntegerVector iac_int = as<IntegerVector>(test_inda);
+          if (iac_int.hasAttribute("levels")) {
+            inda_names = as<StringVector>(iac_int.attr("levels"));
+          } else {
+            StringVector inda_values = as<StringVector>(test_inda);
+            inda_names = sort_unique(inda_values);
+          }
+        } else {
+          StringVector inda_values = as<StringVector>(data_[indacol]);
+          inda_names = sort_unique(inda_values);
+        }
+      } else {
+        if (!modelsuite_vrm || !modelsuite_provided) {
+          throw Rcpp::exception("Individual covariate modeling requires a valid modelsuite.", false);
+        }
+        
+        StringVector ms_names = modelsuite_.attr("names");
+        int ms_length = ms_names.length();
+        
+        int indcova_frame_elem {-1};
+        for (int i = 0; i < ms_length; i++) {
+          if (stringcompare_hard(String(ms_names(i)), "indcova2_frame")) indcova_frame_elem = i;
+        }
+        
+        if (indcova_frame_elem == -1) {
+          throw Rcpp::exception("This function cannot use inda input with a vrm_input object that does not include an indcova_frame element.", false);
+        }
+        
+        DataFrame indca2 = as<DataFrame>(modelsuite_["indcova2_frame"]);
+        inda_names = as<StringVector>(indca2["indcova"]);
+      }
+      
+      int inda_names_length = static_cast<int>(inda_names.length());
+      
+      for (int i = 0; i < inda_cat_length; i++) {
+        int inda_matches {0};
+        
+        for (int j = 0; j < inda_names_length; j++) {
+          if (stringcompare_hard(String(inda_cat(i)), String(inda_names(j)))) inda_matches++;
+        }
+        if (inda_matches == 0) throw Rcpp::exception("Some values entered for inda do not match the data.", false);
+      }
+      
+      if (inda_cat_length == 1) {
+        StringVector sub_r1(no_mainyears);
+        StringVector sub_r2(no_mainyears);
+        
+        for (int i = 0; i < no_mainyears; i++) {
+          sub_r1(i) = inda_cat(0);
+          sub_r2(i) = inda_cat(0);
+        }
+        
+        r1_inda = sub_r1;
+        r2_inda = sub_r2;
+        
+      } else if (inda_cat_length == 2 && no_years != 2) {
+        StringVector sub_r1(no_mainyears);
+        StringVector sub_r2(no_mainyears);
+        
+        for (int i = 0; i < no_mainyears; i++) {
+          sub_r1(i) = inda_cat(0);
+          sub_r2(i) = inda_cat(1);
+        }
+        
+        r1_inda = sub_r1;
+        r2_inda = sub_r2;
+        
+      } else {
+        StringVector sub_r1(inda_cat_length);
+        sub_r1(0) = "none";
+        
+        for (int i = 0; i < (inda_cat_length - 1); i++) {
+          sub_r1(i + 1) = inda_cat(i);
+        }
+        r1_inda = sub_r1;
+        
+        r2_inda = inda_cat;
+      }
+      f1_inda_num = rep(0, no_mainyears);
+      f2_inda_num = rep(0, no_mainyears);
+      
+      {
+        StringVector sub_r1(no_mainyears);
+        StringVector sub_r2(no_mainyears);
+        
+        for (int i = 0; i < no_mainyears; i++) {
+          sub_r1(i) = "none";
+          sub_r2(i) = "none";
+        }
+        
+        f1_inda_cat = sub_r1;
+        f2_inda_cat = sub_r2;
+      }
+    }
+  } else {
+    int no_mainyears = mainyears_.length();
+    inda_names = {"0"};
+    
+    f1_inda_num = rep(0, no_mainyears);
+    f2_inda_num = rep(0, no_mainyears);
+    
+    StringVector sub_r1(no_mainyears);
+    StringVector sub_r2(no_mainyears);
+    
+    for (int i = 0; i < no_mainyears; i++) {
+      sub_r1(i) = "none";
+      sub_r2(i) = "none";
+    }
+    
+    r1_inda = sub_r1;
+    r2_inda = sub_r2;
+    
+    f1_inda_cat = clone(sub_r1);
+    f2_inda_cat = clone(sub_r2);
+  }
+  
+  // Individual covariate b
+  StringVector indb_names;
+  NumericVector f1_indb_num;
+  NumericVector f2_indb_num;
+  StringVector f1_indb_cat;
+  StringVector f2_indb_cat;
+  StringVector r1_indb;
+  StringVector r2_indb;
+  
+  if (indb.isNotNull() && !raw) {
+    RObject indb_input = as<RObject>(indb);
+    
+    NumericVector indb_num;
+    StringVector indb_cat;
+    
+    int no_mainyears = mainyears_.length();
+    
+    if (!paramnames_provided) throw Rcpp::exception("Use of individual covariates requires a valid paramnames object", false);
+    
+    if (!random_indb) {
+      // Fixed covariate
+      if (is<StringVector>(indb_input)) { 
+        indb_cat = as<StringVector>(indb_input);
+        int indb_cat_length = static_cast<int>(indb_cat.length());
+        
+        if (indb_cat_length != 1 && indb_cat_length != 2) {
+          if (indb_cat_length != no_mainyears) {
+            throw Rcpp::exception("Individual covariate vector b must be empty, or include 1, 2, or as many elements as occasions in the dataset.", false);
+          }
+        }
+        
+        if (!nodata) {
+          StringVector mainparams = as<StringVector>(paramnames_["mainparams"]);
+          StringVector modelparams = as<StringVector>(paramnames_["modelparams"]);
+          
+          int no_params = static_cast<int>(mainparams.length());
+          
+          int indbcol_pm {-1};
+          int indbcol {-1};
+          for (int i = 0; i < no_params; i++) {
+            if (stringcompare_hard(String(mainparams(i)), "indcovb2")) {
+              if (!stringcompare_hard(String(modelparams(i)), "none")) {
+                indbcol_pm = i;
+              }
+            }
+          }
+          
+          if (indbcol_pm != -1) {
+            for (int i = 0; i < data_vars_no; i++) {
+              if (stringcompare_hard(String(data_vars(i)), String(modelparams(indbcol_pm)))) {
+                indbcol = i;
+              }
+            }
+          }
+          
+          if (indbcol == -1) {
+            throw Rcpp::exception("Individual covariate b not recognized in the paramnames object or modelsuite.", false);
+          }
+          
+          RObject test_indb(data_[indbcol]);
+          if (is<IntegerVector>(test_indb)) {
+            
+            IntegerVector ibc_int = as<IntegerVector>(test_indb);
+            if (ibc_int.hasAttribute("levels")) {
+              indb_names = as<StringVector>(ibc_int.attr("levels"));
+            } else {
+              StringVector indb_values = as<StringVector>(test_indb);
+              indb_names = sort_unique(indb_values);
+            }
+          } else {
+            StringVector indb_values = as<StringVector>(data_[indbcol]);
+            indb_names = sort_unique(indb_values);
+          }
+        } else {
+          if (!modelsuite_vrm || !modelsuite_provided) {
+            throw Rcpp::exception("Individual covariate modeling requires a valid modelsuite.", false);
+          }
+          
+          StringVector ms_names = modelsuite_.attr("names");
+          int ms_length = ms_names.length();
+          
+          int indcovb_frame_elem {-1};
+          for (int i = 0; i < ms_length; i++) {
+            if (stringcompare_hard(String(ms_names(i)), "indcovb2_frame")) indcovb_frame_elem = i;
+          }
+          
+          if (indcovb_frame_elem == -1) {
+            throw Rcpp::exception("This function cannot use indb input with a vrm_input object that does not include an indcovb_frame element.", false);
+          }
+          
+          DataFrame indcb2 = as<DataFrame>(modelsuite_["indcovb2_frame"]);
+          indb_names = as<StringVector>(indcb2["indcovb"]);
+        }
+        
+        int indb_names_length = static_cast<int>(indb_names.length());
+        
+        for (int i = 0; i < indb_cat_length; i++) {
+          int indb_matches {0};
+          
+          for (int j = 0; j < indb_names_length; j++) {
+            if (stringcompare_hard(String(indb_cat(i)), String(indb_names(j)))) indb_matches++;
+          }
+          if (indb_matches == 0) throw Rcpp::exception("Some values entered for indb do not match the data.", false);
+        }
+        
+        if (indb_cat_length == 1) {
+          StringVector sub_f1(no_mainyears);
+          StringVector sub_f2(no_mainyears);
+          
+          for (int i = 0; i < no_mainyears; i++) {
+            sub_f1(i) = indb_cat(0);
+            sub_f2(i) = indb_cat(0);
+          }
+          
+          f1_indb_cat = sub_f1;
+          f2_indb_cat = sub_f2;
+          
+        } else if (indb_cat_length == 2 && no_years != 2) {
+          StringVector sub_f1(no_mainyears);
+          StringVector sub_f2(no_mainyears);
+          
+          for (int i = 0; i < no_mainyears; i++) {
+            sub_f1(i) = indb_cat(0);
+            sub_f2(i) = indb_cat(1);
+          }
+          
+          f1_indb_cat = sub_f1;
+          f2_indb_cat = sub_f2;
+          
+        } else {
+          StringVector sub_f1(indb_cat_length);
+          sub_f1(0) = "none";
+          
+          for (int i = 0; i < (indb_cat_length - 1); i++) {
+            sub_f1(i + 1) = indb_cat(i);
+          }
+          f1_indb_cat = sub_f1;
+          
+          f2_indb_cat = indb_cat;
+        }
+        StringVector sub_r1(no_mainyears);
+        StringVector sub_r2(no_mainyears);
+        
+        for (int i = 0; i < no_mainyears; i++) {
+          sub_r1(i) = "none";
+          sub_r2(i) = "none";
+        }
+        
+        r1_indb = sub_r1;
+        r2_indb = sub_r2;
+        
+      } else if (is<NumericVector>(indb_input) || is <IntegerVector>(indb_input)) {
+        // This bit is now going to handle the possibility of factor variables
+        indb_num = as<NumericVector>(indb_input);
+        int indb_num_length = static_cast<int>(indb_num.length());
+        bool factor_variable {false};
+        
+        if (indb_num_length != 1 && indb_num_length != 2) {
+          if (indb_num_length != no_mainyears) {
+            throw Rcpp::exception("Individual covariate vector b must be empty, or include 1, 2, or as many elements as occasions in the dataset.", false);
+          }
+        }
+        
+        if (!nodata) {
+          StringVector mainparams = as<StringVector>(paramnames_["mainparams"]);
+          StringVector modelparams = as<StringVector>(paramnames_["modelparams"]);
+          
+          int no_params = static_cast<int>(mainparams.length());
+          
+          int indbcol_pm {-1};
+          int indbcol {-1};
+          for (int i = 0; i < no_params; i++) {
+            if (stringcompare_hard(String(mainparams(i)), "indcovb2")) {
+              if (!stringcompare_hard(String(modelparams(i)), "none")) {
+                indbcol_pm = i;
+              }
+            }
+          }
+          
+          if (indbcol_pm != -1) {
+            for (int i = 0; i < data_vars_no; i++) {
+              if (stringcompare_hard(String(data_vars(i)), String(modelparams(indbcol_pm)))) {
+                indbcol = i;
+              }
+            }
+          }
+          
+          if (indbcol == -1) {
+            throw Rcpp::exception("Individual covariate b not recognized in the paramnames object or modelsuite.", false);
+          }
+          
+          RObject test_indb(data_[indbcol]);
+          if (is<IntegerVector>(test_indb)) {
+            
+            IntegerVector ibc_int = as<IntegerVector>(test_indb);
+            if (ibc_int.hasAttribute("levels")) {
+              indb_names = as<StringVector>(ibc_int.attr("levels"));
+              indb_cat = as<StringVector>(indb_input);
+              factor_variable = true;
+              
+            } else {
+              StringVector indb_values = as<StringVector>(test_indb);
+              indb_names = sort_unique(indb_values);
+            }
+          }
+        } else { /* need vrm input code*/ }
+        
+        if (!factor_variable) {
+          indb_names = {"0"};
+          
+          if (indb_num_length == 1) {
+            f1_indb_num = rep(indb_num(0), no_mainyears);
+            f2_indb_num = rep(indb_num(0), no_mainyears);
+            
+          } else if (indb_num_length == 2 && no_years != 2) {
+            f1_indb_num = rep(indb_num(0), no_mainyears);
+            f2_indb_num = rep(indb_num(1), no_mainyears);
+            
+          } else {
+            NumericVector sub_f1(indb_num_length);
+            sub_f1(0) = 0;
+            
+            for (int i = 0; i < (indb_num_length - 1); i++) {
+              sub_f1(i + 1) = indb_num(i);
+            }
+            f1_indb_num = sub_f1;
+            
+            f2_indb_num = indb_num;
+          }
+          StringVector sub_r1(no_mainyears);
+          StringVector sub_r2(no_mainyears);
+          
+          for (int i = 0; i < no_mainyears; i++) {
+            sub_r1(i) = "none";
+            sub_r2(i) = "none";
+          }
+          
+          r1_indb = sub_r1;
+          r2_indb = sub_r2;
+          
+          f1_indb_cat = clone(sub_r1);
+          f2_indb_cat = clone(sub_r2);
+          
+        } else { // If indcovb is a factor variable
+          int indb_cat_length = indb_cat.length();
+          
+          if (indb_cat_length == 1) {
+            StringVector sub_f1(no_mainyears);
+            StringVector sub_f2(no_mainyears);
+            
+            for (int i = 0; i < no_mainyears; i++) {
+              sub_f1(i) = indb_cat(0);
+              sub_f2(i) = indb_cat(0);
+            }
+            
+            f1_indb_cat = sub_f1;
+            f2_indb_cat = sub_f2;
+            
+          } else if (indb_cat_length == 2 && no_years != 2) {
+            StringVector sub_f1(no_mainyears);
+            StringVector sub_f2(no_mainyears);
+            
+            for (int i = 0; i < no_mainyears; i++) {
+              sub_f1(i) = indb_cat(0);
+              sub_f2(i) = indb_cat(1);
+            }
+            
+            f1_indb_cat = sub_f1;
+            f2_indb_cat = sub_f2;
+            
+          } else {
+            StringVector sub_f1(indb_cat_length);
+            sub_f1(0) = "none";
+            
+            for (int i = 0; i < (indb_cat_length - 1); i++) {
+              sub_f1(i + 1) = indb_cat(i);
+            }
+            f1_indb_cat = sub_f1;
+            
+            f2_indb_cat = indb_cat;
+          }
+          StringVector sub_r1(no_mainyears);
+          StringVector sub_r2(no_mainyears);
+          
+          for (int i = 0; i < no_mainyears; i++) {
+            sub_r1(i) = "none";
+            sub_r2(i) = "none";
+          }
+          
+          r1_indb = sub_r1;
+          r2_indb = sub_r2;
+          
+          f2_indb_num = rep(0, no_mainyears); // Need to choose appropriate numbers later
+          f1_indb_num = rep(0, no_mainyears);
+        }
+      } else {
+        throw Rcpp::exception("Format of indcovb not recognized.", false);
+      }
+      
+      
+      
+      
+      
+      
+      
+    } else {
+      // Random covariate
+      indb_cat = as<StringVector>(indb_input);
+      int indb_cat_length = static_cast<int>(indb_cat.length());
+      
+      if (indb_cat_length != 1 && indb_cat_length != 2) {
+        if (indb_cat_length != no_mainyears) {
+          throw Rcpp::exception("Individual covariate vector b must be empty, or include 1, 2, or as many elements as occasions in the dataset.", false);
+        }
+      }
+      
+      if (!nodata) {
+        StringVector mainparams = as<StringVector>(paramnames_["mainparams"]);
+        StringVector modelparams = as<StringVector>(paramnames_["modelparams"]);
+        
+        int no_params = static_cast<int>(mainparams.length());
+        
+        int indbcol_pm {-1};
+        int indbcol {-1};
+        for (int i = 0; i < no_params; i++) {
+          if (stringcompare_hard(String(mainparams(i)), "indcovb2")) {
+            if (!stringcompare_hard(String(modelparams(i)), "none")) {
+              indbcol_pm = i;
+            }
+          }
+        }
+        
+        if (indbcol_pm != -1) {
+          for (int i = 0; i < data_vars_no; i++) {
+            if (stringcompare_hard(String(data_vars(i)), String(modelparams(indbcol_pm)))) {
+              indbcol = i;
+            }
+          }
+        }
+        
+        if (indbcol == -1) {
+          throw Rcpp::exception("Individual covariate b not recognized in the paramnames object or modelsuite.", false);
+        }
+        
+        RObject test_indb(data_[indbcol]);
+        if (is<IntegerVector>(test_indb)) {
+          
+          IntegerVector ibc_int = as<IntegerVector>(test_indb);
+          if (ibc_int.hasAttribute("levels")) {
+            indb_names = as<StringVector>(ibc_int.attr("levels"));
+          } else {
+            StringVector indb_values = as<StringVector>(test_indb);
+            indb_names = sort_unique(indb_values);
+          }
+        } else {
+          StringVector indb_values = as<StringVector>(data_[indbcol]);
+          indb_names = sort_unique(indb_values);
+        }
+        
+      } else {
+        if (!modelsuite_vrm || !modelsuite_provided) {
+          throw Rcpp::exception("Individual covariate modeling requires a valid modelsuite.", false);
+        }
+        
+        StringVector ms_names = modelsuite_.attr("names");
+        int ms_length = ms_names.length();
+        
+        int indcovb_frame_elem {-1};
+        for (int i = 0; i < ms_length; i++) {
+          if (stringcompare_hard(String(ms_names(i)), "indcovb2_frame")) indcovb_frame_elem = i;
+        }
+        
+        if (indcovb_frame_elem == -1) {
+          throw Rcpp::exception("This function cannot use indb input with a vrm_input object that does not include an indcovb_frame element.", false);
+        }
+        
+        DataFrame indcb2 = as<DataFrame>(modelsuite_["indcovb2_frame"]);
+        indb_names = as<StringVector>(indcb2["indcovb"]);
+      }
+      
+      int indb_names_length = static_cast<int>(indb_names.length());
+      
+      for (int i = 0; i < indb_cat_length; i++) {
+        int indb_matches {0};
+        
+        for (int j = 0; j < indb_names_length; j++) {
+          if (stringcompare_hard(String(indb_cat(i)), String(indb_names(j)))) indb_matches++;
+        }
+        if (indb_matches == 0) throw Rcpp::exception("Some values entered for indb do not match the data.", false);
+      }
+      
+      if (indb_cat_length == 1) {
+        StringVector sub_r1(no_mainyears);
+        StringVector sub_r2(no_mainyears);
+        
+        for (int i = 0; i < no_mainyears; i++) {
+          sub_r1(i) = indb_cat(0);
+          sub_r2(i) = indb_cat(0);
+        }
+        
+        r1_indb = sub_r1;
+        r2_indb = sub_r2;
+        
+      } else if (indb_cat_length == 2 && no_years != 2) {
+        StringVector sub_r1(no_mainyears);
+        StringVector sub_r2(no_mainyears);
+        
+        for (int i = 0; i < no_mainyears; i++) {
+          sub_r1(i) = indb_cat(0);
+          sub_r2(i) = indb_cat(1);
+        }
+        
+        r1_indb = sub_r1;
+        r2_indb = sub_r2;
+        
+      } else {
+        StringVector sub_r1(indb_cat_length);
+        sub_r1(0) = "none";
+        
+        for (int i = 0; i < (indb_cat_length - 1); i++) {
+          sub_r1(i + 1) = indb_cat(i);
+        }
+        r1_indb = sub_r1;
+        
+        r2_indb = indb_cat;
+      }
+      f1_indb_num = rep(0, no_mainyears);
+      f2_indb_num = rep(0, no_mainyears);
+      
+      {
+        StringVector sub_r1(no_mainyears);
+        StringVector sub_r2(no_mainyears);
+        
+        for (int i = 0; i < no_mainyears; i++) {
+          sub_r1(i) = "none";
+          sub_r2(i) = "none";
+        }
+        
+        f1_indb_cat = sub_r1;
+        f2_indb_cat = sub_r2;
+      }
+    }
+  } else {
+    int no_mainyears = mainyears_.length();
+    indb_names = {"0"};
+    
+    f1_indb_num = rep(0, no_mainyears);
+    f2_indb_num = rep(0, no_mainyears);
+    
+    StringVector sub_r1(no_mainyears);
+    StringVector sub_r2(no_mainyears);
+    
+    for (int i = 0; i < no_mainyears; i++) {
+      sub_r1(i) = "none";
+      sub_r2(i) = "none";
+    }
+    
+    r1_indb = sub_r1;
+    r2_indb = sub_r2;
+    
+    f1_indb_cat = clone(sub_r1);
+    f2_indb_cat = clone(sub_r2);
+  }
+  
+  // Individual covariate c
+  StringVector indc_names;
+  NumericVector f1_indc_num;
+  NumericVector f2_indc_num;
+  StringVector f1_indc_cat;
+  StringVector f2_indc_cat;
+  StringVector r1_indc;
+  StringVector r2_indc;
+  
+  if (indc.isNotNull() && !raw) {
+    RObject indc_input = as<RObject>(indc);
+    
+    NumericVector indc_num;
+    StringVector indc_cat;
+    
+    int no_mainyears = mainyears_.length();
+    
+    if (!paramnames_provided) throw Rcpp::exception("Use of individual covariates requires a valid paramnames object", false);
+    
+    if (!random_indc) {
+      // Fixed covariate
+      if (is<StringVector>(indc_input)) { 
+        indc_cat = as<StringVector>(indc_input);
+        int indc_cat_length = static_cast<int>(indc_cat.length());
+        
+        if (indc_cat_length != 1 && indc_cat_length != 2) {
+          if (indc_cat_length != no_mainyears) {
+            throw Rcpp::exception("Individual covariate vector c must be empty, or include 1, 2, or as many elements as occasions in the dataset.", false);
+          }
+        }
+        
+        if (!nodata) {
+          StringVector mainparams = as<StringVector>(paramnames_["mainparams"]);
+          StringVector modelparams = as<StringVector>(paramnames_["modelparams"]);
+          
+          int no_params = static_cast<int>(mainparams.length());
+          
+          int indccol_pm {-1};
+          int indccol {-1};
+          for (int i = 0; i < no_params; i++) {
+            if (stringcompare_hard(String(mainparams(i)), "indcovc2")) {
+              if (!stringcompare_hard(String(modelparams(i)), "none")) {
+                indccol_pm = i;
+              }
+            }
+          }
+          
+          if (indccol_pm != -1) {
+            for (int i = 0; i < data_vars_no; i++) {
+              if (stringcompare_hard(String(data_vars(i)), String(modelparams(indccol_pm)))) {
+                indccol = i;
+              }
+            }
+          }
+          
+          if (indccol == -1) {
+            throw Rcpp::exception("Individual covariate c not recognized in the paramnames object or modelsuite.", false);
+          }
+          
+          RObject test_indc(data_[indccol]);
+          if (is<IntegerVector>(test_indc)) {
+            
+            IntegerVector icc_int = as<IntegerVector>(test_indc);
+            if (icc_int.hasAttribute("levels")) {
+              indc_names = as<StringVector>(icc_int.attr("levels"));
+            } else {
+              StringVector indc_values = as<StringVector>(test_indc);
+              indc_names = sort_unique(indc_values);
+            }
+          } else {
+            StringVector indc_values = as<StringVector>(data_[indccol]);
+            indc_names = sort_unique(indc_values);
+          }
+          
+        } else {
+          if (!modelsuite_vrm || !modelsuite_provided) {
+            throw Rcpp::exception("Individual covariate modeling requires a valid modelsuite.", false);
+          }
+          
+          StringVector ms_names = modelsuite_.attr("names");
+          int ms_length = ms_names.length();
+          
+          int indcovc_frame_elem {-1};
+          for (int i = 0; i < ms_length; i++) {
+            if (stringcompare_hard(String(ms_names(i)), "indcovc2_frame")) indcovc_frame_elem = i;
+          }
+          
+          if (indcovc_frame_elem == -1) {
+            throw Rcpp::exception("This function cannot use indc input with a vrm_input object that does not include an indcovc_frame element.", false);
+          }
+          
+          DataFrame indcc2 = as<DataFrame>(modelsuite_["indcovc2_frame"]);
+          indc_names = as<StringVector>(indcc2["indcovc"]);
+        }
+        
+        int indc_names_length = static_cast<int>(indc_names.length());
+        
+        for (int i = 0; i < indc_cat_length; i++) {
+          int indc_matches {0};
+          
+          for (int j = 0; j < indc_names_length; j++) {
+            if (stringcompare_hard(String(indc_cat(i)), String(indc_names(j)))) indc_matches++;
+          }
+          if (indc_matches == 0) throw Rcpp::exception("Some values entered for indc do not match the data.", false);
+        }
+        
+        if (indc_cat_length == 1) {
+          StringVector sub_f1(no_mainyears);
+          StringVector sub_f2(no_mainyears);
+          
+          for (int i = 0; i < no_mainyears; i++) {
+            sub_f1(i) = indc_cat(0);
+            sub_f2(i) = indc_cat(0);
+          }
+          
+          f1_indc_cat = sub_f1;
+          f2_indc_cat = sub_f2;
+          
+        } else if (indc_cat_length == 2 && no_years != 2) {
+          StringVector sub_f1(no_mainyears);
+          StringVector sub_f2(no_mainyears);
+          
+          for (int i = 0; i < no_mainyears; i++) {
+            sub_f1(i) = indc_cat(0);
+            sub_f2(i) = indc_cat(1);
+          }
+          
+          f1_indc_cat = sub_f1;
+          f2_indc_cat = sub_f2;
+          
+        } else {
+          StringVector sub_f1(indc_cat_length);
+          sub_f1(0) = "none";
+          
+          for (int i = 0; i < (indc_cat_length - 1); i++) {
+            sub_f1(i + 1) = indc_cat(i);
+          }
+          f1_indc_cat = sub_f1;
+          
+          f2_indc_cat = indc_cat;
+        }
+        StringVector sub_r1(no_mainyears);
+        StringVector sub_r2(no_mainyears);
+        
+        for (int i = 0; i < no_mainyears; i++) {
+          sub_r1(i) = "none";
+          sub_r2(i) = "none";
+        }
+        
+        r1_indc = sub_r1;
+        r2_indc = sub_r2;
+        
+      } else if (is<NumericVector>(indc_input) || is <IntegerVector>(indc_input)) {
+       // This bit is now going to handle the possibility of factor variables
+        indc_num = as<NumericVector>(indc_input);
+        int indc_num_length = static_cast<int>(indc_num.length());
+        bool factor_variable {false};
+        
+        
+        if (indc_num_length != 1 && indc_num_length != 2) {
+          if (indc_num_length != no_mainyears) {
+            throw Rcpp::exception("Individual covariate vector c must be empty, or include 1, 2, or as many elements as occasions in the dataset.", false);
+          }
+        }
+        
+        if (!nodata) {
+          StringVector mainparams = as<StringVector>(paramnames_["mainparams"]);
+          StringVector modelparams = as<StringVector>(paramnames_["modelparams"]);
+          
+          int no_params = static_cast<int>(mainparams.length());
+          
+          int indccol_pm {-1};
+          int indccol {-1};
+          for (int i = 0; i < no_params; i++) {
+            if (stringcompare_hard(String(mainparams(i)), "indcovc2")) {
+              if (!stringcompare_hard(String(modelparams(i)), "none")) {
+                indccol_pm = i;
+              }
+            }
+          }
+          
+          if (indccol_pm != -1) {
+            for (int i = 0; i < data_vars_no; i++) {
+              if (stringcompare_hard(String(data_vars(i)), String(modelparams(indccol_pm)))) {
+                indccol = i;
+              }
+            }
+          }
+          
+          if (indccol == -1) {
+            throw Rcpp::exception("Individual covariate c not recognized in the paramnames object or modelsuite.", false);
+          }
+          
+          RObject test_indc(data_[indccol]);
+          if (is<IntegerVector>(test_indc)) {
+            
+            IntegerVector icc_int = as<IntegerVector>(test_indc);
+            if (icc_int.hasAttribute("levels")) {
+              indc_names = as<StringVector>(icc_int.attr("levels"));
+              indc_cat = as<StringVector>(indc_input);
+              factor_variable = true;
+              
+            } else {
+              StringVector indc_values = as<StringVector>(test_indc);
+              indc_names = sort_unique(indc_values);
+            }
+          }
+        } else { /* need vrm input code*/ }
+        
+        if (!factor_variable) {
+          indc_names = {"0"};
+          
+          if (indc_num_length == 1) {
+            f1_indc_num = rep(indc_num(0), no_mainyears);
+            f2_indc_num = rep(indc_num(0), no_mainyears);
+            
+          } else if (indc_num_length == 2 && no_years != 2) {
+            f1_indc_num = rep(indc_num(0), no_mainyears);
+            f2_indc_num = rep(indc_num(1), no_mainyears);
+            
+          } else {
+            NumericVector sub_f1(indc_num_length);
+            sub_f1(0) = 0;
+            
+            for (int i = 0; i < (indc_num_length - 1); i++) {
+              sub_f1(i + 1) = indc_num(i);
+            }
+            f1_indc_num = sub_f1;
+            
+            f2_indc_num = indc_num;
+          }
+          StringVector sub_r1(no_mainyears);
+          StringVector sub_r2(no_mainyears);
+          
+          for (int i = 0; i < no_mainyears; i++) {
+            sub_r1(i) = "none";
+            sub_r2(i) = "none";
+          }
+          
+          r1_indc = sub_r1;
+          r2_indc = sub_r2;
+          
+          f1_indc_cat = clone(sub_r1);
+          f2_indc_cat = clone(sub_r2);
+          
+        } else { // If indcovc is a factor variable
+          int indc_cat_length = indc_cat.length();
+          
+          if (indc_cat_length == 1) {
+            StringVector sub_f1(no_mainyears);
+            StringVector sub_f2(no_mainyears);
+            
+            for (int i = 0; i < no_mainyears; i++) {
+              sub_f1(i) = indc_cat(0);
+              sub_f2(i) = indc_cat(0);
+            }
+            
+            f1_indc_cat = sub_f1;
+            f2_indc_cat = sub_f2;
+            
+          } else if (indc_cat_length == 2 && no_years != 2) {
+            StringVector sub_f1(no_mainyears);
+            StringVector sub_f2(no_mainyears);
+            
+            for (int i = 0; i < no_mainyears; i++) {
+              sub_f1(i) = indc_cat(0);
+              sub_f2(i) = indc_cat(1);
+            }
+            
+            f1_indc_cat = sub_f1;
+            f2_indc_cat = sub_f2;
+            
+          } else {
+            StringVector sub_f1(indc_cat_length);
+            sub_f1(0) = "none";
+            
+            for (int i = 0; i < (indc_cat_length - 1); i++) {
+              sub_f1(i + 1) = indc_cat(i);
+            }
+            f1_indc_cat = sub_f1;
+            
+            f2_indc_cat = indc_cat;
+          }
+          StringVector sub_r1(no_mainyears);
+          StringVector sub_r2(no_mainyears);
+          
+          for (int i = 0; i < no_mainyears; i++) {
+            sub_r1(i) = "none";
+            sub_r2(i) = "none";
+          }
+          
+          r1_indc = sub_r1;
+          r2_indc = sub_r2;
+          
+          f2_inda_num = rep(0, no_mainyears);
+          f1_inda_num = rep(0, no_mainyears);
+        }
+      } else {
+        throw Rcpp::exception("Format of indcovc not recognized.", false);
+      }
+      
+    } else {
+      // Random covariate
+      indc_cat = as<StringVector>(indc_input);
+      int indc_cat_length = static_cast<int>(indc_cat.length());
+      
+      if (indc_cat_length != 1 && indc_cat_length != 2) {
+        if (indc_cat_length != no_mainyears) {
+          throw Rcpp::exception("Individual covariate vector c must be empty, or include 1, 2, or as many elements as occasions in the dataset.", false);
+        }
+      }
+      
+      if (!nodata) {
+        StringVector mainparams = as<StringVector>(paramnames_["mainparams"]);
+        StringVector modelparams = as<StringVector>(paramnames_["modelparams"]);
+        
+        int no_params = static_cast<int>(mainparams.length());
+        
+        int indccol_pm {-1};
+        int indccol {-1};
+        for (int i = 0; i < no_params; i++) {
+          if (stringcompare_hard(String(mainparams(i)), "indcovc2")) {
+            if (!stringcompare_hard(String(modelparams(i)), "none")) {
+              indccol_pm = i;
+            }
+          }
+        }
+        
+        if (indccol_pm != -1) {
+          for (int i = 0; i < data_vars_no; i++) {
+            if (stringcompare_hard(String(data_vars(i)), String(modelparams(indccol_pm)))) {
+              indccol = i;
+            }
+          }
+        }
+        
+        if (indccol == -1) {
+          throw Rcpp::exception("Individual covariate c not recognized in the paramnames object or modelsuite.", false);
+        }
+        
+        RObject test_indc(data_[indccol]);
+        if (is<IntegerVector>(test_indc)) {
+          
+          IntegerVector icc_int = as<IntegerVector>(test_indc);
+          if (icc_int.hasAttribute("levels")) {
+            indc_names = as<StringVector>(icc_int.attr("levels"));
+          } else {
+            StringVector indc_values = as<StringVector>(test_indc);
+            indc_names = sort_unique(indc_values);
+          }
+        } else {
+          StringVector indc_values = as<StringVector>(data_[indccol]);
+          indc_names = sort_unique(indc_values);
+        }
+        
+      } else {
+        if (!modelsuite_vrm || !modelsuite_provided) {
+          throw Rcpp::exception("Individual covariate modeling requires a valid modelsuite.", false);
+        }
+        
+        StringVector ms_names = modelsuite_.attr("names");
+        int ms_length = ms_names.length();
+        
+        int indcovc_frame_elem {-1};
+        for (int i = 0; i < ms_length; i++) {
+          if (stringcompare_hard(String(ms_names(i)), "indcovc2_frame")) indcovc_frame_elem = i;
+        }
+        
+        if (indcovc_frame_elem == -1) {
+          throw Rcpp::exception("This function cannot use indc input with a vrm_input object that does not include an indcovc_frame element.", false);
+        }
+        
+        DataFrame indcc2 = as<DataFrame>(modelsuite_["indcovc2_frame"]);
+        indc_names = as<StringVector>(indcc2["indcovc"]);
+      }
+      
+      int indc_names_length = static_cast<int>(indc_names.length());
+      
+      for (int i = 0; i < indc_cat_length; i++) {
+        int indc_matches {0};
+        
+        for (int j = 0; j < indc_names_length; j++) {
+          if (stringcompare_hard(String(indc_cat(i)), String(indc_names(j)))) indc_matches++;
+        }
+        if (indc_matches == 0) throw Rcpp::exception("Some values entered for indc do not match the data.", false);
+      }
+      
+      if (indc_cat_length == 1) {
+        StringVector sub_r1(no_mainyears);
+        StringVector sub_r2(no_mainyears);
+        
+        for (int i = 0; i < no_mainyears; i++) {
+          sub_r1(i) = indc_cat(0);
+          sub_r2(i) = indc_cat(0);
+        }
+        
+        r1_indc = sub_r1;
+        r2_indc = sub_r2;
+        
+      } else if (indc_cat_length == 2 && no_years != 2) {
+        StringVector sub_r1(no_mainyears);
+        StringVector sub_r2(no_mainyears);
+        
+        for (int i = 0; i < no_mainyears; i++) {
+          sub_r1(i) = indc_cat(0);
+          sub_r2(i) = indc_cat(1);
+        }
+        
+        r1_indc = sub_r1;
+        r2_indc = sub_r2;
+        
+      } else {
+        StringVector sub_r1(indc_cat_length);
+        sub_r1(0) = "none";
+        
+        for (int i = 0; i < (indc_cat_length - 1); i++) {
+          sub_r1(i + 1) = indc_cat(i);
+        }
+        r1_indc = sub_r1;
+        
+        r2_indc = indc_cat;
+      }
+      f1_indc_num = rep(0, no_mainyears);
+      f2_indc_num = rep(0, no_mainyears);
+      
+      {
+        StringVector sub_r1(no_mainyears);
+        StringVector sub_r2(no_mainyears);
+        
+        for (int i = 0; i < no_mainyears; i++) {
+          sub_r1(i) = "none";
+          sub_r2(i) = "none";
+        }
+        
+        f1_indc_cat = sub_r1;
+        f2_indc_cat = sub_r2;
+      }
+    }
+  } else {
+    int no_mainyears = mainyears_.length();
+    indc_names = {"0"};
+    
+    f1_indc_num = rep(0, no_mainyears);
+    f2_indc_num = rep(0, no_mainyears);
+    
+    StringVector sub_r1(no_mainyears);
+    StringVector sub_r2(no_mainyears);
+    
+    for (int i = 0; i < no_mainyears; i++) {
+      sub_r1(i) = "none";
+      sub_r2(i) = "none";
+    }
+    
+    r1_indc = sub_r1;
+    r2_indc = sub_r2;
+    
+    f1_indc_cat = clone(sub_r1);
+    f2_indc_cat = clone(sub_r2);
+  }
+  
+  // Stageexpansions, data frame readying, and MPM estimation
+  DataFrame agestages;
+  DataFrame ahstages;
+  DataFrame hstages;
+  List output_draft;
+  
+  NumericVector NA_empty = {NA_REAL};
+  DataFrame NA_empty_df = DataFrame::create(_["X1"] = NA_empty);
+  
+  if (raw) {
+    if (!historical) {
+      if (stage && !age) {
+        // Stage-only ahistorical raw
+        IntegerVector removal_row = {melchett_stageframe_length};
+        StringVector removal_var = {"stage_id"};
+        DataFrame ahstages_now = LefkoUtils::df_remove(melchett_stageframe_,
+          removal_row, false, true, false, false, true, as<RObject>(removal_var));
+        
+        DataFrame stageexpansion3 = theoldpizzle(melchett_stageframe_, melchett_ovtable_,
+          as<arma::mat>(melchett_repmatrix_), 0, 0, 1, 1, 0, 0);
+        
+        IntegerVector mel_sid = as<IntegerVector>(melchett_stageframe_["stage_id"]);
+        
+        if (err_check) {
+          NumericVector mel_sz2 = as<NumericVector>(melchett_stageframe_["sizebin_center"]);
+          NumericVector mel_szb2 = as<NumericVector>(melchett_stageframe_["sizebinb_center"]);
+          NumericVector mel_szc2 = as<NumericVector>(melchett_stageframe_["sizebinc_center"]);
+          NumericVector mel_rep = as<NumericVector>(melchett_stageframe_["repstatus"]);
+          NumericVector mel_ind = as<NumericVector>(melchett_stageframe_["indataset"]);
+          IntegerVector mel_ind2 = mel_sid - 1;
+          
+          int repmat_rows = static_cast<int>(melchett_repmatrix_.nrow());
+          IntegerVector mel_fec3 (melchett_stageframe_length);
+          for (int i = 0; i < repmat_rows; i++) {
+            if (sum(melchett_repmatrix_.row(i)) > 0.0) mel_fec3 = 1;
+          }
+          
+          DataFrame stageexpansion2 = DataFrame::create(_["stage2"] = mel_sid,
+            _["size2"] = mel_sz2, _["sizeb2"] = mel_szb2, _["sizec2"] = mel_szc2,
+            _["rep2"] = mel_rep, _["indata2"] = mel_ind, _["index2"] = mel_ind2,
+            _["fec3"] = mel_fec3);
+          //stageexpansion_lo = stageexpansion2;
+        }
+        
+        StringVector d_rn = data_.attr("row.names");
+        
+        IntegerVector index3;
+        IntegerVector index2;
+        if (!new_stages_needed) {
+          index3 = as<IntegerVector>(data_["stage3index"]) - 1;
+          index2 = as<IntegerVector>(data_["stage2index"]) - 1;
+          
+          data_["index3"] = index3;
+          data_["index2"] = index2;
+        } else {
+          index3 = as<IntegerVector>(data_["index3"]);
+          index2 = as<IntegerVector>(data_["index2"]);
+        }
+        
+        IntegerVector index32 (data_points);
+        for (int i = 0; i < data_points; i++) {
+          if (index3(i) < 0) index3(i) = melchett_stageframe_length - 1;
+          if (index2(i) < 0) index2(i) = melchett_stageframe_length - 1;
+          index32(i) = index3(i) + (index2(i) * melchett_stageframe_length);
+        }
+        
+        if (fectime == 3) {
+          data_["usedfec"] = data_[fec_int(0)];
+        } else {
+          data_["usedfec"] = data_[fec_int(1)];
+        }
+        
+        data_["index32"] = index32;
+        
+        data_.attr("class") = "data.frame";
+        data_.attr("row.names") = d_rn;
+        
+        // Matrix estimation
+        List madsexmadrigal = normalpatrolgroup(stageexpansion3,
+          as<arma::ivec>(mel_sid), data_, melchett_stageframe_, err_check,
+          loy_pop_, loy_patch_, loy_year2_, yearorder_, pop_var_int,
+          patch_var_int, year_var_int, loy_pop_used, loy_patch_used, simple);
+        
+        IntegerVector mat_qc = {0, 0, 0};
+        matrix_reducer(madsexmadrigal, mat_qc, ahstages_now, NA_empty_df,
+          NA_empty_df, false, true, false, reduce, simple);
+        
+        madsexmadrigal["ahstages"] = ahstages_now;
+        madsexmadrigal["agestages"] = NA_empty_df;
+        madsexmadrigal["hstages"] = NA_empty_df;
+        madsexmadrigal["labels"] = labels_;
+        madsexmadrigal["matrixqc"] = mat_qc;
+        madsexmadrigal["dataqc"] = dataqc_;
+        output_draft = madsexmadrigal;
+        
+      } else if (stage && age) {
+        // Age-stage ahistorical raw
+        IntegerVector removal_row = {melchett_stageframe_length};
+        StringVector removal_var = {"stage_id"};
+        DataFrame ahstages_now = LefkoUtils::df_remove(melchett_stageframe_,
+          removal_row, false, true, false, false, true,
+          as<RObject>(removal_var));
+        
+        DataFrame stageexpansion3 = theoldpizzle(melchett_stageframe_, melchett_ovtable_,
+          as<arma::mat>(melchett_repmatrix_), start_age, last_age, 1, 2, cont, 0);
+        
+        IntegerVector agevec = seq(start_age, last_age);
+        int totalages = static_cast<int>(agevec.length());
+        
+        IntegerVector mel_sid = rep(as<IntegerVector>(melchett_stageframe_["stage_id"]), totalages);
+        
+        IntegerVector mel_ages (totalages * melchett_stageframe_length);
+        IntegerVector ahage_stage_id (totalages * (melchett_stageframe_length - 1));
+        StringVector ahage_stage (totalages * (melchett_stageframe_length - 1));
+        IntegerVector ahage_age (totalages * (melchett_stageframe_length - 1));
+        
+        for (int i = 0; i < totalages; i++) {
+          for (int j = 0; j < melchett_stageframe_length; j++) {
+            mel_ages(j + (i * melchett_stageframe_length)) = agevec(i);
+            
+            if (j != (melchett_stageframe_length - 1)) {
+              ahage_stage_id(j + (i * (melchett_stageframe_length - 1))) = mel_sid(j);
+              ahage_stage(j + (i * (melchett_stageframe_length - 1))) = melchett_stageframe_stage_(j);
+              ahage_age(j + (i * (melchett_stageframe_length - 1))) = agevec(i);
+            }
+          }
+        }
+        DataFrame agestages_now = DataFrame::create(_["stage_id"] = ahage_stage_id,
+          _["stage"] = ahage_stage, _["age"] = ahage_age);
+        
+        IntegerVector mel_idx2 = mel_sid - 1;
+        
+        IntegerVector mel_idx21;
+        {
+          IntegerVector mel_idx21_1 = mel_ages - start_age;
+          IntegerVector mel_idx21_2 = mel_idx21_1 * melchett_stageframe_length;
+          mel_idx21 = mel_idx2 + mel_idx21_2;
+        }
+        
+        if (err_check) {
+          NumericVector mel_sz2 = rep(as<NumericVector>(melchett_stageframe_["sizebin_center"]), totalages);
+          NumericVector mel_szb2 = rep(as<NumericVector>(melchett_stageframe_["sizebinb_center"]), totalages);
+          NumericVector mel_szc2 = rep(as<NumericVector>(melchett_stageframe_["sizebinc_center"]), totalages);
+          NumericVector mel_rep = rep(as<NumericVector>(melchett_stageframe_["repstatus"]), totalages);
+          NumericVector mel_ind = rep(as<NumericVector>(melchett_stageframe_["indataset"]), totalages);
+          
+          NumericVector fec_sums;
+          {
+            arma::vec rep_sums = arma::sum(as<arma::mat>(melchett_repmatrix_), 1);
+            int mle_rep_dim = as<arma::mat>(melchett_repmatrix_).n_rows;
+            
+            rep_sums.resize(mle_rep_dim + 1);
+            arma::uvec fec3_nonzeros = find(rep_sums);
+            rep_sums.elem(fec3_nonzeros).ones();
+            
+            fec_sums = as<NumericVector>(wrap(rep_sums));
+          }
+          
+          DataFrame stageexpansion2 = DataFrame::create(_["stage2"] = mel_sid,
+            _["size2"] = mel_sz2, _["sizeb2"] = mel_szb2, _["sizec2"] = mel_szc2,
+            _["rep2"] = mel_rep, _["indata2"] = mel_ind, _["index2"] = mel_idx2,
+            _["fec3"] = fec_sums, _["age2"] = mel_ages, _["index21"] = mel_idx21);
+        }
+        
+        IntegerVector usedindex3 = data_["index3"];
+        IntegerVector usedindex2 = data_["index2"];
+        IntegerVector usedage2 = data_[age_var_int];
+        
+        IntegerVector index321 (data_points);
+        IntegerVector index21 (data_points);
+        
+        for (int i = 0; i < data_points; i++) {
+          if (usedindex3(i) < 0) usedindex3(i) = melchett_stageframe_length - 1;
+          if (usedindex2(i) < 0) usedindex2(i) = melchett_stageframe_length - 1;
+          
+          index321(i) = usedindex3(i) + (((usedage2(i) + 1) - start_age) * 
+              melchett_stageframe_length) +
+            (usedindex2(i) * melchett_stageframe_length * totalages) +
+            ((usedage2(i) - start_age) * melchett_stageframe_length *
+              melchett_stageframe_length * totalages);
+          index21(i) = usedindex2(i) + ((usedage2(i) - start_age) *
+              melchett_stageframe_length);
+        }
+        
+        StringVector d_rn = data_.attr("row.names");
+        
+        data_["usedage"] = usedage2;
+        data_["index321"] = index321;
+        data_["index21"] = index21;
+        
+        if (fectime == 3) {
+          data_["usedfec"] = data_[fec_int(0)];
+        } else {
+          data_["usedfec"] = data_[fec_int(1)];
+        }
+        
+        data_.attr("class") = "data.frame";
+        data_.attr("row.names") = d_rn;
+        
+        List madsexmadrigal = subvertedpatrolgroup(stageexpansion3,
+          as<arma::ivec>(mel_idx21), data_, melchett_stageframe_, start_age,
+          last_age, cont, err_check, loy_pop_, loy_patch_, loy_year2_,
+          yearorder_, pop_var_int, patch_var_int, year_var_int, loy_pop_used,
+          loy_patch_used, simple);
+        
+        IntegerVector mat_qc = {0, 0, 0};
+        matrix_reducer(madsexmadrigal, mat_qc, ahstages_now, NA_empty_df,
+          agestages_now, true, true, false, reduce, simple);
+        
+        madsexmadrigal["ahstages"] = ahstages_now;
+        madsexmadrigal["agestages"] = agestages_now;
+        madsexmadrigal["hstages"] = NA_empty_df;
+        madsexmadrigal["labels"] = labels_;
+        madsexmadrigal["matrixqc"] = mat_qc;
+        madsexmadrigal["dataqc"] = dataqc_;
+        output_draft = madsexmadrigal;
+        
+      } else if (!stage && age) {
+        // Age-only raw
+        ahstages = melchett_stageframe_;
+        StringVector d_rn = data_.attr("row.names");
+        
+        IntegerVector usedage2 = data_[age_var_int];
+        data_["usedage"] = usedage2;
+        
+        if (fectime == 3) {
+          data_["usedfec"] = data_[fec_int(0)];
+        } else {
+          data_["usedfec"] = data_[fec_int(1)];
+        }
+        
+        data_.attr("class") = "data.frame";
+        data_.attr("row.names") = d_rn;
+        
+        // Matrix estimation
+        List madsexmadrigal = minorpatrolgroup(data_, melchett_stageframe_,
+          cont, fecmod, err_check, loy_pop_, loy_patch_, loy_year2_, yearorder_,
+          pop_var_int, patch_var_int, year_var_int, loy_pop_used,
+          loy_patch_used, simple);
+        
+        IntegerVector mat_qc = {0, 0, 0};
+        matrix_reducer(madsexmadrigal, mat_qc, ahstages, NA_empty_df,
+          NA_empty_df, true, false, false, reduce, simple);
+        
+        madsexmadrigal["ahstages"] = ahstages;
+        madsexmadrigal["agestages"] = NA_empty_df;
+        madsexmadrigal["hstages"] = NA_empty_df;
+        madsexmadrigal["labels"] = labels_;
+        madsexmadrigal["matrixqc"] = mat_qc;
+        madsexmadrigal["dataqc"] = dataqc_;
+        output_draft = madsexmadrigal;
+        
+      }
+    } else {
+      // Historical stage-only raw
+      if (stage && !age) {
+        IntegerVector removal_row = {melchett_stageframe_length};
+        StringVector removal_var = {"stage_id"};
+        DataFrame ahstages_now = LefkoUtils::df_remove(melchett_stageframe_,
+          removal_row, false, true, false, false, true,
+          as<RObject>(removal_var));
+        
+        StringVector mel_ovt_eststage1 = as<StringVector>(melchett_ovtable_["eststage1"]);
+        StringVector mel_ovt_eststage2 = as<StringVector>(melchett_ovtable_["eststage2"]);
+        StringVector mel_ovt_eststage3 = as<StringVector>(melchett_ovtable_["eststage3"]);
+        
+        StringVector mel_ovt_stage1 = as<StringVector>(melchett_ovtable_["stage1"]);
+        StringVector mel_ovt_stage2 = as<StringVector>(melchett_ovtable_["stage2"]);
+        StringVector mel_ovt_stage3 = as<StringVector>(melchett_ovtable_["stage3"]);
+        
+        IntegerVector usedstage3index = data_["stage3index"];
+        IntegerVector usedstage2index = data_["stage2index"];
+        IntegerVector usedstage1index = data_["stage1index"];
+        
+        IntegerVector usedindex3 = data_["index3"];
+        IntegerVector usedindex2 = data_["index2"];
+        IntegerVector usedindex1 = data_["index1"];
+        
+        IntegerVector mel_ovt_es1_notalive (melchett_ovtable_length);
+        int mov_notalive_count {0};
+        
+        // Replace transitions involving NotAlive in time t-1 with transitions
+        // supplied as replacements in ovtable
+        for (int i = 0; i < melchett_ovtable_length; i++) {
+          String nolovelost = String(mel_ovt_eststage1(i));
+          if (LefkoUtils::stringcompare_simple(nolovelost, "notalive", true)) {
+            mel_ovt_es1_notalive(i) = 1;
+            mov_notalive_count++;
+          }
+        }
+        
+        if (mov_notalive_count > 0) {
+          arma::uvec flubble_indices = find(as<arma::ivec>(mel_ovt_es1_notalive));
+          
+          StringVector data_stage1 = as<StringVector>(data_["stage1"]);
+          StringVector data_stage2 = as<StringVector>(data_["stage2"]);
+          StringVector data_stage3 = as<StringVector>(data_["stage3"]);
+          
+          IntegerVector data_stage1_notalive = LefkoUtils::index_l3(data_stage1, "NotAlive");
+          int all_stage1_notalives = static_cast<int>(data_stage1_notalive.length());
+          
+          for (int i = 0; i < mov_notalive_count; i++) {
+            for (int j = 0; j < all_stage1_notalives; j++) {
+              
+              if (LefkoUtils::stringcompare_hard(String(data_stage2(data_stage1_notalive(j))),   
+                  String(mel_ovt_eststage2(flubble_indices(i))))) {
+                if (LefkoUtils::stringcompare_hard(String(data_stage3(data_stage1_notalive(j))), 
+                    String(mel_ovt_eststage3(flubble_indices(i))))) {
+                  
+                  data_stage3(data_stage1_notalive(j)) = mel_ovt_stage3(flubble_indices(i));
+                  data_stage2(data_stage1_notalive(j)) = mel_ovt_stage2(flubble_indices(i));
+                  data_stage1(data_stage1_notalive(j)) = mel_ovt_stage1(flubble_indices(i));
+                  
+                  for (int k = 0; k < melchett_stageframe_length; k++) {
+                    if (stringcompare_hard(String(data_stage3(data_stage1_notalive(j))), 
+                        String(melchett_stageframe_stage_(k)))) {
+                      usedstage3index(data_stage1_notalive(j)) = melchett_stageframe_stageid_(k);
+                      usedindex3(data_stage1_notalive(j)) = melchett_stageframe_stageid_(k) - 1;
+                    }
+                    
+                    if (stringcompare_hard(String(data_stage2(data_stage1_notalive(j))), 
+                        String(melchett_stageframe_stage_(k)))) {
+                      usedstage2index(data_stage1_notalive(j)) = melchett_stageframe_stageid_(k);
+                      usedindex2(data_stage1_notalive(j)) = melchett_stageframe_stageid_(k) - 1;
+                    }
+                    
+                    if (stringcompare_hard(String(data_stage1(data_stage1_notalive(j))), 
+                        String(melchett_stageframe_stage_(k)))) {
+                      usedstage1index(data_stage1_notalive(j)) = melchett_stageframe_stageid_(k);
+                      usedindex1(data_stage1_notalive(j)) = melchett_stageframe_stageid_(k) - 1;
+                    }
+                  }
+                }
+                
+                data_["stage3index"] = usedstage3index;
+                data_["stage2index"] = usedstage2index;
+                data_["stage1index"] = usedstage1index;
+                
+                data_["index3"] = usedindex3;
+                data_["index2"] = usedindex2;
+                data_["index1"] = usedindex1;
+                
+                data_["stage1"] = data_stage1;
+                data_["stage2"] = data_stage2;
+                data_["stage3"] = data_stage3;
+              }
+            }
+          }
+        }
+        
+        // Remove ovtable transitions involving movement from NotAlive in time t-1
+        DataFrame movt_new = clone(melchett_ovtable_);
+        movt_new["to_remove"] = mel_ovt_es1_notalive;
+        melchett_ovtable_ = movt_new;
+        
+        StringVector mel_check_name = {"to_remove", "to_remove"};
+        IntegerVector mel_check_int = {1, 1};
+        DataFrame mel_ov_new = LefkoUtils::df_remove(melchett_ovtable_,
+          as<RObject>(mel_check_int), false, true, false, false, true,
+          as<RObject>(mel_check_name));
+        melchett_ovtable_ = mel_ov_new;
+        
+        // Large and small matrix element indices
+        DataFrame stageexpansion9 = theoldpizzle(melchett_stageframe_, melchett_ovtable_,
+          as<arma::mat>(melchett_repmatrix_), 0, 0, format_int, 0, 0, 0);
+        
+        IntegerVector mel_sid = as<IntegerVector>(melchett_stageframe_["stage_id"]);
+        List se36 = LefkoUtils::exp_grd(as<RObject>(mel_sid), as<RObject>(mel_sid));
+        IntegerVector se3_index21 = (as<IntegerVector>(se36(0)) - 1) + 
+          ((as<IntegerVector>(se36(1))) - 1) * melchett_stageframe_length;
+        
+        if (err_check) {
+          NumericVector mel_sz2 = as<NumericVector>(melchett_stageframe_["sizebin_center"]);
+          NumericVector mel_szb2 = as<NumericVector>(melchett_stageframe_["sizebinb_center"]);
+          NumericVector mel_szc2 = as<NumericVector>(melchett_stageframe_["sizebinc_center"]);
+          NumericVector mel_rep = as<NumericVector>(melchett_stageframe_["repstatus"]);
+          NumericVector mel_ind = as<NumericVector>(melchett_stageframe_["indataset"]);
+          List se31 = LefkoUtils::exp_grd(as<RObject>(mel_sz2), as<RObject>(mel_sz2));
+          List se32 = LefkoUtils::exp_grd(as<RObject>(mel_szb2), as<RObject>(mel_szb2));
+          List se33 = LefkoUtils::exp_grd(as<RObject>(mel_szc2), as<RObject>(mel_szc2));
+          List se34 = LefkoUtils::exp_grd(as<RObject>(mel_rep), as<RObject>(mel_rep));
+          List se35 = LefkoUtils::exp_grd(as<RObject>(mel_ind), as<RObject>(mel_ind));
+          
+          List stageexpansion3 (15);
+          stageexpansion3(0) = as<NumericVector>(se31(0));
+          stageexpansion3(1) = as<NumericVector>(se31(1));
+          stageexpansion3(2) = as<NumericVector>(se32(0));
+          stageexpansion3(3) = as<NumericVector>(se32(1));
+          stageexpansion3(4) = as<NumericVector>(se33(0));
+          stageexpansion3(5) = as<NumericVector>(se33(1));
+          stageexpansion3(6) = as<NumericVector>(se34(0));
+          stageexpansion3(7) = as<NumericVector>(se34(1));
+          stageexpansion3(8) = as<NumericVector>(se35(0));
+          stageexpansion3(9) = as<NumericVector>(se35(1));
+          stageexpansion3(10) = as<IntegerVector>(se36(0));
+          stageexpansion3(11) = as<IntegerVector>(se36(1));
+          
+          NumericVector harpoon;
+          {
+            arma::mat melchett_repmatrix_arma = as<arma::mat>(melchett_repmatrix_);
+            if (devries) {
+              arma::mat mra_colSums = arma::sum(melchett_repmatrix_arma, 0);
+              
+              arma::uvec mra_cS_ones = find(mra_colSums);
+              mra_colSums.elem(mra_cS_ones).ones();
+              int mra_dim = static_cast<int>(mra_colSums.n_elem);
+              
+              arma::mat mra_zerorow = zeros(1, (mra_dim));
+              arma::mat mra_zero2col = zeros((mra_dim + 2), 2);
+              
+              melchett_repmatrix_arma.insert_rows(mra_dim, mra_colSums);
+              melchett_repmatrix_arma.insert_rows((mra_dim + 1), mra_zerorow);
+              melchett_repmatrix_arma.insert_cols((mra_dim), mra_zero2col);
+              
+              arma::vec mra_vec = arma::vectorise(melchett_repmatrix_arma);
+              harpoon = as<NumericVector>(wrap(mra_vec));
+            } else {
+              int mra_dim = static_cast<int>(melchett_repmatrix_arma.n_rows);
+              
+              arma::mat mra_zerorow = zeros(1, mra_dim);
+              arma::mat mra_zerocol = zeros((mra_dim + 1), 1);
+              
+              melchett_repmatrix_arma.insert_rows((mra_dim), mra_zerorow);
+              melchett_repmatrix_arma.insert_cols((mra_dim), mra_zerocol);
+              
+              arma::vec mra_vec = arma::vectorise(melchett_repmatrix_arma);
+              harpoon = as<NumericVector>(wrap(mra_vec));
+            }
+          }
+          stageexpansion3(12) = harpoon;
+          
+          NumericVector se3_indata32n = as<NumericVector>(se35(0)) * as<NumericVector>(se35(1));
+          stageexpansion3(13) = se3_indata32n;
+          stageexpansion3(14) = se3_index21;
+          
+          StringVector se3_names = {"size3", "size2n", "sizeb3", "sizeb2n",
+            "sizec3", "sizec2n", "rep3", "rep2n", "indata3", "indata2n",
+            "stage3", "stage2n", "fec32n", "indata32n", "index21"};
+          stageexpansion3.attr("names") = se3_names;
+          stageexpansion3.attr("class") = "data.frame";
+          
+          StringVector se3_row_names(melchett_stageframe_length * melchett_stageframe_length);
+          for (int i = 0; i < (melchett_stageframe_length * melchett_stageframe_length); ++i) {
+            char name[5];
+            sprintf(&(name[0]), "%d", i);
+            se3_row_names(i) = name;
+          }
+          stageexpansion3.attr("row.names") = se3_row_names;
+        }
+        
+        IntegerVector hst_sid_2 ((melchett_stageframe_length - 1) * (melchett_stageframe_length - 1));
+        IntegerVector hst_sid_1 ((melchett_stageframe_length - 1) * (melchett_stageframe_length - 1));
+        StringVector hst_stage_2 ((melchett_stageframe_length - 1) * (melchett_stageframe_length - 1));
+        StringVector hst_stage_1 ((melchett_stageframe_length - 1) * (melchett_stageframe_length - 1));
+        
+        for (int i = 0; i < (melchett_stageframe_length - 1); i++) {
+          for (int j = 0; j < (melchett_stageframe_length - 1); j++) {
+            hst_sid_2(j + (i * (melchett_stageframe_length - 1))) = mel_sid(j);
+            hst_sid_1(j + (i * (melchett_stageframe_length - 1))) = mel_sid(i);
+            
+            hst_stage_2(j + (i * (melchett_stageframe_length - 1))) = melchett_stageframe_stage_(j);
+            hst_stage_1(j + (i * (melchett_stageframe_length - 1))) = melchett_stageframe_stage_(i);
+          }
+        }
+        
+        DataFrame hstages_now = DataFrame::create(_["stage_id_2"] = hst_sid_2,
+          _["stage_id_1"] = hst_sid_1, _["stage_2"] = hst_stage_2,
+          _["stage_1"] = hst_stage_1);
+        
+        IntegerVector index321 (data_points);
+        IntegerVector index21 (data_points);
+        
+        if (format_int == 2) {
+          for (int i = 0; i < data_points; i++) {
+            if (usedindex3(i) < 0) usedindex3(i) = melchett_stageframe_length - 1;
+            if (usedindex2(i) < 0) usedindex2(i) = melchett_stageframe_length - 1;
+            if (usedindex1(i) < 0) usedindex1(i) = melchett_stageframe_length - 1;
+            
+            index321(i) = usedindex3(i) + (usedindex2(i) * melchett_stageframe_length) +
+              (usedindex2(i) * melchett_stageframe_length * melchett_stageframe_length) +
+              (usedindex1(i) * melchett_stageframe_length * melchett_stageframe_length *
+              melchett_stageframe_length);
+            index21(i) = usedindex2(i) + (usedindex1(i) * melchett_stageframe_length);
+          }
+        } else {
+          int sl_small = melchett_stageframe_length - 1;
+          for (int i = 0; i < data_points; i++) {
+            if (usedindex3(i) < 0) usedindex3(i) = melchett_stageframe_length - 1;
+            if (usedindex2(i) < 0) usedindex2(i) = melchett_stageframe_length - 1;
+            if (usedindex1(i) < 0) usedindex1(i) = melchett_stageframe_length - 1;
+            
+            index321(i) = usedindex3(i) + (usedindex2(i) * sl_small) +
+              (usedindex2(i) * sl_small * sl_small) +
+              (usedindex1(i) * sl_small * sl_small * sl_small);
+            index21(i) = usedindex2(i) + (usedindex1(i) * melchett_stageframe_length);
+          }
+        }
+        
+        StringVector d_rn = data_.attr("row.names");
+        
+        data_["index321"] = index321;
+        data_["pairindex21"] = index21;
+        
+        if (fectime == 3) {
+          data_["usedfec"] = data_[fec_int(0)];
+        } else {
+          data_["usedfec"] = data_[fec_int(1)];
+        }
+        
+        data_.attr("class") = "data.frame";
+        data_.attr("row.names") = d_rn;
+        
+        // Matrix estimation
+        List madsexmadrigal = specialpatrolgroup(stageexpansion9,
+          as<arma::ivec>(se3_index21), data_, melchett_stageframe_, format_int,
+          err_check, loy_pop_, loy_patch_, loy_year2_, yearorder_, pop_var_int,
+          patch_var_int, year_var_int, loy_pop_used, loy_patch_used, simple);
+        
+        IntegerVector mat_qc = {0, 0, 0};
+        matrix_reducer(madsexmadrigal, mat_qc, ahstages_now, hstages_now,
+          NA_empty_df, false, true, true, reduce, simple);
+        
+        madsexmadrigal["ahstages"] = ahstages_now;
+        madsexmadrigal["agestages"] = NA_empty_df;
+        madsexmadrigal["hstages"] = hstages_now;
+        madsexmadrigal["labels"] = labels_;
+        madsexmadrigal["matrixqc"] = mat_qc;
+        madsexmadrigal["dataqc"] = dataqc_;
+        output_draft = madsexmadrigal;
+      }
+    }
+  } else {
+    // Function-based MPMs
+    if (!historical) {
+      if (stage && !age) {
+        // Stage-only ahistorical function-based
+        IntegerVector removal_row = {melchett_stageframe_length};
+        StringVector removal_var = {"stage_id"};
+        DataFrame ahstages_now = LefkoUtils::df_remove(melchett_stageframe_,
+          removal_row, false, true, false, false, true, as<RObject>(removal_var));
+        
+        List new_madsexmadrigal = raymccooney(list_of_years, modelsuite_,
+          mainyears_, mainpatches_, as<RObject>(maingroups_),
+          as<RObject>(inda_names), as<RObject>(indb_names), as<RObject>(indc_names),
+          melchett_stageframe_, melchett_ovtable_, as<arma::mat>(melchett_repmatrix_),
+          f2_inda_num, f1_inda_num, f2_indb_num, f1_indb_num, f2_indc_num,
+          f1_indc_num, f2_inda_cat, f1_inda_cat, f2_indb_cat, f1_indb_cat,
+          f2_indc_cat, f1_indc_cat, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc,
+          r1_indc, dev_terms_, density, fecmod, 0, 0, 1, 1, 0, 1, negfec, nodata,
+          exp_tol, theta_tol, CDF, err_check, simple);
+        
+        IntegerVector mat_qc = {0, 0, 0};
+        matrix_reducer(new_madsexmadrigal, mat_qc, ahstages_now, NA_empty_df,
+          NA_empty_df, false, true, false, reduce, simple);
+        
+        new_madsexmadrigal["ahstages"] = ahstages_now;
+        new_madsexmadrigal["agestages"] = NA_empty_df;
+        new_madsexmadrigal["hstages"] = NA_empty_df;
+        new_madsexmadrigal["labels"] = labels_;
+        new_madsexmadrigal["matrixqc"] = mat_qc;
+        new_madsexmadrigal["modelqc"] = mod_qc_;
+        new_madsexmadrigal["dataqc"] = dataqc_;
+        output_draft = new_madsexmadrigal;
+        
+      } else if (stage && age) { 
+        // Age-stage function-based
+        IntegerVector removal_row = {melchett_stageframe_length};
+        StringVector removal_var = {"stage_id"};
+        DataFrame ahstages_now = LefkoUtils::df_remove(melchett_stageframe_,
+          removal_row, false, true, false, false, true, as<RObject>(removal_var));
+        
+        IntegerVector agevec = seq(start_age, last_age);
+        int totalages = static_cast<int>(agevec.length());
+        
+        IntegerVector mel_sid = rep(as<IntegerVector>(melchett_stageframe_["stage_id"]), totalages);
+        
+        IntegerVector mel_ages (totalages * melchett_stageframe_length);
+        IntegerVector ahage_stage_id (totalages * (melchett_stageframe_length - 1));
+        StringVector ahage_stage (totalages * (melchett_stageframe_length - 1));
+        IntegerVector ahage_age (totalages * (melchett_stageframe_length - 1));
+        
+        for (int i = 0; i < totalages; i++) {
+          for (int j = 0; j < melchett_stageframe_length; j++) {
+            mel_ages(j + (i * melchett_stageframe_length)) = agevec(i);
+            
+            if (j != (melchett_stageframe_length - 1)) {
+              ahage_stage_id(j + (i * (melchett_stageframe_length - 1))) = mel_sid(j);
+              ahage_stage(j + (i * (melchett_stageframe_length - 1))) = melchett_stageframe_stage_(j);
+              ahage_age(j + (i * (melchett_stageframe_length - 1))) = agevec(i);
+            }
+          }
+        }
+        DataFrame agestages_now = DataFrame::create(_["stage_id"] = ahage_stage_id,
+          _["stage"] = ahage_stage, _["age"] = ahage_age);
+        
+        List new_madsexmadrigal = raymccooney(list_of_years, modelsuite_,
+          mainyears_, mainpatches_, as<RObject>(maingroups_),
+          as<RObject>(inda_names), as<RObject>(indb_names), as<RObject>(indc_names),
+          melchett_stageframe_, melchett_ovtable_, as<arma::mat>(melchett_repmatrix_),
+          f2_inda_num, f1_inda_num, f2_indb_num, f1_indb_num, f2_indc_num,
+          f1_indc_num, f2_inda_cat, f1_inda_cat, f2_indb_cat, f1_indb_cat,
+          f2_indc_cat, f1_indc_cat, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc,
+          r1_indc, dev_terms_, density, fecmod, start_age, last_age, 1, 2, cont,
+          2, negfec, nodata, exp_tol, theta_tol, CDF, err_check, simple);
+        
+        IntegerVector mat_qc = {0, 0, 0};
+        matrix_reducer(new_madsexmadrigal, mat_qc, ahstages_now, NA_empty_df,
+          agestages_now, true, true, false, reduce, simple);
+        
+        new_madsexmadrigal["ahstages"] = ahstages_now;
+        new_madsexmadrigal["agestages"] = agestages_now;
+        new_madsexmadrigal["hstages"] = NA_empty_df;
+        new_madsexmadrigal["labels"] = labels_;
+        new_madsexmadrigal["matrixqc"] = mat_qc;
+        new_madsexmadrigal["modelqc"] = mod_qc_;
+        new_madsexmadrigal["dataqc"] = dataqc_;
+        output_draft = new_madsexmadrigal;
+        
+      } else if (!stage && age) {
+        // Age-only function-based
+        IntegerVector actualages = seq(start_age, last_age);
+        
+        List new_madsexmadrigal = mothermccooney(list_of_years, modelsuite_,
+          actualages, mainyears_, mainpatches_, as<RObject>(maingroups_),
+          as<RObject>(inda_names), as<RObject>(indb_names), as<RObject>(indc_names),
+          melchett_stageframe_, f2_inda_num, f1_inda_num, f2_indb_num, f1_indb_num,
+          f2_indc_num, f1_indc_num, f2_inda_cat, f1_inda_cat, f2_indb_cat,
+          f1_indb_cat, f2_indc_cat, f1_indc_cat, r2_inda, r1_inda, r2_indb,
+          r1_indb, r2_indc, r1_indc, dev_terms_, density, fecmod, last_age,
+          cont, negfec, nodata, exp_tol, theta_tol, err_check, simple);
+        
+        IntegerVector mat_qc = {0, 0, 0};
+        matrix_reducer(new_madsexmadrigal, mat_qc, ahstages, NA_empty_df,
+          NA_empty_df, true, false, false, reduce, simple);
+        
+        new_madsexmadrigal["ahstages"] = ahstages;
+        new_madsexmadrigal["agestages"] = NA_empty_df;
+        new_madsexmadrigal["hstages"] = NA_empty_df;
+        new_madsexmadrigal["labels"] = labels_;
+        new_madsexmadrigal["matrixqc"] = mat_qc;
+        new_madsexmadrigal["modelqc"] = mod_qc_;
+        new_madsexmadrigal["dataqc"] = dataqc_;
+        output_draft = new_madsexmadrigal;
+        
+      }
+    } else {
+      if (stage && !age) {
+        // Historical stage-only function-based
+        IntegerVector removal_row = {melchett_stageframe_length};
+        StringVector removal_var = {"stage_id"};
+        DataFrame ahstages_now = LefkoUtils::df_remove(melchett_stageframe_,
+          removal_row, false, true, false, false, true, as<RObject>(removal_var));
+        
+        IntegerVector mel_sid = as<IntegerVector>(melchett_stageframe_["stage_id"]);
+        IntegerVector hst_sid_2 ((melchett_stageframe_length - 1) * (melchett_stageframe_length - 1));
+        IntegerVector hst_sid_1 ((melchett_stageframe_length - 1) * (melchett_stageframe_length - 1));
+        StringVector hst_stage_2 ((melchett_stageframe_length - 1) * (melchett_stageframe_length - 1));
+        StringVector hst_stage_1 ((melchett_stageframe_length - 1) * (melchett_stageframe_length - 1));
+        
+        for (int i = 0; i < (melchett_stageframe_length - 1); i++) {
+          for (int j = 0; j < (melchett_stageframe_length - 1); j++) {
+            hst_sid_2(j + (i * (melchett_stageframe_length - 1))) = mel_sid(j);
+            hst_sid_1(j + (i * (melchett_stageframe_length - 1))) = mel_sid(i);
+            
+            hst_stage_2(j + (i * (melchett_stageframe_length - 1))) = melchett_stageframe_stage_(j);
+            hst_stage_1(j + (i * (melchett_stageframe_length - 1))) = melchett_stageframe_stage_(i);
+          }
+        }
+        
+        DataFrame hstages_now = DataFrame::create(_["stage_id_2"] = hst_sid_2,
+          _["stage_id_1"] = hst_sid_1, _["stage_2"] = hst_stage_2,
+          _["stage_1"] = hst_stage_1);
+        
+        List new_madsexmadrigal = raymccooney(list_of_years, modelsuite_,
+          mainyears_, mainpatches_, as<RObject>(maingroups_),
+          as<RObject>(inda_names), as<RObject>(indb_names), as<RObject>(indc_names),
+          melchett_stageframe_, melchett_ovtable_, as<arma::mat>(melchett_repmatrix_),
+          f2_inda_num, f1_inda_num, f2_indb_num, f1_indb_num, f2_indc_num,
+          f1_indc_num, f2_inda_cat, f1_inda_cat, f2_indb_cat, f1_indb_cat,
+          f2_indc_cat, f1_indc_cat, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc,
+          r1_indc, dev_terms_, density, fecmod, 0, 0, format_int, 0, 0, 1, negfec,
+          nodata, exp_tol, theta_tol, CDF, err_check, simple);
+        
+        IntegerVector mat_qc = {0, 0, 0};
+        matrix_reducer(new_madsexmadrigal, mat_qc, ahstages_now, hstages_now,
+          NA_empty_df, false, true, true, reduce, simple);
+        
+        new_madsexmadrigal["ahstages"] = ahstages_now;
+        new_madsexmadrigal["agestages"] = NA_empty_df;
+        new_madsexmadrigal["hstages"] = hstages_now;
+        new_madsexmadrigal["labels"] = labels_;
+        new_madsexmadrigal["matrixqc"] = mat_qc;
+        new_madsexmadrigal["modelqc"] = mod_qc_;
+        new_madsexmadrigal["dataqc"] = dataqc_;
+        output_draft = new_madsexmadrigal;
+      }
+    }
+  }
+  
+  StringVector out_classes = {"lefkoMat"};
+  output_draft.attr("class") = out_classes;
+  
+  return output_draft;
 }
+
+
+// Pop Dynamics
 
 //' Estimate Stable Stage Distribution of Any Population Matrix
 //' 
@@ -10718,7 +15668,7 @@ List elas3hlefko(arma::mat Amat, DataFrame ahstages, DataFrame hstages) {
 //' Function \code{proj3()} runs the matrix projections used in other functions
 //' in package \code{lefko3}.
 //' 
-//' @name .proj3
+//' @name proj3
 //' 
 //' @param start_vec The starting population vector for the projection.
 //' @param core_list A list of full projection matrices, corresponding to the 
@@ -10746,8 +15696,7 @@ List elas3hlefko(arma::mat Amat, DataFrame ahstages, DataFrame hstages) {
 //' 
 //' @keywords internal
 //' @noRd
-// [[Rcpp::export(.proj3)]]
-arma::mat proj3(arma::vec start_vec, List core_list, arma::uvec mat_order,
+arma::mat proj3(arma::vec& start_vec, List& core_list, arma::uvec& mat_order,
   bool standardize, bool growthonly, bool integeronly) {
   int sparse_switch {0};
   int nostages = start_vec.n_elem;
@@ -10774,7 +15723,8 @@ arma::mat proj3(arma::vec start_vec, List core_list, arma::uvec mat_order,
   int test_elems = as<arma::mat>(core_list(0)).n_elem;
   arma::uvec nonzero_elems = find(as<arma::mat>(core_list(0)));
   int all_nonzeros = nonzero_elems.n_elem;
-  double sparse_check = static_cast<double>(all_nonzeros) / static_cast<double>(test_elems);
+  double sparse_check = static_cast<double>(all_nonzeros) /
+    static_cast<double>(test_elems);
   if (sparse_check <= 0.5 && start_vec.n_elem > 100) {
     sparse_switch = 1;
   } else sparse_switch = 0;
@@ -10789,6 +15739,7 @@ arma::mat proj3(arma::vec start_vec, List core_list, arma::uvec mat_order,
   
   if (sparse_switch == 0) {
     // Dense matrix projection
+    
     for (int i = 0; i < theclairvoyant; i++) {
       if (i % 50 == 0) Rcpp::checkUserInterrupt();
       
@@ -10818,6 +15769,7 @@ arma::mat proj3(arma::vec start_vec, List core_list, arma::uvec mat_order,
     }
   } else {
     // Sparse matrix projection
+    
     arma::sp_mat sparse_seventhson = arma::sp_mat(theseventhson);
     
     int matlist_length = core_list.size();
@@ -10877,7 +15829,7 @@ arma::mat proj3(arma::vec start_vec, List core_list, arma::uvec mat_order,
 //' functions in package \code{lefko3}, but only when the input is sparse. This
 //' is a slimmed down version of function \code{proj3()}
 //' 
-//' @name .proj3sp
+//' @name proj3sp
 //' 
 //' @param start_vec The starting population vector for the projection.
 //' @param core_list A list of full projection matrices, corresponding to
@@ -10906,8 +15858,7 @@ arma::mat proj3(arma::vec start_vec, List core_list, arma::uvec mat_order,
 //' 
 //' @keywords internal
 //' @noRd
-// [[Rcpp::export(.proj3sp)]]
-arma::mat proj3sp(arma::vec start_vec, List core_list, arma::uvec mat_order,
+arma::mat proj3sp(arma::vec& start_vec, List& core_list, arma::uvec& mat_order,
   bool standardize, bool growthonly, bool integeronly) {
   int nostages = start_vec.n_elem;
   int theclairvoyant = mat_order.n_elem;
@@ -10983,7 +15934,7 @@ arma::mat proj3sp(arma::vec start_vec, List core_list, arma::uvec mat_order,
 //' 
 //' Function \code{proj3dens()} runs density-dependent matrix projections.
 //' 
-//' @name .proj3dens
+//' @name proj3dens
 //' 
 //' @param start_vec The starting population vector for the projection.
 //' @param core_list A list of full projection matrices, corresponding to the 
@@ -11025,10 +15976,9 @@ arma::mat proj3sp(arma::vec start_vec, List core_list, arma::uvec mat_order,
 //' 
 //' @keywords internal
 //' @noRd
-// [[Rcpp::export(.proj3dens)]]
-arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
-  bool growthonly, bool integeronly, int substoch, Rcpp::DataFrame dens_input,
-  Rcpp::List dens_index, bool allow_warnings = false) {
+arma::mat proj3dens(arma::vec& start_vec, List& core_list, arma::uvec& mat_order,
+  bool growthonly, bool integeronly, int substoch, Rcpp::DataFrame& dens_input,
+  Rcpp::List& dens_index, bool allow_warnings = false) {
   int sparse_switch {0};
   int time_delay {1};
   double pop_size {0};
@@ -11070,7 +16020,8 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
   int test_elems = as<arma::mat>(core_list(0)).n_elem;
   arma::uvec nonzero_elems = find(as<arma::mat>(core_list(0)));
   int all_nonzeros = nonzero_elems.n_elem;
-  double sparse_check = static_cast<double>(all_nonzeros) / static_cast<double>(test_elems);
+  double sparse_check = static_cast<double>(all_nonzeros) /
+    static_cast<double>(test_elems);
   if (sparse_check <= 0.5 && theseventhson.n_elem > 100) {
     sparse_switch = 1;
   } else sparse_switch = 0;
@@ -11087,6 +16038,7 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
   
   if (sparse_switch == 0) {
     // Dense matrix projection
+    
     for (int i = 0; i < theclairvoyant; i++) {
       if (i % 50 == 0) Rcpp::checkUserInterrupt();
       
@@ -11131,10 +16083,12 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
             arma::uvec gc_negs = find(given_col < 0.0);
             arma::uvec gc_pos = find(given_col > 0.0);
             
-            double barnyard_antics = sum(given_col(gc_pos)) - theprophecy(dyn_index321(j)) + changing_element;
+            double barnyard_antics = sum(given_col(gc_pos)) -
+              theprophecy(dyn_index321(j)) + changing_element;
             
             if (barnyard_antics > 1.0 && changing_element > 0.0) {
-              double proposed_element = changing_element - barnyard_antics * (changing_element / barnyard_antics);
+              double proposed_element = changing_element - barnyard_antics *
+                (changing_element / barnyard_antics);
               
               if (proposed_element >= 0.0) {
                 changing_element = proposed_element;
@@ -11154,15 +16108,18 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
           if (allow_warnings) {
             if (dyn_type(j) == 1 && theprophecy(dyn_index321(j)) > 1.0 && !warn_trigger_1) {
               warn_trigger_1 = true;
-              Rf_warningcall(R_NilValue, "Some probabilities with value > 1.0 produced during density adjustment.\n");
+              Rf_warningcall(R_NilValue,
+                "Some probabilities with value > 1.0 produced during density adjustment.\n");
+              
             } else if (theprophecy(dyn_index321(j)) < 0.0 && !warn_trigger_neg) {
               warn_trigger_neg = true;
-              Rf_warningcall(R_NilValue, "Some matrix elements with value < 0.0 produced during density adjustment.\n");
+              Rf_warningcall(R_NilValue,
+                "Some matrix elements with value < 0.0 produced during density adjustment.\n");
             }
           }
         }
       }
-      theseventhson = theprophecy * theseventhson; // thechosenone
+      theseventhson = theprophecy * theseventhson;
       if (integeronly) {
         theseventhson = floor(theseventhson);
       }
@@ -11180,8 +16137,10 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
         vpopproj.col(theclairvoyant - (i+1)) = midwife;
       }
     }
+    
   } else {
     // Sparse matrix projection
+    
     arma::sp_mat sparse_seventhson = arma::sp_mat(theseventhson);
     int matlist_length = core_list.size();
     Rcpp::List sparse_list(matlist_length);
@@ -11245,10 +16204,12 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
             arma::uvec gc_negs = find(given_col < 0.0);
             arma::uvec gc_pos = find(given_col > 0.0);
             
-            double barnyard_antics = sum(given_col(gc_pos)) - sparse_prophecy(dyn_index321(j)) + changing_element;
+            double barnyard_antics = sum(given_col(gc_pos)) -
+              sparse_prophecy(dyn_index321(j)) + changing_element;
             
             if (barnyard_antics > 1.0 && changing_element > 0.0) {
-              double proposed_element = changing_element - barnyard_antics * (changing_element / barnyard_antics);
+              double proposed_element = changing_element - barnyard_antics *
+                (changing_element / barnyard_antics);
               
               if (proposed_element >= 0.0) {
                 changing_element = proposed_element;
@@ -11268,10 +16229,13 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
           if (allow_warnings) {
             if (dyn_type(j) == 1 && sparse_prophecy(dyn_index321(j)) > 1.0 && !warn_trigger_1) {
               warn_trigger_1 = true;
-              Rf_warningcall(R_NilValue, "Some probabilities with value > 1.0 produced during density adjustment.\n");
+              Rf_warningcall(R_NilValue,
+                "Some probabilities with value > 1.0 produced during density adjustment.\n");
+                
             } else if (sparse_prophecy(dyn_index321(j)) < 0.0 && !warn_trigger_neg) {
               warn_trigger_neg = true;
-              Rf_warningcall(R_NilValue, "Some matrix elements with value < 0.0 produced during density adjustment.\n");
+              Rf_warningcall(R_NilValue,
+                "Some matrix elements with value < 0.0 produced during density adjustment.\n");
             }
           }
         }
@@ -11569,12 +16533,14 @@ arma::mat proj3dens(arma::vec start_vec, List core_list, arma::uvec mat_order,
 //' 
 //' @export projection3
 // [[Rcpp::export]]
-Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
+Rcpp::List projection3(List& mpm, int nreps = 1, int times = 10000,
   bool historical = false, bool stochastic = false, bool standardize = false,
   bool growthonly = true, bool integeronly = false, int substoch = 0,
   double exp_tol = 700.0, bool sub_warnings = true, bool quiet = false, 
-  Nullable<IntegerVector> year = R_NilValue, Nullable<NumericVector> start_vec = R_NilValue,
-  Nullable<DataFrame> start_frame = R_NilValue, Nullable<NumericVector> tweights = R_NilValue,
+  Nullable<IntegerVector> year = R_NilValue,
+  Nullable<NumericVector> start_vec = R_NilValue,
+  Nullable<DataFrame> start_frame = R_NilValue,
+  Nullable<NumericVector> tweights = R_NilValue,
   Nullable<DataFrame> density = R_NilValue) {
   
   Rcpp::List dens_index;
@@ -11652,7 +16618,7 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
         di_stage21_id.zeros();
         di_index.zeros();
         
-        for (int i = 0; i < di_size; i++) { // This loop runs through each density_input line
+        for (int i = 0; i < di_size; i++) { // Loop runs through each density_input line
           for (int j = 0; j < hst_size; j++) {
             if (di_stage3(i) == stage3(j)) {
               hst_3(j) = 1;
@@ -11723,7 +16689,7 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
         di_stage21_id.zeros();
         di_index.zeros();
         
-        for (int i = 0; i < di_size; i++) { // This loop runs through each density_input line
+        for (int i = 0; i < di_size; i++) { // Loop runs through each density_input line
           for (int j = 0; j < ahst_size; j++) {
             if (di_stage3(i) == stage3(j)) {
               ahst_3(j) = 1;
@@ -11760,7 +16726,7 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
       
       for (int i = 0; i < dyn_style.n_elem; i++) {
         if (dyn_style(i) < 1 || dyn_style(i) > 4) {
-          throw Rcpp::exception("Some density inputs are stated as yielding density dependence but not in an accepted style.");
+          throw Rcpp::exception("Some density inputs are stated as yielding density dependence but not in an accepted style.", false);
         }
         
         if (dyn_style(i) == 1) {
@@ -11771,6 +16737,7 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
             Rf_warningcall(R_NilValue,
               "Values of beta used in the Ricker function may be too high. Results may be unpredictable.\n");
           }
+          
         } else if (dyn_style(i) == 3) {
           double summed_stuff = dyn_alpha(i) + dyn_beta(i);
           
@@ -11785,7 +16752,7 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
       }
     }
     
-    IntegerVector yearorder;
+    StringVector yearorder;
     StringVector patchorder;
     if (labels.length() < 3) {
       StringVector label_elements = labels.attr("names");
@@ -11793,24 +16760,26 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
       
       for (int i = 0; i < label_elements.length(); i++) {
         if (stringcompare_hard(as<std::string>(label_elements(i)), "patch")) {
-          if (!quiet) Rf_warningcall(R_NilValue, "This function takes annual matrices as input. This lefkoMat object appears to be a set of mean matrices, and may lack annual matrices. Will project only the mean.\n");
+          if (!quiet) {
+            Rf_warningcall(R_NilValue,
+              "This function takes annual matrices as input. This lefkoMat object appears to be a set of mean matrices, and may lack annual matrices. Will project only the mean.\n");
+          }
         }
       }
       
       StringVector patch_projected = as<StringVector>(labels["patch"]);
-      IntegerVector years_projected(patch_projected.length());
+      StringVector years_projected(patch_projected.length());
       for (int i = 0; i < patch_projected.length(); i++) {
-        years_projected(i) = 1;
+        years_projected(i) = "1";
       }
       
       patchorder = patch_projected;
       yearorder = years_projected;
     } else {
       patchorder = as<StringVector>(labels["patch"]);
-      yearorder = as<IntegerVector>(labels["year2"]);
+      yearorder = as<StringVector>(labels["year2"]);
     }
     StringVector poporder = as<StringVector>(labels["pop"]);
-    arma::uvec armayearorder = as<arma::uvec>(yearorder);
     int loysize = poporder.length();
     StringVector poppatch = clone(poporder);
     
@@ -11821,17 +16790,20 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
     
     StringVector uniquepops = sort_unique(poporder);
     StringVector uniquepoppatches = sort_unique(poppatch);
-    IntegerVector uniqueyears = sort_unique(yearorder);
+    StringVector uniqueyears = sort_unique(yearorder);
     IntegerVector popc = match(poporder, uniquepops) - 1;
     IntegerVector poppatchc = match(poppatch, uniquepoppatches) - 1;
     IntegerVector year2c = match(yearorder, uniqueyears) - 1;
     int yl = uniqueyears.length();
     
-    IntegerVector years_forward;
+    StringVector years_forward;
     if (year.isNotNull()) {
-      if (stochastic) throw Rcpp::exception("Options year cannot be used when stochastic = TRUE.", false);
+      if (stochastic) {
+        throw Rcpp::exception("Options year cannot be used when stochastic = TRUE.",
+          false);
+      }
       
-      IntegerVector years_ = as<IntegerVector>(year);
+      StringVector years_ = as<StringVector>(year);
       
       int member_sum {0};
       for (int i = 0; i < years_.length(); i++) {
@@ -11839,12 +16811,13 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
           if (years_[i] == uniqueyears[j]) member_sum++;
         }
         if (member_sum == 0) {
-          throw Rcpp::exception("Option year includes time indices that do not exist in the input lefkoMat object.", false);
+          throw Rcpp::exception("Option year includes time indices that do not exist in the input lefkoMat object.", 
+            false);
         }
         member_sum = 0;
       }
       
-      IntegerVector years_pre (times);
+      StringVector years_pre (times);
       
       int rampant_exigence {0};
       for (int i = 0; i < times; i++) {
@@ -11855,17 +16828,21 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
           rampant_exigence = 0;
         }
       }
-      years_forward = years_pre; // This is the programmed order of matrices for all times, if years is input
-      year_override = true; // This variable decides whether to use years or the defaults matrix vectors
+      years_forward = years_pre; // Programmed order of matrices for all times, if years is input
+      year_override = true; // Decides whether to use years or the default matrix vectors
     }
     
     arma::vec twinput;
     if (tweights.isNotNull()) {
       twinput = as<arma::vec>(tweights);
       if (static_cast<int>(twinput.n_elem) != yl) {
-        throw Rcpp::exception("Time weight vector must be the same length as the number of occasions represented in the lefkoMat object used as input.", false);
+        throw Rcpp::exception("Time weight vector must be the same length as the number of occasions represented in the lefkoMat object used as input.",
+          false);
       }
-      if (!stochastic) throw Rcpp::exception("Option tweights can only be used when stochastic = TRUE.", false);
+      if (!stochastic) {
+        throw Rcpp::exception("Option tweights can only be used when stochastic = TRUE.",
+          false);
+      }
     } else {
       twinput.resize(yl);
       twinput.ones();
@@ -11909,7 +16886,7 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
         agestages, stageframe, 1, 1);
     }
     
-    // Here we take the matrices corresponding to each individual patch, run the
+    // Take matrices corresponding to each individual patch, run the
     // simulation, and estimate all descriptive metrics
     List meanamats = as<List>(mean_lefkomat["A"]);
     List mmlabels = as<List>(mean_lefkomat["labels"]);
@@ -11971,8 +16948,11 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
       arma::uvec pre_prophecy (theclairvoyant, fill::zeros);
       if (year_override) {
         for (int j = 0; j < theclairvoyant; j++) {
-          arma::uvec tnb_year_indices = find(armayearorder == years_forward(j));
-          arma::uvec year_patch_intersect = intersect(thenumbersofthebeast, tnb_year_indices);
+          IntegerVector tnb_year_indices_IV = match(as<StringVector>(years_forward(j)),
+            yearorder) - 1;
+          arma::uvec tnb_year_indices = as<arma::uvec>(tnb_year_indices_IV);
+          arma::uvec year_patch_intersect = intersect(thenumbersofthebeast,
+            tnb_year_indices);
           
           pre_prophecy(j) = year_patch_intersect(0);
         }
@@ -11981,7 +16961,8 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
       // of results for each pop-patch
       for (int rep = 0; rep < nreps; rep++) {
         if (stochastic) {
-          theprophecy = Rcpp::RcppArmadillo::sample(thenumbersofthebeast, theclairvoyant, true, twinput);
+          theprophecy = Rcpp::RcppArmadillo::sample(thenumbersofthebeast,
+            theclairvoyant, true, twinput);
           
         } else if (year_override) {
           theprophecy = pre_prophecy;
@@ -12007,11 +16988,11 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
           }
         } else {
           if (rep == 0) {
-            projection = proj3(startvec, amats, theprophecy, standardize, growthonly,
-              integeronly);
-          } else {
-            arma::mat nextproj = proj3(startvec, amats, theprophecy, standardize,
+            projection = proj3(startvec, amats, theprophecy, standardize,
               growthonly, integeronly);
+          } else {
+            arma::mat nextproj = proj3(startvec, amats, theprophecy,
+              standardize, growthonly, integeronly);
             projection = arma::join_cols(projection, nextproj);
           }
         }
@@ -12065,7 +17046,8 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
           happymedium.zeros();
           for (int j = 0; j < meanmatsize; j++) {
             for (int k = 0; k < crankybankynem; k++) {
-              happymedium(j) = happymedium(j) + crossmat(j, k) / (crankybankynem);
+              happymedium(j) = happymedium(j) + crossmat(j, k) /
+                (crankybankynem);
             }
           }
           arma::mat finalyearmat = happymedium;
@@ -12074,14 +17056,16 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
         }
         
         int numyearsused = meanmatyearlist.length();
-        arma::uvec choicevec = linspace<arma::uvec>(0, (numyearsused - 1), numyearsused);
+        arma::uvec choicevec = linspace<arma::uvec>(0, (numyearsused - 1),
+          numyearsused);
         int chosen_yl = choicevec.n_elem;
       
-        // This loop takes care of multiple replicates, creating the final data frame
-        // of results for the pop mean(s)
+        // Loop takes care of multiple replicates, creating final data frame
+        // of results for pop means
         for (int rep = 0; rep < nreps; rep++) {
           if (stochastic) {
-            theprophecy = Rcpp::RcppArmadillo::sample(choicevec, theclairvoyant, true, twinput);
+            theprophecy = Rcpp::RcppArmadillo::sample(choicevec, theclairvoyant,
+              true, twinput);
           } else {
             theprophecy.zeros();
             for (int j = 0; j < theclairvoyant; j++) {
@@ -12095,9 +17079,9 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
                 growthonly, integeronly, substoch, dens_input, dens_index,
                 sub_warnings);
             } else {
-              arma::mat nextproj = proj3dens(startvec, meanmatyearlist, theprophecy,
-                growthonly, integeronly, substoch, dens_input, dens_index,
-                sub_warnings);
+              arma::mat nextproj = proj3dens(startvec, meanmatyearlist,
+                theprophecy, growthonly, integeronly, substoch, dens_input,
+                dens_index, sub_warnings);
               projection = arma::join_cols(projection, nextproj);
             }
           } else {
@@ -12115,8 +17099,8 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
       }
     }
     
-    // The final output will have a projection list with # elements = nreps, nested
-    // within a list with # elements = # pop-patches
+    // Final output will have a projection list with # elements = nreps
+    // nested within a list with # elements = # pop-patches
     List projection_set(nreps);
     List ss_set(nreps);
     List rv_set(nreps);
@@ -12142,7 +17126,8 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
         list_proj = as<arma::mat>(projection_list[j]);
         
         for (int i = 0; i < nreps; i++) {
-          extracted_proj = list_proj.rows((diversion * i), (diversion * i + used_matsize - 1));
+          extracted_proj = list_proj.rows((diversion * i),
+            (diversion * i + used_matsize - 1));
           projection_set(i) = extracted_proj;
           
           extracted_proj = list_proj.rows((diversion * i + used_matsize),
@@ -12170,7 +17155,8 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
         list_proj = as<arma::mat>(projection_list[j]);
         
         for (int i = 0; i < nreps; i++) {
-          extracted_proj = list_proj.rows((diversion * i), (diversion * i + used_matsize - 1));
+          extracted_proj = list_proj.rows((diversion * i),
+            (diversion * i + used_matsize - 1));
           projection_set(i) = extracted_proj;
           
           total_sizes_set.row(i) = sum(extracted_proj, 0);
@@ -12211,7 +17197,9 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
     
     return output;
     
-  } else { // When not a lefkoMat object...
+  } else {
+    // Matrix list input
+    
     List projection_list (1);
     List amats = mpm;
     int yl = amats.length();
@@ -12256,7 +17244,10 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
     
     IntegerVector years_forward;
     if (year.isNotNull()) {
-      if (stochastic) throw Rcpp::exception("Options year cannot be used when stochastic = TRUE.", false);
+      if (stochastic) {
+        throw Rcpp::exception("Options year cannot be used when stochastic = TRUE.",
+          false);
+      }
       
       IntegerVector years_ = as<IntegerVector>(year);
       years_ = years_ - 1;
@@ -12267,7 +17258,8 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
           if (years_[i] == static_cast<int>(uniqueyears[j])) member_sum++;
         }
         if (member_sum == 0) {
-          throw Rcpp::exception("Option year includes time indices that do not exist in the input lefkoMat object.", false);
+          throw Rcpp::exception("Option year includes time indices that do not exist in the input lefkoMat object.", 
+            false);
         }
         member_sum = 0;
       }
@@ -12283,8 +17275,8 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
           rampant_exigence = 0;
         }
       }
-      years_forward = years_pre; // This is the programmed order of matrices for all times, if years is input
-      year_override = true; // This variable decides whether to use years or the defaults matrix vectors
+      years_forward = years_pre; // Order of matrices for all times, if years input
+      year_override = true; // Decides whether to use years or default matrix vectors
     }
     
     // Now we create the mean matrix
@@ -12296,15 +17288,16 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
       thechosenone = thechosenone + (columnified / yl);
     }
     
-    // Here we take the matrices corresponding to each individual patch, run the simulation, and
-    // estimate all descriptive metrics
+    // Take matrices corresponding to each individual patch, run the
+    // simulation, and estimate all descriptive metrics
     twinput = twinput / sum(twinput);
     arma::uvec thenumbersofthebeast = uniqueyears;
     
     // Here we loop multiple replicates, creating a data frame of results
     for (int rep = 0; rep < nreps; rep++) {
       if (stochastic) {
-        theprophecy = Rcpp::RcppArmadillo::sample(thenumbersofthebeast, theclairvoyant, true, twinput);
+        theprophecy = Rcpp::RcppArmadillo::sample(thenumbersofthebeast,
+          theclairvoyant, true, twinput);
         
       } else if (year_override) {
         theprophecy = as<arma::uvec>(years_forward);
@@ -12317,10 +17310,12 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
       }
       
       if (rep == 0) {
-        projection = proj3(startvec, amats, theprophecy, standardize, growthonly, integeronly);
+        projection = proj3(startvec, amats, theprophecy, standardize,
+          growthonly, integeronly);
         
       } else {
-        arma::mat nextproj = proj3(startvec, amats, theprophecy, standardize, growthonly, integeronly);
+        arma::mat nextproj = proj3(startvec, amats, theprophecy, standardize,
+          growthonly, integeronly);
         projection = arma::join_cols(projection, nextproj);
       }
     }
@@ -12328,8 +17323,8 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
     DataFrame newlabels = DataFrame::create(_["pop"] = 1, _["patch"] = 1);
     Rcpp::IntegerVector control = {nreps, times};
     
-    Rcpp::List output = List::create(_["projection"] = projection_list, _["labels"] = newlabels,
-      _["control"] = control);
+    Rcpp::List output = List::create(_["projection"] = projection_list,
+      _["labels"] = newlabels, _["control"] = control);
     output.attr("class") = "lefkoProj";
     
     return output;
@@ -12383,46 +17378,6 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
 //' elements in the user-supplied vector.
 //'
 //' @examples
-//' # Lathyrus example
-//' data(lathyrus)
-//' 
-//' sizevector <- c(0, 100, 13, 127, 3730, 3800, 0)
-//' stagevector <- c("Sd", "Sdl", "VSm", "Sm", "VLa", "Flo", "Dorm")
-//' repvector <- c(0, 0, 0, 0, 0, 1, 0)
-//' obsvector <- c(0, 1, 1, 1, 1, 1, 0)
-//' matvector <- c(0, 0, 1, 1, 1, 1, 1)
-//' immvector <- c(1, 1, 0, 0, 0, 0, 0)
-//' propvector <- c(1, 0, 0, 0, 0, 0, 0)
-//' indataset <- c(0, 1, 1, 1, 1, 1, 1)
-//' binvec <- c(0, 100, 11, 103, 3500, 3800, 0.5)
-//' 
-//' lathframe <- sf_create(sizes = sizevector, stagenames = stagevector,
-//'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
-//'   immstatus = immvector, indataset = indataset, binhalfwidth = binvec,
-//'   propstatus = propvector)
-//' 
-//' lathvert <- verticalize3(lathyrus, noyears = 4, firstyear = 1988,
-//'   patchidcol = "SUBPLOT", individcol = "GENET", blocksize = 9,
-//'   juvcol = "Seedling1988", sizeacol = "Volume88", repstracol = "FCODE88",
-//'   fecacol = "Intactseed88", deadacol = "Dead1988",
-//'   nonobsacol = "Dormant1988", stageassign = lathframe, stagesize = "sizea",
-//'   censorcol = "Missing1988", censorkeep = NA, censor = TRUE)
-//' 
-//' lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "Sd", "Sdl"), 
-//'   stage2 = c("Sd", "Sd", "Sd", "Sd", "rep", "rep"),
-//'   stage1 = c("Sd", "rep", "Sd", "rep", "all", "all"), 
-//'   givenrate = c(0.345, 0.345, 0.054, 0.054, NA, NA),
-//'   multiplier = c(NA, NA, NA, NA, 0.345, 0.054),
-//'   type = c(1, 1, 1, 1, 3, 3), type_t12 = c(1, 2, 1, 2, 1, 1),
-//'   stageframe = lathframe, historical = TRUE)
-//' 
-//' ehrlen3 <- rlefko3(data = lathvert, stageframe = lathframe,
-//'   year = c(1989, 1990), stages = c("stage3", "stage2", "stage1"),
-//'   supplement = lathsupp3, yearcol = "year2", indivcol = "individ")
-//' 
-//' slambda3(ehrlen3)
-//' 
-//' # Cypripedium example
 //' data(cypdata)
 //'  
 //' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
@@ -12475,7 +17430,6 @@ Rcpp::List projection3(List mpm, int nreps = 1, int times = 10000,
 //'   patchcol = "patchid", indivcol = "individ")
 //' 
 //' cypstoch <- slambda3(cypmatrix3r, dense_only = TRUE)
-//' cypstoch
 //' 
 //' @export slambda3
 // [[Rcpp::export]]
@@ -12522,7 +17476,7 @@ DataFrame slambda3(List mpm, int times = 10000, bool historical = false,
     
     StringVector poporder = as<StringVector>(labels["pop"]);
     StringVector patchorder = as<StringVector>(labels["patch"]);
-    IntegerVector yearorder = as<IntegerVector>(labels["year2"]);
+    StringVector yearorder = as<StringVector>(labels["year2"]);
     int loysize = poporder.length();
     StringVector poppatch = clone(poporder);
     
@@ -12532,7 +17486,7 @@ DataFrame slambda3(List mpm, int times = 10000, bool historical = false,
     }
     StringVector uniquepops = sort_unique(poporder);
     StringVector uniquepoppatches = sort_unique(poppatch);
-    IntegerVector uniqueyears = sort_unique(yearorder);
+    StringVector uniqueyears = sort_unique(yearorder);
     IntegerVector popc = match(poporder, uniquepops) - 1;
     IntegerVector poppatchc = match(poppatch, uniquepoppatches) - 1;
     IntegerVector year2c = match(yearorder, uniqueyears) - 1;
@@ -12840,7 +17794,7 @@ DataFrame slambda3(List mpm, int times = 10000, bool historical = false,
 //' @keywords internal
 //' @noRd
 // [[Rcpp::export(.stoch_senselas)]]
-Rcpp::List stoch_senselas(List mpm, int times = 10000, bool historical = false,
+Rcpp::List stoch_senselas(List& mpm, int times = 10000, bool historical = false,
   int style = 1, Nullable<NumericVector> tweights = R_NilValue) {
   int theclairvoyant = times;
   if (theclairvoyant < 1) {
@@ -12884,7 +17838,7 @@ Rcpp::List stoch_senselas(List mpm, int times = 10000, bool historical = false,
     
     StringVector poporder = as<StringVector>(labels["pop"]);
     StringVector patchorder = as<StringVector>(labels["patch"]);
-    IntegerVector yearorder = as<IntegerVector>(labels["year2"]);
+    StringVector yearorder = as<StringVector>(labels["year2"]);
     int loysize = poporder.length();
     StringVector poppatch = clone(poporder);
     for (int i = 0; i < loysize; i++) {
@@ -12894,8 +17848,7 @@ Rcpp::List stoch_senselas(List mpm, int times = 10000, bool historical = false,
     
     StringVector uniquepops = sort_unique(poporder);
     StringVector uniquepoppatches = sort_unique(poppatch);
-    IntegerVector uniqueyears = sort_unique(yearorder);
-    arma::uvec uniqueyears_arma = as<arma::uvec>(uniqueyears);
+    StringVector uniqueyears = sort_unique(yearorder);
     
     IntegerVector popc = match(poporder, uniquepops) - 1;
     IntegerVector poppatchc = match(poppatch, uniquepoppatches) - 1;
@@ -12915,7 +17868,7 @@ Rcpp::List stoch_senselas(List mpm, int times = 10000, bool historical = false,
     }
     
     arma::vec twinput_corr = twinput / sum(twinput);
-    arma::uvec theprophecy_allyears = Rcpp::RcppArmadillo::sample(uniqueyears_arma,
+    StringVector theprophecy_allyears = Rcpp::RcppArmadillo::sample(uniqueyears,
       theclairvoyant, true, twinput_corr);
     arma::uvec armapopc = as<arma::uvec>(popc);
     arma::uvec armapoppatchc = as<arma::uvec>(poppatchc);
@@ -12980,25 +17933,26 @@ Rcpp::List stoch_senselas(List mpm, int times = 10000, bool historical = false,
     arma::uvec ppcindex = as<arma::uvec>(poppatchc);
     arma::uvec allppcs = as<arma::uvec>(sort_unique(poppatchc));
     int allppcsnem = allppcs.n_elem;
-    arma::uvec year2arma = as<arma::uvec>(yearorder);
     
     // These matrices and vectors will hold R values
     arma::mat Rvecmat(trials, theclairvoyant);
     Rvecmat.zeros();
     
     for (int i= 0; i < allppcsnem; i++) { // This loop goes through each pop-patch
-      arma::uvec theprophecy = theprophecy_allyears;
+      arma::uvec theprophecy (theprophecy_allyears.length());
       theprophecy.zeros();
       
       arma::uvec tnotb_patch = find(ppcindex == allppcs(i));
       
       for (int j = 0; j < yl; j++) { // Creates main index marking matrices to use
         // Needs to be modified for situations in which patches do not have the same years
-        arma::uvec tnotb_years = find(year2arma == uniqueyears(j));
+        IntegerVector tnotb_years_IV = match(as<StringVector>(uniqueyears(j)), yearorder) - 1;
+        arma::uvec tnotb_years = as<arma::uvec>(wrap(tnotb_years_IV));
         arma::uvec thenumbersofthebeast = intersect(tnotb_patch, tnotb_years);
         
         if (thenumbersofthebeast.n_elem > 0) {
-          arma::uvec prophetic_yearindices = find(theprophecy_allyears == uniqueyears(j));
+          IntegerVector prophetic_yearindices_IV = match(as<StringVector>(uniqueyears(j)), theprophecy_allyears) - 1;
+          arma::uvec prophetic_yearindices = as<arma::uvec>(wrap(prophetic_yearindices_IV));
           
           if (prophetic_yearindices.n_elem > 0) {
             int replacement = thenumbersofthebeast(0);
@@ -13032,8 +17986,8 @@ Rcpp::List stoch_senselas(List mpm, int times = 10000, bool historical = false,
       
       // All references should go to senscube, a 3d array to hold sensitivity matrices
       for (int j = 0; j < theclairvoyant; j++) {
-        // Main loop for sensitivity matrices, adding each occasion to the
-        // respective matrix for each pop-patch
+        // Main loop for sensitivity matrices
+        // Adds each occasion to the respective matrix for each pop-patch
         if (j % 50 == 0) Rcpp::checkUserInterrupt();
         
         arma::vec vtplus1 = vprojection.col(j+1);
@@ -13096,11 +18050,12 @@ Rcpp::List stoch_senselas(List mpm, int times = 10000, bool historical = false,
     List meanmatyearlist(yl);
     
     IntegerVector tnotb_all = seq(0, (yl - 1));
-    arma::uvec theprophecy = theprophecy_allyears;
+    arma::uvec theprophecy (theprophecy_allyears.length());
     theprophecy.zeros();
     
     for (int j = 0; j < yl; j++) { // Creates main index marking matrices to use
-      arma::uvec prophetic_yearindices = find(theprophecy_allyears == uniqueyears(j));
+      IntegerVector prophetic_yearindices_IV = match(as<StringVector>(uniqueyears(j)), theprophecy_allyears) - 1;
+      arma::uvec prophetic_yearindices = as<arma::uvec>(wrap(prophetic_yearindices_IV));
       if (prophetic_yearindices.n_elem > 0) {
         theprophecy.elem(prophetic_yearindices).fill(j);
       }
@@ -13357,7 +18312,7 @@ Rcpp::List stoch_senselas(List mpm, int times = 10000, bool historical = false,
 //' \item{repstatus2}{Reproductive status in occasion \emph{t}.}
 //' \item{entrystatus2}{Entry status in occasion \emph{t}.}
 //' \item{size1}{Size in occasion \emph{t}-1.}
-//' \item{repstatus1}{Reproductive status in occasion \emph{t}11.}
+//' \item{repstatus1}{Reproductive status in occasion \emph{t}-1.}
 //' \item{entrystatus1}{Entry status in occasion \emph{t}-1.}
 //'
 //' The kind of transitions conforms to the following code: \code{10}: full

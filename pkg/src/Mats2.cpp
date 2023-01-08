@@ -5,6 +5,7 @@
 using namespace Rcpp;
 using namespace arma;
 using namespace LefkoUtils;
+using namespace LefkoMats;
 
 //' Create Element Index for Matrix Estimation
 //' 
@@ -25,7 +26,7 @@ using namespace LefkoUtils;
 //' \item{hstages}{A new historical stage-pair index for the new historical
 //' matrices.}
 //' \item{allstages}{A large data frame describing every element to be estimated
-//' in the new historical matrices}.
+//' in the new historical matrices.}
 //' 
 //' @keywords internal
 //' @noRd
@@ -716,11 +717,11 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
 //' 
 //' @param mpm The original ahMPM, supplied as a \code{lefkoMat} object.
 //' @param allstages The index dataframe named \code{allstages}, in the third
-//' element of output developed by \code{\link{.simplepizzle}()}.
+//' element of output developed by \code{simplepizzle()}.
 //' @param hstages The index dataframe named \code{hstages}, in the second
-//' element of output developed by \code{\link{.simplepizzle}()}.
+//' element of output developed by \code{simplepizzle()}.
 //' @param stageframe The ahistorical stageframe supplied by
-//' \code{\link{.simplepizzle}()}.
+//' \code{simplepizzle()}.
 //' @param format Integer indicating whether historical matrices should be in
 //' (1) Ehrlen or (2) deVries format.
 //' 
@@ -1004,3 +1005,368 @@ Rcpp::List hist_null (RObject mpm, int format = 1, bool err_check = false) {
   
   return final_output;
 }
+
+//' Estimate Mean Projection Matrices
+//' 
+//' Function \code{lmean()} estimates mean projection matrices as element-wise
+//' arithmetic means. It produces \code{lefkoMat} objects if provided with them,
+//' or single matrices in a simple one-element list if provided a list of
+//' matrices.
+//' 
+//' @name lmean
+//' 
+//' @param mats A \code{lefkoMat} object, or a list of square matrices of equal
+//' dimension.
+//' @param matsout A string identifying which means to estimate. Option
+//' \code{"pop"} indicates population-level only, \code{"patch"} indicates
+//' patch-level only, and \code{"all"} indicates that both patch- and
+//' population-level means should be estimated. Defaults to \code{"all"}.
+//' 
+//' @return Yields a \code{lefkoMat} object with the following characteristics:
+//' 
+//' \item{A}{A list of full mean projection matrices in order of sorted
+//' populations, patches, and years. These are typically estimated as the sums of
+//' the associated mean \code{U} and \code{F} matrices. All matrices output in
+//' the \code{matrix} class.}
+//' \item{U}{A list of mean survival-transition matrices sorted as in \code{A}.
+//' All matrices output in the \code{matrix} class.}
+//' \item{F}{A list of mean fecundity matrices sorted as in \code{A}. All
+//' matrices output in the \code{matrix} class.}
+//' \item{hstages}{A data frame showing the pairing of ahistorical stages used to
+//' create historical stage pairs. Given if the MPM is historical.}
+//' \item{ahstages}{A data frame detailing the characteristics of associated
+//' ahistorical stages.}
+//' \item{labels}{A data frame detailing the order of population, patch, and year 
+//' of each mean matrix. If \code{pop}, \code{patch}, or \code{year2} are NA in
+//' the original \code{labels} set, then these will be re-labeled as \code{A},
+//' \code{1}, or \code{1}, respectively.}
+//' \item{matrixqc}{A short vector describing the number of non-zero elements in
+//' \code{U} and \code{F} mean matrices, and the number of annual matrices.}
+//' \item{modelqc}{This is the \code{qc} portion of the \code{modelsuite} input.
+//' Only output from \code{lefkoMat} objects resulting from function-based
+//' estimation.}
+//' \item{dataqc}{A vector showing the numbers of individuals and rows in the
+//' vertical dataset used as input. Only output from \code{lefkoMat} objects
+//' resulting from raw matrix estimation.}
+//' 
+//' @examples
+//' data(cypdata)
+//' 
+//' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
+//' stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
+//'   "XLg")
+//' repvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
+//' obsvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
+//' matvector <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
+//' immvector <- c(0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
+//' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+//' indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
+//' binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 2.5, 7)
+//' 
+//' cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector,
+//'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
+//'   propstatus = propvector, immstatus = immvector, indataset = indataset,
+//'   binhalfwidth = binvec)
+//' 
+//' cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
+//'   patchidcol = "patch", individcol = "plantid", blocksize = 4,
+//'   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04",
+//'   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
+//'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
+//'   NRasRep = TRUE)
+//' 
+//' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
+//'     "XSm", "Sm", "SD", "P1"),
+//'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
+//'     "rep"),
+//'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+//'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+//'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+//'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+//'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+//'   stageframe = cypframe_raw, historical = FALSE)
+//' 
+//' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
+//'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
+//'   size = c("size3added", "size2added"), supplement = cypsupp2r,
+//'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
+//' 
+//' cyp2mean <- lmean(cypmatrix2r)
+//' cyp2mean
+//' 
+//' @export
+// [[Rcpp::export(lmean)]]
+Rcpp::List lmean(RObject mats, Nullable<String> matsout = R_NilValue) {
+  
+  StringVector mats_class;
+  StringVector mats_elements;
+  String matsout_;
+  
+  List u_mats;
+  List f_mats;
+  List a_mats;
+  
+  DataFrame listofyears;
+  DataFrame ahstages;
+  DataFrame agestages;
+  DataFrame hstages;
+  DataFrame modelqc;
+  IntegerVector dataqc;
+  
+  bool historical {false};
+  bool poponly {false};
+  bool patchonly {false};
+  bool dataqc_found {false};
+  bool modelqc_found {false};
+  
+  List gd_output;
+  
+  if (matsout.isNotNull()) {
+    String matsout__(matsout);
+    matsout_ = matsout__;
+    StringVector matsout_choices = {"pop", "patch", "all"};
+    int found_one {0};
+    for (int i = 0; i < 3; i++) {
+      if (stringcompare_simple(matsout_, String(matsout_choices(i)))) found_one++;
+    }
+    if (found_one == 0 && matsout_ == "") {
+      matsout_ = "all";
+    } else if (found_one != 1) { 
+      throw Rcpp::exception("Argument matsout must equal 'all', 'pop', or 'patch'.", false);
+    }
+  } else {
+    matsout_ = "all";
+  }
+  
+  if (stringcompare_simple(matsout_, "all")) { 
+    poponly = true;
+    patchonly = true;
+    
+  } else if (stringcompare_simple(matsout_, "pat")) {
+    patchonly = true;
+    
+  } else if (stringcompare_simple(matsout_, "pop")) { 
+    poponly = true;
+    
+  }
+  
+  if (is<NumericMatrix>(mats)) {
+    throw Rcpp::exception("Matrix averaging cannot be performed on a single matrix.", false);
+    
+  } else if (is<List>(mats)) {
+    List mats_ = as<List>(mats);
+    if (mats_.hasAttribute("class")) mats_class = as<StringVector>(mats_.attr("class"));
+    if (mats_.hasAttribute("names")) mats_elements = as<StringVector>(mats_.attr("names"));
+    
+    int mats_class_length = mats_class.length();
+    bool found_it {false};
+    for (int i = 0; i < mats_class_length; i++) {
+      if (stringcompare_hard(String(mats_class(i)), "lefkoMat")) found_it = true;
+    }
+    
+    if (found_it) {
+      // lefkoMat input
+      StringVector lefkoMat_required = {"A", "U", "F", "ahstages", "labels"};
+      int found_element {0};
+      
+      for (int i = 0; i < lefkoMat_required.length(); i++) {
+        for (int j = 0; j < mats_elements.length(); j++) {
+          if (stringcompare_hard(String(lefkoMat_required(i)), String(mats_elements(j)))) found_element++;
+        }
+      }
+      if (found_element < 5) throw Rcpp::exception("Argument mats does not appear to be a lefkoMat object.", false);
+      
+      u_mats = as<List>(mats_["U"]);
+      f_mats = as<List>(mats_["F"]);
+      ahstages = as<DataFrame>(mats_["ahstages"]);
+      agestages = as<DataFrame>(mats_["agestages"]);
+      hstages = as<DataFrame>(mats_["hstages"]);
+      
+      DataFrame listofyears_ = as<DataFrame>(mats_["labels"]);
+      
+      CharacterVector hstages_names = hstages.names();
+      
+      if (hstages_names.length() > 1) historical = true;
+      
+      for (int i = 0; i < mats_elements.length(); i++) {
+        if (stringcompare_hard(String(mats_elements(i)), "dataqc")) {
+          dataqc = as<IntegerVector>(mats_["dataqc"]);
+          dataqc_found = true;
+        }
+        
+        if (stringcompare_hard(String(mats_elements(i)), "modelqc")) {
+          modelqc = as<DataFrame>(mats_["modelqc"]);
+          modelqc_found = true;
+        }
+      }
+      
+      // Quality control for listofyears
+      StringVector loy_names_ = listofyears_.attr("names");
+      int loy_rows = listofyears_.nrow();
+      int loy_vars = loy_names_.length();
+      
+      bool pop_found {false};
+      bool patch_found {false};
+      bool year2_found {false};
+      
+      for (int i = 0; i < loy_vars; i++) {
+        if (stringcompare_hard(String(loy_names_(i)), "pop")) pop_found = true;
+        if (stringcompare_hard(String(loy_names_(i)), "patch")) patch_found = true;
+        if (stringcompare_hard(String(loy_names_(i)), "year2")) year2_found = true;
+      }
+      int loy_var_check = static_cast<int>(pop_found) + static_cast<int>(patch_found) + static_cast<int>(year2_found);
+      
+      StringVector new_loy_pop (loy_rows);
+      StringVector new_loy_patch (loy_rows);
+      StringVector new_loy_year2 (loy_rows);
+      
+      if (loy_vars < 3 && loy_var_check < 3) {
+        if (!pop_found) {
+          for (int i = 0; i < loy_rows; i++) {
+            new_loy_pop(i) = "1";
+          }
+        } else new_loy_pop = as<StringVector>(listofyears_["pop"]);
+        
+        if (!patch_found) {
+          for (int i = 0; i < loy_rows; i++) {
+            new_loy_patch(i) = "1";
+          }
+        } else new_loy_patch = as<StringVector>(listofyears_["patch"]);
+        
+        if (!year2_found) {
+          for (int i = 0; i < loy_rows; i++) {
+            new_loy_year2(i) = "1";
+          }
+        } else new_loy_year2 = as<StringVector>(listofyears_["year2"]);
+        
+      } else {
+        new_loy_pop = as<StringVector>(listofyears_["pop"]);
+        new_loy_patch = as<StringVector>(listofyears_["patch"]);
+        new_loy_year2 = as<StringVector>(listofyears_["year2"]);
+      }
+      
+      StringVector poppatch (loy_rows);
+      for (int i = 0; i < loy_rows; i++) {
+        poppatch(i) = new_loy_pop(i);
+        poppatch(i) += " ";
+        poppatch(i) += new_loy_patch(i);
+      }
+      
+      StringVector unique_pop = sort_unique(new_loy_pop);
+      StringVector unique_poppatch = sort_unique(poppatch);
+      StringVector unique_year2 = sort_unique(new_loy_year2);
+      
+      IntegerVector popc (loy_rows);
+      IntegerVector poppatchc (loy_rows);
+      IntegerVector year2c (loy_rows);
+      
+      for (int i = 0; i < loy_rows;  i++) {
+        for (int j = 0; j < unique_pop.length(); j++) {
+          if (stringcompare_hard(String(new_loy_pop(i)), String(unique_pop(j)))) popc(i) = j;
+        }
+        
+        for (int j = 0; j < unique_poppatch.length(); j++) {
+          if (stringcompare_hard(String(poppatch(i)), String(unique_poppatch(j)))) poppatchc(i) = j;
+        }
+        
+        for (int j = 0; j < unique_year2.length(); j++) {
+          if (stringcompare_hard(String(new_loy_year2(i)), String(unique_year2(j)))) year2c(i) = j;
+        }
+      }
+      
+      IntegerVector patchesinpop (loy_rows);
+      IntegerVector yearsinpatch (loy_rows);
+      {
+        arma::ivec popc_ivec = as<arma::ivec>(popc);
+        arma::ivec poppatchc_ivec = as<arma::ivec>(poppatchc);
+        arma::ivec year2c_ivec = as<arma::ivec>(year2c);
+        
+        for (int i = 0; i < loy_rows; i++) {
+          arma::uvec popc_found = find(popc_ivec == popc_ivec(i));
+          arma::ivec poppatchc_only = poppatchc_ivec.elem(popc_found);
+          arma::ivec poppatchc_only_unique = unique(poppatchc_only);
+          
+          patchesinpop(i) = poppatchc_only_unique.n_elem;
+          
+          arma::uvec poppatchc_found = find(poppatchc_ivec == poppatchc_ivec(i));
+          arma::ivec year2c_only = year2c_ivec.elem(poppatchc_found);
+          arma::ivec year2c_only_unique = unique(year2c_only);
+          
+          yearsinpatch(i) = year2c_only_unique.n_elem;
+        }
+      }
+      
+      DataFrame new_loy = DataFrame::create(_["pop"] = new_loy_pop,
+        _["patch"] = new_loy_patch, _["year2"] = new_loy_year2,
+        _["poppatch"] = poppatch, _["popc"] = popc,
+        _["poppatchc"] = poppatchc, _["year2c"] = year2c,
+        _["patchesinpop"] = patchesinpop, _["yearsinpatch"] = yearsinpatch);
+      listofyears = new_loy;
+    
+      // Matrix averaging
+      if (historical) {
+        gd_output = turbogeodiesel(listofyears, u_mats, f_mats, hstages, 
+          agestages, ahstages, patchonly, poponly);
+        
+      } else {
+        gd_output = geodiesel(listofyears, u_mats, f_mats, agestages, ahstages,
+          patchonly, poponly);
+      }
+    
+      gd_output["ahstages"] = ahstages;
+      gd_output["hstages"] = hstages;
+      gd_output["agestages"] = agestages;
+      if (dataqc_found) gd_output["dataqc"] = dataqc;
+      if (modelqc_found) gd_output["modelqc"] = modelqc;
+      
+      StringVector gd_class = {"lefkoMat"};
+      gd_output.attr("class") = gd_class;
+      
+    } else {
+      // List of NumericMatrix input
+      int mats_length = mats_.length();
+      
+      arma::mat core_mat;
+      int mat_rows {0};
+      int mat_cols {0};
+      
+      for (int i = 0; i < mats_length; i++) {
+        RObject test_bit = as<RObject>(mats_[i]);
+        
+        if (!is<NumericMatrix>(test_bit)) {
+          throw Rcpp::exception("Argument mats must be either a lefkoMat object or a list of numeric matrices.", false);
+        }
+        
+        if (i == 0) {
+          cout << "i" << endl;
+          core_mat = as<arma::mat>(mats_[0]);
+          mat_rows = core_mat.n_rows;
+          mat_cols = core_mat.n_cols;
+          
+          if (mat_rows != mat_cols) {
+            throw Rcpp::exception("Input matrices must be square.", false);
+          }
+          
+          core_mat = core_mat / mats_length;
+        } else {
+          arma::mat next_mat = as<arma::mat>(mats_[i]);
+          
+          int next_rows = next_mat.n_rows;
+          int next_cols = next_mat.n_cols;
+          
+          if (next_rows != mat_rows || next_cols != mat_cols) {
+            throw Rcpp::exception("All input matrices must have the same dimensions.", false);
+          }
+          
+          core_mat = core_mat + (next_mat / mats_length);
+        }
+        
+        List A = List::create(_["A"] = core_mat);
+        gd_output = A;
+      }
+    }
+  }
+  
+  return gd_output;
+}
+
