@@ -5870,7 +5870,7 @@ List raymccooney(const DataFrame& listofyears, const List& modelsuite,
     0.0, 0.0, 0.0, 0.0};
   
   for (int i = 0; i < loy_length; i++) {
-    Rcpp::checkUserInterrupt;
+    Rcpp::checkUserInterrupt();
     
     yearnumber = years(i);
     patchnumber = patches(i);
