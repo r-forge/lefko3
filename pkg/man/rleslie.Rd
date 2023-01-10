@@ -193,6 +193,8 @@ cyp_rl <- rleslie(data = cypraw_v1, start_age = 0, last_age = 4, continue = TRUE
 
 }
 \seealso{
+\code{\link{mpm_create}()}
+
 \code{\link{flefko3}()}
 
 \code{\link{flefko2}()}

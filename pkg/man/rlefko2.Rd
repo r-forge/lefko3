@@ -318,6 +318,8 @@ cypmatrix2r$A[[1]]
 
 }
 \seealso{
+\code{\link{mpm_create}()}
+
 \code{\link{flefko3}()}
 
 \code{\link{flefko2}()}

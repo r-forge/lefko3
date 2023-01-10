@@ -7926,6 +7926,141 @@ namespace LefkoUtils {
     return output;
   }
   
+  //' Converts Labels Element to LOY Data Frame
+  //' 
+  //' Function \code{loy_inator()} takes a \code{labels} element from a
+  //' \code{lefkoMat} object as input, and produces an expanded version called
+  //' a 'loy table', which is a data frame with multiple types of vector
+  //' corresponding to the original input, and is used in indexing in various
+  //' functions in \code{lefko3}.
+  //' 
+  //' @name loy_inator
+  //' 
+  //' @param labels A data frame with any two or all three of the \code{pop},
+  //' \code{patch}, and \code{year2} string vectors used in \code{lefkoMat}
+  //' objects.
+  //' @param year2_trigger A logical value indicating whether to throw a warning
+  //' if no \code{year2} vector exists within \code{labels}.
+  //' 
+  //' @return An expanded data frame including seven vectors.
+  //' \item{pop}{The \code{pop} string vector in the input \code{labels} data
+  //' frame. Denotes population identity.}
+  //' \item{patch}{The \code{patch} string vector in the input \code{labels}
+  //' data frame. Denotes patch identity.}
+  //' \item{year2}{The \code{patch} string vector in the input \code{labels}
+  //' data frame. Denotes the time in time \emph{t}.}
+  //' \item{poppatch}{A string vector concatenating the identity of the
+  //' associated \code{pop} and \code{patch} elements. Denotes the unique
+  //' patch (technically pop-patch) identity.}
+  //' \item{popc}{An integer vector denoting the population identity.}
+  //' \item{poppatchc}{An integer vector denoting the unique patch (technically
+  //' pop-patch) identity.}
+  //' \item{year2c}{An integer vector denoting the unique identity of the time
+  //' in time \emph{t}.}
+  //' \item{patchesinpop}{}
+  //' \item{yearsinpatch}{}
+  //' 
+  //' @keywords internal
+  //' @noRd
+  inline Rcpp::DataFrame loy_inator (DataFrame labels, bool year2_trigger) {
+    
+    StringVector poporder;
+    StringVector patchorder;
+    StringVector yearorder;
+    
+    if (!labels.hasAttribute("names")) {
+      throw Rcpp::exception("This lefkoMat object lacks variable names in its labels element. Processing cannot proceed.", false);
+    }
+    
+    StringVector labels_vars = as<StringVector>(labels.attr("names"));
+    int labels_novars = labels_vars.length();
+    int loysize = labels.nrows();
+    
+    int found_vars {0};
+    bool found_pop {false};
+    bool found_patch {false};
+    bool found_year2 {false};
+    
+    for (int i = 0; i < labels_novars; i++) {
+      if (stringcompare_hard(as<std::string>(labels_vars(i)), "pop")) {
+        poporder = as<StringVector>(labels["pop"]);
+        found_pop = true;
+        found_vars++;
+      }
+      if (stringcompare_hard(as<std::string>(labels_vars(i)), "patch")) {
+        patchorder = as<StringVector>(labels["patch"]);
+        found_patch = true;
+        found_vars++;
+      }
+      if (stringcompare_hard(as<std::string>(labels_vars(i)), "year2")) {
+        yearorder = as<StringVector>(labels["year2"]);
+        found_year2 = true;
+        found_vars++;
+      }
+    }
+    
+    if (year2_trigger && !found_year2) {
+      Rf_warningcall(R_NilValue, "This lefkoMat object lacks annual matrices.\n");
+    }
+    if (found_vars < 2) {
+      throw Rcpp::exception("Unusual labels element missing pop, patch, and/or year2 vectors.", false);
+    }
+    
+    if (!found_pop) {
+      poporder = rep("1", loysize);
+    }
+    if (!found_patch) {
+      patchorder = rep("1", loysize);
+    }
+    if (!found_year2) {
+      yearorder = rep("1", loysize);
+    }
+    
+    StringVector poppatch = clone(poporder);
+    for (int i = 0; i < loysize; i++) {
+      poppatch(i) += " ";
+      poppatch(i) += patchorder(i);
+    }
+    
+    StringVector uniquepops = sort_unique(poporder);
+    StringVector uniquepoppatches = sort_unique(poppatch);
+    StringVector uniqueyears = sort_unique(yearorder);
+    IntegerVector popc = match(poporder, uniquepops) - 1;
+    IntegerVector poppatchc = match(poppatch, uniquepoppatches) - 1;
+    IntegerVector year2c = match(yearorder, uniqueyears) - 1;
+    
+    arma::uvec armapopc = as<arma::uvec>(popc);
+    arma::uvec armapoppatchc = as<arma::uvec>(poppatchc);
+    arma::uvec armayear2c = as<arma::uvec>(year2c);
+    
+    arma::uvec patchesinpop(loysize);
+    arma::uvec yearsinpatch(loysize);
+    patchesinpop.zeros();
+    yearsinpatch.zeros();
+    
+    for (int i = 0; i < loysize; i++) {
+      arma::uvec animalhouse = find(armapopc == armapopc(i));
+      arma::uvec christmasvacation = armapoppatchc.elem(animalhouse);
+      arma::uvec summervacation = unique(christmasvacation);
+      int togaparty = summervacation.n_elem;
+      patchesinpop(i) = togaparty;
+      
+      arma::uvec ninebelowzero = find(armapoppatchc == armapoppatchc(i));
+      arma::uvec thedamned = armayear2c.elem(ninebelowzero);
+      arma::uvec motorhead = unique(thedamned);
+      int dexysmidnightrunners = motorhead.n_elem;
+      
+      yearsinpatch(i) = dexysmidnightrunners;
+    }
+    
+    DataFrame listofyears = DataFrame::create(Named("pop") = poporder,
+      _["patch"] = patchorder, _["year2"] = yearorder, _["poppatch"] = poppatch,
+      _["popc"] = popc, _["poppatchc"] = poppatchc, _["year2c"] = year2c, 
+      _["patchesinpop"] = patchesinpop, _["yearsinpatch"] = yearsinpatch);
+    
+    return listofyears;
+  }
+  
 }
 
 #endif

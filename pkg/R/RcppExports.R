@@ -1649,41 +1649,6 @@ NULL
 #' @noRd
 NULL
 
-#' Core Time-based Population Matrix Projection Function
-#' 
-#' Function \code{proj3()} runs the matrix projections used in other functions
-#' in package \code{lefko3}.
-#' 
-#' @name proj3
-#' 
-#' @param start_vec The starting population vector for the projection.
-#' @param core_list A list of full projection matrices, corresponding to the 
-#' \code{$A} list within a \code{lefkoMat} object.
-#' @param mat_order A vector giving the order of matrices to use at each occasion.
-#' @param standardize A logical value stating whether to standardize population
-#' size vector to sum to 1 at each estimated occasion.
-#' @param growthonly A logical value stating whether to output only a matrix
-#' showing the change in population size from one year to the next for use in
-#' stochastic population growth rate estimation (TRUE), or a larger matrix also
-#' containing the w and v projections for stochastic perturbation analysis,
-#' stage distribution estimation, and reproductive value estimation.
-#' @param integeronly A logical value indicating whether to round all projected
-#' numbers of individuals to the nearest integer.
-#' 
-#' @return A matrix in which, if \code{growthonly = TRUE}, each row is the
-#' population vector at each projected occasion, and if \code{growthonly =
-#' FALSE}, the top third of the matrix is the actual number of individuals in
-#' each stage across time, the second third is the w projection (stage
-#' distribution), and the bottom third is the v projection (reproductive
-#' values) for use in estimation of stochastic sensitivities and elasticities
-#' (in addition, a further row is appended to the bottom, corresponding to the
-#' \emph{R} vector, which is the sum of the unstandardized \emph{w} vector
-#' resulting from each occasion's projection).
-#' 
-#' @keywords internal
-#' @noRd
-NULL
-
 #' Slimmed-down Time-based Population Sparse Matrix Projection Function
 #' 
 #' Function \code{proj3sp()} runs the matrix projections used in some other
@@ -1810,9 +1775,8 @@ NULL
 #' models. Unlike \code{\link{projection3}()}, which uses matrices provided as
 #' input via already created \code{lefkoMat} objects, function
 #' \code{f_projection3()} creates matrices at each time step from vital rate
-#' models and parameter inputs provided. Projections may be deterministic or
-#' stochastic, and may be density dependent in either case. Replicates may also
-#' be produced.
+#' models and parameter inputs provided. Projections may be stochastic or not,
+#' and may be density dependent in either case. Also handles replication.
 #' 
 #' @name f_projection3
 #' 
@@ -2147,7 +2111,6 @@ NULL
 #' 
 #' @examples
 #' \donttest{
-#' # Lathyrus projection example with historical matrices
 #' data(lathyrus)
 #' 
 #' sizevector <- c(0, 4.6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8,
@@ -2211,16 +2174,9 @@ NULL
 #'   stage2 = c("rep", "rep"), stage1 = c("all", "all"), style = 1,
 #'   time_delay = 1, alpha = 1, beta = 0, type = c(2, 2), type_t12 = c(1, 1))
 #' 
-#' trial7 <- f_projection3(format = 1, data = lathvertln,
-#'   modelsuite = lathmodelsln3, stageframe = lathframeln, nreps = 2,
-#'   times = 1000, stochastic = TRUE, standardize = FALSE, growthonly = TRUE,
-#'   integeronly = FALSE, substoch = 0)
-#' summary(trial7)
-#' 
-#' # Now with density dependence and a set start vector
 #' trial7a <- f_projection3(format = 1, data = lathvertln,
 #'   modelsuite = lathmodelsln3, stageframe = lathframeln, nreps = 2,
-#'   times = 1000, stochastic = TRUE, standardize = FALSE, growthonly = TRUE,
+#'   times = 100, stochastic = TRUE, standardize = FALSE, growthonly = TRUE,
 #'   integeronly = FALSE, substoch = 0, sp_density = 0, start_frame = e3m_sv,
 #'   density = e3d)
 #' summary(trial7a)
@@ -2787,6 +2743,43 @@ mpm_create <- function(historical = FALSE, stage = TRUE, age = FALSE, devries = 
 #' @noRd
 .elas3hlefko <- function(Amat, ahstages, hstages) {
     .Call('_lefko3_elas3hlefko', PACKAGE = 'lefko3', Amat, ahstages, hstages)
+}
+
+#' Core Time-based Population Matrix Projection Function
+#' 
+#' Function \code{proj3()} runs the matrix projections used in other functions
+#' in package \code{lefko3}.
+#' 
+#' @name proj3
+#' 
+#' @param start_vec The starting population vector for the projection.
+#' @param core_list A list of full projection matrices, corresponding to the 
+#' \code{$A} list within a \code{lefkoMat} object.
+#' @param mat_order A vector giving the order of matrices to use at each occasion.
+#' @param standardize A logical value stating whether to standardize population
+#' size vector to sum to 1 at each estimated occasion.
+#' @param growthonly A logical value stating whether to output only a matrix
+#' showing the change in population size from one year to the next for use in
+#' stochastic population growth rate estimation (TRUE), or a larger matrix also
+#' containing the w and v projections for stochastic perturbation analysis,
+#' stage distribution estimation, and reproductive value estimation.
+#' @param integeronly A logical value indicating whether to round all projected
+#' numbers of individuals to the nearest integer.
+#' 
+#' @return A matrix in which, if \code{growthonly = TRUE}, each row is the
+#' population vector at each projected occasion, and if \code{growthonly =
+#' FALSE}, the top third of the matrix is the actual number of individuals in
+#' each stage across time, the second third is the w projection (stage
+#' distribution), and the bottom third is the v projection (reproductive
+#' values) for use in estimation of stochastic sensitivities and elasticities
+#' (in addition, a further row is appended to the bottom, corresponding to the
+#' \emph{R} vector, which is the sum of the unstandardized \emph{w} vector
+#' resulting from each occasion's projection).
+#' 
+#' @keywords internal
+#' @noRd
+.proj3 <- function(start_vec, core_list, mat_order, standardize, growthonly, integeronly) {
+    .Call('_lefko3_proj3', PACKAGE = 'lefko3', start_vec, core_list, mat_order, standardize, growthonly, integeronly)
 }
 
 #' Conduct Population Projection Simulations

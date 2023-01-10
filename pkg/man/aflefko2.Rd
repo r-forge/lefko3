@@ -524,6 +524,8 @@ summary(lathmat2age)
 }
 }
 \seealso{
+\code{\link{mpm_create}()}
+
 \code{\link{flefko3}()}
 
 \code{\link{flefko2}()}

@@ -330,7 +330,8 @@
 #' is set to a \code{vrm_input} object. In that case, the user should also set
 #' the logical random switch for the individual covariate to be used to 
 #' \code{TRUE} (e.g., \code{random.inda = TRUE}).
-#'
+#' 
+#' @seealso \code{\link{mpm_create}()}
 #' @seealso \code{\link{flefko2}()}
 #' @seealso \code{\link{aflefko2}()}
 #' @seealso \code{\link{arlefko2}()}
@@ -877,6 +878,7 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' the logical random switch for the individual covariate to be used to 
 #' \code{TRUE} (e.g., \code{random.inda = TRUE}).
 #'
+#' @seealso \code{\link{mpm_create}()}
 #' @seealso \code{\link{flefko3}()}
 #' @seealso \code{\link{aflefko2}()}
 #' @seealso \code{\link{arlefko2}()}
@@ -1413,6 +1415,7 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' the logical random switch for the individual covariate to be used to 
 #' \code{TRUE} (e.g., \code{random.inda = TRUE}).
 #'
+#' @seealso \code{\link{mpm_create}()}
 #' @seealso \code{\link{flefko3}()}
 #' @seealso \code{\link{flefko2}()}
 #' @seealso \code{\link{fleslie}()}
@@ -1704,6 +1707,7 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' the logical random switch for the individual covariate to be used to 
 #' \code{TRUE} (e.g., \code{random.inda = TRUE}).
 #'
+#' @seealso \code{\link{mpm_create}()}
 #' @seealso \code{\link{flefko3}()}
 #' @seealso \code{\link{flefko2}()}
 #' @seealso \code{\link{aflefko2}()}
@@ -1954,6 +1958,7 @@ fleslie <- function(year = "all", patch = NULL, prebreeding = TRUE, data = NULL,
 #' \code{\link{historicalize3}()} in this regard. Users are strongly
 #' encouraged to use the latter two functions for stage assignment.
 #' 
+#' @seealso \code{\link{mpm_create}()}
 #' @seealso \code{\link{flefko3}()}
 #' @seealso \code{\link{flefko2}()}
 #' @seealso \code{\link{aflefko2}()}
@@ -2259,6 +2264,7 @@ rlefko3 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
 #' \code{\link{historicalize3}()} in this regard. Users are strongly
 #' encouraged to use the latter two functions for stage assignment.
 #' 
+#' @seealso \code{\link{mpm_create}()}
 #' @seealso \code{\link{flefko3}()}
 #' @seealso \code{\link{flefko2}()}
 #' @seealso \code{\link{aflefko2}()}
@@ -2562,6 +2568,7 @@ rlefko2 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
 #' \code{\link{historicalize3}()} in this regard. Users are strongly
 #' encouraged to use the latter two functions for stage assignment.
 #' 
+#' @seealso \code{\link{mpm_create}()}
 #' @seealso \code{\link{flefko3}()}
 #' @seealso \code{\link{flefko2}()}
 #' @seealso \code{\link{aflefko2}()}
@@ -2765,6 +2772,7 @@ arlefko2 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
 #' of variables in occasion \emph{t}+1 and \emph{t}. Rearranging the order WILL
 #' lead to erroneous calculations, and may lead to fatal errors.
 #' 
+#' @seealso \code{\link{mpm_create}()}
 #' @seealso \code{\link{flefko3}()}
 #' @seealso \code{\link{flefko2}()}
 #' @seealso \code{\link{aflefko2}()}

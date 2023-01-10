@@ -1182,8 +1182,6 @@ Rcpp::List lmean(RObject mats, Nullable<String> matsout = R_NilValue) {
       agestages = as<DataFrame>(mats_["agestages"]);
       hstages = as<DataFrame>(mats_["hstages"]);
       
-      DataFrame listofyears_ = as<DataFrame>(mats_["labels"]);
-      
       CharacterVector hstages_names = hstages.names();
       
       if (hstages_names.length() > 1) historical = true;
@@ -1201,108 +1199,9 @@ Rcpp::List lmean(RObject mats, Nullable<String> matsout = R_NilValue) {
       }
       
       // Quality control for listofyears
-      StringVector loy_names_ = listofyears_.attr("names");
-      int loy_rows = listofyears_.nrow();
-      int loy_vars = loy_names_.length();
+      DataFrame labels = as<DataFrame>(mats_["labels"]);
+      listofyears = loy_inator(labels, true);
       
-      bool pop_found {false};
-      bool patch_found {false};
-      bool year2_found {false};
-      
-      for (int i = 0; i < loy_vars; i++) {
-        if (stringcompare_hard(String(loy_names_(i)), "pop")) pop_found = true;
-        if (stringcompare_hard(String(loy_names_(i)), "patch")) patch_found = true;
-        if (stringcompare_hard(String(loy_names_(i)), "year2")) year2_found = true;
-      }
-      int loy_var_check = static_cast<int>(pop_found) + static_cast<int>(patch_found) + static_cast<int>(year2_found);
-      
-      StringVector new_loy_pop (loy_rows);
-      StringVector new_loy_patch (loy_rows);
-      StringVector new_loy_year2 (loy_rows);
-      
-      if (loy_vars < 3 && loy_var_check < 3) {
-        if (!pop_found) {
-          for (int i = 0; i < loy_rows; i++) {
-            new_loy_pop(i) = "1";
-          }
-        } else new_loy_pop = as<StringVector>(listofyears_["pop"]);
-        
-        if (!patch_found) {
-          for (int i = 0; i < loy_rows; i++) {
-            new_loy_patch(i) = "1";
-          }
-        } else new_loy_patch = as<StringVector>(listofyears_["patch"]);
-        
-        if (!year2_found) {
-          for (int i = 0; i < loy_rows; i++) {
-            new_loy_year2(i) = "1";
-          }
-        } else new_loy_year2 = as<StringVector>(listofyears_["year2"]);
-        
-      } else {
-        new_loy_pop = as<StringVector>(listofyears_["pop"]);
-        new_loy_patch = as<StringVector>(listofyears_["patch"]);
-        new_loy_year2 = as<StringVector>(listofyears_["year2"]);
-      }
-      
-      StringVector poppatch (loy_rows);
-      for (int i = 0; i < loy_rows; i++) {
-        poppatch(i) = new_loy_pop(i);
-        poppatch(i) += " ";
-        poppatch(i) += new_loy_patch(i);
-      }
-      
-      StringVector unique_pop = sort_unique(new_loy_pop);
-      StringVector unique_poppatch = sort_unique(poppatch);
-      StringVector unique_year2 = sort_unique(new_loy_year2);
-      
-      IntegerVector popc (loy_rows);
-      IntegerVector poppatchc (loy_rows);
-      IntegerVector year2c (loy_rows);
-      
-      for (int i = 0; i < loy_rows;  i++) {
-        for (int j = 0; j < unique_pop.length(); j++) {
-          if (stringcompare_hard(String(new_loy_pop(i)), String(unique_pop(j)))) popc(i) = j;
-        }
-        
-        for (int j = 0; j < unique_poppatch.length(); j++) {
-          if (stringcompare_hard(String(poppatch(i)), String(unique_poppatch(j)))) poppatchc(i) = j;
-        }
-        
-        for (int j = 0; j < unique_year2.length(); j++) {
-          if (stringcompare_hard(String(new_loy_year2(i)), String(unique_year2(j)))) year2c(i) = j;
-        }
-      }
-      
-      IntegerVector patchesinpop (loy_rows);
-      IntegerVector yearsinpatch (loy_rows);
-      {
-        arma::ivec popc_ivec = as<arma::ivec>(popc);
-        arma::ivec poppatchc_ivec = as<arma::ivec>(poppatchc);
-        arma::ivec year2c_ivec = as<arma::ivec>(year2c);
-        
-        for (int i = 0; i < loy_rows; i++) {
-          arma::uvec popc_found = find(popc_ivec == popc_ivec(i));
-          arma::ivec poppatchc_only = poppatchc_ivec.elem(popc_found);
-          arma::ivec poppatchc_only_unique = unique(poppatchc_only);
-          
-          patchesinpop(i) = poppatchc_only_unique.n_elem;
-          
-          arma::uvec poppatchc_found = find(poppatchc_ivec == poppatchc_ivec(i));
-          arma::ivec year2c_only = year2c_ivec.elem(poppatchc_found);
-          arma::ivec year2c_only_unique = unique(year2c_only);
-          
-          yearsinpatch(i) = year2c_only_unique.n_elem;
-        }
-      }
-      
-      DataFrame new_loy = DataFrame::create(_["pop"] = new_loy_pop,
-        _["patch"] = new_loy_patch, _["year2"] = new_loy_year2,
-        _["poppatch"] = poppatch, _["popc"] = popc,
-        _["poppatchc"] = poppatchc, _["year2c"] = year2c,
-        _["patchesinpop"] = patchesinpop, _["yearsinpatch"] = yearsinpatch);
-      listofyears = new_loy;
-    
       // Matrix averaging
       if (historical) {
         gd_output = turbogeodiesel(listofyears, u_mats, f_mats, hstages, 
@@ -1338,7 +1237,6 @@ Rcpp::List lmean(RObject mats, Nullable<String> matsout = R_NilValue) {
         }
         
         if (i == 0) {
-          cout << "i" << endl;
           core_mat = as<arma::mat>(mats_[0]);
           mat_rows = core_mat.n_rows;
           mat_cols = core_mat.n_cols;

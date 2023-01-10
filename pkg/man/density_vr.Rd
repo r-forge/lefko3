@@ -176,7 +176,7 @@ e3d_vr <- density_vr(density_yn = dyn7, style = dst7, alpha = dal7,
 
 trial7_dvr <- f_projection3(format = 1, data = lathvertln,
   modelsuite = lathmodelsln3, stageframe = lathframeln, nreps = 2,
-  times = 1000, stochastic = TRUE, standardize = FALSE, growthonly = TRUE,
+  times = 100, stochastic = TRUE, standardize = FALSE, growthonly = TRUE,
   integeronly = FALSE, substoch = 0, sp_density = 0, start_frame = e3m_sv,
   density_vr = e3d_vr)
 summary(trial7_dvr)

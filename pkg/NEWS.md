@@ -41,6 +41,7 @@
   2x more quickly.
 * Function modelsearch() now automatically subsets datasets down to complete
   cases of the variables used in the modeling to prevent failures.
+* User-interrupt now enabled in matrix creation functions.
 
 ## BUG FIXES
 

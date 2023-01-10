@@ -50,7 +50,7 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom SparseM as.matrix.csr image
 #' @importFrom stats getCall glm lm na.action na.fail na.omit rnorm sd setNames xtabs
-#' @importFrom stats as.formula median pchisq poisson var logLik
+#' @importFrom stats as.formula median pchisq poisson var logLik complete.cases
 #' @importFrom VGAM posnegbinomial pospoisson vglm predictvglm
 #' @useDynLib lefko3
 #' @name lefko3

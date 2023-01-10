@@ -1404,31 +1404,31 @@ Rcpp::List pfj(const DataFrame& data, const DataFrame& stageframe,
       fecb20[(i + (j * noindivs))] = fecb2x[i];
       fecb30[(i + (j * noindivs))] = fecb3x[i];
       
-      if (!indcova_as_int) {
+      if (!indcova_as_int && indcovacol(0) > -1) {
         indcova1[(i + (j * noindivs))] = indcova1x[i];
         indcova2[(i + (j * noindivs))] = indcova2x[i];
         indcova3[(i + (j * noindivs))] = indcova3x[i];
-      } else {
+      } else if (indcovacol(0) > -1) {
         indcova1_int[(i + (j * noindivs))] = indcova1x_int[i];
         indcova2_int[(i + (j * noindivs))] = indcova2x_int[i];
         indcova3_int[(i + (j * noindivs))] = indcova3x_int[i];
       }
       
-      if (!indcovb_as_int) {
+      if (!indcovb_as_int && indcovbcol(0) > -1) {
         indcovb1[(i + (j * noindivs))] = indcovb1x[i];
         indcovb2[(i + (j * noindivs))] = indcovb2x[i];
         indcovb3[(i + (j * noindivs))] = indcovb3x[i];
-      } else {
+      } else if (indcovbcol(0) > -1) {
         indcovb1_int[(i + (j * noindivs))] = indcovb1x_int[i];
         indcovb2_int[(i + (j * noindivs))] = indcovb2x_int[i];
         indcovb3_int[(i + (j * noindivs))] = indcovb3x_int[i];
       }
       
-      if (!indcovc_as_int) {
+      if (!indcovc_as_int && indcovccol(0) > -1) {
         indcovc1[(i + (j * noindivs))] = indcovc1x[i];
         indcovc2[(i + (j * noindivs))] = indcovc2x[i];
         indcovc3[(i + (j * noindivs))] = indcovc3x[i];
-      } else {
+      } else if (indcovccol(0) > -1) {
         indcovc1_int[(i + (j * noindivs))] = indcovc1x_int[i];
         indcovc2_int[(i + (j * noindivs))] = indcovc2x_int[i];
         indcovc3_int[(i + (j * noindivs))] = indcovc3x_int[i];
@@ -2111,33 +2111,33 @@ Rcpp::List pfj(const DataFrame& data, const DataFrame& stageframe,
     
     NumericVector indcova1_u = unique(indcova1);
     IntegerVector indcova1_int_u = unique(indcova1_int);
-    if (indcova1_u.length() > 1 | indcova1_int_u.length() > 1) indcova1_used = true;
+    if (indcova1_u.length() > 1 || indcova1_int_u.length() > 1) indcova1_used = true;
     NumericVector indcova2_u = unique(indcova2);
     IntegerVector indcova2_int_u = unique(indcova2_int);
-    if (indcova2_u.length() > 1 | indcova2_int_u.length() > 1) indcova2_used = true;
+    if (indcova2_u.length() > 1 || indcova2_int_u.length() > 1) indcova2_used = true;
     NumericVector indcova3_u = unique(indcova3);
     IntegerVector indcova3_int_u = unique(indcova3_int);
-    if (indcova3_u.length() > 1 | indcova3_int_u.length() > 1) indcova3_used = true;
+    if (indcova3_u.length() > 1 || indcova3_int_u.length() > 1) indcova3_used = true;
     
     NumericVector indcovb1_u = unique(indcovb1);
     IntegerVector indcovb1_int_u = unique(indcovb1_int);
-    if (indcovb1_u.length() > 1 | indcovb1_int_u.length() > 1) indcovb1_used = true;
+    if (indcovb1_u.length() > 1 || indcovb1_int_u.length() > 1) indcovb1_used = true;
     NumericVector indcovb2_u = unique(indcovb2);
     IntegerVector indcovb2_int_u = unique(indcovb2_int);
-    if (indcovb2_u.length() > 1 | indcovb2_int_u.length() > 1) indcovb2_used = true;
+    if (indcovb2_u.length() > 1 || indcovb2_int_u.length() > 1) indcovb2_used = true;
     NumericVector indcovb3_u = unique(indcovb3);
     IntegerVector indcovb3_int_u = unique(indcovb3_int);
-    if (indcovb3_u.length() > 1 | indcovb3_int_u.length() > 1) indcovb3_used = true;
+    if (indcovb3_u.length() > 1 || indcovb3_int_u.length() > 1) indcovb3_used = true;
     
     NumericVector indcovc1_u = unique(indcovc1);
     IntegerVector indcovc1_int_u = unique(indcovc1_int);
-    if (indcovc1_u.length() > 1 | indcovc1_int_u.length() > 1) indcovc1_used = true;
+    if (indcovc1_u.length() > 1 || indcovc1_int_u.length() > 1) indcovc1_used = true;
     NumericVector indcovc2_u = unique(indcovc2);
     IntegerVector indcovc2_int_u = unique(indcovc2_int);
-    if (indcovc2_u.length() > 1 | indcovc2_int_u.length() > 1) indcovc2_used = true;
+    if (indcovc2_u.length() > 1 || indcovc2_int_u.length() > 1) indcovc2_used = true;
     NumericVector indcovc3_u = unique(indcovc3);
     IntegerVector indcovc3_int_u = unique(indcovc3_int);
-    if (indcovc3_u.length() > 1 | indcovc3_int_u.length() > 1) indcovc3_used = true;
+    if (indcovc3_u.length() > 1 || indcovc3_int_u.length() > 1) indcovc3_used = true;
     
     NumericVector obsstatus1_u = unique(spryn1);
     if (obsstatus1_u.length() > 1) obsstatus1_used = true;
@@ -4664,33 +4664,33 @@ Rcpp::List jpf(const DataFrame& data, const DataFrame& stageframe, int popidcol,
     
     NumericVector indcova1_u = unique(indcova1);
     IntegerVector indcova1_int_u = unique(indcova1_int);
-    if (indcova1_u.length() > 1 | indcova1_int_u.length() > 1) indcova1_used = true;
+    if (indcova1_u.length() > 1 || indcova1_int_u.length() > 1) indcova1_used = true;
     NumericVector indcova2_u = unique(indcova2);
     IntegerVector indcova2_int_u = unique(indcova2_int);
-    if (indcova2_u.length() > 1 | indcova2_int_u.length() > 1) indcova2_used = true;
+    if (indcova2_u.length() > 1 || indcova2_int_u.length() > 1) indcova2_used = true;
     NumericVector indcova3_u = unique(indcova3);
     IntegerVector indcova3_int_u = unique(indcova3_int);
-    if (indcova3_u.length() > 1 | indcova3_int_u.length() > 1) indcova3_used = true;
+    if (indcova3_u.length() > 1 || indcova3_int_u.length() > 1) indcova3_used = true;
     
     NumericVector indcovb1_u = unique(indcovb1);
     IntegerVector indcovb1_int_u = unique(indcovb1_int);
-    if (indcovb1_u.length() > 1 | indcovb1_int_u.length() > 1) indcovb1_used = true;
+    if (indcovb1_u.length() > 1 || indcovb1_int_u.length() > 1) indcovb1_used = true;
     NumericVector indcovb2_u = unique(indcovb2);
     IntegerVector indcovb2_int_u = unique(indcovb2_int);
-    if (indcovb2_u.length() > 1 | indcovb2_int_u.length() > 1) indcovb2_used = true;
+    if (indcovb2_u.length() > 1 || indcovb2_int_u.length() > 1) indcovb2_used = true;
     NumericVector indcovb3_u = unique(indcovb3);
     IntegerVector indcovb3_int_u = unique(indcovb3_int);
-    if (indcovb3_u.length() > 1 | indcovb3_int_u.length() > 1) indcovb3_used = true;
+    if (indcovb3_u.length() > 1 || indcovb3_int_u.length() > 1) indcovb3_used = true;
     
     NumericVector indcovc1_u = unique(indcovc1);
     IntegerVector indcovc1_int_u = unique(indcovc1_int);
-    if (indcovc1_u.length() > 1 | indcovc1_int_u.length() > 1) indcovc1_used = true;
+    if (indcovc1_u.length() > 1 || indcovc1_int_u.length() > 1) indcovc1_used = true;
     NumericVector indcovc2_u = unique(indcovc2);
     IntegerVector indcovc2_int_u = unique(indcovc2_int);
-    if (indcovc2_u.length() > 1 | indcovc2_int_u.length() > 1) indcovc2_used = true;
+    if (indcovc2_u.length() > 1 || indcovc2_int_u.length() > 1) indcovc2_used = true;
     NumericVector indcovc3_u = unique(indcovc3);
     IntegerVector indcovc3_int_u = unique(indcovc3_int);
-    if (indcovc3_u.length() > 1 | indcovc3_int_u.length() > 1) indcovc3_used = true;
+    if (indcovc3_u.length() > 1 || indcovc3_int_u.length() > 1) indcovc3_used = true;
     
     IntegerVector obsstatus1_u = unique(obsstatus1);
     if (obsstatus1_u.length() > 1) obsstatus1_used = true;

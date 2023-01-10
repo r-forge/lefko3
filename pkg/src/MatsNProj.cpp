@@ -5870,6 +5870,8 @@ List raymccooney(const DataFrame& listofyears, const List& modelsuite,
     0.0, 0.0, 0.0, 0.0};
   
   for (int i = 0; i < loy_length; i++) {
+    Rcpp::checkUserInterrupt;
+    
     yearnumber = years(i);
     patchnumber = patches(i);
     
@@ -15696,6 +15698,7 @@ List elas3hlefko(arma::mat Amat, DataFrame ahstages, DataFrame hstages) {
 //' 
 //' @keywords internal
 //' @noRd
+// [[Rcpp::export(.proj3)]]
 arma::mat proj3(arma::vec& start_vec, List& core_list, arma::uvec& mat_order,
   bool standardize, bool growthonly, bool integeronly) {
   int sparse_switch {0};

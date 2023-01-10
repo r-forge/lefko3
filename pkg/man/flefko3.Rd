@@ -596,6 +596,8 @@ summary(vert.mats.f3)
 
 }
 \seealso{
+\code{\link{mpm_create}()}
+
 \code{\link{flefko2}()}
 
 \code{\link{aflefko2}()}

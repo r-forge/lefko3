@@ -395,9 +395,8 @@ Function \code{f_projection3()} develops and projects function-based matrix
 models. Unlike \code{\link{projection3}()}, which uses matrices provided as
 input via already created \code{lefkoMat} objects, function
 \code{f_projection3()} creates matrices at each time step from vital rate
-models and parameter inputs provided. Projections may be deterministic or
-stochastic, and may be density dependent in either case. Replicates may also
-be produced.
+models and parameter inputs provided. Projections may be stochastic or not,
+and may be density dependent in either case. Also handles replication.
 }
 \section{Notes}{
 
@@ -454,7 +453,6 @@ projection.
 
 \examples{
 \donttest{
-# Lathyrus projection example with historical matrices
 data(lathyrus)
 
 sizevector <- c(0, 4.6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8,
@@ -518,16 +516,9 @@ e3d <- density_input(lathmat3ln, stage3 = c("Sd", "Sdl"),
   stage2 = c("rep", "rep"), stage1 = c("all", "all"), style = 1,
   time_delay = 1, alpha = 1, beta = 0, type = c(2, 2), type_t12 = c(1, 1))
 
-trial7 <- f_projection3(format = 1, data = lathvertln,
-  modelsuite = lathmodelsln3, stageframe = lathframeln, nreps = 2,
-  times = 1000, stochastic = TRUE, standardize = FALSE, growthonly = TRUE,
-  integeronly = FALSE, substoch = 0)
-summary(trial7)
-
-# Now with density dependence and a set start vector
 trial7a <- f_projection3(format = 1, data = lathvertln,
   modelsuite = lathmodelsln3, stageframe = lathframeln, nreps = 2,
-  times = 1000, stochastic = TRUE, standardize = FALSE, growthonly = TRUE,
+  times = 100, stochastic = TRUE, standardize = FALSE, growthonly = TRUE,
   integeronly = FALSE, substoch = 0, sp_density = 0, start_frame = e3m_sv,
   density = e3d)
 summary(trial7a)
