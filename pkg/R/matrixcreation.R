@@ -217,6 +217,9 @@
 #' @param theta_tol A numeric value used to indicate a maximum value to theta as
 #' used in the negative binomial probability density kernel. Defaults to
 #' \code{100000000}, but can be reset to other values during error checking.
+#' @param sparse_output A logical value indicating whether to output matrices
+#' in sparse format. Defaults to \code{FALSE}, in which case all matrices are
+#' output in standard matrix format.
 #'
 #' @return If all inputs are properly formatted, then this function will return
 #' an object of class \code{lefkoMat}, which is a list that holds the matrix
@@ -224,11 +227,14 @@
 #' elements:
 #' 
 #' \item{A}{A list of full projection matrices in order of sorted patches and
-#' occasion times. All matrices output in R's \code{matrix} class.}
+#' occasion times. All matrices output in R's \code{matrix} class, or in
+#' the \code{dgCMatrix} class from the \code{Matrix} package if sparse.}
 #' \item{U}{A list of survival transition matrices sorted as in \code{A}. All 
-#' matrices output in R's \code{matrix} class.}
+#' matrices output in R's \code{matrix} class, or in the \code{dgCMatrix} class
+#' from the \code{Matrix} package if sparse.}
 #' \item{F}{A list of fecundity matrices sorted as in \code{A}. All matrices 
-#' output in R's \code{matrix} class.}
+#' output in R's \code{matrix} class, or in the \code{dgCMatrix} class from the
+#' \code{Matrix} package if sparse.}
 #' \item{hstages}{A data frame matrix showing the pairing of ahistorical stages
 #' used to create historical stage pairs.}
 #' \item{agestages}{A data frame showing age-stage pairs. In this function, it
@@ -398,21 +404,19 @@
 #'   modelsuite = lathmodelsln3, data = lathvertln, supplement = lathsupp3, 
 #'   reduce = FALSE)
 #' 
-#' summary(lathmat3ln)
-#' 
 #' #Cypripedium example using three size metrics for classification
 #' data(cypdata)
-#' sizevector.f <- c(0, 0, 0, 0, 0, 0, seq(1, 12, by = 1), seq(0, 9, by = 1),
+#' sizevector_f <- c(0, 0, 0, 0, 0, 0, seq(1, 12, by = 1), seq(0, 9, by = 1),
 #'   seq(0, 8, by = 1), seq(0, 7, by = 1), seq(0, 6, by = 1), seq(0, 5, by = 1),
 #'   seq(0, 4, by = 1), seq(0, 3, by = 1), 0, 1, 2, 0, 1, 0, 
 #'   0, 0, 1, 0)
-#' sizebvector.f <- c(0, 0, 0, 0, 0, 0, rep(0, 12), rep(1, 10), rep(2, 9),
+#' sizebvector_f <- c(0, 0, 0, 0, 0, 0, rep(0, 12), rep(1, 10), rep(2, 9),
 #'   rep(3, 8), rep(4, 7), rep(5, 6), rep(6, 5), rep(7, 4), rep(8, 3), 9, 9, 10, 
 #'   0, 1, 1, 2)
-#' sizecvector.f <- c(0, 0, 0, 0, 0, 0, rep(0, 12), rep(0, 10), rep(0, 9),
+#' sizecvector_f <- c(0, 0, 0, 0, 0, 0, rep(0, 12), rep(0, 10), rep(0, 9),
 #'   rep(0, 8), rep(0, 7), rep(0, 6), rep(0, 5), rep(0, 4), 0, 0, 0, 0, 0, 0, 
 #'   1, 1, 1, 1)
-#' stagevector.f <- c("DS", "P1", "P2", "P3", "Sdl", "Dorm", "V1 I0 D0",
+#' stagevector_f <- c("DS", "P1", "P2", "P3", "Sdl", "Dorm", "V1 I0 D0",
 #'   "V2 I0 D0", "V3 I0 D0", "V4 I0 D0", "V5 I0 D0", "V6 I0 D0", "V7 I0 D0",
 #'   "V8 I0 D0", "V9 I0 D0", "V10 I0 D0", "V11 I0 D0", "V12 I0 D0", "V0 I1 D0",
 #'   "V1 I1 D0", "V2 I1 D0", "V3 I1 D0", "V4 I1 D0", "V5 I1 D0", "V6 I1 D0",
@@ -425,30 +429,30 @@
 #'   "V3 I6 D0", "V4 I6 D0", "V0 I7 D0", "V1 I7 D0", "V2 I7 D0", "V3 I7 D0",
 #'   "V0 I8 D0", "V1 I8 D0", "V2 I8 D0", "V0 I9 D0", "V1 I9 D0", "V0 I10 D0",
 #'   "V0 I0 D1", "V0 I1 D1", "V1 I1 D1", "V0 I2 D1")
-#' repvector.f <- c(0, 0, 0, 0, 0, rep(0, 13), rep(1, 59))
-#' obsvector.f <- c(0, 0, 0, 0, 0, 0, rep(1, 71))
-#' matvector.f <- c(0, 0, 0, 0, 0, rep(1, 72))
-#' immvector.f <- c(0, 1, 1, 1, 1, rep(0, 72))
-#' propvector.f <- c(1, rep(0, 76))
-#' indataset.f <- c(0, 0, 0, 0, 0, rep(1, 72))
-#' binvec.f <- c(0, 0, 0, 0, 0, rep(0.5, 72))
-#' binbvec.f <- c(0, 0, 0, 0, 0, rep(0.5, 72))
-#' bincvec.f <- c(0, 0, 0, 0, 0, rep(0.5, 72))
+#' repvector_f <- c(0, 0, 0, 0, 0, rep(0, 13), rep(1, 59))
+#' obsvector_f <- c(0, 0, 0, 0, 0, 0, rep(1, 71))
+#' matvector_f <- c(0, 0, 0, 0, 0, rep(1, 72))
+#' immvector_f <- c(0, 1, 1, 1, 1, rep(0, 72))
+#' propvector_f <- c(1, rep(0, 76))
+#' indataset_f <- c(0, 0, 0, 0, 0, rep(1, 72))
+#' binvec_f <- c(0, 0, 0, 0, 0, rep(0.5, 72))
+#' binbvec_f <- c(0, 0, 0, 0, 0, rep(0.5, 72))
+#' bincvec_f <- c(0, 0, 0, 0, 0, rep(0.5, 72))
 #' 
-#' vertframe.f <- sf_create(sizes = sizevector.f, sizesb = sizebvector.f,
-#'   sizesc = sizecvector.f, stagenames = stagevector.f, repstatus = repvector.f,
-#'   obsstatus = obsvector.f, propstatus = propvector.f, immstatus = immvector.f,
-#'   matstatus = matvector.f, indataset = indataset.f, binhalfwidth = binvec.f,
-#'   binhalfwidthb = binbvec.f, binhalfwidthc = bincvec.f)
+#' vertframe_f <- sf_create(sizes = sizevector_f, sizesb = sizebvector_f,
+#'   sizesc = sizecvector_f, stagenames = stagevector_f, repstatus = repvector_f,
+#'   obsstatus = obsvector_f, propstatus = propvector_f, immstatus = immvector_f,
+#'   matstatus = matvector_f, indataset = indataset_f, binhalfwidth = binvec_f,
+#'   binhalfwidthb = binbvec_f, binhalfwidthc = bincvec_f)
 #' 
-#' vert.data.f <- verticalize3(cypdata, noyears = 6, firstyear = 2004,
+#' vert_data_f <- verticalize3(cypdata, noyears = 6, firstyear = 2004,
 #'   individcol = "plantid", blocksize = 4, sizeacol = "Veg.04",
 #'   sizebcol = "Inf.04", sizeccol = "Inf2.04", repstracol = "Inf.04",
 #'   repstrbcol = "Inf2.04", fecacol = "Pod.04", censorcol = "censor",
-#'   censorkeep = 1, censorRepeat = FALSE, stageassign = vertframe.f,
+#'   censorkeep = 1, censorRepeat = FALSE, stageassign = vertframe_f,
 #'   stagesize = "sizeabc", NAas0 = TRUE, censor = FALSE)
 #' 
-#' vertmodels3f <- modelsearch(vert.data.f, historical = TRUE, suite = "main",
+#' vertmodels3f <- modelsearch(vert_data_f, historical = TRUE, suite = "main",
 #'   sizeb = c("sizeb3", "sizeb2", "sizeb1"), sizec = c("sizec3", "sizec2", "sizec1"),
 #'   approach = "glm", vitalrates = c("surv", "obs", "size", "repst", "fec"),
 #'   sizedist = "negbin", sizebdist = "poisson", sizecdist = "poisson",
@@ -481,11 +485,10 @@
 #'     3, 3),
 #'   type_t12 = c(1, 1, 2, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 #'     1, 1, 1),
-#'   stageframe = vertframe.f, historical = TRUE)
+#'   stageframe = vertframe_f, historical = TRUE)
 #' 
-#' vert.mats.f3 <- flefko3(stageframe = vertframe.f, supplement = vertsupp3f, 
-#'   data = vert.data.f, modelsuite = vertmodels3f)
-#' summary(vert.mats.f3)
+#' vert_mats_f3 <- flefko3(stageframe = vertframe_f, supplement = vertsupp3f, 
+#'   data = vert_data_f, modelsuite = vertmodels3f)
 #' }
 #' 
 #' @export
@@ -501,7 +504,8 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   jsizec_dev = 0, jrepst_dev = 0, jmatst_dev = 0, density = NA, repmod = 1,
   random.inda = FALSE, random.indb = FALSE, random.indc = FALSE,
   negfec = FALSE, format = "ehrlen", ipm_method = "CDF", reduce = FALSE,
-  simple = FALSE, err_check = FALSE, exp_tol = 700, theta_tol = 100000000) {
+  simple = FALSE, err_check = FALSE, exp_tol = 700, theta_tol = 100000000,
+  sparse_output = FALSE) {
   
   format_dev <- FALSE
   cdf <- TRUE
@@ -540,7 +544,8 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
     dev_terms = devterms, density = density, fecmod = repmod, CDF = cdf,
     random_inda = random.inda, random_indb = random.indb,
     random_indc = random.indc, negfec = negfec, exp_tol = exp_tol,
-    theta_tol = theta_tol, simple = simple, err_check = err_check)  
+    theta_tol = theta_tol, simple = simple, err_check = err_check,
+    sparse_output = sparse_output)  
   
   return(output)
 }
@@ -758,6 +763,9 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' @param theta_tol A numeric value used to indicate a maximum value to theta as
 #' used in the negative binomial probability density kernel. Defaults to
 #' \code{100000000}, but can be reset to other values during error checking.
+#' @param sparse_output A logical value indicating whether to output matrices
+#' in sparse format. Defaults to \code{FALSE}, in which case all matrices are
+#' output in standard matrix format.
 #'
 #' @return If all inputs are properly formatted, then this function will return
 #' an object of class \code{lefkoMat}, which is a list that holds the matrix
@@ -765,11 +773,14 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' elements:
 #'
 #' \item{A}{A list of full projection matrices in order of sorted patches and
-#' occasion times. All matrices output in R's \code{matrix} class.}
+#' occasion times. All matrices output in R's \code{matrix} class, or in
+#' the \code{dgCMatrix} class from the \code{Matrix} package if sparse.}
 #' \item{U}{A list of survival transition matrices sorted as in \code{A}. All 
-#' matrices output in R's \code{matrix} class.}
+#' matrices output in R's \code{matrix} class, or in the \code{dgCMatrix} class
+#' from the \code{Matrix} package if sparse.}
 #' \item{F}{A list of fecundity matrices sorted as in \code{A}. All matrices 
-#' output in R's \code{matrix} class.}
+#' output in R's \code{matrix} class, or in the \code{dgCMatrix} class from the
+#' \code{Matrix} package if sparse.}
 #' \item{hstages}{A data frame matrix showing the pairing of ahistorical stages
 #' used to create historical stage pairs. Set to \code{NA} for ahistorical
 #' matrices.}
@@ -943,21 +954,19 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #'   modelsuite = lathmodelsln2, data = lathvertln, supplement = lathsupp2,
 #'   reduce = FALSE)
 #' 
-#' summary(lathmat2ln)
-#' 
 #' #Cypripedium example using three size metrics for classification
 #' data(cypdata)
-#' sizevector.f <- c(0, 0, 0, 0, 0, 0, seq(1, 12, by = 1), seq(0, 9, by = 1),
+#' sizevector_f <- c(0, 0, 0, 0, 0, 0, seq(1, 12, by = 1), seq(0, 9, by = 1),
 #'   seq(0, 8, by = 1), seq(0, 7, by = 1), seq(0, 6, by = 1), seq(0, 5, by = 1),
 #'   seq(0, 4, by = 1), seq(0, 3, by = 1), 0, 1, 2, 0, 1, 0, 
 #'   0, 0, 1, 0)
-#' sizebvector.f <- c(0, 0, 0, 0, 0, 0, rep(0, 12), rep(1, 10), rep(2, 9),
+#' sizebvector_f <- c(0, 0, 0, 0, 0, 0, rep(0, 12), rep(1, 10), rep(2, 9),
 #'   rep(3, 8), rep(4, 7), rep(5, 6), rep(6, 5), rep(7, 4), rep(8, 3), 9, 9, 10, 
 #'   0, 1, 1, 2)
-#' sizecvector.f <- c(0, 0, 0, 0, 0, 0, rep(0, 12), rep(0, 10), rep(0, 9),
+#' sizecvector_f <- c(0, 0, 0, 0, 0, 0, rep(0, 12), rep(0, 10), rep(0, 9),
 #'   rep(0, 8), rep(0, 7), rep(0, 6), rep(0, 5), rep(0, 4), 0, 0, 0, 0, 0, 0, 
 #'   1, 1, 1, 1)
-#' stagevector.f <- c("DS", "P1", "P2", "P3", "Sdl", "Dorm", "V1 I0 D0",
+#' stagevector_f <- c("DS", "P1", "P2", "P3", "Sdl", "Dorm", "V1 I0 D0",
 #'   "V2 I0 D0", "V3 I0 D0", "V4 I0 D0", "V5 I0 D0", "V6 I0 D0", "V7 I0 D0",
 #'   "V8 I0 D0", "V9 I0 D0", "V10 I0 D0", "V11 I0 D0", "V12 I0 D0", "V0 I1 D0",
 #'   "V1 I1 D0", "V2 I1 D0", "V3 I1 D0", "V4 I1 D0", "V5 I1 D0", "V6 I1 D0",
@@ -970,30 +979,30 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #'   "V3 I6 D0", "V4 I6 D0", "V0 I7 D0", "V1 I7 D0", "V2 I7 D0", "V3 I7 D0",
 #'   "V0 I8 D0", "V1 I8 D0", "V2 I8 D0", "V0 I9 D0", "V1 I9 D0", "V0 I10 D0",
 #'   "V0 I0 D1", "V0 I1 D1", "V1 I1 D1", "V0 I2 D1")
-#' repvector.f <- c(0, 0, 0, 0, 0, rep(0, 13), rep(1, 59))
-#' obsvector.f <- c(0, 0, 0, 0, 0, 0, rep(1, 71))
-#' matvector.f <- c(0, 0, 0, 0, 0, rep(1, 72))
-#' immvector.f <- c(0, 1, 1, 1, 1, rep(0, 72))
-#' propvector.f <- c(1, rep(0, 76))
-#' indataset.f <- c(0, 0, 0, 0, 0, rep(1, 72))
-#' binvec.f <- c(0, 0, 0, 0, 0, rep(0.5, 72))
-#' binbvec.f <- c(0, 0, 0, 0, 0, rep(0.5, 72))
-#' bincvec.f <- c(0, 0, 0, 0, 0, rep(0.5, 72))
+#' repvector_f <- c(0, 0, 0, 0, 0, rep(0, 13), rep(1, 59))
+#' obsvector_f <- c(0, 0, 0, 0, 0, 0, rep(1, 71))
+#' matvector_f <- c(0, 0, 0, 0, 0, rep(1, 72))
+#' immvector_f <- c(0, 1, 1, 1, 1, rep(0, 72))
+#' propvector_f <- c(1, rep(0, 76))
+#' indataset_f <- c(0, 0, 0, 0, 0, rep(1, 72))
+#' binvec_f <- c(0, 0, 0, 0, 0, rep(0.5, 72))
+#' binbvec_f <- c(0, 0, 0, 0, 0, rep(0.5, 72))
+#' bincvec_f <- c(0, 0, 0, 0, 0, rep(0.5, 72))
 #' 
-#' vertframe.f <- sf_create(sizes = sizevector.f, sizesb = sizebvector.f,
-#'   sizesc = sizecvector.f, stagenames = stagevector.f, repstatus = repvector.f,
-#'   obsstatus = obsvector.f, propstatus = propvector.f, immstatus = immvector.f,
-#'   matstatus = matvector.f, indataset = indataset.f, binhalfwidth = binvec.f,
-#'   binhalfwidthb = binbvec.f, binhalfwidthc = bincvec.f)
+#' vertframe_f <- sf_create(sizes = sizevector_f, sizesb = sizebvector_f,
+#'   sizesc = sizecvector_f, stagenames = stagevector_f, repstatus = repvector_f,
+#'   obsstatus = obsvector_f, propstatus = propvector_f, immstatus = immvector_f,
+#'   matstatus = matvector_f, indataset = indataset_f, binhalfwidth = binvec_f,
+#'   binhalfwidthb = binbvec_f, binhalfwidthc = bincvec_f)
 #' 
-#' vert.data.f <- verticalize3(cypdata, noyears = 6, firstyear = 2004,
+#' vert_data_f <- verticalize3(cypdata, noyears = 6, firstyear = 2004,
 #'   individcol = "plantid", blocksize = 4, sizeacol = "Veg.04",
 #'   sizebcol = "Inf.04", sizeccol = "Inf2.04", repstracol = "Inf.04",
 #'   repstrbcol = "Inf2.04", fecacol = "Pod.04", censorcol = "censor",
-#'   censorkeep = 1, censorRepeat = FALSE, stageassign = vertframe.f,
+#'   censorkeep = 1, censorRepeat = FALSE, stageassign = vertframe_f,
 #'   stagesize = "sizeabc", NAas0 = TRUE, censor = FALSE)
 #' 
-#' vertmodels2f <- modelsearch(vert.data.f, historical = FALSE, suite = "main", 
+#' vertmodels2f <- modelsearch(vert_data_f, historical = FALSE, suite = "main", 
 #'   sizeb = c("sizeb3", "sizeb2", "sizeb1"), sizec = c("sizec3", "sizec2", "sizec1"),
 #'   approach = "glm", vitalrates = c("surv", "obs", "size", "repst", "fec"),
 #'   sizedist = "negbin", sizebdist = "poisson", sizecdist = "poisson",
@@ -1010,12 +1019,11 @@ flefko3 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #'     "V1 I0 D0", NA, NA), 
 #'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, 0.40, NA, NA, NA, NA, NA, NA),
 #'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 0.5 * 5000, 0.5 * 5000),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3), stageframe = vertframe.f,
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3), stageframe = vertframe_f,
 #'   historical = FALSE)
 #' 
-#' vert.mats.f2 <- flefko2(stageframe = vertframe.f, supplement = vertsupp2f, 
-#'   data = vert.data.f, modelsuite = vertmodels2f)
-#' summary(vert.mats.f2)
+#' vert_mats_f2 <- flefko2(stageframe = vertframe_f, supplement = vertsupp2f, 
+#'   data = vert_data_f, modelsuite = vertmodels2f)
 #' }
 #' 
 #' @export
@@ -1031,7 +1039,7 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   jsizec_dev = 0, jrepst_dev = 0, jmatst_dev = 0, density = NA, repmod = 1,
   random.inda = FALSE, random.indb = FALSE, random.indc = FALSE, negfec = FALSE,
   ipm_method = "CDF", reduce = FALSE, simple = FALSE, err_check = FALSE,
-  exp_tol = 700, theta_tol = 100000000) {
+  exp_tol = 700, theta_tol = 100000000, sparse_output = FALSE) {
   
   cdf <- TRUE
   
@@ -1065,7 +1073,7 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
     density = density, fecmod = repmod, CDF = cdf, random_inda = random.inda,
     random_indb = random.indb, random_indc = random.indc, negfec = negfec,
     exp_tol = exp_tol, theta_tol = theta_tol, simple = simple,
-    err_check = err_check)
+    err_check = err_check, sparse_output = sparse_output)
   
   return(output)
 }
@@ -1291,6 +1299,9 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' @param theta_tol A numeric value used to indicate a maximum value to theta as
 #' used in the negative binomial probability density kernel. Defaults to
 #' \code{100000000}, but can be reset to other values during error checking.
+#' @param sparse_output A logical value indicating whether to output matrices
+#' in sparse format. Defaults to \code{FALSE}, in which case all matrices are
+#' output in standard matrix format.
 #'
 #' @return If all inputs are properly formatted, then this function will return
 #' an object of class \code{lefkoMat}, which is a list that holds the matrix
@@ -1298,11 +1309,14 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' elements:
 #'
 #' \item{A}{A list of full projection matrices in order of sorted patches and
-#' occasions. All matrices output in R's \code{matrix} class.}
+#' occasions. All matrices output in R's \code{matrix} class, or in
+#' the \code{dgCMatrix} class from the \code{Matrix} package if sparse.}
 #' \item{U}{A list of survival transition matrices sorted as in \code{A}. All 
-#' matrices output in R's \code{matrix} class.}
+#' matrices output in R's \code{matrix} class, or in the \code{dgCMatrix} class
+#' from the \code{Matrix} package if sparse.}
 #' \item{F}{A list of fecundity matrices sorted as in \code{A}. All matrices 
-#' output in R's \code{matrix} class.}
+#' output in R's \code{matrix} class, or in the \code{dgCMatrix} class from the
+#' \code{Matrix} package if sparse.}
 #' \item{hstages}{A data frame matrix showing the pairing of ahistorical stages
 #' used to create historical stage pairs. Set to \code{NA} for age-by-stage
 #' MPMs.}
@@ -1482,7 +1496,6 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #'   stageframe = lathframeln, modelsuite = lathmodelsln2, data = lathvertln,
 #'   supplement = lathsupp2, final_age = 3, continue = TRUE, reduce = FALSE)
 #' 
-#' summary(lathmat2age)
 #' }
 #' @export
 aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
@@ -1498,7 +1511,7 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
   random.inda = FALSE, random.indb = FALSE, random.indc = FALSE, final_age = NA,
   continue = TRUE, prebreeding = TRUE, negfec = FALSE, ipm_method = "CDF",
   reduce = FALSE, simple = FALSE, err_check = FALSE, exp_tol = 700,
-  theta_tol = 100000000) {
+  theta_tol = 100000000, sparse_output = FALSE) {
   
   cdf <- TRUE
   
@@ -1533,7 +1546,7 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
     random_indb = random.indb, random_indc = random.indc, negfec = negfec,
     exp_tol = exp_tol, theta_tol = theta_tol, last_age = final_age,
     cont = continue, prebreeding = prebreeding, simple = simple,
-    err_check = err_check)
+    err_check = err_check, sparse_output = sparse_output)
   
   return(output)
 }
@@ -1647,6 +1660,9 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' @param theta_tol A numeric value used to indicate a maximum value to theta as
 #' used in the negative binomial probability density kernel. Defaults to
 #' \code{100000000}, but can be reset to other values during error checking.
+#' @param sparse_output A logical value indicating whether to output matrices
+#' in sparse format. Defaults to \code{FALSE}, in which case all matrices are
+#' output in standard matrix format.
 #'
 #' @return If all inputs are properly formatted, then this function will return
 #' an object of class \code{lefkoMat}, which is a list that holds the matrix
@@ -1654,11 +1670,14 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' elements:
 #'
 #' \item{A}{A list of full projection matrices in order of sorted patches and
-#' occasions. All matrices output in R's \code{matrix} class.}
+#' occasions. All matrices output in R's \code{matrix} class, or in
+#' the \code{dgCMatrix} class from the \code{Matrix} package if sparse.}
 #' \item{U}{A list of survival transition matrices sorted as in \code{A}. All 
-#' matrices output in R's \code{matrix} class.}
+#' matrices output in R's \code{matrix} class, or in the \code{dgCMatrix} class
+#' from the \code{Matrix} package if sparse.}
 #' \item{F}{A list of fecundity matrices sorted as in \code{A}. All matrices 
-#' output in R's \code{matrix} class.}
+#' output in R's \code{matrix} class, or in the \code{dgCMatrix} class from the
+#' \code{Matrix} package if sparse.}
 #' \item{hstages}{Set to \code{NA} for Leslie MPMs.}
 #' \item{agestages}{Set to \code{NA} for Leslie MPMs.}
 #' \item{ahstages}{A data frame detailing the characteristics of associated
@@ -1739,8 +1758,6 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' 
 #' lathmat2fleslie <- fleslie(year = "all", data = lathvert_age,
 #'   modelsuite = lathmodels2_age, fecage_min = 1)
-#' 
-#' summary(lathmat2fleslie)
 #' }
 #' @export
 fleslie <- function(year = "all", patch = NULL, prebreeding = TRUE, data = NULL,
@@ -1749,7 +1766,8 @@ fleslie <- function(year = "all", patch = NULL, prebreeding = TRUE, data = NULL,
   continue = TRUE, inda = NULL, indb = NULL, indc = NULL, surv_dev = 0,
   fec_dev = 0, density = NA, repmod = 1, random.inda = FALSE,
   random.indb = FALSE, random.indc = FALSE, negfec = FALSE, reduce = FALSE,
-  simple = FALSE, err_check = FALSE, exp_tol = 700, theta_tol = 100000000) {
+  simple = FALSE, err_check = FALSE, exp_tol = 700, theta_tol = 100000000,
+  sparse_output = FALSE) {
   
   devterms <- c(surv_dev, fec_dev)
   
@@ -1773,7 +1791,7 @@ fleslie <- function(year = "all", patch = NULL, prebreeding = TRUE, data = NULL,
     exp_tol = exp_tol, theta_tol = theta_tol, start_age = start_age,
     last_age = last_age, fecage_min = fecage_min, fecage_max = fecage_max,
     cont = continue, prebreeding = prebreeding, simple = simple, 
-    err_check = err_check)
+    err_check = err_check, sparse_output = sparse_output)
   
   return(output)
 }
@@ -1895,6 +1913,9 @@ fleslie <- function(year = "all", patch = NULL, prebreeding = TRUE, data = NULL,
 #' @param err_check A logical value indicating whether to append extra
 #' information used in matrix calculation within the output list. Defaults to
 #' \code{FALSE}.
+#' @param sparse_output A logical value indicating whether to output matrices
+#' in sparse format. Defaults to \code{FALSE}, in which case all matrices are
+#' output in standard matrix format.
 #'
 #' @return If all inputs are properly formatted, then this function will return
 #' an object of class \code{lefkoMat}, which is a list that holds the matrix
@@ -1902,11 +1923,14 @@ fleslie <- function(year = "all", patch = NULL, prebreeding = TRUE, data = NULL,
 #' following elements:
 #'
 #' \item{A}{A list of full projection matrices in order of sorted populations,
-#' patches, and occasions. All matrices output in the \code{matrix} class.}
+#' patches, and occasions. All matrices output in the \code{matrix} class, or in
+#' the \code{dgCMatrix} class from the \code{Matrix} package if sparse.}
 #' \item{U}{A list of survival transition matrices sorted as in \code{A}. All 
-#' matrices output in the \code{matrix} class.}
+#' matrices output in the \code{matrix} class, or in the \code{dgCMatrix} class
+#' from the \code{Matrix} package if sparse.}
 #' \item{F}{A list of fecundity matrices sorted as in \code{A}. All matrices 
-#' output in the \code{matrix} class.}
+#' output in the \code{matrix} class, or in the \code{dgCMatrix} class from the
+#' \code{Matrix} package if sparse.}
 #' \item{hstages}{A data frame matrix showing the pairing of ahistorical stages
 #' used to create historical stage pairs.}
 #' \item{agestages}{A data frame showing age-stage pairs. In this function, it
@@ -2008,8 +2032,6 @@ fleslie <- function(year = "all", patch = NULL, prebreeding = TRUE, data = NULL,
 #'   stages = c("stage3", "stage2", "stage1"), supplement = lathsupp3,
 #'   yearcol = "year2", indivcol = "individ")
 #' 
-#' summary(ehrlen3)
-#' 
 #' # Cypripedium example
 #' data(cypdata)
 #' 
@@ -2062,8 +2084,6 @@ fleslie <- function(year = "all", patch = NULL, prebreeding = TRUE, data = NULL,
 #'   supplement = cypsupp3r, yearcol = "year2", patchcol = "patchid",
 #'   indivcol = "individ")
 #' 
-#' summary(cypmatrix3r)
-#' 
 #' @export
 rlefko3 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
   censor = FALSE, stages = NULL, alive = c("alive3", "alive2", "alive1"),
@@ -2073,7 +2093,7 @@ rlefko3 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
   fec = c("feca3", "feca2", "feca1"), supplement = NULL, repmatrix = NULL,
   overwrite = NULL, yearcol = NULL, popcol = NULL, patchcol = NULL, indivcol = NULL,
   censorcol = NULL, censorkeep = 0, NRasRep = FALSE, format = "ehrlen",
-  reduce = FALSE, simple = FALSE, err_check = FALSE) {
+  reduce = FALSE, simple = FALSE, err_check = FALSE, sparse_output = FALSE) {
   
   format_dev <- FALSE
   
@@ -2089,7 +2109,8 @@ rlefko3 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
     matst = matst, fec = fec, stages = stages, yearcol = yearcol,
     popcol = popcol, patchcol = patchcol, indivcol = indivcol,
     censorcol = censorcol, censor = censor, censorkeep = censorkeep,
-    stage_NRasRep = NRasRep, simple = simple, err_check = err_check)
+    stage_NRasRep = NRasRep, simple = simple, err_check = err_check,
+    sparse_output = sparse_output)
   
   return(output)
 }
@@ -2203,6 +2224,9 @@ rlefko3 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
 #' @param err_check A logical value indicating whether to append extra
 #' information used in matrix calculation within the output list. Defaults to
 #' \code{FALSE}.
+#' @param sparse_output A logical value indicating whether to output matrices
+#' in sparse format. Defaults to \code{FALSE}, in which case all matrices are
+#' output in standard matrix format.
 #' 
 #' @return If all inputs are properly formatted, then this function will return
 #' an object of class \code{lefkoMat}, which is a list that holds the matrix
@@ -2210,11 +2234,14 @@ rlefko3 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
 #' following elements:
 #' 
 #' \item{A}{A list of full projection matrices in order of sorted populations,
-#' patches, and occasions. All matrices output in the \code{matrix} class.}
+#' patches, and occasions. All matrices output in the \code{matrix} class, or in
+#' the \code{dgCMatrix} class from the \code{Matrix} package if sparse.}
 #' \item{U}{A list of survival transition matrices sorted as in \code{A}. All 
-#' matrices output in the \code{matrix} class.}
+#' matrices output in the \code{matrix} class, or in the \code{dgCMatrix} class
+#' from the \code{Matrix} package if sparse.}
 #' \item{F}{A list of fecundity matrices sorted as in \code{A}. All matrices 
-#' output in the \code{matrix} class.}
+#' output in the \code{matrix} class, or in the \code{dgCMatrix} class from the
+#' \code{Matrix} package if sparse.}
 #' \item{hstages}{A data frame matrix showing the pairing of ahistorical stages
 #' used to create historical stage pairs. Set to NA for ahistorical matrices.}
 #' \item{agestages}{A data frame showing age-stage pairs. In this function, it
@@ -2309,8 +2336,6 @@ rlefko3 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
 #'   stages = c("stage3", "stage2"), supplement = lathsupp2, yearcol = "year2",
 #'   indivcol = "individ")
 #' 
-#' summary(ehrlen2)
-#' 
 #' # Cypripedium example
 #' data(cypdata)
 #' 
@@ -2354,8 +2379,6 @@ rlefko3 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
 #'   size = c("size3added", "size2added"), supplement = cypsupp2r,
 #'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
 #' 
-#' cypmatrix2r$A[[1]]
-#' 
 #' @export
 rlefko2 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
   censor = FALSE, stages = NULL, alive = c("alive3", "alive2"),
@@ -2364,7 +2387,7 @@ rlefko2 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
   fec = c("feca3", "feca2"), supplement = NULL, repmatrix = NULL,
   overwrite = NULL, yearcol = NULL, popcol = NULL, patchcol = NULL, indivcol = NULL,
   censorcol = NULL, censorkeep = 0, NRasRep = FALSE, reduce = FALSE, simple = FALSE,
-  err_check = FALSE) {
+  err_check = FALSE, sparse_output = FALSE) {
 
   output <- mpm_create(historical = FALSE, stage = TRUE, age = FALSE,
     devries = FALSE, reduce = reduce, data = data, year = year, pop = pop,
@@ -2374,7 +2397,8 @@ rlefko2 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
     matst = matst, fec = fec, stages = stages, yearcol = yearcol,
     popcol = popcol, patchcol = patchcol, indivcol = indivcol,
     censorcol = censorcol, censor = censor, censorkeep = censorkeep,
-    stage_NRasRep = NRasRep, simple = simple, err_check = err_check)
+    stage_NRasRep = NRasRep, simple = simple, err_check = err_check,
+    sparse_output = sparse_output)
   
   return(output)
 }
@@ -2504,6 +2528,9 @@ rlefko2 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
 #' @param err_check A logical value indicating whether to append extra
 #' information used in matrix calculation within the output list. Defaults to
 #' \code{FALSE}.
+#' @param sparse_output A logical value indicating whether to output matrices
+#' in sparse format. Defaults to \code{FALSE}, in which case all matrices are
+#' output in standard matrix format.
 #' 
 #' @return If all inputs are properly formatted, then this function will return
 #' an object of class \code{lefkoMat}, which is a list that holds the matrix
@@ -2511,11 +2538,14 @@ rlefko2 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
 #' following elements:
 #' 
 #' \item{A}{A list of full projection matrices in order of sorted patches and
-#' occasions. All matrices output in R's \code{matrix} class.}
+#' occasions. All matrices output in R's \code{matrix} class, or in the
+#' \code{dgCMatrix} class from the \code{Matrix} package if sparse.}
 #' \item{U}{A list of survival transition matrices sorted as in \code{A}. All 
-#' matrices output in R's \code{matrix} class.}
+#' matrices output in R's \code{matrix} class, or in the \code{dgCMatrix} class
+#' from the \code{Matrix} package if sparse.}
 #' \item{F}{A list of fecundity matrices sorted as in \code{A}. All matrices 
-#' output in R's \code{matrix} class.}
+#' output in R's \code{matrix} class, or in the \code{dgCMatrix} class from the
+#' \code{Matrix} package if sparse.}
 #' \item{hstages}{A data frame matrix showing the pairing of ahistorical stages
 #' used to create historical stage pairs. Set to \code{NA} for age-by-stage
 #' MPMs.}
@@ -2579,7 +2609,7 @@ rlefko2 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
 #' 
 #' @examples
 #' \donttest{
-# Cypripedium example
+#' # Cypripedium example
 #' data(cypdata)
 #' 
 #' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
@@ -2592,7 +2622,7 @@ rlefko2 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
 #' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 #' indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
 #' binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 2.5, 7)
-#' minagevec <- c(1, 1, 2, 3, 4, 5, 5, 5, 5, 5, 5) # Might have to subtract 1 from everything
+#' minagevec <- c(1, 1, 2, 3, 4, 5, 5, 5, 5, 5, 5)
 #' maxagevec <- c(rep(NA, 11))
 #' 
 #' cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector,
@@ -2625,8 +2655,6 @@ rlefko2 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
 #'   supplement = cypsupp2r, agecol = "obsage", yearcol = "year2", 
 #'   patchcol = "patchid", indivcol = "individ", prebreeding = TRUE, final_age = NA,
 #'   continue = TRUE, reduce = FALSE)
-#' summary(cyp_mats)
-#' 
 #' }
 #' @export
 arlefko2 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
@@ -2637,7 +2665,7 @@ arlefko2 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
   overwrite = NULL, agecol = "obsage", yearcol = NULL, popcol = NULL, patchcol = NULL,
   indivcol = NULL, censorcol = NULL, censorkeep = 0, final_age = NA,
   continue = TRUE, prebreeding = TRUE, NRasRep = FALSE, reduce = FALSE, simple = FALSE,
-  err_check = FALSE) {
+  err_check = FALSE, sparse_output = FALSE) {
 
   output <- mpm_create(historical = FALSE, stage = TRUE, age = TRUE,
     reduce = reduce, data = data, year = year, pop = pop,
@@ -2648,7 +2676,8 @@ arlefko2 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
     popcol = popcol, patchcol = patchcol, indivcol = indivcol, agecol = agecol,
     censorcol = censorcol, censor = censor, censorkeep = censorkeep,
     last_age = final_age, cont = continue, prebreeding = prebreeding,
-    stage_NRasRep = NRasRep, simple = simple, err_check = err_check)
+    stage_NRasRep = NRasRep, simple = simple, err_check = err_check,
+    sparse_output = sparse_output)
   
   return(output)
 }
@@ -2729,6 +2758,9 @@ arlefko2 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
 #' @param err_check A logical value indicating whether to append extra
 #' information used in matrix calculation within the output list. Defaults to
 #' \code{FALSE}.
+#' @param sparse_output A logical value indicating whether to output matrices
+#' in sparse format. Defaults to \code{FALSE}, in which case all matrices are
+#' output in standard matrix format.
 #' 
 #' @return If all inputs are properly formatted, then this function will return
 #' an object of class \code{lefkoMat}, which is a list that holds the matrix
@@ -2736,11 +2768,14 @@ arlefko2 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
 #' following elements:
 #' 
 #' \item{A}{A list of full projection matrices in order of sorted populations,
-#' patches, and occasions. All matrices output in the \code{matrix} class.}
+#' patches, and occasions. All matrices output in the \code{matrix} class, or in
+#' the \code{dgCMatrix} class from the \code{Matrix} package if sparse.}
 #' \item{U}{A list of survival transition matrices sorted as in \code{A}. All 
-#' matrices output in the \code{matrix} class.}
+#' matrices output in the \code{matrix} class, or in the \code{dgCMatrix} class
+#' from the \code{Matrix} package if sparse.}
 #' \item{F}{A list of fecundity matrices sorted as in \code{A}. All matrices 
-#' output in the \code{matrix} class.}
+#' output in the \code{matrix} class, or in the \code{dgCMatrix} class from the
+#' \code{Matrix} package if sparse.}
 #' \item{hstages}{A data frame matrix showing the pairing of ahistorical stages
 #' used to create historical stage pairs. Set to NA for ahistorical matrices.}
 #' \item{agestages}{A data frame showing age-stage pairs. In this function, it
@@ -2801,7 +2836,8 @@ rleslie <- function(data, start_age = NA, last_age = NA, continue = TRUE,
   fec = c("feca3", "feca2", "feca1"), agecol = "obsage", year = "all", pop = NULL,
   patch = NULL, yearcol = NULL, popcol = NULL, patchcol = NULL, indivcol = NULL,
   censor = FALSE, censorcol = NULL, censorkeep = 0, fectime = 2, fecmod = 1.0,
-  prebreeding = TRUE, reduce = FALSE, simple = FALSE, err_check = FALSE) {
+  prebreeding = TRUE, reduce = FALSE, simple = FALSE, err_check = FALSE,
+  sparse_output = FALSE) {
 
   output <- mpm_create(historical = FALSE, stage = FALSE, age = TRUE,
     devries = FALSE, reduce = reduce, data = data, year = year, pop = pop,
@@ -2810,7 +2846,7 @@ rleslie <- function(data, start_age = NA, last_age = NA, continue = TRUE,
     censorcol = censorcol, censor = censor, censorkeep = censorkeep, start_age = start_age,
     last_age = last_age, fecage_min = fecage_min, fecage_max = fecage_max,
     fectime = fectime, fecmod = fecmod, cont = continue, prebreeding = prebreeding,
-    simple = simple, err_check = err_check)
+    simple = simple, err_check = err_check, sparse_output = sparse_output)
   
   return(output)
 }
@@ -3085,7 +3121,11 @@ summary.lefkoMat <- function(object, colsums = TRUE, ...) {
   }
   
   dethonthetoilet <- apply(as.matrix(c(1:length(matrices$U))), 1, function(X) {
-      summary(colSums(matrices$U[[X]]))
+      if (is(matrices$U[[1]], "dgCMatrix")) {  
+        summary(Matrix::colSums(matrices$U[[X]]))
+      } else {
+        summary(colSums(matrices$U[[X]]))
+      }
     }
   )
   

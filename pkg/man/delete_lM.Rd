@@ -215,7 +215,6 @@ anth_lefkoMat <- create_lM(mats_list, anthframe, hstages = NA, historical = FALS
   poporder = 1, patchorder = pch_ord, yearorder = yr_ord)
   
 smaller_anth_lM <- delete_lM(anth_lefkoMat, patch = 3)
-smaller_anth_lM
 
 }
 \seealso{

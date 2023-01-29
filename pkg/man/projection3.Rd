@@ -21,7 +21,8 @@ projection3(
   start_vec = NULL,
   start_frame = NULL,
   tweights = NULL,
-  density = NULL
+  density = NULL,
+  sparse = NULL
 )
 }
 \arguments{
@@ -98,6 +99,14 @@ will be subject to density dependence, and the exact kind of density
 dependence that they will be subject to. The data frame used should be an
 object of class \code{lefkoDens}, which is the output from function
 \code{\link{density_input}()}.}
+
+\item{sparse}{A text string indicating whether to use sparse matrix encoding
+(\code{"yes"}) or dense matrix encoding (\code{"no"}), if the
+\code{lefkoMat} object input as \code{mpm} is composed of standard matrices.
+Defaults to \code{"auto"}, in which case sparse matrix encoding is used with
+standard, square matrices with at least 10 rows and no more than 50% of
+elements with values greater than zero, or when input \code{lefkoMat}
+objects include matrices of class \code{dgCMatrix}.}
 }
 \value{
 A list of class \code{lefkoProj}, which always includes the first

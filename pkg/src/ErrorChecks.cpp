@@ -219,11 +219,10 @@ Rcpp::List cond_hmpm(List hmpm, Nullable<CharacterVector> matchoice = R_NilValue
   
   int counter = 0;
   
-  // This next section creates an index of matrix elements in the original matrices
-  // and the new conditional matrices. It must be run on the hstages inputs in
-  // order to handle reduced matrices properly.
+  // Create index of matrix elements in original matrices & conditional matrices
+  // Must be run on hstages inputs to handle reduced matrices properly
   if (format_int == 0) {
-    // This portion handles Ehrlen-format hMPMs
+    // Ehrlen-format hMPMs
     for (int prior = 0; prior < hmpm_rows; prior++) {
       for (int post = 0; post < hmpm_rows; post++) {
         stage1_proxy = hstage1[prior];
@@ -244,7 +243,7 @@ Rcpp::List cond_hmpm(List hmpm, Nullable<CharacterVector> matchoice = R_NilValue
       }
     }
   } else {
-    // This section deals with deVries-format hMPMs
+    // deVries-format hMPMs
     for (int prior = 0; prior < hmpm_rows; prior++) {
       for (int post = 0; post < hmpm_rows; post++) {
         stage1_proxy = hstage1[prior];
@@ -286,7 +285,7 @@ Rcpp::List cond_hmpm(List hmpm, Nullable<CharacterVector> matchoice = R_NilValue
     _["stage2"] = stage2, _["stage3"] = stage3, _["main_index"] = main_index,
     _["new_index"] = new_index);
   
-  // This next line creates the conditional matrices in list form
+  // Creates conditional matrices in list form
   List allout (numofmats);
   List mats1;
   
@@ -491,7 +490,7 @@ Rcpp::List cond_diff(List lDiff, int ref = 1,
     } else if (usedmats(0) == "F" || usedmats(0) == "f") {
       iusedmats = 3;
     } else {
-      Rcpp::Rcout << "Choice of matrix not recognized. Using A matrices.";
+      Rcpp::Rcout << "Choice of matrix not recognized. Using A matrices.\n";
       iusedmats = 1;
     }
   }
@@ -565,11 +564,10 @@ Rcpp::List cond_diff(List lDiff, int ref = 1,
   
   int counter = 0;
   
-  // This next section creates an index of matrix elements in the original matrices
-  // and the new conditional matrices. It must be run on the hstages inputs in
-  // order to handle reduced matrices properly.
+  // Create index of matrix elements in original matrices & conditional matrices
+  // Run on hstages inputs to handle reduced matrices properly
   if (format_int == 0) {
-    // This portion handles Ehrlen-format hMPMs
+    // Ehrlen-format hMPMs
     for (int prior = 0; prior < hmpm_rows; prior++) {
       for (int post = 0; post < hmpm_rows; post++) {
         stage1_proxy = hstage1[prior];
@@ -590,7 +588,7 @@ Rcpp::List cond_diff(List lDiff, int ref = 1,
       }
     }
   } else {
-    // This section deals with deVries-format hMPMs
+    // deVries-format hMPMs
     for (int prior = 0; prior < hmpm_rows; prior++) {
       for (int post = 0; post < hmpm_rows; post++) {
         stage1_proxy = hstage1[prior];
@@ -632,7 +630,7 @@ Rcpp::List cond_diff(List lDiff, int ref = 1,
     _["stage2"] = stage2, _["stage3"] = stage3, _["main_index"] = main_index,
     _["new_index"] = new_index);
   
-  // This next line creates the conditional matrices in list form
+  // Create conditional matrices in list form
   List allout (numofmats);
   List mats1;
   

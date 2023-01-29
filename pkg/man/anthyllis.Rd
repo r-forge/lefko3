@@ -40,7 +40,6 @@ published in Davison et al. (2010; Journal of Eccology 98(2): 255-267).
 }
 \examples{
 data(anthyllis)
-
 summary(anthyllis)
 
 lambda3(anthyllis)

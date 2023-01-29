@@ -11,7 +11,9 @@
 
 \item{sparse}{A text string indicating whether to use sparse matrix encoding
 (\code{"yes"}) or dense matrix encoding (\code{"no"}). Defaults to
-\code{"auto"}.}
+\code{"auto"}, in which case sparse matrix encoding is used with square
+matrices with at least 10 rows and no more than 50\% of elements with values
+greater than zero.}
 
 \item{...}{Other parameters.}
 }
@@ -27,8 +29,18 @@ handle large and sparse matrices, and so can be used with large historical
 matrices, IPMs, age x stage matrices, as well as smaller ahistorical
 matrices.
 }
+\section{Notes}{
+
+All sensitivity matrix outputs from this function are in standard matrix
+format.
+
+Speed can sometimes be increased by shifting from automatic sparse matrix
+determination to forced dense or sparse matrix projection. This will most
+likely occur when matrices have several hundred rows and columns. Defaults
+work best when matrices are very small and dense, or very large and sparse.
+}
+
 \examples{
-# Lathyrus example
 data(lathyrus)
 
 sizevector <- c(0, 100, 13, 127, 3730, 3800, 0)
@@ -76,6 +88,8 @@ sensitivity3(ehrlen3mean$A[[1]])
 \code{\link{sensitivity3}()}
 
 \code{\link{sensitivity3.lefkoMat}()}
+
+\code{\link{sensitivity3.dgCMatrix}()}
 
 \code{\link{sensitivity3.list}()}
 }

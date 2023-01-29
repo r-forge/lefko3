@@ -7,6 +7,46 @@ using namespace Rcpp;
 using namespace arma;
 
 namespace LefkoMats {
+
+  //' Create General Element Index for Any lefkoMat Matrix
+  //' 
+  //' This function creates a general element index by taking a list of matrices
+  //' and finding all non-zero values, which it then return C++ indices of
+  //' within an arma::uvec object.
+  //' 
+  //' @name general_index
+  //' 
+  //' @param mats A list of matrices.
+  //' 
+  //' @return An arma::uvec object listing indices of non-zero values in order.
+  //' This object is essentially a union of all non-zero indices across all
+  //' matrices in the list.
+  //' 
+  //' @keywords internal
+  //' @noRd
+  inline arma::uvec general_index (Rcpp::List mats) {
+    int mat_length = mats.length();
+    
+    arma::uvec torture_chamber;
+    
+    for (int i = 0; i < mat_length; i++) {
+      arma::uvec iron_maiden;
+      if (is<S4>(mats(i))) {
+        iron_maiden = find(as<arma::sp_mat>(mats(i)));
+      } else {
+        iron_maiden = find(as<arma::mat>(mats(i)));
+      }
+      
+      if (i == 0) {
+        torture_chamber = iron_maiden;
+      } else {
+        torture_chamber = unique(join_cols(torture_chamber, iron_maiden));
+      }
+    }
+    
+    return torture_chamber;
+  }
+  
   //' Full Eigen Analysis of a Single Dense Matrix
   //' 
   //' Function \code{decomp3()} returns all eigenvalues, right eigenvectors, and
@@ -175,6 +215,190 @@ namespace LefkoMats {
     return replacements;
   }
   
+  //' Creates Base Skeleton Stageframe
+  //' 
+  //' Function \code{sf_core()} creates a skeleton stageframe.
+  //' 
+  //' @name sf_core
+  //' 
+  //' @param num_stages An integer denoting the number of stages to include.
+  //' @param reassessed A logical value indicating whether to create a
+  //' processed stageframe, or an original stageframe.
+  //' @param small A logical value indicating whether to create a small
+  //' stageframe composed of only five variables, or a full stageframe.
+  //' 
+  //' @return A data frame with empty values for all variables except
+  //' \code{"stage"}.
+  //' 
+  //' @keywords internal
+  //' @noRd
+  inline Rcpp::DataFrame sf_core(int num_stages, bool reassessed = false,
+    bool small = false) {
+    
+    if (num_stages < 1) {
+      throw Rcpp::exception("Stageframe cannot be made for fewer than 1 stage.", false);
+    }
+    
+    List output;
+    
+    StringVector stage (num_stages);
+    NumericVector original_size (num_stages);
+    IntegerVector entrystage (num_stages);
+    IntegerVector repstatus (num_stages);
+    NumericVector zero_double (num_stages);
+    IntegerVector zero_int (num_stages);
+    IntegerVector one_int (num_stages, 1);
+    
+    for (int i = 0; i < num_stages; i++) {
+      String new_stage = "stage ";
+      new_stage += String((i + 1));
+      
+      stage(i) = new_stage;
+      
+      original_size(i) = static_cast<double>(i + 1);
+    }
+    
+    if (small) {
+      IntegerVector stage_id (num_stages);
+      for (int i = 0; i < num_stages; i++) {
+        stage_id(i) = i+1;
+      }
+      
+      List output_new (5);
+      output_new(0) = stage_id;
+      output_new(1) = stage;
+      output_new(2) = original_size;
+      output_new(3) = repstatus;
+      output_new(4) = entrystage;
+      
+      output = output_new;
+      Rcpp::CharacterVector varnames = {"stage_id", "stage", "original_size", 
+        "repstatus", "entrystage"};
+      output.attr("names") = varnames;
+      
+    } else {
+      StringVector comments (num_stages);
+      NumericVector bin_half (num_stages, 0.5);
+      NumericVector bin_full (num_stages, 1.0);
+      
+      for (int i = 0; i < num_stages; i++) {
+        String new_comment = "stage ";
+        new_comment += String((i + 1));
+        new_comment += " comment";
+        
+        comments(i) = new_comment;
+      }
+      
+      if (reassessed) {
+        IntegerVector stage_id (num_stages);
+        for (int i = 0; i < num_stages; i++) {
+          stage_id(i) = i+1;
+        }
+        
+        List output_new (33);
+        output_new(0) = stage_id;
+        output_new(1) = stage;
+        output_new(2) = original_size;
+        output_new(3) = clone(zero_double);
+        output_new(4) = clone(zero_double);
+        output_new(5) = clone(zero_int);
+        output_new(6) = clone(zero_int);
+        output_new(7) = repstatus;
+        output_new(8) = clone(one_int);
+        output_new(9) = clone(zero_int);
+        
+        output_new(10) = clone(zero_int);
+        output_new(11) = clone(zero_int);
+        output_new(12) = entrystage;
+        output_new(13) = clone(one_int);
+        output_new(14) = bin_half;
+        output_new(15) = clone(zero_double);
+        output_new(16) = clone(zero_double);
+        output_new(17) = clone(original_size);
+        output_new(18) = bin_full;
+        output_new(19) = clone(zero_double);
+        
+        output_new(20) = clone(zero_double);
+        output_new(21) = clone(zero_double);
+        output_new(22) = clone(zero_double);
+        output_new(23) = clone(zero_double);
+        output_new(24) = clone(zero_double);
+        output_new(25) = clone(zero_double);
+        output_new(26) = clone(zero_double);
+        output_new(27) = clone(zero_double);
+        output_new(28) = clone(zero_double);
+        output_new(29) = clone(zero_int);
+        
+        output_new(30) = comments;
+        output_new(31) = clone(one_int);
+        output_new(32) = clone(zero_int);
+        
+        output = output_new;
+        Rcpp::CharacterVector varnames = {"stage_id", "stage", "original_size",
+          "original_size_b", "original_size_c", "min_age", "max_age",
+          "repstatus", "obsstatus", "propstatus", "immstatus", "matstatus",
+          "entrystage", "indataset", "binhalfwidth_raw", "sizebin_min",
+          "sizebin_max", "sizebin_center", "sizebin_width", "binhalfwidthb_raw",
+          "sizebinb_min", "sizebinb_max", "sizebinb_center", "sizebinb_width",
+          "binhalfwidthc_raw", "sizebinc_min", "sizebinc_max",
+          "sizebinc_center", "sizebinc_width", "group", "comments", "alive",
+          "almostborn"};
+        output.attr("names") = varnames;
+        
+      } else {
+        List output_new (29);
+        output_new(0) = stage;
+        output_new(1) = original_size;
+        output_new(2) = clone(zero_double);
+        output_new(3) = clone(zero_double);
+        output_new(4) = clone(zero_int);
+        output_new(5) = clone(zero_int);
+        output_new(6) = repstatus;
+        output_new(7) = clone(one_int);
+        output_new(8) = clone(zero_int);
+        output_new(9) = clone(zero_int);
+        
+        output_new(10) = clone(zero_int);
+        output_new(11) = clone(one_int);
+        output_new(12) = bin_half;
+        output_new(13) = clone(zero_double);
+        output_new(14) = clone(zero_double);
+        output_new(15) = clone(original_size);
+        output_new(16) = bin_full;
+        output_new(17) = clone(zero_double);
+        output_new(18) = clone(zero_double);
+        output_new(19) = clone(zero_double);
+        
+        output_new(20) = clone(zero_double);
+        output_new(21) = clone(zero_double);
+        output_new(22) = clone(zero_double);
+        output_new(23) = clone(zero_double);
+        output_new(24) = clone(zero_double);
+        output_new(25) = clone(zero_double);
+        output_new(26) = clone(zero_double);
+        output_new(27) = clone(zero_int);
+        output_new(28) = comments;
+        
+        output = output_new;
+        Rcpp::CharacterVector varnames = {"stage", "size", "size_b", "size_c",
+          "min_age", "max_age", "repstatus", "obsstatus", "propstatus",
+          "immstatus", "matstatus", "indataset", "binhalfwidth_raw",
+          "sizebin_min", "sizebin_max", "sizebin_center", "sizebin_width",
+          "binhalfwidthb_raw", "sizebinb_min", "sizebinb_max",
+          "sizebinb_center", "sizebinb_width", "binhalfwidthc_raw",
+          "sizebinc_min", "sizebinc_max", "sizebinc_center", "sizebinc_width",
+          "group", "comments"};
+        output.attr("names") = varnames;
+      }
+    }
+    
+    CharacterVector newclasses = {"data.frame", "stageframe"};
+    output.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, num_stages);
+    output.attr("class") = newclasses;
+    
+    return output;
+  }
+  
   //' Base Skeleton Data Frame for Paramnames Objects
   //' 
   //' Creates a simple skeleton \code{paramnames} object that can be entered as
@@ -236,49 +460,6 @@ namespace LefkoMats {
     return output;
   }
   
-  //' Vectorize Matrix for Historical Mean Matrix Estimation
-  //' 
-  //' Function \code{flagrantcrap()} vectorizes core indices of matrices
-  //' input as list elements.
-  //' 
-  //' @name flagrantcrap
-  //' 
-  //' @param Xmat A matrix originally a part of a list object.
-  //' @param allindices A vector of indices to remove from the matrix
-  //' 
-  //' @return A column vector of specifically called elements from the input
-  //' matrix.
-  //' 
-  //' @keywords internal
-  //' @noRd
-  inline arma::vec flagrantcrap(const arma::mat& Xmat,
-    const arma::uvec& allindices) {
-    
-    arma::vec newcol = Xmat.elem(allindices);
-    
-    return newcol;
-  }
-  
-  //' Vectorize Matrix for Ahistorical Mean Matrix Estimation
-  //' 
-  //' Function \code{moreflagrantcrap()} vectorizes matrices input as list
-  //' elements.
-  //' 
-  //' @name moreflagrantcrap
-  //' 
-  //' @param Xmat A matrix originally a part of a list object.
-  //' 
-  //' @return A column vector of the input matrix.
-  //' 
-  //' @keywords internal
-  //' @noRd
-  inline arma::vec moreflagrantcrap(const arma::mat& Xmat) {
-    
-    arma::vec newcol = arma::vectorise(Xmat);
-    
-    return newcol;
-  }
-  
   //' Estimates Mean LefkoMat Object for Historical MPM
   //' 
   //' Function \code{turbogeodiesel()} estimates mean historical population
@@ -298,6 +479,10 @@ namespace LefkoMats {
   //' means.
   //' @param popmats A logical value stating whether to estimate population-level
   //' means.
+  //' @param mat_input A logical value indicating whether the input matrix class
+  //' is a standard \code{NumericMatrix}.
+  //' @param sparse_switch A number denoting whether to force simple matrices to
+  //' be projected as sparse (\code{1}) or not (\code{0}).
   //' 
   //' @return A list using the structure of a lefkoMat object.
   //' 
@@ -305,7 +490,7 @@ namespace LefkoMats {
   //' @noRd
   inline Rcpp::List turbogeodiesel(DataFrame& loy, List Umats, List Fmats,
     DataFrame hstages, DataFrame agestages, DataFrame stages, bool patchmats,
-    bool popmats) {
+    bool popmats, bool mat_input, int sparse_switch) {
     
     StringVector pops = as<StringVector>(loy["pop"]);
     arma::uvec pop_num = as<arma::uvec>(loy["popc"]);
@@ -437,20 +622,16 @@ namespace LefkoMats {
     
     arma::uvec hsgood = find(hsindexl);
     arma::uvec hsindex = hsindexl.elem(hsgood);
-    arma::uvec zerovec(1);
-    zerovec.zeros();
+    arma::uvec zerovec(1, fill::zeros);
     arma::uvec allindices = join_cols(zerovec, hsindex);
     
-    // Build U and F matrices of element-wise arithmetic means
-    // Each column corresponds to the predicted non-zero elements of each mean
-    // matrix, and each matrix is presented as a column vector within the 
-    // overall matrix. The A matrix is the sum of U and F.
+    // Build U & F matrices of element-wise arithmetic means
+    // Each column holds predicted non-zero elements of each mean matrix
+    // Each matrix is a column vector within the overall matrix
     int core_elem = counter;
     
-    arma::mat umatvec(core_elem, totalmatrices);
-    arma::mat fmatvec(core_elem, totalmatrices);
-    umatvec.zeros();
-    fmatvec.zeros();
+    arma::mat umatvec(core_elem, totalmatrices, fill::zeros);
+    arma::mat fmatvec(core_elem, totalmatrices, fill::zeros);
     
     int patchchoice {0};
     int popchoice {0};
@@ -458,30 +639,71 @@ namespace LefkoMats {
     pop_num = pop_num - 1;
     poppatchc = poppatchc - 1;
     
-    for (int i = 0; i < loydim; i++) {
+    for (int i = 0; i < loydim; i ++) {
       if (patchmats) {
         patchchoice = poppatchc(i);
         
-        umatvec.col(patchchoice) = umatvec.col(patchchoice) +
-          (flagrantcrap(as<arma::mat>(Umats[i]), allindices) / yearsinpatch(i));
-        fmatvec.col(patchchoice) = fmatvec.col(patchchoice) +
-          (flagrantcrap(as<arma::mat>(Fmats[i]), allindices) / yearsinpatch(i));
-      }
-      
-      if (popmats) {
-        if (patchmats) {
-          popchoice = numofpatches + pop_num(i);
+        if (mat_input) {
+          arma::mat Umats_invaded = as<arma::mat>(Umats(i));
+          arma::mat Fmats_invaded = as<arma::mat>(Fmats(i));
+          
+          umatvec.col(patchchoice) = umatvec.col(patchchoice) +
+            (Umats_invaded.elem(allindices) / yearsinpatch(i));
+          fmatvec.col(patchchoice) = fmatvec.col(patchchoice) +
+            (Umats_invaded.elem(allindices) / yearsinpatch(i));
         } else {
-          popchoice = pop_num(i);
+          arma::sp_mat Umats_invaded = as<arma::sp_mat>(Umats(i));
+          arma::sp_mat Fmats_invaded = as<arma::sp_mat>(Fmats(i));
+          
+          arma::vec Umats_invaded_allindices (allindices.n_elem, fill::zeros);
+          arma::vec Fmats_invaded_allindices (allindices.n_elem, fill::zeros);
+          
+          for (int j = 0; j < allindices.n_elem; j++) {
+            Umats_invaded_allindices(j) = Umats_invaded(allindices(j));
+            Fmats_invaded_allindices(j) = Fmats_invaded(allindices(j));
+          }
+        
+          umatvec.col(patchchoice) = umatvec.col(patchchoice) +
+            (Umats_invaded_allindices / yearsinpatch(i));
+          fmatvec.col(patchchoice) = fmatvec.col(patchchoice) +
+            (Umats_invaded_allindices / yearsinpatch(i));
         }
         
-        umatvec.col(popchoice) = umatvec.col(popchoice) +
-          (flagrantcrap(as<arma::mat>(Umats[i]), allindices) / (yearsinpatch(i) * patchesinpop(i)));
-        fmatvec.col(popchoice) = fmatvec.col(popchoice) +
-          (flagrantcrap(as<arma::mat>(Fmats[i]), allindices) / (yearsinpatch(i) * patchesinpop(i)));
+        if (popmats) {
+          if (patchmats) {
+            popchoice = numofpatches + pop_num(i);
+          } else {
+            popchoice = pop_num(i);
+          }
+          
+          if (mat_input) {
+            arma::mat Umats_invaded = as<arma::mat>(Umats(i));
+            arma::mat Fmats_invaded = as<arma::mat>(Fmats(i));
+            
+            umatvec.col(popchoice) = umatvec.col(popchoice) +
+              (Umats_invaded.elem(allindices) / (yearsinpatch(i) * patchesinpop(i)));
+            fmatvec.col(popchoice) = fmatvec.col(popchoice) +
+              (Umats_invaded.elem(allindices) / (yearsinpatch(i) * patchesinpop(i)));
+          } else {
+            arma::sp_mat Umats_invaded = as<arma::sp_mat>(Umats(i));
+            arma::sp_mat Fmats_invaded = as<arma::sp_mat>(Fmats(i));
+            
+            arma::vec Umats_invaded_allindices (allindices.n_elem, fill::zeros);
+            arma::vec Fmats_invaded_allindices (allindices.n_elem, fill::zeros);
+            
+            for (int j = 0; j < allindices.n_elem; j++) {
+              Umats_invaded_allindices(j) = Umats_invaded(allindices(j));
+              Fmats_invaded_allindices(j) = Fmats_invaded(allindices(j));
+            }
+          
+            umatvec.col(popchoice) = umatvec.col(popchoice) +
+              (Umats_invaded_allindices / (yearsinpatch(i) * patchesinpop(i)));
+            fmatvec.col(popchoice) = fmatvec.col(popchoice) +
+              (Umats_invaded_allindices / (yearsinpatch(i) * patchesinpop(i)));
+          }
+        }
       }
     }
-    arma::mat amatvec = umatvec + fmatvec;
     
     // New labels data frame
     int cheatsheetlength {1};
@@ -523,33 +745,54 @@ namespace LefkoMats {
       _["patch"] = patchorder_redone);
     
     // Create the main list objects holding matrices
-    List U(totalmatrices);
-    List F(totalmatrices);
-    List A(totalmatrices);
+    List U (totalmatrices);
+    List F (totalmatrices);
+    List A (totalmatrices);
+    int totalutrans {0};
+    int totalftrans {0};
     
-    arma::mat umat_base(numhstages, numhstages);
-    arma::mat fmat_base(numhstages, numhstages);
-    arma::mat amat_base(numhstages, numhstages);
-    
-    for (int i = 0; i < totalmatrices; i++) {
-      umat_base.zeros();
-      fmat_base.zeros();
-      amat_base.zeros();
+    if (mat_input && sparse_switch == 0) {
+      for (int i = 0; i < totalmatrices; i++) {
+        arma::mat umat_base(numhstages, numhstages, fill::zeros);
+        arma::mat fmat_base(numhstages, numhstages, fill::zeros);
+        
+        umat_base.elem(allindices) = umatvec.col(i);
+        fmat_base.elem(allindices) = fmatvec.col(i);
+        arma::mat amat_base = umat_base + fmat_base;
+        
+        U(i) = umat_base;
+        F(i) = fmat_base;
+        A(i) = amat_base;
+      }
       
-      umat_base.elem(allindices) = umatvec.col(i);
-      fmat_base.elem(allindices) = fmatvec.col(i);
-      amat_base.elem(allindices) = amatvec.col(i);
+      // Matrix QC output
+      arma::uvec utrans = find(umatvec);
+      arma::uvec ftrans = find(fmatvec);
+      totalutrans = utrans.n_elem;
+      totalftrans = ftrans.n_elem;
       
-      U(i) = umat_base;
-      F(i) = fmat_base;
-      A(i) = amat_base;
+    } else {
+      for (int i = 0; i < totalmatrices; i++) {
+        arma::sp_mat umat_base(numhstages, numhstages);
+        arma::sp_mat fmat_base(numhstages, numhstages);
+        
+        for (int j = 0; j < allindices.n_elem; j++) {
+          umat_base(allindices(j)) = umatvec(j, i);
+          fmat_base(allindices(j)) = fmatvec(j, i);
+        }
+        arma::sp_mat amat_base = umat_base + fmat_base;
+        
+        U(i) = umat_base;
+        F(i) = fmat_base;
+        A(i) = amat_base;
+      }
+      
+      // Matrix QC output
+      arma::uvec utrans = find(umatvec);
+      arma::uvec ftrans = find(fmatvec);
+      totalutrans = utrans.n_elem;
+      totalftrans = ftrans.n_elem;
     }
-  
-    // Matrix QC output
-    arma::uvec utrans = find(umatvec);
-    arma::uvec ftrans = find(fmatvec);
-    int totalutrans = utrans.n_elem;
-    int totalftrans = ftrans.n_elem;
     
     NumericVector matrixqc(3);
     matrixqc(0) = totalutrans; // summed number of non-zero u transitions
@@ -583,13 +826,18 @@ namespace LefkoMats {
   //' means.
   //' @param popmats A logical value stating whether to estimate population-level
   //' means.
+  //' @param mat_input A logical value indicating whether the input matrix class
+  //' is a standard \code{NumericMatrix}.
+  //' @param sparse_switch A number denoting whether to force simple matrices to
+  //' be projected as sparse (\code{1}) or not (\code{0}).
   //' 
   //' @return A list using the structure of a LefkoMat object.
   //' 
   //' @keywords internal
   //' @noRd
   inline Rcpp::List geodiesel(DataFrame& loy, List Umats, List Fmats,
-    DataFrame agestages, DataFrame stages, bool patchmats, bool popmats) {
+    DataFrame agestages, DataFrame stages, bool patchmats, bool popmats,
+    bool mat_input, int sparse_switch) {
     
     StringVector pops = as<StringVector>(loy["pop"]);
     arma::uvec pop_num = as<arma::uvec>(loy["popc"]);
@@ -680,54 +928,144 @@ namespace LefkoMats {
     int initialstages = astages.n_elem;
     
     // Test for the presence of ages, and determine matrix dimensions
-    arma::mat initUmat = Umats(0);
-    int colsused = initUmat.n_cols;
+    int colsused {0};
+    
+    if (mat_input && sparse_switch == 0) {
+      arma::mat initUmat = as<arma::mat>(Umats(0));
+      colsused = initUmat.n_cols;
+    } else if (mat_input) {
+      arma::sp_mat initUmat(as<arma::mat>(Umats(0)));
+      colsused = initUmat.n_cols;
+    } else {
+      arma::sp_mat initUmat = as<arma::sp_mat>(Umats(0));
+      colsused = initUmat.n_cols;
+    }
+    
     int agemultiplier = colsused / initialstages;
     
     int numstages = astages.n_elem * agemultiplier;
     
-    // Build U and F matrices of element-wise arithmetic means
-    // Each column corresponds to the predicted non-zero elements of each mean
-    // matrix, and each matrix is presented as a column vector within the 
-    // overall matrix. The A matrix is the sum of U and F.
+    // Build U & F matrices of element-wise arithmetic means
+    // Each column holds predicted non-zero elements of each mean matrix
+    // Each matrix is a column vector within the overall matrix
     int core_elem = numstages * numstages;
     
-    arma::mat umatvec(core_elem, totalmatrices);
-    arma::mat fmatvec(core_elem, totalmatrices);
-    umatvec.zeros();
-    fmatvec.zeros();
+    arma::mat umatvec;
+    arma::mat fmatvec;
+    arma::mat amatvec;
+    arma::sp_mat umatvec_sp;
+    arma::sp_mat fmatvec_sp;
+    arma::sp_mat amatvec_sp;
     
-    int patchchoice {0};
-    int popchoice {0};
-    
-    pop_num = pop_num - 1;
-    poppatchc = poppatchc - 1;
-    
-    for (int i = 0; i < loydim; i ++) {
-      if (patchmats) {
-        patchchoice = poppatchc(i);
-        
-        umatvec.col(patchchoice) = umatvec.col(patchchoice) +
-          (moreflagrantcrap(as<arma::mat>(Umats[i])) / yearsinpatch(i));
-        fmatvec.col(patchchoice) = fmatvec.col(patchchoice) +
-          (moreflagrantcrap(as<arma::mat>(Fmats[i])) / yearsinpatch(i));
-      }
+    if (mat_input && sparse_switch == 0) {
+      arma::mat umatvec_(core_elem, totalmatrices);
+      arma::mat fmatvec_(core_elem, totalmatrices);
+      umatvec_.zeros();
+      fmatvec_.zeros();
       
-      if (popmats) {
+      int patchchoice {0};
+      int popchoice {0};
+      
+      pop_num = pop_num - 1;
+      poppatchc = poppatchc - 1;
+      
+      for (int i = 0; i < loydim; i ++) {
         if (patchmats) {
-          popchoice = numofpatches + pop_num(i);
-        } else {
-          popchoice = pop_num(i);
+          patchchoice = poppatchc(i);
+          
+          arma::mat Umats_invaded = as<arma::mat>(Umats(i));
+          arma::mat Fmats_invaded = as<arma::mat>(Fmats(i));
+          
+          umatvec_.col(patchchoice) = umatvec_.col(patchchoice) +
+            (arma::vectorise(Umats_invaded) / yearsinpatch(i));
+          fmatvec_.col(patchchoice) = fmatvec_.col(patchchoice) +
+            (arma::vectorise(Fmats_invaded) / yearsinpatch(i));
         }
         
-        umatvec.col(popchoice) = umatvec.col(popchoice) +
-          (moreflagrantcrap(as<arma::mat>(Umats[i])) / (yearsinpatch(i) * patchesinpop(i)));
-        fmatvec.col(popchoice) = fmatvec.col(popchoice) +
-          (moreflagrantcrap(as<arma::mat>(Fmats[i])) / (yearsinpatch(i) * patchesinpop(i)));
+        if (popmats) {
+          if (patchmats) {
+            popchoice = numofpatches + pop_num(i);
+          } else {
+            popchoice = pop_num(i);
+          }
+          
+          arma::mat Umats_invaded = as<arma::mat>(Umats(i));
+          arma::mat Fmats_invaded = as<arma::mat>(Fmats(i));
+          
+          umatvec_.col(popchoice) = umatvec_.col(popchoice) +
+            (arma::vectorise(Umats_invaded) / (yearsinpatch(i) * patchesinpop(i)));
+          fmatvec_.col(popchoice) = fmatvec_.col(popchoice) +
+            (arma::vectorise(Fmats_invaded) / (yearsinpatch(i) * patchesinpop(i)));
+        }
       }
+      umatvec = umatvec_;
+      fmatvec = fmatvec_;
+      amatvec = umatvec + fmatvec;
+      
+    } else {
+      arma::sp_mat umatvec_sp_(core_elem, totalmatrices);
+      arma::sp_mat fmatvec_sp_(core_elem, totalmatrices);
+      
+      int patchchoice {0};
+      int popchoice {0};
+      
+      pop_num = pop_num - 1;
+      poppatchc = poppatchc - 1;
+      
+      for (int i = 0; i < loydim; i ++) {
+        if (patchmats) {
+          patchchoice = poppatchc(i);
+          
+          arma::sp_mat Umats_invaded;
+          arma::sp_mat Fmats_invaded;
+          
+          if (mat_input) { 
+            arma::sp_mat Umats_invaded_(as<arma::mat>(Umats(i)));
+            arma::sp_mat Fmats_invaded_(as<arma::mat>(Fmats(i)));
+            Umats_invaded = Umats_invaded_;
+            Fmats_invaded = Fmats_invaded_;
+          } else { 
+            Umats_invaded = as<arma::sp_mat>(Umats(i));
+            Fmats_invaded = as<arma::sp_mat>(Fmats(i));
+          }
+          
+          umatvec_sp_.col(patchchoice) = umatvec_sp_.col(patchchoice) +
+            (arma::vectorise(Umats_invaded) / yearsinpatch(i));
+          fmatvec_sp_.col(patchchoice) = fmatvec_sp_.col(patchchoice) +
+            (arma::vectorise(Fmats_invaded) / yearsinpatch(i));
+        }
+        
+        if (popmats) {
+          if (patchmats) {
+            popchoice = numofpatches + pop_num(i);
+          } else {
+            popchoice = pop_num(i);
+          }
+          
+          arma::sp_mat Umats_invaded;
+          arma::sp_mat Fmats_invaded;
+          
+          if (mat_input) {
+            arma::sp_mat Umats_invaded_(as<arma::mat>(Umats(i)));
+            arma::sp_mat Fmats_invaded_(as<arma::mat>(Fmats(i)));
+            Umats_invaded = Umats_invaded_;
+            Fmats_invaded = Fmats_invaded_;
+          } else {
+            Umats_invaded = as<arma::sp_mat>(Umats(i));
+            Fmats_invaded = as<arma::sp_mat>(Fmats(i));
+          }
+          
+          umatvec_sp_.col(popchoice) = umatvec_sp_.col(popchoice) +
+            (arma::vectorise(Umats_invaded) / (yearsinpatch(i) * patchesinpop(i)));
+          fmatvec_sp_.col(popchoice) = fmatvec_sp_.col(popchoice) +
+            (arma::vectorise(Fmats_invaded) / (yearsinpatch(i) * patchesinpop(i)));
+        }
+      }
+      
+      umatvec_sp = umatvec_sp_;
+      fmatvec_sp = fmatvec_sp_;
+      amatvec_sp = umatvec_sp + fmatvec_sp;
     }
-    
-    arma::mat amatvec = umatvec + fmatvec;
     
     // New labels data frame
     int cheatsheetlength {1};
@@ -768,31 +1106,17 @@ namespace LefkoMats {
       _["patch"] = patchorder_redone);
     
     // Create the main list objects to hold the matrices
-    List U(totalmatrices);
-    List F(totalmatrices);
-    List A(totalmatrices);
+    List U (totalmatrices);
+    List F (totalmatrices);
+    List A (totalmatrices);
+    int totalutrans {0};
+    int totalftrans {0};
     
-    arma::mat umat_base = umatvec.col(0);
-    arma::mat fmat_base = fmatvec.col(0);
-    arma::mat amat_base = amatvec.col(0);
-    
-    umat_base.reshape(numstages, numstages);
-    fmat_base.reshape(numstages, numstages);
-    amat_base.reshape(numstages, numstages);
-    
-    U(0) = umat_base;
-    F(0) = fmat_base;
-    A(0) = amat_base;
-    
-    if (totalmatrices > 1) {
-      for (int i = 1; i < totalmatrices; i++) {
-        umat_base.zeros();
-        fmat_base.zeros();
-        amat_base.zeros();
-        
-        umat_base = umatvec.col(i);
-        fmat_base = fmatvec.col(i);
-        amat_base = amatvec.col(i);
+    if (mat_input && sparse_switch == 0) {
+      for (int i = 0; i < totalmatrices; i++) {
+        arma::mat umat_base = umatvec.col(i);
+        arma::mat fmat_base = fmatvec.col(i);
+        arma::mat amat_base = amatvec.col(i);
         
         umat_base.reshape(numstages, numstages);
         fmat_base.reshape(numstages, numstages);
@@ -802,13 +1126,34 @@ namespace LefkoMats {
         F(i) = fmat_base;
         A(i) = amat_base;
       }
+      
+      // Matrix QC output
+      arma::uvec utrans = find(umatvec);
+      arma::uvec ftrans = find(fmatvec);
+      totalutrans = utrans.n_elem;
+      totalftrans = ftrans.n_elem;
+      
+    } else {
+      for (int i = 0; i < totalmatrices; i++) {
+        arma::sp_mat umat_base = umatvec_sp.col(i);
+        arma::sp_mat fmat_base = fmatvec_sp.col(i);
+        arma::sp_mat amat_base = amatvec_sp.col(i);
+        
+        umat_base.reshape(numstages, numstages);
+        fmat_base.reshape(numstages, numstages);
+        amat_base.reshape(numstages, numstages);
+        
+        U(i) = umat_base;
+        F(i) = fmat_base;
+        A(i) = amat_base;
+      }
+      
+      // Matrix QC output
+      arma::uvec utrans = find(umatvec);
+      arma::uvec ftrans = find(fmatvec);
+      totalutrans = utrans.n_elem;
+      totalftrans = ftrans.n_elem;
     }
-    
-    // Matrix QC output
-    arma::uvec utrans = find(umatvec);
-    arma::uvec ftrans = find(fmatvec);
-    int totalutrans = utrans.n_elem;
-    int totalftrans = ftrans.n_elem;
     
     NumericVector matrixqc(3);
     matrixqc(0) = totalutrans; // summed number of U transitions
@@ -821,7 +1166,5 @@ namespace LefkoMats {
     
     return output;
   }
-  
 }
-
 #endif

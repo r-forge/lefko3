@@ -1123,168 +1123,6 @@ namespace LefkoUtils {
       return new_df;
   }
   
-  //' Reduces Matrices In A Function-based lefkoMat Object
-  //' 
-  //' This function reduces all of the matrices in a function-based
-  //' \code{lefkoMat} object, looking for the common rows and columns that lack
-  //' non-zero elements among all A matrices. It also calculates the matrix qc
-  //' vector.
-  //' 
-  //' @name matrix_reducer
-  //' 
-  //' @param mat_list A list of matrices. In function-based encoding, there are
-  //' three main elements, \code{A}, \code{U}, and \code{F}, each containing as
-  //' many matrices as entries in the list-of-years.
-  //' each of which is a list of square matrices of equal dimension.
-  //' @param qc A three-element integer vector.
-  //' @param ahstages The stageframe as processed by \code{sf_reassess} and
-  //' the matrix creation functiion utilized, or the equivalent for Leslie MPMs.
-  //' @param hstages The historical stage-pair index data frame.
-  //' @param agestages The age-stage index data frame.
-  //' @param age A logical value indicating whether the MPM is age-based.
-  //' Defaults to \code{FALSE}.
-  //' @param stage A logical value indicating whether the MPM is stage-based.
-  //' Defaults to \code{TRUE}.
-  //' @param historical A logical value indicating whether the MPM is
-  //' historical. Defaults to \code{FALSE}.
-  //' @param reduce A logical value indicating whether to reduce the matrices.
-  //' Defaults to \code{FALSE}.
-  //' @param simplicity A logical value indicating whether the MPM includes
-  //' \code{A}, \code{U}, and \code{F} matrices, or only the latter. Defaults to
-  //' \code{FALSE}, in which case all three are included.
-  //' 
-  //' @return Reduces the matrices via reference, and creates a \code{matrixqc}
-  //' object.
-  //' 
-  //' @keywords internal
-  //' @noRd
-  inline void matrix_reducer (List& mat_list, IntegerVector& qc,
-    DataFrame& ahstages, DataFrame& hstages, DataFrame& agestages,
-    bool age = false, bool stage = true, bool historical = false,
-    bool reduce = false, bool simplicity = false) {
-    
-    List imported_A;
-    if (!simplicity) imported_A = as<List>(mat_list["A"]);
-    List imported_U = as<List>(mat_list["U"]);
-    List imported_F = as<List>(mat_list["F"]);
-    
-    int no_matrices = imported_U.length();
-    arma::uvec bits_to_remove;
-    
-    int u_transitions {0};
-    int f_transitions {0};
-    
-    if (reduce) {
-      for (int i = 0; i < no_matrices; i++) {
-        arma::mat A_arma;
-        
-        if (simplicity) {
-          if (!is<NumericMatrix>(imported_U(i))) continue;
-          
-          arma::mat U_arma = as<arma::mat>(imported_U(i));
-          arma::mat F_arma = as<arma::mat>(imported_F(i));
-          
-          A_arma = U_arma + F_arma;
-        } else {
-          if (!is<NumericMatrix>(imported_U(i))) continue;
-          A_arma = as<arma::mat>(imported_A(i));
-        }
-        
-        arma::rowvec A_colsums = sum(A_arma, 0);
-        arma::vec A_rowsums = sum(A_arma, 1);
-        
-        arma::uvec A_colzeros = find(A_colsums == 0.0);
-        arma::uvec A_rowzeros = find(A_rowsums == 0.0);
-        arma::uvec A_allzeros = intersect(A_colzeros, A_rowzeros);
-        
-        if (i == 0) {
-          bits_to_remove = A_allzeros;
-        } else {
-          bits_to_remove = intersect(A_allzeros, bits_to_remove);
-        }
-      }
-      
-      if (bits_to_remove.n_elem > 0) {
-        // Loop to reduce matrices and package them
-        for (int i = 0; i < no_matrices; i++) {
-          if (!is<NumericMatrix>(imported_U(i))) continue;
-          arma::mat U_arma = as<arma::mat>(imported_U(i));
-          arma::mat F_arma = as<arma::mat>(imported_F(i));
-          
-          U_arma.shed_rows(bits_to_remove);
-          F_arma.shed_rows(bits_to_remove);
-          
-          U_arma.shed_cols(bits_to_remove);
-          F_arma.shed_cols(bits_to_remove);
-          
-          arma::uvec U_nonzeros = find(U_arma);
-          arma::uvec F_nonzeros = find(F_arma);
-          u_transitions = u_transitions + static_cast<int>(U_nonzeros.n_elem);
-          f_transitions = f_transitions + static_cast<int>(F_nonzeros.n_elem);
-          
-          imported_U(i) = U_arma;
-          imported_F(i) = F_arma;
-          
-          if (!simplicity) {
-            arma::mat A_arma = as<arma::mat>(imported_A(i));
-            A_arma.shed_rows(bits_to_remove);
-            A_arma.shed_cols(bits_to_remove);
-            imported_A(i) = A_arma;
-          }
-        }
-        
-        if (!simplicity) mat_list(0) = imported_A;
-        mat_list(1) = imported_U;
-        mat_list(2) = imported_F;
-        
-        IntegerVector R_bits_to_remove = as<IntegerVector>(wrap(bits_to_remove));
-        if (stage) {
-          if (historical) {
-            hstages = df_shedrows(hstages, R_bits_to_remove);
-          } else if (age) {
-            agestages = df_shedrows(agestages, R_bits_to_remove);
-          } else {
-            ahstages = df_shedrows(ahstages, R_bits_to_remove);
-          }
-        } else {
-          ahstages = df_shedrows(ahstages, R_bits_to_remove);
-        }
-      } else {
-        // No matrix reduction, with reduce == TRUE
-        for (int i = 0; i < no_matrices; i++) {
-          if (!is<NumericMatrix>(imported_U(i))) continue;
-          arma::mat U_arma = as<arma::mat>(imported_U(i));
-          arma::mat F_arma = as<arma::mat>(imported_F(i));
-          
-          arma::uvec U_nonzeros = find(U_arma);
-          arma::uvec F_nonzeros = find(F_arma);
-          
-          u_transitions = u_transitions + static_cast<int>(U_nonzeros.n_elem);
-          f_transitions = f_transitions + static_cast<int>(F_nonzeros.n_elem);
-        }
-      }
-    } else {
-      // No matrix reduction
-      for (int i = 0; i < no_matrices; i++) {
-        if (!is<NumericMatrix>(imported_U(i))) continue;
-        arma::mat U_arma = as<arma::mat>(imported_U(i));
-        arma::mat F_arma = as<arma::mat>(imported_F(i));
-        
-        arma::uvec U_nonzeros = find(U_arma);
-        arma::uvec F_nonzeros = find(F_arma);
-        
-        u_transitions = u_transitions + static_cast<int>(U_nonzeros.n_elem);
-        f_transitions = f_transitions + static_cast<int>(F_nonzeros.n_elem);
-      }
-    }
-    
-    qc(0) = u_transitions;
-    qc(1) = f_transitions;
-    qc(2) = no_matrices;
-    
-    return;
-  }
-  
   //' Repeat first vector for each element of second vector
   //' 
   //' This function is an Rcpp version of \code{expand.grid()}.
@@ -7373,6 +7211,8 @@ namespace LefkoUtils {
   //' @param simplicity If \code{TRUE}, then only outputs matrices \code{U} and
   //' \code{F}, rather than also outputting matrix \code{A}. Defaults to
   //' \code{FALSE}.
+  //' @param sparse If \code{TRUE}, then only outputs matrices in sparse format.
+  //' Defaults to \code{FALSE}.
   //' 
   //' @return A list of 3 matrices, including the main MPM (A), the survival-
   //' transition matrix (U), and a fecundity matrix (F).
@@ -7392,7 +7232,7 @@ namespace LefkoUtils {
     bool dens_vr, LogicalVector dvr_yn, IntegerVector dvr_style,
     NumericVector dvr_alpha, NumericVector dvr_beta, NumericVector dens_n,
     double exp_tol = 700.0, double theta_tol = 100000000.0,
-    bool simplicity = false) {
+    bool simplicity = false, bool sparse = false) {
     
     // Determines the size of the matrix
     StringVector sf_agenames = as<StringVector>(ageframe["stage"]);
@@ -7468,8 +7308,24 @@ namespace LefkoUtils {
     String chosen_r1indc = r1_indc(yearnumber);
     
     // The output matrices
-    arma::mat survtransmat(noages, noages, fill::zeros);
-    arma::mat fectransmat(noages, noages, fill::zeros);
+    arma::mat survtransmat;
+    arma::mat fectransmat;
+    arma::sp_mat survtransmat_sp;
+    arma::sp_mat fectransmat_sp;
+    
+    if (!sparse) {
+      arma::mat survtransmat_chuck (noages, noages, fill::zeros);
+      arma::mat fectransmat_chuck (noages, noages, fill::zeros);
+      
+      survtransmat = survtransmat_chuck;
+      fectransmat = fectransmat_chuck;
+    } else { 
+      arma::sp_mat survtransmat_chuck (noages, noages);
+      arma::sp_mat fectransmat_chuck (noages, noages);
+      
+      survtransmat_sp = survtransmat_chuck;
+      fectransmat_sp = fectransmat_chuck;
+    }
     
     // The following loop runs through each age, and so runs through
     // each estimable element in the matrix
@@ -7606,19 +7462,35 @@ namespace LefkoUtils {
           chosen_fixcovc1 + survgroups2(0) + survgroups1(0) + 
           vital_patch(patchnumber, 0) + vital_year(yearnumber, 0) + surv_dev);
   
-        if (preout > exp_tol) preout = exp_tol; // This catches numbers too high to be dealt with properly
+        if (preout > exp_tol) preout = exp_tol; // Catches numbers too high
         if (i < (noages - 1)) {
-          survtransmat(i+1, i) = exp(preout) / (1.0 + exp(preout));
+          if (!sparse) {
+            survtransmat(i+1, i) = exp(preout) / (1.0 + exp(preout));
+          } else {
+            survtransmat_sp(i+1, i) = exp(preout) / (1.0 + exp(preout));
+          }
         } else {
           if (cont) {
-            survtransmat(i, i) = exp(preout) / (1.0 + exp(preout));
+            if (!sparse) {
+              survtransmat(i, i) = exp(preout) / (1.0 + exp(preout));
+            } else {
+              survtransmat_sp(i, i) = exp(preout) / (1.0 + exp(preout));
+            }
           }
         }
       } else {
         if (i < (noages - 1)) {
-          survtransmat(i+1, i) = survcoefs(0);
+          if (!sparse) {
+            survtransmat(i+1, i) = survcoefs(0);
+          } else {
+            survtransmat_sp(i+1, i) = survcoefs(0);
+          }
         } else {
-          survtransmat(i, i) = survcoefs(0);
+          if (!sparse) {
+            survtransmat(i, i) = survcoefs(0);
+          } else {
+            survtransmat_sp(i, i) = survcoefs(0);
+          }
         }
       }
       
@@ -7857,8 +7729,8 @@ namespace LefkoUtils {
             if (feczero) {
               
               double mainsum = rimeotam(feccoefs, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                0.0, 0.0, static_cast<double>(i), inda1, inda2, indb1, indb2,
-                indc1, indc2, dens, true);
+                0.0, 0.0, static_cast<double>(actualages(i)), inda1, inda2,
+                indb1, indb2, indc1, indc2, dens, true);
               
               preoutx = (mainsum + chosen_randcova2zi + chosen_randcova1zi +
                 chosen_randcovb2zi + chosen_randcovb1zi + chosen_randcovc2zi +
@@ -7870,8 +7742,8 @@ namespace LefkoUtils {
             } else {
               
               double mainsum = rimeotam(feccoefs, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                0.0, 0.0, static_cast<double>(i), inda1, inda2, indb1, indb2,
-                indc1, indc2, dens, false);
+                0.0, 0.0, static_cast<double>(actualages(i)), inda1, inda2,
+                indb1, indb2, indc1, indc2, dens, false);
               
               preoutx = (mainsum + chosen_randcova2 + chosen_randcova1 +
                 chosen_randcovb2 + chosen_randcovb1 + chosen_randcovc2 +
@@ -7887,27 +7759,50 @@ namespace LefkoUtils {
               
               if (feczero) {
                 if (preoutx > exp_tol) preoutx = exp_tol;
-                
-                fectransmat(0, i) = (exp(preoutx) / (1.0 + exp(preoutx))) * fecmod;
+                if (!sparse) {
+                  fectransmat(0, i) = (exp(preoutx) / (1.0 + exp(preoutx))) * fecmod;
+                } else {
+                  fectransmat_sp(0, i) = (exp(preoutx) / (1.0 + exp(preoutx))) * fecmod;
+                }
               } else {
                 if (preoutx > exp_tol) preoutx = exp_tol;
                 
-                fectransmat(0, i) = exp(preoutx) * fecmod;
+                if (!sparse) {
+                  fectransmat(0, i) = exp(preoutx) * fecmod;
+                } else {
+                  fectransmat_sp(0, i) = exp(preoutx) * fecmod;
+                }
               }
             } else if (fecdist == 2) {
               // Gaussian fecundity
-              fectransmat(0, i) = preoutx * fecmod;
+              if (!sparse) {
+                fectransmat(0, i) = preoutx * fecmod;
               
-              if (negfec && fectransmat(0, i) < 0.0) {
-                fectransmat(0, i) = 0.0;
+                if (negfec && fectransmat(0, i) < 0.0) {
+                  fectransmat(0, i) = 0.0;
+                }
+              } else { 
+                fectransmat_sp(0, i) = preoutx * fecmod;
+              
+                if (negfec && fectransmat_sp(0, i) < 0.0) {
+                  fectransmat_sp(0, i) = 0.0;
+                }
               }
             } else if (fecdist == 3) {
               // Gamma fecundity
-              fectransmat(0, i) = (1.0 / preoutx) * fecmod;
+              if (!sparse) {
+                fectransmat(0, i) = (1.0 / preoutx) * fecmod;
+              } else {
+                fectransmat_sp(0, i) = (1.0 / preoutx) * fecmod;
+              }
             }
             
           } else {
-            fectransmat(0, i) = feccoefs(0);
+            if (!sparse) {
+              fectransmat(0, i) = feccoefs(0);
+            } else {
+              fectransmat_sp(0, i) = feccoefs(0);
+            }
           }
         }
       }
@@ -7916,11 +7811,21 @@ namespace LefkoUtils {
     List output;
     
     if (simplicity) {
-      output = List::create(_["U"] = survtransmat, _["F"] = fectransmat);
+      if (!sparse) {
+        output = List::create(_["U"] = survtransmat, _["F"] = fectransmat);
+      } else { 
+        output = List::create(_["U"] = survtransmat_sp, _["F"] = fectransmat_sp);
+      }
     } else {
-      arma::mat amatrix = survtransmat + fectransmat;
-      output = List::create(Named("A") = amatrix, _["U"] = survtransmat,
-        _["F"] = fectransmat);
+      if (!sparse) {
+        arma::mat amatrix = survtransmat + fectransmat;
+        output = List::create(Named("A") = amatrix, _["U"] = survtransmat,
+          _["F"] = fectransmat);
+      } else {
+        arma::sp_mat amatrix_sp = survtransmat_sp + fectransmat_sp;
+        output = List::create(Named("A") = amatrix_sp, _["U"] = survtransmat_sp,
+          _["F"] = fectransmat_sp);
+      }
     }
     
     return output;
@@ -8059,6 +7964,287 @@ namespace LefkoUtils {
       _["patchesinpop"] = patchesinpop, _["yearsinpatch"] = yearsinpatch);
     
     return listofyears;
+  }
+  
+  //' Reduces Matrices In A Function-based lefkoMat Object
+  //' 
+  //' This function reduces all of the matrices in a function-based
+  //' \code{lefkoMat} object, looking for the common rows and columns that lack
+  //' non-zero elements among all A matrices. It also calculates the matrix qc
+  //' vector.
+  //' 
+  //' @name matrix_reducer
+  //' 
+  //' @param mat_list A list of matrices. In function-based encoding, there are
+  //' three main elements, \code{A}, \code{U}, and \code{F}, each containing as
+  //' many matrices as entries in the list-of-years.
+  //' each of which is a list of square matrices of equal dimension.
+  //' @param qc A three-element integer vector.
+  //' @param ahstages The stageframe as processed by \code{sf_reassess} and
+  //' the matrix creation function utilized, or the equivalent for Leslie MPMs.
+  //' @param hstages The historical stage-pair index data frame.
+  //' @param agestages The age-stage index data frame.
+  //' @param age A logical value indicating whether the MPM is age-based.
+  //' Defaults to \code{FALSE}.
+  //' @param stage A logical value indicating whether the MPM is stage-based.
+  //' Defaults to \code{TRUE}.
+  //' @param historical A logical value indicating whether the MPM is
+  //' historical. Defaults to \code{FALSE}.
+  //' @param reduce A logical value indicating whether to reduce the matrices.
+  //' Defaults to \code{FALSE}.
+  //' @param simplicity A logical value indicating whether the MPM includes
+  //' \code{A}, \code{U}, and \code{F} matrices, or only the latter. Defaults to
+  //' \code{FALSE}, in which case all three are included.
+  //' @param sparse_out A logical value indicating whether used matrices are in
+  //' sparse format. Defaults to \code{FALSE}.
+  //' 
+  //' @return Reduces the matrices via reference, and creates a \code{matrixqc}
+  //' object.
+  //' 
+  //' @keywords internal
+  //' @noRd
+  inline void matrix_reducer (List& mat_list, IntegerVector& qc,
+    DataFrame& ahstages, DataFrame& hstages, DataFrame& agestages,
+    bool age = false, bool stage = true, bool historical = false,
+    bool reduce = false, bool simplicity = false, bool sparse_out = false) {
+    
+    List imported_A;
+    if (!simplicity) imported_A = as<List>(mat_list["A"]);
+    List imported_U = as<List>(mat_list["U"]);
+    List imported_F = as<List>(mat_list["F"]);
+    
+    int no_matrices = imported_U.length();
+    arma::uvec bits_to_remove;
+    
+    int u_transitions {0};
+    int f_transitions {0};
+    
+    if (reduce) {
+      if (!sparse_out) {
+        for (int i = 0; i < no_matrices; i++) {
+          arma::mat A_arma;
+          
+          if (simplicity) {
+            if (!is<NumericMatrix>(imported_U(i))) continue;
+            
+            arma::mat U_arma = as<arma::mat>(imported_U(i));
+            arma::mat F_arma = as<arma::mat>(imported_F(i));
+            
+            A_arma = U_arma + F_arma;
+          } else {
+            if (!is<NumericMatrix>(imported_U(i))) continue;
+            A_arma = as<arma::mat>(imported_A(i));
+          }
+          
+          arma::rowvec A_colsums = sum(A_arma, 0);
+          arma::vec A_rowsums = sum(A_arma, 1);
+          
+          arma::uvec A_colzeros = find(A_colsums == 0.0);
+          arma::uvec A_rowzeros = find(A_rowsums == 0.0);
+          arma::uvec A_allzeros = intersect(A_colzeros, A_rowzeros);
+          
+          if (i == 0) {
+            bits_to_remove = A_allzeros;
+          } else {
+            bits_to_remove = intersect(A_allzeros, bits_to_remove);
+          }
+        }
+        
+        if (bits_to_remove.n_elem > 0) {
+          // Loop to reduce matrices and package them
+          for (int i = 0; i < no_matrices; i++) {
+            if (!is<NumericMatrix>(imported_U(i))) continue;
+            arma::mat U_arma = as<arma::mat>(imported_U(i));
+            arma::mat F_arma = as<arma::mat>(imported_F(i));
+            
+            U_arma.shed_rows(bits_to_remove);
+            F_arma.shed_rows(bits_to_remove);
+            
+            U_arma.shed_cols(bits_to_remove);
+            F_arma.shed_cols(bits_to_remove);
+            
+            arma::uvec U_nonzeros = find(U_arma);
+            arma::uvec F_nonzeros = find(F_arma);
+            u_transitions = u_transitions + static_cast<int>(U_nonzeros.n_elem);
+            f_transitions = f_transitions + static_cast<int>(F_nonzeros.n_elem);
+            
+            imported_U(i) = U_arma;
+            imported_F(i) = F_arma;
+            
+            if (!simplicity) {
+              arma::mat A_arma = as<arma::mat>(imported_A(i));
+              A_arma.shed_rows(bits_to_remove);
+              A_arma.shed_cols(bits_to_remove);
+              imported_A(i) = A_arma;
+            }
+          }
+          
+          if (!simplicity) mat_list(0) = imported_A;
+          mat_list(1) = imported_U;
+          mat_list(2) = imported_F;
+          
+          IntegerVector R_bits_to_remove = as<IntegerVector>(wrap(bits_to_remove));
+          if (stage) {
+            if (historical) {
+              hstages = df_shedrows(hstages, R_bits_to_remove);
+            } else if (age) {
+              agestages = df_shedrows(agestages, R_bits_to_remove);
+            } else {
+              ahstages = df_shedrows(ahstages, R_bits_to_remove);
+            }
+          } else {
+            ahstages = df_shedrows(ahstages, R_bits_to_remove);
+          }
+        } else {
+          // No matrix reduction, with reduce == TRUE
+          for (int i = 0; i < no_matrices; i++) {
+            if (!is<NumericMatrix>(imported_U(i))) continue;
+            arma::mat U_arma = as<arma::mat>(imported_U(i));
+            arma::mat F_arma = as<arma::mat>(imported_F(i));
+            
+            arma::uvec U_nonzeros = find(U_arma);
+            arma::uvec F_nonzeros = find(F_arma);
+            
+            u_transitions = u_transitions + static_cast<int>(U_nonzeros.n_elem);
+            f_transitions = f_transitions + static_cast<int>(F_nonzeros.n_elem);
+          }
+        }
+      } else {
+        for (int i = 0; i < no_matrices; i++) {
+          arma::sp_mat A_arma;
+          
+          if (simplicity) {
+            if (!is<S4>(imported_U(i))) continue;
+            
+            arma::sp_mat U_arma = as<arma::sp_mat>(imported_U(i));
+            arma::sp_mat F_arma = as<arma::sp_mat>(imported_F(i));
+            
+            A_arma = U_arma + F_arma;
+          } else {
+            if (!is<S4>(imported_U(i))) continue;
+            A_arma = as<arma::sp_mat>(imported_A(i));
+          }
+          
+          int A_cols = A_arma.n_cols;
+          arma::uvec A_colrowzeros (A_cols, fill::zeros);
+          
+          for (int j = 0; j < A_cols; j++) {
+            double col_sum = accu(A_arma.col(j));
+            double row_sum = accu(A_arma.row(j));
+            
+            if ((col_sum + row_sum) == 0.0) A_colrowzeros(j) = 1;
+          }
+          
+          arma::uvec A_allzeros = find(A_colrowzeros);
+          
+          if (i == 0) {
+            bits_to_remove = A_allzeros;
+          } else {
+            bits_to_remove = intersect(A_allzeros, bits_to_remove);
+          }
+        }
+        
+        int remove_bits = bits_to_remove.n_elem;
+        if (remove_bits > 0) {
+          // Loop to reduce matrices and package them
+          for (int i = 0; i < no_matrices; i++) {
+            if (!is<S4>(imported_U(i))) continue;
+            
+            arma::sp_mat U_arma = as<arma::sp_mat>(imported_U(i));
+            arma::sp_mat F_arma = as<arma::sp_mat>(imported_F(i));
+            
+            for (int j = 0; j < remove_bits; j++) {
+              U_arma.shed_row(bits_to_remove(remove_bits - (j + 1)));
+              F_arma.shed_row(bits_to_remove(remove_bits - (j + 1)));
+              
+              U_arma.shed_col(bits_to_remove(remove_bits - (j + 1)));
+              F_arma.shed_col(bits_to_remove(remove_bits - (j + 1)));
+            }
+            arma::uvec U_nonzeros = find(U_arma);
+            arma::uvec F_nonzeros = find(F_arma);
+            u_transitions = u_transitions + static_cast<int>(U_nonzeros.n_elem);
+            f_transitions = f_transitions + static_cast<int>(F_nonzeros.n_elem);
+            
+            imported_U(i) = U_arma;
+            imported_F(i) = F_arma;
+            
+            if (!simplicity) {
+              arma::sp_mat A_arma = as<arma::sp_mat>(imported_A(i));
+              
+              for (int j = 0; j < remove_bits; j++) {
+                A_arma.shed_row(bits_to_remove(remove_bits - (j + 1)));
+                A_arma.shed_col(bits_to_remove(remove_bits - (j + 1)));
+              }
+              imported_A(i) = A_arma;
+            }
+          }
+          
+          if (!simplicity) mat_list(0) = imported_A;
+          mat_list(1) = imported_U;
+          mat_list(2) = imported_F;
+          
+          IntegerVector R_bits_to_remove = as<IntegerVector>(wrap(bits_to_remove));
+          if (stage) {
+            if (historical) {
+              hstages = df_shedrows(hstages, R_bits_to_remove);
+            } else if (age) {
+              agestages = df_shedrows(agestages, R_bits_to_remove);
+            } else {
+              ahstages = df_shedrows(ahstages, R_bits_to_remove);
+            }
+          } else {
+            ahstages = df_shedrows(ahstages, R_bits_to_remove);
+          }
+        } else {
+          // No matrix reduction, with reduce == TRUE
+          for (int i = 0; i < no_matrices; i++) {
+            if (!is<S4>(imported_U(i))) continue;
+            arma::sp_mat U_arma = as<arma::sp_mat>(imported_U(i));
+            arma::sp_mat F_arma = as<arma::sp_mat>(imported_F(i));
+            
+            arma::uvec U_nonzeros = find(U_arma);
+            arma::uvec F_nonzeros = find(F_arma);
+            
+            u_transitions = u_transitions + static_cast<int>(U_nonzeros.n_elem);
+            f_transitions = f_transitions + static_cast<int>(F_nonzeros.n_elem);
+          }
+        }
+      }
+      
+    } else {
+      // No matrix reduction
+      if (!sparse_out) {
+        for (int i = 0; i < no_matrices; i++) {
+          if (!is<NumericMatrix>(imported_U(i))) continue;
+          arma::mat U_arma = as<arma::mat>(imported_U(i));
+          arma::mat F_arma = as<arma::mat>(imported_F(i));
+          
+          arma::uvec U_nonzeros = find(U_arma);
+          arma::uvec F_nonzeros = find(F_arma);
+          
+          u_transitions = u_transitions + static_cast<int>(U_nonzeros.n_elem);
+          f_transitions = f_transitions + static_cast<int>(F_nonzeros.n_elem);
+        }
+      } else {
+        for (int i = 0; i < no_matrices; i++) {
+          if (!is<S4>(imported_U(i))) continue;
+          arma::sp_mat U_arma = as<arma::sp_mat>(imported_U(i));
+          arma::sp_mat F_arma = as<arma::sp_mat>(imported_F(i));
+          
+          arma::uvec U_nonzeros = find(U_arma);
+          arma::uvec F_nonzeros = find(F_arma);
+          
+          u_transitions = u_transitions + static_cast<int>(U_nonzeros.n_elem);
+          f_transitions = f_transitions + static_cast<int>(F_nonzeros.n_elem);
+        }
+      }
+    }
+    
+    qc(0) = u_transitions;
+    qc(1) = f_transitions;
+    qc(2) = no_matrices;
+    
+    return;
   }
   
 }

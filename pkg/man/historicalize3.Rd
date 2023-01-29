@@ -437,8 +437,6 @@ cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector,
   propstatus = propvector, immstatus = immvector, indataset = indataset,
   binhalfwidth = binvec)
 
-cypframe_raw
-
 cypraw_v2 <- historicalize3(data = cypvert, patchidcol = "patch", 
   individcol = "plantid", year2col = "year2", sizea2col = "Inf2.2", 
   sizea3col = "Inf2.3", sizeb2col = "Inf.2", sizeb3col = "Inf.3", 

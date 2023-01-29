@@ -59,7 +59,8 @@ aflefko2(
   simple = FALSE,
   err_check = FALSE,
   exp_tol = 700,
-  theta_tol = 1e+08
+  theta_tol = 1e+08,
+  sparse_output = FALSE
 )
 }
 \arguments{
@@ -327,6 +328,10 @@ exponents to in the core kernel to prevent numerical overflow. Defaults to
 \item{theta_tol}{A numeric value used to indicate a maximum value to theta as
 used in the negative binomial probability density kernel. Defaults to
 \code{100000000}, but can be reset to other values during error checking.}
+
+\item{sparse_output}{A logical value indicating whether to output matrices
+in sparse format. Defaults to \code{FALSE}, in which case all matrices are
+output in standard matrix format.}
 }
 \value{
 If all inputs are properly formatted, then this function will return
@@ -335,11 +340,14 @@ projection model and all of its metadata. The structure has the following
 elements:
 
 \item{A}{A list of full projection matrices in order of sorted patches and
-occasions. All matrices output in R's \code{matrix} class.}
+occasions. All matrices output in R's \code{matrix} class, or in
+the \code{dgCMatrix} class from the \code{Matrix} package if sparse.}
 \item{U}{A list of survival transition matrices sorted as in \code{A}. All 
-matrices output in R's \code{matrix} class.}
+matrices output in R's \code{matrix} class, or in the \code{dgCMatrix} class
+from the \code{Matrix} package if sparse.}
 \item{F}{A list of fecundity matrices sorted as in \code{A}. All matrices 
-output in R's \code{matrix} class.}
+output in R's \code{matrix} class, or in the \code{dgCMatrix} class from the
+\code{Matrix} package if sparse.}
 \item{hstages}{A data frame matrix showing the pairing of ahistorical stages
 used to create historical stage pairs. Set to \code{NA} for age-by-stage
 MPMs.}
@@ -520,7 +528,6 @@ lathmat2age <- aflefko2(year = "all", patch = "all",
   stageframe = lathframeln, modelsuite = lathmodelsln2, data = lathvertln,
   supplement = lathsupp2, final_age = 3, continue = TRUE, reduce = FALSE)
 
-summary(lathmat2age)
 }
 }
 \seealso{

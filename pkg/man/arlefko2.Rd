@@ -36,7 +36,8 @@ arlefko2(
   NRasRep = FALSE,
   reduce = FALSE,
   simple = FALSE,
-  err_check = FALSE
+  err_check = FALSE,
+  sparse_output = FALSE
 )
 }
 \arguments{
@@ -182,6 +183,10 @@ respective row and column sums in ALL matrices estimated equal 0. Defaults to
 \item{err_check}{A logical value indicating whether to append extra
 information used in matrix calculation within the output list. Defaults to
 \code{FALSE}.}
+
+\item{sparse_output}{A logical value indicating whether to output matrices
+in sparse format. Defaults to \code{FALSE}, in which case all matrices are
+output in standard matrix format.}
 }
 \value{
 If all inputs are properly formatted, then this function will return
@@ -190,11 +195,14 @@ projection model and all of its metadata. Its structure is a list with the
 following elements:
 
 \item{A}{A list of full projection matrices in order of sorted patches and
-occasions. All matrices output in R's \code{matrix} class.}
+occasions. All matrices output in R's \code{matrix} class, or in the
+\code{dgCMatrix} class from the \code{Matrix} package if sparse.}
 \item{U}{A list of survival transition matrices sorted as in \code{A}. All 
-matrices output in R's \code{matrix} class.}
+matrices output in R's \code{matrix} class, or in the \code{dgCMatrix} class
+from the \code{Matrix} package if sparse.}
 \item{F}{A list of fecundity matrices sorted as in \code{A}. All matrices 
-output in R's \code{matrix} class.}
+output in R's \code{matrix} class, or in the \code{dgCMatrix} class from the
+\code{Matrix} package if sparse.}
 \item{hstages}{A data frame matrix showing the pairing of ahistorical stages
 used to create historical stage pairs. Set to \code{NA} for age-by-stage
 MPMs.}
@@ -260,6 +268,7 @@ encouraged to use the latter two functions for stage assignment.
 
 \examples{
 \donttest{
+# Cypripedium example
 data(cypdata)
 
 sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
@@ -272,7 +281,7 @@ immvector <- c(0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
 propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
 binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 2.5, 7)
-minagevec <- c(1, 1, 2, 3, 4, 5, 5, 5, 5, 5, 5) # Might have to subtract 1 from everything
+minagevec <- c(1, 1, 2, 3, 4, 5, 5, 5, 5, 5, 5)
 maxagevec <- c(rep(NA, 11))
 
 cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector,
@@ -305,8 +314,6 @@ cyp_mats <- arlefko2(data = cypraw_v1, stageframe = cypframe_raw, year = "all",
   supplement = cypsupp2r, agecol = "obsage", yearcol = "year2", 
   patchcol = "patchid", indivcol = "individ", prebreeding = TRUE, final_age = NA,
   continue = TRUE, reduce = FALSE)
-summary(cyp_mats)
-
 }
 }
 \seealso{

@@ -157,7 +157,6 @@ List praxis(const StringVector& surv, const StringVector& obs,
   
   int total_terms {0};
   int fixedcovcounter {0};
-  int fixedfaccounter {0};
   int randomcovcounter {0};
   
   StringVector indcova (3);
@@ -217,12 +216,10 @@ List praxis(const StringVector& surv, const StringVector& obs,
   if (grouptest) {
     fixedtackong += "as.factor(group2)";
     fixedcovcounter += 1;
-    fixedfaccounter += 1;
     total_terms++;
     
     if (historical) {
       fixedcovcounter += 1;
-      fixedfaccounter += 1;
       fixedtackong += " + as.factor(group1)";
       total_terms++;
     }
@@ -245,7 +242,6 @@ List praxis(const StringVector& surv, const StringVector& obs,
       fixedtackony += ")";
       total_terms++;
       fixedcovcounter += 1;
-      fixedfaccounter += 1;
       
       if (fixedcovcounter > 1) fixedtackon += " + ";
       fixedtackon += fixedtackony;
@@ -269,7 +265,6 @@ List praxis(const StringVector& surv, const StringVector& obs,
       fixedtackonp += ")";
       total_terms++;
       fixedcovcounter += 1;
-      fixedfaccounter += 1;
       
       if (fixedcovcounter > 1) fixedtackon += " + ";
       fixedtackon += fixedtackonp;
@@ -287,8 +282,8 @@ List praxis(const StringVector& surv, const StringVector& obs,
     randomtackon += randomtackoni;
   }
   
-  // Now we add individual covariates to tacked-on sections
-  if (indcova(1) != "none" && indcovaused) { // Modify for possibility of fixed factors
+  // Add individual covariates to tacked-on sections
+  if (indcova(1) != "none" && indcovaused) {
     if (!iaasrand) {
       fixedtackonia += indcova(1);
       fixedcovcounter += 1;
@@ -401,7 +396,7 @@ List praxis(const StringVector& surv, const StringVector& obs,
     }
   }
   
-  if (suite == "full" && !iaasrand && !ibasrand) { // Modify for fixed factors
+  if (suite == "full" && !iaasrand && !ibasrand) { 
     if ((indcova(1) != "none" && indcovb(1) != "none") && (indcovaused && indcovbused)) {
       fixedtackonib += " + ";
       fixedtackonib += indcova(1);
@@ -1414,7 +1409,8 @@ List praxis(const StringVector& surv, const StringVector& obs,
   output(2) = modelcounter;
   output(3) = juvmodelcounter;
   
-  CharacterVector out_names = {"adult_model", "juv_model", "total_terms", "juv_total_terms"};
+  CharacterVector out_names = {"adult_model", "juv_model", "total_terms",
+    "juv_total_terms"};
   
   if (fullmainmodel == "none") {
     output["adult_model"] = 1;
@@ -1653,7 +1649,7 @@ List stovokor(const StringVector& surv, const StringVector& obs,
   
   for (int i = 0; i < suite.length(); i++) {
     suite_element = String(suite(i));
-    // This section tests to see if the inputs are appropriate for the suite
+    // Tests if inputs are appropriate for suite
     if (suite_element == "full" || suite_element == "main") {
       if (historical) {
         if (sizel != 3 && repstl != 3) {
@@ -1721,7 +1717,7 @@ List stovokor(const StringVector& surv, const StringVector& obs,
     if (suite(i) == "const") alt_suite(i) = "const";
   }
   
-  // Build the global models
+  // Build global models
   if (survcheck) {
     List surv_prax = praxis(surv, obs, size, sizeb, sizec, repst, fec, matstat,
       historical, 1, String(suite(0)), approach, nojuvs, juvsize, indiv, patch,

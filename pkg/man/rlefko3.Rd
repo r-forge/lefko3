@@ -33,7 +33,8 @@ rlefko3(
   format = "ehrlen",
   reduce = FALSE,
   simple = FALSE,
-  err_check = FALSE
+  err_check = FALSE,
+  sparse_output = FALSE
 )
 }
 \arguments{
@@ -172,6 +173,10 @@ respective row and column sums in ALL matrices estimated equal 0. Defaults to
 \item{err_check}{A logical value indicating whether to append extra
 information used in matrix calculation within the output list. Defaults to
 \code{FALSE}.}
+
+\item{sparse_output}{A logical value indicating whether to output matrices
+in sparse format. Defaults to \code{FALSE}, in which case all matrices are
+output in standard matrix format.}
 }
 \value{
 If all inputs are properly formatted, then this function will return
@@ -180,11 +185,14 @@ projection model and all of its metadata. Its structure is a list with the
 following elements:
 
 \item{A}{A list of full projection matrices in order of sorted populations,
-patches, and occasions. All matrices output in the \code{matrix} class.}
+patches, and occasions. All matrices output in the \code{matrix} class, or in
+the \code{dgCMatrix} class from the \code{Matrix} package if sparse.}
 \item{U}{A list of survival transition matrices sorted as in \code{A}. All 
-matrices output in the \code{matrix} class.}
+matrices output in the \code{matrix} class, or in the \code{dgCMatrix} class
+from the \code{Matrix} package if sparse.}
 \item{F}{A list of fecundity matrices sorted as in \code{A}. All matrices 
-output in the \code{matrix} class.}
+output in the \code{matrix} class, or in the \code{dgCMatrix} class from the
+\code{Matrix} package if sparse.}
 \item{hstages}{A data frame matrix showing the pairing of ahistorical stages
 used to create historical stage pairs.}
 \item{agestages}{A data frame showing age-stage pairs. In this function, it
@@ -286,8 +294,6 @@ ehrlen3 <- rlefko3(data = lathvert, stageframe = lathframe, year = "all",
   stages = c("stage3", "stage2", "stage1"), supplement = lathsupp3,
   yearcol = "year2", indivcol = "individ")
 
-summary(ehrlen3)
-
 # Cypripedium example
 data(cypdata)
 
@@ -339,8 +345,6 @@ cypmatrix3r <- rlefko3(data = cypraw_v1, stageframe = cypframe_raw,
   size = c("size3added", "size2added", "size1added"),
   supplement = cypsupp3r, yearcol = "year2", patchcol = "patchid",
   indivcol = "individ")
-
-summary(cypmatrix3r)
 
 }
 \seealso{

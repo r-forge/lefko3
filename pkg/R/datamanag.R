@@ -1107,8 +1107,6 @@ verticalize3 <- function(data, noyears, firstyear = 1, popidcol = 0,
 #'   propstatus = propvector, immstatus = immvector, indataset = indataset,
 #'   binhalfwidth = binvec)
 #' 
-#' cypframe_raw
-#' 
 #' cypraw_v2 <- historicalize3(data = cypvert, patchidcol = "patch", 
 #'   individcol = "plantid", year2col = "year2", sizea2col = "Inf2.2", 
 #'   sizea3col = "Inf2.3", sizeb2col = "Inf.2", sizeb3col = "Inf.3", 
@@ -1927,11 +1925,8 @@ historicalize3 <- function(data, popidcol = 0, patchidcol = 0, individcol,
 #' 
 #' anth_lefkoMat <- create_lM(mats_list, anthframe, hstages = NA, historical = FALSE,
 #'   poporder = 1, patchorder = pch_ord, yearorder = yr_ord)
-#'   
-#' anth_lefkoMat
 #' 
 #' # A theoretical example showcasing historical matrices
-#' 
 #' sizevector <- c(1, 2, 3) # These sizes are not from the original paper
 #' stagevector <- c("Sdl", "Veg", "Flo")
 #' repvector <- c(0, 0, 1)
@@ -2015,8 +2010,6 @@ historicalize3 <- function(data, popidcol = 0, patchidcol = 0, individcol,
 #' hist_trial <- create_lM(histmats, exframe, historical = TRUE, UFdecomp = TRUE,
 #'   entrystage = 1, patchorder = pch_ord, yearorder = yr_ord)
 #'   
-#' hist_trial
-#' 
 #' @export
 create_lM <- function(mats, stageframe, hstages = NA, agestages = NA,
   historical = FALSE, agebystage = FALSE, UFdecomp = TRUE, entrystage = 1,
@@ -2500,8 +2493,6 @@ create_lM <- function(mats, stageframe, hstages = NA, agestages = NA,
 #' anth_lefkoMat <- add_lM(anth_lefkoMat, Amats = list(XH3, XH4, XH5),
 #'   Umats = list(XH3u, XH4u, XH5u), patch = c(10, 10, 10), year = c(1, 2, 3))
 #'   
-#' anth_lefkoMat
-#' 
 #' @export
 add_lM <- function(lM, Amats = NA, Umats = NA, Fmats = NA, UFdecomp = FALSE,
   entrystage = 1, pop = NA, patch = NA, year = NA) {
@@ -2950,7 +2941,6 @@ add_lM <- function(lM, Amats = NA, Umats = NA, Fmats = NA, UFdecomp = FALSE,
 #'   poporder = 1, patchorder = pch_ord, yearorder = yr_ord)
 #'   
 #' smaller_anth_lM <- delete_lM(anth_lefkoMat, patch = 3)
-#' smaller_anth_lM
 #' 
 #' @export
 delete_lM <- function(lM, mat_num = NA, pop = NA, patch = NA, year = NA) {
@@ -3240,7 +3230,6 @@ delete_lM <- function(lM, mat_num = NA, pop = NA, patch = NA, year = NA) {
 #'   
 #' smaller_anth_lM <- subset_lM(anth_lefkoMat, patch = c(1, 2, 3), 
 #'   year = c(1, 2))
-#' smaller_anth_lM
 #' 
 #' @export
 subset_lM <- function(lM, mat_num = NA, pop = NA, patch = NA, year = NA) {

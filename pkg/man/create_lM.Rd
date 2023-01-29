@@ -260,11 +260,8 @@ pch_ord <- c(1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7,
 
 anth_lefkoMat <- create_lM(mats_list, anthframe, hstages = NA, historical = FALSE,
   poporder = 1, patchorder = pch_ord, yearorder = yr_ord)
-  
-anth_lefkoMat
 
 # A theoretical example showcasing historical matrices
-
 sizevector <- c(1, 2, 3) # These sizes are not from the original paper
 stagevector <- c("Sdl", "Veg", "Flo")
 repvector <- c(0, 0, 1)
@@ -348,8 +345,6 @@ yr_ord <- c(1, 2, 3, 1, 2, 3)
 hist_trial <- create_lM(histmats, exframe, historical = TRUE, UFdecomp = TRUE,
   entrystage = 1, patchorder = pch_ord, yearorder = yr_ord)
   
-hist_trial
-
 }
 \seealso{
 \code{\link{add_lM}()}

@@ -16,9 +16,20 @@
   and fixed quantitative variables.
 * Function lmean() can produce arithmetic mean matrices for simple lists of
   square, equidimensional matrices.
+* Functions f_projection3(), projection3(), stablestage3(), repvalue3(),
+  sensitivity3(), elasticity3(), and ltre3() now all have override settings
+  for sparse vs dense matrix encoding, allowing greater control over speed.
+* Core matrix functions now allow sparse matrix output.
+* Functions lmean(), lambda3(), slambda3(), stablestage3(), repvalue3(),
+  sensitivity3(), elasticity3(), ltre3(), projection3(), summary.lefkoElas(),
+  and summary.lefkoMat() can handle sparse matrix format MPMs.
+* Functions stablestage3.list() and repvalue3.list() have been added.
 
 ## USER-VISIBLE CHANGES
 
+* Functions utilizing a choice of sparse vs dense matrix approaches have been
+  sped up the optimization of the criteria used to determine which approach to
+  take.
 * Functions cond_hmpm() and cond_diff() now perform faster, with better memory
   management, and with corrected list structure under err_check mode.
 * Cpp header files are now visible to other packages.
@@ -42,6 +53,10 @@
 * Function modelsearch() now automatically subsets datasets down to complete
   cases of the variables used in the modeling to prevent failures.
 * User-interrupt now enabled in matrix creation functions.
+* Function ltre3() is now a generic function that handles lefkoMat, matrix, and
+  matrix list inputs.
+* Function lambda3() now handles a variety of input scenarios for the 'sparse'
+  argument.
 
 ## BUG FIXES
 
@@ -57,6 +72,10 @@
   lefkoMat objects produced by lmean() under the "patch" option.
 * Fixed fatal error when using summary.lefkoMat() with vrm_imported function-
   based MPMs.
+* Fixed fatal error occurring when summary.lefkoElas() is used with a lefkoElas
+  object developed from a list of matrices.
+* Function sf_skeleton() added to create a basic, empty stageframe.
+* Fixed bug yielding incorrect fecundity when prebreeding in fleslie().
 
 # lefko3 5.5.0 (2022-09-14)
 

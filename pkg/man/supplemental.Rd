@@ -167,9 +167,6 @@ ehrlen3 <- rlefko3(data = lathvert, stageframe = lathframe, year = "all",
   stages = c("stage3", "stage2", "stage1"), supplement = lathsupp3,
   yearcol = "year2", indivcol = "individ")
 
-ehrlen3mean <- lmean(ehrlen3)
-ehrlen3mean$A[[1]]
-
 # Cypripedium example
 data(cypdata)
 
@@ -211,8 +208,5 @@ cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw,
   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
   size = c("size3added", "size2added"), supplement = cypsupp2r,
   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
-                       
-cyp2mean <- lmean(cypmatrix2r)
-cyp2mean
 
 }

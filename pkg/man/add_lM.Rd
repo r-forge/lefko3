@@ -278,8 +278,6 @@ XH5u <- matrix(c(0, 0, 0, 0,
 anth_lefkoMat <- add_lM(anth_lefkoMat, Amats = list(XH3, XH4, XH5),
   Umats = list(XH3u, XH4u, XH5u), patch = c(10, 10, 10), year = c(1, 2, 3))
   
-anth_lefkoMat
-
 }
 \seealso{
 \code{\link{create_lM}()}

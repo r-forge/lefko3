@@ -25,7 +25,6 @@ This function is made to handle very large and sparse matrices supplied as
 \code{lefkoMat} objects, as lists of matrices, and as individual matrices.
 }
 \examples{
-# Lathyrus example
 data(lathyrus)
 
 sizevector <- c(0, 100, 13, 127, 3730, 3800, 0)
@@ -72,6 +71,8 @@ sensitivity3(ehrlen3)
 \code{\link{sensitivity3.lefkoMat}()}
 
 \code{\link{sensitivity3.matrix}()}
+
+\code{\link{sensitivity3.dgCMatrix}()}
 
 \code{\link{sensitivity3.list}()}
 }

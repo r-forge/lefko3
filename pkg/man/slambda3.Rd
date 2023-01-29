@@ -8,8 +8,8 @@ slambda3(
   mpm,
   times = 10000L,
   historical = FALSE,
-  dense_only = FALSE,
-  tweights = NULL
+  tweights = NULL,
+  force_sparse = NULL
 )
 }
 \arguments{
@@ -23,16 +23,17 @@ is a list of matrices, rather than a \code{lefkoMat} object. Defaults to
 \code{FALSE} for the former case, and overridden by information supplied in
 the \code{lefkoMat} object for the latter case.}
 
-\item{dense_only}{A logical value indicating whether to force matrices to be
-run in dense format. Defaults to \code{FALSE}, and should only be used if
-errors occur when running under default conditions.}
-
 \item{tweights}{Numeric vector denoting the probabilistic weightings of
 annual matrices. Defaults to equal weighting among occasions.}
+
+\item{force_sparse}{A text string indicating whether to force sparse matrix 
+encoding (\code{"yes"}) or not (\code{"no"}) if the MPM is composed of
+simple matrices. Defaults to \code{"auto"}, in which case sparse matrix
+encoding is used with simple square matrices with at least 20 rows and no
+more than 50\% of elements with values greater than zero.}
 }
 \value{
 A data frame with the following variables:
-
 \item{pop}{The identity of the population.}
 \item{patch}{The identity of the patch.}
 \item{a}{Estimate of stochastic growth rate, estimated as the arithmetic
@@ -53,7 +54,7 @@ The log stochastic population growth rate, \eqn{a}, is as given in equation
 2 of Tuljapurkar, Horvitz, and Pascarella 2003. This term is estimated via
 projection of randomly sampled matrices, similarly to the procedure outlined
 in Box 7.4 of Morris and Doak (2002).
- 
+
 Stochastic growth rate is estimated both at the patch level and at the
 population level. Population level estimates will be noted at the end of the
 data frame with 0 entries for patch designation.
@@ -65,7 +66,7 @@ elements in the user-supplied vector.
 
 \examples{
 data(cypdata)
- 
+
 sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
 stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
   "XLg")
@@ -115,6 +116,6 @@ cypmatrix3r <- rlefko3(data = cypraw_v1, stageframe = cypframe_raw,
   supplement = cypsupp3r, yearcol = "year2", 
   patchcol = "patchid", indivcol = "individ")
 
-cypstoch <- slambda3(cypmatrix3r, dense_only = TRUE)
+cypstoch <- slambda3(cypmatrix3r)
 
 }

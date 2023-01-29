@@ -59,7 +59,8 @@ f_projection3(
   start_frame = NULL,
   tweights = NULL,
   density = NULL,
-  density_vr = NULL
+  density_vr = NULL,
+  sparse = NULL
 )
 }
 \arguments{
@@ -355,6 +356,13 @@ object of class \code{lefkoDens}, which is the output from function
 relationships in vital rates, if such relationships are to be assumed. The
 data frame must be of class \code{lefkoDensVR}, which is the output from the
 function \code{\link{density_vr}()}.}
+
+\item{sparse}{A text string indicating whether to use sparse matrix encoding
+(\code{"yes"}) or dense matrix encoding (\code{"no"}). Defaults to
+\code{"auto"}, in which case sparse matrix encoding is used with square
+matrices with at least 10 rows and no more than 50% of elements with values
+greater than zero. Can also be entered as a logical value if forced sparse
+(\code{TRUE}) or forced dense (\code{FALSE}) projection is desired.}
 }
 \value{
 A list of class \code{lefkoProj}, which always includes the first
@@ -449,6 +457,11 @@ remainder of the projection.
 
 This function does not reduce the dimensionality of matrices developed for
 projection.
+
+Speed can sometimes be increased by shifting from automatic sparse matrix
+determination to forced dense or sparse matrix projection. This will most
+likely occur when matrices have several hundred rows and columns. Defaults
+work best when matrices are very small and dense, or very large and sparse.
 }
 
 \examples{

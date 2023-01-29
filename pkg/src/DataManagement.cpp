@@ -139,7 +139,11 @@ Rcpp::List pfj(const DataFrame& data, const DataFrame& stageframe,
       for (int i = 1; i < noyears; i++) {
         xcol(i) = xcol(i-1) + blocksize;
         if (xcol(i) >= novars) {
-          throw Rcpp::exception("Vector xcol is too small. Either noyears is too small or not enough data blocks have been input.");
+          String eat_my_shorts = "Vector xcol is too small. Either noyears is too small or not ";
+          String eat_my_shorts1 = "enough data blocks have been input.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
         }
       }
     } else {
@@ -158,7 +162,11 @@ Rcpp::List pfj(const DataFrame& data, const DataFrame& stageframe,
       for (int i = 1; i < noyears; i++) {
         ycol(i) = ycol(i-1) + blocksize;
         if (ycol(i) >= novars) {
-          throw Rcpp::exception("Vector ycol is too small. Either noyears is too small or not enough data blocks have been input.");
+          String eat_my_shorts = "Vector ycol is too small. Either noyears is too small or not ";
+          String eat_my_shorts1 = "enough data blocks have been input.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
         }
       }
     } else {
@@ -177,7 +185,11 @@ Rcpp::List pfj(const DataFrame& data, const DataFrame& stageframe,
       for (int i = 1; i < noyears; i++) {
         juvcol(i) = juvcol(i-1) + blocksize;
         if (juvcol(i) >= novars) {
-          throw Rcpp::exception("Vector juvcol is too small. Either noyears is too small or not enough data blocks have been input.");
+          String eat_my_shorts = "Vector juvcol is too small. Either noyears is too small or not ";
+          String eat_my_shorts1 = "enough data blocks have been input.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
         }
       }
     } else {
@@ -196,7 +208,11 @@ Rcpp::List pfj(const DataFrame& data, const DataFrame& stageframe,
       for (int i = 1; i < noyears; i++) {
         sizeacol(i) = sizeacol(i-1) + blocksize;
         if (sizeacol(i) >= novars) {
-          throw Rcpp::exception("Vector sizeacol is too small. Either noyears is too small or not enough data blocks have been input.");
+          String eat_my_shorts = "Vector sizeacol is too small. Either noyears is too small or not ";
+          String eat_my_shorts1 = "enough data blocks have been input.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
         }
       }
     } else {
@@ -215,7 +231,11 @@ Rcpp::List pfj(const DataFrame& data, const DataFrame& stageframe,
       for (int i = 1; i < noyears; i++) {
         sizebcol(i) = sizebcol(i-1) + blocksize;
         if (sizebcol(i) >= novars) {
-          throw Rcpp::exception("Vector sizebcol is too small. Either noyears is too small or not enough data blocks have been input.");
+          String eat_my_shorts = "Vector sizebcol is too small. Either noyears is too small or not ";
+          String eat_my_shorts1 = "enough data blocks have been input.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
         }
       }
     } else {
@@ -234,7 +254,11 @@ Rcpp::List pfj(const DataFrame& data, const DataFrame& stageframe,
       for (int i = 1; i < noyears; i++) {
         sizeccol(i) = sizeccol(i-1) + blocksize;
         if (sizeccol(i) >= novars) {
-          throw Rcpp::exception("Vector sizeccol is too small. Either noyears is too small or not enough data blocks have been input.");
+          String eat_my_shorts = "Vector sizeccol is too small. Either noyears is too small or not ";
+          String eat_my_shorts1 = "enough data blocks have been input.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
         }
       }
     } else {
@@ -253,7 +277,11 @@ Rcpp::List pfj(const DataFrame& data, const DataFrame& stageframe,
       for (int i = 1; i < noyears; i++) {
         repstracol(i) = repstracol(i-1) + blocksize;
         if (repstracol(i) >= novars) {
-          throw Rcpp::exception("Vector repstracol is too small. Either noyears is too small or not enough data blocks have been input.");
+          String eat_my_shorts = "Vector repstracol is too small. Either noyears is too small or not ";
+          String eat_my_shorts1 = "enough data blocks have been input.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
         }
       }
     } else {
@@ -272,7 +300,11 @@ Rcpp::List pfj(const DataFrame& data, const DataFrame& stageframe,
       for (int i = 1; i < noyears; i++) {
         repstrbcol(i) = repstrbcol(i-1) + blocksize;
         if (repstrbcol(i) >= novars) {
-          throw Rcpp::exception("Vector repstrbcol is too small. Either noyears is too small or not enough data blocks have been input.");
+          String eat_my_shorts = "Vector repstrbcol is too small. Either noyears is too small or not ";
+          String eat_my_shorts1 = "enough data blocks have been input.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
         }
       }
     } else {
@@ -291,7 +323,11 @@ Rcpp::List pfj(const DataFrame& data, const DataFrame& stageframe,
       for (int i = 1; i < noyears; i++) {
         fecacol(i) = fecacol(i-1) + blocksize;
         if (fecacol(i) >= novars) {
-          throw Rcpp::exception("Vector fecacol is too small. Either noyears is too small or not enough data blocks have been input.");
+          String eat_my_shorts = "Vector fecacol is too small. Either noyears is too small or not ";
+          String eat_my_shorts1 = "enough data blocks have been input.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
         }
       }
     } else {
@@ -310,7 +346,11 @@ Rcpp::List pfj(const DataFrame& data, const DataFrame& stageframe,
       for (int i = 1; i < noyears; i++) {
         fecbcol(i) = fecbcol(i-1) + blocksize;
         if (fecbcol(i) >= novars) {
-          throw Rcpp::exception("Vector fecbcol is too small. Either noyears is too small or not enough data blocks have been input.");
+          String eat_my_shorts = "Vector fecbcol is too small. Either noyears is too small or not ";
+          String eat_my_shorts1 = "enough data blocks have been input.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
         }
       }
     } else {
@@ -329,7 +369,11 @@ Rcpp::List pfj(const DataFrame& data, const DataFrame& stageframe,
       for (int i = 1; i < noyears; i++) {
         indcovacol(i) = indcovacol(i-1) + blocksize;
         if (indcovacol(i) >= novars) {
-          throw Rcpp::exception("Vector indcovacol is too small. Either noyears is too small or not enough data blocks have been input.");
+          String eat_my_shorts = "Vector indcovacol is too small. Either noyears is too small or not ";
+          String eat_my_shorts1 = "enough data blocks have been input.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
         }
       }
     } else {
@@ -348,7 +392,11 @@ Rcpp::List pfj(const DataFrame& data, const DataFrame& stageframe,
       for (int i = 1; i < noyears; i++) {
         indcovbcol(i) = indcovbcol(i-1) + blocksize;
         if (indcovbcol(i) >= novars) {
-          throw Rcpp::exception("EVector indcovbcol is too small. ither noyears is too small or not enough data blocks have been input.");
+          String eat_my_shorts = "Vector indcovbcol is too small. ither noyears is too small or not ";
+          String eat_my_shorts1 = "enough data blocks have been input.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
         }
       }
     } else {
@@ -367,7 +415,11 @@ Rcpp::List pfj(const DataFrame& data, const DataFrame& stageframe,
       for (int i = 1; i < noyears; i++) {
         indcovccol(i) = indcovccol(i-1) + blocksize;
         if (indcovccol(i) >= novars) {
-          throw Rcpp::exception("Vector indcovccol is too small. Either noyears is too small or not enough data blocks have been input.");
+          String eat_my_shorts = "Vector indcovccol is too small. Either noyears is too small or not ";
+          String eat_my_shorts1 = "enough data blocks have been input.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
         }
       }
     } else {
@@ -386,7 +438,11 @@ Rcpp::List pfj(const DataFrame& data, const DataFrame& stageframe,
       for (int i = 1; i < noyears; i++) {
         aliveacol(i) = aliveacol(i-1) + blocksize;
         if (aliveacol(i) >= novars) {
-          throw Rcpp::exception("Vector aliveacol is too small. Either noyears is too small or not enough data blocks have been input.");
+          String eat_my_shorts = "Vector aliveacol is too small. Either noyears is too small or not ";
+          String eat_my_shorts1 = "enough data blocks have been input.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
         }
       }
     } else {
@@ -405,7 +461,11 @@ Rcpp::List pfj(const DataFrame& data, const DataFrame& stageframe,
       for (int i = 1; i < noyears; i++) {
         deadacol(i) = deadacol(i-1) + blocksize;
         if (deadacol(i) >= novars) {
-          throw Rcpp::exception("Vector deadacol is too small. Either noyears is too small or not enough data blocks have been input.");
+          String eat_my_shorts = "Vector deadacol is too small. Either noyears is too small or not ";
+          String eat_my_shorts1 = "enough data blocks have been input.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
         }
       }
     } else {
@@ -424,7 +484,11 @@ Rcpp::List pfj(const DataFrame& data, const DataFrame& stageframe,
       for (int i = 1; i < noyears; i++) {
         obsacol(i) = obsacol(i-1) + blocksize;
         if (obsacol(i) >= novars) {
-          throw Rcpp::exception("Vector obsacol is too small. Either noyears is too small or not enough data blocks have been input.");
+          String eat_my_shorts = "Vector obsacol is too small. Either noyears is too small or not ";
+          String eat_my_shorts1 = "enough data blocks have been input.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
         }
       }
     } else {
@@ -443,7 +507,11 @@ Rcpp::List pfj(const DataFrame& data, const DataFrame& stageframe,
       for (int i = 1; i < noyears; i++) {
         nonobsacol(i) = nonobsacol(i-1) + blocksize;
         if (nonobsacol(i) >= novars) {
-          throw Rcpp::exception("Vector nonobsacol is too small. Either noyears is too small or not enough data blocks have been input.");
+          String eat_my_shorts = "Vector nonobsacol is too small. Either noyears is too small or not ";
+          String eat_my_shorts1 = "enough data blocks have been input.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
         }
       }
     } else {
@@ -462,7 +530,11 @@ Rcpp::List pfj(const DataFrame& data, const DataFrame& stageframe,
       for (int i = 1; i < noyears; i++) {
         censorcol(i) = censorcol(i-1) + blocksize;
         if (censorcol(i) >= novars) {
-          throw Rcpp::exception("Vector censorcol is too small. Either noyears is too small or not enough data blocks have been input.");
+          String eat_my_shorts = "Vector censorcol is too small. Either noyears is too small or not ";
+          String eat_my_shorts1 = "enough data blocks have been input.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
         }
       }
     } else {
@@ -481,7 +553,11 @@ Rcpp::List pfj(const DataFrame& data, const DataFrame& stageframe,
       for (int i = 1; i < noyears; i++) {
         stagecol(i) = stagecol(i-1) + blocksize;
         if (stagecol(i) >= novars) {
-          throw Rcpp::exception("Vector stagecol is too small. Either noyears is too small or not enough data blocks have been input.");
+          String eat_my_shorts = "Vector stagecol is too small. Either noyears is too small or not ";
+          String eat_my_shorts1 = "enough data blocks have been input.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
         }
       }
     } else {
@@ -1280,7 +1356,7 @@ Rcpp::List pfj(const DataFrame& data, const DataFrame& stageframe,
         }
       }
       
-      // Dealing with censor variables
+      // Censor variable handling
       if (censorcol(0) > -1) {
         if (censrepeat) {
           censor1x = data[censorcol(j - 1)];
@@ -1952,8 +2028,13 @@ Rcpp::List pfj(const DataFrame& data, const DataFrame& stageframe,
               "Some stages occurring in the dataset do not match any characteristics in the input stageframe.");
           
         } else if (cs4.n_elem > 1) {
-          if (!quiet) Rf_warningcall(R_NilValue, 
-              "Some stages in the input stageframe appear to have the same description. Please make sure that all stages included in the stageframe are defined with unique sets of characteristics.");
+          String eat_my_shorts = "Some stages in the input stageframe appear to have the same description. ";
+          String eat_my_shorts1 = "Please make sure that all stages included in the stageframe are defined ";
+          String eat_my_shorts2 = "with unique sets of characteristics.";
+          eat_my_shorts += eat_my_shorts1;
+          eat_my_shorts += eat_my_shorts2;
+          
+          if (!quiet) Rf_warningcall(R_NilValue, eat_my_shorts.get_cstring());
           
         } else {
           throw Rcpp::exception("Stage assignment error.", false);
@@ -2976,7 +3057,7 @@ Rcpp::List jpf(const DataFrame& data, const DataFrame& stageframe, int popidcol,
   }
   
   Rcpp::StringVector allindivs = unique(individx);
-  noindivs = allindivs.size(); // Total number of individuals in dataset
+  noindivs = allindivs.size(); // Total no individuals
   
   Rcpp::IntegerVector year3x;
   Rcpp::IntegerVector year2x = as<IntegerVector>(data[year2col]);
@@ -2986,7 +3067,7 @@ Rcpp::List jpf(const DataFrame& data, const DataFrame& stageframe, int popidcol,
   
   Rcpp::IntegerVector yearall2x = sort_unique(year2x);
   int firstyear = min(yearall2x);
-  const int noyears = yearall2x.size(); // Total number of observation periods
+  const int noyears = yearall2x.size(); // Total no observation periods
   
   int ndflength = noyears * noindivs; // Initial length of final hfv dataset
   int currentyear {0};
@@ -3018,10 +3099,10 @@ Rcpp::List jpf(const DataFrame& data, const DataFrame& stageframe, int popidcol,
   arma::vec sfszmaxarmab = sfszmaxb;
   arma::vec sfszminarmac = sfszminc;
   arma::vec sfszmaxarmac = sfszmaxc;
-  int stagenum = sfszmaxarma.n_elem; // Total number of life stages in stageframe
+  int stagenum = sfszmaxarma.n_elem; // Total no stages in stageframe
   
   arma::uvec instages = find(indataset == 1); 
-  int instagenum = instages.n_elem; // Total number of stages in dataset
+  int instagenum = instages.n_elem; // Total no stages in dataset
   
   arma::uvec stageid(stagenum);
   arma::uvec instageid(instagenum);
@@ -3035,7 +3116,7 @@ Rcpp::List jpf(const DataFrame& data, const DataFrame& stageframe, int popidcol,
   arma::vec insfszminarmac (instagenum);
   arma::vec insfszmaxarmac (instagenum);
   
-  // Creates vectors describing life history stages in the dataset
+  // Create vectors describing stages in dataset
   int inplace {0};
   for (int i = 0; i < stagenum; i++) {
     stageid(i) = i+1;
@@ -3056,8 +3137,7 @@ Rcpp::List jpf(const DataFrame& data, const DataFrame& stageframe, int popidcol,
     }
   }
   
-  // Variables defined by the row structure of the data, unlike in pfj where
-  // they correspond to individuals in the data frame
+  // Variables defined by row structure of data
   Rcpp::StringVector popidx;
   Rcpp::StringVector patchidx;
   
@@ -3519,13 +3599,13 @@ Rcpp::List jpf(const DataFrame& data, const DataFrame& stageframe, int popidcol,
   
   censor1.fill(crazycensor);
   
-  // Variables to check whether censor variable has been checked and set at each step
+  // Variables to check whether censor has been checked and set at each step
   arma::uvec indivnum (ndflength);
   arma::uvec censor2check (ndflength);
   indivnum.zeros();
   censor2check.zeros();
   
-  // Derived variables that require extra looping or other control parameters
+  // Derived variables requiring extra looping or other control parameters
   arma::ivec firstseen (ndflength);
   arma::ivec lastseen (ndflength);
   arma::ivec obsage (ndflength);
@@ -3568,17 +3648,17 @@ Rcpp::List jpf(const DataFrame& data, const DataFrame& stageframe, int popidcol,
   arma::uvec cs4;
   int choicestage {0};
   
-  // Main loop creating main new dataset rows. Establishes state in
-  // time t for all cases in which an individual is observed
-  for (int i = 0; i < norows; i++) { // i corresponds to row in the old dataset
+  // Main loop creating new dataset rows
+  // Establishes state in time t for all cases in which individual is observed
+  for (int i = 0; i < norows; i++) { // i is row in old dataset
     if (i % 5 == 0) Rcpp::checkUserInterrupt();
     
     for (int j = 0; j < noyears; j++) {
-      // Establishes a place marker for vectors corresponding to the current year
+      // Establishes place marker for vectors corresponding to current year
       if (year2x[i] == yearall2x[j]) currentyear = j;
     }
     
-    // Establishes a place marker corresponding to the current individual
+    // Establishes place marker corresponding to current individual
     currentindiv = -1;
     for (int k = 0; k < noindivs; k++) {
       if (individx[i] == allindivs[k]) {
@@ -3587,7 +3667,7 @@ Rcpp::List jpf(const DataFrame& data, const DataFrame& stageframe, int popidcol,
       }
     }
     
-    // Establishes the row in the new dataset being created
+    // Establishes row in new dataset
     ndfindex = (noyears * currentindiv) + currentyear;
     
     if (NumericVector::is_na(sizea2x[i])) {
@@ -3625,7 +3705,7 @@ Rcpp::List jpf(const DataFrame& data, const DataFrame& stageframe, int popidcol,
       juvgiven20x[i] = 1.0;
     } else {juvgiven20x[i] = 0.0;}
     
-    // Develops the censoring variable
+    // Develops censoring variable
     if (censbool && censorcol != -1) {
       // Provides replacements in cases where NA designates data to keep
       if (NumericVector::is_na(censor2x[i])) {
@@ -3753,8 +3833,7 @@ Rcpp::List jpf(const DataFrame& data, const DataFrame& stageframe, int popidcol,
     } else if (stassign) {stage2[ndfindex] = "NotAlive";}
     
     
-    // Time t+1 for the last possible time t (technically second to last time)
-    // in cases where t+1 columns are provided
+    // Time t+1 for last time t (2nd to last time) in cases with t+1 columns provided
     if (currentyear == (noyears - 1)) {
       if (censbool && censorcol != -1) { // Censoring variable for final time
         if (NumericVector::is_na(censor2x[i])) {
@@ -3834,7 +3913,11 @@ Rcpp::List jpf(const DataFrame& data, const DataFrame& stageframe, int popidcol,
       fecadded3[ndfindex] = feca30x[i] + (fecb30x[i] * fecrel);
       if (fecadded3[ndfindex] > 0) {fecstatus3[ndfindex] = 1;}
       
-      if (repstradded3[ndfindex] > 0) {repstatus3[ndfindex] = 1;} else {repstatus3[ndfindex] = 0;}
+      if (repstradded3[ndfindex] > 0) {
+        repstatus3[ndfindex] = 1;
+      } else {
+        repstatus3[ndfindex] = 0;
+      }
       
       if (indcova3col != -1) {
         if (indcova_type > 0) {
@@ -3912,10 +3995,10 @@ Rcpp::List jpf(const DataFrame& data, const DataFrame& stageframe, int popidcol,
   } // End of i loop
   
   // Loop determining most states in time t+1 and t-1, and stages in all times
-  for (int i = 0; i < ndflength; i++) { // i refers to rows in the final dataset
+  for (int i = 0; i < ndflength; i++) { // i refers to rows in final dataset
     if (i % 5 == 0) Rcpp::checkUserInterrupt();
     
-    // Corrects info for individuals that are unobserved for long periods
+    // Corrects info for individuals unobserved for long periods
     if (i > 0 && rowid[i] == 0) {
       if (year2[i-1] < lastseen[i-1] && (year2[i-1] + 1) < (firstyear + noyears)) {
         
@@ -4342,14 +4425,25 @@ Rcpp::List jpf(const DataFrame& data, const DataFrame& stageframe, int popidcol,
         } else if (cs4.n_elem == 0 && alive2[i] == 1.0) {
           stage2[i] = "NoMatch";
           
-          if (!quiet) Rf_warningcall(R_NilValue,
-            "Some stages occurring in the dataset do not match any characteristics in the input stageframe.");
+          if (!quiet) {
+            String eat_my_shorts = "Some stages occurring in the dataset do not match ";
+            String eat_my_shorts1 = "any characteristics in the input stageframe.";
+            eat_my_shorts += eat_my_shorts1;
+            
+            Rf_warningcall(R_NilValue, eat_my_shorts.get_cstring());
+          }
         } else if (alive2[i] != 1.0)  {
           stage2[i] = "NotAlive";
         } else if (cs4.n_elem > 1) {
-          if (!quiet) Rf_warningcall(R_NilValue,
-            "Some stages in the input stageframe appear to have the same description. Please make sure that all stages included in the stageframe are defined with unique sets of characteristics.");
-          
+          if (!quiet) {
+            String eat_my_shorts = "Some stages in the input stageframe appear to have the same description. ";
+            String eat_my_shorts1 = "Please make sure that all stages included in the stageframe are ";
+            String eat_my_shorts2 = "defined with unique sets of characteristics.";
+            eat_my_shorts += eat_my_shorts1;
+            eat_my_shorts += eat_my_shorts2;
+            
+            Rf_warningcall(R_NilValue, eat_my_shorts.get_cstring());
+          }
         } else {
           throw Rcpp::exception("Stage assignment error.", false);
         }
@@ -4382,15 +4476,26 @@ Rcpp::List jpf(const DataFrame& data, const DataFrame& stageframe, int popidcol,
         } else if (cs4.n_elem == 0 && alive1[i] == 1.0) {
           stage1[i] = "NoMatch";
           
-          if (!quiet) Rf_warningcall(R_NilValue,
-            "Some stages occurring in the dataset do not match any characteristics in the input stageframe.");
+          if (!quiet) {
+            String eat_my_shorts = "Some stages occurring in the dataset do not match ";
+            String eat_my_shorts1 = "any characteristics in the input stageframe.";
+            eat_my_shorts += eat_my_shorts1;
+            
+            Rf_warningcall(R_NilValue, eat_my_shorts.get_cstring());
+          }
         } else if (alive1[i] != 1.0) {
           stage1[i] = "NotAlive";
           matstat1[i] = 0;
         } else if (cs4.n_elem > 1) {
-          if (!quiet) Rf_warningcall(R_NilValue,
-            "Some stages in the input stageframe appear to have the same description. Please make sure that all stages included in the stageframe are defined with unique sets of characteristics.");
-          
+          if (!quiet) {
+            String eat_my_shorts = "Some stages in the input stageframe appear to have the same description. ";
+            String eat_my_shorts1 = "Please make sure that all stages included in the stageframe are ";
+            String eat_my_shorts2 = "defined with unique sets of characteristics.";
+            eat_my_shorts += eat_my_shorts1;
+            eat_my_shorts += eat_my_shorts2;
+            
+            Rf_warningcall(R_NilValue, eat_my_shorts.get_cstring());
+          }
         } else {
           throw Rcpp::exception("Stage assignment error.", false);
         }
@@ -4426,12 +4531,23 @@ Rcpp::List jpf(const DataFrame& data, const DataFrame& stageframe, int popidcol,
         } else if (cs4.n_elem == 0) {
           stage3[i] = "NoMatch";
           
-          if (!quiet) Rf_warningcall(R_NilValue,
-            "Some stages occurring in the dataset do not match any characteristics in the input stageframe.");
+          if (!quiet) {
+            String eat_my_shorts = "Some stages occurring in the dataset do not match ";
+            String eat_my_shorts1 = "any characteristics in the input stageframe.";
+            eat_my_shorts += eat_my_shorts1;
+            
+            Rf_warningcall(R_NilValue, eat_my_shorts.get_cstring());
+          }
         } else if (cs4.n_elem > 1) {
-          if (!quiet) Rf_warningcall(R_NilValue,
-            "Some stages in the input stageframe appear to have the same description. Please make sure that all stages included in the stageframe are defined with unique sets of characteristics.");
-          
+          if (!quiet) {
+            String eat_my_shorts = "Some stages in the input stageframe appear to have the same description. ";
+            String eat_my_shorts1 = "Please make sure that all stages included in the stageframe are ";
+            String eat_my_shorts2 = "defined with unique sets of characteristics.";
+            eat_my_shorts += eat_my_shorts1;
+            eat_my_shorts += eat_my_shorts2;
+            
+            Rf_warningcall(R_NilValue, eat_my_shorts.get_cstring());
+          }
         } else {
           throw Rcpp::exception("Stage assignment error.", false);
         }
@@ -5397,8 +5513,8 @@ Rcpp::List jpf(const DataFrame& data, const DataFrame& stageframe, int popidcol,
 //' @keywords internal
 //' @noRd
 // [[Rcpp::export(.density3)]]
-Rcpp::NumericVector density3(Rcpp::DataFrame data, int xcol, int ycol, int yearcol,
-  double spacing) {
+Rcpp::NumericVector density3(Rcpp::DataFrame data, int xcol, int ycol,
+  int yearcol, double spacing) {
   
   int data_size = data.length();
   int data_n = data.nrows();

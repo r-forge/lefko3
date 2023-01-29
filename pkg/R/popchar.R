@@ -3,7 +3,8 @@
 #' \code{overwrite()} returns a data frame describing which particular
 #' transitions within an ahistorical or historical projection matrix to
 #' overwrite with either given rates and probabilities, or other estimated
-#' transitions.
+#' transitions. This function is now deprecated in favor of function
+#' \code{\link{supplemental}()}.
 #' 
 #' @name overwrite
 #' 
@@ -300,9 +301,6 @@ overwrite <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
 #'   stages = c("stage3", "stage2", "stage1"), supplement = lathsupp3,
 #'   yearcol = "year2", indivcol = "individ")
 #' 
-#' ehrlen3mean <- lmean(ehrlen3)
-#' ehrlen3mean$A[[1]]
-#' 
 #' # Cypripedium example
 #' data(cypdata)
 #' 
@@ -344,9 +342,6 @@ overwrite <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
 #'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
 #'   size = c("size3added", "size2added"), supplement = cypsupp2r,
 #'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
-#'                        
-#' cyp2mean <- lmean(cypmatrix2r)
-#' cyp2mean
 #' 
 #' @export
 supplemental <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
@@ -508,7 +503,8 @@ supplemental <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
 #' Function \code{sf_distrib} takes a historically formatted vertical data as
 #' input and tests whether size and fecundity data are dispersed according to a
 #' Poisson distribution (where mean = variance), and whether the number of 0s
-#' exceeds expectations.
+#' exceeds expectations. This function is now deprecated in favor of function
+#' \code{\link{hfv_qc}()}.
 #' 
 #' @name sf_distrib
 #' 
@@ -570,7 +566,6 @@ supplemental <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
 #' in van der Broek (1995).
 #' 
 #' @examples
-#' # Lathyrux example
 #' data(lathyrus)
 #' 
 #' sizevector <- c(0, 4.6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8,
@@ -604,42 +599,8 @@ supplemental <- function(stage3, stage2, stage1 = NA, eststage3 = NA,
 #' lathvertln$feca1 <- round(lathvertln$feca1)
 #' lathvertln$feca3 <- round(lathvertln$feca3)
 #' 
-#' # The following will only test fecundity, since size is Gaussian.
-#' # Zero-inflation will not be assessed in this example, since 0 values in
-#' # fecundity have been excluded in the life history model.
-#' 
 #' sf_distrib(lathvertln, sizea = c("sizea3", "sizea2"), fec = c("feca3", "feca2"),
 #'   repst = c("repstatus3", "repstatus2"), zifec = FALSE)
-#' 
-#' # Cypripedium example
-#' data(cypdata)
-#' 
-#' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
-#' stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
-#'   "XLg")
-#' repvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
-#' obsvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
-#' matvector <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
-#' immvector <- c(0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
-#' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-#' indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
-#' binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 2.5, 7)
-#' 
-#' cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector,
-#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
-#'   propstatus = propvector, immstatus = immvector, indataset = indataset,
-#'   binhalfwidth = binvec)
-#' 
-#' cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
-#'   patchidcol = "patch", individcol = "plantid", blocksize = 4,
-#'   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04",
-#'   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
-#'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
-#'   NRasRep = TRUE)
-#' 
-#' sf_distrib(cypraw_v1, sizea = c("size3added", "size2added"),
-#'   fec = c("feca3", "feca2"), repst = c("repstatus3", "repstatus2"),
-#'   zisizea = TRUE)
 #' 
 #' @export
 sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
@@ -1220,7 +1181,6 @@ density_vr <- function(density_yn = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
 #' @seealso \code{\link{projection3}()}
 #' 
 #' @examples
-#' # Lathyrus example
 #' data(lathyrus)
 #' 
 #' sizevector <- c(0, 100, 13, 127, 3730, 3800, 0)
@@ -1825,7 +1785,7 @@ start_input <- function(mpm, stage2, stage1 = NA, age2 = NA, value = 1) {
     } else {
       writeLines(paste0("    Variable ", term," is not significantly zero-inflated.\n"))
       
-      if (v0n0 == 0) {
+      if (v0n0 == 0 & v0exp >= 1.0) {
         writeLines(paste0("    Variable ", term,
             " does not include 0s, suggesting that a zero-truncated distribution may be warranted.\n"))
       }
@@ -1977,8 +1937,6 @@ start_input <- function(mpm, stage2, stage1 = NA, age2 = NA, value = 1) {
 #' created here.
 #' 
 #' @examples
-#' \donttest{
-#' # Lathyrus example
 #' data(lathyrus)
 #' 
 #' sizevector <- c(0, 4.6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8,
@@ -2016,32 +1974,6 @@ start_input <- function(mpm, stage2, stage1 = NA, age2 = NA, value = 1) {
 #'   vitalrates = c("surv", "obs", "size", "repst", "fec"), juvestimate = "Sdl",
 #'   indiv = "individ", patch = "patchid", year = "year2",year.as.random = TRUE,
 #'   patch.as.random = TRUE)
-#' 
-#' lathmodelsln3 <- modelsearch(lathvertln, historical = TRUE, 
-#'   approach = "mixed", suite = "main", 
-#'   vitalrates = c("surv", "obs", "size", "repst", "fec"), juvestimate = "Sdl",
-#'   bestfit = "AICc&k", sizedist = "gaussian", fecdist = "poisson", 
-#'   indiv = "individ", patch = "patchid", year = "year2",year.as.random = TRUE,
-#'   patch.as.random = TRUE, show.model.tables = TRUE, quiet = TRUE)
-#' 
-#' # Here we use supplemental() to provide overwrite and reproductive info
-#' lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "mat", "Sd", "Sdl"), 
-#'   stage2 = c("Sd", "Sd", "Sd", "Sd", "Sdl", "rep", "rep"),
-#'   stage1 = c("Sd", "rep", "Sd", "rep", "Sd", "mat", "mat"),
-#'   eststage3 = c(NA, NA, NA, NA, "mat", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, "Sdl", NA, NA),
-#'   eststage1 = c(NA, NA, NA, NA, "Sdl", NA, NA),
-#'   givenrate = c(0.345, 0.345, 0.054, 0.054, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, 0.345, 0.054),
-#'   type = c(1, 1, 1, 1, 1, 3, 3), type_t12 = c(1, 2, 1, 2, 1, 1, 1),
-#'   stageframe = lathframeln, historical = TRUE)
-#' 
-#' lathmat3ln <- flefko3(year = "all", patch = "all", stageframe = lathframeln, 
-#'   modelsuite = lathmodelsln3, data = lathvertln, supplement = lathsupp3, 
-#'   reduce = FALSE)
-#' 
-#' summary(lathmat3ln)
-#' }
 #' 
 #' @export
 hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",

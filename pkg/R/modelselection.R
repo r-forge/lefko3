@@ -476,7 +476,6 @@
 #' 
 #' @examples
 #' \donttest{
-#' # Lathyrus example
 #' data(lathyrus)
 #' 
 #' sizevector <- c(0, 4.6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8,
@@ -532,8 +531,6 @@
 #' lathmat3ln <- flefko3(year = "all", patch = "all", stageframe = lathframeln, 
 #'   modelsuite = lathmodelsln3, data = lathvertln, supplement = lathsupp3, 
 #'   reduce = FALSE)
-#' 
-#' summary(lathmat3ln)
 #' }
 #' 
 #' @export

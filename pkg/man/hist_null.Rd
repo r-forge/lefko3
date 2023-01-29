@@ -72,8 +72,6 @@ pch_ord <- c(1, 1)
 anth_lefkoMat <- create_lM(mats_list, anthframe, hstages = NA, historical = FALSE,
   poporder = 1, patchorder = pch_ord, yearorder = yr_ord)
   
-anth_lefkoMat
-
 nullmodel1 <- hist_null(anth_lefkoMat, 1) # Ehrlen format
 nullmodel2 <- hist_null(anth_lefkoMat, 2) # deVries format
 

@@ -29,7 +29,9 @@ annual matrices. Defaults to equal weighting among occasions.}
 
 \item{sparse}{A text string indicating whether to use sparse matrix encoding
 (\code{"yes"}) or dense matrix encoding (\code{"no"}). Defaults to
-\code{"auto"}.}
+\code{"auto"}, in which case sparse matrix encoding is used with square
+matrices with at least 10 rows and no more than 50\% of elements with values
+greater than zero.}
 
 \item{append_mats}{A logical value indicating whether to include the original
 A, U, and F matrices in the output \code{lefkoSens} object.}
@@ -44,10 +46,10 @@ sensitivity matrices (\code{NULL} if an ahMPM is used as input). The second,
 an ahMPM is used as input, or, if an hMPM is used as input, then the result
 is a list of ahistorical matrices based on the equivalent historical
 dependencies assumed in the input historical matrices. The third element,
-\code{h_stages}, is a data frame showing historical stage pairs (\code{NULL}
+\code{hstages}, is a data frame showing historical stage pairs (\code{NULL}
 if an ahMPM used as input). The fourth element, \code{agestages}, show the
 order of age-stage combinations, if age-by-stage MPMs have been supplied. The
-fifth element, \code{ah_stages}, is a data frame showing the order of
+fifth element, \code{ahstages}, is a data frame showing the order of
 ahistorical stages. The last 3 elements are the A, U, and F portions of the
 input.
 }
@@ -63,14 +65,21 @@ as smaller ahistorical matrices.
 }
 \section{Notes}{
 
+All sensitivity matrix outputs from this function are in standard matrix
+format.
+
 Deterministic sensitivities are estimated as eqn. 9.14 in Caswell (2001,
 Matrix Population Models). Stochastic sensitivities are estimated as eqn.
 14.97 in Caswell (2001). Note that stochastic sensitivities are of the log of
 the stochastic \eqn{\lambda}.
+
+Speed can sometimes be increased by shifting from automatic sparse matrix
+determination to forced dense or sparse matrix projection. This will most
+likely occur when matrices have several hundred rows and columns. Defaults
+work best when matrices are very small and dense, or very large and sparse.
 }
 
 \examples{
-# Lathyrus example
 data(lathyrus)
 
 sizevector <- c(0, 100, 13, 127, 3730, 3800, 0)
@@ -117,6 +126,8 @@ sensitivity3(ehrlen3, stochastic = TRUE)
 \code{\link{sensitivity3}()}
 
 \code{\link{sensitivity3.matrix}()}
+
+\code{\link{sensitivity3.dgCMatrix}()}
 
 \code{\link{sensitivity3.list}()}
 }

@@ -857,6 +857,25 @@ NULL
 #' @noRd
 NULL
 
+#' Create Skeleton Stageframe
+#' 
+#' Function \code{sf_skeleton()} creates a skeleton \code{stageframe} object.
+#' 
+#' @name sf_skeleton
+#' 
+#' @param stages The number of stages, as an integer.
+#' @param standard A logical value indicating whether to create a standard
+#' \code{stageframe} object (\code{TRUE}, the default), or a reassessed
+#' \code{stageframe} object as created by function \code{mpm_create()}
+#' (\code{FALSE}).
+#' 
+#' @return A dat frame of class \code{stageframe}.
+#' 
+#' @export
+sf_skeleton <- function(stages, standard = TRUE) {
+    .Call('_lefko3_sf_skeleton', PACKAGE = 'lefko3', stages, standard)
+}
+
 #' Create Historical MPMs Assuming No Influence of Individual History
 #' 
 #' Function \code{hist_null()} uses ahistorical MPMs to create the equivalent
@@ -920,8 +939,6 @@ NULL
 #' anth_lefkoMat <- create_lM(mats_list, anthframe, hstages = NA, historical = FALSE,
 #'   poporder = 1, patchorder = pch_ord, yearorder = yr_ord)
 #'   
-#' anth_lefkoMat
-#' 
 #' nullmodel1 <- hist_null(anth_lefkoMat, 1) # Ehrlen format
 #' nullmodel2 <- hist_null(anth_lefkoMat, 2) # deVries format
 #' 
@@ -945,25 +962,27 @@ hist_null <- function(mpm, format = 1L, err_check = FALSE) {
 #' \code{"pop"} indicates population-level only, \code{"patch"} indicates
 #' patch-level only, and \code{"all"} indicates that both patch- and
 #' population-level means should be estimated. Defaults to \code{"all"}.
+#' @param force_sparse A logical value identifying whether to output the mean
+#' matrices in sparse format, if input as standard matrices.
 #' 
 #' @return Yields a \code{lefkoMat} object with the following characteristics:
 #' 
 #' \item{A}{A list of full mean projection matrices in order of sorted
-#' populations, patches, and years. These are typically estimated as the sums of
-#' the associated mean \code{U} and \code{F} matrices. All matrices output in
-#' the \code{matrix} class.}
+#' populations, patches, and years. These are typically estimated as the sums
+#' of the associated mean \code{U} and \code{F} matrices. All matrices output
+#' in either the \code{matrix} class, or the \code{dgCMatrix} class.}
 #' \item{U}{A list of mean survival-transition matrices sorted as in \code{A}.
 #' All matrices output in the \code{matrix} class.}
 #' \item{F}{A list of mean fecundity matrices sorted as in \code{A}. All
 #' matrices output in the \code{matrix} class.}
-#' \item{hstages}{A data frame showing the pairing of ahistorical stages used to
-#' create historical stage pairs. Given if the MPM is historical.}
+#' \item{hstages}{A data frame showing the pairing of ahistorical stages used
+#' to create historical stage pairs. Given if the MPM is historical.}
 #' \item{ahstages}{A data frame detailing the characteristics of associated
 #' ahistorical stages.}
-#' \item{labels}{A data frame detailing the order of population, patch, and year 
-#' of each mean matrix. If \code{pop}, \code{patch}, or \code{year2} are NA in
-#' the original \code{labels} set, then these will be re-labeled as \code{A},
-#' \code{1}, or \code{1}, respectively.}
+#' \item{labels}{A data frame detailing the order of population, patch, and
+#' year of each mean matrix. If \code{pop}, \code{patch}, or \code{year2} are
+#' \code{NA} in the original \code{labels} set, then these will be re-labeled
+#' as \code{A}, \code{1}, or \code{1}, respectively.}
 #' \item{matrixqc}{A short vector describing the number of non-zero elements in
 #' \code{U} and \code{F} mean matrices, and the number of annual matrices.}
 #' \item{modelqc}{This is the \code{qc} portion of the \code{modelsuite} input.
@@ -1016,11 +1035,10 @@ hist_null <- function(mpm, format = 1L, err_check = FALSE) {
 #'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
 #' 
 #' cyp2mean <- lmean(cypmatrix2r)
-#' cyp2mean
 #' 
 #' @export
-lmean <- function(mats, matsout = NULL) {
-    .Call('_lefko3_lmean', PACKAGE = 'lefko3', mats, matsout)
+lmean <- function(mats, matsout = NULL, force_sparse = FALSE) {
+    .Call('_lefko3_lmean', PACKAGE = 'lefko3', mats, matsout, force_sparse)
 }
 
 #' Create Stageframe for Population Matrix Projection Analysis
@@ -1223,6 +1241,8 @@ NULL
 #' @param simplicity If \code{TRUE}, then only outputs matrices \code{U} and
 #' \code{F}, rather than also outputting matrix \code{A}. Defaults to
 #' \code{FALSE}.
+#' @param sparse If \code{TRUE}, then output will be in sparse matrix format.
+#' Defaults to \code{FALSE}.
 #' 
 #' @return If \code{err_switch = FALSE}, then will return a list of three
 #' matrices, including the survival-transition (\code{U}) matrix, the fecundity
@@ -1293,6 +1313,8 @@ NULL
 #' @param simplicity If \code{TRUE}, then only outputs matrices \code{U} and
 #' \code{F}, rather than also outputting matrix \code{A}. Defaults to
 #' \code{FALSE}.
+#' @param sparse If \code{TRUE}, then output will be in sparse matrix format.
+#' Defaults to \code{FALSE}.
 #' 
 #' @return In the standard output, a list of three lists, called \code{A},
 #' \code{U}, and \code{F}, each containing A, U, or F matrices, respectively.
@@ -1335,6 +1357,8 @@ NULL
 #' @param simplicity If \code{TRUE}, then only outputs matrices \code{U} and
 #' \code{F}, rather than also outputting matrix \code{A}. Defaults to
 #' \code{FALSE}.
+#' @param sparse If \code{TRUE}, then output will be in sparse matrix format.
+#' Defaults to \code{FALSE}.
 #' 
 #' @return List of three matrices, including the survival-transition (\code{U})
 #' matrix, the fecundity matrix (\code{F}), and the sum (\code{A}) matrix, with
@@ -1386,6 +1410,8 @@ NULL
 #' @param simplicity If \code{TRUE}, then only outputs matrices \code{U} and
 #' \code{F}, rather than also outputting matrix \code{A}. Defaults to
 #' \code{FALSE}.
+#' @param sparse If \code{TRUE}, then outputs matrices in sparse format.
+#' Defaults to \code{FALSE}.
 #' 
 #' @return In the standard output, a list of three lists, called \code{A},
 #' \code{U}, and \code{F}, each containing A, U, or F matrices, respectively.
@@ -1520,6 +1546,8 @@ NULL
 #' @param simplicity If \code{TRUE}, then only outputs matrices \code{U} and
 #' \code{F}, rather than also outputting matrix \code{A}. Defaults to
 #' \code{FALSE}.
+#' @param sparse If \code{TRUE}, then outputs matrices in sparse format.
+#' Defaults to \code{FALSE}.
 #' 
 #' @return A list with with up to 5 elements. In order: \code{A}: a list of A
 #' matrices, or a list of \code{NULL} values if \code{simplicity = TRUE};
@@ -1636,6 +1664,8 @@ NULL
 #' @param simplicity If \code{TRUE}, then only outputs matrices \code{U} and
 #' \code{F}, rather than also outputting matrix \code{A}. Defaults to
 #' \code{FALSE}.
+#' @param sparse If \code{TRUE}, then outputs matrices in sparse format.
+#' Defaults to \code{FALSE}.
 #' 
 #' @return A list with with up to 5 elements. In order: \code{A}: a list of A
 #' matrices, or a list of \code{NULL} values if \code{simplicity = TRUE};
@@ -1644,43 +1674,6 @@ NULL
 #' of error-checking conditional probability matrices, or a list of \code{NULL}
 #' values if \code{err_check = FALSE}; and \code{allstages}: a data frame
 #' showing the used values of all variables used in transition calculations.
-#' 
-#' @keywords internal
-#' @noRd
-NULL
-
-#' Slimmed-down Time-based Population Sparse Matrix Projection Function
-#' 
-#' Function \code{proj3sp()} runs the matrix projections used in some other
-#' functions in package \code{lefko3}, but only when the input is sparse. This
-#' is a slimmed down version of function \code{proj3()}
-#' 
-#' @name proj3sp
-#' 
-#' @param start_vec The starting population vector for the projection.
-#' @param core_list A list of full projection matrices, corresponding to
-#' the \code{$A} list within a \code{lefkoMat} object. Matrices must be in
-#' \code{arma::sp_mat} format.
-#' @param mat_order A vector giving the order of matrices to use at each occasion.
-#' @param standardize A logical value stating whether to standardize population
-#' size vector to sum to 1 at each estimated occasion.
-#' @param growthonly A logical value stating whether to output only a matrix
-#' showing the change in population size from one year to the next for use in
-#' stochastic population growth rate estimation (TRUE), or a larger matrix also
-#' containing the w and v projections for stochastic perturbation analysis,
-#' stage distribution estimation, and reproductive value estimation.
-#' @param integeronly A logical value indicating whether to round all projected
-#' numbers of individuals to the nearest integer.
-#' 
-#' @return A matrix in which, if \code{growthonly = TRUE}, each row is the
-#' population vector at each projected occasion, and if \code{growthonly =
-#' FALSE}, the top third of the matrix is the actual number of individuals in
-#' each stage across time, the second third is the w projection (stage
-#' distribution), and the bottom third is the v projection (reproductive
-#' values) for use in estimation of stochastic sensitivities and elasticities
-#' (in addition, a further row is appended to the bottom, corresponding to the
-#' \emph{R} vector, which is the sum of the unstandardized \emph{w} vector
-#' resulting from each occasion's projection).
 #' 
 #' @keywords internal
 #' @noRd
@@ -1713,6 +1706,13 @@ NULL
 #' the \code{\link{density_input}()} function.
 #' @param dens_index A list giving the indices of elements in object
 #' \code{dens_input}.
+#' @param sparse_auto A logical value indicating whether to determine whether
+#' to use sparse matrix encoding automatically.
+#' @param sparse A logical value indicating whether to use sparse matrix
+#' encoding if \code{sparse_auto = FALSE}.
+#' @param sparse_input A logical value indicating whether matrices in the input
+#' MPM are in sparse format (class \code{dgCMatrix}). If so, then all
+#' projection will be handled in sparse format. Defaults to \code{FALSE}.
 #' @param allow_warnings A logical value indicating whether the function should
 #' send warnings if estimated values fall outside of the realm of possibility.
 #' 
@@ -2018,6 +2018,12 @@ NULL
 #' relationships in vital rates, if such relationships are to be assumed. The
 #' data frame must be of class \code{lefkoDensVR}, which is the output from the
 #' function \code{\link{density_vr}()}.
+#' @param sparse A text string indicating whether to use sparse matrix encoding
+#' (\code{"yes"}) or dense matrix encoding (\code{"no"}). Defaults to
+#' \code{"auto"}, in which case sparse matrix encoding is used with square
+#' matrices with at least 10 rows and no more than 50% of elements with values
+#' greater than zero. Can also be entered as a logical value if forced sparse
+#' (\code{TRUE}) or forced dense (\code{FALSE}) projection is desired.
 #' 
 #' @return A list of class \code{lefkoProj}, which always includes the first
 #' three elements of the following, and also includes the remaining elements
@@ -2103,6 +2109,11 @@ NULL
 #' This function does not reduce the dimensionality of matrices developed for
 #' projection.
 #' 
+#' Speed can sometimes be increased by shifting from automatic sparse matrix
+#' determination to forced dense or sparse matrix projection. This will most
+#' likely occur when matrices have several hundred rows and columns. Defaults
+#' work best when matrices are very small and dense, or very large and sparse.
+#' 
 #' @seealso \code{\link{projection3}()}
 #' @seealso \code{\link{flefko3}()}
 #' @seealso \code{\link{flefko2}()}
@@ -2183,13 +2194,11 @@ NULL
 #' }
 #' 
 #' @export f_projection3
-f_projection3 <- function(format, prebreeding = TRUE, start_age = NA_integer_, last_age = NA_integer_, fecage_min = NA_integer_, fecage_max = NA_integer_, cont = TRUE, stochastic = FALSE, standardize = FALSE, growthonly = TRUE, repvalue = FALSE, integeronly = FALSE, substoch = 0L, ipm_cdf = TRUE, nreps = 1L, times = 10000L, repmod = 1.0, exp_tol = 700.0, theta_tol = 100000000.0, random_inda = FALSE, random_indb = FALSE, random_indc = FALSE, err_check = FALSE, quiet = FALSE, data = NULL, stageframe = NULL, supplement = NULL, repmatrix = NULL, overwrite = NULL, modelsuite = NULL, paramnames = NULL, year = NULL, patch = NULL, sp_density = NULL, ind_terms = NULL, dev_terms = NULL, surv_model = NULL, obs_model = NULL, size_model = NULL, sizeb_model = NULL, sizec_model = NULL, repst_model = NULL, fec_model = NULL, jsurv_model = NULL, jobs_model = NULL, jsize_model = NULL, jsizeb_model = NULL, jsizec_model = NULL, jrepst_model = NULL, jmatst_model = NULL, start_vec = NULL, start_frame = NULL, tweights = NULL, density = NULL, density_vr = NULL) {
-    .Call('_lefko3_f_projection3', PACKAGE = 'lefko3', format, prebreeding, start_age, last_age, fecage_min, fecage_max, cont, stochastic, standardize, growthonly, repvalue, integeronly, substoch, ipm_cdf, nreps, times, repmod, exp_tol, theta_tol, random_inda, random_indb, random_indc, err_check, quiet, data, stageframe, supplement, repmatrix, overwrite, modelsuite, paramnames, year, patch, sp_density, ind_terms, dev_terms, surv_model, obs_model, size_model, sizeb_model, sizec_model, repst_model, fec_model, jsurv_model, jobs_model, jsize_model, jsizeb_model, jsizec_model, jrepst_model, jmatst_model, start_vec, start_frame, tweights, density, density_vr)
+f_projection3 <- function(format, prebreeding = TRUE, start_age = NA_integer_, last_age = NA_integer_, fecage_min = NA_integer_, fecage_max = NA_integer_, cont = TRUE, stochastic = FALSE, standardize = FALSE, growthonly = TRUE, repvalue = FALSE, integeronly = FALSE, substoch = 0L, ipm_cdf = TRUE, nreps = 1L, times = 10000L, repmod = 1.0, exp_tol = 700.0, theta_tol = 100000000.0, random_inda = FALSE, random_indb = FALSE, random_indc = FALSE, err_check = FALSE, quiet = FALSE, data = NULL, stageframe = NULL, supplement = NULL, repmatrix = NULL, overwrite = NULL, modelsuite = NULL, paramnames = NULL, year = NULL, patch = NULL, sp_density = NULL, ind_terms = NULL, dev_terms = NULL, surv_model = NULL, obs_model = NULL, size_model = NULL, sizeb_model = NULL, sizec_model = NULL, repst_model = NULL, fec_model = NULL, jsurv_model = NULL, jobs_model = NULL, jsize_model = NULL, jsizeb_model = NULL, jsizec_model = NULL, jrepst_model = NULL, jmatst_model = NULL, start_vec = NULL, start_frame = NULL, tweights = NULL, density = NULL, density_vr = NULL, sparse = NULL) {
+    .Call('_lefko3_f_projection3', PACKAGE = 'lefko3', format, prebreeding, start_age, last_age, fecage_min, fecage_max, cont, stochastic, standardize, growthonly, repvalue, integeronly, substoch, ipm_cdf, nreps, times, repmod, exp_tol, theta_tol, random_inda, random_indb, random_indc, err_check, quiet, data, stageframe, supplement, repmatrix, overwrite, modelsuite, paramnames, year, patch, sp_density, ind_terms, dev_terms, surv_model, obs_model, size_model, sizeb_model, sizec_model, repst_model, fec_model, jsurv_model, jobs_model, jsize_model, jsizeb_model, jsizec_model, jrepst_model, jmatst_model, start_vec, start_frame, tweights, density, density_vr, sparse)
 }
 
-#' General matrix projection model creation
-#' 
-#' Creates MPMs of all flavors and styles.
+#' General Matrix Projection Model Creation
 #' 
 #' Function \code{mpm_create()} is the core workhorse function that creates
 #' all flavors of MPM in \code{lefko3}. All other MPM creation functions act
@@ -2427,17 +2436,23 @@ f_projection3 <- function(format, prebreeding = TRUE, start_age = NA_integer_, l
 #' MPMs in cases where stage assignment must still be handled. Not used in
 #' function-based MPMs, and in stage-based MPMs in which a valid \code{hfvdata}
 #' class data frame with stages already assigned is provided.
+#' @param sparse_output A logical value indicating whether to output matrices
+#' in sparse format. Defaults to \code{FALSE}, in which case all matrices are
+#' output in standard matrix format.
 #' 
 #' @return An object of class \code{lefkoMat}. This is a list that holds the
 #' matrix projection model and all of its metadata. The structure has the
 #' following elements:
 #' 
 #' \item{A}{A list of full projection matrices in order of sorted patches and
-#' occasion times. All matrices output in R's \code{matrix} class.}
+#' occasion times. All matrices output in R's \code{matrix} class, or in
+#' the \code{dgCMatrix} class from the \code{Matrix} package if sparse.}
 #' \item{U}{A list of survival transition matrices sorted as in \code{A}. All 
-#' matrices output in R's \code{matrix} class.}
+#' matrices output in R's \code{matrix} class, or in the \code{dgCMatrix} class
+#' from the \code{Matrix} package if sparse.}
 #' \item{F}{A list of fecundity matrices sorted as in \code{A}. All matrices 
-#' output in R's \code{matrix} class.}
+#' output in R's \code{matrix} class, or in the \code{dgCMatrix} class from the
+#' \code{Matrix} package if sparse.}
 #' \item{hstages}{A data frame matrix showing the pairing of ahistorical stages
 #' used to create historical stage pairs. Only used in historical MPMs.}
 #' \item{agestages}{A data frame showing age-stage pairs. Only used in
@@ -2464,8 +2479,7 @@ f_projection3 <- function(format, prebreeding = TRUE, start_age = NA_integer_, l
 #' This is a data frame giving the values used to determine each matrix element
 #' capable of being estimated.}
 #' 
-#' @section Notes:
-#' 
+#' @section General Notes:
 #' This function automatically determines whether to create a raw or
 #' function-based MPM given inputs supplied by the user.
 #' 
@@ -2474,7 +2488,6 @@ f_projection3 <- function(format, prebreeding = TRUE, start_age = NA_integer_, l
 #' a historical MPM must be estimated.
 #' 
 #' @section Function-based MPM Notes:
-#' 
 #' Users may at times wish to estimate MPMs using a dataset incorporating
 #' multiple patches or subpopulations, but without discriminating between those
 #' patches or subpopulations. Should the aim of analysis be a general MPM that
@@ -2568,13 +2581,11 @@ f_projection3 <- function(format, prebreeding = TRUE, start_age = NA_integer_, l
 #' lathmat3ln <- mpm_create(historical = TRUE, year = "all", patch = "all",
 #'   stageframe = lathframeln, modelsuite = lathmodelsln3, data = lathvertln,
 #'   supplement = lathsupp3)
-#' 
-#' summary(lathmat3ln)
 #' }
 #' 
 #' @export mpm_create
-mpm_create <- function(historical = FALSE, stage = TRUE, age = FALSE, devries = FALSE, reduce = FALSE, simple = FALSE, err_check = FALSE, data = NULL, year = NULL, pop = NULL, patch = NULL, stageframe = NULL, supplement = NULL, overwrite = NULL, repmatrix = NULL, alive = NULL, obsst = NULL, size = NULL, sizeb = NULL, sizec = NULL, repst = NULL, matst = NULL, fec = NULL, stages = NULL, yearcol = NULL, popcol = NULL, patchcol = NULL, indivcol = NULL, agecol = NULL, censorcol = NULL, modelsuite = NULL, paramnames = NULL, inda = NULL, indb = NULL, indc = NULL, dev_terms = NULL, density = NA_real_, CDF = TRUE, random_inda = FALSE, random_indb = FALSE, random_indc = FALSE, negfec = FALSE, exp_tol = 700L, theta_tol = 100000000L, censor = FALSE, censorkeep = NULL, start_age = NA_integer_, last_age = NA_integer_, fecage_min = NA_integer_, fecage_max = NA_integer_, fectime = 2L, fecmod = 1.0, cont = TRUE, prebreeding = TRUE, stage_NRasRep = FALSE) {
-    .Call('_lefko3_mpm_create', PACKAGE = 'lefko3', historical, stage, age, devries, reduce, simple, err_check, data, year, pop, patch, stageframe, supplement, overwrite, repmatrix, alive, obsst, size, sizeb, sizec, repst, matst, fec, stages, yearcol, popcol, patchcol, indivcol, agecol, censorcol, modelsuite, paramnames, inda, indb, indc, dev_terms, density, CDF, random_inda, random_indb, random_indc, negfec, exp_tol, theta_tol, censor, censorkeep, start_age, last_age, fecage_min, fecage_max, fectime, fecmod, cont, prebreeding, stage_NRasRep)
+mpm_create <- function(historical = FALSE, stage = TRUE, age = FALSE, devries = FALSE, reduce = FALSE, simple = FALSE, err_check = FALSE, data = NULL, year = NULL, pop = NULL, patch = NULL, stageframe = NULL, supplement = NULL, overwrite = NULL, repmatrix = NULL, alive = NULL, obsst = NULL, size = NULL, sizeb = NULL, sizec = NULL, repst = NULL, matst = NULL, fec = NULL, stages = NULL, yearcol = NULL, popcol = NULL, patchcol = NULL, indivcol = NULL, agecol = NULL, censorcol = NULL, modelsuite = NULL, paramnames = NULL, inda = NULL, indb = NULL, indc = NULL, dev_terms = NULL, density = NA_real_, CDF = TRUE, random_inda = FALSE, random_indb = FALSE, random_indc = FALSE, negfec = FALSE, exp_tol = 700L, theta_tol = 100000000L, censor = FALSE, censorkeep = NULL, start_age = NA_integer_, last_age = NA_integer_, fecage_min = NA_integer_, fecage_max = NA_integer_, fectime = 2L, fecmod = 1.0, cont = TRUE, prebreeding = TRUE, stage_NRasRep = FALSE, sparse_output = FALSE) {
+    .Call('_lefko3_mpm_create', PACKAGE = 'lefko3', historical, stage, age, devries, reduce, simple, err_check, data, year, pop, patch, stageframe, supplement, overwrite, repmatrix, alive, obsst, size, sizeb, sizec, repst, matst, fec, stages, yearcol, popcol, patchcol, indivcol, agecol, censorcol, modelsuite, paramnames, inda, indb, indc, dev_terms, density, CDF, random_inda, random_indb, random_indc, negfec, exp_tol, theta_tol, censor, censorkeep, start_age, last_age, fecage_min, fecage_max, fectime, fecmod, cont, prebreeding, stage_NRasRep, sparse_output)
 }
 
 #' Estimate Stable Stage Distribution of Any Population Matrix
@@ -2598,6 +2609,26 @@ mpm_create <- function(historical = FALSE, stage = TRUE, age = FALSE, devries = 
 #' @noRd
 .ss3matrix <- function(Amat, sparse) {
     .Call('_lefko3_ss3matrix', PACKAGE = 'lefko3', Amat, sparse)
+}
+
+#' 
+#' \code{ss3matrix_sp()} returns the stable stage distribution for a sparse
+#' population matrix.
+#' 
+#' @name ss3matrix_sp
+#' 
+#' @param Amat A population projection matrix of class \code{dgCMatrix}.
+#' 
+#' @return This function returns the stable stage distribution corresponding to
+#' the input matrix.
+#' 
+#' @seealso \code{\link{stablestage3}()}
+#' @seealso \code{\link{stablestage3.lefkoMat}()}
+#' 
+#' @keywords internal
+#' @noRd
+.ss3matrix_sp <- function(Amat) {
+    .Call('_lefko3_ss3matrix_sp', PACKAGE = 'lefko3', Amat)
 }
 
 #' Estimate Reproductive Value of Any Population Matrix
@@ -2626,6 +2657,32 @@ mpm_create <- function(historical = FALSE, stage = TRUE, age = FALSE, devries = 
 #' @noRd
 .rv3matrix <- function(Amat, sparse) {
     .Call('_lefko3_rv3matrix', PACKAGE = 'lefko3', Amat, sparse)
+}
+
+#' Estimate Reproductive Value of Any Population Matrix
+#' 
+#' \code{rv3matrix_sp()} returns the reproductive values for stages in a
+#' sparse population matrix (both provided in dense matrix format).
+#' The function provides standard reproductive values, meaning that the overall
+#' reproductive values of basic life history stages in a historical matrix are
+#' not provided (the \code{\link{repvalue3.lefkoMat}()} function estimates
+#' these on the basis of stage description information provided in the
+#' \code{lefkoMat} object used as input in that function).
+#' 
+#' @name .rv3matrix_sp
+#' 
+#' @param Amat A population projection matrix of class \code{matrix}.
+#' 
+#' @return This function returns a vector characterizing the reproductive
+#' values for stages of a population projection matrix.
+#' 
+#' @seealso \code{\link{repvalue3}()}
+#' @seealso \code{\link{repvalue3.lefkoMat}()}
+#' 
+#' @keywords internal
+#' @noRd
+.rv3matrix_sp <- function(Amat) {
+    .Call('_lefko3_rv3matrix_sp', PACKAGE = 'lefko3', Amat)
 }
 
 #' Estimate Deterministic Sensitivities of Any Population Matrix
@@ -2673,6 +2730,25 @@ mpm_create <- function(historical = FALSE, stage = TRUE, age = FALSE, devries = 
     .Call('_lefko3_sens3sp_matrix', PACKAGE = 'lefko3', Aspmat, refmat)
 }
 
+#' Estimate Deterministic Sensitivities of Any Population Matrix
+#' 
+#' \code{sens3matrix_spinp()} returns the sensitivity of lambda with respect
+#' to each element in a sparse matrix. This is accomplished via the
+#' \code{eigs_gen()} function in the C++ Armadillo library.
+#' 
+#' @name .sens3matrix_spinp
+#' 
+#' @param Amat A population projection matrix of class \code{dgCMatrix}.
+#' 
+#' @return This function returns a standard matrix of deterministic
+#' sensitivities. 
+#' 
+#' @keywords internal
+#' @noRd
+.sens3matrix_spinp <- function(Amat) {
+    .Call('_lefko3_sens3matrix_spinp', PACKAGE = 'lefko3', Amat)
+}
+
 #' Estimate Deterministic Sensitivities of a Historical LefkoMat Object
 #' 
 #' \code{sens3hlefko()} returns the sensitivity of lambda with respect
@@ -2699,6 +2775,32 @@ mpm_create <- function(historical = FALSE, stage = TRUE, age = FALSE, devries = 
     .Call('_lefko3_sens3hlefko', PACKAGE = 'lefko3', Amat, ahstages, hstages)
 }
 
+#' Estimate Deterministic Sensitivities of a Historical LefkoMat Object
+#' 
+#' \code{sens3hlefko()} returns the sensitivity of lambda with respect
+#' to each historical stage-pair in the matrix, and the associated
+#' sensitivity for each life history stage. This is accomplished via the 
+#' \code{eigs_gen}() function in the C++ Armadillo library.
+#' 
+#' @name .sens3hlefko_sp
+#' 
+#' @param Amat A population projection matrix of class \code{matrix}.
+#' @param ahstages An integar vector of unique ahistorical stages.
+#' @param hstages An integar vector of unique historical stage pairs.
+#' 
+#' @return This function returns a list with two deterministic sensitivity
+#' matrices:
+#' \item{h_smat}{Matrix of sensitivities corresponding to the historical
+#' matrix.}
+#' \item{ah_smat}{Matrix of sensitivities corresponding to the ahistorical
+#' matrix.}
+#' 
+#' @keywords internal
+#' @noRd
+.sens3hlefko_sp <- function(Amat, ahstages, hstages) {
+    .Call('_lefko3_sens3hlefko_sp', PACKAGE = 'lefko3', Amat, ahstages, hstages)
+}
+
 #' Estimate Deterministic Elasticities of Any Population Matrix
 #' 
 #' \code{elas3matrix()} returns the elasticity of lambda with respect
@@ -2718,6 +2820,23 @@ mpm_create <- function(historical = FALSE, stage = TRUE, age = FALSE, devries = 
 #' @noRd
 .elas3matrix <- function(Amat, sparse) {
     .Call('_lefko3_elas3matrix', PACKAGE = 'lefko3', Amat, sparse)
+}
+
+#' Estimate Deterministic Elasticities of Any Population Matrix (Sparse Output)
+#' 
+#' This function conducts a deterministic elasticity analysis but returns the
+#' output in sparse matrix format.
+#' 
+#' @name .elas3sp_matrix
+#' 
+#' @param Amat A population projection matrix of class \code{matrix}.
+#' 
+#' @return This function returns a matrix of deterministic elasticities. 
+#' 
+#' @keywords internal
+#' @noRd
+.elas3sp_matrix <- function(Amat) {
+    .Call('_lefko3_elas3sp_matrix', PACKAGE = 'lefko3', Amat)
 }
 
 #' Estimate Deterministic Elasticities of a Historical LefkoMat Object
@@ -2745,6 +2864,31 @@ mpm_create <- function(historical = FALSE, stage = TRUE, age = FALSE, devries = 
     .Call('_lefko3_elas3hlefko', PACKAGE = 'lefko3', Amat, ahstages, hstages)
 }
 
+#' Estimate Deterministic Elasticities of a Historical LefkoMat Object
+#' 
+#' \code{elas3hlefko()} returns the elasticity of lambda with respect
+#' to each historical stage-pair in the matrix, and the summed elasticities
+#' for each life history stage. This is accomplished via the \code{eigs_gen}()
+#' function in the C++ Armadillo library.
+#' 
+#' @name .elas3sp_hlefko
+#' 
+#' @param Amat A population projection matrix.
+#' @param ahstages An integar vector of unique ahistorical stages.
+#' @param hstages An integar vector of unique historical stage pairs.
+#' 
+#' @return This function returns a list with two deterministic elasticity
+#' matrices:
+#' \item{h_emat}{Matrix of elasticities corresponding to the historical matrix.}
+#' \item{ah_emat}{Matrix of elasticities corresponding to the ahistorical
+#' matrix, but using summed historical elasticities as the basis of estimation.}
+#' 
+#' @keywords internal
+#' @noRd
+.elas3sp_hlefko <- function(Amat, ahstages, hstages) {
+    .Call('_lefko3_elas3sp_hlefko', PACKAGE = 'lefko3', Amat, ahstages, hstages)
+}
+
 #' Core Time-based Population Matrix Projection Function
 #' 
 #' Function \code{proj3()} runs the matrix projections used in other functions
@@ -2755,6 +2899,49 @@ mpm_create <- function(historical = FALSE, stage = TRUE, age = FALSE, devries = 
 #' @param start_vec The starting population vector for the projection.
 #' @param core_list A list of full projection matrices, corresponding to the 
 #' \code{$A} list within a \code{lefkoMat} object.
+#' @param mat_order A vector giving the order of matrices to use at each occasion.
+#' @param standardize A logical value stating whether to standardize population
+#' size vector to sum to 1 at each estimated occasion.
+#' @param growthonly A logical value stating whether to output only a matrix
+#' showing the change in population size from one year to the next for use in
+#' stochastic population growth rate estimation (TRUE), or a larger matrix also
+#' containing the w and v projections for stochastic perturbation analysis,
+#' stage distribution estimation, and reproductive value estimation.
+#' @param integeronly A logical value indicating whether to round all projected
+#' numbers of individuals to the nearest integer.
+#' @param sparse_auto A logical value indicating whether to determine whether
+#' to use sparse matrix encoding automatically.
+#' @param sparse A logical value indicating whether to use sparse matrix
+#' encoding if \code{sparse_auto = FALSE}.
+#' 
+#' @return A matrix in which, if \code{growthonly = TRUE}, each row is the
+#' population vector at each projected occasion, and if \code{growthonly =
+#' FALSE}, the top third of the matrix is the actual number of individuals in
+#' each stage across time, the second third is the w projection (stage
+#' distribution), and the bottom third is the v projection (reproductive
+#' values) for use in estimation of stochastic sensitivities and elasticities
+#' (in addition, a further row is appended to the bottom, corresponding to the
+#' \emph{R} vector, which is the sum of the unstandardized \emph{w} vector
+#' resulting from each occasion's projection).
+#' 
+#' @keywords internal
+#' @noRd
+.proj3 <- function(start_vec, core_list, mat_order, standardize, growthonly, integeronly, sparse_auto, sparse) {
+    .Call('_lefko3_proj3', PACKAGE = 'lefko3', start_vec, core_list, mat_order, standardize, growthonly, integeronly, sparse_auto, sparse)
+}
+
+#' Slimmed-down Time-based Population Sparse Matrix Projection Function
+#' 
+#' Function \code{proj3sp()} runs the matrix projections used in some other
+#' functions in package \code{lefko3}, but only when the input is sparse. This
+#' is a slimmed down version of function \code{proj3()}
+#' 
+#' @name proj3sp
+#' 
+#' @param start_vec The starting population vector for the projection.
+#' @param core_list A list of full projection matrices, corresponding to
+#' the \code{$A} list within a \code{lefkoMat} object. Matrices must be in
+#' \code{arma::sp_mat} format.
 #' @param mat_order A vector giving the order of matrices to use at each occasion.
 #' @param standardize A logical value stating whether to standardize population
 #' size vector to sum to 1 at each estimated occasion.
@@ -2778,8 +2965,8 @@ mpm_create <- function(historical = FALSE, stage = TRUE, age = FALSE, devries = 
 #' 
 #' @keywords internal
 #' @noRd
-.proj3 <- function(start_vec, core_list, mat_order, standardize, growthonly, integeronly) {
-    .Call('_lefko3_proj3', PACKAGE = 'lefko3', start_vec, core_list, mat_order, standardize, growthonly, integeronly)
+.proj3sp <- function(start_vec, core_list, mat_order, standardize, growthonly, integeronly) {
+    .Call('_lefko3_proj3sp', PACKAGE = 'lefko3', start_vec, core_list, mat_order, standardize, growthonly, integeronly)
 }
 
 #' Conduct Population Projection Simulations
@@ -2853,6 +3040,13 @@ mpm_create <- function(historical = FALSE, stage = TRUE, age = FALSE, devries = 
 #' dependence that they will be subject to. The data frame used should be an
 #' object of class \code{lefkoDens}, which is the output from function
 #' \code{\link{density_input}()}.
+#' @param sparse A text string indicating whether to use sparse matrix encoding
+#' (\code{"yes"}) or dense matrix encoding (\code{"no"}), if the
+#' \code{lefkoMat} object input as \code{mpm} is composed of standard matrices.
+#' Defaults to \code{"auto"}, in which case sparse matrix encoding is used with
+#' standard, square matrices with at least 10 rows and no more than 50% of
+#' elements with values greater than zero, or when input \code{lefkoMat}
+#' objects include matrices of class \code{dgCMatrix}.
 #' 
 #' @return A list of class \code{lefkoProj}, which always includes the first
 #' three elements of the following, and also includes the remaining elements
@@ -3043,8 +3237,8 @@ mpm_create <- function(historical = FALSE, stage = TRUE, age = FALSE, devries = 
 #' cypstoch <- projection3(cypmatrix3r, nreps = 5, stochastic = TRUE)
 #' 
 #' @export projection3
-projection3 <- function(mpm, nreps = 1L, times = 10000L, historical = FALSE, stochastic = FALSE, standardize = FALSE, growthonly = TRUE, integeronly = FALSE, substoch = 0L, exp_tol = 700.0, sub_warnings = TRUE, quiet = FALSE, year = NULL, start_vec = NULL, start_frame = NULL, tweights = NULL, density = NULL) {
-    .Call('_lefko3_projection3', PACKAGE = 'lefko3', mpm, nreps, times, historical, stochastic, standardize, growthonly, integeronly, substoch, exp_tol, sub_warnings, quiet, year, start_vec, start_frame, tweights, density)
+projection3 <- function(mpm, nreps = 1L, times = 10000L, historical = FALSE, stochastic = FALSE, standardize = FALSE, growthonly = TRUE, integeronly = FALSE, substoch = 0L, exp_tol = 700.0, sub_warnings = TRUE, quiet = FALSE, year = NULL, start_vec = NULL, start_frame = NULL, tweights = NULL, density = NULL, sparse = NULL) {
+    .Call('_lefko3_projection3', PACKAGE = 'lefko3', mpm, nreps, times, historical, stochastic, standardize, growthonly, integeronly, substoch, exp_tol, sub_warnings, quiet, year, start_vec, start_frame, tweights, density, sparse)
 }
 
 #' Estimate Stochastic Population Growth Rate
@@ -3063,14 +3257,15 @@ projection3 <- function(mpm, nreps = 1L, times = 10000L, historical = FALSE, sto
 #' is a list of matrices, rather than a \code{lefkoMat} object. Defaults to
 #' \code{FALSE} for the former case, and overridden by information supplied in
 #' the \code{lefkoMat} object for the latter case.
-#' @param dense_only A logical value indicating whether to force matrices to be
-#' run in dense format. Defaults to \code{FALSE}, and should only be used if
-#' errors occur when running under default conditions.
 #' @param tweights Numeric vector denoting the probabilistic weightings of
 #' annual matrices. Defaults to equal weighting among occasions.
+#' @param force_sparse A text string indicating whether to force sparse matrix 
+#' encoding (\code{"yes"}) or not (\code{"no"}) if the MPM is composed of
+#' simple matrices. Defaults to \code{"auto"}, in which case sparse matrix
+#' encoding is used with simple square matrices with at least 20 rows and no
+#' more than 50\% of elements with values greater than zero.
 #' 
 #' @return A data frame with the following variables:
-#' 
 #' \item{pop}{The identity of the population.}
 #' \item{patch}{The identity of the patch.}
 #' \item{a}{Estimate of stochastic growth rate, estimated as the arithmetic
@@ -3078,13 +3273,13 @@ projection3 <- function(mpm, nreps = 1L, times = 10000L, historical = FALSE, sto
 #' \item{var}{The estimated variance of a.}
 #' \item{sd}{The standard deviation of a.}
 #' \item{se}{The standard error of a.}
-#'
+#' 
 #' @section Notes:
 #' The log stochastic population growth rate, \eqn{a}, is as given in equation
 #' 2 of Tuljapurkar, Horvitz, and Pascarella 2003. This term is estimated via
 #' projection of randomly sampled matrices, similarly to the procedure outlined
 #' in Box 7.4 of Morris and Doak (2002).
-#'  
+#' 
 #' Stochastic growth rate is estimated both at the patch level and at the
 #' population level. Population level estimates will be noted at the end of the
 #' data frame with 0 entries for patch designation.
@@ -3092,10 +3287,10 @@ projection3 <- function(mpm, nreps = 1L, times = 10000L, historical = FALSE, sto
 #' Weightings given in \code{tweights} do not need to sum to 1. Final
 #' weightings used will be based on the proportion per element of the sum of
 #' elements in the user-supplied vector.
-#'
+#' 
 #' @examples
 #' data(cypdata)
-#'  
+#' 
 #' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
 #' stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
 #'   "XLg")
@@ -3145,11 +3340,11 @@ projection3 <- function(mpm, nreps = 1L, times = 10000L, historical = FALSE, sto
 #'   supplement = cypsupp3r, yearcol = "year2", 
 #'   patchcol = "patchid", indivcol = "individ")
 #' 
-#' cypstoch <- slambda3(cypmatrix3r, dense_only = TRUE)
+#' cypstoch <- slambda3(cypmatrix3r)
 #' 
 #' @export slambda3
-slambda3 <- function(mpm, times = 10000L, historical = FALSE, dense_only = FALSE, tweights = NULL) {
-    .Call('_lefko3_slambda3', PACKAGE = 'lefko3', mpm, times, historical, dense_only, tweights)
+slambda3 <- function(mpm, times = 10000L, historical = FALSE, tweights = NULL, force_sparse = NULL) {
+    .Call('_lefko3_slambda3', PACKAGE = 'lefko3', mpm, times, historical, tweights, force_sparse)
 }
 
 #' Estimate Stochastic Sensitivity or Elasticity of Matrix Set
@@ -3170,6 +3365,8 @@ slambda3 <- function(mpm, times = 10000L, historical = FALSE, dense_only = FALSE
 #' the \code{lefkoMat} object for the latter case.
 #' @param style An integer designating whether to estimate sensitivity matrices
 #' (\code{1}) or elasticity matrices (\code{2}). Defaults to \code{1}.
+#' @param sparse An integer denoting whether to run the projection in sparse
+#' (\code{1}) format or standard (\code{0}) format.
 #' @param tweights Numeric vector denoting the probabilistic weightings of
 #' annual matrices. Defaults to equal weighting among occasions.
 #' 
@@ -3192,121 +3389,8 @@ slambda3 <- function(mpm, times = 10000L, historical = FALSE, dense_only = FALSE
 #'
 #' @keywords internal
 #' @noRd
-.stoch_senselas <- function(mpm, times = 10000L, historical = FALSE, style = 1L, tweights = NULL) {
-    .Call('_lefko3_stoch_senselas', PACKAGE = 'lefko3', mpm, times, historical, style, tweights)
-}
-
-#' Creates Size Index for Elasticity Summaries of hMPMs
-#' 
-#' Function \code{bambi3()} creates an index of estimable elements in
-#' historical matrices, and details the kind of transition that it is.
-#' 
-#' @name .bambi3
-#' 
-#' @param stages This is the core stageframe held by \code{mats}, equivalent to
-#' \code{ahstages}.
-#' @param hstages This is the \code{hstages} object held by \code{mats}.
-#' 
-#' @return A data frame with the following elements:
-#' \item{index}{Vector index of matrix element in C++ terms.}
-#' \item{transition}{Category of transition.}
-#' \item{size3}{Size in occasion \emph{t}+1.}
-#' \item{repstatus3}{Reproductive status in occasion \emph{t}+1.}
-#' \item{entrystatus3}{Entry status in occasion \emph{t}+1.}
-#' \item{size2}{Size in occasion \emph{t}.}
-#' \item{repstatus2}{Reproductive status in occasion \emph{t}.}
-#' \item{entrystatus2}{Entry status in occasion \emph{t}.}
-#' \item{size1}{Size in occasion \emph{t}-1.}
-#' \item{repstatus1}{Reproductive status in occasion \emph{t}-1.}
-#' \item{entrystatus1}{Entry status in occasion \emph{t}-1.}
-#'
-#' The kind of transitions conforms to the following code: \code{10}: full
-#' stasis, \code{11}: stasis to growth, \code{12}: full growth, \code{13}:
-#' growth to stasis, \code{14}: stasis to shrinkage, \code{15}: full shrinkage,
-#' \code{16}: shrinkage to stasis, \code{17}: growth to shrinkage, \code{18}:
-#' shrinkage to growth, \code{20}: stasis to fecundity, \code{21}: growth to
-#' fecundity, \code{22}: shrinkage to fecundity, \code{23}: fecundity to
-#' stasis, \code{24}: fecundity to growth, \code{25}: fecundity to shrinkage,
-#' \code{26}: fecundity to fecundity.
-#' 
-#' @keywords internal
-#' @noRd
-.bambi3 <- function(stages, hstages) {
-    .Call('_lefko3_bambi3', PACKAGE = 'lefko3', stages, hstages)
-}
-
-#' Creates Size Index for Elasticity Summaries of ahMPMs
-#' 
-#' Function \code{bambi2()} creates an index of estimable elements in
-#' ahistorical matrices, and details the kind of transition that it is.
-#' 
-#' @name .bambi2
-#' 
-#' @param stages This is the core stageframe held by \code{mats}, equivalent to
-#' \code{ahstages}.
-#' 
-#' @return A data frame with the following elements:
-#' \item{index}{Vector index of matrix element in C++ terms.}
-#' \item{transition}{Category of transition.}
-#' \item{stage3}{Stage in occasion \emph{t}+1.}
-#' \item{size3}{Size in occasion \emph{t}+1.}
-#' \item{repstatus3}{Reproductive status in occasion \emph{t}+1.}
-#' \item{entrystatus3}{Entry status in occasion \emph{t}+1.}
-#' \item{stage2}{Stage in occasion \emph{t}.}
-#' \item{size2}{Size in occasion \emph{t}.}
-#' \item{repstatus2}{Reproductive status in occasion \emph{t}.}
-#' \item{entrystatus2}{Entry status in occasion \emph{t}.}
-#'
-#' The kind of transitions conforms to the following code: \code{1}: stasis, 
-#' \code{2}: growth, \code{3}: shrinkage, \code{4}: fecundity.
-#' 
-#' @keywords internal
-#' @noRd
-.bambi2 <- function(stages) {
-    .Call('_lefko3_bambi2', PACKAGE = 'lefko3', stages)
-}
-
-#' Creates Summary Data for Elasticity Matrix Inputs
-#' 
-#' Function \code{demolition3()} sums elasticity values from elasticity
-#' matrices, and LTRE contributions from LTRE and sLTRE matrices, according to
-#' the categories developed by functions \code{bambi2()} and \code{bambi3()}.
-#' 
-#' @name .demolition3
-#' 
-#' @param e_amat A single elasticity, LTRE, or sLTRE matrix.
-#' @param bambesque This is the output from \code{bambi2()} or \code{bambi3()}
-#' corresponding to the current lefkoMat object. The format is a data frame
-#' giving the indices and characteristics of all predicted potential non-zero
-#' elements in the supplied matrix.
-#' @param amat_ The A matrix corresponding to \code{e_amat}. If not supplied,
-#' then only \code{bambesque} is used to determine transition categories. If
-#' provided, then fecundity transitions may be split between fecundity and
-#' survival portions.
-#' @param fmat_ The F matrix corresponding to \code{e_amat}. If not supplied,
-#' then only \code{bambesque} is used to determine transition categories. If
-#' provided, then fecundity transitions may be split between fecundity and
-#' survival portions.
-#' 
-#' @return A list with two data frames, one showing the summed elasticities for
-#' the historical matrix supplied (if supplied), and the other showing the
-#' ahistorical summary of the historical matrix or the summed elasticities of
-#' a supplied ahistorical elasticity matrix. Also includes sums of only the
-#' positive elements and only the negative elements, in all cases.
-#' 
-#' @section Notes:
-#' If the original matrices are provided, then this function was made to split
-#' co-occurring survival-fecundity elasticities according to the ratio of the
-#' fecundity portion of the element to the survival portion of that element.
-#' However, this transition splitting capability developed using the original
-#' matrices does not currently work properly, and so it is better to use this
-#' function without objects \code{amat_} and \code{fmat_}, forcing co-occurring
-#' survival-fecundity transitions to be treated as fecundity only.
-#' 
-#' @keywords internal
-#' @noRd
-.demolition3 <- function(e_amat, bambesque, amat_ = NULL, fmat_ = NULL) {
-    .Call('_lefko3_demolition3', PACKAGE = 'lefko3', e_amat, bambesque, amat_, fmat_)
+.stoch_senselas <- function(mpm, times = 10000L, historical = FALSE, style = 1L, sparse = 0L, tweights = NULL) {
+    .Call('_lefko3_stoch_senselas', PACKAGE = 'lefko3', mpm, times, historical, style, sparse, tweights)
 }
 
 #' Estimate LTRE of Any Population Matrix
@@ -3314,7 +3398,7 @@ slambda3 <- function(mpm, times = 10000L, historical = FALSE, dense_only = FALSE
 #' \code{ltre3matrix()} returns the one-way fixed deterministic LTRE matrix of
 #' a dense or sparse set of input matrices.
 #' 
-#' @name .ltre3matrix
+#' @name ltre3matrix
 #' 
 #' @param Amats A list of population projection matrices (not an entire
 #' \code{lefkoMat} object.
@@ -3326,8 +3410,9 @@ slambda3 <- function(mpm, times = 10000L, historical = FALSE, dense_only = FALSE
 #' @param sparse A logical value indicating whether to use sparse or dense
 #' format in matrix calculations.
 #' 
-#' @return This function returns a cube of LTRE contributions, with each slice
-#' corresponding to each input matrix in Amats. 
+#' @return This function returns a one-element list with a list of LTRE
+#' contributions, each element a matrix of contributions corresponding to each
+#' input matrix in \code{Amats}. 
 #' 
 #' @keywords internal
 #' @noRd
@@ -3337,15 +3422,14 @@ slambda3 <- function(mpm, times = 10000L, historical = FALSE, dense_only = FALSE
 
 #' Estimate sLTRE of Any Population Matrix
 #' 
-#' \code{sltre3matrix()} returns the one-way stochastic LTRE matrix of
-#' a dense or sparse set of input matrices.
+#' \code{sltre3matrix()} returns the one-way stochastic LTRE of a dense or
+#' sparse set of input matrices.
 #' 
 #' @name .sltre3matrix
 #' 
 #' @param Amats A list of population projection matrices (not an entire
 #' \code{lefkoMat} object).
-#' @param loy A data frame showing the order of populations, patches, and
-#' occasions of the matrices provided in object \code{Amats}.
+#' @param labels The data frame included in the input \code{lefkoMat} object.
 #' @param refnum An integer vector giving the numbers of the matrices to use as
 #' reference from \code{refmats}.
 #' @param refmats_ A list of reference population projection matrices.
@@ -3356,7 +3440,7 @@ slambda3 <- function(mpm, times = 10000L, historical = FALSE, dense_only = FALSE
 #' total number of occasions projected equals this number plus the number given
 #' in object \code{burnin}.
 #' @param burnin The number of initial occasions to project the population
-#' without calculating population metrics. Defaults to 3000.
+#' without calculating population metrics. Defaults to \code{3000}.
 #' @param sparse A logical value indicating whether to use sparse or dense
 #' format in matrix calculations.
 #' 
@@ -3371,8 +3455,44 @@ slambda3 <- function(mpm, times = 10000L, historical = FALSE, dense_only = FALSE
 #' 
 #' @keywords internal
 #' @noRd
-.sltre3matrix <- function(Amats, loy, refnum, refmats_ = NULL, tweights_ = NULL, steps = 10000L, burnin = 3000L, sparse = FALSE) {
-    .Call('_lefko3_sltre3matrix', PACKAGE = 'lefko3', Amats, loy, refnum, refmats_, tweights_, steps, burnin, sparse)
+.sltre3matrix <- function(Amats, labels, refnum, refmats_ = NULL, tweights_ = NULL, steps = 10000L, burnin = 3000L, sparse = FALSE) {
+    .Call('_lefko3_sltre3matrix', PACKAGE = 'lefko3', Amats, labels, refnum, refmats_, tweights_, steps, burnin, sparse)
+}
+
+#' Estimate SNA-LTRE of Any Population Matrix
+#' 
+#' \code{snaltre3matrix()} returns the one-way small noise approximation LTRE
+#' of a dense or sparse set of input matrices.
+#' 
+#' @name .snaltre3matrix
+#' 
+#' @param Amats A list of population projection matrices (not an entire
+#' \code{lefkoMat} object).
+#' @param labels The data frame included in the input \code{lefkoMat} object.
+#' @param refnum An integer vector giving the numbers of the matrices to use as
+#' reference from \code{refmats}.
+#' @param refmats_ A list of reference population projection matrices.
+#' @param tweights_ Numeric vector denoting the probabilistic weightings of
+#' annual matrices. Defaults to equal weighting among occasions.
+#' @param sparse A logical value indicating whether to use sparse or dense
+#' format in matrix calculations.
+#' 
+#' @return This function returns a list of four lists of matrices. The first,
+#' \code{cont_mean}, holds the sLTRE contributions of shifts in mean elements.
+#' The second, \code{cont_elas}, holds the sLTRE contributions of shifts in
+#' deterministic elasticity across matrices. The third, \code{cont_cv}, holds
+#' the sLTRE contributions of shifts in temporal coefficients of variation of
+#' matrix elements. The fourth, \code{cont_corr}, holds the contributions of
+#' shifts in temporal correlations across matrices.
+#' 
+#' @section Notes:
+#' This function uses the simulation approach developed in Davison et al.
+#' (2019), which provides an analytical solution to the stochastic LTRE.
+#' 
+#' @keywords internal
+#' @noRd
+.snaltre3matrix <- function(Amats, labels, refnum, refmats_ = NULL, tweights_ = NULL, sparse = FALSE) {
+    .Call('_lefko3_snaltre3matrix', PACKAGE = 'lefko3', Amats, labels, refnum, refmats_, tweights_, sparse)
 }
 
 #' Main Formula Creation for Function \code{modelsearch()}
@@ -3866,31 +3986,6 @@ NULL
 #'   immstatus = immvector, indataset = indataset, binhalfwidth = binvec,
 #'   propstatus = propvector)
 #' 
-#' lathvert <- verticalize3(lathyrus, noyears = 4, firstyear = 1988,
-#'   patchidcol = "SUBPLOT", individcol = "GENET", blocksize = 9,
-#'   juvcol = "Seedling1988", sizeacol = "Volume88", repstracol = "FCODE88",
-#'   fecacol = "Intactseed88", deadacol = "Dead1988",
-#'   nonobsacol = "Dormant1988", stageassign = lathframe, stagesize = "sizea",
-#'   censorcol = "Missing1988", censorkeep = NA, censor = TRUE)
-#' 
-#' lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "Sd", "Sdl", "mat"),
-#'   stage2 = c("Sd", "Sd", "Sd", "Sd", "rep", "rep", "Sdl"),
-#'   stage1 = c("Sd", "rep", "Sd", "rep", "npr", "npr", "Sd"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "mat"),
-#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "Sdl"),
-#'   eststage1 = c(NA, NA, NA, NA, NA, NA, "NotAlive"),
-#'   givenrate = c(0.345, 0.345, 0.054, 0.054, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, 0.345, 0.054, NA),
-#'   type = c(1, 1, 1, 1, 3, 3, 1), type_t12 = c(1, 2, 1, 2, 1, 1, 1),
-#'   stageframe = lathframe, historical = TRUE)
-#' 
-#' ehrlen3 <- rlefko3(data = lathvert, stageframe = lathframe, year = "all", 
-#'   stages = c("stage3", "stage2", "stage1"), supplement = lathsupp3,
-#'   yearcol = "year2", indivcol = "individ")
-#' 
-#' ehrlen3mean <- lmean(ehrlen3)
-#' ehrlen3mean$A[[1]]
-#' 
 #' # Cypripedium example
 #' data(cypdata)
 #' 
@@ -3909,32 +4004,6 @@ NULL
 #'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
 #'   propstatus = propvector, immstatus = immvector, indataset = indataset,
 #'   binhalfwidth = binvec)
-#' 
-#' cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
-#'   patchidcol = "patch", individcol = "plantid", blocksize = 4,
-#'   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04",
-#'   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
-#'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
-#'   NRasRep = TRUE)
-#' 
-#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
-#'     "XSm", "Sm", "SD", "P1"),
-#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
-#'     "rep"),
-#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
-#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
-#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
-#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
-#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
-#'   stageframe = cypframe_raw, historical = FALSE)
-#' 
-#' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
-#'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
-#'   size = c("size3added", "size2added"), supplement = cypsupp2r,
-#'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
-#'                        
-#' cyp2mean <- lmean(cypmatrix2r)
-#' cyp2mean
 #' 
 #' @export sf_create
 sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, repstatus = NULL, obsstatus = NULL, propstatus = NULL, matstatus = NULL, immstatus = NULL, minage = NULL, maxage = NULL, indataset = NULL, binhalfwidth = NULL, binhalfwidthb = NULL, binhalfwidthc = NULL, group = NULL, comments = NULL, roundsize = 5L, roundsizeb = 5L, roundsizec = 5L, ipmbins = 100L, ipmbinsb = NA_integer_, ipmbinsc = NA_integer_) {
@@ -4234,6 +4303,186 @@ density_input <- function(mpm, stage3, stage2, stage1 = NULL, age2 = NULL, style
     .Call('_lefko3_density_input', PACKAGE = 'lefko3', mpm, stage3, stage2, stage1, age2, style, time_delay, alpha, beta, type, type_t12)
 }
 
+#' Creates Size Index for Elasticity Summaries of hMPMs
+#' 
+#' Function \code{bambi3()} creates an index of estimable elements in
+#' historical matrices, and details the kind of transition that it is.
+#' 
+#' @name .bambi3
+#' 
+#' @param stages This is the core stageframe held by \code{mats}, equivalent to
+#' \code{ahstages}.
+#' @param hstages This is the \code{hstages} object held by \code{mats}.
+#' 
+#' @return A data frame with the following elements:
+#' \item{index}{Vector index of matrix element in C++ terms.}
+#' \item{transition}{Category of transition.}
+#' \item{size3}{Size in occasion \emph{t}+1.}
+#' \item{repstatus3}{Reproductive status in occasion \emph{t}+1.}
+#' \item{entrystatus3}{Entry status in occasion \emph{t}+1.}
+#' \item{size2}{Size in occasion \emph{t}.}
+#' \item{repstatus2}{Reproductive status in occasion \emph{t}.}
+#' \item{entrystatus2}{Entry status in occasion \emph{t}.}
+#' \item{size1}{Size in occasion \emph{t}-1.}
+#' \item{repstatus1}{Reproductive status in occasion \emph{t}-1.}
+#' \item{entrystatus1}{Entry status in occasion \emph{t}-1.}
+#'
+#' The kind of transitions conforms to the following code: \code{10}: full
+#' stasis, \code{11}: stasis to growth, \code{12}: full growth, \code{13}:
+#' growth to stasis, \code{14}: stasis to shrinkage, \code{15}: full shrinkage,
+#' \code{16}: shrinkage to stasis, \code{17}: growth to shrinkage, \code{18}:
+#' shrinkage to growth, \code{20}: stasis to fecundity, \code{21}: growth to
+#' fecundity, \code{22}: shrinkage to fecundity, \code{23}: fecundity to
+#' stasis, \code{24}: fecundity to growth, \code{25}: fecundity to shrinkage,
+#' \code{26}: fecundity to fecundity.
+#' 
+#' @keywords internal
+#' @noRd
+.bambi3 <- function(stages, hstages) {
+    .Call('_lefko3_bambi3', PACKAGE = 'lefko3', stages, hstages)
+}
+
+#' Creates Size Index for Elasticity Summaries of ahMPMs
+#' 
+#' Function \code{bambi2()} creates an index of estimable elements in
+#' ahistorical matrices, and details the kind of transition that it is.
+#' 
+#' @name .bambi2
+#' 
+#' @param stages This is the core stageframe held by \code{mats}, equivalent to
+#' \code{ahstages}.
+#' 
+#' @return A data frame with the following elements:
+#' \item{index}{Vector index of matrix element in C++ terms.}
+#' \item{transition}{Category of transition.}
+#' \item{stage3}{Stage in occasion \emph{t}+1.}
+#' \item{size3}{Size in occasion \emph{t}+1.}
+#' \item{repstatus3}{Reproductive status in occasion \emph{t}+1.}
+#' \item{entrystatus3}{Entry status in occasion \emph{t}+1.}
+#' \item{stage2}{Stage in occasion \emph{t}.}
+#' \item{size2}{Size in occasion \emph{t}.}
+#' \item{repstatus2}{Reproductive status in occasion \emph{t}.}
+#' \item{entrystatus2}{Entry status in occasion \emph{t}.}
+#'
+#' The kind of transitions conforms to the following code: \code{1}: stasis, 
+#' \code{2}: growth, \code{3}: shrinkage, \code{4}: fecundity.
+#' 
+#' @keywords internal
+#' @noRd
+.bambi2 <- function(stages) {
+    .Call('_lefko3_bambi2', PACKAGE = 'lefko3', stages)
+}
+
+#' Sum Positive and Negative LTRE or Elasticity Contributions
+#' 
+#' @name .demolition4
+#' 
+#' Function \code{demolition4()} takes \code{lefkoElas} and \code{lefkoLTRE}
+#' inputs and returns a data frame summarizing their positive and negative
+#' contributions.
+#' 
+#' @param cmats Any \code{lefkoElas} or \code{lefkoLTRE} object.
+#' 
+#' @return A data frame with three columns per contribution type, corresponding
+#' to summed positive, negative, and total contributions, and rows
+#' corresponding to each input matrix.
+#' 
+#' @keywords internal
+#' @noRd
+.demolition4 <- function(cmats) {
+    .Call('_lefko3_demolition4', PACKAGE = 'lefko3', cmats)
+}
+
+#' Creates Summary Data for Elasticity Matrix Inputs
+#' 
+#' Function \code{demolition3()} sums elasticity values from elasticity
+#' matrices, and LTRE contributions from LTRE and sLTRE matrices, according to
+#' the categories developed by functions \code{bambi2()} and \code{bambi3()}.
+#' It requires \code{matrix} class inputs.
+#' 
+#' @name .demolition3
+#' 
+#' @param e_amat A single elasticity, LTRE, or sLTRE matrix of class
+#' \code{matrix}.
+#' @param bambesque This is the output from \code{bambi2()} or \code{bambi3()}
+#' corresponding to the current lefkoMat object. The format is a data frame
+#' giving the indices and characteristics of all predicted potential non-zero
+#' elements in the supplied matrix.
+#' @param amat_ The A matrix corresponding to \code{e_amat}. If not supplied,
+#' then only \code{bambesque} is used to determine transition categories. If
+#' provided, then fecundity transitions may be split between fecundity and
+#' survival portions.
+#' @param fmat_ The F matrix corresponding to \code{e_amat}. If not supplied,
+#' then only \code{bambesque} is used to determine transition categories. If
+#' provided, then fecundity transitions may be split between fecundity and
+#' survival portions.
+#' 
+#' @return A list with two data frames, one showing the summed elasticities for
+#' the historical matrix supplied (if supplied), and the other showing the
+#' ahistorical summary of the historical matrix or the summed elasticities of
+#' a supplied ahistorical elasticity matrix. Also includes sums of only the
+#' positive elements and only the negative elements, in all cases.
+#' 
+#' @section Notes:
+#' If the original matrices are provided, then this function was made to split
+#' co-occurring survival-fecundity elasticities according to the ratio of the
+#' fecundity portion of the element to the survival portion of that element.
+#' However, this transition splitting capability developed using the original
+#' matrices does not currently work properly, and so it is better to use this
+#' function without objects \code{amat_} and \code{fmat_}, forcing co-occurring
+#' survival-fecundity transitions to be treated as fecundity only.
+#' 
+#' @keywords internal
+#' @noRd
+.demolition3 <- function(e_amat, bambesque, amat_ = NULL, fmat_ = NULL) {
+    .Call('_lefko3_demolition3', PACKAGE = 'lefko3', e_amat, bambesque, amat_, fmat_)
+}
+
+#' Creates Summary Data for Elasticity Matrix Inputs
+#' 
+#' Function \code{demolition3sp()} sums elasticity values from elasticity
+#' matrices, and LTRE contributions from LTRE and sLTRE matrices, according to
+#' the categories developed by functions \code{bambi2()} and \code{bambi3()}.
+#' It requires \code{dgCMatrix} class inputs.
+#' 
+#' @name .demolition3sp
+#' 
+#' @param e_amat A single elasticity, LTRE, or sLTRE matrix of class
+#' \code{dgCMatrix}.
+#' @param bambesque This is the output from \code{bambi2()} or \code{bambi3()}
+#' corresponding to the current lefkoMat object. The format is a data frame
+#' giving the indices and characteristics of all predicted potential non-zero
+#' elements in the supplied matrix.
+#' @param amat_ The A matrix corresponding to \code{e_amat}. If not supplied,
+#' then only \code{bambesque} is used to determine transition categories. If
+#' provided, then fecundity transitions may be split between fecundity and
+#' survival portions. Must also be of class \code{dgCMatrix}.
+#' @param fmat_ The F matrix corresponding to \code{e_amat}. If not supplied,
+#' then only \code{bambesque} is used to determine transition categories. If
+#' provided, then fecundity transitions may be split between fecundity and
+#' survival portions. Must also be of class \code{dgCMatrix}.
+#' 
+#' @return A list with two data frames, one showing the summed elasticities for
+#' the historical matrix supplied (if supplied), and the other showing the
+#' ahistorical summary of the historical matrix or the summed elasticities of
+#' a supplied ahistorical elasticity matrix. Also includes sums of only the
+#' positive elements and only the negative elements, in all cases.
+#' 
+#' @section Notes:
+#' If the original matrices are provided, then this function was made to split
+#' co-occurring survival-fecundity elasticities according to the ratio of the
+#' fecundity portion of the element to the survival portion of that element.
+#' However, this transition splitting capability developed using the original
+#' matrices does not currently work properly, and so it is better to use this
+#' function without objects \code{amat_} and \code{fmat_}, forcing co-occurring
+#' survival-fecundity transitions to be treated as fecundity only.
+#' 
+#' @keywords internal
+#' @noRd
+.demolition3sp <- function(e_amat, bambesque, amat_ = NULL, fmat_ = NULL) {
+    .Call('_lefko3_demolition3sp', PACKAGE = 'lefko3', e_amat, bambesque, amat_, fmat_)
+}
+
 #' Estimate Deterministic Population Growth Rate As Dominant Eigenvalue
 #' 
 #' Function \code{lambda3()} is a generic function that returns the dominant
@@ -4245,9 +4494,14 @@ density_input <- function(mpm, stage3, stage2, stage1 = NULL, age2 = NULL, style
 #' 
 #' @param mpm A lefkoMat object, a list of projection matrices, or a single
 #' projection matrix.
-#' @param sparse A string set to \code{"auto"} (the default), \code{"yes"}, or
-#' \code{"no"}. If set to \code{"auto"}, then will determine whether to use
-#' sparse matrix methods automatically.
+#' @param force_sparse A logical value or string detailing whether to force
+#' sparse matrix encoding for simple matrix input. Defaults to \code{"auto"},
+#' which only forces sparse matrix coding if simple matrices are input that are
+#' both sparse (i.e, percentage of matrix elements that are non-zero <= 50%)
+#' and have more than 20 rows. Can also be set to \code{"yes"}, \code{"no"},
+#' \code{TRUE}, or \code{FALSE}. Note that sparse matrix coding is always used
+#' for \code{lefkoMat} objects with matrices in sparse format (class
+#' \code{dgCMatrix}).
 #' 
 #' @return The value returned depends on the class of the \code{mats} argument.
 #' If a \code{lefkoMat} object is provided, then this function will return the
@@ -4257,11 +4511,6 @@ density_input <- function(mpm, stage3, stage2, stage1 = NULL, age2 = NULL, style
 #' eigenvalues provided in order of matrix. If a single matrix is provided,
 #' then this function will return the dominant eigenvalue of that matrix. Only
 #' the largest real parts of the eigenvalues are returned.
-#' 
-#' @section Notes:
-#' If \code{sparse = "auto"} (the default), then R will use sparse matrix
-#' eigenanalysis if the matrices are both sparse (i.e, percentage of matrix
-#' elements that are non-zero <= 50%) and have more than 100 rows.
 #' 
 #' @seealso \code{\link{slambda3}()}
 #' 
@@ -4355,7 +4604,7 @@ density_input <- function(mpm, stage3, stage2, stage1 = NULL, age2 = NULL, style
 #' lambda3(cypmatrix2r)
 #' 
 #' @export lambda3
-lambda3 <- function(mpm, sparse = "auto") {
-    .Call('_lefko3_lambda3', PACKAGE = 'lefko3', mpm, sparse)
+lambda3 <- function(mpm, force_sparse = NULL) {
+    .Call('_lefko3_lambda3', PACKAGE = 'lefko3', mpm, force_sparse)
 }
 

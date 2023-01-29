@@ -4,14 +4,16 @@
 \alias{elasticity3.matrix}
 \title{Estimate Elasticity of Population Growth Rate of a Single Matrix}
 \usage{
-\method{elasticity3}{matrix}(mats, sparse = "auto", ...)
+\method{elasticity3}{matrix}(mats, force_sparse = "auto", ...)
 }
 \arguments{
 \item{mats}{An object of class \code{matrix}.}
 
-\item{sparse}{A text string indicating whether to use sparse matrix encoding
-(\code{"yes"}) or dense matrix encoding (\code{"no"}). Defaults to
-\code{"auto"}.}
+\item{force_sparse}{A text string indicating whether to use sparse matrix
+encoding (\code{"yes"}) or not (\code{"no"}) with standard matrix input.
+Defaults to \code{"auto"}, in which case sparse matrix encoding is used with
+square matrices with at least 10 rows and no more than 50\% of elements with
+values greater than zero.}
 
 \item{...}{Other parameters.}
 }
@@ -26,6 +28,14 @@ best metric of the population growth rate. This function can handle large and
 sparse matrices, and so can be used with large historical matrices, IPMs,
 age x stage matrices, as well as smaller ahistorical matrices.
 }
+\section{Notes}{
+
+Speed can sometimes be increased by shifting from automatic sparse matrix
+determination to forced dense or sparse matrix projection. This will most
+likely occur when matrices have several hundred rows and columns. Defaults
+work best when matrices are very small and dense, or very large and sparse.
+}
+
 \examples{
 # Lathyrus example
 data(lathyrus)
@@ -77,4 +87,8 @@ elasticity3(ehrlen3mean$A[[1]])
 \code{\link{elasticity3.lefkoMat}()}
 
 \code{\link{elasticity3.list}()}
+
+\code{\link{elasticity3.dgCMatrix}()}
+
+\code{\link{summary.lefkoElas}()}
 }

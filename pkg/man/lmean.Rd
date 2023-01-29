@@ -4,7 +4,7 @@
 \alias{lmean}
 \title{Estimate Mean Projection Matrices}
 \usage{
-lmean(mats, matsout = NULL)
+lmean(mats, matsout = NULL, force_sparse = FALSE)
 }
 \arguments{
 \item{mats}{A \code{lefkoMat} object, or a list of square matrices of equal
@@ -14,26 +14,29 @@ dimension.}
 \code{"pop"} indicates population-level only, \code{"patch"} indicates
 patch-level only, and \code{"all"} indicates that both patch- and
 population-level means should be estimated. Defaults to \code{"all"}.}
+
+\item{force_sparse}{A logical value identifying whether to output the mean
+matrices in sparse format, if input as standard matrices.}
 }
 \value{
 Yields a \code{lefkoMat} object with the following characteristics:
 
 \item{A}{A list of full mean projection matrices in order of sorted
-populations, patches, and years. These are typically estimated as the sums of
-the associated mean \code{U} and \code{F} matrices. All matrices output in
-the \code{matrix} class.}
+populations, patches, and years. These are typically estimated as the sums
+of the associated mean \code{U} and \code{F} matrices. All matrices output
+in either the \code{matrix} class, or the \code{dgCMatrix} class.}
 \item{U}{A list of mean survival-transition matrices sorted as in \code{A}.
 All matrices output in the \code{matrix} class.}
 \item{F}{A list of mean fecundity matrices sorted as in \code{A}. All
 matrices output in the \code{matrix} class.}
-\item{hstages}{A data frame showing the pairing of ahistorical stages used to
-create historical stage pairs. Given if the MPM is historical.}
+\item{hstages}{A data frame showing the pairing of ahistorical stages used
+to create historical stage pairs. Given if the MPM is historical.}
 \item{ahstages}{A data frame detailing the characteristics of associated
 ahistorical stages.}
-\item{labels}{A data frame detailing the order of population, patch, and year 
-of each mean matrix. If \code{pop}, \code{patch}, or \code{year2} are NA in
-the original \code{labels} set, then these will be re-labeled as \code{A},
-\code{1}, or \code{1}, respectively.}
+\item{labels}{A data frame detailing the order of population, patch, and
+year of each mean matrix. If \code{pop}, \code{patch}, or \code{year2} are
+\code{NA} in the original \code{labels} set, then these will be re-labeled
+as \code{A}, \code{1}, or \code{1}, respectively.}
 \item{matrixqc}{A short vector describing the number of non-zero elements in
 \code{U} and \code{F} mean matrices, and the number of annual matrices.}
 \item{modelqc}{This is the \code{qc} portion of the \code{modelsuite} input.
@@ -92,6 +95,5 @@ cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw,
   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
 
 cyp2mean <- lmean(cypmatrix2r)
-cyp2mean
 
 }

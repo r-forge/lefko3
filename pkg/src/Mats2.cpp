@@ -7,6 +7,32 @@ using namespace arma;
 using namespace LefkoUtils;
 using namespace LefkoMats;
 
+//' Create Skeleton Stageframe
+//' 
+//' Function \code{sf_skeleton()} creates a skeleton \code{stageframe} object.
+//' 
+//' @name sf_skeleton
+//' 
+//' @param stages The number of stages, as an integer.
+//' @param standard A logical value indicating whether to create a standard
+//' \code{stageframe} object (\code{TRUE}, the default), or a reassessed
+//' \code{stageframe} object as created by function \code{mpm_create()}
+//' (\code{FALSE}).
+//' 
+//' @return A dat frame of class \code{stageframe}.
+//' 
+//' @export
+// [[Rcpp::export(sf_skeleton)]]
+Rcpp::DataFrame sf_skeleton(int stages, bool standard = true) { 
+  
+  bool reassessed = false;
+  if (!standard) reassessed = true;
+  
+  DataFrame new_sf = LefkoMats::sf_core(stages, reassessed, false);
+  
+  return new_sf;
+}
+
 //' Create Element Index for Matrix Estimation
 //' 
 //' Function \code{simplepizzle()} creates a data frame object used by function
@@ -239,7 +265,8 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
       "sizebinc_width", "group", "comments", "entrystage", "almostborn"};
     
     new_stageframe.attr("names") = sfnamevec;
-    new_stageframe.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, newstageidvec.n_elem);
+    new_stageframe.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER,
+      newstageidvec.n_elem);
     new_stageframe.attr("class") = "data.frame";
     
     StageFrame = new_stageframe;
@@ -294,11 +321,11 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
   
   CharacterVector hsnamevec = {"stage_id_2", "stage_id_1", "stage_2", "stage_1"};
   hstages.attr("names") = hsnamevec;
-  hstages.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, stid2.length());
+  hstages.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER,
+    stid2.length());
   hstages.attr("class") = "data.frame";
   
-  // Here we set up the vectors that will be put together into the matrix map
-  // data frame
+  // Set up vectors to put together into matrix map data frame
   arma::vec stage3(totallength, fill::zeros);
   arma::vec stage2n(totallength, fill::zeros);
   arma::vec stage2o(totallength, fill::zeros);
@@ -377,8 +404,8 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
   
   long long int currentindex {0};
   
-  // Now we cover the main data frame creation loops
-  // When style = 0, this will create AllStages for the historical case
+  // Main data frame creation loops
+  // If style = 0, this will create AllStages for the historical case
   if (format == 2) {
     for (int time1 = 0; time1 < nostages; time1++) {
       for (int time2o = 0; time2o < nostages_nounborn; time2o++) {
@@ -856,8 +883,6 @@ Rcpp::List thefifthhousemate(List mpm, DataFrame allstages, DataFrame hstages,
 //' anth_lefkoMat <- create_lM(mats_list, anthframe, hstages = NA, historical = FALSE,
 //'   poporder = 1, patchorder = pch_ord, yearorder = yr_ord)
 //'   
-//' anth_lefkoMat
-//' 
 //' nullmodel1 <- hist_null(anth_lefkoMat, 1) # Ehrlen format
 //' nullmodel2 <- hist_null(anth_lefkoMat, 2) # deVries format
 //' 
@@ -897,7 +922,8 @@ Rcpp::List hist_null (RObject mpm, int format = 1, bool err_check = false) {
     }
 
     if (mpm_agestages_.length() != 1) {
-      throw Rcpp::exception("Input MPM must be ahistorical, and cannot be age-by-stage.", false);
+      throw Rcpp::exception("Input MPM must be ahistorical, and cannot be age-by-stage.",
+        false);
     }
     mpm_agestages = mpm_agestages_;
     
@@ -916,8 +942,12 @@ Rcpp::List hist_null (RObject mpm, int format = 1, bool err_check = false) {
   
   StringVector mpm_components = mpm_.names();
   for (int i = 0; i < tot_dims; i++) {
-    if (stringcompare_hard(as<std::string>(mpm_components(i)), "modelqc")) modqc_position = i;
-    if (stringcompare_hard(as<std::string>(mpm_components(i)), "dataqc")) datqc_position = i;
+    if (stringcompare_hard(as<std::string>(mpm_components(i)), "modelqc")) {
+      modqc_position = i;
+    }
+    if (stringcompare_hard(as<std::string>(mpm_components(i)), "dataqc")) {
+      datqc_position = i;
+    }
   }
   
   if (datqc_position != -1) {
@@ -1021,25 +1051,27 @@ Rcpp::List hist_null (RObject mpm, int format = 1, bool err_check = false) {
 //' \code{"pop"} indicates population-level only, \code{"patch"} indicates
 //' patch-level only, and \code{"all"} indicates that both patch- and
 //' population-level means should be estimated. Defaults to \code{"all"}.
+//' @param force_sparse A logical value identifying whether to output the mean
+//' matrices in sparse format, if input as standard matrices.
 //' 
 //' @return Yields a \code{lefkoMat} object with the following characteristics:
 //' 
 //' \item{A}{A list of full mean projection matrices in order of sorted
-//' populations, patches, and years. These are typically estimated as the sums of
-//' the associated mean \code{U} and \code{F} matrices. All matrices output in
-//' the \code{matrix} class.}
+//' populations, patches, and years. These are typically estimated as the sums
+//' of the associated mean \code{U} and \code{F} matrices. All matrices output
+//' in either the \code{matrix} class, or the \code{dgCMatrix} class.}
 //' \item{U}{A list of mean survival-transition matrices sorted as in \code{A}.
 //' All matrices output in the \code{matrix} class.}
 //' \item{F}{A list of mean fecundity matrices sorted as in \code{A}. All
 //' matrices output in the \code{matrix} class.}
-//' \item{hstages}{A data frame showing the pairing of ahistorical stages used to
-//' create historical stage pairs. Given if the MPM is historical.}
+//' \item{hstages}{A data frame showing the pairing of ahistorical stages used
+//' to create historical stage pairs. Given if the MPM is historical.}
 //' \item{ahstages}{A data frame detailing the characteristics of associated
 //' ahistorical stages.}
-//' \item{labels}{A data frame detailing the order of population, patch, and year 
-//' of each mean matrix. If \code{pop}, \code{patch}, or \code{year2} are NA in
-//' the original \code{labels} set, then these will be re-labeled as \code{A},
-//' \code{1}, or \code{1}, respectively.}
+//' \item{labels}{A data frame detailing the order of population, patch, and
+//' year of each mean matrix. If \code{pop}, \code{patch}, or \code{year2} are
+//' \code{NA} in the original \code{labels} set, then these will be re-labeled
+//' as \code{A}, \code{1}, or \code{1}, respectively.}
 //' \item{matrixqc}{A short vector describing the number of non-zero elements in
 //' \code{U} and \code{F} mean matrices, and the number of annual matrices.}
 //' \item{modelqc}{This is the \code{qc} portion of the \code{modelsuite} input.
@@ -1092,11 +1124,11 @@ Rcpp::List hist_null (RObject mpm, int format = 1, bool err_check = false) {
 //'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
 //' 
 //' cyp2mean <- lmean(cypmatrix2r)
-//' cyp2mean
 //' 
 //' @export
 // [[Rcpp::export(lmean)]]
-Rcpp::List lmean(RObject mats, Nullable<String> matsout = R_NilValue) {
+Rcpp::List lmean(RObject mats, Nullable<String> matsout = R_NilValue,
+  bool force_sparse = false) {
   
   StringVector mats_class;
   StringVector mats_elements;
@@ -1118,6 +1150,7 @@ Rcpp::List lmean(RObject mats, Nullable<String> matsout = R_NilValue) {
   bool patchonly {false};
   bool dataqc_found {false};
   bool modelqc_found {false};
+  bool mat_input {true};
   
   List gd_output;
   
@@ -1127,12 +1160,15 @@ Rcpp::List lmean(RObject mats, Nullable<String> matsout = R_NilValue) {
     StringVector matsout_choices = {"pop", "patch", "all"};
     int found_one {0};
     for (int i = 0; i < 3; i++) {
-      if (stringcompare_simple(matsout_, String(matsout_choices(i)))) found_one++;
+      if (stringcompare_simple(matsout_, String(matsout_choices(i)))) {
+        found_one++;
+      }
     }
     if (found_one == 0 && matsout_ == "") {
       matsout_ = "all";
     } else if (found_one != 1) { 
-      throw Rcpp::exception("Argument matsout must equal 'all', 'pop', or 'patch'.", false);
+      throw Rcpp::exception("Argument matsout must equal 'all', 'pop', or 'patch'.",
+        false);
     }
   } else {
     matsout_ = "all";
@@ -1151,17 +1187,24 @@ Rcpp::List lmean(RObject mats, Nullable<String> matsout = R_NilValue) {
   }
   
   if (is<NumericMatrix>(mats)) {
-    throw Rcpp::exception("Matrix averaging cannot be performed on a single matrix.", false);
+    throw Rcpp::exception("Matrix averaging cannot be performed on a single matrix.",
+      false);
     
   } else if (is<List>(mats)) {
     List mats_ = as<List>(mats);
-    if (mats_.hasAttribute("class")) mats_class = as<StringVector>(mats_.attr("class"));
-    if (mats_.hasAttribute("names")) mats_elements = as<StringVector>(mats_.attr("names"));
+    if (mats_.hasAttribute("class")) {
+      mats_class = as<StringVector>(mats_.attr("class"));
+    }
+    if (mats_.hasAttribute("names")) {
+      mats_elements = as<StringVector>(mats_.attr("names"));
+    }
     
     int mats_class_length = mats_class.length();
     bool found_it {false};
     for (int i = 0; i < mats_class_length; i++) {
-      if (stringcompare_hard(String(mats_class(i)), "lefkoMat")) found_it = true;
+      if (stringcompare_hard(String(mats_class(i)), "lefkoMat")) {
+        found_it = true;
+      }
     }
     
     if (found_it) {
@@ -1171,10 +1214,15 @@ Rcpp::List lmean(RObject mats, Nullable<String> matsout = R_NilValue) {
       
       for (int i = 0; i < lefkoMat_required.length(); i++) {
         for (int j = 0; j < mats_elements.length(); j++) {
-          if (stringcompare_hard(String(lefkoMat_required(i)), String(mats_elements(j)))) found_element++;
+          if (stringcompare_hard(String(lefkoMat_required(i)), String(mats_elements(j)))) {
+            found_element++;
+          }
         }
       }
-      if (found_element < 5) throw Rcpp::exception("Argument mats does not appear to be a lefkoMat object.", false);
+      if (found_element < 5) {
+        throw Rcpp::exception("Argument mats does not appear to be a lefkoMat object.",
+          false);
+      }
       
       u_mats = as<List>(mats_["U"]);
       f_mats = as<List>(mats_["F"]);
@@ -1202,14 +1250,16 @@ Rcpp::List lmean(RObject mats, Nullable<String> matsout = R_NilValue) {
       DataFrame labels = as<DataFrame>(mats_["labels"]);
       listofyears = loy_inator(labels, true);
       
+      if (is<S4>(u_mats(0))) mat_input = false;
+      
       // Matrix averaging
       if (historical) {
         gd_output = turbogeodiesel(listofyears, u_mats, f_mats, hstages, 
-          agestages, ahstages, patchonly, poponly);
+          agestages, ahstages, patchonly, poponly, mat_input, 0);
         
       } else {
         gd_output = geodiesel(listofyears, u_mats, f_mats, agestages, ahstages,
-          patchonly, poponly);
+          patchonly, poponly, mat_input, 0);
       }
     
       gd_output["ahstages"] = ahstages;
@@ -1225,42 +1275,86 @@ Rcpp::List lmean(RObject mats, Nullable<String> matsout = R_NilValue) {
       // List of NumericMatrix input
       int mats_length = mats_.length();
       
+      if (is<S4>(mats_(0))) mat_input = false;
+      
       arma::mat core_mat;
+      arma::sp_mat core_mat_sp;
       int mat_rows {0};
       int mat_cols {0};
       
       for (int i = 0; i < mats_length; i++) {
         RObject test_bit = as<RObject>(mats_[i]);
         
-        if (!is<NumericMatrix>(test_bit)) {
-          throw Rcpp::exception("Argument mats must be either a lefkoMat object or a list of numeric matrices.", false);
+        if (!is<NumericMatrix>(test_bit) && !is<S4>(test_bit)) {
+          String eat_my_shorts = "Argument mats must be either a lefkoMat object ";
+          String eat_my_shorts1 = "or a list of numeric matrices.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
         }
         
         if (i == 0) {
-          core_mat = as<arma::mat>(mats_[0]);
-          mat_rows = core_mat.n_rows;
-          mat_cols = core_mat.n_cols;
+          if (mat_input) {
+            core_mat = as<arma::mat>(mats_[0]);
+            
+            mat_rows = core_mat.n_rows;
+            mat_cols = core_mat.n_cols;
+          } else {
+            core_mat_sp = as<arma::sp_mat>(mats_[0]);
+            
+            mat_rows = core_mat_sp.n_rows;
+            mat_cols = core_mat_sp.n_cols;
+          }
           
           if (mat_rows != mat_cols) {
             throw Rcpp::exception("Input matrices must be square.", false);
           }
           
-          core_mat = core_mat / mats_length;
-        } else {
-          arma::mat next_mat = as<arma::mat>(mats_[i]);
-          
-          int next_rows = next_mat.n_rows;
-          int next_cols = next_mat.n_cols;
-          
-          if (next_rows != mat_rows || next_cols != mat_cols) {
-            throw Rcpp::exception("All input matrices must have the same dimensions.", false);
+          if (mat_input) {
+            core_mat = core_mat / mats_length;
+          } else {
+            core_mat_sp = core_mat_sp / mats_length;
           }
-          
-          core_mat = core_mat + (next_mat / mats_length);
+        } else {
+          if (mat_input) {
+            arma::mat next_mat = as<arma::mat>(mats_[i]);
+            
+            int next_rows = next_mat.n_rows;
+            int next_cols = next_mat.n_cols;
+            
+            if (next_rows != mat_rows || next_cols != mat_cols) {
+              throw Rcpp::exception("All input matrices must have the same dimensions.",
+                false);
+            }
+            
+            core_mat = core_mat + (next_mat / mats_length);
+          } else {
+            arma::sp_mat next_mat_sp = as<arma::sp_mat>(mats_[i]);
+            
+            int next_rows = next_mat_sp.n_rows;
+            int next_cols = next_mat_sp.n_cols;
+            
+            if (next_rows != mat_rows || next_cols != mat_cols) {
+              throw Rcpp::exception("All input matrices must have the same dimensions.",
+                false);
+            }
+            
+            core_mat_sp = core_mat_sp + (next_mat_sp / mats_length);
+          }
         }
         
-        List A = List::create(_["A"] = core_mat);
-        gd_output = A;
+        if (mat_input && force_sparse) {
+          arma::sp_mat core_mat_sp_(core_mat);
+          core_mat_sp = core_mat_sp_;
+        }
+        
+        if (mat_input && !force_sparse) {
+          List A = List::create(_["A"] = core_mat);
+          gd_output = A;
+        } else {
+          List A = List::create(_["A"] = core_mat_sp);
+          gd_output = A;
+        }
       }
     }
   }

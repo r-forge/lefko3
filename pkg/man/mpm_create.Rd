@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{mpm_create}
 \alias{mpm_create}
-\title{General matrix projection model creation}
+\title{General Matrix Projection Model Creation}
 \usage{
 mpm_create(
   historical = FALSE,
@@ -59,7 +59,8 @@ mpm_create(
   fecmod = 1,
   cont = TRUE,
   prebreeding = TRUE,
-  stage_NRasRep = FALSE
+  stage_NRasRep = FALSE,
+  sparse_output = FALSE
 )
 }
 \arguments{
@@ -346,6 +347,10 @@ non-reproductive individuals as reproductive. Used only in raw, stage-based
 MPMs in cases where stage assignment must still be handled. Not used in
 function-based MPMs, and in stage-based MPMs in which a valid \code{hfvdata}
 class data frame with stages already assigned is provided.}
+
+\item{sparse_output}{A logical value indicating whether to output matrices
+in sparse format. Defaults to \code{FALSE}, in which case all matrices are
+output in standard matrix format.}
 }
 \value{
 An object of class \code{lefkoMat}. This is a list that holds the
@@ -353,11 +358,14 @@ matrix projection model and all of its metadata. The structure has the
 following elements:
 
 \item{A}{A list of full projection matrices in order of sorted patches and
-occasion times. All matrices output in R's \code{matrix} class.}
+occasion times. All matrices output in R's \code{matrix} class, or in
+the \code{dgCMatrix} class from the \code{Matrix} package if sparse.}
 \item{U}{A list of survival transition matrices sorted as in \code{A}. All 
-matrices output in R's \code{matrix} class.}
+matrices output in R's \code{matrix} class, or in the \code{dgCMatrix} class
+from the \code{Matrix} package if sparse.}
 \item{F}{A list of fecundity matrices sorted as in \code{A}. All matrices 
-output in R's \code{matrix} class.}
+output in R's \code{matrix} class, or in the \code{dgCMatrix} class from the
+\code{Matrix} package if sparse.}
 \item{hstages}{A data frame matrix showing the pairing of ahistorical stages
 used to create historical stage pairs. Only used in historical MPMs.}
 \item{agestages}{A data frame showing age-stage pairs. Only used in
@@ -385,16 +393,12 @@ This is a data frame giving the values used to determine each matrix element
 capable of being estimated.}
 }
 \description{
-Creates MPMs of all flavors and styles.
-}
-\details{
 Function \code{mpm_create()} is the core workhorse function that creates
 all flavors of MPM in \code{lefko3}. All other MPM creation functions act
 as wrappers for this function. As such, this function provides the most
 general and most detailed control over the MPM creation process.
 }
-\section{Notes}{
-
+\section{General Notes}{
 
 This function automatically determines whether to create a raw or
 function-based MPM given inputs supplied by the user.
@@ -405,7 +409,6 @@ a historical MPM must be estimated.
 }
 
 \section{Function-based MPM Notes}{
-
 
 Users may at times wish to estimate MPMs using a dataset incorporating
 multiple patches or subpopulations, but without discriminating between those
@@ -501,8 +504,6 @@ lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "mat", "Sd", "Sdl
 lathmat3ln <- mpm_create(historical = TRUE, year = "all", patch = "all",
   stageframe = lathframeln, modelsuite = lathmodelsln3, data = lathvertln,
   supplement = lathsupp3)
-
-summary(lathmat3ln)
 }
 
 }
