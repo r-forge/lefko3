@@ -143,16 +143,30 @@ BEGIN_RCPP
 END_RCPP
 }
 // hoffmannofstuttgart
-List hoffmannofstuttgart(arma::mat mainmat, DataFrame indices, int ahstages, StringVector stagenames);
+List hoffmannofstuttgart(arma::mat& mainmat, DataFrame indices, int ahstages, StringVector stagenames);
 RcppExport SEXP _lefko3_hoffmannofstuttgart(SEXP mainmatSEXP, SEXP indicesSEXP, SEXP ahstagesSEXP, SEXP stagenamesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type mainmat(mainmatSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type mainmat(mainmatSEXP);
     Rcpp::traits::input_parameter< DataFrame >::type indices(indicesSEXP);
     Rcpp::traits::input_parameter< int >::type ahstages(ahstagesSEXP);
     Rcpp::traits::input_parameter< StringVector >::type stagenames(stagenamesSEXP);
     rcpp_result_gen = Rcpp::wrap(hoffmannofstuttgart(mainmat, indices, ahstages, stagenames));
+    return rcpp_result_gen;
+END_RCPP
+}
+// hoffmannofstuttgart_sp
+List hoffmannofstuttgart_sp(arma::sp_mat& mainmat, DataFrame indices, int ahstages, StringVector stagenames);
+RcppExport SEXP _lefko3_hoffmannofstuttgart_sp(SEXP mainmatSEXP, SEXP indicesSEXP, SEXP ahstagesSEXP, SEXP stagenamesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::sp_mat& >::type mainmat(mainmatSEXP);
+    Rcpp::traits::input_parameter< DataFrame >::type indices(indicesSEXP);
+    Rcpp::traits::input_parameter< int >::type ahstages(ahstagesSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type stagenames(stagenamesSEXP);
+    rcpp_result_gen = Rcpp::wrap(hoffmannofstuttgart_sp(mainmat, indices, ahstages, stagenames));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -987,6 +1001,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_lefko3_jpf", (DL_FUNC) &_lefko3_jpf, 54},
     {"_lefko3_density3", (DL_FUNC) &_lefko3_density3, 5},
     {"_lefko3_hoffmannofstuttgart", (DL_FUNC) &_lefko3_hoffmannofstuttgart, 4},
+    {"_lefko3_hoffmannofstuttgart_sp", (DL_FUNC) &_lefko3_hoffmannofstuttgart_sp, 4},
     {"_lefko3_cond_hmpm", (DL_FUNC) &_lefko3_cond_hmpm, 3},
     {"_lefko3_cond_diff", (DL_FUNC) &_lefko3_cond_diff, 4},
     {"_lefko3_ricker3", (DL_FUNC) &_lefko3_ricker3, 9},

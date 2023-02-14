@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 library(lefko3)
 ```
 
-  <p style="text-indent: 20px">In this vignette, we will import a MPM created elsewhere into `lefko3` and analyze it via LTRE and sLTRE analysis. These are inherently ahistorical MPMs, and so we do not include historical analyses in this vignette. To reduce output size, we have prevented some statements from running if they produce long stretches of output. Examples include most `summary()` calls. In these cases, we include hashtagged versions of these calls, and our text assumes that the user runs these statements without hashtags. This vignette is only a sample analysis. Detailed information and instructions on using `lefko3` are available through a free online e-book called *lefko3: a gentle introduction*, available on <a href = "http://www.sheffersonlab.com/projects">the projects page</a> of the Shefferson lab website. This website also includes links to long-format vignettes and other demonstrations of this package.</p>
+  <p style="text-indent: 20px">In this vignette, we will import a MPM created elsewhere into `lefko3` and analyze it via LTRE and sLTRE analysis. These are inherently ahistorical MPMs, and so we do not include historical analyses in this vignette. To reduce output size, we have prevented some statements from running if they produce long stretches of output. Examples include most `summary()` calls. Please run these statements without hashtags to see the output. This vignette is only a sample analysis. Detailed information and instructions on using `lefko3` are available through a free online e-book called *lefko3: a gentle introduction*, available on <a href = "http://www.sheffersonlab.com/projects">the projects page</a> of the Shefferson lab website.</p>
   
 ### ORGANISM AND POPULATIONS  
   
@@ -269,63 +269,63 @@ trialltre_sto <- ltre3(anth_lefkoMat, stochastic = TRUE, steps = 10000,
   
   <p style="text-indent: 20px">The output objects are large and can take a great deal of effort to look over and understand. Therefore, we will show three approaches to assessing these objects, using an approach similar to that used to assess elasticities. These methods can be used to assess patterns in all 9 populations, but for brevity we will focus only on the first population here. First, we will identify the elements most strongly impacting the population growth rate in each case.</p>
 ```{r Ch9.9}
-writeLines(paste0("Highest (i.e most positive) deterministic LTRE contribution: ",
-  max(trialltre_det$ltre_det[[1]])))
-writeLines(paste0("Highest deterministic LTRE contribution is associated with element: ",
-  which(trialltre_det$ltre_det[[1]] == max(trialltre_det$ltre_det[[1]]))))
-writeLines(paste0("Lowest (i.e. most negative) deterministic LTRE contribution: ",
-  min(trialltre_det$ltre_det[[1]])))
-writeLines(paste0("Lowest deterministic LTRE contribution is associated with element: ",
-  which(trialltre_det$ltre_det[[1]] == min(trialltre_det$ltre_det[[1]]))))
+# Highest (i.e most positive) deterministic LTRE contribution:
+max(trialltre_det$cont_mean[[1]])
+# Highest deterministic LTRE contribution is associated with element:
+which(trialltre_det$cont_mean[[1]] == max(trialltre_det$cont_mean[[1]]))
+# Lowest (i.e. most negative) deterministic LTRE contribution:
+min(trialltre_det$cont_mean[[1]])
+# Lowest deterministic LTRE contribution is associated with element:
+which(trialltre_det$cont_mean[[1]] == min(trialltre_det$cont_mean[[1]]))
 
-writeLines(paste0("Highest stochastic mean LTRE contribution: ",
-  max(trialltre_sto$ltre_mean[[1]])))
-writeLines(paste0("Highest stochastic mean LTRE contribution is associated with element: ",
-  which(trialltre_sto$ltre_mean[[1]] == max(trialltre_sto$ltre_mean[[1]]))))
-writeLines(paste0("Lowest stochastic mean LTRE contribution: ",
-  min(trialltre_sto$ltre_mean[[1]])))
-writeLines(paste0("Lowest stochastic mean LTRE contribution is associated with element: ",
-  which(trialltre_sto$ltre_mean[[1]] == min(trialltre_sto$ltre_mean[[1]]))))
+# Highest stochastic mean LTRE contribution:
+max(trialltre_sto$cont_mean[[1]])
+# Highest stochastic mean LTRE contribution is associated with element:
+which(trialltre_sto$cont_mean[[1]] == max(trialltre_sto$cont_mean[[1]]))
+# Lowest stochastic mean LTRE contribution:
+min(trialltre_sto$cont_mean[[1]])
+# Lowest stochastic mean LTRE contribution is associated with element:
+which(trialltre_sto$cont_mean[[1]] == min(trialltre_sto$cont_mean[[1]]))
 
-writeLines(paste0("Highest stochastic SD LTRE contribution: ",
-  max(trialltre_sto$ltre_sd[[1]])))
-writeLines(paste0("Highest stochastic SD LTRE contribution is associated with element: ",
-  which(trialltre_sto$ltre_sd[[1]] == max(trialltre_sto$ltre_sd[[1]]))))
-writeLines(paste0("Lowest stochastic SD LTRE contribution: ",
-  min(trialltre_sto$ltre_sd[[1]])))
-writeLines(paste0("Lowest stochastic SD LTRE contribution is associated with element: ",
-  which(trialltre_sto$ltre_sd[[1]] == min(trialltre_sto$ltre_sd[[1]]))))
+# Highest stochastic SD LTRE contribution:
+max(trialltre_sto$cont_sd[[1]])
+# Highest stochastic SD LTRE contribution is associated with element:
+which(trialltre_sto$cont_sd[[1]] == max(trialltre_sto$cont_sd[[1]]))
+# Lowest stochastic SD LTRE contribution:
+min(trialltre_sto$cont_sd[[1]])
+# Lowest stochastic SD LTRE contribution is associated with element:
+which(trialltre_sto$cont_sd[[1]] == min(trialltre_sto$cont_sd[[1]]))
 
-writeLines(paste0("Total positive deterministic LTRE contributions: ",
-  sum(trialltre_det$ltre_det[[1]][which(trialltre_det$ltre_det[[1]] > 0)])))
-writeLines(paste0("Total negative deterministic LTRE contributions: ",
-  sum(trialltre_det$ltre_det[[1]][which(trialltre_det$ltre_det[[1]] < 0)])))
-writeLines(paste0("Total positive stochastic mean LTRE contributions: ",
-  sum(trialltre_sto$ltre_mean[[1]][which(trialltre_sto$ltre_mean[[1]] > 0)])))
-writeLines(paste0("Total negative stochastic mean LTRE contributions: ",
-  sum(trialltre_sto$ltre_mean[[1]][which(trialltre_sto$ltre_mean[[1]] < 0)])))
-writeLines(paste0("Total positive stochastic SD LTRE contributions: ",
-  sum(trialltre_sto$ltre_sd[[1]][which(trialltre_sto$ltre_sd[[1]] > 0)])))
-writeLines(paste0("Total negative stochastic SD LTRE contributions: ",
-  sum(trialltre_sto$ltre_sd[[1]][which(trialltre_sto$ltre_sd[[1]] < 0)])))
+# Total positive deterministic LTRE contributions:
+sum(trialltre_det$cont_mean[[1]][which(trialltre_det$cont_mean[[1]] > 0)])
+# Total negative deterministic LTRE contributions:
+sum(trialltre_det$cont_mean[[1]][which(trialltre_det$cont_mean[[1]] < 0)])
+# Total positive stochastic mean LTRE contributions:
+sum(trialltre_sto$cont_mean[[1]][which(trialltre_sto$cont_mean[[1]] > 0)])
+# Total negative stochastic mean LTRE contributions:
+sum(trialltre_sto$cont_mean[[1]][which(trialltre_sto$cont_mean[[1]] < 0)])
+# Total positive stochastic SD LTRE contributions:
+sum(trialltre_sto$cont_sd[[1]][which(trialltre_sto$cont_sd[[1]] > 0)])
+# Total negative stochastic SD LTRE contributions:
+sum(trialltre_sto$cont_sd[[1]][which(trialltre_sto$cont_sd[[1]] < 0)])
 ```
   
   <p style="text-indent: 20px">The output for the deterministic LTRE shows that element 13, which is the fecundity transition from seedling to large flowering adult (column 4, row 1), has the strongest influence. This contribution is negative, so it reduces $\lambda$. The most positive contribution to $\lambda$ is from element 3, which is the growth transition from seedling to small flowering adult (column 1, row 3). We also see the most positive contribution from shifts in mean elements in the sLTRE is element 3 (transition from seedling to small flowering adult), but the overall greatest impact is a negative contribution from element 13, which is the fecundity transition from large flowering adult to seedling (column 4, row 1). So, the same overall pattern. Variability in elements also contributes to shifts in $\text{log} \lambda$, though less so than shifts in mean elements. The strongest positive contribution is from variation in the fecundity transition from large flowering adult to seedling (column 4, row 1), while the most negative contribution is from stasis as a large flowering adult (row and column 4). A comparison of summed LTRE elements shows that negative contributions of mean elements were most influential in the stochastic case, while variability of elements had little overall influence.</p>
   
   <p style="text-indent: 20px">Second, we will identify which stages exerted the strongest impact on the population growth rate.</p>
 ```{r Ch9.10, fig.cap = "Figure 9.3. LTRE contributions by stage"}
-ltre_pos <- trialltre_det$ltre_det[[1]]
-ltre_neg <- trialltre_det$ltre_det[[1]]
+ltre_pos <- trialltre_det$cont_mean[[1]]
+ltre_neg <- trialltre_det$cont_mean[[1]]
 ltre_pos[which(ltre_pos < 0)] <- 0
 ltre_neg[which(ltre_neg > 0)] <- 0
 
-sltre_meanpos <- trialltre_sto$ltre_mean[[1]]
-sltre_meanneg <- trialltre_sto$ltre_mean[[1]]
+sltre_meanpos <- trialltre_sto$cont_mean[[1]]
+sltre_meanneg <- trialltre_sto$cont_mean[[1]]
 sltre_meanpos[which(sltre_meanpos < 0)] <- 0
 sltre_meanneg[which(sltre_meanneg > 0)] <- 0
 
-sltre_sdpos <- trialltre_sto$ltre_sd[[1]]
-sltre_sdneg <- trialltre_sto$ltre_sd[[1]]
+sltre_sdpos <- trialltre_sto$cont_sd[[1]]
+sltre_sdneg <- trialltre_sto$cont_sd[[1]]
 sltre_sdpos[which(sltre_sdpos < 0)] <- 0
 sltre_sdneg[which(sltre_sdneg > 0)] <- 0
 
@@ -351,10 +351,10 @@ legend("bottomleft", c("deterministic", "stochastic mean", "stochastic SD"),
 det_ltre_summary <- summary(trialltre_det)
 sto_ltre_summary <- summary(trialltre_sto)
 
-ltresums_tpos <- cbind(det_ltre_summary$ahist_det$matrix1_pos,
+ltresums_tpos <- cbind(det_ltre_summary$ahist_mean$matrix1_pos,
   sto_ltre_summary$ahist_mean$matrix1_pos,
   sto_ltre_summary$ahist_sd$matrix1_pos)
-ltresums_tneg <- cbind(det_ltre_summary$ahist_det$matrix1_neg,
+ltresums_tneg <- cbind(det_ltre_summary$ahist_mean$matrix1_neg,
   sto_ltre_summary$ahist_mean$matrix1_neg,
   sto_ltre_summary$ahist_sd$matrix1_neg)
 
@@ -363,15 +363,16 @@ barplot(t(ltresums_tpos), beside = T, col = c("black", "grey", "red"),
 barplot(t(ltresums_tneg), beside = T, col = c("black", "grey", "red"),
   add = TRUE)
 abline(0, 0, lty = 3)
-text(cex=0.85, y = -0.64, x = seq(from = 2, to = 3.98*length(det_ltre_summary$ahist_det$category),
-    by = 4), det_ltre_summary$ahist_det$category, xpd=TRUE, srt=45)
+text(cex=0.85, y = -0.64, x = seq(from = 2,
+    to = 3.98*length(det_ltre_summary$ahist_mean$category), by = 4),
+    det_ltre_summary$ahist_mean$category, xpd=TRUE, srt=45)
 legend("bottomleft", c("deterministic", "stochastic mean", "stochastic SD"),
   col = c("black", "grey", "red"), pch = 15, bty = "n")
 ```
   
   <p style="text-indent: 20px">The overall greatest impact on the population growth rate is from fecundity, and these contributions are overwhelmingly negative. Clearly temporal variation has strong effects here that deserve to be assessed properly.</p>
   
-  <p style="text-indent: 20px">LTREs and sLTREs are powerful tools, and more complex versions of both analyses exist. Please consult @caswell_matrix_2001 and @davison_contributions_2013 for more information.</p>
+  <p style="text-indent: 20px">LTREs and sLTREs are powerful tools, and more complex versions of both analyses exist. Please consult @caswell_matrix_2001 and @davison_contributions_2013 for more information. Also see @davison_contributions_2013 for information on the small noise approximation LTRE, which is also possible in `lefko3`.</p>
   
   <p style="text-indent: 20px">Package `lefko3` also includes functions to conduct complex analyses, including two general projection functions that can be used for analyses such as quasi-extinction analysis as well as for density dependent analysis. Users wishing to conduct these analyses should see our free e-manual called ***lefko3: a gentle introduction*** and other vignettes, including long-format and video vignettes, on <a href = "http://www.sheffersonlab.com/projects">the projects page</a> of the Shefferson lab website.
 

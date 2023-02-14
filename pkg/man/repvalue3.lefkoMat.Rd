@@ -33,7 +33,7 @@ equal weighting.}
 \item{force_sparse}{A text string indicating whether to use sparse matrix
 encoding (\code{"yes"}) when supplied with standard matrices. Defaults to
 \code{"auto"}, in which case sparse matrix encoding is used with square
-matrices with at least 10 rows and no more than 50\% of elements with values
+matrices with at least 50 rows and no more than 50\% of elements with values
 greater than zero.}
 
 \item{...}{Other parameters.}

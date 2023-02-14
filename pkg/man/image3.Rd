@@ -18,10 +18,7 @@ the input. Non-zero elements appear as red space, while zero elements appear
 as white space.
 }
 \description{
-Function \code{image3()} is a generic function that creates matrix plots. It
-acts as a wrapper for the \code{\link[SparseM]{image}()} function in package
-\code{SparseM}, conducting all necessary conversions and automating image
-production across all or just specific matrices.
+Function \code{image3()} is a generic function that creates matrix plots.
 }
 \examples{
 # Lathyrus example

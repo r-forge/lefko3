@@ -23,7 +23,7 @@ using namespace arma;
 //' @keywords internal
 //' @noRd
 // [[Rcpp::export(.hoffmannofstuttgart)]]
-List hoffmannofstuttgart(arma::mat mainmat, DataFrame indices, int ahstages,
+List hoffmannofstuttgart(arma::mat& mainmat, DataFrame indices, int ahstages,
   StringVector stagenames) {
   arma::uvec stage1 = indices["stage1"];
   arma::uvec stage2 = indices["stage2"];
@@ -37,13 +37,66 @@ List hoffmannofstuttgart(arma::mat mainmat, DataFrame indices, int ahstages,
   Rcpp::List condlist (ahstages);
   
   arma::uvec condidx = find(stage1 == 1);
-  int condlength = condidx.n_elem;
+  int condlength = static_cast<int>(condidx.n_elem);
   
   for (int i = 0; i < ahstages; i++) {
     newmatrix.zeros();
     
     condidx = find(stage1 == (i+1));
-    condlength = condidx.n_elem;
+    condlength = static_cast<int>(condidx.n_elem);
+    
+    for (int j = 0; j < condlength; j++) {
+      if (mainmat(main_index(condidx(j))) > 0) newmatrix(new_index(condidx(j))) = 
+        newmatrix(new_index(condidx(j))) + mainmat(main_index(condidx(j)));
+    }
+    
+    condlist(i) = newmatrix;
+  }
+  condlist.names() = stagenames;
+  
+  return (condlist);
+}
+
+//' Core Engine for cond_hmpm()
+//' 
+//' Creates a list of conditional ahistorical matrices in the style noted in
+//' deVries and Caswell (2018).
+//' 
+//' @name .hoffmannofstuttgart_sp
+//' 
+//' @param mainmat Historical matrix in sparse format.
+//' @param indices Data frame including the stages at times \emph{t}-1,
+//' \emph{t}, and \emph{t}+1, asvwell as indices corresponding to elements in
+//' the main historical matrix andvthe conditional matrices to be produced.
+//' @param ahstages The number of stages in the stageframe.
+//' @param stageframe The original stageframe for the input matrices.
+//'
+//' @return A list of ahistorical matrices.
+//' 
+//' @keywords internal
+//' @noRd
+// [[Rcpp::export(.hoffmannofstuttgart_sp)]]
+List hoffmannofstuttgart_sp(arma::sp_mat& mainmat, DataFrame indices,
+  int ahstages, StringVector stagenames) {
+  arma::uvec stage1 = indices["stage1"];
+  arma::uvec stage2 = indices["stage2"];
+  arma::uvec stage3 = indices["stage3"];
+  arma::ivec main_index = indices["main_index"];
+  arma::ivec new_index = indices["new_index"];
+  
+  arma::mat newmatrix(ahstages, ahstages);
+  newmatrix.zeros();
+  
+  Rcpp::List condlist (ahstages);
+  
+  arma::uvec condidx = find(stage1 == 1);
+  int condlength = static_cast<int>(condidx.n_elem);
+  
+  for (int i = 0; i < ahstages; i++) {
+    newmatrix.zeros();
+    
+    condidx = find(stage1 == (i+1));
+    condlength = static_cast<int>(condidx.n_elem);
     
     for (int j = 0; j < condlength; j++) {
       if (mainmat(main_index(condidx(j))) > 0) newmatrix(new_index(condidx(j))) = 
@@ -194,8 +247,8 @@ Rcpp::List cond_hmpm(List hmpm, Nullable<CharacterVector> matchoice = R_NilValue
     matnames(i) = i + 1;
   }
   
-  int ahmpm_rows = ahstages.n_elem;
-  int hmpm_rows = hstage1.n_elem;
+  int ahmpm_rows = static_cast<int>(ahstages.n_elem);
+  int hmpm_rows = static_cast<int>(hstage1.n_elem);
   int hmpm_elems = 2 * ahmpm_rows * ahmpm_rows * ahmpm_rows;
   
   int format_int {0};
@@ -291,20 +344,35 @@ Rcpp::List cond_hmpm(List hmpm, Nullable<CharacterVector> matchoice = R_NilValue
   
   if (iusedmats == 3) {
     for (int i = 0; i < numofmats; i++) {
-      mats1 = hoffmannofstuttgart(fmats(i), loveontherocks, ahmpm_rows, stagenames);
-      
+      if (is<NumericMatrix>(fmats(i))) {
+        arma::mat chosen_mat = as<arma::mat>(fmats(i));
+        mats1 = hoffmannofstuttgart(chosen_mat, loveontherocks, ahmpm_rows, stagenames);
+      } else { 
+        arma::sp_mat chosen_mat = as<arma::sp_mat>(fmats(i));
+        mats1 = hoffmannofstuttgart_sp(chosen_mat, loveontherocks, ahmpm_rows, stagenames);
+      }
       allout(i) = mats1;
     }
   } else if (iusedmats == 2) {
     for (int i = 0; i < numofmats; i++) {
-      mats1 = hoffmannofstuttgart(umats(i), loveontherocks, ahmpm_rows, stagenames);
-      
+      if (is<NumericMatrix>(umats(i))) {
+        arma::mat chosen_mat = as<arma::mat>(umats(i));
+        mats1 = hoffmannofstuttgart(chosen_mat, loveontherocks, ahmpm_rows, stagenames);
+      } else { 
+        arma::sp_mat chosen_mat = as<arma::sp_mat>(umats(i));
+        mats1 = hoffmannofstuttgart_sp(chosen_mat, loveontherocks, ahmpm_rows, stagenames);
+      }
       allout(i) = mats1;
     }
   } else {
     for (int i = 0; i < numofmats; i++) {
-      mats1 = hoffmannofstuttgart(amats(i), loveontherocks, ahmpm_rows, stagenames);
-      
+      if (is<NumericMatrix>(amats(i))) {
+        arma::mat chosen_mat = as<arma::mat>(amats(i));
+        mats1 = hoffmannofstuttgart(chosen_mat, loveontherocks, ahmpm_rows, stagenames);
+      } else { 
+        arma::sp_mat chosen_mat = as<arma::sp_mat>(amats(i));
+        mats1 = hoffmannofstuttgart_sp(chosen_mat, loveontherocks, ahmpm_rows, stagenames);
+      }
       allout(i) = mats1;
     }
   }
@@ -539,8 +607,8 @@ Rcpp::List cond_diff(List lDiff, int ref = 1,
     matnames(i) = i + 1;
   }
   
-  int ahmpm_rows = ahstages.n_elem;
-  int hmpm_rows = hstage1.n_elem;
+  int ahmpm_rows = static_cast<int>(ahstages.n_elem);
+  int hmpm_rows = static_cast<int>(hstage1.n_elem);
   int hmpm_elems = 2 * ahmpm_rows * ahmpm_rows * ahmpm_rows;
   
   int format_int {0};
@@ -636,20 +704,35 @@ Rcpp::List cond_diff(List lDiff, int ref = 1,
   
   if (iusedmats == 3) {
     for (int i = 0; i < numofmats; i++) {
-      mats1 = hoffmannofstuttgart(fmats(i), loveontherocks, ahmpm_rows, stagenames);
-      
+      if (is<NumericMatrix>(fmats(i))) {
+        arma::mat chosen_mat = as<arma::mat>(fmats(i));
+        mats1 = hoffmannofstuttgart(chosen_mat, loveontherocks, ahmpm_rows, stagenames);
+      } else { 
+        arma::sp_mat chosen_mat = as<arma::sp_mat>(fmats(i));
+        mats1 = hoffmannofstuttgart_sp(chosen_mat, loveontherocks, ahmpm_rows, stagenames);
+      }
       allout(i) = mats1;
     }
   } else if (iusedmats == 2) {
     for (int i = 0; i < numofmats; i++) {
-      mats1 = hoffmannofstuttgart(umats(i), loveontherocks, ahmpm_rows, stagenames);
-      
+      if (is<NumericMatrix>(umats(i))) {
+        arma::mat chosen_mat = as<arma::mat>(umats(i));
+        mats1 = hoffmannofstuttgart(chosen_mat, loveontherocks, ahmpm_rows, stagenames);
+      } else { 
+        arma::sp_mat chosen_mat = as<arma::sp_mat>(umats(i));
+        mats1 = hoffmannofstuttgart_sp(chosen_mat, loveontherocks, ahmpm_rows, stagenames);
+      }
       allout(i) = mats1;
     }
   } else {
     for (int i = 0; i < numofmats; i++) {
-      mats1 = hoffmannofstuttgart(amats(i), loveontherocks, ahmpm_rows, stagenames);
-      
+      if (is<NumericMatrix>(amats(i))) {
+        arma::mat chosen_mat = as<arma::mat>(amats(i));
+        mats1 = hoffmannofstuttgart(chosen_mat, loveontherocks, ahmpm_rows, stagenames);
+      } else { 
+        arma::sp_mat chosen_mat = as<arma::sp_mat>(amats(i));
+        mats1 = hoffmannofstuttgart_sp(chosen_mat, loveontherocks, ahmpm_rows, stagenames);
+      }
       allout(i) = mats1;
     }
   }

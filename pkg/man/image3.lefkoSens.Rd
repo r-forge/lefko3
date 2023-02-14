@@ -26,10 +26,7 @@ elements as red space and zero elements as white space.
 }
 \description{
 Function \code{image3.lefkoSens} plots matrix images for sensitivity matrices
-supplied within \code{lefkoSens} objects. This function operates as a wrapper
-the \code{\link[SparseM]{image}()} function in package \code{SparseM},
-conducting all necessary conversions and automating image production across
-all or just specific matrices.
+supplied within \code{lefkoSens} objects.
 }
 \examples{
 # Lathyrus example

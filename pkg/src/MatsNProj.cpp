@@ -102,6 +102,7 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
   
   int stageframe_length {static_cast<int>(repvec.n_elem)};
   arma::uvec repentryvec(stageframe_length, fill::zeros);
+  IntegerVector stage_id = seq(1, stageframe_length);
   
   // Identify all groups in stageframe
   arma::ivec all_groups = unique(groupvec);
@@ -204,7 +205,7 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
       if (stage3_supp(mult_elems(i)) == "prop") {
         arma::uvec propvec_1elems = find(propvec);
         
-        int propvec_no1s = propvec_1elems.n_elem;
+        int propvec_no1s = static_cast<int>(propvec_1elems.n_elem);
         for (int j = 0; j < propvec_no1s; j++) {
           repentryvec(propvec_1elems(j)) = 1;
         }
@@ -213,7 +214,7 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
       if (stage3_supp(mult_elems(i)) == "immat") {
         arma::uvec immvec_1elems = find(immvec);
         
-        int immvec_no1s = immvec_1elems.n_elem;
+        int immvec_no1s = static_cast<int>(immvec_1elems.n_elem);
         for (int j = 0; j < immvec_no1s; j++) {
           repentryvec(immvec_1elems(j)) = 1;
         }
@@ -223,7 +224,7 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
         if (stage3_supp(mult_elems(i)) == group_text(j)) {
           arma::uvec group_elems = find(groupvec == all_groups(j));
           
-          int group_noelems = group_elems.n_elem;
+          int group_noelems = static_cast<int>(group_elems.n_elem);
           for (int k = 0; k < group_noelems; k++) {
             repentryvec(group_elems(k)) = 1;
           }
@@ -245,7 +246,7 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
           if (stage2_supp(mult_elems(i)) == "rep") {
             arma::uvec repvec_1elems = find(repvec);
             
-            int repvec_no1s = repvec_1elems.n_elem;
+            int repvec_no1s = static_cast<int>(repvec_1elems.n_elem);
             for (int k = 0; k < repvec_no1s; k++) {
               needed_reprods(repvec_1elems(k)) = 1;
               needed_mults(repvec_1elems(k)) = multiplier_supp(mult_elems(i));
@@ -256,7 +257,7 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
             if (stage2_supp(mult_elems(i)) == group_text(k)) {
               arma::uvec group_elems = find(groupvec == all_groups(k));
               
-              int group_noelems = group_elems.n_elem;
+              int group_noelems = static_cast<int>(group_elems.n_elem);
               for (int l = 0; l < group_noelems; l++) {
                 needed_reprods(group_elems(l)) = 1;
                 needed_mults(group_elems(l)) = multiplier_supp(mult_elems(i));
@@ -356,13 +357,14 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
   }
   
   arma::uvec remaining_elems = find(tracked_elems);
-  int no_remaining_elems = remaining_elems.n_elem;
+  int no_remaining_elems = static_cast<int>(remaining_elems.n_elem);
   for (int j = 0; j < no_remaining_elems; j++) {
     neworder(counter) = remaining_elems(j);
     counter++;
   }
   
   StringVector newstagevec(stageframe_length + format);
+  IntegerVector newstageidvec(stageframe_length + format);
   NumericVector neworigsizevec(stageframe_length + format);
   NumericVector neworigsizebvec(stageframe_length + format);
   NumericVector neworigsizecvec(stageframe_length + format);
@@ -400,6 +402,7 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
   
   for (int i = 0; i < stageframe_length; i++) {
     newstagevec(i) = stagevec(neworder(i));
+    newstageidvec(i) = stage_id(neworder(i));
     neworigsizevec(i) = origsizevec(neworder(i));
     neworigsizebvec(i) = origsizebvec(neworder(i));
     neworigsizecvec(i) = origsizecvec(neworder(i));
@@ -441,6 +444,7 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
   
   if (format == 2) {
     newstagevec(stageframe_length) = "AlmostBorn";
+    newstageidvec(stageframe_length) = stageframe_length + 1;
     neworigsizevec(stageframe_length) = 0.0;
     neworigsizebvec(stageframe_length) = 0.0;
     neworigsizecvec(stageframe_length) = 0.0;
@@ -481,6 +485,7 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
   }
   
   newstagevec(stageframe_length + (format - 1)) = "Dead";
+  newstageidvec(stageframe_length + (format - 1)) = stageframe_length + 1 + (format - 1);
   neworigsizevec(stageframe_length + (format - 1)) = 0.0;
   neworigsizebvec(stageframe_length + (format - 1)) = 0.0;
   neworigsizecvec(stageframe_length + (format - 1)) = 0.0;
@@ -518,13 +523,6 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
     newmaxagevec(stageframe_length + (format - 1)) = NA_REAL;
   }
   
-  arma::ivec stage_id;
-  if (format == 1) {
-    stage_id = linspace<arma::ivec>(1, (stageframe_length + 1), (stageframe_length + 1));
-  } else {
-    stage_id = linspace<arma::ivec>(1, (stageframe_length + 2), (stageframe_length + 2));
-  }
-  
   StringVector newstagevec_check = unique(newstagevec);
   if (newstagevec_check.length() < newstagevec.length()) {
     throw Rcpp::exception("All stage names must be unique.", false);
@@ -532,7 +530,7 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
   
   Rcpp::List newstageframe(33);
   
-  newstageframe(0) = Rcpp::IntegerVector(stage_id.begin(), stage_id.end());
+  newstageframe(0) = newstageidvec;
   newstageframe(1) = newstagevec;
   newstageframe(2) = neworigsizevec;
   newstageframe(3) = neworigsizebvec;
@@ -742,28 +740,28 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
     // Build expanded, edited supplement table
     for (int i = 0; i < supp_rows; i++) {
       if (stage3_supp(i) == "prop") {
-        s3_calls(i) = newprop_stages.n_elem;
+        s3_calls(i) = static_cast<int>(newprop_stages.n_elem);
       } else if (stage3_supp(i) == "npr") {
-        s3_calls(i) = newprop0_stages.n_elem;
+        s3_calls(i) = static_cast<int>(newprop0_stages.n_elem);
       } else if (stage3_supp(i) == "immat") {
-        s3_calls(i) = newimm_stages.n_elem;
+        s3_calls(i) = static_cast<int>(newimm_stages.n_elem);
       } else if (stage3_supp(i) == "mat") {
-        s3_calls(i) = newmat_stages.n_elem;
+        s3_calls(i) = static_cast<int>(newmat_stages.n_elem);
       } else if (stage3_supp(i) == "rep") {
-        s3_calls(i) = newrep_stages.n_elem;
+        s3_calls(i) = static_cast<int>(newrep_stages.n_elem);
       } else if (stage3_supp(i) == "nrep") {
-        s3_calls(i) = newmat_rep0_stages.n_elem;
+        s3_calls(i) = static_cast<int>(newmat_rep0_stages.n_elem);
       } else if (stage3_supp(i) == "obs") {
-        s3_calls(i) = newobs_stages.n_elem;
+        s3_calls(i) = static_cast<int>(newobs_stages.n_elem);
       } else if (stage3_supp(i) == "nobs") {
-        s3_calls(i) = newobs0_stages.n_elem;
+        s3_calls(i) = static_cast<int>(newobs0_stages.n_elem);
       } else if (stage3_supp(i) == "all") {
-        s3_calls(i) = all_stages.n_elem;
+        s3_calls(i) = static_cast<int>(all_stages.n_elem);
       } else {
         for (int j = 0; j < no_groups; j++) {
           if (stage3_supp(i) == group_text(j)) {
             arma::uvec current_group = find(newgroupvec == j);
-            no_current_group = current_group.n_elem;
+            no_current_group = static_cast<int>(current_group.n_elem);
             
             s3_calls(i) = no_current_group;
           }
@@ -772,28 +770,28 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
       if (s3_calls(i) == 0) s3_calls(i) = 1;
       
       if (eststage3_supp(i) == "prop") {
-        ests3_calls(i) = newprop_stages.n_elem;
+        ests3_calls(i) = static_cast<int>(newprop_stages.n_elem);
       } else if (eststage3_supp(i) == "npr") {
-        ests3_calls(i) = newprop0_stages.n_elem;
+        ests3_calls(i) = static_cast<int>(newprop0_stages.n_elem);
       } else if (eststage3_supp(i) == "immat") {
-        ests3_calls(i) = newimm_stages.n_elem;
+        ests3_calls(i) = static_cast<int>(newimm_stages.n_elem);
       } else if (eststage3_supp(i) == "mat") {
-        ests3_calls(i) = newmat_stages.n_elem;
+        ests3_calls(i) = static_cast<int>(newmat_stages.n_elem);
       } else if (eststage3_supp(i) == "rep") {
-        ests3_calls(i) = newrep_stages.n_elem;
+        ests3_calls(i) = static_cast<int>(newrep_stages.n_elem);
       } else if (eststage3_supp(i) == "nrep") {
-        ests3_calls(i) = newmat_rep0_stages.n_elem;
+        ests3_calls(i) = static_cast<int>(newmat_rep0_stages.n_elem);
       } else if (eststage3_supp(i) == "obs") {
-        ests3_calls(i) = newobs_stages.n_elem;
+        ests3_calls(i) = static_cast<int>(newobs_stages.n_elem);
       } else if (eststage3_supp(i) == "nobs") {
-        ests3_calls(i) = newobs0_stages.n_elem;
+        ests3_calls(i) = static_cast<int>(newobs0_stages.n_elem);
       } else if (eststage3_supp(i) == "all") {
-        ests3_calls(i) = all_stages.n_elem;
+        ests3_calls(i) = static_cast<int>(all_stages.n_elem);
       } else {
         for (int j = 0; j < no_groups; j++) {
           if (eststage3_supp(i) == group_text(j)) {
             arma::uvec current_group = find(newgroupvec == j);
-            no_current_group = current_group.n_elem;
+            no_current_group = static_cast<int>(current_group.n_elem);
             
             ests3_calls(i) = no_current_group;
           }
@@ -802,28 +800,28 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
       if (ests3_calls(i) == 0) ests3_calls(i) = 1;
       
       if (stage2_supp(i) == "prop") {
-        s2_calls(i) = newprop_stages.n_elem;
+        s2_calls(i) = static_cast<int>(newprop_stages.n_elem);
       } else if (stage2_supp(i) == "npr") {
-        s2_calls(i) = newprop0_stages.n_elem;
+        s2_calls(i) = static_cast<int>(newprop0_stages.n_elem);
       } else if (stage2_supp(i) == "immat") {
-        s2_calls(i) = newimm_stages.n_elem;
+        s2_calls(i) = static_cast<int>(newimm_stages.n_elem);
       } else if (stage2_supp(i) == "mat") {
-        s2_calls(i) = newmat_stages.n_elem;
+        s2_calls(i) = static_cast<int>(newmat_stages.n_elem);
       } else if (stage2_supp(i) == "rep") {
-        s2_calls(i) = newrep_stages.n_elem;
+        s2_calls(i) = static_cast<int>(newrep_stages.n_elem);
       } else if (stage2_supp(i) == "nrep") {
-        s2_calls(i) = newmat_rep0_stages.n_elem;
+        s2_calls(i) = static_cast<int>(newmat_rep0_stages.n_elem);
       } else if (stage2_supp(i) == "obs") {
-        s2_calls(i) = newobs_stages.n_elem;
+        s2_calls(i) = static_cast<int>(newobs_stages.n_elem);
       } else if (stage2_supp(i) == "nobs") {
-        s2_calls(i) = newobs0_stages.n_elem;
+        s2_calls(i) = static_cast<int>(newobs0_stages.n_elem);
       } else if (stage2_supp(i) == "all") {
-        s2_calls(i) = all_stages.n_elem;
+        s2_calls(i) = static_cast<int>(all_stages.n_elem);
       } else {
         for (int j = 0; j < no_groups; j++) {
           if (stage2_supp(i) == group_text(j)) {
             arma::uvec current_group = find(newgroupvec == j);
-            no_current_group = current_group.n_elem;
+            no_current_group = static_cast<int>(current_group.n_elem);
             
             s2_calls(i) = no_current_group;
           }
@@ -832,28 +830,28 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
       if (s2_calls(i) == 0) s2_calls(i) = 1;
       
       if (eststage2_supp(i) == "prop") {
-        ests2_calls(i) = newprop_stages.n_elem;
+        ests2_calls(i) = static_cast<int>(newprop_stages.n_elem);
       } else if (eststage2_supp(i) == "npr") {
-        ests2_calls(i) = newprop0_stages.n_elem;
+        ests2_calls(i) = static_cast<int>(newprop0_stages.n_elem);
       } else if (eststage2_supp(i) == "immat") {
-        ests2_calls(i) = newimm_stages.n_elem;
+        ests2_calls(i) = static_cast<int>(newimm_stages.n_elem);
       } else if (eststage2_supp(i) == "mat") {
-        ests2_calls(i) = newmat_stages.n_elem;
+        ests2_calls(i) = static_cast<int>(newmat_stages.n_elem);
       } else if (eststage2_supp(i) == "rep") {
-        ests2_calls(i) = newrep_stages.n_elem;
+        ests2_calls(i) = static_cast<int>(newrep_stages.n_elem);
       } else if (eststage2_supp(i) == "nrep") {
-        ests2_calls(i) = newmat_rep0_stages.n_elem;
+        ests2_calls(i) = static_cast<int>(newmat_rep0_stages.n_elem);
       } else if (eststage2_supp(i) == "obs") {
-        ests2_calls(i) = newobs_stages.n_elem;
+        ests2_calls(i) = static_cast<int>(newobs_stages.n_elem);
       } else if (eststage2_supp(i) == "nobs") {
-        ests2_calls(i) = newobs0_stages.n_elem;
+        ests2_calls(i) = static_cast<int>(newobs0_stages.n_elem);
       } else if (eststage2_supp(i) == "all") {
-        ests2_calls(i) = all_stages.n_elem;
+        ests2_calls(i) = static_cast<int>(all_stages.n_elem);
       } else {
         for (int j = 0; j < no_groups; j++) {
           if (eststage2_supp(i) == group_text(j)) {
             arma::uvec current_group = find(newgroupvec == j);
-            no_current_group = current_group.n_elem;
+            no_current_group = static_cast<int>(current_group.n_elem);
             
             ests2_calls(i) = no_current_group;
           }
@@ -862,30 +860,30 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
       if (ests2_calls(i) == 0) ests2_calls(i) = 1;
       
       if (stage1_supp(i) == "prop") {
-        s1_calls(i) = newprop_stages.n_elem;
+        s1_calls(i) = static_cast<int>(newprop_stages.n_elem);
       } else if (stage1_supp(i) == "npr") {
-        s1_calls(i) = newprop0_stages.n_elem;
+        s1_calls(i) = static_cast<int>(newprop0_stages.n_elem);
       } else if (stage1_supp(i) == "immat") {
-        s1_calls(i) = newimm_stages.n_elem;
+        s1_calls(i) = static_cast<int>(newimm_stages.n_elem);
       } else if (stage1_supp(i) == "mat") {
-        s1_calls(i) = newmat_stages.n_elem;
+        s1_calls(i) = static_cast<int>(newmat_stages.n_elem);
       } else if (stage1_supp(i) == "rep") {
-        s1_calls(i) = newrep_stages.n_elem;
+        s1_calls(i) = static_cast<int>(newrep_stages.n_elem);
       } else if (stage1_supp(i) == "nrep") {
-        s1_calls(i) = newmat_rep0_stages.n_elem;
+        s1_calls(i) = static_cast<int>(newmat_rep0_stages.n_elem);
       } else if (stage1_supp(i) == "obs") {
-        s1_calls(i) = newobs_stages.n_elem;
+        s1_calls(i) = static_cast<int>(newobs_stages.n_elem);
       } else if (stage1_supp(i) == "nobs") {
-        s1_calls(i) = newobs0_stages.n_elem;
+        s1_calls(i) = static_cast<int>(newobs0_stages.n_elem);
       } else if (stage1_supp(i) == "all") {
-        s1_calls(i) = all_stages.n_elem;
+        s1_calls(i) = static_cast<int>(all_stages.n_elem);
       } else if (StringVector::is_na(stage1_supp(i))) {
         s1_calls(i) = 1;
       } else {
         for (int j = 0; j < no_groups; j++) {
           if (stage1_supp(i) == group_text(j)) {
             arma::uvec current_group = find(newgroupvec == j);
-            no_current_group = current_group.n_elem;
+            no_current_group = static_cast<int>(current_group.n_elem);
             
             s1_calls(i) = no_current_group;
           }
@@ -894,30 +892,30 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
       if (s1_calls(i) == 0) s1_calls(i) = 1;
       
       if (eststage1_supp(i) == "prop") {
-        ests1_calls(i) = newprop_stages.n_elem;
+        ests1_calls(i) = static_cast<int>(newprop_stages.n_elem);
       } else if (eststage1_supp(i) == "npr") {
-        ests1_calls(i) = newprop0_stages.n_elem;
+        ests1_calls(i) = static_cast<int>(newprop0_stages.n_elem);
       } else if (eststage1_supp(i) == "immat") {
-        ests1_calls(i) = newimm_stages.n_elem;
+        ests1_calls(i) = static_cast<int>(newimm_stages.n_elem);
       } else if (eststage1_supp(i) == "mat") {
-        ests1_calls(i) = newmat_stages.n_elem;
+        ests1_calls(i) = static_cast<int>(newmat_stages.n_elem);
       } else if (eststage1_supp(i) == "rep") {
-        ests1_calls(i) = newrep_stages.n_elem;
+        ests1_calls(i) = static_cast<int>(newrep_stages.n_elem);
       } else if (eststage1_supp(i) == "nrep") {
-        ests1_calls(i) = newmat_rep0_stages.n_elem;
+        ests1_calls(i) = static_cast<int>(newmat_rep0_stages.n_elem);
       } else if (eststage1_supp(i) == "obs") {
-        ests1_calls(i) = newobs_stages.n_elem;
+        ests1_calls(i) = static_cast<int>(newobs_stages.n_elem);
       } else if (eststage1_supp(i) == "nobs") {
-        ests1_calls(i) = newobs0_stages.n_elem;
+        ests1_calls(i) = static_cast<int>(newobs0_stages.n_elem);
       } else if (eststage1_supp(i) == "all") {
-        ests1_calls(i) = all_stages.n_elem;
+        ests1_calls(i) = static_cast<int>(all_stages.n_elem);
       } else if (StringVector::is_na(eststage1_supp(i))) {
         ests1_calls(i) = 1;
       } else {
         for (int j = 0; j < no_groups; j++) {
           if (eststage1_supp(i) == group_text(j)) {
             arma::uvec current_group = find(newgroupvec == j);
-            no_current_group = current_group.n_elem;
+            no_current_group = static_cast<int>(current_group.n_elem);
             
             ests1_calls(i) = no_current_group;
           }
@@ -930,10 +928,12 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
           if (s3_calls(i) == 1 && ests3_calls(i) > 1) {
             s3_planned(i) = ests3_calls(i);
           } else if (s3_calls(i) > 1 && ests3_calls(i) > 1) {
-            String eat_my_shorts = "If stage group shorthand is used to designate both a transition and ";
-            String eat_my_shorts1 = "a proxy, then the shorthand group must be the same in both cases.";
+            String eat_my_shorts = "If stage group shorthand is used to designate ";
+            String eat_my_shorts1 = "both a transition and a proxy, then the ";
+            String eat_my_shorts2 = "shorthand group must be the same in both cases.";
             eat_my_shorts += eat_my_shorts1;
-            
+            eat_my_shorts += eat_my_shorts2;
+             
             throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
           }
         } else {
@@ -948,10 +948,12 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
           if (s2_calls(i) == 1 && ests2_calls(i) > 1) {
             s2_planned(i) = ests2_calls(i);
           } else if (s2_calls(i) > 1 && ests2_calls(i) > 1) {
-            String eat_my_shorts = "If stage group shorthand is used to designate both a transition and ";
-            String eat_my_shorts1 = "a proxy, then the shorthand group must be the same in both cases.";
+            String eat_my_shorts = "If stage group shorthand is used to designate ";
+            String eat_my_shorts1 = "both a transition and a proxy, then the ";
+            String eat_my_shorts2 = "shorthand group must be the same in both cases.";
             eat_my_shorts += eat_my_shorts1;
-            
+            eat_my_shorts += eat_my_shorts2;
+             
             throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
           }
         } else {
@@ -966,10 +968,12 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
           if (s1_calls(i) == 1 && ests1_calls(i) > 1) {
             s1_planned(i) = ests1_calls(i);
           } else if (s1_calls(i) > 1 && ests1_calls(i) > 1) {
-            String eat_my_shorts = "If stage group shorthand is used to designate both a transition and ";
-            String eat_my_shorts1 = "a proxy, then the shorthand group must be the same in both cases.";
+            String eat_my_shorts = "If stage group shorthand is used to designate ";
+            String eat_my_shorts1 = "both a transition and a proxy, then the ";
+            String eat_my_shorts2 = "shorthand group must be the same in both cases.";
             eat_my_shorts += eat_my_shorts1;
-            
+            eat_my_shorts += eat_my_shorts2;
+             
             throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
           }
         } else if (historical) {
@@ -1057,7 +1061,7 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
                   
                   group_check = 1;
                   arma::uvec current_group = find(newgroupvec == m);
-                  int current_group_length = current_group.n_elem;
+                  int current_group_length = static_cast<int>(current_group.n_elem);
                   if (group_ratchet3 > (current_group_length - 1)) {
                     group_ratchet3 = 0;
                   }
@@ -1110,7 +1114,7 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
                   
                   group_check = 1;
                   arma::uvec current_group = find(newgroupvec == m);
-                  int current_group_length = current_group.n_elem;
+                  int current_group_length = static_cast<int>(current_group.n_elem);
                   if (group_ratchete3 > (current_group_length - 1)) {
                     group_ratchete3 = 0;
                   }
@@ -1159,7 +1163,7 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
                   
                   group_check = 1;
                   arma::uvec current_group = find(newgroupvec == m);
-                  int current_group_length = current_group.n_elem;
+                  int current_group_length = static_cast<int>(current_group.n_elem);
                   if (group_ratchet2 > (current_group_length - 1)) {
                     group_ratchet2 = 0;
                   }
@@ -1208,7 +1212,7 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
                   
                   group_check = 1;
                   arma::uvec current_group = find(newgroupvec == m);
-                  int current_group_length = current_group.n_elem;
+                  int current_group_length = static_cast<int>(current_group.n_elem);
                   if (group_ratchete2 > (current_group_length - 1)) {
                     group_ratchete2 = 0;
                   }
@@ -1257,7 +1261,7 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
                   
                   group_check = 1;
                   arma::uvec current_group = find(newgroupvec == m);
-                  int current_group_length = current_group.n_elem;
+                  int current_group_length = static_cast<int>(current_group.n_elem);
                   if (group_ratchet1 > (current_group_length - 1)) {
                     group_ratchet1 = 0;
                   }
@@ -1306,7 +1310,7 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
                   
                   group_check = 1;
                   arma::uvec current_group = find(newgroupvec == m);
-                  int current_group_length = current_group.n_elem;
+                  int current_group_length = static_cast<int>(current_group.n_elem);
                   if (group_ratchete1 > (current_group_length - 1)) {
                     group_ratchete1 = 0;
                   }
@@ -1722,7 +1726,7 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
   arma::vec ovmultiplier = as<arma::vec>(OverWrite["multiplier"]);
   arma::vec ovconvtype = as<arma::vec>(OverWrite["convtype"]);
   arma::vec ovconvt12 = as<arma::vec>(OverWrite["convtype_t12"]);
-  int ovrows = ovconvtype.n_elem;
+  int ovrows = static_cast<int>(ovconvtype.n_elem);
   
   int totalages = (finalage - firstage) + 1;
   
@@ -1749,7 +1753,7 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
   ovnewmultiplier.zeros();
   ovconvtypeage.fill(-1.0);
   
-  arma::vec newstageid = as<arma::vec>(StageFrame["stage_id"]);
+  arma::ivec newstageid = as<arma::ivec>(StageFrame["stage_id"]);
   StringVector origstageid = as<StringVector>(StageFrame["stage"]);
   arma::vec binsizectr = as<arma::vec>(StageFrame["sizebin_center"]);
   arma::vec repstatus = as<arma::vec>(StageFrame["repstatus"]);
@@ -1770,13 +1774,13 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
   arma::vec binsizecwidth = as<arma::vec>(StageFrame["sizebinc_width"]);
   
   // Determine length of matrix map data frame
-  int nostages = newstageid.n_elem;
+  int nostages = static_cast<int>(newstageid.n_elem);
   int nostages_nodead = nostages - 1;
   int nostages_nounborn = nostages;
   int nostages_nodead_nounborn = nostages_nodead;
   int prior_stage = -1;
   arma::vec ovrepentry_prior(nostages, fill::zeros);
-  
+  IntegerVector stageorder = seq(1, nostages);
   int totallength {0};
   
   if (style == 2) {
@@ -1806,10 +1810,15 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
   }
   
   // Set up vectors that will be put together into matrix map data frame
-  arma::vec stage3(totallength, fill::zeros);
-  arma::vec stage2n(totallength, fill::zeros);
-  arma::vec stage2o(totallength, fill::zeros);
-  arma::vec stage1(totallength, fill::zeros);
+  arma::ivec stage3(totallength, fill::zeros);
+  arma::ivec stage2n(totallength, fill::zeros);
+  arma::ivec stage2o(totallength, fill::zeros);
+  arma::ivec stage1(totallength, fill::zeros);
+  
+  arma::ivec stageorder3(totallength, fill::zeros);
+  arma::ivec stageorder2n(totallength, fill::zeros);
+  arma::ivec stageorder2o(totallength, fill::zeros);
+  arma::ivec stageorder1(totallength, fill::zeros);
   
   arma::vec size3(totallength, fill::zeros);
   arma::vec size2n(totallength, fill::zeros);
@@ -1995,6 +2004,11 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
                 
                 included(currentindex) = 1.0;
                 
+                stageorder3(currentindex) = stageorder(time3);
+                stageorder2n(currentindex) = stageorder(time2n);
+                stageorder2o(currentindex) = stageorder(time2o);
+                stageorder1(currentindex) = stageorder(time1);
+                
                 stage3(currentindex) = newstageid(time3);
                 stage2n(currentindex) = newstageid(time2n);
                 stage2o(currentindex) = newstageid(time2o);
@@ -2048,7 +2062,7 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
                 // Fill in repentry info from repmatrix
                 if (time2n == prior_stage && time3 < prior_stage && time2o < prior_stage) {
                   if (repmattype == 1) { 
-                    repm_elem = time3 + (time2o * nostages_nodead_nounborn);
+                    repm_elem = (time3 + (time2o * nostages_nodead_nounborn));
                   } else if (repmattype == 2) {
                     repm_elem = time3 + (time2o * nostages_nodead_nounborn) + 
                       (time2o * nostages_nodead_nounborn * nostages_nodead_nounborn) +
@@ -2105,10 +2119,10 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
                 
                 if (deadandnasty == 0.0) {
                   // Next index variable gives element in the final matrix
-                  aliveequal(currentindex) = (stage3(currentindex) - 1) + 
-                    ((stage2n(currentindex) - 1) * nostages_nodead_nounborn) + 
-                    ((stage2o(currentindex) - 1) * nostages_nodead * nostages_nodead_nounborn) + 
-                    ((stage1(currentindex) - 1) * nostages_nodead_nounborn * 
+                  aliveequal(currentindex) = (stageorder3(currentindex) - 1) + 
+                    ((stageorder2n(currentindex) - 1) * nostages_nodead_nounborn) + 
+                    ((stageorder2o(currentindex) - 1) * nostages_nodead * nostages_nodead_nounborn) + 
+                    ((stageorder1(currentindex) - 1) * nostages_nodead_nounborn * 
                       nostages_nodead * nostages_nodead_nounborn);
                   
                   // Next two index variables used by ovreplace
@@ -2170,7 +2184,7 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
       ovfecmult = asadditions.col(6);
       
       arma::uvec workedupindex = find(ovrepentry > 0.0);
-      int changedreps = workedupindex.n_elem;
+      int changedreps = static_cast<int>(workedupindex.n_elem);
       
       if (changedreps > 0) {
         for (int i = 0; i < changedreps; i++) {
@@ -2212,6 +2226,11 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
           
           included(currentindex) = 1.0;
           
+          stageorder3(currentindex) = stageorder(time3);
+          stageorder2n(currentindex) = stageorder(time2o);
+          stageorder2o(currentindex) = stageorder(time2o);
+          stageorder1(currentindex) = stageorder(time1);
+                
           stage3(currentindex) = newstageid(time3);
           stage2n(currentindex) = newstageid(time2o);
           stage2o(currentindex) = newstageid(time2o);
@@ -2334,9 +2353,9 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
               nostages_nodead_nounborn);
           
           if (deadandnasty == 0.0) {
-            aliveequal(currentindex) = (stage3(currentindex) - 1) + ((stage2n(currentindex) - 1) * 
-                (nostages - 1)) + ((stage2o(currentindex) - 1) * (nostages - 1) * (nostages - 1)) + 
-              ((stage1(currentindex) - 1) * (nostages - 1) * (nostages - 1) * (nostages - 1));
+            aliveequal(currentindex) = (stageorder3(currentindex) - 1) + ((stageorder2n(currentindex) - 1) * 
+                (nostages - 1)) + ((stageorder2o(currentindex) - 1) * (nostages - 1) * (nostages - 1)) + 
+              ((stageorder1(currentindex) - 1) * (nostages - 1) * (nostages - 1) * (nostages - 1));
             
             index321(currentindex) = (stage3(currentindex) - 1) + 
               ((stage2n(currentindex) - 1) * nostages_nodead_nounborn) + 
@@ -2368,7 +2387,7 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
       ovrepentry = asadditions.col(4);
       
       arma::uvec workedupindex = find(ovrepentry > 0.0);
-      int changedreps = workedupindex.n_elem;
+      int changedreps = static_cast<int>(workedupindex.n_elem);
       
       if (changedreps > 0) {
         for (int i = 0; i < changedreps; i++) {
@@ -2400,10 +2419,15 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
     for (int time2n = 0; time2n < nostages_nodead; time2n++) {
       for (int time3 = 0; time3 < nostages; time3++) {
         
+        stageorder3(currentindex) = stageorder(time3);
+        stageorder2n(currentindex) = stageorder(time2n);
+        stageorder2o(currentindex) = stageorder(time2n);
+        stageorder1(currentindex) = 0;
+                
         stage3(currentindex) = newstageid(time3);
         stage2n(currentindex) = newstageid(time2n);
         stage2o(currentindex) = newstageid(time2n);
-        stage1(currentindex) = 0.0;
+        stage1(currentindex) = 0;
         
         size3(currentindex) = binsizectr(time3);
         size2n(currentindex) = binsizectr(time2n);
@@ -2484,8 +2508,8 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
         }
         
         if (deadandnasty == 0.0) {
-          aliveequal(currentindex) = (stage3(currentindex) - 1) + 
-            ((stage2n(currentindex) - 1) * nostages_nodead);
+          aliveequal(currentindex) = (stageorder3(currentindex) - 1) + 
+            ((stageorder2n(currentindex) - 1) * nostages_nodead);
           
           index321(currentindex) = (stage3(currentindex) - 1) + 
             ((stage2n(currentindex) - 1) * nostages);
@@ -2514,7 +2538,7 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
       ovrepentry = asadditions.col(4);
       
       arma::uvec workedupindex = find(ovrepentry > 0.0);
-      int changedreps = workedupindex.n_elem;
+      int changedreps = static_cast<int>(workedupindex.n_elem);
       
       if (changedreps > 0) {
         for (int i = 0; i < changedreps; i++) {
@@ -2658,7 +2682,7 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
             stage3(currentindex) = newstageid(time3);
             stage2n(currentindex) = newstageid(time2n);
             stage2o(currentindex) = newstageid(time2n);
-            stage1(currentindex) = 0.0;
+            stage1(currentindex) = 0;
             
             size3(currentindex) = binsizectr(time3);
             size2n(currentindex) = binsizectr(time2n);
@@ -3075,7 +3099,7 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
       ovrepentry = asadditions.col(4);
       
       arma::uvec workedupindex = find(ovrepentry > 0.0);
-      int changedreps = workedupindex.n_elem;
+      int changedreps = static_cast<int>(workedupindex.n_elem);
       
       if (changedreps > 0) {
         for (int i = 0; i < changedreps; i++) {
@@ -3098,13 +3122,13 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
   }
   
   if (filter > 0) {
-    int new_length = used_indices.n_elem;
+    int new_length = static_cast<int>(used_indices.n_elem);
     stage3_length = new_length;
     
-    NumericVector stage3_new(new_length);
-    NumericVector stage2n_new(new_length);
-    NumericVector stage2o_new(new_length);
-    NumericVector stage1_new(new_length);
+    IntegerVector stage3_new(new_length);
+    IntegerVector stage2n_new(new_length);
+    IntegerVector stage2o_new(new_length);
+    IntegerVector stage1_new(new_length);
     
     NumericVector size3_new(new_length);
     NumericVector size2n_new(new_length);
@@ -3322,12 +3346,12 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
     output_longlist(59) = index21_new;
     
   } else {
-    stage3_length = stage3.n_elem;
+    stage3_length = static_cast<int>(stage3.n_elem);
     
-    output_longlist(0) = Rcpp::NumericVector(stage3.begin(), stage3.end());
-    output_longlist(1) = Rcpp::NumericVector(stage2n.begin(), stage2n.end());
-    output_longlist(2) = Rcpp::NumericVector(stage2o.begin(), stage2o.end());
-    output_longlist(3) = Rcpp::NumericVector(stage1.begin(), stage1.end());
+    output_longlist(0) = Rcpp::IntegerVector(stage3.begin(), stage3.end());
+    output_longlist(1) = Rcpp::IntegerVector(stage2n.begin(), stage2n.end());
+    output_longlist(2) = Rcpp::IntegerVector(stage2o.begin(), stage2o.end());
+    output_longlist(3) = Rcpp::IntegerVector(stage1.begin(), stage1.end());
     output_longlist(4) = Rcpp::NumericVector(size3.begin(), size3.end());
     output_longlist(5) = Rcpp::NumericVector(size2n.begin(), size2n.end());
     output_longlist(6) = Rcpp::NumericVector(size2o.begin(), size2o.end());
@@ -3455,7 +3479,9 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
 //' @return If \code{err_switch = FALSE}, then will return a list of three
 //' matrices, including the survival-transition (\code{U}) matrix, the fecundity
 //' matrix (\code{F}), and the sum (\code{A}) matrix, with the \code{A} matrix
-//' first. If \code{err_switch = TRUE}, then will also output two further
+//' first, followed by the \code{ahstages}, \code{agestages}, \code{hstages},
+//' and \code{labels} data frames, and the \code{matrixqc} and \code{dataqc}
+//' vectors. If \code{err_switch = TRUE}, then will also output four further
 //' elements: \code{probsrates_all} and \code{stage2fec_all}. The former is a
 //' matrix composed of the following vectors in order: \code{sge9index321},
 //' which gives the historical index number for each transition possible and
@@ -3477,7 +3503,8 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
 //' but assuming a prior stage. Element \code{stage2fec_all} is a matrix
 //' composed of two vectors: \code{stage2fec} is the fecundity associated with
 //' each paired historical stage, and \code{stage2fecp} is the equivalent
-//' assuming a prior stage.
+//' assuming a prior stage. The final two elements are \code{dataindex321_prior}
+//' and the edited dataset.
 //' 
 //' @keywords internal
 //' @noRd
@@ -3511,15 +3538,15 @@ List specialpatrolgroup(const DataFrame& sge9l, const arma::ivec& sge3index21,
   
   int nostages = static_cast<int>(StageFrame.nrows());
   int no2stages = nostages - 1;
-  int noelems = sge9index321.n_elem;
+  int noelems = static_cast<int>(sge9index321.n_elem);
   if (format == 2) no2stages = no2stages - 1;
   int matrixdim = (nostages - 1) * no2stages;
   bool small_subset {false};
   
   arma::uvec all_repentries = find(sge9fec32 > 0.0);
   arma::ivec all_entry_stages = arma::unique(sge9stage3(all_repentries));
-  int aes_count = all_entry_stages.n_elem;
-  int n = dataindex321.n_elem;
+  int aes_count = static_cast<int>(all_entry_stages.n_elem);
+  int n = static_cast<int>(dataindex321.n_elem);
   
   arma::mat dataindex321_prior(n, aes_count);
   dataindex321_prior.fill(-1);
@@ -3552,13 +3579,13 @@ List specialpatrolgroup(const DataFrame& sge9l, const arma::ivec& sge3index21,
   
   arma::uvec ovgiventind = find(sge9ovgivent != -1.0);
   arma::uvec ovgivenfind = find(sge9ovgivenf != -1.0);
-  int ovgtn = ovgiventind.n_elem;
-  int ovgfn = ovgivenfind.n_elem;
+  int ovgtn = static_cast<int>(ovgiventind.n_elem);
+  int ovgfn = static_cast<int>(ovgivenfind.n_elem);
   
   arma::uvec ovesttind = find(sge9ovestt != -1);
   arma::uvec ovestfind = find(sge9ovestf != -1);
-  int ovestn = ovesttind.n_elem;
-  int ovesfn = ovestfind.n_elem;
+  int ovestn = static_cast<int>(ovesttind.n_elem);
+  int ovesfn = static_cast<int>(ovestfind.n_elem);
   
   for (int i = 0; i < loy_length; i++) {
     arma::uvec data_current_index = as<arma::uvec>(LefkoUtils::index_l3(data_year_, loyyear2(i)));
@@ -3588,14 +3615,14 @@ List specialpatrolgroup(const DataFrame& sge9l, const arma::ivec& sge3index21,
     arma::ivec dataindex1i = dataindex1.elem(data_current_index);
     arma::mat dataindex321_priori = dataindex321_prior.rows(data_current_index);
     
-    n = dataindex321i.n_elem;
+    n = static_cast<int>(dataindex321i.n_elem);
     
     arma::vec probsrates0(noelems, fill::zeros); // 1st vec: # indivs (3 trans)
     arma::vec probsrates1(noelems, fill::zeros); // 2nd vec: total indivs pair stage
     arma::vec probsrates2(noelems, fill::zeros); // 3rd vec: total indivs alive pair stage
     arma::vec probsrates3(noelems, fill::zeros); // 4th vec: total fec pair stage
     
-    arma::mat stage2fec(sge3index21.n_elem, 3, fill::zeros); // col1: #inds, col2: #alive, col3: sum fec
+    arma::mat stage2fec(static_cast<int>(sge3index21.n_elem), 3, fill::zeros); // col1: #inds, col2: #alive, col3: sum fec
     
     // Develop prior stage
     arma::vec probsrates0p(noelems, fill::zeros); // 1st vec: # indivs (3 trans)
@@ -3603,7 +3630,7 @@ List specialpatrolgroup(const DataFrame& sge9l, const arma::ivec& sge3index21,
     arma::vec probsrates2p(noelems, fill::zeros); // 3rd vec: total indivs alive pair stage
     arma::vec probsrates3p(noelems, fill::zeros); // 4th vec: total fec pair stage
   
-    arma::mat stage2fecp(sge3index21.n_elem, 3, fill::zeros); // col1: #inds, col2: #alive, col3: sum fec
+    arma::mat stage2fecp(static_cast<int>(sge3index21.n_elem), 3, fill::zeros); // col1: #inds, col2: #alive, col3: sum fec
     
     // Initialize final matrices
     arma::mat tmatrix;
@@ -3631,15 +3658,18 @@ List specialpatrolgroup(const DataFrame& sge9l, const arma::ivec& sge3index21,
       // Survival portion and main individual counter
       arma::uvec choiceelement = find(sge9index321 == dataindex321i(j));
       
+      arma::uvec choiceelement_sge3_vec = find(sge3index21 == dataindex21i(j));
+      int choiceelement_sge3 = static_cast<int>(choiceelement_sge3_vec(0));
+      
       // Indiv sum with particular transition
-      stage2fec((dataindex21i(j)), 0) = stage2fec((dataindex21i(j)), 0) + 1.0; 
+      stage2fec(choiceelement_sge3, 0) = stage2fec(choiceelement_sge3, 0) + 1.0; 
       
       if (choiceelement.n_elem > 0) {
         // Indiv sum with particular transition
-        probsrates0(choiceelement(0)) = probsrates0(choiceelement(0)) + 1.0; 
+        probsrates0(static_cast<int>(choiceelement(0))) = probsrates0(static_cast<int>(choiceelement(0))) + 1.0; 
         
         if (dataalive3i(j) > 0) {
-          stage2fec((dataindex21i(j)), 1) = stage2fec((dataindex21i(j)), 1) + 1.0;
+          stage2fec(choiceelement_sge3, 1) = stage2fec(choiceelement_sge3, 1) + 1.0;
         }
       }
       
@@ -3647,7 +3677,7 @@ List specialpatrolgroup(const DataFrame& sge9l, const arma::ivec& sge3index21,
       arma::uvec choiceelement_f = find(sge9index321d == dataindex321i(j));
       if (choiceelement_f.n_elem > 0) {
         if (NumericVector::is_na(datausedfeci(j))) datausedfeci(j) = 0.0;
-        stage2fec((dataindex21i(j)), 2) = stage2fec((dataindex21i(j)), 2) + datausedfeci(j);
+        stage2fec(choiceelement_sge3, 2) = stage2fec(choiceelement_sge3, 2) + datausedfeci(j);
       }
       
       if (format == 2) {
@@ -3655,19 +3685,22 @@ List specialpatrolgroup(const DataFrame& sge9l, const arma::ivec& sge3index21,
           // Survival portion
           arma::uvec choiceelementp = find(sge9index321 == dataindex321_priori(j, k));
           
-          stage2fecp((dataindex21i(j)), 0) = stage2fecp((dataindex21i(j)), 0) + 1.0;
+          arma::uvec choiceelement_sge3_vecp = find(sge3index21 == dataindex21i(j));
+          int choiceelement_sge3p = static_cast<int>(choiceelement_sge3_vecp(0));
+          
+          stage2fecp(choiceelement_sge3p, 0) = stage2fecp(choiceelement_sge3p, 0) + 1.0;
         
           if (choiceelementp.n_elem > 0) {
             probsrates0p(choiceelementp(0)) = probsrates0p(choiceelementp(0)) + 1.0;
             
             if (dataalive3i(j) > 0) {
-              stage2fecp((dataindex21i(j)), 1) = stage2fecp((dataindex21i(j)), 1) + 1.0;
+              stage2fecp(choiceelement_sge3p, 1) = stage2fecp(choiceelement_sge3p, 1) + 1.0;
             }
           }
           
           arma::uvec choiceelementp_f = find(sge9index321d == dataindex321_priori(j, k));
           if (choiceelementp_f.n_elem > 0) {
-            stage2fecp((dataindex21i(j)), 2) = stage2fecp((dataindex21i(j)), 2) + datausedfeci(j);
+            stage2fecp(choiceelement_sge3p, 2) = stage2fecp(choiceelement_sge3p, 2) + datausedfeci(j);
           }
         }
       }
@@ -3806,10 +3839,10 @@ List specialpatrolgroup(const DataFrame& sge9l, const arma::ivec& sge3index21,
       arma::uvec tm_sp_nan = find_nonfinite(tmatrix_sp);
       arma::uvec fm_sp_nan = find_nonfinite(fmatrix_sp);
       
-      for (int nan_count = 0; nan_count < tm_sp_nan.n_elem; nan_count++) { 
+      for (int nan_count = 0; nan_count < static_cast<int>(tm_sp_nan.n_elem); nan_count++) { 
         tmatrix_sp(tm_sp_nan(nan_count)) = 0.0;
       }
-      for (int nan_count = 0; nan_count < fm_sp_nan.n_elem; nan_count++) { 
+      for (int nan_count = 0; nan_count < static_cast<int>(fm_sp_nan.n_elem); nan_count++) { 
         fmatrix_sp(fm_sp_nan(nan_count)) = 0.0;
       }
       
@@ -3847,7 +3880,7 @@ List specialpatrolgroup(const DataFrame& sge9l, const arma::ivec& sge3index21,
       _["hstages"] = R_NilValue, _["labels"] = R_NilValue,
       _["matrixqc"] = R_NilValue, _["dataqc"] = R_NilValue,
       _["probsrates_all"] = conc_err, _["s2f"] = s2f_err,
-      _["dataprior"] = di321p_err);
+      _["dataprior"] = di321p_err, _["data"] = MainData);
     final_output = out_dude;
     
   } else {
@@ -3878,7 +3911,7 @@ List specialpatrolgroup(const DataFrame& sge9l, const arma::ivec& sge3index21,
 //' \code{usedstage} columns.
 //' @param StageFrame The full stageframe for the analysis.
 //' @param err_switch A logical value. If set to \code{TRUE}, then will also
-//' output \code{probsrates} and \code{stage2fec}.
+//' output \code{probsrates}, \code{stage2fec}, and the edited dataset.
 //' @param loypop A string vector giving the order of populations in the list of
 //' years.
 //' @param loypatch A string vector giving the order of patches in the list of
@@ -3904,6 +3937,8 @@ List specialpatrolgroup(const DataFrame& sge9l, const arma::ivec& sge3index21,
 //' 
 //' @return In the standard output, a list of three lists, called \code{A},
 //' \code{U}, and \code{F}, each containing A, U, or F matrices, respectively.
+//' Further information on the output is provided in the documentation for
+//' \code{specialpatrolgroup()}.
 //' 
 //' @keywords internal
 //' @noRd
@@ -3931,8 +3966,8 @@ List normalpatrolgroup(const DataFrame& sge3, const arma::ivec& sge2stage2,
   arma::vec datausedfec = as<arma::vec>(MainData["usedfec"]);
   
   int nostages = static_cast<int>(StageFrame.nrows());
-  int no2stages = sge2stage2.n_elem - 1; // Removes dead stage
-  int noelems = sge3index32.n_elem;
+  int no2stages = static_cast<int>(sge2stage2.n_elem) - 1; // Removes dead stage
+  int noelems = static_cast<int>(sge3index32.n_elem);
   bool small_subset {false};
   
   int loy_length = yearorder.length();
@@ -3951,13 +3986,13 @@ List normalpatrolgroup(const DataFrame& sge3, const arma::ivec& sge2stage2,
   
   arma::uvec ovgiventind = find(sge3ovgivent != -1.0);
   arma::uvec ovgivenfind = find(sge3ovgivenf != -1.0);
-  int ovgtn = ovgiventind.n_elem;
-  int ovgfn = ovgivenfind.n_elem;
+  int ovgtn = static_cast<int>(ovgiventind.n_elem);
+  int ovgfn = static_cast<int>(ovgivenfind.n_elem);
   
   arma::uvec ovesttind = find(sge3ovestt != -1);
   arma::uvec ovestfind = find(sge3ovestf != -1);
-  int ovestn = ovesttind.n_elem;
-  int ovesfn = ovestfind.n_elem;
+  int ovestn = static_cast<int>(ovesttind.n_elem);
+  int ovesfn = static_cast<int>(ovestfind.n_elem);
   
   for (int i = 0; i < loy_length; i++) {
     arma::uvec data_current_index = as<arma::uvec>(LefkoUtils::index_l3(data_year_, loyyear2(i)));
@@ -3990,7 +4025,7 @@ List normalpatrolgroup(const DataFrame& sge3, const arma::ivec& sge2stage2,
     dataalive3i.resize(data_subset_rows);
     datausedfeci.resize(data_subset_rows);
     
-    int n = dataindex32i.n_elem;
+    int n = static_cast<int>(dataindex32i.n_elem);
     
     arma::vec probsrates0(noelems, fill::zeros); // # indivs (3 trans)
     arma::vec probsrates1(noelems, fill::zeros); // total indivs pair stage
@@ -4023,7 +4058,14 @@ List normalpatrolgroup(const DataFrame& sge3, const arma::ivec& sge2stage2,
     // add 3-trans and 2-trans tables
     for (int j = 0; j < n; j++) { 
       // Sum all individuals with particular transition
-      probsrates0(dataindex32i(j)) = probsrates0(dataindex32i(j)) + 1.0; 
+      arma::uvec chosen_sge3index32vec = find(sge3index32 == dataindex32i(j));
+      
+      int chosen_sge3index32 {0};
+      if (chosen_sge3index32vec.n_elem != 0) {
+        chosen_sge3index32 = static_cast<int>(chosen_sge3index32vec(0));
+        
+        probsrates0(chosen_sge3index32) = probsrates0(chosen_sge3index32) + 1.0;
+      }
       
       // Sum all individuals with particular transition
       stage2fec((dataindex2i(j)), 0) = stage2fec((dataindex2i(j)), 0) + 1.0; 
@@ -4146,10 +4188,10 @@ List normalpatrolgroup(const DataFrame& sge3, const arma::ivec& sge2stage2,
       arma::uvec tm_sp_nan = find_nonfinite(tmatrix_sp);
       arma::uvec fm_sp_nan = find_nonfinite(fmatrix_sp);
       
-      for (int nan_count = 0; nan_count < tm_sp_nan.n_elem; nan_count++) { 
+      for (int nan_count = 0; nan_count < static_cast<int>(tm_sp_nan.n_elem); nan_count++) { 
         tmatrix_sp(tm_sp_nan(nan_count)) = 0.0;
       }
-      for (int nan_count = 0; nan_count < fm_sp_nan.n_elem; nan_count++) { 
+      for (int nan_count = 0; nan_count < static_cast<int>(fm_sp_nan.n_elem); nan_count++) { 
         fmatrix_sp(fm_sp_nan(nan_count)) = 0.0;
       }
       
@@ -4180,7 +4222,7 @@ List normalpatrolgroup(const DataFrame& sge3, const arma::ivec& sge2stage2,
       _["F"] = F_output, _["ahstages"] = R_NilValue, _["agestages"] = R_NilValue,
       _["hstages"] = R_NilValue, _["labels"] = R_NilValue,
       _["matrixqc"] = R_NilValue, _["dataqc"] = R_NilValue,
-      _["probsrates_all"] = conc_err, _["s2f"] = s2f_err);
+      _["probsrates_all"] = conc_err, _["s2f"] = s2f_err, _["data"] = MainData);
     final_output = out_dude;
     
   } else {
@@ -4233,7 +4275,8 @@ List normalpatrolgroup(const DataFrame& sge3, const arma::ivec& sge2stage2,
 //' 
 //' @return List of three matrices, including the survival-transition (\code{U})
 //' matrix, the fecundity matrix (\code{F}), and the sum (\code{A}) matrix, with
-//' the \code{A} matrix first.
+//' the \code{A} matrix first. Further information on outputs is provided in the
+//' documentation for \code{specialpatrolgroup()}.
 //' 
 //' @keywords internal
 //' @noRd
@@ -4329,7 +4372,7 @@ Rcpp::List minorpatrolgroup(const DataFrame& MainData, const DataFrame& StageFra
     for (int k = 0; k < noages; k++) { 
       arma::uvec data_indices = find(dataagei == sf_minage(k));
       arma::uvec aget_alive = intersect(data_allalivei, data_indices);
-      int num_aget_alive = aget_alive.n_elem;
+      int num_aget_alive = static_cast<int>(aget_alive.n_elem);
       
       if (num_aget_alive > 0) {
         for (int j = 0; j < num_aget_alive; j++) {
@@ -4376,10 +4419,10 @@ Rcpp::List minorpatrolgroup(const DataFrame& MainData, const DataFrame& StageFra
       arma::uvec tm_sp_nan = find_nonfinite(tmatrix_sp);
       arma::uvec fm_sp_nan = find_nonfinite(fmatrix_sp);
       
-      for (int nan_count = 0; nan_count < tm_sp_nan.n_elem; nan_count++) { 
+      for (int nan_count = 0; nan_count < static_cast<int>(tm_sp_nan.n_elem); nan_count++) { 
         tmatrix_sp(tm_sp_nan(nan_count)) = 0.0;
       }
-      for (int nan_count = 0; nan_count < fm_sp_nan.n_elem; nan_count++) { 
+      for (int nan_count = 0; nan_count < static_cast<int>(fm_sp_nan.n_elem); nan_count++) { 
         fmatrix_sp(fm_sp_nan(nan_count)) = 0.0;
       }
       
@@ -4407,7 +4450,7 @@ Rcpp::List minorpatrolgroup(const DataFrame& MainData, const DataFrame& StageFra
       _["F"] = F_output, _["ahstages"] = R_NilValue, _["agestages"] = R_NilValue,
       _["hstages"] = R_NilValue, _["labels"] = R_NilValue,
       _["matrixqc"] = R_NilValue, _["dataqc"] = R_NilValue,
-      _["probsrates_all"] = conc_err);
+      _["probsrates_all"] = conc_err, _["data"] = MainData);
     final_output = out_dude;
     
   } else {
@@ -4468,6 +4511,8 @@ Rcpp::List minorpatrolgroup(const DataFrame& MainData, const DataFrame& StageFra
 //' 
 //' @return In the standard output, a list of three lists, called \code{A},
 //' \code{U}, and \code{F}, each containing A, U, or F matrices, respectively.
+//' Further information on outputs is provided in the documentation for
+//' \code{specialpatrolgroup()}.
 //' 
 //' @keywords internal
 //' @noRd
@@ -4498,8 +4543,8 @@ List subvertedpatrolgroup(const DataFrame& sge3, const arma::ivec& sge2index21,
   
   int totalages = finalage - firstage + 1;
   int nostages = static_cast<int>(StageFrame.nrows());
-  int no21stages = sge2index21.n_elem; // Includes Dead stage in every age
-  int noelems = sge3index321.n_elem;
+  int no21stages = static_cast<int>(sge2index21.n_elem); // Includes Dead stage in every age
+  int noelems = static_cast<int>(sge3index321.n_elem);
   bool small_subset {false};
   
   int loy_length = yearorder.length();
@@ -4518,13 +4563,13 @@ List subvertedpatrolgroup(const DataFrame& sge3, const arma::ivec& sge2index21,
   
   arma::uvec ovgiventind = find(sge3ovgivent != -1);
   arma::uvec ovgivenfind = find(sge3ovgivenf != -1);
-  int ovgtn = ovgiventind.n_elem;
-  int ovgfn = ovgivenfind.n_elem;
+  int ovgtn = static_cast<int>(ovgiventind.n_elem);
+  int ovgfn = static_cast<int>(ovgivenfind.n_elem);
   
   arma::uvec ovesttind = find(sge3ovestt != -1);
   arma::uvec ovestfind = find(sge3ovestf != -1);
-  int ovestn = ovesttind.n_elem;
-  int ovesfn = ovestfind.n_elem;
+  int ovestn = static_cast<int>(ovesttind.n_elem);
+  int ovesfn = static_cast<int>(ovestfind.n_elem);
   
   for (int i = 0; i < loy_length; i++) {
     arma::uvec data_current_index = as<arma::uvec>(LefkoUtils::index_l3(data_year_, loyyear2(i)));
@@ -4557,7 +4602,7 @@ List subvertedpatrolgroup(const DataFrame& sge3, const arma::ivec& sge2index21,
     dataalive3i.resize(data_subset_rows);
     datausedfeci.resize(data_subset_rows);
     
-    int n = dataindex321i.n_elem;
+    int n = static_cast<int>(dataindex321i.n_elem);
     unsigned int the_chosen_bun {0};
     
     arma::vec probsrates0(noelems, fill::zeros); // # indivs (3 trans)
@@ -4719,10 +4764,10 @@ List subvertedpatrolgroup(const DataFrame& sge3, const arma::ivec& sge2index21,
       arma::uvec tm_sp_nan = find_nonfinite(tmatrix_sp);
       arma::uvec fm_sp_nan = find_nonfinite(fmatrix_sp);
       
-      for (int nan_count = 0; nan_count < tm_sp_nan.n_elem; nan_count++) { 
+      for (int nan_count = 0; nan_count < static_cast<int>(tm_sp_nan.n_elem); nan_count++) { 
         tmatrix_sp(tm_sp_nan(nan_count)) = 0.0;
       }
-      for (int nan_count = 0; nan_count < fm_sp_nan.n_elem; nan_count++) { 
+      for (int nan_count = 0; nan_count < static_cast<int>(fm_sp_nan.n_elem); nan_count++) { 
         fmatrix_sp(fm_sp_nan(nan_count)) = 0.0;
       }
       
@@ -4753,7 +4798,7 @@ List subvertedpatrolgroup(const DataFrame& sge3, const arma::ivec& sge2index21,
       _["F"] = F_output, _["ahstages"] = R_NilValue, _["agestages"] = R_NilValue,
       _["hstages"] = R_NilValue, _["labels"] = R_NilValue,
       _["matrixqc"] = R_NilValue, _["dataqc"] = R_NilValue,
-      _["probsrates_all"] = conc_err, _["s2f"] = s2f_err);
+      _["probsrates_all"] = conc_err, _["s2f"] = s2f_err, _["data"] = MainData);
     final_output = out_dude;
     
   } else {
@@ -6937,7 +6982,7 @@ List mothermccooney(const DataFrame& listofyears, const List& modelsuite,
 //' @param sparse A text string indicating whether to use sparse matrix encoding
 //' (\code{"yes"}) or dense matrix encoding (\code{"no"}). Defaults to
 //' \code{"auto"}, in which case sparse matrix encoding is used with square
-//' matrices with at least 10 rows and no more than 50% of elements with values
+//' matrices with at least 50 rows and no more than 50\% of elements with values
 //' greater than zero. Can also be entered as a logical value if forced sparse
 //' (\code{TRUE}) or forced dense (\code{FALSE}) projection is desired.
 //' 
@@ -7027,8 +7072,9 @@ List mothermccooney(const DataFrame& listofyears, const List& modelsuite,
 //' 
 //' Speed can sometimes be increased by shifting from automatic sparse matrix
 //' determination to forced dense or sparse matrix projection. This will most
-//' likely occur when matrices have several hundred rows and columns. Defaults
-//' work best when matrices are very small and dense, or very large and sparse.
+//' likely occur when matrices have between 30 and 300 rows and columns.
+//' Defaults work best when matrices are very small and dense, or very large and
+//' sparse.
 //' 
 //' @seealso \code{\link{projection3}()}
 //' @seealso \code{\link{flefko3}()}
@@ -8935,7 +8981,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     
     if (is<DataFrame>(it_ROint)) {
       DataFrame it_intermediate = DataFrame(it_ROint);
-      int it_size = it_intermediate.size();
+      int it_size = static_cast<int>(it_intermediate.size());
       if (it_size != 3) {
         throw Rcpp::exception("Data frame ind_terms should have 3 columns and times rows.", false);
       }
@@ -9268,7 +9314,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
       
     } else if (is<DataFrame>(dt_intermediate)) {
       DataFrame dt_frame = as<DataFrame>(dt_intermediate);
-      int dt_vars = dt_frame.size();
+      int dt_vars = static_cast<int>(dt_frame.size());
       
       if (dt_vars != 14) {
         throw Rcpp::exception("Deviation term data frame must have 14 numeric columns.",
@@ -9638,7 +9684,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     Rcpp::DataFrame dens_vr_thru(density_vr);
     dvr_frame = dens_vr_thru;
     
-    int dvr_vars = dens_vr_thru.size();
+    int dvr_vars = static_cast<int>(dens_vr_thru.size());
     int dvr_rows = dens_vr_thru.nrows();
     
     if (dvr_vars != 6 || dvr_rows != 14) {
@@ -9799,21 +9845,19 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     arma::uvec nonzero_elems;
     
     if (sparse_switch == 1) {
-      test_elems = Umat_sp.n_elem;
+      test_elems = static_cast<int>(Umat_sp.n_elem);
       nonzero_elems = find(Umat_sp);
     } else {
-      test_elems = Umat.n_elem;
+      test_elems = static_cast<int>(Umat.n_elem);
       nonzero_elems = find(Umat);
     }
     
-    int all_nonzeros = nonzero_elems.n_elem;
+    int all_nonzeros = static_cast<int>(nonzero_elems.n_elem);
     double sparse_check = static_cast<double>(all_nonzeros) / static_cast<double>(test_elems);
-    if (sparse_check <= 0.5 && meanmatrows > 23) {
+    if (sparse_check <= 0.5 && meanmatrows > 50) {
       sparse_switch = 1;
-      Rcout << "Matrices are large and sparse. Using sparse matrix encoding..." << endl;
     } else { 
       sparse_switch = 0;
-      Rcout << "Matrices are not sparse. Using standard matrix encoding..." << endl;
     }
   }
   
@@ -10015,9 +10059,9 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     dyn_beta = as<arma::vec>(dens_input["beta"]);
     dyn_delay = as<arma::uvec>(dens_input["time_delay"]);
     dyn_type = as<arma::uvec>(dens_input["type"]);
-    n_dyn_elems = dyn_index321.n_elem;
+    n_dyn_elems = static_cast<int>(dyn_index321.n_elem);
     
-    for (int i = 0; i < dyn_style.n_elem; i++) {
+    for (int i = 0; i < static_cast<int>(dyn_style.n_elem); i++) {
       if (dyn_style(i) < 1 || dyn_style(i) > 4) {
         String eat_my_shorts = "Some density inputs are stated as yielding density dependence ";
         String eat_my_shorts1 = "but not in an accepted style.";
@@ -10908,6 +10952,9 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
 //' \item{allstages}{An optional element only added if \code{err_check = TRUE}.
 //' This is a data frame giving the values used to determine each matrix element
 //' capable of being estimated.}
+//' \item{data}{An optional element only added if \code{err_check = TRUE} and a
+//' raw MPM is requested. This consists of the original dataset as edited by
+//' this function for indexing purposes.}
 //' 
 //' @section General Notes:
 //' This function automatically determines whether to create a raw or
@@ -11196,7 +11243,6 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
   }
   
   NumericVector dev_terms_;
-  
   if (dev_terms.isNotNull()) {
     RObject dev_terms_input = as<RObject>(dev_terms);
     
@@ -12501,7 +12547,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
       }
       
       arma::uvec sf_matst_unique = unique(msm);
-      int matst_states = sf_matst_unique.n_elem;
+      int matst_states = static_cast<int>(sf_matst_unique.n_elem);
       
       if (matst_states > 1) {
         matst_used = true;
@@ -13059,8 +13105,8 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         int hist_adj {0};
         if (historical) hist_adj = 1;
         
-        StringVector chosen_years (no_mainyears - hist_adj);
-        for (int i = 0; i < (no_mainyears - hist_adj); i++) {
+        StringVector chosen_years (no_mainyears - (hist_adj)); // Used to be hist_adj + 1
+        for (int i = 0; i < (no_mainyears - (hist_adj)); i++) { // Used to be hist_adj + 1
           chosen_years(i) = mainyears_(i + hist_adj);
         }
         year_ = chosen_years;
@@ -13106,7 +13152,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
   if (pop.isNotNull()) {
     StringVector pop_input(pop);
     
-    if (pop_var_int == -1) {
+    if (pop_var_int == -1 && !paramnames_provided) {
       String pop_var_default {"popid"};
       
       int matches {0};
@@ -13152,7 +13198,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
   if (patch.isNotNull()) {
     StringVector patch_input(patch);
     
-    if (patch_var_int == -1) {
+    if (patch_var_int == -1 && !paramnames_provided) {
       String patch_var_default {"patchid"};
       
       int matches {0};
@@ -13601,7 +13647,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
           
           mainstages1 = intersect(mainstages1, ind_stages);
           
-          int no_mainstages1 = mainstages1.n_elem;
+          int no_mainstages1 = static_cast<int>(mainstages1.n_elem);
           if (no_mainstages1 > 0) {
             new_stageid1(i) = msf_stageid(static_cast<int>(mainstages1(0)));
             new_stage1(i) = msf_stage(static_cast<int>(mainstages1(0)));
@@ -13653,7 +13699,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         
         mainstages2 = intersect(mainstages2, ind_stages);
         
-        int no_mainstages2 = mainstages2.n_elem;
+        int no_mainstages2 = static_cast<int>(mainstages2.n_elem);
         if (no_mainstages2 > 0) {
           new_stageid2(i) = msf_stageid(static_cast<int>(mainstages2(0)));
           new_stage2(i) = msf_stage(static_cast<int>(mainstages2(0)));
@@ -13704,7 +13750,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         
         mainstages3 = intersect(mainstages3, ind_stages);
         
-        int no_mainstages3 = mainstages3.n_elem;
+        int no_mainstages3 = static_cast<int>(mainstages3.n_elem);
         if (no_mainstages3 > 0) {
           new_stageid3(i) = msf_stageid(static_cast<int>(mainstages3(0)));
           new_stage3(i) = msf_stage(static_cast<int>(mainstages3(0)));
@@ -15563,6 +15609,8 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
     } else {
       // Historical stage-only raw
       if (stage && !age) {
+        List sge3;
+        
         IntegerVector removal_row = {melchett_stageframe_length};
         StringVector removal_var = {"stage_id"};
         DataFrame ahstages_now = LefkoUtils::df_remove(melchett_stageframe_,
@@ -15584,6 +15632,42 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         IntegerVector usedindex3 = data_["index3"];
         IntegerVector usedindex2 = data_["index2"];
         IntegerVector usedindex1 = data_["index1"];
+        
+        {
+          StringVector data_stage1 = as<StringVector>(data_["stage1"]);
+          StringVector data_stage2 = as<StringVector>(data_["stage2"]);
+          StringVector data_stage3 = as<StringVector>(data_["stage3"]);
+          
+          for (int j = 0; j < usedindex3.length(); j++) {
+            for (int k = 0; k < melchett_stageframe_length; k++) {
+              if (stringcompare_hard(String(data_stage3(j)), 
+                  String(melchett_stageframe_stage_(k)))) {
+                usedstage3index(j) = melchett_stageframe_stageid_(k);
+                usedindex3(j) = melchett_stageframe_stageid_(k) - 1;
+              }
+              
+              if (stringcompare_hard(String(data_stage2(j)), 
+                  String(melchett_stageframe_stage_(k)))) {
+                usedstage2index(j) = melchett_stageframe_stageid_(k);
+                usedindex2(j) = melchett_stageframe_stageid_(k) - 1;
+              }
+              
+              if (stringcompare_hard(String(data_stage1(j)), 
+                      String(melchett_stageframe_stage_(k)))) {
+                usedstage1index(j) = melchett_stageframe_stageid_(k);
+                usedindex1(j) = melchett_stageframe_stageid_(k) - 1;
+              }
+            }
+          }
+          
+          data_["index3"] = usedindex3;
+          data_["index2"] = usedindex2;
+          data_["index1"] = usedindex1;
+          
+          data_["stage1"] = data_stage1;
+          data_["stage2"] = data_stage2;
+          data_["stage3"] = data_stage3;
+        }
         
         IntegerVector mel_ovt_es1_notalive (melchett_ovtable_length);
         int mov_notalive_count {0};
@@ -15654,19 +15738,19 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
               }
             }
           }
+          // Remove ovtable transitions involving movement from NotAlive in time t-1
+          DataFrame movt_new = clone(melchett_ovtable_);
+          movt_new["to_remove"] = mel_ovt_es1_notalive;
+          melchett_ovtable_ = movt_new;
+          
+          StringVector mel_check_name = {"to_remove", "to_remove"};
+          IntegerVector mel_check_int = {1, 1};
+          DataFrame mel_ov_new = LefkoUtils::df_remove(melchett_ovtable_,
+            as<RObject>(mel_check_int), false, true, false, false, true,
+            as<RObject>(mel_check_name));
+          melchett_ovtable_ = mel_ov_new;
+          
         }
-        
-        // Remove ovtable transitions involving movement from NotAlive in time t-1
-        DataFrame movt_new = clone(melchett_ovtable_);
-        movt_new["to_remove"] = mel_ovt_es1_notalive;
-        melchett_ovtable_ = movt_new;
-        
-        StringVector mel_check_name = {"to_remove", "to_remove"};
-        IntegerVector mel_check_int = {1, 1};
-        DataFrame mel_ov_new = LefkoUtils::df_remove(melchett_ovtable_,
-          as<RObject>(mel_check_int), false, true, false, false, true,
-          as<RObject>(mel_check_name));
-        melchett_ovtable_ = mel_ov_new;
         
         // Large and small matrix element indices
         DataFrame stageexpansion9 = theoldpizzle(melchett_stageframe_, melchett_ovtable_,
@@ -15747,13 +15831,28 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
           stageexpansion3.attr("names") = se3_names;
           stageexpansion3.attr("class") = "data.frame";
           
-          StringVector se3_row_names(melchett_stageframe_length * melchett_stageframe_length);
-          for (int i = 0; i < (melchett_stageframe_length * melchett_stageframe_length); ++i) {
-            char name[5];
-            snprintf(&(name[0]), sizeof(name), "%d", i);
-            se3_row_names(i) = name;
-          }
-          stageexpansion3.attr("row.names") = se3_row_names;
+          
+          
+          
+          
+          
+          //StringVector se3_row_names(melchett_stageframe_length * melchett_stageframe_length);
+          //for (int i = 0; i < (melchett_stageframe_length * melchett_stageframe_length); ++i) {
+          //  char name[5];
+          //  snprintf(&(name[0]), sizeof(name), "%d", i);
+          //  se3_row_names(i) = name;
+          //}
+          //stageexpansion3.attr("row.names") = se3_row_names;
+          
+          
+          
+          stageexpansion3.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, (melchett_stageframe_length * melchett_stageframe_length));
+          
+          
+          
+          
+          
+          if (err_check) sge3 = stageexpansion3;
         }
         
         IntegerVector hst_sid_2 ((melchett_stageframe_length - 1) * (melchett_stageframe_length - 1));
@@ -15835,6 +15934,10 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         madsexmadrigal["labels"] = labels_;
         madsexmadrigal["matrixqc"] = mat_qc;
         madsexmadrigal["dataqc"] = dataqc_;
+        if (err_check) {
+          madsexmadrigal["sge9"] = stageexpansion9;
+          madsexmadrigal["sge3"] = sge3;
+        }
         output_draft = madsexmadrigal;
       }
     }
@@ -16216,7 +16319,7 @@ arma::mat sens3matrix(const arma::mat& Amat, bool sparse) {
   realrightvec.clean(0.00000000000001);
   
   double rvsum = sum(realrightvec);
-  int rvel = realrightvec.n_elem;
+  int rvel = static_cast<int>(realrightvec.n_elem);
   realrightvec = realrightvec / rvsum;
   
   // v vector
@@ -16280,7 +16383,7 @@ arma::sp_mat sens3sp_matrix(const arma::sp_mat& Aspmat, const arma::sp_mat& refm
   realrightvec.clean(0.00000000000001);
   
   double rvsum = sum(realrightvec);
-  int rvel = realrightvec.n_elem;
+  int rvel = static_cast<int>(realrightvec.n_elem);
   realrightvec = realrightvec / rvsum;
   
   // v vector
@@ -16342,7 +16445,7 @@ arma::mat sens3matrix_spinp(const arma::sp_mat& Amat) {
   realrightvec.clean(0.00000000000001);
   
   double rvsum = sum(realrightvec);
-  int rvel = realrightvec.n_elem;
+  int rvel = static_cast<int>(realrightvec.n_elem);
   realrightvec = realrightvec / rvsum;
   
   // v vector
@@ -16412,7 +16515,7 @@ List sens3hlefko(const arma::mat& Amat, const DataFrame& ahstages,
   realrightvec.clean(0.00000000000001);
   
   double rvsum = sum(realrightvec);
-  int rvel = realrightvec.n_elem;
+  int rvel = static_cast<int>(realrightvec.n_elem);
   realrightvec = realrightvec / rvsum;
   
   // v vector
@@ -16426,7 +16529,7 @@ List sens3hlefko(const arma::mat& Amat, const DataFrame& ahstages,
   
   arma::vec vwprod (rvel, fill::zeros);
   arma::mat smat (rvel, rvel, fill::zeros);
-  int ahstagelength = stage_id.n_elem;
+  int ahstagelength = static_cast<int>(stage_id.n_elem);
   
   arma::vec wcorrah (ahstagelength, fill::zeros);
   arma::vec vcorrah (ahstagelength, fill::zeros);
@@ -16517,7 +16620,7 @@ List sens3hlefko_sp(const arma::sp_mat& Amat, const DataFrame& ahstages,
   realrightvec.clean(0.00000000000001);
   
   double rvsum = sum(realrightvec);
-  int rvel = realrightvec.n_elem;
+  int rvel = static_cast<int>(realrightvec.n_elem);
   realrightvec = realrightvec / rvsum;
   
   // v vector
@@ -16531,7 +16634,7 @@ List sens3hlefko_sp(const arma::sp_mat& Amat, const DataFrame& ahstages,
   
   arma::vec vwprod (rvel, fill::zeros);
   arma::mat smat (rvel, rvel, fill::zeros);
-  int ahstagelength = stage_id.n_elem;
+  int ahstagelength = static_cast<int>(stage_id.n_elem);
   
   arma::vec wcorrah (ahstagelength, fill::zeros);
   arma::vec vcorrah (ahstagelength, fill::zeros);
@@ -16619,7 +16722,7 @@ arma::mat elas3matrix(const arma::mat& Amat, bool sparse) {
   realrightvec.clean(0.00000000000001); // Lower threshold than used in w and v
   
   double rvsum = sum(realrightvec);
-  int rvel = realrightvec.n_elem;
+  int rvel = static_cast<int>(realrightvec.n_elem);
   realrightvec = realrightvec / rvsum;
 
   // v vector
@@ -16677,7 +16780,7 @@ arma::sp_mat elas3sp_matrix(const arma::sp_mat& Amat) {
   realrightvec.clean(0.00000000000001); // Lower threshold than used in w and v
   
   double rvsum = sum(realrightvec);
-  int rvel = realrightvec.n_elem;
+  int rvel = static_cast<int>(realrightvec.n_elem);
   realrightvec = realrightvec / rvsum;
 
   // v vector
@@ -16746,7 +16849,7 @@ List elas3hlefko(const arma::mat& Amat, const DataFrame& ahstages, const
   realrightvec.clean(0.00000000000001);
   
   double rvsum = sum(realrightvec);
-  int rvel = realrightvec.n_elem;
+  int rvel = static_cast<int>(realrightvec.n_elem);
   realrightvec = realrightvec / rvsum;
 
   // v vector
@@ -16767,7 +16870,7 @@ List elas3hlefko(const arma::mat& Amat, const DataFrame& ahstages, const
   }
   double vwscalar = sum(vwprod);
   
-  int ahstagelength = stage_id.n_elem;
+  int ahstagelength = static_cast<int>(stage_id.n_elem);
   arma::mat ahelas(ahstagelength, ahstagelength, fill::zeros);
   
   // Populate elasticity matrix
@@ -16822,7 +16925,7 @@ List elas3sp_hlefko(const arma::sp_mat& Amat, const DataFrame& ahstages, const
   realrightvec.clean(0.00000000000001);
   
   double rvsum = sum(realrightvec);
-  int rvel = realrightvec.n_elem;
+  int rvel = static_cast<int>(realrightvec.n_elem);
   realrightvec = realrightvec / rvsum;
 
   // v vector
@@ -16843,7 +16946,7 @@ List elas3sp_hlefko(const arma::sp_mat& Amat, const DataFrame& ahstages, const
   }
   double vwscalar = sum(vwprod);
   
-  int ahstagelength = stage_id.n_elem;
+  int ahstagelength = static_cast<int>(stage_id.n_elem);
   arma::sp_mat ahelas(ahstagelength, ahstagelength);
   
   // Populate elasticity matrix
@@ -16903,8 +17006,8 @@ arma::mat proj3(const arma::vec& start_vec, const List& core_list,
   bool integeronly, bool sparse_auto, bool sparse) {
   
   int sparse_switch {0};
-  int nostages = start_vec.n_elem;
-  int theclairvoyant = mat_order.n_elem;
+  int nostages = static_cast<int>(start_vec.n_elem);
+  int theclairvoyant = static_cast<int>(mat_order.n_elem);
   arma::vec theseventhson;
   arma::rowvec theseventhgrandson;
   arma::mat theprophecy;
@@ -16921,12 +17024,12 @@ arma::mat proj3(const arma::vec& start_vec, const List& core_list,
   
   // Check if matrix is large and sparse
   if (sparse_auto) {
-    int test_elems = as<arma::mat>(core_list(0)).n_elem;
+    int test_elems = static_cast<int>(as<arma::mat>(core_list(0)).n_elem);
     arma::uvec nonzero_elems = find(as<arma::mat>(core_list(0)));
-    int all_nonzeros = nonzero_elems.n_elem;
+    int all_nonzeros = static_cast<int>(nonzero_elems.n_elem);
     double sparse_check = static_cast<double>(all_nonzeros) /
       static_cast<double>(test_elems);
-    if (sparse_check <= 0.5 && start_vec.n_elem > 9) {
+    if (sparse_check <= 0.5 && start_vec.n_elem > 50) {
       sparse_switch = 1;
     } else sparse_switch = 0;
   } else sparse_switch = sparse;
@@ -16973,7 +17076,7 @@ arma::mat proj3(const arma::vec& start_vec, const List& core_list,
     // Sparse matrix projection
     arma::sp_mat sparse_seventhson = arma::sp_mat(theseventhson);
     
-    int matlist_length = core_list.size();
+    int matlist_length = static_cast<int>(core_list.size());
     arma::mat first_mat;
     arma::sp_mat new_sparse;
     Rcpp::List sparse_list (matlist_length);
@@ -17064,8 +17167,8 @@ arma::mat proj3sp(const arma::vec& start_vec, const List& core_list,
   const arma::uvec& mat_order, bool standardize, bool growthonly,
   bool integeronly) {
   
-  int nostages = start_vec.n_elem;
-  int theclairvoyant = mat_order.n_elem;
+  int nostages = static_cast<int>(start_vec.n_elem);
+  int theclairvoyant = static_cast<int>(mat_order.n_elem);
   arma::vec theseventhson;
   arma::rowvec theseventhgrandson;
   arma::mat theprophecy;
@@ -17195,8 +17298,8 @@ arma::mat proj3dens(const arma::vec& start_vec, const List& core_list,
   bool warn_trigger_neg = false;
   bool warn_trigger_1 = false;
   
-  int nostages = start_vec.n_elem;
-  int theclairvoyant = mat_order.n_elem;
+  int nostages = static_cast<int>(start_vec.n_elem);
+  int theclairvoyant = static_cast<int>(mat_order.n_elem);
   arma::vec theseventhson;
   arma::rowvec theseventhgrandson;
   
@@ -17213,7 +17316,7 @@ arma::mat proj3dens(const arma::vec& start_vec, const List& core_list,
   arma::vec dyn_beta = as<arma::vec>(dens_input["beta"]);
   arma::uvec dyn_delay = as<arma::uvec>(dens_input["time_delay"]);
   arma::uvec dyn_type = as<arma::uvec>(dens_input["type"]);
-  int n_dyn_elems = dyn_index321.n_elem;
+  int n_dyn_elems = static_cast<int>(dyn_index321.n_elem);
   
   // Matrices and vectors for projection results
   arma::mat popproj(nostages, (theclairvoyant + 1), fill::zeros); // Population vector
@@ -17227,12 +17330,12 @@ arma::mat proj3dens(const arma::vec& start_vec, const List& core_list,
   
   // Check if matrix is large and sparse
   if (sparse_auto && !sparse_input) {
-    int test_elems = as<arma::mat>(core_list(0)).n_elem;
+    int test_elems = static_cast<int>(as<arma::mat>(core_list(0)).n_elem);
     arma::uvec nonzero_elems = find(as<arma::mat>(core_list(0)));
-    int all_nonzeros = nonzero_elems.n_elem;
+    int all_nonzeros = static_cast<int>(nonzero_elems.n_elem);
     double sparse_check = static_cast<double>(all_nonzeros) /
       static_cast<double>(test_elems);
-    if (sparse_check <= 0.5 && theseventhson.n_elem > 9) {
+    if (sparse_check <= 0.5 && theseventhson.n_elem > 50) {
       sparse_switch = 1;
     } else sparse_switch = 0;
   } else sparse_switch = sparse;
@@ -17350,7 +17453,7 @@ arma::mat proj3dens(const arma::vec& start_vec, const List& core_list,
   } else {
     // Sparse matrix projection
     arma::sp_mat sparse_seventhson = arma::sp_mat(theseventhson);
-    int matlist_length = core_list.size();
+    int matlist_length = static_cast<int>(core_list.size());
     Rcpp::List sparse_list(matlist_length);
     
     if (!sparse_input) {
@@ -17556,7 +17659,7 @@ arma::mat proj3dens(const arma::vec& start_vec, const List& core_list,
 //' (\code{"yes"}) or dense matrix encoding (\code{"no"}), if the
 //' \code{lefkoMat} object input as \code{mpm} is composed of standard matrices.
 //' Defaults to \code{"auto"}, in which case sparse matrix encoding is used with
-//' standard, square matrices with at least 10 rows and no more than 50% of
+//' standard, square matrices with at least 50 rows and no more than 50\% of
 //' elements with values greater than zero, or when input \code{lefkoMat}
 //' objects include matrices of class \code{dgCMatrix}.
 //' 
@@ -17649,6 +17752,12 @@ arma::mat proj3dens(const arma::vec& start_vec, const List& core_list,
 //' object with multiple patches should subset the MPM first to contain only
 //' the patch needed. This can be accomplished with the
 //' \code{\link{subset_lM}()} function.
+//' 
+//' Speed can sometimes be increased by shifting from automatic sparse matrix
+//' determination to forced dense or sparse matrix projection. This will most
+//' likely occur when matrices have between 30 and 300 rows and columns.
+//' Defaults work best when matrices are very small and dense, or very large and
+//' sparse.
 //' 
 //' @seealso \code{\link{start_input}()}
 //' @seealso \code{\link{density_input}()}
@@ -17991,7 +18100,7 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
       arma::vec dyn_alpha = as<arma::vec>(dens_input["alpha"]);
       arma::vec dyn_beta = as<arma::vec>(dens_input["beta"]);
       
-      for (int i = 0; i < dyn_style.n_elem; i++) {
+      for (int i = 0; i < static_cast<int>(dyn_style.n_elem); i++) {
         if (dyn_style(i) < 1 || dyn_style(i) > 4) {
           String eat_my_shorts = "Some density inputs are stated as yielding density ";
           String eat_my_shorts1 = "dependence but not in an accepted style.";
@@ -18155,13 +18264,13 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
       arma::uvec animalhouse = find(armapopc == armapopc(i));
       arma::uvec christmasvacation = armapoppatchc.elem(animalhouse);
       arma::uvec summervacation = unique(christmasvacation);
-      int togaparty = summervacation.n_elem;
+      int togaparty = static_cast<int>(summervacation.n_elem);
       patchesinpop(i) = togaparty;
       
       arma::uvec ninebelowzero = find(armapoppatchc == armapoppatchc(i));
       arma::uvec thedamned = armayear2c.elem(ninebelowzero);
       arma::uvec motorhead = unique(thedamned);
-      int dexysmidnightrunners = motorhead.n_elem;
+      int dexysmidnightrunners = static_cast<int>(motorhead.n_elem);
       
       yearsinpatch(i) = dexysmidnightrunners;
     }
@@ -18192,12 +18301,12 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
     
     if (!sparse_input) {
       arma::mat thechosenone = as<arma::mat>(meanamats(0));
-      meanmatsize = thechosenone.n_elem;
-      meanmatrows = thechosenone.n_rows;
+      meanmatsize = static_cast<int>(thechosenone.n_elem);
+      meanmatrows = static_cast<int>(thechosenone.n_rows);
     } else {
       arma::sp_mat thechosenone = as<arma::sp_mat>(meanamats(0));
-      meanmatsize = thechosenone.n_elem;
-      meanmatrows = thechosenone.n_rows;
+      meanmatsize = static_cast<int>(thechosenone.n_elem);
+      meanmatrows = static_cast<int>(thechosenone.n_rows);
     }
     
     arma::vec startvec;
@@ -18206,7 +18315,7 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
     
     arma::uvec ppcindex = as<arma::uvec>(poppatchc);
     arma::uvec allppcs = as<arma::uvec>(sort_unique(poppatchc));
-    int allppcsnem = allppcs.n_elem;
+    int allppcsnem = static_cast<int>(allppcs.n_elem);
     List plist_hold(allppcsnem);
     int pop_est {1};
     if (allppcsnem > 1) {
@@ -18246,7 +18355,7 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
     
     for (int i= 0; i < allppcsnem; i++) {
       arma::uvec thenumbersofthebeast = find(ppcindex == allppcs(i));
-      int chosen_yl = thenumbersofthebeast.n_elem;
+      int chosen_yl = static_cast<int>(thenumbersofthebeast.n_elem);
       
       arma::uvec pre_prophecy (theclairvoyant, fill::zeros);
       if (year_override) {
@@ -18345,7 +18454,7 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
           arma::uvec crankybanky = intersect(neededmatsyear, neededmatspop);
           
           // Catches matrix indices matching current year and pop
-          int crankybankynem = crankybanky.n_elem;
+          int crankybankynem = static_cast<int>(crankybanky.n_elem);
           
           if (!sparse_input) {
             arma::mat crossmat(meanmatsize, crankybankynem, fill::zeros);
@@ -18382,7 +18491,7 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
         int numyearsused = meanmatyearlist.length();
         arma::uvec choicevec = linspace<arma::uvec>(0, (numyearsused - 1),
           numyearsused);
-        int chosen_yl = choicevec.n_elem;
+        int chosen_yl = static_cast<int>(choicevec.n_elem);
       
         // Replicate loop, creating final data frame of results for pop means
         for (int rep = 0; rep < nreps; rep++) {
@@ -18715,7 +18824,7 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
 //' @param force_sparse A text string indicating whether to force sparse matrix 
 //' encoding (\code{"yes"}) or not (\code{"no"}) if the MPM is composed of
 //' simple matrices. Defaults to \code{"auto"}, in which case sparse matrix
-//' encoding is used with simple square matrices with at least 20 rows and no
+//' encoding is used with simple square matrices with at least 50 rows and no
 //' more than 50\% of elements with values greater than zero.
 //' 
 //' @return A data frame with the following variables:
@@ -18740,6 +18849,12 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
 //' Weightings given in \code{tweights} do not need to sum to 1. Final
 //' weightings used will be based on the proportion per element of the sum of
 //' elements in the user-supplied vector.
+//' 
+//' Speed can sometimes be increased by shifting from automatic sparse matrix
+//' determination to forced dense or sparse matrix projection. This will most
+//' likely occur when matrices have between 30 and 300 rows and columns.
+//' Defaults work best when matrices are very small and dense, or very large and
+//' sparse.
 //' 
 //' @examples
 //' data(cypdata)
@@ -18876,17 +18991,15 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
     
     // Here we will check if the matrix is large and sparse
     if (sparse_auto && matrix_class_input) {
-      int test_elems = as<arma::mat>(amats(0)).n_elem;
+      int test_elems = static_cast<int>(as<arma::mat>(amats(0)).n_elem);
       int Amatrows = as<arma::mat>(amats(0)).n_rows;
       arma::uvec nonzero_elems = find(as<arma::mat>(amats(0)));
-      int all_nonzeros = nonzero_elems.n_elem;
+      int all_nonzeros = static_cast<int>(nonzero_elems.n_elem);
       double sparse_check = static_cast<double>(all_nonzeros) / static_cast<double>(test_elems);
-      if (sparse_check <= 0.5 && Amatrows > 19) {
+      if (sparse_check <= 0.5 && Amatrows > 50) {
         sparse_switch = 1;
-        Rcout << "Matrices are large and sparse. Using sparse matrix encoding..." << endl;
       } else {
         sparse_switch = 0;
-        Rcout << "Matrices are not sparse. Using standard matrix encoding..." << endl;
       }
     }
     
@@ -18944,14 +19057,14 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
       arma::uvec animalhouse = find(armapopc == armapopc(i));
       arma::uvec christmasvacation = armapoppatchc.elem(animalhouse);
       arma::uvec summervacation = unique(christmasvacation);
-      int togaparty = summervacation.n_elem;
+      int togaparty = static_cast<int>(summervacation.n_elem);
       
       patchesinpop(i) = togaparty;
       
       arma::uvec ninebelowzero = find(armapoppatchc == armapoppatchc(i));
       arma::uvec thedamned = armayear2c.elem(ninebelowzero);
       arma::uvec motorhead = unique(thedamned);
-      int dexysmidnightrunners = motorhead.n_elem;
+      int dexysmidnightrunners = static_cast<int>(motorhead.n_elem);
       
       yearsinpatch(i) = dexysmidnightrunners;
     }
@@ -18982,16 +19095,16 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
     int meanmatrows {0};
     
     if (matrix_class_input && sparse_switch == 0) {
-      meanmatsize = as<arma::mat>(meanamats[0]).n_elem; // thechosenone
-      meanmatrows = as<arma::mat>(meanamats[0]).n_rows;
+      meanmatsize = static_cast<int>(as<arma::mat>(meanamats[0]).n_elem); // thechosenone
+      meanmatrows = static_cast<int>(as<arma::mat>(meanamats[0]).n_rows);
     } else {
-      meanmatsize = as<arma::sp_mat>(meanamats[0]).n_elem;
-      meanmatrows = as<arma::sp_mat>(meanamats[0]).n_rows;
+      meanmatsize = static_cast<int>(as<arma::sp_mat>(meanamats[0]).n_elem);
+      meanmatrows = static_cast<int>(as<arma::sp_mat>(meanamats[0]).n_rows);
     }
     
     arma::uvec ppcindex = as<arma::uvec>(poppatchc);
     arma::uvec allppcs = as<arma::uvec>(sort_unique(poppatchc));
-    int allppcsnem = allppcs.n_elem;
+    int allppcsnem = static_cast<int>(allppcs.n_elem);
     
     arma::mat slmat(theclairvoyant, trials, fill::zeros);
     arma::vec sl_mean(trials, fill::zeros);
@@ -19072,12 +19185,7 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
           arma::uvec crankybanky = intersect(neededmatsyear, neededmatspop);
           
           // Catch indices of matrices that match current year and pop
-          int crankybankynem = crankybanky.n_elem;
-          
-          
-          
-          
-          
+          int crankybankynem = static_cast<int>(crankybanky.n_elem);
           
           if (!matrix_class_input) {
             arma::sp_mat crossmat(meanmatsize, crankybankynem);
@@ -19147,12 +19255,12 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
     
     // Check if matrix is large and sparse
     if (sparse_auto && matrix_class_input) {
-      int test_elems = as<arma::mat>(amats(0)).n_elem;
-      int Amatrows = as<arma::mat>(amats(0)).n_rows;
+      int test_elems = static_cast<int>(as<arma::mat>(amats(0)).n_elem);
+      int Amatrows = static_cast<int>(as<arma::mat>(amats(0)).n_rows);
       arma::uvec nonzero_elems = find(as<arma::mat>(amats(0)));
-      int all_nonzeros = nonzero_elems.n_elem;
+      int all_nonzeros = static_cast<int>(nonzero_elems.n_elem);
       double sparse_check = static_cast<double>(all_nonzeros) / static_cast<double>(test_elems);
-      if (sparse_check <= 0.5 && Amatrows > 9) {
+      if (sparse_check <= 0.5 && Amatrows > 50) {
         sparse_switch = 1;
       } else sparse_switch = 0;
     }
@@ -19311,6 +19419,7 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
   
   bool lMat_matrix_class_input {false};
   bool lMat_sparse_class_input {false};
+  bool list_input {false};
   
   if (is<List>(mpm(0))) { 
     List A_list = as<List>(mpm(0));
@@ -19320,9 +19429,15 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
     } else if (is<S4>(A_list(0))) {
       lMat_sparse_class_input = true;
     }
+  } else if (is<NumericMatrix>(mpm(0))) {
+    list_input = true;
+    lMat_matrix_class_input = true;
+  } else if (is<S4>(mpm(0))) {
+    list_input = true;
+    lMat_sparse_class_input = true;
   }
   
-  if (lMat_matrix_class_input || lMat_sparse_class_input) {
+  if (!list_input && (lMat_matrix_class_input || lMat_sparse_class_input)) {
     List amats = as<List>(mpm["A"]);
     List umats = as<List>(mpm["U"]);
     List fmats = as<List>(mpm["F"]);
@@ -19344,19 +19459,21 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
     // Assess ahistorical versions of historical sensitivities / elasticities
     arma::uvec ahstages_id = as<arma::uvec>(stageframe["stage_id"]);
     StringVector ahstages_name = as<StringVector>(stageframe["stage"]);
-    int ahstages_num = ahstages_id.n_elem;
-    arma::uvec hstages_id2(ahstages_num * ahstages_num, fill::zeros);
+    int ahstages_num = static_cast<int>(ahstages_id.n_elem);
+    arma::uvec hstages_id2;
     int hstages_num {0};
     
     if (hstages.length() > 1) {
+      arma::uvec hstages_id2_(ahstages_num * ahstages_num, fill::zeros);
       historical = true;
       arma::uvec hstages_id = as<arma::uvec>(hstages["stage_id_2"]);
-      hstages_num = hstages_id.n_elem;
+      hstages_num = static_cast<int>(hstages_id.n_elem);
       
       for (int i = 0; i < hstages_num; i++) {
-        hstages_id2(i) = hstages_id(i);
+        hstages_id2_(i) = hstages_id(i);
       }
       
+      hstages_id2 = hstages_id2_;
     } else {
       historical = false;
     }
@@ -19384,8 +19501,8 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
     if (tweights.isNotNull()) {
       twinput = as<arma::vec>(tweights);
       if (static_cast<int>(twinput.n_elem) != yl) {
-        String eat_my_shorts = "Time weight vector must be the same length as the ";
-        String eat_my_shorts1 = "number of occasions represented in the ";
+        String eat_my_shorts = "Time weight vector must be the same length as ";
+        String eat_my_shorts1 = "the number of occasions represented in the ";
         String eat_my_shorts2 = "lefkoMat object used as input.";
         eat_my_shorts += eat_my_shorts1;
         eat_my_shorts += eat_my_shorts2;
@@ -19407,17 +19524,17 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
     arma::uvec patchesinpop(loysize, fill::zeros);
     arma::uvec yearsinpatch(loysize, fill::zeros);
     
-   for (int i = 0; i < loysize; i++) {
+    for (int i = 0; i < loysize; i++) {
       arma::uvec animalhouse = find(armapopc == armapopc(i));
       arma::uvec christmasvacation = armapoppatchc.elem(animalhouse);
       arma::uvec summervacation = unique(christmasvacation);
-      int togaparty = summervacation.n_elem;
+      int togaparty = static_cast<int>(summervacation.n_elem);
       patchesinpop(i) = togaparty;
       
       arma::uvec ninebelowzero = find(armapoppatchc == armapoppatchc(i));
       arma::uvec thedamned = armayear2c.elem(ninebelowzero);
       arma::uvec motorhead = unique(thedamned);
-      int dexysmidnightrunners = motorhead.n_elem;
+      int dexysmidnightrunners = static_cast<int>(motorhead.n_elem);
       yearsinpatch(i) = dexysmidnightrunners;
     }
     
@@ -19445,29 +19562,46 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
     int meanmatsize {0};
     int meanmatrows {0};
     if (!is<S4>(meanamats(0))) {
-      meanmatsize = as<arma::mat>(meanamats(0)).n_elem; // thechosenone
-      meanmatrows = as<arma::mat>(meanamats(0)).n_rows;
+      meanmatsize = static_cast<int>(as<arma::mat>(meanamats(0)).n_elem); // thechosenone
+      meanmatrows = static_cast<int>(as<arma::mat>(meanamats(0)).n_rows);
     } else { 
-      meanmatsize = as<arma::sp_mat>(meanamats(0)).n_elem;
-      meanmatrows = as<arma::sp_mat>(meanamats(0)).n_rows;
+      meanmatsize = static_cast<int>(as<arma::sp_mat>(meanamats(0)).n_elem);
+      meanmatrows = static_cast<int>(as<arma::sp_mat>(meanamats(0)).n_rows);
     }
     
     arma::vec startvec(meanmatrows, fill::ones);
     startvec = startvec / meanmatrows; // Start vector for w and v calc
     int trials = meanamats.length();
     
-    // Two cubes for sensitivity/elasticity matrices
+    // Two lists for sensitivity/elasticity matrices
     // First general use, second for ahistorical versions of historical matrices
     //arma::cube senscube(meanmatrows, meanmatrows, trials, fill::zeros);
     //arma::cube senscube_ah(ahstages_num, ahstages_num, trials, fill::zeros);
     List senscube (trials);
     List senscube_ah (trials);
     
+    arma::mat sens_base;
+    arma::mat sens_base_ah;
+    arma::sp_mat sens_base_sp;
+    arma::sp_mat sens_base_ah_sp;
+    
+    if (lMat_matrix_class_input && sparse == 0) {
+      arma::mat sens_base_ (meanmatrows, meanmatrows, fill::zeros);
+      arma::mat sens_base_ah_ (ahstages_num, ahstages_num, fill::zeros);
+      sens_base = sens_base_;
+      sens_base_ah = sens_base_ah_;
+    } else {
+      arma::sp_mat sens_base_ (meanmatrows, meanmatrows);
+      arma::sp_mat sens_base_ah_ (ahstages_num, ahstages_num);
+      sens_base_sp = sens_base_;
+      sens_base_ah_sp = sens_base_ah_;
+    }
+    
     // Matrix for year values for each run
     arma::umat yearspulled(trials, theclairvoyant, fill::zeros);
     arma::uvec ppcindex = as<arma::uvec>(poppatchc);
     arma::uvec allppcs = as<arma::uvec>(sort_unique(poppatchc));
-    int allppcsnem = allppcs.n_elem;
+    int allppcsnem = static_cast<int>(allppcs.n_elem);
     
     // Matrices and vectors for R values
     arma::mat Rvecmat(trials, theclairvoyant, fill::zeros);
@@ -19506,12 +19640,12 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
       } else {
         crazy_prophet = proj3sp(startvec, amats, theprophecy, 1, 0, 0);
       }
-      arma::mat wprojection = crazy_prophet.submat(startvec.n_elem, 0, ((startvec.n_elem * 2) - 1),
-        theclairvoyant);
-      arma::mat vprojection = crazy_prophet.submat((startvec.n_elem * 2), 0,
-        ((startvec.n_elem * 3) - 1), theclairvoyant);
-      Rvecmat.row(i) = crazy_prophet.submat((startvec.n_elem * 3), 1,
-        (startvec.n_elem * 3), theclairvoyant); // Rvec
+      arma::mat wprojection = crazy_prophet.submat(static_cast<int>(startvec.n_elem), 0,
+          ((static_cast<int>(startvec.n_elem) * 2) - 1), theclairvoyant);
+      arma::mat vprojection = crazy_prophet.submat((static_cast<int>(startvec.n_elem) * 2), 0,
+        ((static_cast<int>(startvec.n_elem) * 3) - 1), theclairvoyant);
+      Rvecmat.row(i) = crazy_prophet.submat((static_cast<int>(startvec.n_elem) * 3), 1,
+        (static_cast<int>(startvec.n_elem) * 3), theclairvoyant); // Rvec
       
       // All references to senscube, a 3d array to hold sensitivity matrices
       for (int j = 0; j < theclairvoyant; j++) {
@@ -19547,9 +19681,11 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
         // Creates sensitivity matrices
         if (style == 1) {
           if (lMat_matrix_class_input && sparse == 0) {
-            senscube(i) = currentsens;
+            sens_base += currentsens;
+            senscube(i) = sens_base;
           } else { 
-            senscube(i) = currentsens_sp;
+            sens_base_sp += currentsens_sp;
+            senscube(i) = sens_base_sp;
           }
           
           if (historical) {
@@ -19589,32 +19725,54 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
               csah_den = (Rvecmat(i, j) * vtah_tpose * wprojection_ah);
               double cdah_double = csah_den(0,0);
               csah = csah_num / (cdah_double * theclairvoyant);
-              senscube_ah(i) = csah;
+              sens_base_ah += csah;
+              senscube_ah(i) = sens_base_ah;
             } else {
               csah_num_sp = vprojection_ah * wtah_tpose;
               csah_den_sp = (Rvecmat(i, j) * vtah_tpose * wprojection_ah);
               double cdah_double = csah_den_sp(0,0);
               csah_sp = csah_num_sp / (cdah_double * theclairvoyant);
-              senscube_ah(i) = csah_sp;
+              sens_base_ah_sp += csah_sp;
+              senscube_ah(i) = sens_base_ah_sp;
             }
           } // if historical statement
         } else {
           //Elasticity matrices
           if (lMat_matrix_class_input && sparse == 0) {
-            senscube(i) = currentsens % as<arma::mat>(amats[(theprophecy(j))]);
+            sens_base += currentsens % as<arma::mat>(amats[(theprophecy(j))]);
+            senscube(i) = sens_base;
           } else if (lMat_matrix_class_input) {
             arma::sp_mat cs_sp = arma::sp_mat(as<arma::mat>(amats[(theprophecy(j))]));
             cs_sp = currentsens_sp % cs_sp;
-            senscube(i) = cs_sp;
+            sens_base_sp += cs_sp;
+            senscube(i) = sens_base_sp;
           } else {
             arma::sp_mat cs_sp = currentsens_sp % as<arma::sp_mat>(amats[(theprophecy(j))]);
-            senscube(i) = cs_sp;
+            sens_base_sp += cs_sp;
+            senscube(i) = sens_base_sp;
           }
         }
       }
     }
     
     // Pop means
+    arma::mat pop_sens_base;
+    arma::mat pop_sens_base_ah;
+    arma::sp_mat pop_sens_base_sp;
+    arma::sp_mat pop_sens_base_ah_sp;
+    
+    if (lMat_matrix_class_input && sparse == 0) {
+      arma::mat sens_base_ (meanmatrows, meanmatrows, fill::zeros);
+      arma::mat sens_base_ah_ (ahstages_num, ahstages_num, fill::zeros);
+      pop_sens_base = sens_base_;
+      pop_sens_base_ah = sens_base_ah_;
+    } else {
+      arma::sp_mat sens_base_ (meanmatrows, meanmatrows);
+      arma::sp_mat sens_base_ah_ (ahstages_num, ahstages_num);
+      pop_sens_base_sp = sens_base_;
+      pop_sens_base_ah_sp = sens_base_ah_;
+    }
+    
     int pop_est {1};
     StringVector allpops = unique(poporder);
     arma::uvec popmatch(loysize, fill::zeros);
@@ -19657,7 +19815,7 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
           arma::uvec crankybanky = intersect(neededmatsyear, neededmatspop);
           
           // Catch matrix indices that match the current year and pop
-          int crankybankynem = crankybanky.n_elem;
+          int crankybankynem = static_cast<int>(crankybanky.n_elem);
           arma::mat crossmat;
           arma::sp_mat crossmat_sp;
           
@@ -19712,12 +19870,12 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
         } else { 
           crazy_prophet = proj3sp(startvec, meanmatyearlist, theprophecy, 1, 0, 0);
         }
-        arma::mat wprojection = crazy_prophet.submat(startvec.n_elem, 0,
-          ((startvec.n_elem * 2) - 1), theclairvoyant);
-        arma::mat vprojection = crazy_prophet.submat((startvec.n_elem * 2), 0,
-          ((startvec.n_elem * 3) - 1), theclairvoyant);
-        Rvecmat.row(allppcsnem + i) = crazy_prophet.submat((startvec.n_elem * 3), 1,
-          (startvec.n_elem * 3), theclairvoyant); // Rvec
+        arma::mat wprojection = crazy_prophet.submat(static_cast<int>(startvec.n_elem), 0,
+          ((static_cast<int>(startvec.n_elem) * 2) - 1), theclairvoyant);
+        arma::mat vprojection = crazy_prophet.submat((static_cast<int>(startvec.n_elem) * 2), 0,
+          ((static_cast<int>(startvec.n_elem) * 3) - 1), theclairvoyant);
+        Rvecmat.row(allppcsnem + i) = crazy_prophet.submat((static_cast<int>(startvec.n_elem) * 3), 1,
+          (static_cast<int>(startvec.n_elem) * 3), theclairvoyant); // Rvec
         
         // Loop for sens matrices, adding each occasion to each pop-patch matrix
         for (int j = 0; j < theclairvoyant; j++) {  
@@ -19749,9 +19907,11 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
           if (style == 1) {
             // Sensitivity matrix
             if (lMat_matrix_class_input && sparse == 0) {
-              senscube(allppcsnem + i) = currentsens; 
+              pop_sens_base += currentsens;
+              senscube(allppcsnem + i) = pop_sens_base; 
             } else {
-              senscube(allppcsnem + i) = currentsens_sp; 
+              pop_sens_base_sp += currentsens_sp;
+              senscube(allppcsnem + i) = pop_sens_base_sp; 
             }
             
             if (historical) {
@@ -19791,26 +19951,31 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
                 csah_den = (Rvecmat(i, j) * vtah_tpose * wprojection_ah);
                 double cdah_double = csah_den(0,0);
                 csah = csah_num / (cdah_double * theclairvoyant);
-                senscube_ah(allppcsnem + i) = csah;
+                pop_sens_base_ah += csah;
+                senscube_ah(allppcsnem + i) = pop_sens_base_ah;
               } else {
                 csah_num_sp = vprojection_ah * wtah_tpose;
                 csah_den_sp = (Rvecmat(i, j) * vtah_tpose * wprojection_ah);
                 double cdah_double = csah_den_sp(0,0);
                 csah_sp = csah_num_sp / (cdah_double * theclairvoyant);
-                senscube_ah(allppcsnem + i) = csah_sp;
+                pop_sens_base_ah_sp += csah_sp;
+                senscube_ah(allppcsnem + i) = pop_sens_base_ah_sp;
               }
             } // if historical statement
           } else {
             // Elasticity matrix
             if (lMat_matrix_class_input && sparse == 0) {
-              senscube(allppcsnem + i) = currentsens % as<arma::mat>(meanmatyearlist[(theprophecy(j))]);
+              pop_sens_base += currentsens % as<arma::mat>(meanmatyearlist[(theprophecy(j))]);
+              senscube(allppcsnem + i) = pop_sens_base;
             } else if (is <S4>(meanmatyearlist[(theprophecy(j))])) {
               arma::sp_mat cs_sp = currentsens_sp % as<arma::sp_mat>(meanmatyearlist[(theprophecy(j))]);
-              senscube(allppcsnem + i) = cs_sp;
+              pop_sens_base_sp += cs_sp;
+              senscube(allppcsnem + i) = pop_sens_base_sp;
             } else {
               arma::sp_mat cs_sp = arma::sp_mat(as<arma::mat>(meanmatyearlist[(theprophecy(j))]));
               cs_sp = currentsens_sp % cs_sp;
-              senscube(allppcsnem + i) = cs_sp;
+              pop_sens_base_sp += cs_sp;
+              senscube(allppcsnem + i) = pop_sens_base_sp;
             }
           }
         }
@@ -19854,19 +20019,15 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
     // List of A matrices input
     List amats = mpm;
     
-    
-    bool matrix_class_input {false};
     int matrows {0};
     int matcols {0};
     
-    if (is<NumericMatrix>(amats(0))) {
-      matrix_class_input = true;
-      
+    if (lMat_matrix_class_input) {
       arma::mat firstmat = as<arma::mat>(amats(0));
       matrows = firstmat.n_rows;
       matcols = firstmat.n_cols;
       
-    } else if (is<S4>(amats(0))) {
+    } else {
       arma::sp_mat firstmat = as<arma::sp_mat>(amats(0));
       matrows = firstmat.n_rows;
       matcols = firstmat.n_cols;
@@ -19910,25 +20071,34 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
     int trials {1};
     
     // Flat cube to hold sensitivity or elasticity matrix
-    //arma::cube senscube(matrows, matrows, trials, fill::zeros);
     List senscube (trials);
+    arma::mat sens_base;
+    arma::sp_mat sens_base_sp;
     
-    // These matrices and vectors will hold R values
+    if (lMat_matrix_class_input) {
+      arma::mat sens_base_ (matrows, matrows, fill::zeros);
+      sens_base = sens_base_;
+    } else {
+      arma::sp_mat sens_base_ (matrows, matrows);
+      sens_base_sp = sens_base_;
+    }
+    
+    // Matrices to hold R values
     arma::mat Rvecmat(trials, theclairvoyant, fill::zeros);
     
     // Loop to develop w and v values
     arma::mat crazy_prophet;
-    if (matrix_class_input) {
+    if (lMat_matrix_class_input) {
       crazy_prophet = proj3(startvec, amats, theprophecy, 1, 0, 0, false, sparse);
     } else {
       crazy_prophet = proj3sp(startvec, amats, theprophecy, 1, 0, 0);
     }
-    arma::mat wprojection = crazy_prophet.submat(startvec.n_elem, 0, ((startvec.n_elem * 2) - 1),
-      theclairvoyant);
-    arma::mat vprojection = crazy_prophet.submat((startvec.n_elem * 2), 0,
-      ((startvec.n_elem * 3) - 1), theclairvoyant);
-    Rvecmat.row(0) = crazy_prophet.submat((startvec.n_elem * 3), 1,
-      (startvec.n_elem * 3), theclairvoyant); // Rvec
+    arma::mat wprojection = crazy_prophet.submat(static_cast<int>(startvec.n_elem), 0,
+        ((static_cast<int>(startvec.n_elem) * 2) - 1), theclairvoyant);
+    arma::mat vprojection = crazy_prophet.submat((static_cast<int>(startvec.n_elem) * 2), 0,
+      ((static_cast<int>(startvec.n_elem) * 3) - 1), theclairvoyant);
+    Rvecmat.row(0) = crazy_prophet.submat((static_cast<int>(startvec.n_elem) * 3), 1,
+      (static_cast<int>(startvec.n_elem) * 3), theclairvoyant); // Rvec
     
     // Main loop for sensitivity matrices
     for (int j = 0; j < theclairvoyant; j++) { 
@@ -19950,9 +20120,11 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
         currentsens = currentsens_num / (cd_double * theclairvoyant);
         
         if (style == 1) {
-          senscube(0) = currentsens; // Sensitivity matrix
+          sens_base += currentsens;
+          senscube(0) = sens_base; // Sensitivity matrix
         } else {
-          senscube(0) = currentsens % as<arma::mat>(amats[(theprophecy(j))]); // Elasticity matrix
+          sens_base += currentsens % as<arma::mat>(amats[(theprophecy(j))]); // Elasticity matrix
+          senscube(0) = sens_base; // Elasticity matrix
         }
       } else {
         currentsens_num_sp = vtplus1 * wt.as_row(); // Key matrix equation numerator
@@ -19962,21 +20134,23 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
         currentsens_sp = currentsens_num_sp / (cd_double * theclairvoyant);
         
         if (style == 1) {
-          senscube(0) = currentsens_sp; // Sensitivity matrix
+          sens_base += currentsens;
+          senscube(0) = sens_base; // Sensitivity matrix
         } else {
           if (lMat_sparse_class_input) {
             arma::sp_mat cs_sp = currentsens_sp % as<arma::sp_mat>(amats[(theprophecy(j))]);
-            senscube(0) = cs_sp; // Elasticity matrix
+            sens_base_sp += cs_sp;
+            senscube(0) = sens_base_sp; // Elasticity matrix
           } else {
             arma::sp_mat cs_sp = currentsens_sp % arma::sp_mat(as<arma::mat>(amats[(theprophecy(j))]));
-            senscube(0) = cs_sp; // Elasticity matrix
+            sens_base_sp += cs_sp;
+            senscube(0) = sens_base_sp; // Elasticity matrix
           }
         }
       }
-      
     }
     
-  return Rcpp::List::create(_["maincube"] = senscube);    
+  return Rcpp::List::create(_["maincube"] = senscube);
   }
 }
 
@@ -20223,11 +20397,11 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
   int matdim {0};
   int matlength {0};
   if (sparse_input) {
-    matdim = as<arma::sp_mat>(Amats(0)).n_rows;
-    matlength = as<arma::sp_mat>(Amats(0)).n_elem;
+    matdim = static_cast<int>(as<arma::sp_mat>(Amats(0)).n_rows);
+    matlength = static_cast<int>(as<arma::sp_mat>(Amats(0)).n_elem);
   } else {
-    matdim = as<arma::mat>(Amats(0)).n_rows;
-    matlength = as<arma::mat>(Amats(0)).n_elem;
+    matdim = static_cast<int>(as<arma::mat>(Amats(0)).n_rows);
+    matlength = static_cast<int>(as<arma::mat>(Amats(0)).n_elem);
   }
   
   List eigenstuff;
@@ -20251,8 +20425,8 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
   arma::uvec uniquepops = unique(pop_num);
   arma::uvec uniquepoppatches = unique(poppatchc);
   arma::uvec uniqueyears = unique(year2c);
-  int numpoppatches = uniquepoppatches.n_elem;
-  int numyears = uniqueyears.n_elem;
+  int numpoppatches = static_cast<int>(uniquepoppatches.n_elem);
+  int numyears = static_cast<int>(uniqueyears.n_elem);
   
   arma::vec twinput_corr;
   arma::uvec theprophecy;
@@ -20268,7 +20442,7 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
   // First the pop/patch means and sds
   for (int i = 0; i < numpoppatches; i++) {
     arma::uvec poppatch_chosen = find(poppatchc == uniquepoppatches(i));
-    int numpoppatch_chosen = poppatch_chosen.n_elem;
+    int numpoppatch_chosen = static_cast<int>(poppatch_chosen.n_elem);
     arma::vec mat_elems(numpoppatch_chosen);
     
     if (!sparse && !sparse_input) {
@@ -20425,7 +20599,7 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
       
       for (int i = 0; i < numyears; i++) {
         arma::uvec year_chosen = find(year2c == uniqueyears(i));
-        int numyear_chosen = year_chosen.n_elem;
+        int numyear_chosen = static_cast<int>(year_chosen.n_elem);
         
         if (!sparse && !sparse_input) {
           arma::mat mat_mean(matdim, matdim, fill::zeros);
@@ -20590,12 +20764,12 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
   } else {
     crazy_prophet = proj3sp(startvec, ref_byyear, theprophecy, 1, 0, 0);
   }
-  arma::mat wprojection = crazy_prophet.submat(startvec.n_elem, 0, ((startvec.n_elem * 2) - 1),
-    theclairvoyant);
-  arma::mat vprojection = crazy_prophet.submat((startvec.n_elem * 2), 0,
-    ((startvec.n_elem * 3) - 1), theclairvoyant);
-  arma::rowvec Rvecmat = crazy_prophet.submat((startvec.n_elem * 3), 1, (startvec.n_elem * 3),
-    theclairvoyant); // Rvec
+  arma::mat wprojection = crazy_prophet.submat(static_cast<int>(startvec.n_elem), 0,
+      ((static_cast<int>(startvec.n_elem) * 2) - 1), theclairvoyant);
+  arma::mat vprojection = crazy_prophet.submat((static_cast<int>(startvec.n_elem) * 2), 0,
+    ((static_cast<int>(startvec.n_elem) * 3) - 1), theclairvoyant);
+  arma::rowvec Rvecmat = crazy_prophet.submat((static_cast<int>(startvec.n_elem) * 3), 1,
+      (static_cast<int>(startvec.n_elem) * 3), theclairvoyant); // Rvec
   
   if (!sparse && !sparse_input) {
     arma::mat sensmat(matdim, matdim, fill::zeros);
@@ -20789,8 +20963,8 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
   arma::uvec uniquepops = unique(pop_num);
   arma::uvec uniquepoppatches = unique(poppatchc);
   arma::uvec uniqueyears = unique(year2c);
-  int numpoppatches = uniquepoppatches.n_elem;
-  int numyears = uniqueyears.n_elem;
+  int numpoppatches = static_cast<int>(uniquepoppatches.n_elem);
+  int numyears = static_cast<int>(uniqueyears.n_elem);
   
   arma::vec twinput_corr;
   arma::uvec theprophecy;
@@ -20810,7 +20984,7 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
   arma::sp_mat ref_sp_matcorr;
   
   arma::uvec mat_index_main = LefkoMats::general_index(Amats);
-  int mat_index_main_nonzeros = mat_index_main.n_elem;
+  int mat_index_main_nonzeros = static_cast<int>(mat_index_main.n_elem);
   
   if (tweights_.isNotNull()) {
     tweights = as<arma::vec>(tweights_);
@@ -20869,7 +21043,7 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
       }
     }
     
-    int numpoppatch_extended = poppatch_extended.n_elem;
+    int numpoppatch_extended = static_cast<int>(poppatch_extended.n_elem);
     arma::vec mat_elems (numpoppatch_extended, fill::zeros);
     arma::vec mat_elems_forcorr (numpoppatch_extended, fill::zeros);
     
@@ -20904,7 +21078,6 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
             mat_cv(mat_index_main(j)) = 0.0;
           }
           
-          
           // This is crazy - correlation matrix is ultra-high dimension...
           for (int k = 0; k < mat_index_main_nonzeros; k++) {
             if (k % 10 == 0) Rcpp::checkUserInterrupt();
@@ -20922,8 +21095,8 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
             }
           }
         }
-        
       }
+      
       poppatch_cvmat(i) = mat_cv;
       poppatch_corrmat(i) = mat_corr;
       
@@ -21027,6 +21200,7 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
           }
         }
       }
+      
       poppatch_cvmat(i) = mat_cv;
       poppatch_corrmat(i) = mat_corr;
     }
@@ -21038,7 +21212,7 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
     ref_byyear = refmats;
     
     arma::uvec ref_index_main = LefkoMats::general_index(refmats);
-    int ref_index_main_nonzeros = ref_index_main.n_elem;
+    int ref_index_main_nonzeros = static_cast<int>(ref_index_main.n_elem);
     
     if (!sparse && !sparse_input) {
       arma::mat mat_mean (matdim, matdim, fill::zeros);
@@ -21086,6 +21260,7 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
           }
         }
       }
+      
       ref_matmean = mat_mean;
       ref_matelas = elas3matrix(mat_mean, false);
       ref_matcv = mat_cv;
@@ -21135,9 +21310,8 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
             }
           }
         }
-        
-        
       }
+      
       ref_sp_matmean = mat_mean;
       ref_sp_matelas = elas3sp_matrix(mat_mean);
       ref_sp_matcv = mat_cv;
@@ -21187,9 +21361,8 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
             }
           }
         }
-        
-        
       }
+      
       ref_sp_matmean = mat_mean;
       ref_sp_matelas = elas3sp_matrix(mat_mean);
       ref_sp_matcv = mat_cv;
@@ -21203,7 +21376,7 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
       
       for (int i = 0; i < numyears; i++) {
         arma::uvec year_chosen = find(year2c == uniqueyears(i));
-        int numyear_chosen = year_chosen.n_elem;
+        int numyear_chosen = static_cast<int>(year_chosen.n_elem);
         
         if (!sparse && !sparse_input) {
           arma::mat mat_mean(matdim, matdim, fill::zeros);
@@ -21243,7 +21416,7 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
           tw_counter++;
         }
       }
-      int ref_extended_length = ref_extended.n_elem;
+      int ref_extended_length = static_cast<int>(ref_extended.n_elem);
       
       // Reference mean and sd
       if (!sparse && !sparse_input) {
@@ -21291,6 +21464,7 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
             }
           }
         }
+        
         ref_matmean = mat_mean;
         ref_matelas = elas3matrix(mat_mean, false);
         ref_matcv = mat_cv;
@@ -21340,8 +21514,8 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
               }
             }
           }
-          
         }
+        
         ref_sp_matmean = mat_mean;
         ref_sp_matelas = elas3sp_matrix(mat_mean);
         ref_sp_matcv = mat_cv;
@@ -21408,6 +21582,7 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
             }
           }
         }
+        
         ref_matmean = mat_mean;
         ref_matelas = elas3matrix(mat_mean, false);
         ref_matcv = mat_cv;
@@ -21457,6 +21632,7 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
             }
           }
         }
+        
         ref_sp_matmean = mat_mean;
         ref_sp_matelas = elas3sp_matrix(mat_mean);
         ref_sp_matcv = mat_cv;

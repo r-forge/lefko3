@@ -138,7 +138,7 @@ stablestage3 <- function(mats, ...) UseMethod("stablestage3")
 #' @param force_sparse A text string indicating whether to use sparse matrix
 #' encoding (\code{"yes"}) if standard matrices are provided. Defaults to
 #' \code{"auto"}, in which case sparse matrix encoding is used with square
-#' matrices with at least 10 rows and no more than 50\% of elements with values
+#' matrices with at least 50 rows and no more than 50\% of elements with values
 #' greater than zero.
 #' @param ... Other parameters.
 #' 
@@ -194,8 +194,9 @@ stablestage3 <- function(mats, ...) UseMethod("stablestage3")
 #' 
 #' Speed can sometimes be increased by shifting from automatic sparse matrix
 #' determination to forced dense or sparse matrix projection. This will most
-#' likely occur when matrices have several hundred rows and columns. Defaults
-#' work best when matrices are very small and dense, or very large and sparse.
+#' likely occur when matrices have between 30 and 300 rows and columns.
+#' Defaults work best when matrices are very small and dense, or very large and
+#' sparse.
 #' 
 #' @seealso \code{\link{stablestage3}()}
 #' @seealso \code{\link{stablestage3.list}()}
@@ -315,7 +316,7 @@ stablestage3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
       elements_total <- length(mats$A[[1]])
       dense_elements <- length(which(mats$A[[1]] != 0))
       
-      if ((dense_elements / elements_total) < 0.5 & elements_total > 199) {
+      if ((dense_elements / elements_total) < 0.5 & elements_total > 2500) {
         sparsemethod <- 1
       } else sparsemethod <- 0
     }
@@ -541,7 +542,7 @@ stablestage3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
 #' @param force_sparse A text string indicating whether to use sparse matrix
 #' encoding (\code{"yes"}) when supplied with standard matrices. Defaults to
 #' \code{"auto"}, in which case sparse matrix encoding is used with square
-#' matrices with at least 10 rows and no more than 50\% of elements with values
+#' matrices with at least 50 rows and no more than 50\% of elements with values
 #' greater than zero.
 #' @param ... Other parameters.
 #' 
@@ -551,8 +552,9 @@ stablestage3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
 #' @section Notes:
 #' Speed can sometimes be increased by shifting from automatic sparse matrix
 #' determination to forced dense or sparse matrix projection. This will most
-#' likely occur when matrices have several hundred rows and columns. Defaults
-#' work best when matrices are very small and dense, or very large and sparse.
+#' likely occur when matrices have between 30 and 300 rows and columns.
+#' Defaults work best when matrices are very small and dense, or very large and
+#' sparse.
 #' 
 #' @seealso \code{\link{stablestage3}()}
 #' @seealso \code{\link{stablestage3.lefkoMat}()}
@@ -622,7 +624,7 @@ stablestage3.matrix <- function(mats, force_sparse = "auto", ...)
     elements_total <- length(mats)
     dense_elements <- length(which(mats != 0))
     
-    if ((dense_elements / elements_total) < 0.5 & elements_total > 99) {
+    if ((dense_elements / elements_total) < 0.5 & elements_total > 2500) {
       sparsemethod <- 1
     } else sparsemethod <- 0
   }
@@ -724,7 +726,7 @@ stablestage3.dgCMatrix <- function(mats, ...)
 #' @param force_sparse A text string indicating whether to use sparse matrix
 #' encoding (\code{"yes"}) when supplied with standard matrices. Defaults to
 #' \code{"auto"}, in which case sparse matrix encoding is used with square
-#' matrices with at least 10 rows and no more than 50\% of elements with values
+#' matrices with at least 50 rows and no more than 50\% of elements with values
 #' greater than zero.
 #' @param ... Other parameters.
 #' 
@@ -734,8 +736,9 @@ stablestage3.dgCMatrix <- function(mats, ...)
 #' @section Notes:
 #' Speed can sometimes be increased by shifting from automatic sparse matrix
 #' determination to forced dense or sparse matrix projection. This will most
-#' likely occur when matrices have several hundred rows and columns. Defaults
-#' work best when matrices are very small and dense, or very large and sparse.
+#' likely occur when matrices have between 30 and 300 rows and columns.
+#' Defaults work best when matrices are very small and dense, or very large and
+#' sparse.
 #' 
 #' @seealso \code{\link{stablestage3}()}
 #' @seealso \code{\link{stablestage3.lefkoMat}()}
@@ -806,7 +809,7 @@ stablestage3.list <- function(mats, force_sparse = "auto", ...)
       elements_total <- length(mats[[1]])
       dense_elements <- length(which(mats[[1]] != 0))
       
-      if ((dense_elements / elements_total) < 0.5 & elements_total > 99) {
+      if ((dense_elements / elements_total) < 0.5 & elements_total > 2500) {
         sparsemethod <- 1
       } else sparsemethod <- 0
     }
@@ -967,7 +970,7 @@ repvalue3 <- function(mats, ...) UseMethod("repvalue3")
 #' @param force_sparse A text string indicating whether to use sparse matrix
 #' encoding (\code{"yes"}) when supplied with standard matrices. Defaults to
 #' \code{"auto"}, in which case sparse matrix encoding is used with square
-#' matrices with at least 10 rows and no more than 50\% of elements with values
+#' matrices with at least 50 rows and no more than 50\% of elements with values
 #' greater than zero.
 #' @param ... Other parameters.
 #' 
@@ -1101,7 +1104,7 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
       elements_total <- length(mats$A[[1]])
       dense_elements <- length(which(mats$A[[1]] != 0))
       
-      if ((dense_elements / elements_total) < 0.5 & elements_total > 99) {
+      if ((dense_elements / elements_total) < 0.5 & elements_total > 2500) {
         sparsemethod <- 1
       } else sparsemethod <- 0
     }
@@ -1412,7 +1415,7 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
 #' @param force_sparse A text string indicating whether to use sparse matrix
 #' encoding (\code{"yes"}) when supplied with standard matrices. Defaults to
 #' \code{"auto"}, in which case sparse matrix encoding is used with square
-#' matrices with at least 10 rows and no more than 50\% of elements with values
+#' matrices with at least 50 rows and no more than 50\% of elements with values
 #' greater than zero.
 #' @param ... Other parameters.
 #' 
@@ -1425,8 +1428,9 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
 #' @section Notes:
 #' Speed can sometimes be increased by shifting from automatic sparse matrix
 #' determination to forced dense or sparse matrix projection. This will most
-#' likely occur when matrices have several hundred rows and columns. Defaults
-#' work best when matrices are very small and dense, or very large and sparse.
+#' likely occur when matrices have between 30 and 300 rows and columns.
+#' Defaults work best when matrices are very small and dense, or very large and
+#' sparse.
 #' 
 #' @seealso \code{\link{repvalue3}()}
 #' @seealso \code{\link{repvalue3.lefkoMat}()}
@@ -1493,7 +1497,7 @@ repvalue3.matrix <- function(mats, force_sparse = "auto", ...)
     elements_total <- length(mats)
     dense_elements <- length(which(mats != 0))
     
-    if ((dense_elements / elements_total) < 0.5 & elements_total > 99) {
+    if ((dense_elements / elements_total) < 0.5 & elements_total > 2500) {
       sparsemethod <- 1
     } else sparsemethod <- 0
   }
@@ -1608,7 +1612,7 @@ repvalue3.dgCMatrix <- function(mats, ...)
 #' @param force_sparse A text string indicating whether to use sparse matrix
 #' encoding (\code{"yes"}) when supplied with standard matrices. Defaults to
 #' \code{"auto"}, in which case sparse matrix encoding is used with square
-#' matrices with at least 10 rows and no more than 50\% of elements with values
+#' matrices with at least 50 rows and no more than 50\% of elements with values
 #' greater than zero.
 #' @param ... Other parameters.
 #' 
@@ -1692,7 +1696,7 @@ repvalue3.list <- function(mats, force_sparse = "auto", ...)
       elements_total <- length(mats[[1]])
       dense_elements <- length(which(mats[[1]] != 0))
       
-      if ((dense_elements / elements_total) < 0.5 & elements_total > 99) {
+      if ((dense_elements / elements_total) < 0.5 & elements_total > 2500) {
         sparsemethod <- 1
       } else sparsemethod <- 0
     }
@@ -1805,7 +1809,7 @@ sensitivity3 <- function(mats, ...) UseMethod("sensitivity3")
 #' @param sparse A text string indicating whether to use sparse matrix encoding
 #' (\code{"yes"}) or dense matrix encoding (\code{"no"}). Defaults to
 #' \code{"auto"}, in which case sparse matrix encoding is used with square
-#' matrices with at least 10 rows and no more than 50\% of elements with values
+#' matrices with at least 50 rows and no more than 50\% of elements with values
 #' greater than zero.
 #' @param append_mats A logical value indicating whether to include the original
 #' A, U, and F matrices in the output \code{lefkoSens} object.
@@ -1836,8 +1840,9 @@ sensitivity3 <- function(mats, ...) UseMethod("sensitivity3")
 #'
 #' Speed can sometimes be increased by shifting from automatic sparse matrix
 #' determination to forced dense or sparse matrix projection. This will most
-#' likely occur when matrices have several hundred rows and columns. Defaults
-#' work best when matrices are very small and dense, or very large and sparse.
+#' likely occur when matrices have between 30 and 300 rows and columns.
+#' Defaults work best when matrices are very small and dense, or very large and
+#' sparse.
 #' 
 #' @seealso \code{\link{sensitivity3}()}
 #' @seealso \code{\link{sensitivity3.matrix}()}
@@ -1908,7 +1913,7 @@ sensitivity3.lefkoMat <- function(mats, stochastic = FALSE, steps = 10000,
       elements_total <- length(mats$A[[1]])
       dense_elements <- length(which(mats$A[[1]] != 0))
       
-      if ((dense_elements / elements_total) < 0.5 & elements_total > 99) {
+      if ((dense_elements / elements_total) < 0.5 & elements_total > 2500) {
         sparsemethod <- 1
       } else sparsemethod <- 0
     }
@@ -2005,7 +2010,7 @@ sensitivity3.lefkoMat <- function(mats, stochastic = FALSE, steps = 10000,
 #' @param sparse A text string indicating whether to use sparse matrix encoding
 #' (\code{"yes"}) or dense matrix encoding (\code{"no"}). Defaults to
 #' \code{"auto"}, in which case sparse matrix encoding is used with square
-#' matrices with at least 10 rows and no more than 50\% of elements with values
+#' matrices with at least 50 rows and no more than 50\% of elements with values
 #' greater than zero.
 #' @param ... Other parameters.
 #' 
@@ -2017,8 +2022,9 @@ sensitivity3.lefkoMat <- function(mats, stochastic = FALSE, steps = 10000,
 #' 
 #' Speed can sometimes be increased by shifting from automatic sparse matrix
 #' determination to forced dense or sparse matrix projection. This will most
-#' likely occur when matrices have several hundred rows and columns. Defaults
-#' work best when matrices are very small and dense, or very large and sparse.
+#' likely occur when matrices have between 30 and 300 rows and columns.
+#' Defaults work best when matrices are very small and dense, or very large and
+#' sparse.
 #' 
 #' @seealso \code{\link{sensitivity3}()}
 #' @seealso \code{\link{sensitivity3.lefkoMat}()}
@@ -2085,7 +2091,7 @@ sensitivity3.matrix <- function(mats, sparse = "auto", ...)
     elements_total <- length(mats)
     dense_elements <- length(which(mats != 0))
     
-    if ((dense_elements / elements_total) < 0.5 & elements_total > 99) {
+    if ((dense_elements / elements_total) < 0.5 & elements_total > 2500) {
       sparsemethod <- 1
     } else sparsemethod <- 0
   }
@@ -2192,7 +2198,7 @@ sensitivity3.dgCMatrix <- function(mats, ...)
 #' @param sparse A text string indicating whether to use sparse matrix encoding
 #' (\code{"yes"}) or dense matrix encoding (\code{"no"}). Defaults to
 #' \code{"auto"}, in which case sparse matrix encoding is used with square
-#' matrices with at least 10 rows and no more than 50\% of elements with values
+#' matrices with at least 50 rows and no more than 50\% of elements with values
 #' greater than zero.
 #' @param append_mats A logical value indicating whether to include the original
 #' matrices input as object \code{mats} in the output \code{lefkoSense} object.
@@ -2225,8 +2231,9 @@ sensitivity3.dgCMatrix <- function(mats, ...)
 #'
 #' Speed can sometimes be increased by shifting from automatic sparse matrix
 #' determination to forced dense or sparse matrix projection. This will most
-#' likely occur when matrices have several hundred rows and columns. Defaults
-#' work best when matrices are very small and dense, or very large and sparse.
+#' likely occur when matrices have between 30 and 300 rows and columns.
+#' Defaults work best when matrices are very small and dense, or very large and
+#' sparse.
 #' 
 #' @seealso \code{\link{sensitivity3}()}
 #' @seealso \code{\link{sensitivity3.lefkoMat}()}
@@ -2343,7 +2350,7 @@ sensitivity3.list <- function(mats, stochastic = FALSE, steps = 10000,
       elements_total <- length(mats[[1]])
       dense_elements <- length(which(mats[[1]] != 0))
       
-      if ((dense_elements / elements_total) < 0.5 & elements_total > 99) {
+      if ((dense_elements / elements_total) < 0.5 & elements_total > 2500) {
         sparsemethod <- 1
       } else sparsemethod <- 0
     }
@@ -2366,34 +2373,29 @@ sensitivity3.list <- function(mats, stochastic = FALSE, steps = 10000,
     
     if (historical) {
       output <- list(h_sensmats = baldrick, ah_sensmats = NULL, hstages = NULL,
-        agestages = NULL, ahstages = NULL, A = mats, U = NULL, F = NULL)
+        agestages = NULL, ahstages = NULL, U = NULL, F = NULL)
     } else {
       output <- list(h_sensmats = NULL, ah_sensmats = baldrick, hstages = NULL,
-        agestages = NULL, ahstages = NULL, A = mats, U = NULL, F = NULL)
+        agestages = NULL, ahstages = NULL, U = NULL, F = NULL)
     }
     
   } else {
     # Stochastic sensitivity analysis
     
-      if(!any(is.na(time_weights))) {
-        returned_cube <- .stoch_senselas(mats, times = steps, historical = historical,
-          style = 1, sparsemethod, tweights = time_weights)[[1]]
-      } else {
-        returned_cube <- .stoch_senselas(mats, times = steps, historical = historical,
-          sparsemethod, style = 1)[[1]]
-      }
-      
-      returned_list <- lapply(as.list(c(1:dim(returned_cube)[3])), function(X) {
-          return(returned_cube[,,X])
-        }
-      )
-
-    if (historical) {
-      output <- list(h_sensmats = returned_list, ah_sensmats = NULL,
-        hstages = NULL, agestages = NULL, ahstages = NULL)
+    if(!any(is.na(time_weights))) {
+      returned_cube <- .stoch_senselas(mats, times = steps, historical = historical,
+        style = 1, sparsemethod, tweights = time_weights)[[1]]
     } else {
-      output <- list(h_sensmats = NULL, ah_sensmats = returned_list,
-        hstages = NULL, agestages = NULL, ahstages = NULL)
+      returned_cube <- .stoch_senselas(mats, times = steps, historical = historical,
+        sparsemethod, style = 1)[[1]]
+    }
+    
+    if (historical) {
+      output <- list(h_sensmats = returned_cube[[1]], ah_sensmats = NULL,
+        hstages = NULL, agestages = NULL, ahstages = NULL, U = NULL, F = NULL)
+    } else {
+      output <- list(h_sensmats = NULL, ah_sensmats = returned_cube[[1]],
+        hstages = NULL, agestages = NULL, ahstages = NULL, U = NULL, F = NULL)
     }
   }
   
@@ -2546,7 +2548,7 @@ elasticity3 <- function(mats, ...) UseMethod("elasticity3")
 #' @param force_sparse A text string indicating whether to use sparse matrix
 #' encoding (\code{"yes"}) or not (\code{"no"}) with standard matrix input.
 #' Defaults to \code{"auto"}, in which case sparse matrix encoding is used with
-#' square matrices with at least 10 rows and no more than 50\% of elements with
+#' square matrices with at least 50 rows and no more than 50\% of elements with
 #' values greater than zero.
 #' @param append_mats A logical value indicating whether to include the original
 #' A, U, and F matrices in the output \code{lefkoElas} object.
@@ -2577,8 +2579,9 @@ elasticity3 <- function(mats, ...) UseMethod("elasticity3")
 #' 
 #' Speed can sometimes be increased by shifting from automatic sparse matrix
 #' determination to forced dense or sparse matrix projection. This will most
-#' likely occur when matrices have several hundred rows and columns. Defaults
-#' work best when matrices are very small and dense, or very large and sparse.
+#' likely occur when matrices have between 30 and 300 rows and columns.
+#' Defaults work best when matrices are very small and dense, or very large and
+#' sparse.
 #' 
 #' @seealso \code{\link{elasticity3}()}
 #' @seealso \code{\link{elasticity3.dgCMatrix}()}
@@ -2695,7 +2698,7 @@ elasticity3.lefkoMat <- function(mats, stochastic = FALSE, steps = 10000,
       elements_total <- length(mats$A[[1]])
       dense_elements <- length(which(mats$A[[1]] != 0))
       
-      if ((dense_elements / elements_total) < 0.5 & elements_total > 99) {
+      if ((dense_elements / elements_total) < 0.5 & elements_total > 2500) {
         sparsemethod <- 1
       } else sparsemethod <- 0
     }
@@ -2801,7 +2804,7 @@ elasticity3.lefkoMat <- function(mats, stochastic = FALSE, steps = 10000,
 #' @param force_sparse A text string indicating whether to use sparse matrix
 #' encoding (\code{"yes"}) or not (\code{"no"}) with standard matrix input.
 #' Defaults to \code{"auto"}, in which case sparse matrix encoding is used with
-#' square matrices with at least 10 rows and no more than 50\% of elements with
+#' square matrices with at least 50 rows and no more than 50\% of elements with
 #' values greater than zero.
 #' @param ... Other parameters.
 #' 
@@ -2810,8 +2813,9 @@ elasticity3.lefkoMat <- function(mats, stochastic = FALSE, steps = 10000,
 #' @section Notes:
 #' Speed can sometimes be increased by shifting from automatic sparse matrix
 #' determination to forced dense or sparse matrix projection. This will most
-#' likely occur when matrices have several hundred rows and columns. Defaults
-#' work best when matrices are very small and dense, or very large and sparse.
+#' likely occur when matrices have between 30 and 300 rows and columns.
+#' Defaults work best when matrices are very small and dense, or very large and
+#' sparse.
 #' 
 #' @seealso \code{\link{elasticity3}()}
 #' @seealso \code{\link{elasticity3.lefkoMat}()}
@@ -2880,7 +2884,7 @@ elasticity3.matrix <- function(mats, force_sparse = "auto", ...)
     elements_total <- length(mats)
     dense_elements <- length(which(mats != 0))
     
-    if ((dense_elements / elements_total) < 0.5 & elements_total > 99) {
+    if ((dense_elements / elements_total) < 0.5 & elements_total > 2500) {
       sparsemethod <- 1
     } else sparsemethod <- 0
   }
@@ -2986,7 +2990,7 @@ elasticity3.dgCMatrix <- function(mats, ...)
 #' @param force_sparse A text string indicating whether to use sparse matrix
 #' encoding (\code{"yes"}) or not (\code{"no"}) with standard matrix input.
 #' Defaults to \code{"auto"}, in which case sparse matrix encoding is used with
-#' square matrices with at least 10 rows and no more than 50\% of elements with
+#' square matrices with at least 50 rows and no more than 50\% of elements with
 #' values greater than zero.
 #' @param append_mats A logical value indicating whether to include the original
 #' matrices input as object \code{mats} in the output \code{lefkoElas} object.
@@ -3010,8 +3014,9 @@ elasticity3.dgCMatrix <- function(mats, ...)
 #' 
 #' Speed can sometimes be increased by shifting from automatic sparse matrix
 #' determination to forced dense or sparse matrix projection. This will most
-#' likely occur when matrices have several hundred rows and columns. Defaults
-#' work best when matrices are very small and dense, or very large and sparse.
+#' likely occur when matrices have between 30 and 300 rows and columns.
+#' Defaults work best when matrices are very small and dense, or very large and
+#' sparse.
 #' 
 #' @seealso \code{\link{elasticity3}()}
 #' @seealso \code{\link{elasticity3.lefkoMat}()}
@@ -3129,7 +3134,7 @@ elasticity3.list <- function(mats, stochastic = FALSE, steps = 10000,
       elements_total <- length(mats$A[[1]])
       dense_elements <- length(which(mats$A[[1]] != 0))
       
-      if ((dense_elements / elements_total) < 0.5 & elements_total > 99) {
+      if ((dense_elements / elements_total) < 0.5 & elements_total > 2500) {
         sparsemethod <- 1
       } else sparsemethod <- 0
     }
@@ -3263,12 +3268,20 @@ elasticity3.list <- function(mats, stochastic = FALSE, steps = 10000,
 #' populations are designated as patches instead).
 #' 
 #' If \code{force_sparse = "auto"}, the default, then sparse matrix encoding
-#' will be used if the size of the input matrices is at least 10 columns by 10
-#' rows and no more than 50\% of the elements in the first matrix are non-zero.
+#' will be used if the size of the input matrices is at least 50 columns by 50
+#' rows for deterministic and stochastic LTREs and 10 columns by 10 rows for
+#' small noise approximation LTREs, in all cases as long as 50\% of the elements
+#' in the first matrix are non-zero.
 #' 
 #' Note that stochastic LTREs do not test for the impact of temporal change in
 #' vital rates. An MPM with a single population, a single patch, and only annual
 #' matrices will produce contributions of 0 to stochastic \eqn{\lambda}.
+#' 
+#' Speed can sometimes be increased by shifting from automatic sparse matrix
+#' determination to forced dense or sparse matrix projection. This will most
+#' likely occur when matrices have between 10 and 300 rows and columns.
+#' Defaults work best when matrices are very small and dense, or very large and
+#' sparse.
 #' 
 #' @seealso \code{\link{summary.lefkoLTRE}()}
 #' 
@@ -3345,8 +3358,8 @@ ltre3 <- function(mats, refmats = NA, ref = NA, stochastic = FALSE,
       elements_total <- length(mats$A[[1]])
       dense_elements <- length(which(mats$A[[1]] != 0))
       
-      check_elements <- 399
-      if (sna_ltre == FALSE) check_elements <- 4999
+      check_elements <- 100
+      if (sna_ltre == FALSE) check_elements <- 2500
       
       if ((dense_elements / elements_total) <= 0.5 & elements_total > check_elements) {
         sparsemethod <- 1

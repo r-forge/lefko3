@@ -33,7 +33,7 @@ equal weighting.}
 \item{force_sparse}{A text string indicating whether to use sparse matrix
 encoding (\code{"yes"}) if standard matrices are provided. Defaults to
 \code{"auto"}, in which case sparse matrix encoding is used with square
-matrices with at least 10 rows and no more than 50\% of elements with values
+matrices with at least 50 rows and no more than 50\% of elements with values
 greater than zero.}
 
 \item{...}{Other parameters.}
@@ -100,8 +100,9 @@ preferred.
 
 Speed can sometimes be increased by shifting from automatic sparse matrix
 determination to forced dense or sparse matrix projection. This will most
-likely occur when matrices have several hundred rows and columns. Defaults
-work best when matrices are very small and dense, or very large and sparse.
+likely occur when matrices have between 30 and 300 rows and columns.
+Defaults work best when matrices are very small and dense, or very large and
+sparse.
 }
 
 \examples{

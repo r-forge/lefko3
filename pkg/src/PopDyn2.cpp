@@ -8,7 +8,6 @@ using namespace LefkoUtils;
 using namespace LefkoMats;
 
 
-
 //' Creates Size Index for Elasticity Summaries of hMPMs
 //' 
 //' Function \code{bambi3()} creates an index of estimable elements in
@@ -52,11 +51,11 @@ DataFrame bambi3(const DataFrame& stages, const DataFrame& hstages) {
   arma::vec sizes = as<arma::vec>(stages["original_size"]);
   arma::uvec repstatus = as<arma::uvec>(stages["repstatus"]);
   arma::uvec entrystage = as<arma::uvec>(stages["entrystage"]);
-  int numstages = astages.n_elem;
+  int numstages = static_cast<int>(astages.n_elem);
   
   arma::uvec hstage3in = as<arma::uvec>(hstages["stage_id_2"]);
   arma::uvec hstage2nin = as<arma::uvec>(hstages["stage_id_1"]);
-  int numhstages = hstage3in.n_elem;
+  int numhstages = static_cast<int>(hstage3in.n_elem);
   
   hstage3in = hstage3in - 1;
   hstage2nin = hstage2nin - 1;
@@ -305,7 +304,7 @@ DataFrame bambi2(const DataFrame& stages) {
   arma::vec sizes = as<arma::vec>(stages["original_size"]);
   arma::uvec repstatus = as<arma::uvec>(stages["repstatus"]);
   arma::uvec entrystage = as<arma::uvec>(stages["entrystage"]);
-  int numstages = astages.n_elem;
+  int numstages = static_cast<int>(astages.n_elem);
   astages = astages - 1;
   int predictedsize = numstages * numstages;
   
@@ -460,7 +459,7 @@ Rcpp::List demolition4 (List cmats) {
           double pos_sum {0.0};
           double neg_sum {0.0};
           
-          for (int k = 0; k < current_mat.n_elem; k++) {
+          for (int k = 0; k < static_cast<int>(current_mat.n_elem); k++) {
             if (current_mat(k) > 0.0) {
               pos_sum += static_cast<double>(current_mat(k));
             } else if (current_mat(k) < 0.0) {
@@ -573,8 +572,8 @@ List demolition3(const arma::mat& e_amat, const DataFrame& bambesque,
   arma::uvec eindices = as<arma::uvec>(bambesque["index"]);
   arma::uvec categories = as<arma::uvec>(bambesque["transition"]);
   
-  int e_amatsize = e_amat.n_elem;
-  int e_amatrows = e_amat.n_rows;
+  int e_amatsize = static_cast<int>(e_amat.n_elem);
+  int e_amatrows = static_cast<int>(e_amat.n_rows);
   int maxelem = static_cast<int>(eindices.max());
   int minindex = static_cast<int>(categories.min());
   
@@ -631,7 +630,7 @@ List demolition3(const arma::mat& e_amat, const DataFrame& bambesque,
   // Splits fecundity transitions if they include survival portions
   arma::mat corr_mat = amat;
   arma::uvec z_indices = find(corr_mat == 0.0);
-  int z_indicesnem = z_indices.n_elem;
+  int z_indicesnem = static_cast<int>(z_indices.n_elem);
   for (int i = 0; i < z_indicesnem; i++) {
     corr_mat(z_indices(i)) = 1.0;
   }
@@ -686,7 +685,7 @@ List demolition3(const arma::mat& e_amat, const DataFrame& bambesque,
     
     for (int i = 0; i < 16; i++) {
       arma::uvec currentguys = find(categories == histcatnums(i));
-      int currentguysnem = currentguys.n_elem;
+      int currentguysnem = static_cast<int>(currentguys.n_elem);
       
       if (histcatnums(i) == 20 || histcatnums(i) == 21 || histcatnums(i) == 22 ||
         histcatnums(i) == 26) { // Fecundity transitions
@@ -1371,8 +1370,8 @@ List demolition3(const arma::mat& e_amat, const DataFrame& bambesque,
         arma::vec all_es = e_amat.elem(eindices(currentguys));
         arma::uvec all_es_pos = find(all_es > 0.0);
         arma::uvec all_es_neg = find(all_es < 0.0);
-        int all_es_pos_num = all_es_pos.n_elem;
-        int all_es_neg_num = all_es_neg.n_elem;
+        int all_es_pos_num = static_cast<int>(all_es_pos.n_elem);
+        int all_es_neg_num = static_cast<int>(all_es_neg.n_elem);
         
         double getoutofdodge = sum(all_es);
         histsums(i) += getoutofdodge;
@@ -1393,8 +1392,8 @@ List demolition3(const arma::mat& e_amat, const DataFrame& bambesque,
         arma::vec all_es = e_amat.elem(eindices(currentguys));
         arma::uvec all_es_pos = find(all_es > 0.0);
         arma::uvec all_es_neg = find(all_es < 0.0);
-        int all_es_pos_num = all_es_pos.n_elem;
-        int all_es_neg_num = all_es_neg.n_elem;
+        int all_es_pos_num = static_cast<int>(all_es_pos.n_elem);
+        int all_es_neg_num = static_cast<int>(all_es_neg.n_elem);
         
         double getoutofdodge = sum(all_es);
         histsums(i) += getoutofdodge;
@@ -1415,8 +1414,8 @@ List demolition3(const arma::mat& e_amat, const DataFrame& bambesque,
         arma::vec all_es = e_amat.elem(eindices(currentguys));
         arma::uvec all_es_pos = find(all_es > 0.0);
         arma::uvec all_es_neg = find(all_es < 0.0);
-        int all_es_pos_num = all_es_pos.n_elem;
-        int all_es_neg_num = all_es_neg.n_elem;
+        int all_es_pos_num = static_cast<int>(all_es_pos.n_elem);
+        int all_es_neg_num = static_cast<int>(all_es_neg.n_elem);
         
         double getoutofdodge = sum(all_es);
         histsums(i) += getoutofdodge;
@@ -1446,8 +1445,8 @@ List demolition3(const arma::mat& e_amat, const DataFrame& bambesque,
       arma::vec all_es = e_amat.elem(eindices(currentguys));
       arma::uvec all_es_pos = find(all_es > 0.0);
       arma::uvec all_es_neg = find(all_es < 0.0);
-      int all_es_pos_num = all_es_pos.n_elem;
-      int all_es_neg_num = all_es_neg.n_elem;
+      int all_es_pos_num = static_cast<int>(all_es_pos.n_elem);
+      int all_es_neg_num = static_cast<int>(all_es_neg.n_elem);
       
       double getoutofdodge = sum(all_es);
       ahistsums(i) += getoutofdodge;
@@ -1518,8 +1517,8 @@ List demolition3sp(const arma::sp_mat& e_amat, const DataFrame& bambesque,
   arma::uvec eindices = as<arma::uvec>(bambesque["index"]);
   arma::uvec categories = as<arma::uvec>(bambesque["transition"]);
   
-  int e_amatsize = e_amat.n_elem;
-  int e_amatrows = e_amat.n_rows;
+  int e_amatsize = static_cast<int>(e_amat.n_elem);
+  int e_amatrows = static_cast<int>(e_amat.n_rows);
   int maxelem = static_cast<int>(eindices.max());
   int minindex = static_cast<int>(categories.min());
   
@@ -1581,7 +1580,7 @@ List demolition3sp(const arma::sp_mat& e_amat, const DataFrame& bambesque,
   arma::sp_mat corr_mat = amat;
   
   arma::uvec z_indices = find(corr_mat);
-  int z_indicesnem = z_indices.n_elem;
+  int z_indicesnem = static_cast<int>(z_indices.n_elem);
   
   for (int i = 0; i < z_indicesnem; i++) {
     fec_fraction(i) = fmat(i) / amat(i);
@@ -1636,7 +1635,7 @@ List demolition3sp(const arma::sp_mat& e_amat, const DataFrame& bambesque,
     
     for (int i = 0; i < 16; i++) {
       arma::uvec currentguys = find(categories == histcatnums(i));
-      int currentguysnem = currentguys.n_elem;
+      int currentguysnem = static_cast<int>(currentguys.n_elem);
       
       if (histcatnums(i) == 20 || histcatnums(i) == 21 || histcatnums(i) == 22 ||
         histcatnums(i) == 26) { // Fecundity transitions
@@ -2318,15 +2317,15 @@ List demolition3sp(const arma::sp_mat& e_amat, const DataFrame& bambesque,
       } else if (histcatnums(i) == 14 || histcatnums(i) == 15 ||
           histcatnums(i) == 17 || histcatnums(i) == 25) { // Shrinkage transitions
         
-        arma::vec all_es (currentguys.n_elem, fill::zeros);
-        for (int m = 0; m < currentguys.n_elem; m++) {
+        arma::vec all_es (static_cast<int>(currentguys.n_elem), fill::zeros);
+        for (int m = 0; m < static_cast<int>(currentguys.n_elem); m++) {
           all_es(m) = e_amat(eindices(currentguys(m)));
         }
         
         arma::uvec all_es_pos = find(all_es > 0.0);
         arma::uvec all_es_neg = find(all_es < 0.0);
-        int all_es_pos_num = all_es_pos.n_elem;
-        int all_es_neg_num = all_es_neg.n_elem;
+        int all_es_pos_num = static_cast<int>(all_es_pos.n_elem);
+        int all_es_neg_num = static_cast<int>(all_es_neg.n_elem);
         
         double getoutofdodge = sum(all_es);
         histsums(i) += getoutofdodge;
@@ -2344,15 +2343,15 @@ List demolition3sp(const arma::sp_mat& e_amat, const DataFrame& bambesque,
       } else if (histcatnums(i) == 10 || histcatnums(i) == 13 ||
           histcatnums(i) == 16 || histcatnums(i) == 23) { // Stasis transitions
         
-        arma::vec all_es (currentguys.n_elem, fill::zeros);
-        for (int m = 0; m < currentguys.n_elem; m++) {
+        arma::vec all_es (static_cast<int>(currentguys.n_elem), fill::zeros);
+        for (int m = 0; m < static_cast<int>(currentguys.n_elem); m++) {
           all_es(m) = e_amat(eindices(currentguys(m)));
         }
         
         arma::uvec all_es_pos = find(all_es > 0.0);
         arma::uvec all_es_neg = find(all_es < 0.0);
-        int all_es_pos_num = all_es_pos.n_elem;
-        int all_es_neg_num = all_es_neg.n_elem;
+        int all_es_pos_num = static_cast<int>(all_es_pos.n_elem);
+        int all_es_neg_num = static_cast<int>(all_es_neg.n_elem);
         
         double getoutofdodge = sum(all_es);
         histsums(i) += getoutofdodge;
@@ -2370,15 +2369,15 @@ List demolition3sp(const arma::sp_mat& e_amat, const DataFrame& bambesque,
       } else if (histcatnums(i) == 11 || histcatnums(i) == 12 ||
           histcatnums(i) == 18 || histcatnums(i) == 24) { // Growth transitions
         
-        arma::vec all_es (currentguys.n_elem, fill::zeros);
-        for (int m = 0; m < currentguys.n_elem; m++) {
+        arma::vec all_es (static_cast<int>(currentguys.n_elem), fill::zeros);
+        for (int m = 0; m < static_cast<int>(currentguys.n_elem); m++) {
           all_es(m) = e_amat(eindices(currentguys(m)));
         }
         
         arma::uvec all_es_pos = find(all_es > 0.0);
         arma::uvec all_es_neg = find(all_es < 0.0);
-        int all_es_pos_num = all_es_pos.n_elem;
-        int all_es_neg_num = all_es_neg.n_elem;
+        int all_es_pos_num = static_cast<int>(all_es_pos.n_elem);
+        int all_es_neg_num = static_cast<int>(all_es_neg.n_elem);
         
         double getoutofdodge = sum(all_es);
         histsums(i) += getoutofdodge;
@@ -2406,15 +2405,15 @@ List demolition3sp(const arma::sp_mat& e_amat, const DataFrame& bambesque,
     for (int i = 0; i < 4; i++) {
       arma::uvec currentguys = find(categories == ahistcatnums(i));
       
-      arma::vec all_es (currentguys.n_elem, fill::zeros);
-      for (int m = 0; m < currentguys.n_elem; m++) {
+      arma::vec all_es (static_cast<int>(currentguys.n_elem), fill::zeros);
+      for (int m = 0; m < static_cast<int>(currentguys.n_elem); m++) {
         all_es(m) = e_amat(eindices(currentguys(m)));
       }
         
       arma::uvec all_es_pos = find(all_es > 0.0);
       arma::uvec all_es_neg = find(all_es < 0.0);
-      int all_es_pos_num = all_es_pos.n_elem;
-      int all_es_neg_num = all_es_neg.n_elem;
+      int all_es_pos_num = static_cast<int>(all_es_pos.n_elem);
+      int all_es_neg_num = static_cast<int>(all_es_neg.n_elem);
       
       double getoutofdodge = sum(all_es);
       ahistsums(i) += getoutofdodge;
@@ -2634,15 +2633,13 @@ RObject lambda3(RObject& mpm, Nullable<RObject> force_sparse = R_NilValue) {
         int total_elems = mat_rows * mat_cols;
         
         arma::uvec nonzeros = find(a1);
-        int no_nonzeros = nonzeros.n_elem;
+        int no_nonzeros = static_cast<int>(nonzeros.n_elem);
         
         double density = static_cast<double>(no_nonzeros) / static_cast<double>(total_elems);
         
         if (density <= 0.5 && total_elems > 399) {
-          Rcout << "Using sparse matrix encoding..." << endl;
           sparse_check = 1;
         } else {
-          Rcout << "Using simple matrix encoding..." << endl;
           sparse_check = 0;
         }
       }
@@ -2726,16 +2723,14 @@ RObject lambda3(RObject& mpm, Nullable<RObject> force_sparse = R_NilValue) {
         int total_elems = mat_rows * mat_cols;
         
         arma::uvec nonzeros = find(a1);
-        int no_nonzeros = nonzeros.n_elem;
+        int no_nonzeros = static_cast<int>(nonzeros.n_elem);
         
         double density = static_cast<double>(no_nonzeros) /
           static_cast<double>(total_elems);
         
         if (density <= 0.5 && total_elems > 399) {
-          Rcout << "Using sparse matrix encoding..." << endl;
           sparse_check = 1;
         } else {
-          Rcout << "Using simple matrix encoding..." << endl;
           sparse_check = 0;
         }
       }
@@ -2825,16 +2820,14 @@ RObject lambda3(RObject& mpm, Nullable<RObject> force_sparse = R_NilValue) {
       int total_elems = mat_rows * mat_cols;
       
       arma::uvec nonzeros = find(mpm_);
-      int no_nonzeros = nonzeros.n_elem;
+      int no_nonzeros = static_cast<int>(nonzeros.n_elem);
       
       double density = static_cast<double>(no_nonzeros) /
         static_cast<double>(total_elems);
       
       if (density <= 0.5 && total_elems > 399) {
-        Rcout << "Using sparse matrix encoding..." << endl;
         sparse_check = 1;
       } else {
-        Rcout << "Using simple matrix encoding..." << endl;
         sparse_check = 0;
       }
     }

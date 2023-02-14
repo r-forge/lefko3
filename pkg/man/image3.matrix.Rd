@@ -16,10 +16,7 @@ Plots a matrix image, or series of matrix images, denoting non-zero
 elements as red space and zero elements as white space.
 }
 \description{
-Function \code{image3.matrix} plots a matrix image for a single matrix. This
-function operates as a wrapper for the \code{\link[SparseM]{image}()}
-function in package \code{SparseM}, conducting all necessary conversions and
-automating image production across all or just specific matrices.
+Function \code{image3.matrix} plots a matrix image for a single matrix.
 }
 \examples{
 # Lathyrus example
@@ -60,7 +57,7 @@ lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "Sd", "Sdl", "mat
 
 ehrlen3 <- rlefko3(data = lathvert, stageframe = lathframe, year = "all", 
   stages = c("stage3", "stage2", "stage1"), supplement = lathsupp3,
-  yearcol = "year2", indivcol = "individ")
+  yearcol = "year2", indivcol = "individ", sparse_output = FALSE)
 
 image3(ehrlen3$U[[1]])
 

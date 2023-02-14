@@ -24,10 +24,7 @@ elements as red space and zero elements as white space.
 }
 \description{
 Function \code{image3.lefkoMat} plots matrix images for matrices supplied
-within \code{lefkoMat} objects. This function operates as a wrapper for the
-\code{\link[SparseM]{image}()} function in package \code{SparseM}, conducting
-all necessary conversions and automating image production across all or just
-specific matrices.
+within \code{lefkoMat} objects.
 }
 \examples{
 # Lathyrus example

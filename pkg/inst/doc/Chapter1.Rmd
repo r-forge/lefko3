@@ -532,7 +532,7 @@ n _{1,4C}
   
   <p style="text-indent: 20px">Package `lefko3` contains functions that quickly assess deterministic and stochastic properties. In addition, users may use the `projection3()` function to conduct user-defined projections of various sorts, including even cyclical and unequally weighted stochastic projections.</p>
   
-#### Density independent vs. density dependence analysis    
+#### Density independent vs. density dependent analysis    
   
   <p style="text-indent: 20px">Package `lefko3` also provides the ability to conduct density dependent projections. Readers of the density dependence literature will know that there are many forms of density dependent functions that can be applied to matrix projection. The oldest forms typically applied a function such as the logistic function to all matrix elements, generally by multiplying each matrix element by some function of density [e.g., @leslie_properties_1959]. More recent forms incorporate complex approaches, often separating density dependent functions by vital rate [e.g., @jensen_simple_1995].</p>
   
@@ -717,7 +717,9 @@ where $\mathbf{A_t}$ refers to the A matrix corresponding to occasion *t*. Stoch
 \Delta \lambda = \lambda^{(m)} - \lambda^{(R)} \approx \sum_{j,i} ((a_{ji}^{(m)} - a_{ji}^{(R)}) (\frac{\partial \lambda}{\partial a_{ji}})) | _\mathbf{A^{(m+R)/2}}
 \end{equation}
   
-  <p style="text-indent: 20px">Since 2010, several stochastic life table response experiment (sLTREs) methodologies have also been developed. sLTREs measure the impact of one or more treatments on the log stochastic growth rate, $a = \text{log} \lambda _{S}$. However, the treatment and reference here are not single matrices, but sets of matrices that vary randomly across time. Here, we assume that $log\lambda^{(m)}$ and $log\lambda^{(R)}$ are the log stochastic growth rates of the treatment MPM and the reference MPM, respectively. Package `lefko3` currently implements the @davison_demographic_2010 simulated sLTRE, where:</p>
+  <p style="text-indent: 20px">Since 2010, several stochastic life table response experiment (sLTREs) methodologies have also been developed. sLTREs measure the impact of one or more treatments on the log stochastic growth rate, $a = \text{log} \lambda _{S}$. However, the treatment and reference here are not single matrices, but sets of matrices that vary randomly across time. Here, we assume that $log\lambda^{(m)}$ and $log\lambda^{(R)}$ are the log stochastic growth rates of the treatment MPM and the reference MPM, respectively.</p>
+  
+  <p style="text-indent: 20px">Package `lefko3` currently implements two kinds of sLTRE. The first, which we refer to in the documentation as 'sLTRE', is the simulated sLTRE described in @davison_demographic_2010, where:</p>
   
 \begin{equation}
 \tag{30}
@@ -726,7 +728,7 @@ where $\mathbf{A_t}$ refers to the A matrix corresponding to occasion *t*. Stoch
   
 In the above equation, $E_{ji}^{\mu}$ and $E_{ji}^{\sigma}$ are the stochastic elasticities of the log stochastic growth rate to changes in the mean and standard deviation, respectively, of the element at row $j$ and column $i$ in the reference matrix set. Function `ltre3()` handles all of these calculations.
   
-  <p style="text-indent: 20px">@davison_contributions_2013 presented an analytical solution to the sLTRE, and we are currently working to implement this version in `lefko3` as well.</p>
+  <p style="text-indent: 20px">@davison_contributions_2013 presented an analytical solution to the sLTRE refered to as the small-noise approximation LTRE, or 'SNA-LTRE'. Package `lefko3` also implements this form. Here, the difference in the stochastic growth rate $\text{log}\lambda_S$ between the treatment group and the reference group is decomposed into contributions from differences in mean elements, in element elasticities, in element coefficients of variation, and in element correlations. This analysis will likely appeal most to those seeking to conduct stochastic LTREs, and we urge users to read @davison_contributions_2013 and the LTRE chapter in *lefko3: a gentle introduction* for a better understanding of this analysis.</p>
   
 #### Further analyses   
   

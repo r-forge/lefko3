@@ -29,7 +29,7 @@ annual matrices. Defaults to equal weighting among occasions.}
 \item{force_sparse}{A text string indicating whether to force sparse matrix 
 encoding (\code{"yes"}) or not (\code{"no"}) if the MPM is composed of
 simple matrices. Defaults to \code{"auto"}, in which case sparse matrix
-encoding is used with simple square matrices with at least 20 rows and no
+encoding is used with simple square matrices with at least 50 rows and no
 more than 50\% of elements with values greater than zero.}
 }
 \value{
@@ -62,6 +62,12 @@ data frame with 0 entries for patch designation.
 Weightings given in \code{tweights} do not need to sum to 1. Final
 weightings used will be based on the proportion per element of the sum of
 elements in the user-supplied vector.
+
+Speed can sometimes be increased by shifting from automatic sparse matrix
+determination to forced dense or sparse matrix projection. This will most
+likely occur when matrices have between 30 and 300 rows and columns.
+Defaults work best when matrices are very small and dense, or very large and
+sparse.
 }
 
 \examples{

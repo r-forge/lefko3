@@ -624,10 +624,10 @@ Rcpp::List pfj(const DataFrame& data, const DataFrame& stageframe,
   arma::vec sfszmaxarmab = sfszmaxb;
   arma::vec sfszminarmac = sfszminc;
   arma::vec sfszmaxarmac = sfszmaxc;
-  int stagenum = sfszmaxarma.n_elem;
+  int stagenum = static_cast<int>(sfszmaxarma.n_elem);
   
   arma::uvec instages = find(indataset == 1);
-  int instagenum = instages.n_elem;
+  int instagenum = static_cast<int>(instages.n_elem);
   
   arma::uvec stageid (stagenum);
   arma::uvec instageid (instagenum);
@@ -3057,7 +3057,7 @@ Rcpp::List jpf(const DataFrame& data, const DataFrame& stageframe, int popidcol,
   }
   
   Rcpp::StringVector allindivs = unique(individx);
-  noindivs = allindivs.size(); // Total no individuals
+  noindivs = static_cast<int>(allindivs.size()); // Total no individuals
   
   Rcpp::IntegerVector year3x;
   Rcpp::IntegerVector year2x = as<IntegerVector>(data[year2col]);
@@ -3067,7 +3067,7 @@ Rcpp::List jpf(const DataFrame& data, const DataFrame& stageframe, int popidcol,
   
   Rcpp::IntegerVector yearall2x = sort_unique(year2x);
   int firstyear = min(yearall2x);
-  const int noyears = yearall2x.size(); // Total no observation periods
+  const int noyears = static_cast<int>(yearall2x.size()); // Total no observation periods
   
   int ndflength = noyears * noindivs; // Initial length of final hfv dataset
   int currentyear {0};
@@ -3099,10 +3099,10 @@ Rcpp::List jpf(const DataFrame& data, const DataFrame& stageframe, int popidcol,
   arma::vec sfszmaxarmab = sfszmaxb;
   arma::vec sfszminarmac = sfszminc;
   arma::vec sfszmaxarmac = sfszmaxc;
-  int stagenum = sfszmaxarma.n_elem; // Total no stages in stageframe
+  int stagenum = static_cast<int>(sfszmaxarma.n_elem); // Total no stages in stageframe
   
   arma::uvec instages = find(indataset == 1); 
-  int instagenum = instages.n_elem; // Total no stages in dataset
+  int instagenum = static_cast<int>(instages.n_elem); // Total no stages in dataset
   
   arma::uvec stageid(stagenum);
   arma::uvec instageid(instagenum);
@@ -4565,7 +4565,7 @@ Rcpp::List jpf(const DataFrame& data, const DataFrame& stageframe, int popidcol,
       arma::uvec indivzeros = intersect(indivindices, censorzeros);
       arma::ivec years_utilized = year2.elem(indivindices);
       
-      int newcount = indivzeros.n_elem;
+      int newcount = static_cast<int>(indivzeros.n_elem);
       
       if (newcount > 0) {
         for (int j = 0; j < newcount; j++) {

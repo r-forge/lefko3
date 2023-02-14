@@ -1827,8 +1827,8 @@ of various sorts, including even cyclical and unequally weighted
 stochastic projections.
 </p>
 </div>
-<div id="density-independent-vs.-density-dependence-analysis" class="section level4">
-<h4>Density independent vs. density dependence analysis</h4>
+<div id="density-independent-vs.-density-dependent-analysis" class="section level4">
+<h4>Density independent vs. density dependent analysis</h4>
 <p style="text-indent: 20px">
 Package <code>lefko3</code> also provides the ability to conduct density
 dependent projections. Readers of the density dependence literature will
@@ -2242,7 +2242,12 @@ or more treatments on the log stochastic growth rate, <span class="math inline">
 treatment and reference here are not single matrices, but sets of
 matrices that vary randomly across time. Here, we assume that <span class="math inline">\(log\lambda^{(m)}\)</span> and <span class="math inline">\(log\lambda^{(R)}\)</span> are the log stochastic
 growth rates of the treatment MPM and the reference MPM, respectively.
-Package <code>lefko3</code> currently implements the <span class="citation">Davison et al. (2010)</span> simulated sLTRE, where:
+</p>
+<p style="text-indent: 20px">
+Package <code>lefko3</code> currently implements two kinds of sLTRE. The
+first, which we refer to in the documentation as ‘sLTRE’, is the
+simulated sLTRE described in <span class="citation">Davison et al.
+(2010)</span>, where:
 </p>
 <p><span class="math display">\[\begin{equation}
 \tag{30}
@@ -2257,8 +2262,17 @@ and standard deviation, respectively, of the element at row <span class="math in
 <code>ltre3()</code> handles all of these calculations.</p>
 <p style="text-indent: 20px">
 <span class="citation">Davison et al. (2013)</span> presented an
-analytical solution to the sLTRE, and we are currently working to
-implement this version in <code>lefko3</code> as well.
+analytical solution to the sLTRE refered to as the small-noise
+approximation LTRE, or ‘SNA-LTRE’. Package <code>lefko3</code> also
+implements this form. Here, the difference in the stochastic growth rate
+<span class="math inline">\(\text{log}\lambda_S\)</span> between the
+treatment group and the reference group is decomposed into contributions
+from differences in mean elements, in element elasticities, in element
+coefficients of variation, and in element correlations. This analysis
+will likely appeal most to those seeking to conduct stochastic LTREs,
+and we urge users to read <span class="citation">Davison et al.
+(2013)</span> and the LTRE chapter in <em>lefko3: a gentle
+introduction</em> for a better understanding of this analysis.
 </p>
 </div>
 <div id="further-analyses" class="section level4">

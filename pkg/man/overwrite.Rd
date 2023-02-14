@@ -88,6 +88,8 @@ transitions. This function is now deprecated in favor of function
 }
 \section{Notes}{
 
+This function is deprecated. Please use \code{\link{supplemental}()}.
+
 Entries in \code{stage3}, \code{stage2}, and \code{stage1} can include
 abbreviations for groups of stages. Use \code{rep} if all reproductive stages
 are to be used, \code{nrep} if all mature but non-reproductive stages are to

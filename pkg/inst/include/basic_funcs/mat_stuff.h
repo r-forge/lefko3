@@ -650,7 +650,7 @@ namespace LefkoMats {
           umatvec.col(patchchoice) = umatvec.col(patchchoice) +
             (Umats_invaded.elem(allindices) / yearsinpatch(i));
           fmatvec.col(patchchoice) = fmatvec.col(patchchoice) +
-            (Umats_invaded.elem(allindices) / yearsinpatch(i));
+            (Fmats_invaded.elem(allindices) / yearsinpatch(i));
         } else {
           arma::sp_mat Umats_invaded = as<arma::sp_mat>(Umats(i));
           arma::sp_mat Fmats_invaded = as<arma::sp_mat>(Fmats(i));
@@ -666,7 +666,7 @@ namespace LefkoMats {
           umatvec.col(patchchoice) = umatvec.col(patchchoice) +
             (Umats_invaded_allindices / yearsinpatch(i));
           fmatvec.col(patchchoice) = fmatvec.col(patchchoice) +
-            (Umats_invaded_allindices / yearsinpatch(i));
+            (Fmats_invaded_allindices / yearsinpatch(i));
         }
         
         if (popmats) {
@@ -683,7 +683,7 @@ namespace LefkoMats {
             umatvec.col(popchoice) = umatvec.col(popchoice) +
               (Umats_invaded.elem(allindices) / (yearsinpatch(i) * patchesinpop(i)));
             fmatvec.col(popchoice) = fmatvec.col(popchoice) +
-              (Umats_invaded.elem(allindices) / (yearsinpatch(i) * patchesinpop(i)));
+              (Fmats_invaded.elem(allindices) / (yearsinpatch(i) * patchesinpop(i)));
           } else {
             arma::sp_mat Umats_invaded = as<arma::sp_mat>(Umats(i));
             arma::sp_mat Fmats_invaded = as<arma::sp_mat>(Fmats(i));
@@ -699,7 +699,7 @@ namespace LefkoMats {
             umatvec.col(popchoice) = umatvec.col(popchoice) +
               (Umats_invaded_allindices / (yearsinpatch(i) * patchesinpop(i)));
             fmatvec.col(popchoice) = fmatvec.col(popchoice) +
-              (Umats_invaded_allindices / (yearsinpatch(i) * patchesinpop(i)));
+              (Fmats_invaded_allindices / (yearsinpatch(i) * patchesinpop(i)));
           }
         }
       }

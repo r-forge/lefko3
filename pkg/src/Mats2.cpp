@@ -78,7 +78,7 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
   arma::vec binsizecwidth = as<arma::vec>(StageFrame["sizebinc_width"]);
   
   // This section determines the length of the matrix map data frame
-  int nostages = newstageid.n_elem;
+  int nostages = static_cast<int>(newstageid.n_elem);
   int nostages_nounborn = nostages;
   int totallength {0};
   if (format == 2)  nostages = nostages + 1;
@@ -266,7 +266,7 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
     
     new_stageframe.attr("names") = sfnamevec;
     new_stageframe.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER,
-      newstageidvec.n_elem);
+      static_cast<int>(newstageidvec.n_elem));
     new_stageframe.attr("class") = "data.frame";
     
     StageFrame = new_stageframe;
@@ -640,7 +640,7 @@ Rcpp::List simplepizzle(DataFrame StageFrame, int format) {
     } // time1 loop 
   }
   
-  int stage3_length = stage3.n_elem;
+  int stage3_length = static_cast<int>(stage3.n_elem);
   
   Rcpp::List output_longlist(63);
   
@@ -982,8 +982,8 @@ Rcpp::List hist_null (RObject mpm, int format = 1, bool err_check = false) {
     
     arma::uvec found_U_uvec = find(current_Umat);
     arma::uvec found_F_uvec = find(current_Fmat);
-    int found_U = found_U_uvec.n_elem;
-    int found_F = found_F_uvec.n_elem;
+    int found_U = static_cast<int>(found_U_uvec.n_elem);
+    int found_F = static_cast<int>(found_F_uvec.n_elem);
     
     tot_U_elems += found_U;
     tot_F_elems += found_F;

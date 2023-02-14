@@ -139,10 +139,7 @@ summary.lefkoCondMat <- function(object, ...) {
 
 #' Create Matrix Image
 #' 
-#' Function \code{image3()} is a generic function that creates matrix plots. It
-#' acts as a wrapper for the \code{\link[SparseM]{image}()} function in package
-#' \code{SparseM}, conducting all necessary conversions and automating image
-#' production across all or just specific matrices.
+#' Function \code{image3()} is a generic function that creates matrix plots.
 #' 
 #' @name image3
 #' 
@@ -206,10 +203,7 @@ image3 <- function(mats, ...) UseMethod("image3")
 #' Create Matrix Image(s) for lefkoMat Object
 #' 
 #' Function \code{image3.lefkoMat} plots matrix images for matrices supplied
-#' within \code{lefkoMat} objects. This function operates as a wrapper for the
-#' \code{\link[SparseM]{image}()} function in package \code{SparseM}, conducting
-#' all necessary conversions and automating image production across all or just
-#' specific matrices.
+#' within \code{lefkoMat} objects.
 #' 
 #' @name image3.lefkoMat
 #' 
@@ -301,16 +295,20 @@ image3.lefkoMat <- function(mats, used = "all", type = "A", ...) {
     chosen_list <- mats$A[chosen_mat]
   }
   
-  lapply(chosen_list, function(X) {SparseM::image(SparseM::as.matrix.csr(X),
-    col =c("white", "red"))})
+  if (is(chosen_list[[1]], "dgCMatrix")) {
+    lapply(chosen_list, function(X) {Matrix::image(X, xlab = "", ylab = "", 
+      sub = "", col.regions = c("white", "red"), lwd = 0,
+      at = c(0, 0.0000000000001, Inf), drop.unused.levels = FALSE)})
+  } else {
+    lapply(chosen_list, function(X) {Matrix::image(Matrix::Matrix(X, sparse = TRUE),
+      xlab = "", ylab = "", sub = "", col.regions = c("white", "red"), lwd = 0,
+      at = c(0, 0.0000000000001, Inf), drop.unused.levels = FALSE)})
+  }
 }
 
 #' Create a Matrix Image for a Single Matrix
 #' 
-#' Function \code{image3.matrix} plots a matrix image for a single matrix. This
-#' function operates as a wrapper for the \code{\link[SparseM]{image}()}
-#' function in package \code{SparseM}, conducting all necessary conversions and
-#' automating image production across all or just specific matrices.
+#' Function \code{image3.matrix} plots a matrix image for a single matrix.
 #' 
 #' @name image3.matrix
 #' 
@@ -359,23 +357,86 @@ image3.lefkoMat <- function(mats, used = "all", type = "A", ...) {
 #' 
 #' ehrlen3 <- rlefko3(data = lathvert, stageframe = lathframe, year = "all", 
 #'   stages = c("stage3", "stage2", "stage1"), supplement = lathsupp3,
-#'   yearcol = "year2", indivcol = "individ")
+#'   yearcol = "year2", indivcol = "individ", sparse_output = FALSE)
 #' 
 #' image3(ehrlen3$U[[1]])
 #' 
 #' @export
 image3.matrix <- function(mats, ...) {
   
-  SparseM::image(SparseM::as.matrix.csr(mats), col =c("white", "red"))
+  Matrix::image(Matrix::Matrix(mats, sparse = TRUE), xlab = "", ylab = "",
+    sub = "", col.regions = c("white", "red"), lwd = 0,
+    at = c(0, 0.0000000000001, Inf), drop.unused.levels = FALSE)
+}
+
+#' Create a Matrix Image for a Single Sparse Matrix
+#' 
+#' Function \code{image3.dgCMatrix} plots a matrix image for a single sparse
+#' matrix.
+#' 
+#' @name image3.dgCMatrix
+#' 
+#' @param mats A \code{matrix} class object.
+#' @param ... Other parameters.
+#' 
+#' @return Plots a matrix image, or series of matrix images, denoting non-zero
+#' elements as red space and zero elements as white space.
+#' 
+#' @examples 
+#' # Lathyrus example
+#' data(lathyrus)
+#' 
+#' sizevector <- c(0, 100, 13, 127, 3730, 3800, 0)
+#' stagevector <- c("Sd", "Sdl", "VSm", "Sm", "VLa", "Flo", "Dorm")
+#' repvector <- c(0, 0, 0, 0, 0, 1, 0)
+#' obsvector <- c(0, 1, 1, 1, 1, 1, 0)
+#' matvector <- c(0, 0, 1, 1, 1, 1, 1)
+#' immvector <- c(1, 1, 0, 0, 0, 0, 0)
+#' propvector <- c(1, 0, 0, 0, 0, 0, 0)
+#' indataset <- c(0, 1, 1, 1, 1, 1, 1)
+#' binvec <- c(0, 100, 11, 103, 3500, 3800, 0.5)
+#' 
+#' lathframe <- sf_create(sizes = sizevector, stagenames = stagevector,
+#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
+#'   immstatus = immvector, indataset = indataset, binhalfwidth = binvec,
+#'   propstatus = propvector)
+#' 
+#' lathvert <- verticalize3(lathyrus, noyears = 4, firstyear = 1988,
+#'   patchidcol = "SUBPLOT", individcol = "GENET", blocksize = 9,
+#'   juvcol = "Seedling1988", sizeacol = "Volume88", repstracol = "FCODE88",
+#'   fecacol = "Intactseed88", deadacol = "Dead1988",
+#'   nonobsacol = "Dormant1988", stageassign = lathframe, stagesize = "sizea",
+#'   censorcol = "Missing1988", censorkeep = NA, censor = TRUE)
+#' 
+#' lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "Sd", "Sdl", "mat"),
+#'   stage2 = c("Sd", "Sd", "Sd", "Sd", "rep", "rep", "Sdl"),
+#'   stage1 = c("Sd", "rep", "Sd", "rep", "npr", "npr", "Sd"),
+#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "mat"),
+#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "Sdl"),
+#'   eststage1 = c(NA, NA, NA, NA, NA, NA, "NotAlive"),
+#'   givenrate = c(0.345, 0.345, 0.054, 0.054, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, 0.345, 0.054, NA),
+#'   type = c(1, 1, 1, 1, 3, 3, 1), type_t12 = c(1, 2, 1, 2, 1, 1, 1),
+#'   stageframe = lathframe, historical = TRUE)
+#' 
+#' ehrlen3 <- rlefko3(data = lathvert, stageframe = lathframe, year = "all", 
+#'   stages = c("stage3", "stage2", "stage1"), supplement = lathsupp3,
+#'   yearcol = "year2", indivcol = "individ", sparse_output = TRUE)
+#' 
+#' image3(ehrlen3$U[[1]])
+#' 
+#' @export
+image3.dgCMatrix <- function(mats, ...) {
+  
+  Matrix::image(mats, xlab = "", ylab = "", sub = "",
+    col.regions = c("white", "red"), lwd = 0, at = c(0, 0.0000000000001, Inf),
+    drop.unused.levels = FALSE)
 }
 
 #' Create Matrix Images for Matrices in a List
 #' 
-#' Function \code{image3.matrix} plots matrix images for matrices contained in a
-#' list of matrices. This function operates as a wrapper for the
-#' \code{\link[SparseM]{image}()} function in package \code{SparseM},
-#' conducting all necessary conversions and automating image production across
-#' all or just specific matrices.
+#' Function \code{image3.list} plots matrix images for matrices contained in a
+#' list of matrices.
 #' 
 #' @name image3.list
 #' 
@@ -447,22 +508,24 @@ image3.list <- function(mats, used = "all", ...) {
   
   chosen_list <- mats[chosen_mat]
   
-  lapply(chosen_list, function(X) {
-    if (!is.matrix(X)) {
-      stop("Chosen elements include non-matrix objects. Please choose only list elements containing matrix objects.",
-        call. = FALSE)
-    }
-    SparseM::image(SparseM::as.matrix.csr(X), col =c("white", "red"))}
-  )
+  if (is(chosen_list[[1]], "dgCMatrix")) {
+    lapply(chosen_list, function(X) {Matrix::image(X, xlab = "", ylab = "", 
+      sub = "", col.regions = c("white", "red"), lwd = 0,
+      at = c(0, 0.0000000000001, Inf), drop.unused.levels = FALSE)})
+  } else if (is.matrix(chosen_list[[1]])) {
+    lapply(chosen_list, function(X) {Matrix::image(Matrix::Matrix(X, sparse = TRUE),
+      xlab = "", ylab = "", sub = "", col.regions = c("white", "red"), lwd = 0,
+      at = c(0, 0.0000000000001, Inf), drop.unused.levels = FALSE)})
+  } else {
+    stop("Chosen elements include non-matrix objects. Please choose only list
+      elements containing matrix objects.", call. = FALSE)
+  }
 }
 
 #' Create Matrix Image(s) for lefkoSens Object
 #' 
 #' Function \code{image3.lefkoSens} plots matrix images for sensitivity matrices
-#' supplied within \code{lefkoSens} objects. This function operates as a wrapper
-#' the \code{\link[SparseM]{image}()} function in package \code{SparseM},
-#' conducting all necessary conversions and automating image production across
-#' all or just specific matrices.
+#' supplied within \code{lefkoSens} objects.
 #' 
 #' @name image3.lefkoSens
 #' 
@@ -570,17 +633,21 @@ image3.lefkoSens <- function(mats, used = "all", type = "a", ...) {
     }
   }
   
-  lapply(chosen_list, function(X) {SparseM::image(SparseM::as.matrix.csr(X),
-    col =c("white", "red"))})
+  if (is(chosen_list[[1]], "dgCMatrix")) {
+    lapply(chosen_list, function(X) {Matrix::image(X, xlab = "", ylab = "", 
+      sub = "", col.regions = c("white", "red"), lwd = 0,
+      at = c(0, 0.0000000000001, Inf), drop.unused.levels = FALSE)})
+  } else {
+    lapply(chosen_list, function(X) {Matrix::image(Matrix::Matrix(X, sparse = TRUE),
+      xlab = "", ylab = "", sub = "", col.regions = c("white", "red"), lwd = 0,
+      at = c(0, 0.0000000000001, Inf), drop.unused.levels = FALSE)})
+  }
 }
 
 #' Create Matrix Image(s) for lefkoElas Object
 #' 
 #' Function \code{image3.lefkoElas} plots matrix images for elasticity matrices
-#' supplied within \code{lefkoElas} objects. This function operates as a wrapper
-#' the \code{\link[SparseM]{image}()} function in package \code{SparseM},
-#' conducting all necessary conversions and automating image production across
-#' all or just specific matrices.
+#' supplied within \code{lefkoElas} objects.
 #' 
 #' @name image3.lefkoElas
 #' 
@@ -688,8 +755,15 @@ image3.lefkoElas <- function(mats, used = "all", type = "a", ...) {
     }
   }
   
-  lapply(chosen_list, function(X) {SparseM::image(SparseM::as.matrix.csr(X),
-    col =c("white", "red"))})
+  if (is(chosen_list[[1]], "dgCMatrix")) {
+    lapply(chosen_list, function(X) {Matrix::image(X, xlab = "", ylab = "", 
+      sub = "", col.regions = c("white", "red"), lwd = 0,
+      at = c(0, 0.0000000000001, Inf), drop.unused.levels = FALSE)})
+  } else {
+    lapply(chosen_list, function(X) {Matrix::image(Matrix::Matrix(X, sparse = TRUE),
+      xlab = "", ylab = "", sub = "", col.regions = c("white", "red"), lwd = 0,
+      at = c(0, 0.0000000000001, Inf), drop.unused.levels = FALSE)})
+  }
 }
 
 #' Calculate Difference Matrices Between lefkoMat Objects of Equal Dimensions

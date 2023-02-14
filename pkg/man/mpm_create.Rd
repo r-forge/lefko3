@@ -391,6 +391,9 @@ maturity.}
 \item{allstages}{An optional element only added if \code{err_check = TRUE}.
 This is a data frame giving the values used to determine each matrix element
 capable of being estimated.}
+\item{data}{An optional element only added if \code{err_check = TRUE} and a
+raw MPM is requested. This consists of the original dataset as edited by
+this function for indexing purposes.}
 }
 \description{
 Function \code{mpm_create()} is the core workhorse function that creates

@@ -126,8 +126,9 @@ fecundity, and that offspring production will yield the first stage noted as
 propagule or immature. To prevent this behavior, input just \code{0}, which
 will result in fecundity being estimated only for transitions noted in
 \code{supplement} above. May be the dimensions of either a historical or an
-ahistorical matrix. If the latter, then all stages will be used in occasion
-\emph{t}-1 for each suggested ahistorical transition.}
+ahistorical matrix. If the former, then the fecundity estimation of this
+function may be unpredictable. If the latter, then all stages will be used in
+occasion \emph{t}-1 for each suggested ahistorical transition.}
 
 \item{overwrite}{An optional data frame developed with the
 \code{\link{overwrite}()} function describing transitions to be overwritten

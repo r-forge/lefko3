@@ -270,7 +270,7 @@ Rcpp::List sf_create (NumericVector sizes,
     "sizebinc_min", "sizebinc_max", "sizebinc_center", "sizebinc_width",
     "group", "comments"};
   
-  int matsize = sizes.size(); // Core vector size
+  int matsize = static_cast<int>(sizes.size()); // Core vector size
   int used_sizes {1};
   arma::uvec ipm_calls_a (matsize, fill::zeros);
   arma::uvec ipm_calls_b (matsize, fill::zeros);
@@ -320,7 +320,7 @@ Rcpp::List sf_create (NumericVector sizes,
       std::transform(stagenames_thru.begin(), stagenames_thru.end(), st_t.begin(), 
         make_string_transformer(tolower));
       
-      for (int i = 0; i < stagenames_thru.size(); i++) {
+      for (int i = 0; i < static_cast<int>(stagenames_thru.size()); i++) {
         String check_elem = trimws(st_t(i));
         
         if (check_elem == "ipm" || check_elem == "ipma" || check_elem == "ipm_a" ||
@@ -700,7 +700,7 @@ Rcpp::List sf_create (NumericVector sizes,
     arma::uvec check_elems = find(ipm_calls_a); // This vector points out which rows have ipm designations
     
     arma::ivec called_pair_check = pair_check.elem(check_elems); // 
-    int called_pair_check_length = called_pair_check.n_elem;
+    int called_pair_check_length = static_cast<int>(called_pair_check.n_elem);
     
     for (int i = 0; i < called_pair_check_length; i++) {
       int trial_1 = called_pair_check(i);
@@ -761,7 +761,7 @@ Rcpp::List sf_create (NumericVector sizes,
           entries_to_delete(0) = check_elems(i);
           entries_to_delete(1) = check_elems(main_index_1);
         } else {
-          int entries_del_old_size = entries_to_delete.size();
+          int entries_del_old_size = static_cast<int>(entries_to_delete.size());
           entries_to_delete.resize(entries_del_old_size + 2);
           
           entries_to_delete(entries_del_old_size) = check_elems(i);
@@ -863,7 +863,7 @@ Rcpp::List sf_create (NumericVector sizes,
     arma::uvec check_elems = find(ipm_calls_b); // This vector points out which rows have ipm designations
     
     arma::ivec called_pair_check = pair_check.elem(check_elems); // 
-    int called_pair_check_length = called_pair_check.n_elem;
+    int called_pair_check_length = static_cast<int>(called_pair_check.n_elem);
     
     for (int i = 0; i < called_pair_check_length; i++) {
       int trial_1 = called_pair_check(i);
@@ -925,7 +925,7 @@ Rcpp::List sf_create (NumericVector sizes,
           entries_to_delete(0) = check_elems(i);
           entries_to_delete(1) = check_elems(main_index_1);
         } else {
-          int entries_del_old_size = entries_to_delete.size();
+          int entries_del_old_size = static_cast<int>(entries_to_delete.size());
           entries_to_delete.resize(entries_del_old_size + 2);
           
           entries_to_delete(entries_del_old_size) = check_elems(i);
@@ -1027,7 +1027,7 @@ Rcpp::List sf_create (NumericVector sizes,
     arma::uvec check_elems = find(ipm_calls_c); // This vector points out which rows have ipm designations
     
     arma::ivec called_pair_check = pair_check.elem(check_elems); // 
-    int called_pair_check_length = called_pair_check.n_elem;
+    int called_pair_check_length = static_cast<int>(called_pair_check.n_elem);
     
     for (int i = 0; i < called_pair_check_length; i++) {
       int trial_1 = called_pair_check(i);
@@ -1089,7 +1089,7 @@ Rcpp::List sf_create (NumericVector sizes,
           entries_to_delete(0) = check_elems(i);
           entries_to_delete(1) = check_elems(main_index_1);
         } else {
-          int entries_del_old_size = entries_to_delete.size();
+          int entries_del_old_size = static_cast<int>(entries_to_delete.size());
           entries_to_delete.resize(entries_del_old_size + 2);
           
           entries_to_delete(entries_del_old_size) = check_elems(i);
@@ -1199,7 +1199,7 @@ Rcpp::List sf_create (NumericVector sizes,
     arma::uvec check_elems = find(ipm_calls_ab); // This vector points out which rows have ipm designations
     
     arma::ivec called_pair_check = pair_check.elem(check_elems); // 
-    int called_pair_check_length = called_pair_check.n_elem;
+    int called_pair_check_length = static_cast<int>(called_pair_check.n_elem);
     
     for (int i = 0; i < called_pair_check_length; i++) {
       int trial_1 = called_pair_check(i);
@@ -1272,7 +1272,7 @@ Rcpp::List sf_create (NumericVector sizes,
           entries_to_delete(0) = check_elems(i);
           entries_to_delete(1) = check_elems(main_index_1);
         } else {
-          int entries_del_old_size = entries_to_delete.size();
+          int entries_del_old_size = static_cast<int>(entries_to_delete.size());
           entries_to_delete.resize(entries_del_old_size + 2);
           
           entries_to_delete(entries_del_old_size) = check_elems(i);
@@ -1390,7 +1390,7 @@ Rcpp::List sf_create (NumericVector sizes,
     arma::uvec check_elems = find(ipm_calls_ac); // This vector points out which rows have ipm designations
     
     arma::ivec called_pair_check = pair_check.elem(check_elems); // 
-    int called_pair_check_length = called_pair_check.n_elem;
+    int called_pair_check_length = static_cast<int>(called_pair_check.n_elem);
     
     for (int i = 0; i < called_pair_check_length; i++) {
       int trial_1 = called_pair_check(i);
@@ -1462,7 +1462,7 @@ Rcpp::List sf_create (NumericVector sizes,
           entries_to_delete(0) = check_elems(i);
           entries_to_delete(1) = check_elems(main_index_1);
         } else {
-          int entries_del_old_size = entries_to_delete.size();
+          int entries_del_old_size = static_cast<int>(entries_to_delete.size());
           entries_to_delete.resize(entries_del_old_size + 2);
           
           entries_to_delete(entries_del_old_size) = check_elems(i);
@@ -1580,7 +1580,7 @@ Rcpp::List sf_create (NumericVector sizes,
     arma::uvec check_elems = find(ipm_calls_bc); // This vector points out which rows have ipm designations
     
     arma::ivec called_pair_check = pair_check.elem(check_elems); // 
-    int called_pair_check_length = called_pair_check.n_elem;
+    int called_pair_check_length = static_cast<int>(called_pair_check.n_elem);
     
     for (int i = 0; i < called_pair_check_length; i++) {
       int trial_1 = called_pair_check(i);
@@ -1652,7 +1652,7 @@ Rcpp::List sf_create (NumericVector sizes,
           entries_to_delete(0) = check_elems(i);
           entries_to_delete(1) = check_elems(main_index_1);
         } else {
-          int entries_del_old_size = entries_to_delete.size();
+          int entries_del_old_size = static_cast<int>(entries_to_delete.size());
           entries_to_delete.resize(entries_del_old_size + 2);
           
           entries_to_delete(entries_del_old_size) = check_elems(i);
@@ -1778,7 +1778,7 @@ Rcpp::List sf_create (NumericVector sizes,
     arma::uvec check_elems = find(ipm_calls_abc); // This vector points out which rows have ipm designations
     
     arma::ivec called_pair_check = pair_check.elem(check_elems); // 
-    int called_pair_check_length = called_pair_check.n_elem;
+    int called_pair_check_length = static_cast<int>(called_pair_check.n_elem);
     
     for (int i = 0; i < called_pair_check_length; i++) {
       int trial_1 = called_pair_check(i);
@@ -1861,7 +1861,7 @@ Rcpp::List sf_create (NumericVector sizes,
           entries_to_delete(0) = check_elems(i);
           entries_to_delete(1) = check_elems(main_index_1);
         } else {
-          int entries_del_old_size = entries_to_delete.size();
+          int entries_del_old_size = static_cast<int>(entries_to_delete.size());
           entries_to_delete.resize(entries_del_old_size + 2);
           
           entries_to_delete(entries_del_old_size) = check_elems(i);
@@ -1962,7 +1962,7 @@ Rcpp::List sf_create (NumericVector sizes,
   
   // Delete unneeded elements - run for loop backwards to delete elements properly
   arma::uvec unique_delete = unique(entries_to_delete);
-  int no_unique_delete = unique_delete.n_elem;
+  int no_unique_delete = static_cast<int>(unique_delete.n_elem);
   
   if (no_entries_to_delete > 0) {
     for (int i = 0; i < no_unique_delete; i++) {
@@ -1992,7 +1992,7 @@ Rcpp::List sf_create (NumericVector sizes,
   }
   
   // Post-IPM calculations
-  matsize = sizes.size(); // Redefined length
+  matsize = static_cast<int>(sizes.size()); // Redefined length
   int elems_to_grow = matsize - sizebin_min.length();
   NumericVector zeros_to_append (elems_to_grow, NA_REAL);
   
@@ -2511,7 +2511,7 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
   arma::ivec data_year2;
   if (years_supplied) data_year2 = as<arma::ivec>(data_[year2_num_]);
   
-  if (data_year2.n_elem != data_rows) {
+  if (static_cast<int>(data_year2.n_elem) != data_rows) {
     throw Rcpp::exception("Object year2 does not contain a valid variable.", false);
   }
   
@@ -2565,7 +2565,7 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
       // Rcout << "\n Length of data_stage3index: " << data_stage3index.n_elem << "\n";
       // Rcout << "First entry in data_stage3index: " << data_stage3index(0) << "\n";
       
-      if (data_stage3index.n_elem != data_rows) {
+      if (static_cast<int>(data_stage3index.n_elem) != data_rows) {
         throw Rcpp::exception("Object indices does not contain a valid variable for stage at time t+1.", false);
       }
     }
@@ -2575,7 +2575,7 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
       // Rcout << "First entry in data_stage2index: " << data_stage2index(0) << "\n";
       // Rcout << "\n Length of data_stage2index: " << data_stage2index.n_elem << "\n";
       
-      if (data_stage2index.n_elem != data_rows) {
+      if (static_cast<int>(data_stage2index.n_elem) != data_rows) {
         throw Rcpp::exception("Object indices does not contain a valid variable for stage at time t.", false);
       }
     }
@@ -2598,7 +2598,7 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
       if (indices3_supplied) {
         data_stage1index = as<arma::ivec>(data_[stage1index_]);
         
-        if (data_stage1index.n_elem != data_rows) {
+        if (static_cast<int>(data_stage1index.n_elem) != data_rows) {
           throw Rcpp::exception("Object indices does not contain a valid variable for stage at time t-1.", false);
         }
       }
@@ -2611,7 +2611,7 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
   
   // Now we develop vectors of all values
   arma::ivec all_year2 = unique(data_year2);
-  int year2_num = all_year2.n_elem;
+  int year2_num = static_cast<int>(all_year2.n_elem);
   int years_num = year2_num + 1;
   
   arma::ivec all_years (years_num);
@@ -2648,7 +2648,7 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
         all_stageindices = all_stage32indices;
       }
       
-      int s_length = all_stageindices.n_elem;
+      int s_length = static_cast<int>(all_stageindices.n_elem);
       // Rcout << "\n Length of all_stageindices: " << s_length << "\n";
       
       if (stages3_supplied && stages2_supplied) {
@@ -2677,8 +2677,8 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
         num_stages = all_stages.length();
         num_stages_t1a = all_stages.length();
       } else {
-        num_stages = all_stageindices.n_elem;
-        num_stages_t1a = all_stageindices.n_elem;
+        num_stages = static_cast<int>(all_stageindices.n_elem);
+        num_stages_t1a = static_cast<int>(all_stageindices.n_elem);
       }
     } else if (stages3_supplied && stages2_supplied) {
       all_stage3 = sort_unique(data_stage3);
@@ -3071,7 +3071,7 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
     
     // Now we'll find the frequencies of age-stage-year combos
     arma::uvec year_guys = find(data_year2 == new_year(i));
-    int year_guys_length = year_guys.n_elem;
+    int year_guys_length = static_cast<int>(year_guys.n_elem);
     
     if (check_stage && !check_age) {
       if (year_guys_length > 0) {
@@ -3095,7 +3095,7 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
         }
       } else {
         arma::uvec year_guys3 = find(data_year2 == new_year(i) - 1);
-        int year_guys_length3 = year_guys3.n_elem;
+        int year_guys_length3 = static_cast<int>(year_guys3.n_elem);
         
         for (int j = 0; j < year_guys_length3; j++) {
           if (stringcompare_hard(as<std::string>(data_stage3(year_guys3(j))), as<std::string>(new_stage2(i)))) {
@@ -3133,7 +3133,7 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
         }
       } else {
         arma::uvec year_guys3 = find(data_year2 == new_year(i) - 1);
-        int year_guys_length3 = year_guys3.n_elem;
+        int year_guys_length3 = static_cast<int>(year_guys3.n_elem);
         
         for (int j = 0; j < year_guys_length3; j++) {
           if (stringcompare_hard(as<std::string>(data_stage3(year_guys3(j))), as<std::string>(new_stage2(i)))) {
@@ -3160,7 +3160,7 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
         }
       } else {
         arma::uvec year_guys3 = find(data_year2 == new_year(i) - 1);
-        int year_guys_length3 = year_guys3.n_elem;
+        int year_guys_length3 = static_cast<int>(year_guys3.n_elem);
         
         for (int j = 0; j < year_guys_length3; j++) {
           if (data_agecol(year_guys3(j)) == new_age(i) - 1) {
@@ -3306,12 +3306,12 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
   arma::uvec indvec = as<arma::uvec>(stageframe["indataset"]);
   arma::ivec groupvec = as<arma::ivec>(stageframe["group"]);
   
-  int no_stages = indvec.n_elem;
+  int no_stages = static_cast<int>(indvec.n_elem);
   arma::ivec alive(no_stages, fill::ones);
 
   // Identify all groups in the stageframe
   arma::ivec all_groups = unique(groupvec);
-  int no_groups = all_groups.n_elem;
+  int no_groups = static_cast<int>(all_groups.n_elem);
   StringVector group_text(no_groups);
   
   for (int i = 0; i < no_groups; i++) {
@@ -3397,13 +3397,13 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
       std::string s2used = as<std::string>(stage2_di(i));
       std::string s1used = as<std::string>(stage1_di(i));
       
-      for (int k = 0; k < s3used.size(); k++) {
+      for (int k = 0; k < static_cast<int>(s3used.size()); k++) {
         s3used[k] = tolower(s3used[k]);
       }
-      for (int k = 0; k < s3used.size(); k++) {
+      for (int k = 0; k < static_cast<int>(s3used.size()); k++) {
         s2used[k] = tolower(s2used[k]);
       }
-      for (int k = 0; k < s3used.size(); k++) {
+      for (int k = 0; k < static_cast<int>(s3used.size()); k++) {
         s1used[k] = tolower(s1used[k]);
       }
       
@@ -3481,13 +3481,13 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
     std::string s2used = as<std::string>(stage2_di(i));
     std::string s1used = as<std::string>(stage1_di(i));
     
-    for (int j = 0; j < s3used.size(); j++) {
+    for (int j = 0; j < static_cast<int>(s3used.size()); j++) {
       s3used[j] = tolower(s3used[j]);
     }
-    for (int j = 0; j < s2used.size(); j++) {
+    for (int j = 0; j < static_cast<int>(s2used.size()); j++) {
       s2used[j] = tolower(s2used[j]);
     }
-    for (int j = 0; j < s1used.size(); j++) {
+    for (int j = 0; j < static_cast<int>(s1used.size()); j++) {
       s1used[j] = tolower(s1used[j]);
     }
     
@@ -3496,7 +3496,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
       if (agebystage) {
         int found_stages = 0;
         
-        for (int j = 0; j < prop_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(prop_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
               if (prop_stages(j) == agestages_stageid(k) - 1) {
@@ -3519,7 +3519,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         IntegerVector stageid3_vec(found_stages);
         int a3_counter = 0;
         
-        for (int j = 0; j < prop_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(prop_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
               if (prop_stages(j) == agestages_stageid(k) - 1) {
@@ -3548,14 +3548,14 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         stageid3_calls(i) = stageid3_vec;
         
       } else {
-        s3_calls(i) = prop_stages.n_elem;
+        s3_calls(i) = static_cast<int>(prop_stages.n_elem);
       }
       
     } else if (stringcompare_hard(s3used, "npr")) {
       if (agebystage) {
         int found_stages = 0;
         
-        for (int j = 0; j < prop0_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(prop0_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
               if (prop0_stages(j) == agestages_stageid(k) - 1) {
@@ -3578,7 +3578,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         IntegerVector stageid3_vec(found_stages);
         int a3_counter = 0;
         
-        for (int j = 0; j < prop0_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(prop0_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
               if (prop0_stages(j) == agestages_stageid(k) - 1) {
@@ -3607,14 +3607,14 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         stageid3_calls(i) = stageid3_vec;
         
       } else {
-         s3_calls(i) = prop0_stages.n_elem;
+         s3_calls(i) = static_cast<int>(prop0_stages.n_elem);
       }
       
     } else if (stringcompare_hard(s3used, "immat")) {
       if (agebystage) {
         int found_stages = 0;
         
-        for (int j = 0; j < imm_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(imm_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
               if (imm_stages(j) == agestages_stageid(k) - 1) {
@@ -3637,7 +3637,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         IntegerVector stageid3_vec(found_stages);
         int a3_counter = 0;
         
-        for (int j = 0; j < imm_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(imm_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
               if (imm_stages(j) == agestages_stageid(k) - 1) {
@@ -3666,14 +3666,14 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         stageid3_calls(i) = stageid3_vec;
         
       } else {
-        s3_calls(i) = imm_stages.n_elem;
+        s3_calls(i) = static_cast<int>(imm_stages.n_elem);
       }
       
     } else if (stringcompare_hard(s3used, "mat")) {
       if (agebystage) {
         int found_stages = 0;
         
-        for (int j = 0; j < mat_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(mat_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
               if (mat_stages(j) == agestages_stageid(k) - 1) {
@@ -3696,7 +3696,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         IntegerVector stageid3_vec(found_stages);
         int a3_counter = 0;
         
-        for (int j = 0; j < mat_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(mat_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
               if (mat_stages(j) == agestages_stageid(k) - 1) {
@@ -3725,14 +3725,14 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         stageid3_calls(i) = stageid3_vec;
         
       } else {
-         s3_calls(i) = mat_stages.n_elem;
+         s3_calls(i) = static_cast<int>(mat_stages.n_elem);
       }
       
     } else if (stringcompare_hard(s3used, "rep")) {
       if (agebystage) {
         int found_stages = 0;
         
-        for (int j = 0; j < rep_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(rep_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
               if (rep_stages(j) == agestages_stageid(k) - 1) {
@@ -3755,7 +3755,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         IntegerVector stageid3_vec(found_stages);
         int a3_counter = 0;
         
-        for (int j = 0; j < rep_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(rep_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
               if (rep_stages(j) == agestages_stageid(k) - 1) {
@@ -3784,14 +3784,14 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         stageid3_calls(i) = stageid3_vec;
         
       } else {
-        s3_calls(i) = rep_stages.n_elem;
+        s3_calls(i) = static_cast<int>(rep_stages.n_elem);
       }
       
     } else if (stringcompare_hard(s3used, "nrep")) {
       if (agebystage) {
         int found_stages = 0;
         
-        for (int j = 0; j < mat_rep0_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(mat_rep0_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
               if (mat_rep0_stages(j) == agestages_stageid(k) - 1) {
@@ -3814,7 +3814,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         IntegerVector stageid3_vec(found_stages);
         int a3_counter = 0;
         
-        for (int j = 0; j < mat_rep0_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(mat_rep0_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
               if (mat_rep0_stages(j) == agestages_stageid(k) - 1) {
@@ -3843,14 +3843,14 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         stageid3_calls(i) = stageid3_vec;
         
       } else {
-        s3_calls(i) = mat_rep0_stages.n_elem;
+        s3_calls(i) = static_cast<int>(mat_rep0_stages.n_elem);
       }
       
     } else if (stringcompare_hard(s3used, "obs")) {
       if (agebystage) {
         int found_stages = 0;
         
-        for (int j = 0; j < obs_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(obs_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
               if (obs_stages(j) == agestages_stageid(k) - 1) {
@@ -3873,7 +3873,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         IntegerVector stageid3_vec(found_stages);
         int a3_counter = 0;
         
-        for (int j = 0; j < obs_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(obs_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
               if (obs_stages(j) == agestages_stageid(k) - 1) {
@@ -3902,14 +3902,14 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         stageid3_calls(i) = stageid3_vec;
         
       } else {
-        s3_calls(i) = obs_stages.n_elem;
+        s3_calls(i) = static_cast<int>(obs_stages.n_elem);
       }
       
     } else if (stringcompare_hard(s3used, "nobs")) {
       if (agebystage) {
         int found_stages = 0;
         
-        for (int j = 0; j < obs0_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(obs0_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
               if (obs0_stages(j) == agestages_stageid(k) - 1) {
@@ -3932,7 +3932,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         IntegerVector stageid3_vec(found_stages);
         int a3_counter = 0;
         
-        for (int j = 0; j < obs0_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(obs0_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
               if (obs0_stages(j) == agestages_stageid(k) - 1) {
@@ -3961,14 +3961,14 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         stageid3_calls(i) = stageid3_vec;
         
       } else {
-        s3_calls(i) = obs0_stages.n_elem;
+        s3_calls(i) = static_cast<int>(obs0_stages.n_elem);
       }
       
     } else if (stringcompare_hard(s3used, "all")) {
       if (agebystage) {
         int found_stages = 0;
         
-        for (int j = 0; j < all_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(all_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
               if (all_stages(j) == agestages_stageid(k) - 1) {
@@ -3991,7 +3991,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         IntegerVector stageid3_vec(found_stages);
         int a3_counter = 0;
         
-        for (int j = 0; j < all_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(all_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
               if (all_stages(j) == agestages_stageid(k) - 1) {
@@ -4020,19 +4020,19 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         stageid3_calls(i) = stageid3_vec;
         
       } else {
-        s3_calls(i) = all_stages.n_elem;
+        s3_calls(i) = static_cast<int>(all_stages.n_elem);
       }
       
     } else {
       for (int j = 0; j < no_groups; j++) {
         if (stage3_di(i) == group_text(j)) {
           arma::uvec current_group = find(groupvec == j);
-          no_current_group = current_group.n_elem;
+          no_current_group = static_cast<int>(current_group.n_elem);
           
           if (agebystage) {
             int found_stages = 0;
             
-            for (int j = 0; j < current_group.n_elem; j++) {
+            for (int j = 0; j < static_cast<int>(current_group.n_elem); j++) {
               for (int k = 0; k < agestages_rows; k++) {
                 if (type_di(i) == 1) {
                   if (current_group(j) == agestages_stageid(k) - 1) {
@@ -4055,7 +4055,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
             IntegerVector stageid3_vec(found_stages);
             int a3_counter = 0;
             
-            for (int j = 0; j < current_group.n_elem; j++) {
+            for (int j = 0; j < static_cast<int>(current_group.n_elem); j++) {
               for (int k = 0; k < agestages_rows; k++) {
                 if (type_di(i) == 1) {
                   if (current_group(j) == agestages_stageid(k) - 1) {
@@ -4096,7 +4096,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
       if (agebystage) {
         int found_stages = 0;
         
-        for (int j = 0; j < prop_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(prop_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (prop_stages(j) == agestages_stageid(k) - 1) {
               if (IntegerVector::is_na(age2_di(i))) {
@@ -4113,7 +4113,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         IntegerVector stageid2_vec(found_stages);
         int a2_counter = 0;
         
-        for (int j = 0; j < prop_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(prop_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (prop_stages(j) == agestages_stageid(k) - 1) {
               if (IntegerVector::is_na(age2_di(i))) {
@@ -4132,14 +4132,14 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         stageid2_calls(i) = stageid2_vec;
         
       } else {
-        s2_calls(i) = prop_stages.n_elem;
+        s2_calls(i) = static_cast<int>(prop_stages.n_elem);
       }
       
     } else if (stringcompare_hard(s2used, "npr")) {
       if (agebystage) {
         int found_stages = 0;
         
-        for (int j = 0; j < prop0_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(prop0_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (prop0_stages(j) == agestages_stageid(k) - 1) {
               if (IntegerVector::is_na(age2_di(i))) {
@@ -4156,7 +4156,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         IntegerVector stageid2_vec(found_stages);
         int a2_counter = 0;
         
-        for (int j = 0; j < prop0_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(prop0_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (prop0_stages(j) == agestages_stageid(k) - 1) {
               if (IntegerVector::is_na(age2_di(i))) {
@@ -4175,14 +4175,14 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         stageid2_calls(i) = stageid2_vec;
         
       } else {
-        s2_calls(i) = prop0_stages.n_elem;
+        s2_calls(i) = static_cast<int>(prop0_stages.n_elem);
       }
       
     } else if (stringcompare_hard(s2used, "immat")) {
       if (agebystage) {
         int found_stages = 0;
         
-        for (int j = 0; j < imm_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(imm_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (imm_stages(j) == agestages_stageid(k) - 1) {
               if (IntegerVector::is_na(age2_di(i))) {
@@ -4199,7 +4199,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         IntegerVector stageid2_vec(found_stages);
         int a2_counter = 0;
         
-        for (int j = 0; j < imm_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(imm_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (imm_stages(j) == agestages_stageid(k) - 1) {
               if (IntegerVector::is_na(age2_di(i))) {
@@ -4218,14 +4218,14 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         stageid2_calls(i) = stageid2_vec;
         
       } else {
-        s2_calls(i) = imm_stages.n_elem;
+        s2_calls(i) = static_cast<int>(imm_stages.n_elem);
       }
       
     } else if (stringcompare_hard(s2used, "mat")) {
       if (agebystage) {
         int found_stages = 0;
         
-        for (int j = 0; j < mat_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(mat_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (mat_stages(j) == agestages_stageid(k) - 1) {
               if (IntegerVector::is_na(age2_di(i))) {
@@ -4242,7 +4242,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         IntegerVector stageid2_vec(found_stages);
         int a2_counter = 0;
         
-        for (int j = 0; j < mat_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(mat_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (mat_stages(j) == agestages_stageid(k) - 1) {
               if (IntegerVector::is_na(age2_di(i))) {
@@ -4261,14 +4261,14 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         stageid2_calls(i) = stageid2_vec;
         
       } else {
-        s2_calls(i) = mat_stages.n_elem;
+        s2_calls(i) = static_cast<int>(mat_stages.n_elem);
       }
       
     } else if (stringcompare_hard(s2used, "rep")) {
       if (agebystage) {
         int found_stages = 0;
         
-        for (int j = 0; j < rep_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(rep_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (rep_stages(j) == agestages_stageid(k) - 1) {
               if (IntegerVector::is_na(age2_di(i))) {
@@ -4285,7 +4285,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         IntegerVector stageid2_vec(found_stages);
         int a2_counter = 0;
         
-        for (int j = 0; j < rep_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(rep_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (rep_stages(j) == agestages_stageid(k) - 1) {
               if (IntegerVector::is_na(age2_di(i))) {
@@ -4304,14 +4304,14 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         stageid2_calls(i) = stageid2_vec;
         
       } else {
-        s2_calls(i) = rep_stages.n_elem;
+        s2_calls(i) = static_cast<int>(rep_stages.n_elem);
       }
       
     } else if (stringcompare_hard(s2used, "nrep")) {
       if (agebystage) {
         int found_stages = 0;
         
-        for (int j = 0; j < mat_rep0_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(mat_rep0_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (mat_rep0_stages(j) == agestages_stageid(k) - 1) {
               if (IntegerVector::is_na(age2_di(i))) {
@@ -4328,7 +4328,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         IntegerVector stageid2_vec(found_stages);
         int a2_counter = 0;
         
-        for (int j = 0; j < mat_rep0_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(mat_rep0_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (mat_rep0_stages(j) == agestages_stageid(k) - 1) {
               if (IntegerVector::is_na(age2_di(i))) {
@@ -4347,14 +4347,14 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         stageid2_calls(i) = stageid2_vec;
         
       } else {
-        s2_calls(i) = mat_rep0_stages.n_elem;
+        s2_calls(i) = static_cast<int>(mat_rep0_stages.n_elem);
       }
       
     } else if (stringcompare_hard(s2used, "obs")) {
       if (agebystage) {
         int found_stages = 0;
         
-        for (int j = 0; j < obs_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(obs_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (obs_stages(j) == agestages_stageid(k) - 1) {
               if (IntegerVector::is_na(age2_di(i))) {
@@ -4371,7 +4371,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         IntegerVector stageid2_vec(found_stages);
         int a2_counter = 0;
         
-        for (int j = 0; j < obs_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(obs_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (obs_stages(j) == agestages_stageid(k) - 1) {
               if (IntegerVector::is_na(age2_di(i))) {
@@ -4390,14 +4390,14 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         stageid2_calls(i) = stageid2_vec;
         
       } else {
-        s2_calls(i) = obs_stages.n_elem;
+        s2_calls(i) = static_cast<int>(obs_stages.n_elem);
       }
       
     } else if (stringcompare_hard(s2used, "nobs")) {
       if (agebystage) {
         int found_stages = 0;
         
-        for (int j = 0; j < obs0_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(obs0_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (obs0_stages(j) == agestages_stageid(k) - 1) {
               if (IntegerVector::is_na(age2_di(i))) {
@@ -4414,7 +4414,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         IntegerVector stageid2_vec(found_stages);
         int a2_counter = 0;
         
-        for (int j = 0; j < obs0_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(obs0_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (obs0_stages(j) == agestages_stageid(k) - 1) {
               if (IntegerVector::is_na(age2_di(i))) {
@@ -4433,14 +4433,14 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         stageid2_calls(i) = stageid2_vec;
         
       } else {
-        s2_calls(i) = obs0_stages.n_elem;
+        s2_calls(i) = static_cast<int>(obs0_stages.n_elem);
       }
       
     } else if (stringcompare_hard(s2used, "all")) {
       if (agebystage) {
         int found_stages = 0;
         
-        for (int j = 0; j < all_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(all_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (all_stages(j) == agestages_stageid(k) - 1) {
               if (IntegerVector::is_na(age2_di(i))) {
@@ -4457,7 +4457,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         IntegerVector stageid2_vec(found_stages);
         int a2_counter = 0;
         
-        for (int j = 0; j < all_stages.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(all_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (all_stages(j) == agestages_stageid(k) - 1) {
               if (IntegerVector::is_na(age2_di(i))) {
@@ -4476,18 +4476,18 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         stageid2_calls(i) = stageid2_vec;
         
       } else {
-        s2_calls(i) = all_stages.n_elem;
+        s2_calls(i) = static_cast<int>(all_stages.n_elem);
       }
     } else {
       for (int j = 0; j < no_groups; j++) {
         if (stage2_di(i) == group_text(j)) {
           arma::uvec current_group = find(groupvec == j);
-          no_current_group = current_group.n_elem;
+          no_current_group = static_cast<int>(current_group.n_elem);
           
           if (agebystage) {
             int found_stages = 0;
             
-            for (int j = 0; j < current_group.n_elem; j++) {
+            for (int j = 0; j < static_cast<int>(current_group.n_elem); j++) {
               for (int k = 0; k < agestages_rows; k++) {
                 if (current_group(j) == agestages_stageid(k) - 1) {
                   if (IntegerVector::is_na(age2_di(i))) {
@@ -4504,7 +4504,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
             IntegerVector stageid2_vec(found_stages);
             int a2_counter = 0;
             
-            for (int j = 0; j < current_group.n_elem; j++) {
+            for (int j = 0; j < static_cast<int>(current_group.n_elem); j++) {
               for (int k = 0; k < agestages_rows; k++) {
                 if (current_group(j) == agestages_stageid(k) - 1) {
                   if (IntegerVector::is_na(age2_di(i))) {
@@ -4532,30 +4532,30 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
     
     // Time t-1
     if (stringcompare_hard(s1used, "prop")) {
-      s1_calls(i) = prop_stages.n_elem;
+      s1_calls(i) = static_cast<int>(prop_stages.n_elem);
     } else if (stringcompare_hard(s1used, "npr")) {
-      s1_calls(i) = prop0_stages.n_elem;
+      s1_calls(i) = static_cast<int>(prop0_stages.n_elem);
     } else if (stringcompare_hard(s1used, "immat")) {
-      s1_calls(i) = imm_stages.n_elem;
+      s1_calls(i) = static_cast<int>(imm_stages.n_elem);
     } else if (stringcompare_hard(s1used, "mat")) {
-      s1_calls(i) = mat_stages.n_elem;
+      s1_calls(i) = static_cast<int>(mat_stages.n_elem);
     } else if (stringcompare_hard(s1used, "rep")) {
-      s1_calls(i) = rep_stages.n_elem;
+      s1_calls(i) = static_cast<int>(rep_stages.n_elem);
     } else if (stringcompare_hard(s1used, "nrep")) {
-      s1_calls(i) = mat_rep0_stages.n_elem;
+      s1_calls(i) = static_cast<int>(mat_rep0_stages.n_elem);
     } else if (stringcompare_hard(s1used, "obs")) {
-      s1_calls(i) = obs_stages.n_elem;
+      s1_calls(i) = static_cast<int>(obs_stages.n_elem);
     } else if (stringcompare_hard(s1used, "nobs")) {
-      s1_calls(i) = obs0_stages.n_elem;
+      s1_calls(i) = static_cast<int>(obs0_stages.n_elem);
     } else if (stringcompare_hard(s1used, "all")) {
-      s1_calls(i) = all_stages.n_elem;
+      s1_calls(i) = static_cast<int>(all_stages.n_elem);
     } else if (StringVector::is_na(stage1_di(i))) {
       s1_calls(i) = 1;
     } else {
       for (int j = 0; j < no_groups; j++) {
         if (stage1_di(i) == group_text(j)) {
           arma::uvec current_group = find(groupvec == j);
-          no_current_group = current_group.n_elem;
+          no_current_group = static_cast<int>(current_group.n_elem);
           
           s1_calls(i) = no_current_group;
         }
@@ -4610,13 +4610,13 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
     std::string s2used = as<std::string>(stage2_di(i));
     std::string s1used = as<std::string>(stage1_di(i));
     
-    for (int j = 0; j < s3used.size(); j++) {
+    for (int j = 0; j < static_cast<int>(s3used.size()); j++) {
       s3used[j] = tolower(s3used[j]);
     }
-    for (int j = 0; j < s2used.size(); j++) {
+    for (int j = 0; j < static_cast<int>(s2used.size()); j++) {
       s2used[j] = tolower(s2used[j]);
     }
-    for (int j = 0; j < s1used.size(); j++) {
+    for (int j = 0; j < static_cast<int>(s1used.size()); j++) {
       s1used[j] = tolower(s1used[j]);
     }
     
@@ -4783,7 +4783,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
                   
                   group_check = 1;
                   arma::uvec current_group = find(groupvec == m);
-                  int current_group_length = current_group.n_elem;
+                  int current_group_length = static_cast<int>(current_group.n_elem);
                   if (group_ratchet3 > (current_group_length - 1)) {
                     group_ratchet3 = 0;
                   }
@@ -4976,7 +4976,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
                   
                   group_check = 1;
                   arma::uvec current_group = find(groupvec == m);
-                  int current_group_length = current_group.n_elem;
+                  int current_group_length = static_cast<int>(current_group.n_elem);
                   if (group_ratchet2 > (current_group_length - 1)) {
                     group_ratchet2 = 0;
                   }
@@ -5029,7 +5029,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
                 
                 group_check = 1;
                 arma::uvec current_group = find(groupvec == m);
-                int current_group_length = current_group.n_elem;
+                int current_group_length = static_cast<int>(current_group.n_elem);
                 if (group_ratchet1 > (current_group_length - 1)) {
                   group_ratchet1 = 0;
                 }
@@ -5331,7 +5331,7 @@ DataFrame density_input(List mpm, RObject stage3, RObject stage2,
     
   } else if (is<IntegerVector>(stage3)) {
     arma::ivec stage3_ids = as<arma::ivec>(stage3);
-    int stage3_entries = stage3_ids.n_elem;
+    int stage3_entries = static_cast<int>(stage3_ids.n_elem);
     
     arma::uvec bad_lows = find(stage3_ids < 1);
     arma::uvec bad_highs = find(stage3_ids > no_stages);
@@ -5357,7 +5357,7 @@ DataFrame density_input(List mpm, RObject stage3, RObject stage2,
     
   } else if (is<IntegerVector>(stage2)) {
     arma::ivec stage2_ids = as<arma::ivec>(stage2);
-    int stage2_entries = stage2_ids.n_elem;
+    int stage2_entries = static_cast<int>(stage2_ids.n_elem);
     
     arma::uvec bad_lows = find(stage2_ids < 1);
     arma::uvec bad_highs = find(stage2_ids > no_stages);
@@ -5380,7 +5380,7 @@ DataFrame density_input(List mpm, RObject stage3, RObject stage2,
   if (stage1.isNotNull()) {
     if (is<IntegerVector>(stage1)) {
       arma::ivec stage1_ids = as<arma::ivec>(stage1);
-      int stage1_entries = stage1_ids.n_elem;
+      int stage1_entries = static_cast<int>(stage1_ids.n_elem);
       
       arma::uvec bad_lows = find(stage1_ids < 1);
       arma::uvec bad_highs = find(stage1_ids > no_stages);
@@ -5501,7 +5501,7 @@ DataFrame density_input(List mpm, RObject stage3, RObject stage2,
       
       for (int i = 0; i < style_elems; i++) {
         std::string ssv = as<std::string>(style_stringvec(i));
-        for (int j = 0; j < ssv.size(); j++) {
+        for (int j = 0; j < static_cast<int>(ssv.size()); j++) {
           ssv[j] = tolower(ssv[j]);
         }
         

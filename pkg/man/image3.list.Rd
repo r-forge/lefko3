@@ -20,11 +20,8 @@ Plots a matrix image, or series of matrix images, denoting non-zero
 elements as red space and zero elements as white space.
 }
 \description{
-Function \code{image3.matrix} plots matrix images for matrices contained in a
-list of matrices. This function operates as a wrapper for the
-\code{\link[SparseM]{image}()} function in package \code{SparseM},
-conducting all necessary conversions and automating image production across
-all or just specific matrices.
+Function \code{image3.list} plots matrix images for matrices contained in a
+list of matrices.
 }
 \examples{
 # Lathyrus example

@@ -6971,7 +6971,7 @@ namespace LefkoUtils {
       }
       
       // Fecundity calculation
-      if (indata2n(i) == 1 && fec_addedcoefs != 0.0) {
+      if (indata2n(i) == 1 && fec_addedcoefs != 0.0 && repentry(i) > 0) {
         if (fl2o(i) > 0.0 && ovgivenf(i) == -1.0) {
           
           if (!sparse) {

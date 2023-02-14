@@ -106,12 +106,20 @@ the same \code{mats} object (although such analysis is possible if these
 populations are designated as patches instead).
 
 If \code{force_sparse = "auto"}, the default, then sparse matrix encoding
-will be used if the size of the input matrices is at least 10 columns by 10
-rows and no more than 50\% of the elements in the first matrix are non-zero.
+will be used if the size of the input matrices is at least 50 columns by 50
+rows for deterministic and stochastic LTREs and 10 columns by 10 rows for
+small noise approximation LTREs, in all cases as long as 50\% of the elements
+in the first matrix are non-zero.
 
 Note that stochastic LTREs do not test for the impact of temporal change in
 vital rates. An MPM with a single population, a single patch, and only annual
 matrices will produce contributions of 0 to stochastic \eqn{\lambda}.
+
+Speed can sometimes be increased by shifting from automatic sparse matrix
+determination to forced dense or sparse matrix projection. This will most
+likely occur when matrices have between 10 and 300 rows and columns.
+Defaults work best when matrices are very small and dense, or very large and
+sparse.
 }
 
 \examples{

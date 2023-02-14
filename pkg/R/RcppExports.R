@@ -292,6 +292,28 @@
     .Call('_lefko3_hoffmannofstuttgart', PACKAGE = 'lefko3', mainmat, indices, ahstages, stagenames)
 }
 
+#' Core Engine for cond_hmpm()
+#' 
+#' Creates a list of conditional ahistorical matrices in the style noted in
+#' deVries and Caswell (2018).
+#' 
+#' @name .hoffmannofstuttgart_sp
+#' 
+#' @param mainmat Historical matrix in sparse format.
+#' @param indices Data frame including the stages at times \emph{t}-1,
+#' \emph{t}, and \emph{t}+1, asvwell as indices corresponding to elements in
+#' the main historical matrix andvthe conditional matrices to be produced.
+#' @param ahstages The number of stages in the stageframe.
+#' @param stageframe The original stageframe for the input matrices.
+#'
+#' @return A list of ahistorical matrices.
+#' 
+#' @keywords internal
+#' @noRd
+.hoffmannofstuttgart_sp <- function(mainmat, indices, ahstages, stagenames) {
+    .Call('_lefko3_hoffmannofstuttgart_sp', PACKAGE = 'lefko3', mainmat, indices, ahstages, stagenames)
+}
+
 #' Extract Conditional Ahistorical Matrices from Historical MPM
 #' 
 #' Function \code{cond_hmpm()} takes historical MPMs and decomposes them into 
@@ -1247,7 +1269,9 @@ NULL
 #' @return If \code{err_switch = FALSE}, then will return a list of three
 #' matrices, including the survival-transition (\code{U}) matrix, the fecundity
 #' matrix (\code{F}), and the sum (\code{A}) matrix, with the \code{A} matrix
-#' first. If \code{err_switch = TRUE}, then will also output two further
+#' first, followed by the \code{ahstages}, \code{agestages}, \code{hstages},
+#' and \code{labels} data frames, and the \code{matrixqc} and \code{dataqc}
+#' vectors. If \code{err_switch = TRUE}, then will also output four further
 #' elements: \code{probsrates_all} and \code{stage2fec_all}. The former is a
 #' matrix composed of the following vectors in order: \code{sge9index321},
 #' which gives the historical index number for each transition possible and
@@ -1269,7 +1293,8 @@ NULL
 #' but assuming a prior stage. Element \code{stage2fec_all} is a matrix
 #' composed of two vectors: \code{stage2fec} is the fecundity associated with
 #' each paired historical stage, and \code{stage2fecp} is the equivalent
-#' assuming a prior stage.
+#' assuming a prior stage. The final two elements are \code{dataindex321_prior}
+#' and the edited dataset.
 #' 
 #' @keywords internal
 #' @noRd
@@ -1292,7 +1317,7 @@ NULL
 #' \code{usedstage} columns.
 #' @param StageFrame The full stageframe for the analysis.
 #' @param err_switch A logical value. If set to \code{TRUE}, then will also
-#' output \code{probsrates} and \code{stage2fec}.
+#' output \code{probsrates}, \code{stage2fec}, and the edited dataset.
 #' @param loypop A string vector giving the order of populations in the list of
 #' years.
 #' @param loypatch A string vector giving the order of patches in the list of
@@ -1318,6 +1343,8 @@ NULL
 #' 
 #' @return In the standard output, a list of three lists, called \code{A},
 #' \code{U}, and \code{F}, each containing A, U, or F matrices, respectively.
+#' Further information on the output is provided in the documentation for
+#' \code{specialpatrolgroup()}.
 #' 
 #' @keywords internal
 #' @noRd
@@ -1362,7 +1389,8 @@ NULL
 #' 
 #' @return List of three matrices, including the survival-transition (\code{U})
 #' matrix, the fecundity matrix (\code{F}), and the sum (\code{A}) matrix, with
-#' the \code{A} matrix first.
+#' the \code{A} matrix first. Further information on outputs is provided in the
+#' documentation for \code{specialpatrolgroup()}.
 #' 
 #' @keywords internal
 #' @noRd
@@ -1415,6 +1443,8 @@ NULL
 #' 
 #' @return In the standard output, a list of three lists, called \code{A},
 #' \code{U}, and \code{F}, each containing A, U, or F matrices, respectively.
+#' Further information on outputs is provided in the documentation for
+#' \code{specialpatrolgroup()}.
 #' 
 #' @keywords internal
 #' @noRd
@@ -2021,7 +2051,7 @@ NULL
 #' @param sparse A text string indicating whether to use sparse matrix encoding
 #' (\code{"yes"}) or dense matrix encoding (\code{"no"}). Defaults to
 #' \code{"auto"}, in which case sparse matrix encoding is used with square
-#' matrices with at least 10 rows and no more than 50% of elements with values
+#' matrices with at least 50 rows and no more than 50\% of elements with values
 #' greater than zero. Can also be entered as a logical value if forced sparse
 #' (\code{TRUE}) or forced dense (\code{FALSE}) projection is desired.
 #' 
@@ -2111,8 +2141,9 @@ NULL
 #' 
 #' Speed can sometimes be increased by shifting from automatic sparse matrix
 #' determination to forced dense or sparse matrix projection. This will most
-#' likely occur when matrices have several hundred rows and columns. Defaults
-#' work best when matrices are very small and dense, or very large and sparse.
+#' likely occur when matrices have between 30 and 300 rows and columns.
+#' Defaults work best when matrices are very small and dense, or very large and
+#' sparse.
 #' 
 #' @seealso \code{\link{projection3}()}
 #' @seealso \code{\link{flefko3}()}
@@ -2478,6 +2509,9 @@ f_projection3 <- function(format, prebreeding = TRUE, start_age = NA_integer_, l
 #' \item{allstages}{An optional element only added if \code{err_check = TRUE}.
 #' This is a data frame giving the values used to determine each matrix element
 #' capable of being estimated.}
+#' \item{data}{An optional element only added if \code{err_check = TRUE} and a
+#' raw MPM is requested. This consists of the original dataset as edited by
+#' this function for indexing purposes.}
 #' 
 #' @section General Notes:
 #' This function automatically determines whether to create a raw or
@@ -3044,7 +3078,7 @@ mpm_create <- function(historical = FALSE, stage = TRUE, age = FALSE, devries = 
 #' (\code{"yes"}) or dense matrix encoding (\code{"no"}), if the
 #' \code{lefkoMat} object input as \code{mpm} is composed of standard matrices.
 #' Defaults to \code{"auto"}, in which case sparse matrix encoding is used with
-#' standard, square matrices with at least 10 rows and no more than 50% of
+#' standard, square matrices with at least 50 rows and no more than 50\% of
 #' elements with values greater than zero, or when input \code{lefkoMat}
 #' objects include matrices of class \code{dgCMatrix}.
 #' 
@@ -3137,6 +3171,12 @@ mpm_create <- function(historical = FALSE, stage = TRUE, age = FALSE, devries = 
 #' object with multiple patches should subset the MPM first to contain only
 #' the patch needed. This can be accomplished with the
 #' \code{\link{subset_lM}()} function.
+#' 
+#' Speed can sometimes be increased by shifting from automatic sparse matrix
+#' determination to forced dense or sparse matrix projection. This will most
+#' likely occur when matrices have between 30 and 300 rows and columns.
+#' Defaults work best when matrices are very small and dense, or very large and
+#' sparse.
 #' 
 #' @seealso \code{\link{start_input}()}
 #' @seealso \code{\link{density_input}()}
@@ -3262,7 +3302,7 @@ projection3 <- function(mpm, nreps = 1L, times = 10000L, historical = FALSE, sto
 #' @param force_sparse A text string indicating whether to force sparse matrix 
 #' encoding (\code{"yes"}) or not (\code{"no"}) if the MPM is composed of
 #' simple matrices. Defaults to \code{"auto"}, in which case sparse matrix
-#' encoding is used with simple square matrices with at least 20 rows and no
+#' encoding is used with simple square matrices with at least 50 rows and no
 #' more than 50\% of elements with values greater than zero.
 #' 
 #' @return A data frame with the following variables:
@@ -3287,6 +3327,12 @@ projection3 <- function(mpm, nreps = 1L, times = 10000L, historical = FALSE, sto
 #' Weightings given in \code{tweights} do not need to sum to 1. Final
 #' weightings used will be based on the proportion per element of the sum of
 #' elements in the user-supplied vector.
+#' 
+#' Speed can sometimes be increased by shifting from automatic sparse matrix
+#' determination to forced dense or sparse matrix projection. This will most
+#' likely occur when matrices have between 30 and 300 rows and columns.
+#' Defaults work best when matrices are very small and dense, or very large and
+#' sparse.
 #' 
 #' @examples
 #' data(cypdata)

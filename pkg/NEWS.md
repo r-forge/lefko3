@@ -21,8 +21,9 @@
   for sparse vs dense matrix encoding, allowing greater control over speed.
 * Core matrix functions now allow sparse matrix output.
 * Functions lmean(), lambda3(), slambda3(), stablestage3(), repvalue3(),
-  sensitivity3(), elasticity3(), ltre3(), projection3(), summary.lefkoElas(),
-  and summary.lefkoMat() can handle sparse matrix format MPMs.
+  sensitivity3(), elasticity3(), image3(), ltre3(), cond_hmpm(), cond_diff(),
+  projection3(), summary.lefkoElas(), and summary.lefkoMat() can handle sparse
+  matrix format MPMs.
 * Functions stablestage3.list() and repvalue3.list() have been added.
 
 ## USER-VISIBLE CHANGES
@@ -57,6 +58,7 @@
   matrix list inputs.
 * Function lambda3() now handles a variety of input scenarios for the 'sparse'
   argument.
+* Function overwrite() has been marked as deprecated.
 
 ## BUG FIXES
 
@@ -76,6 +78,8 @@
   object developed from a list of matrices.
 * Function sf_skeleton() added to create a basic, empty stageframe.
 * Fixed bug yielding incorrect fecundity when prebreeding in fleslie().
+* Eliminated bug causing rare glitches in fecunsdity estimation when stage order
+  is altered by MPM creation functions.
 
 # lefko3 5.5.0 (2022-09-14)
 
