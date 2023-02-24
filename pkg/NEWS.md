@@ -80,6 +80,8 @@
 * Fixed bug yielding incorrect fecundity when prebreeding in fleslie().
 * Eliminated bug causing rare glitches in fecunsdity estimation when stage order
   is altered by MPM creation functions.
+* Fixed issue causing fecundity estimation to ignore individuals older than max
+  age in function rleslie() under continue = TRUE.
 
 # lefko3 5.5.0 (2022-09-14)
 
