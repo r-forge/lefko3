@@ -3776,7 +3776,7 @@ summary.lefkoLTRE <- function(object, ...) {
     historical <- FALSE
   }
   
-  if (ltretype != 3) {
+  #if (ltretype != 3) {
     if (!historical) {
       if (!all(is.null(object$agestages))) {
         if (!all(is.na(object$agestages))) {
@@ -3806,7 +3806,7 @@ summary.lefkoLTRE <- function(object, ...) {
     } else {
       indices <- .bambi3(object$ahstages, object$hstages)
     }
-  }
+  #}
   
   used_iterations <- length(object$cont_mean)
   
@@ -3815,13 +3815,13 @@ summary.lefkoLTRE <- function(object, ...) {
   
   # Additional summaries for LTRE and sLTRE
   for (i in c(1:used_iterations)) {
-    if (ltretype != 3) {
-      if (!sparse_input) {
-        trialguy1 <- .demolition3(object$cont_mean[[i]], indices)
-      } else {
-        trialguy1 <- .demolition3sp(object$cont_mean[[i]], indices)
-      }
+    if (!sparse_input) {
+      trialguy1 <- .demolition3(object$cont_mean[[i]], indices)
+    } else {
+      trialguy1 <- .demolition3sp(object$cont_mean[[i]], indices)
+    }
       
+    #if (ltretype != 3) {
       if (ltretype == 2) {
         if (!sparse_input) {
           trialguy2 <- .demolition3(object$cont_sd[[i]], indices)
@@ -3840,7 +3840,7 @@ summary.lefkoLTRE <- function(object, ...) {
         names(ahist1)[3] <- "matrix1_pos"
         names(ahist1)[4] <- "matrix1_neg"
         
-        if (ltretype > 1) {
+        if (ltretype == 2) {
           hist2 <- trialguy2$hist
           ahist2 <- trialguy2$ahist
           if (historical) names(hist2)[2] <- "matrix1"
@@ -3872,7 +3872,7 @@ summary.lefkoLTRE <- function(object, ...) {
           names(ahist2)[(((i-1)*3)+4)] <- paste0("matrix", i, "_neg")
         }
       }
-    }
+    #}
   }
   
   output <- if (ltretype == 1) {
@@ -3881,7 +3881,7 @@ summary.lefkoLTRE <- function(object, ...) {
     list(overall = general_df, hist_mean = hist1, hist_sd = hist2,
       ahist_mean = ahist1, ahist_sd = ahist2)
   } else {
-    list(overall = general_df)
+    list(overall = general_df, hist_mean = hist1, ahist_mean = ahist1)
   }
   
   return (output)

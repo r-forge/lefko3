@@ -52,11 +52,9 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
   bool agemat = false, bool historical = false, int format = 1) {
   
   bool supp_provided = false;
-  bool over_provided = false;
   
   Rcpp::DataFrame supplement_true;
   arma::mat repmatrix_true;
-  int newsupp_rows {0};
   
   StringVector stagevec = as<StringVector>(stageframe["stage"]);
   NumericVector origsizevec = as<NumericVector>(stageframe["size"]);
@@ -98,7 +96,6 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
   NumericVector multiplier_supp;
   IntegerVector convtype_supp;
   IntegerVector convtype_t12_supp;
-  int supp_rows {0};
   
   int stageframe_length {static_cast<int>(repvec.n_elem)};
   arma::uvec repentryvec(stageframe_length, fill::zeros);
@@ -122,15 +119,8 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
     
     stage3_supp = supplement_true["stage3"];
     stage2_supp = supplement_true["stage2"];
-    stage1_supp = supplement_true["stage1"];
-    eststage3_supp = supplement_true["eststage3"];
-    eststage2_supp = supplement_true["eststage2"];
-    eststage1_supp = supplement_true["eststage1"];
-    givenrate_supp = supplement_true["givenrate"];
     multiplier_supp = supplement_true["multiplier"];
     convtype_supp = supplement_true["convtype"];
-    convtype_t12_supp = supplement_true["convtype_t12"];
-    supp_rows = stage3_supp.length();
   }
   
   if (repmatrix.isNotNull()) {
@@ -190,7 +180,7 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
       }
       repmatrix_true = token_mat;
     }
-  }  else if (supp_provided) {
+  } else if (supp_provided) {
     arma::ivec cv_supp_arma = as<arma::ivec>(convtype_supp);
     arma::uvec mult_elems = find(cv_supp_arma == 3);
     
@@ -564,813 +554,25 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
   newstageframe(31) = Rcpp::IntegerVector(newalive.begin(), newalive.end());
   newstageframe(32) = newalmostbornvec; // For use in deVries-format hMPMs
   
-  CharacterVector namevec = {"stage_id", "stage", "original_size", "original_size_b",
-    "original_size_c", "min_age", "max_age", "repstatus", "obsstatus", "propstatus",
-    "immstatus", "matstatus", "entrystage", "indataset", "binhalfwidth_raw", "sizebin_min",
-    "sizebin_max", "sizebin_center", "sizebin_width", "binhalfwidthb_raw", "sizebinb_min",
-    "sizebinb_max", "sizebinb_center", "sizebinb_width", "binhalfwidthc_raw", "sizebinc_min",
-    "sizebinc_max", "sizebinc_center", "sizebinc_width", "group", "comments", "alive",
-    "almostborn"};
+  CharacterVector namevec = {"stage_id", "stage", "original_size",
+    "original_size_b", "original_size_c", "min_age", "max_age", "repstatus",
+    "obsstatus", "propstatus", "immstatus", "matstatus", "entrystage",
+    "indataset", "binhalfwidth_raw", "sizebin_min", "sizebin_max",
+    "sizebin_center", "sizebin_width", "binhalfwidthb_raw", "sizebinb_min",
+    "sizebinb_max", "sizebinb_center", "sizebinb_width", "binhalfwidthc_raw",
+    "sizebinc_min", "sizebinc_max", "sizebinc_center", "sizebinc_width",
+    "group", "comments", "alive", "almostborn"};
   CharacterVector newclasses = {"data.frame", "stageframe"};
   newstageframe.attr("names") = namevec;
-  newstageframe.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, (stageframe_length + format));
+  newstageframe.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER,
+      (stageframe_length + format));
   newstageframe.attr("class") = newclasses;
   
-  // New version of .overwrite_reassess
-  if (overwrite.isNotNull()) {
-    if (supp_provided) {
-      throw Rcpp::exception("Please input either a supplement table or an overwrite table, not both.", false);
-    }
-    
-    Rcpp::DataFrame supplement_thru(supplement);
-    supplement_true = supplement_thru;
-    
-    stage3_supp = supplement_true["stage3"];
-    stage2_supp = supplement_true["stage2"];
-    stage1_supp = supplement_true["stage1"];
-    eststage3_supp = supplement_true["eststage3"];
-    eststage2_supp = supplement_true["eststage2"];
-    eststage1_supp = supplement_true["eststage1"];
-    givenrate_supp = supplement_true["givenrate"];
-    convtype_supp = supplement_true["convtype"];
-    convtype_t12_supp = supplement_true["convtype_t12"];
-    
-    supp_rows = givenrate_supp.length();
-    multiplier_supp = Rcpp::NumericVector::create(1.0, supp_rows); // Not in overwrite()
-    
-    over_provided = true;
-  }
+  DataFrame newsupplement = LefkoMats::supp_reassess(newstageframe, historical,
+    supplement, overwrite);
   
-  Rcpp::List newsupplement(10);
-  
-  if (over_provided || supp_provided) {
-    StringVector unique_stages = unique(newstagevec);
-    StringVector extra_terms = {"rep", "nrep", "immat", "mat", "prop", "npr", "all", "obs", "nobs"};
-    
-    int no_newstages {static_cast<int>(unique_stages.length())};
-    int no_extraterms {static_cast<int>(extra_terms.length())};
-    
-    StringVector all_possible_stage_terms(no_newstages + no_extraterms + no_groups);
-    for (int i = 0; i < no_newstages; i++) {
-      all_possible_stage_terms(i) = unique_stages(i);
-    }
-    for (int i = 0; i < no_extraterms; i++) {
-      all_possible_stage_terms(i + no_newstages) = extra_terms(i);
-    }
-    for (int i = 0; i < no_groups; i++) {
-      all_possible_stage_terms(i + no_newstages + no_extraterms) = group_text(i);
-    }
-    
-    // Check for good entries in the supplement / overwrite table
-    for (int i = 0; i < static_cast<int>(stage3_supp.length()); i++) {
-      int s3supp_count {0};
-      int s2supp_count {0};
-      int s1supp_count {0};
-      
-      bool ests3_used {false};
-      bool ests2_used {false};
-      bool ests1_used {false};
-      
-      int ests3supp_count {0};
-      int ests2supp_count {0};
-      int ests1supp_count {0};
-      
-      for (int j = 0; j < static_cast<int>(all_possible_stage_terms.length()); j++) {
-        if (stage3_supp(i) == all_possible_stage_terms(j)) s3supp_count++;
-        if (stage2_supp(i) == all_possible_stage_terms(j)) s2supp_count++;
-        
-        if (!StringVector::is_na(eststage3_supp(i))) {
-          ests3_used = true;
-          if (eststage3_supp(i) == all_possible_stage_terms(j)) ests3supp_count++;
-        }
-        if (!StringVector::is_na(eststage2_supp(i))) {
-          ests2_used = true;
-          if (eststage2_supp(i) == all_possible_stage_terms(j)) ests2supp_count++;
-        }
-        
-        if (historical) {
-          if (stage1_supp(i) == all_possible_stage_terms(j)) s1supp_count++;
-          
-          if (!StringVector::is_na(eststage1_supp(i))) {
-            ests1_used = true;
-            if (eststage1_supp(i) == all_possible_stage_terms(j)) ests1supp_count++;
-          }
-        } 
-      }
-      
-      if (s3supp_count == 0) {
-        String eat_my_shorts = "Stage names in supplement or overwrite table ";
-        String eat_my_shorts1 = "(stage3) must match stageframe.";
-        eat_my_shorts += eat_my_shorts1;
-        
-        throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
-      }
-      if (s2supp_count == 0) {
-        String eat_my_shorts = "Stage names in supplement or overwrite table ";
-        String eat_my_shorts1 = "(stage2) must match stageframe.";
-        eat_my_shorts += eat_my_shorts1;
-        
-        throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
-      }
-      if (ests3_used) {
-        if (s3supp_count == 0) {
-          String eat_my_shorts = "Stage names in supplement or overwrite table ";
-          String eat_my_shorts1 = "(eststage3) must match stageframe.";
-          eat_my_shorts += eat_my_shorts1;
-          
-          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
-        }
-      }
-      if (ests2_used) {
-        if (s2supp_count == 0) {
-          String eat_my_shorts = "Stage names in supplement or overwrite table ";
-          String eat_my_shorts1 = "(eststage2) must match stageframe.";
-          eat_my_shorts += eat_my_shorts1;
-          
-          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
-        }
-      }
-      if (historical) {
-        if (s1supp_count == 0) {
-          String eat_my_shorts = "Stage names in supplement or overwrite table ";
-          String eat_my_shorts1 = "(stage1) must match stageframe.";
-          eat_my_shorts += eat_my_shorts1;
-          
-          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
-        }
-        if (ests1_used) {
-          if (s1supp_count == 0) {
-            String eat_my_shorts = "Stage names in supplement or overwrite table ";
-            String eat_my_shorts1 = "(eststage1) must match stageframe.";
-            eat_my_shorts += eat_my_shorts1;
-            
-            throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
-          }
-        }
-      }
-    }
-    
-    IntegerVector s1_calls (supp_rows, 1);
-    IntegerVector s2_calls (supp_rows, 1);
-    IntegerVector s3_calls (supp_rows, 1);
-    IntegerVector ests1_calls (supp_rows, 1);
-    IntegerVector ests2_calls (supp_rows, 1);
-    IntegerVector ests3_calls (supp_rows, 1);
-    IntegerVector s3_planned (supp_rows, 1);
-    IntegerVector s2_planned (supp_rows, 1);
-    IntegerVector s1_planned (supp_rows, 1);
-      
-    IntegerVector s123_calls (supp_rows, 1);
-    
-    // Create indices for edited supplement/overwrite table
-    arma::uvec newprop_stages = find(newpropvec);
-    arma::uvec newprop0_stages = find(newpropvec == 0);
-    arma::uvec newimm_stages = find(newimmvec);
-    arma::uvec newalive_stages = find(newalive);
-    arma::uvec newmat_stages1 = find(newmatvec);
-    arma::uvec newmat_stages = intersect(newalive_stages, newmat_stages1);
-    arma::uvec newrep_stages = find(newrepvec);
-    arma::uvec newrep0_stages = find(newrepvec == 0);
-    arma::uvec newmat_rep0_stages = intersect(newmat_stages, newrep0_stages);
-    arma::uvec newobs_stages = find(newobsvec);
-    arma::uvec newobs0_stages = find(newobsvec == 0);
-    arma::uvec all_stages = find(newalive); // 7 "all"
-    int no_current_group {0};
-    
-    // Build expanded, edited supplement table
-    for (int i = 0; i < supp_rows; i++) {
-      if (stage3_supp(i) == "prop") {
-        s3_calls(i) = static_cast<int>(newprop_stages.n_elem);
-      } else if (stage3_supp(i) == "npr") {
-        s3_calls(i) = static_cast<int>(newprop0_stages.n_elem);
-      } else if (stage3_supp(i) == "immat") {
-        s3_calls(i) = static_cast<int>(newimm_stages.n_elem);
-      } else if (stage3_supp(i) == "mat") {
-        s3_calls(i) = static_cast<int>(newmat_stages.n_elem);
-      } else if (stage3_supp(i) == "rep") {
-        s3_calls(i) = static_cast<int>(newrep_stages.n_elem);
-      } else if (stage3_supp(i) == "nrep") {
-        s3_calls(i) = static_cast<int>(newmat_rep0_stages.n_elem);
-      } else if (stage3_supp(i) == "obs") {
-        s3_calls(i) = static_cast<int>(newobs_stages.n_elem);
-      } else if (stage3_supp(i) == "nobs") {
-        s3_calls(i) = static_cast<int>(newobs0_stages.n_elem);
-      } else if (stage3_supp(i) == "all") {
-        s3_calls(i) = static_cast<int>(all_stages.n_elem);
-      } else {
-        for (int j = 0; j < no_groups; j++) {
-          if (stage3_supp(i) == group_text(j)) {
-            arma::uvec current_group = find(newgroupvec == j);
-            no_current_group = static_cast<int>(current_group.n_elem);
-            
-            s3_calls(i) = no_current_group;
-          }
-        }
-      }
-      if (s3_calls(i) == 0) s3_calls(i) = 1;
-      
-      if (eststage3_supp(i) == "prop") {
-        ests3_calls(i) = static_cast<int>(newprop_stages.n_elem);
-      } else if (eststage3_supp(i) == "npr") {
-        ests3_calls(i) = static_cast<int>(newprop0_stages.n_elem);
-      } else if (eststage3_supp(i) == "immat") {
-        ests3_calls(i) = static_cast<int>(newimm_stages.n_elem);
-      } else if (eststage3_supp(i) == "mat") {
-        ests3_calls(i) = static_cast<int>(newmat_stages.n_elem);
-      } else if (eststage3_supp(i) == "rep") {
-        ests3_calls(i) = static_cast<int>(newrep_stages.n_elem);
-      } else if (eststage3_supp(i) == "nrep") {
-        ests3_calls(i) = static_cast<int>(newmat_rep0_stages.n_elem);
-      } else if (eststage3_supp(i) == "obs") {
-        ests3_calls(i) = static_cast<int>(newobs_stages.n_elem);
-      } else if (eststage3_supp(i) == "nobs") {
-        ests3_calls(i) = static_cast<int>(newobs0_stages.n_elem);
-      } else if (eststage3_supp(i) == "all") {
-        ests3_calls(i) = static_cast<int>(all_stages.n_elem);
-      } else {
-        for (int j = 0; j < no_groups; j++) {
-          if (eststage3_supp(i) == group_text(j)) {
-            arma::uvec current_group = find(newgroupvec == j);
-            no_current_group = static_cast<int>(current_group.n_elem);
-            
-            ests3_calls(i) = no_current_group;
-          }
-        }
-      }
-      if (ests3_calls(i) == 0) ests3_calls(i) = 1;
-      
-      if (stage2_supp(i) == "prop") {
-        s2_calls(i) = static_cast<int>(newprop_stages.n_elem);
-      } else if (stage2_supp(i) == "npr") {
-        s2_calls(i) = static_cast<int>(newprop0_stages.n_elem);
-      } else if (stage2_supp(i) == "immat") {
-        s2_calls(i) = static_cast<int>(newimm_stages.n_elem);
-      } else if (stage2_supp(i) == "mat") {
-        s2_calls(i) = static_cast<int>(newmat_stages.n_elem);
-      } else if (stage2_supp(i) == "rep") {
-        s2_calls(i) = static_cast<int>(newrep_stages.n_elem);
-      } else if (stage2_supp(i) == "nrep") {
-        s2_calls(i) = static_cast<int>(newmat_rep0_stages.n_elem);
-      } else if (stage2_supp(i) == "obs") {
-        s2_calls(i) = static_cast<int>(newobs_stages.n_elem);
-      } else if (stage2_supp(i) == "nobs") {
-        s2_calls(i) = static_cast<int>(newobs0_stages.n_elem);
-      } else if (stage2_supp(i) == "all") {
-        s2_calls(i) = static_cast<int>(all_stages.n_elem);
-      } else {
-        for (int j = 0; j < no_groups; j++) {
-          if (stage2_supp(i) == group_text(j)) {
-            arma::uvec current_group = find(newgroupvec == j);
-            no_current_group = static_cast<int>(current_group.n_elem);
-            
-            s2_calls(i) = no_current_group;
-          }
-        }
-      }
-      if (s2_calls(i) == 0) s2_calls(i) = 1;
-      
-      if (eststage2_supp(i) == "prop") {
-        ests2_calls(i) = static_cast<int>(newprop_stages.n_elem);
-      } else if (eststage2_supp(i) == "npr") {
-        ests2_calls(i) = static_cast<int>(newprop0_stages.n_elem);
-      } else if (eststage2_supp(i) == "immat") {
-        ests2_calls(i) = static_cast<int>(newimm_stages.n_elem);
-      } else if (eststage2_supp(i) == "mat") {
-        ests2_calls(i) = static_cast<int>(newmat_stages.n_elem);
-      } else if (eststage2_supp(i) == "rep") {
-        ests2_calls(i) = static_cast<int>(newrep_stages.n_elem);
-      } else if (eststage2_supp(i) == "nrep") {
-        ests2_calls(i) = static_cast<int>(newmat_rep0_stages.n_elem);
-      } else if (eststage2_supp(i) == "obs") {
-        ests2_calls(i) = static_cast<int>(newobs_stages.n_elem);
-      } else if (eststage2_supp(i) == "nobs") {
-        ests2_calls(i) = static_cast<int>(newobs0_stages.n_elem);
-      } else if (eststage2_supp(i) == "all") {
-        ests2_calls(i) = static_cast<int>(all_stages.n_elem);
-      } else {
-        for (int j = 0; j < no_groups; j++) {
-          if (eststage2_supp(i) == group_text(j)) {
-            arma::uvec current_group = find(newgroupvec == j);
-            no_current_group = static_cast<int>(current_group.n_elem);
-            
-            ests2_calls(i) = no_current_group;
-          }
-        }
-      }
-      if (ests2_calls(i) == 0) ests2_calls(i) = 1;
-      
-      if (stage1_supp(i) == "prop") {
-        s1_calls(i) = static_cast<int>(newprop_stages.n_elem);
-      } else if (stage1_supp(i) == "npr") {
-        s1_calls(i) = static_cast<int>(newprop0_stages.n_elem);
-      } else if (stage1_supp(i) == "immat") {
-        s1_calls(i) = static_cast<int>(newimm_stages.n_elem);
-      } else if (stage1_supp(i) == "mat") {
-        s1_calls(i) = static_cast<int>(newmat_stages.n_elem);
-      } else if (stage1_supp(i) == "rep") {
-        s1_calls(i) = static_cast<int>(newrep_stages.n_elem);
-      } else if (stage1_supp(i) == "nrep") {
-        s1_calls(i) = static_cast<int>(newmat_rep0_stages.n_elem);
-      } else if (stage1_supp(i) == "obs") {
-        s1_calls(i) = static_cast<int>(newobs_stages.n_elem);
-      } else if (stage1_supp(i) == "nobs") {
-        s1_calls(i) = static_cast<int>(newobs0_stages.n_elem);
-      } else if (stage1_supp(i) == "all") {
-        s1_calls(i) = static_cast<int>(all_stages.n_elem);
-      } else if (StringVector::is_na(stage1_supp(i))) {
-        s1_calls(i) = 1;
-      } else {
-        for (int j = 0; j < no_groups; j++) {
-          if (stage1_supp(i) == group_text(j)) {
-            arma::uvec current_group = find(newgroupvec == j);
-            no_current_group = static_cast<int>(current_group.n_elem);
-            
-            s1_calls(i) = no_current_group;
-          }
-        }
-      }
-      if (s1_calls(i) == 0) s1_calls(i) = 1;
-      
-      if (eststage1_supp(i) == "prop") {
-        ests1_calls(i) = static_cast<int>(newprop_stages.n_elem);
-      } else if (eststage1_supp(i) == "npr") {
-        ests1_calls(i) = static_cast<int>(newprop0_stages.n_elem);
-      } else if (eststage1_supp(i) == "immat") {
-        ests1_calls(i) = static_cast<int>(newimm_stages.n_elem);
-      } else if (eststage1_supp(i) == "mat") {
-        ests1_calls(i) = static_cast<int>(newmat_stages.n_elem);
-      } else if (eststage1_supp(i) == "rep") {
-        ests1_calls(i) = static_cast<int>(newrep_stages.n_elem);
-      } else if (eststage1_supp(i) == "nrep") {
-        ests1_calls(i) = static_cast<int>(newmat_rep0_stages.n_elem);
-      } else if (eststage1_supp(i) == "obs") {
-        ests1_calls(i) = static_cast<int>(newobs_stages.n_elem);
-      } else if (eststage1_supp(i) == "nobs") {
-        ests1_calls(i) = static_cast<int>(newobs0_stages.n_elem);
-      } else if (eststage1_supp(i) == "all") {
-        ests1_calls(i) = static_cast<int>(all_stages.n_elem);
-      } else if (StringVector::is_na(eststage1_supp(i))) {
-        ests1_calls(i) = 1;
-      } else {
-        for (int j = 0; j < no_groups; j++) {
-          if (eststage1_supp(i) == group_text(j)) {
-            arma::uvec current_group = find(newgroupvec == j);
-            no_current_group = static_cast<int>(current_group.n_elem);
-            
-            ests1_calls(i) = no_current_group;
-          }
-        }
-      }
-      if (ests1_calls(i) == 0) ests1_calls(i) = 1;
-      
-      if (!StringVector::is_na(eststage3_supp(i))) {
-        if (eststage3_supp(i) != stage3_supp(i)) {
-          if (s3_calls(i) == 1 && ests3_calls(i) > 1) {
-            s3_planned(i) = ests3_calls(i);
-          } else if (s3_calls(i) > 1 && ests3_calls(i) > 1) {
-            String eat_my_shorts = "If stage group shorthand is used to designate ";
-            String eat_my_shorts1 = "both a transition and a proxy, then the ";
-            String eat_my_shorts2 = "shorthand group must be the same in both cases.";
-            eat_my_shorts += eat_my_shorts1;
-            eat_my_shorts += eat_my_shorts2;
-             
-            throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
-          }
-        } else {
-          s3_planned(i) = s3_calls(i);
-        }
-      } else {
-        s3_planned(i) = s3_calls(i);
-      }
-      
-      if (!StringVector::is_na(eststage2_supp(i))) {
-        if (eststage2_supp(i) != stage2_supp(i)) {
-          if (s2_calls(i) == 1 && ests2_calls(i) > 1) {
-            s2_planned(i) = ests2_calls(i);
-          } else if (s2_calls(i) > 1 && ests2_calls(i) > 1) {
-            String eat_my_shorts = "If stage group shorthand is used to designate ";
-            String eat_my_shorts1 = "both a transition and a proxy, then the ";
-            String eat_my_shorts2 = "shorthand group must be the same in both cases.";
-            eat_my_shorts += eat_my_shorts1;
-            eat_my_shorts += eat_my_shorts2;
-             
-            throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
-          }
-        } else {
-          s2_planned(i) = s2_calls(i);
-        }
-      } else {
-        s2_planned(i) = s2_calls(i);
-      }
-      
-      if (!StringVector::is_na(eststage1_supp(i))) {
-        if (historical && eststage1_supp(i) != stage1_supp(i)) {
-          if (s1_calls(i) == 1 && ests1_calls(i) > 1) {
-            s1_planned(i) = ests1_calls(i);
-          } else if (s1_calls(i) > 1 && ests1_calls(i) > 1) {
-            String eat_my_shorts = "If stage group shorthand is used to designate ";
-            String eat_my_shorts1 = "both a transition and a proxy, then the ";
-            String eat_my_shorts2 = "shorthand group must be the same in both cases.";
-            eat_my_shorts += eat_my_shorts1;
-            eat_my_shorts += eat_my_shorts2;
-             
-            throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
-          }
-        } else if (historical) {
-          s1_planned(i) = s1_calls(i);
-        } else if (!historical) {
-          s1_planned(i) = 1;
-        }
-      } else {
-        s1_planned(i) = s1_calls(i);
-      }
-      
-      s123_calls(i) = s3_planned(i) * s2_planned(i) * s1_planned(i);
-    }
-    
-    NumericVector basepoints(supp_rows, 0.0);
-    for (int i = 0; i < (supp_rows - 1); i++) {
-      basepoints(i+1) = basepoints(i) + s123_calls(i);
-    }
-    
-    newsupp_rows = sum(s123_calls);
-    
-    StringVector stage3_newsupp(newsupp_rows);
-    StringVector stage2_newsupp(newsupp_rows);
-    StringVector stage1_newsupp(newsupp_rows);
-    StringVector eststage3_newsupp(newsupp_rows);
-    StringVector eststage2_newsupp(newsupp_rows);
-    StringVector eststage1_newsupp(newsupp_rows);
-    NumericVector givenrate_newsupp(newsupp_rows);
-    IntegerVector convtype_newsupp(newsupp_rows);
-    IntegerVector convtype_t12_newsupp(newsupp_rows);
-    NumericVector multiplier_newsupp(newsupp_rows);
-    
-    int overall_counter {0};
-    int group_check {0};
-    
-    int group_baseline3 {0};
-    int group_baseline2 {0};
-    int group_baseline1 {0};
-    int group_baselinee3 {0};
-    int group_baselinee2 {0};
-    int group_baselinee1 {0};
-    
-    int group_ratchet3 {0};
-    int group_ratchet2 {0};
-    int group_ratchet1 {0};
-    int group_ratchete3 {0};
-    int group_ratchete2 {0};
-    int group_ratchete1 {0};
-    
-    int prevl3 {0};
-    int prevl2 {0};
-    int prevl1 {0};
-    int prevle3 {0};
-    int prevle2 {0};
-    int prevle1 {0};
-    
-    for (int i = 0; i < supp_rows; i++) {
-      overall_counter = 0;
-      for (int j = 0; j < s1_planned(i); j++) {
-        for (int k = 0; k < s2_planned(i); k++) {
-          for (int l = 0; l < s3_planned(i); l++) {
-            if (stage3_supp(i) == "prop") {
-              stage3_newsupp(basepoints(i) + overall_counter) = newstagevec(newprop_stages(l));
-            } else if (stage3_supp(i) == "npr") {
-              stage3_newsupp(basepoints(i) + overall_counter) = newstagevec(newprop0_stages(l));
-            } else if (stage3_supp(i) == "immat") {
-              stage3_newsupp(basepoints(i) + overall_counter) = newstagevec(newimm_stages(l));
-            } else if (stage3_supp(i) == "mat") {
-              stage3_newsupp(basepoints(i) + overall_counter) = newstagevec(newmat_stages(l));
-            } else if (stage3_supp(i) == "rep") {
-              stage3_newsupp(basepoints(i) + overall_counter) = newstagevec(newrep_stages(l));
-            } else if (stage3_supp(i) == "nrep") {
-              stage3_newsupp(basepoints(i) + overall_counter) = newstagevec(newmat_rep0_stages(l));
-            } else if (stage3_supp(i) == "obs") {
-              stage3_newsupp(basepoints(i) + overall_counter) = newstagevec(newobs_stages(l));
-            } else if (stage3_supp(i) == "nobs") {
-              stage3_newsupp(basepoints(i) + overall_counter) = newstagevec(newobs0_stages(l));
-            } else if (stage3_supp(i) == "all") {
-              stage3_newsupp(basepoints(i) + overall_counter) = newstagevec(all_stages(l));
-            } else {
-              for (int m = 0; m < no_groups; m++) {
-                if (stage3_supp(i) == group_text(m)) {
-                  if (l == 0) group_ratchet3 = 0;
-                  if (l != prevl3 && l != 0) group_ratchet3 += 1;
-                  
-                  group_check = 1;
-                  arma::uvec current_group = find(newgroupvec == m);
-                  int current_group_length = static_cast<int>(current_group.n_elem);
-                  if (group_ratchet3 > (current_group_length - 1)) {
-                    group_ratchet3 = 0;
-                  }
-                  
-                  if (group_ratchet3 == 0) {
-                    group_baseline3 = l;
-                  }
-                  
-                  stage3_newsupp(basepoints(i) + overall_counter) = 
-                    newstagevec(current_group(l - group_baseline3));
-                  
-                  prevl3 = l;
-                }
-              }
-              
-              if (group_check == 0) {
-               stage3_newsupp(basepoints(i) + overall_counter) = stage3_supp(i);
-              }
-              
-              group_check = 0;
-            }
-            givenrate_newsupp(basepoints(i) + overall_counter) = givenrate_supp(i);
-            multiplier_newsupp(basepoints(i) + overall_counter) = multiplier_supp(i);
-            convtype_newsupp(basepoints(i) + overall_counter) = convtype_supp(i);
-            convtype_t12_newsupp(basepoints(i) + overall_counter) = convtype_t12_supp(i);
-            
-            if (eststage3_supp(i) == "prop") {
-              eststage3_newsupp(basepoints(i) + overall_counter) = newstagevec(newprop_stages(l));
-            } else if (eststage3_supp(i) == "npr") {
-              eststage3_newsupp(basepoints(i) + overall_counter) = newstagevec(newprop0_stages(l));
-            } else if (eststage3_supp(i) == "immat") {
-              eststage3_newsupp(basepoints(i) + overall_counter) = newstagevec(newimm_stages(l));
-            } else if (eststage3_supp(i) == "mat") {
-              eststage3_newsupp(basepoints(i) + overall_counter) = newstagevec(newmat_stages(l));
-            } else if (eststage3_supp(i) == "rep") {
-              eststage3_newsupp(basepoints(i) + overall_counter) = newstagevec(newrep_stages(l));
-            } else if (eststage3_supp(i) == "nrep") {
-              eststage3_newsupp(basepoints(i) + overall_counter) = newstagevec(newmat_rep0_stages(l));
-            } else if (eststage3_supp(i) == "obs") {
-              eststage3_newsupp(basepoints(i) + overall_counter) = newstagevec(newobs_stages(l));
-            } else if (eststage3_supp(i) == "nobs") {
-              eststage3_newsupp(basepoints(i) + overall_counter) = newstagevec(newobs0_stages(l));
-            } else if (eststage3_supp(i) == "all") {
-              eststage3_newsupp(basepoints(i) + overall_counter) = newstagevec(all_stages(l));
-            } else {
-              for (int m = 0; m < no_groups; m++) {
-                if (eststage3_supp(i) == group_text(m)) {
-                  if (l == 0) group_ratchete3 = 0;
-                  if (l != prevle3 && l != 0) group_ratchete3 += 1;
-                  
-                  group_check = 1;
-                  arma::uvec current_group = find(newgroupvec == m);
-                  int current_group_length = static_cast<int>(current_group.n_elem);
-                  if (group_ratchete3 > (current_group_length - 1)) {
-                    group_ratchete3 = 0;
-                  }
-                  
-                  if (group_ratchete3 == 0) {
-                    group_baselinee3 = l;
-                  }
-                  
-                  eststage3_newsupp(basepoints(i) + overall_counter) = 
-                    newstagevec(current_group(l - group_baselinee3));
-                  
-                  prevle3 = l;
-                }
-              }
-              
-              if (group_check == 0) {
-                eststage3_newsupp(basepoints(i) + overall_counter) = eststage3_supp(i);
-              }
-              
-              group_check = 0;
-            }
-            
-            if (stage2_supp(i) == "prop") {
-              stage2_newsupp(basepoints(i) + overall_counter) = newstagevec(newprop_stages(k));
-            } else if (stage2_supp(i) == "npr") {
-              stage2_newsupp(basepoints(i) + overall_counter) = newstagevec(newprop0_stages(k));
-            } else if (stage2_supp(i) == "immat") {
-              stage2_newsupp(basepoints(i) + overall_counter) = newstagevec(newimm_stages(k));
-            } else if (stage2_supp(i) == "mat") {
-              stage2_newsupp(basepoints(i) + overall_counter) = newstagevec(newmat_stages(k));
-            } else if (stage2_supp(i) == "rep") {
-              stage2_newsupp(basepoints(i) + overall_counter) = newstagevec(newrep_stages(k));
-            } else if (stage2_supp(i) == "nrep") {
-              stage2_newsupp(basepoints(i) + overall_counter) = newstagevec(newmat_rep0_stages(k));
-            } else if (stage2_supp(i) == "obs") {
-              stage2_newsupp(basepoints(i) + overall_counter) = newstagevec(newobs_stages(k));
-            } else if (stage2_supp(i) == "nobs") {
-              stage2_newsupp(basepoints(i) + overall_counter) = newstagevec(newobs0_stages(k));
-            } else if (stage2_supp(i) == "all") {
-              stage2_newsupp(basepoints(i) + overall_counter) = newstagevec(all_stages(k));
-            } else {
-              for (int m = 0; m < no_groups; m++) {
-                if (stage2_supp(i) == group_text(m)) {
-                  if (k == 0) group_ratchet2 = 0;
-                  if (k != prevl2 && k != 0) group_ratchet2 += 1;
-                  
-                  group_check = 1;
-                  arma::uvec current_group = find(newgroupvec == m);
-                  int current_group_length = static_cast<int>(current_group.n_elem);
-                  if (group_ratchet2 > (current_group_length - 1)) {
-                    group_ratchet2 = 0;
-                  }
-                  
-                  if (group_ratchet2 == 0) {
-                    group_baseline2 = k;
-                  }
-                  
-                  stage2_newsupp(basepoints(i) + overall_counter) =
-                    newstagevec(current_group(k - group_baseline2));
-                  
-                  prevl2 = k;
-                }
-              }
-              
-              if (group_check == 0) {
-               stage2_newsupp(basepoints(i) + overall_counter) = stage2_supp(i);
-              }
-              
-              group_check = 0;
-            }
-            
-            if (eststage2_supp(i) == "prop") {
-              eststage2_newsupp(basepoints(i) + overall_counter) = newstagevec(newprop_stages(k));
-            } else if (eststage2_supp(i) == "npr") {
-              eststage2_newsupp(basepoints(i) + overall_counter) = newstagevec(newprop0_stages(k));
-            } else if (eststage2_supp(i) == "immat") {
-              eststage2_newsupp(basepoints(i) + overall_counter) = newstagevec(newimm_stages(k));
-            } else if (eststage2_supp(i) == "mat") {
-              eststage2_newsupp(basepoints(i) + overall_counter) = newstagevec(newmat_stages(k));
-            } else if (eststage2_supp(i) == "rep") {
-              eststage2_newsupp(basepoints(i) + overall_counter) = newstagevec(newrep_stages(k));
-            } else if (eststage2_supp(i) == "nrep") {
-              eststage2_newsupp(basepoints(i) + overall_counter) = newstagevec(newmat_rep0_stages(k));
-            } else if (eststage2_supp(i) == "obs") {
-              eststage2_newsupp(basepoints(i) + overall_counter) = newstagevec(newobs_stages(k));
-            } else if (eststage2_supp(i) == "nobs") {
-              eststage2_newsupp(basepoints(i) + overall_counter) = newstagevec(newobs0_stages(k));
-            } else if (eststage2_supp(i) == "all") {
-              eststage2_newsupp(basepoints(i) + overall_counter) = newstagevec(all_stages(k));
-            } else {
-              for (int m = 0; m < no_groups; m++) {
-                if (eststage2_supp(i) == group_text(m)) {
-                  if (k == 0) group_ratchete2 = 0;
-                  if (k != prevle2 && k != 0) group_ratchete2 += 1;
-                  
-                  group_check = 1;
-                  arma::uvec current_group = find(newgroupvec == m);
-                  int current_group_length = static_cast<int>(current_group.n_elem);
-                  if (group_ratchete2 > (current_group_length - 1)) {
-                    group_ratchete2 = 0;
-                  }
-                  
-                  if (group_ratchete2 == 0) {
-                    group_baselinee2 = k;
-                  }
-                  
-                  eststage2_newsupp(basepoints(i) + overall_counter) =
-                    newstagevec(current_group(k - group_baselinee2));
-                  
-                  prevle2 = k;
-                }
-              }
-              
-              if (group_check == 0) {
-                eststage2_newsupp(basepoints(i) + overall_counter) = eststage2_supp(i);
-              }
-              
-              group_check = 0;
-            }
-            
-            if (stage1_supp(i) == "prop") {
-              stage1_newsupp(basepoints(i) + overall_counter) = newstagevec(newprop_stages(j));
-            } else if (stage1_supp(i) == "npr") {
-              stage1_newsupp(basepoints(i) + overall_counter) = newstagevec(newprop0_stages(j));
-            } else if (stage1_supp(i) == "immat") {
-              stage1_newsupp(basepoints(i) + overall_counter) = newstagevec(newimm_stages(j));
-            } else if (stage1_supp(i) == "mat") {
-              stage1_newsupp(basepoints(i) + overall_counter) = newstagevec(newmat_stages(j));
-            } else if (stage1_supp(i) == "rep") {
-              stage1_newsupp(basepoints(i) + overall_counter) = newstagevec(newrep_stages(j));
-            } else if (stage1_supp(i) == "nrep") {
-              stage1_newsupp(basepoints(i) + overall_counter) = newstagevec(newmat_rep0_stages(j));
-            } else if (stage1_supp(i) == "obs") {
-              stage1_newsupp(basepoints(i) + overall_counter) = newstagevec(newobs_stages(j));
-            } else if (stage1_supp(i) == "nobs") {
-              stage1_newsupp(basepoints(i) + overall_counter) = newstagevec(newobs0_stages(j));
-            } else if (stage1_supp(i) == "all") {
-              stage1_newsupp(basepoints(i) + overall_counter) = newstagevec(all_stages(j));
-            } else {
-              for (int m = 0; m < no_groups; m++) {
-                if (stage1_supp(i) == group_text(m)) {
-                  if (j == 0) group_ratchet1 = 0;
-                  if (j != prevl1 && j != 0) group_ratchet1 += 1;
-                  
-                  group_check = 1;
-                  arma::uvec current_group = find(newgroupvec == m);
-                  int current_group_length = static_cast<int>(current_group.n_elem);
-                  if (group_ratchet1 > (current_group_length - 1)) {
-                    group_ratchet1 = 0;
-                  }
-                  
-                  if (group_ratchet1 == 0) {
-                    group_baseline1 = j;
-                  }
-                  
-                  stage1_newsupp(basepoints(i) + overall_counter) =
-                    newstagevec(current_group(j - group_baseline1));
-                  
-                  prevl1 = j;
-                }
-              }
-              
-              if (group_check == 0) {
-               stage1_newsupp(basepoints(i) + overall_counter) = stage1_supp(i);
-              }
-              
-              group_check = 0;
-            }
-            
-            if (eststage1_supp(i) == "prop") {
-              eststage1_newsupp(basepoints(i) + overall_counter) = newstagevec(newprop_stages(j));
-            } else if (eststage1_supp(i) == "npr") {
-              eststage1_newsupp(basepoints(i) + overall_counter) = newstagevec(newprop0_stages(j));
-            } else if (eststage1_supp(i) == "immat") {
-              eststage1_newsupp(basepoints(i) + overall_counter) = newstagevec(newimm_stages(j));
-            } else if (eststage1_supp(i) == "mat") {
-              eststage1_newsupp(basepoints(i) + overall_counter) = newstagevec(newmat_stages(j));
-            } else if (eststage1_supp(i) == "rep") {
-              eststage1_newsupp(basepoints(i) + overall_counter) = newstagevec(newrep_stages(j));
-            } else if (eststage1_supp(i) == "nrep") {
-              eststage1_newsupp(basepoints(i) + overall_counter) = newstagevec(newmat_rep0_stages(j));
-            } else if (eststage1_supp(i) == "obs") {
-              eststage1_newsupp(basepoints(i) + overall_counter) = newstagevec(newobs_stages(j));
-            } else if (eststage1_supp(i) == "nobs") {
-              eststage1_newsupp(basepoints(i) + overall_counter) = newstagevec(newobs0_stages(j));
-            } else if (eststage1_supp(i) == "all") {
-              eststage1_newsupp(basepoints(i) + overall_counter) = newstagevec(all_stages(j));
-            } else {
-              for (int m = 0; m < no_groups; m++) {
-                if (eststage1_supp(i) == group_text(m)) {
-                  if (j == 0) group_ratchete1 = 0;
-                  if (j != prevle1 && j != 0) group_ratchete1 += 1;
-                  
-                  group_check = 1;
-                  arma::uvec current_group = find(newgroupvec == m);
-                  int current_group_length = static_cast<int>(current_group.n_elem);
-                  if (group_ratchete1 > (current_group_length - 1)) {
-                    group_ratchete1 = 0;
-                  }
-                  
-                  if (group_ratchete1 == 0) {
-                    group_baselinee1 = j;
-                  }
-                  
-                  eststage1_newsupp(basepoints(i) + overall_counter) =
-                    newstagevec(current_group(j - group_baselinee1));
-                  
-                  prevle1 = j;
-                }
-              }
-              
-              if (group_check == 0) {
-                eststage1_newsupp(basepoints(i) + overall_counter) = eststage1_supp(i);
-              }
-              
-              group_check = 0;
-            }
-            
-            overall_counter++;
-          }
-        }
-      }
-    }
-    
-    newsupplement(0) = stage3_newsupp;
-    newsupplement(1) = stage2_newsupp;
-    newsupplement(2) = stage1_newsupp;
-    newsupplement(3) = eststage3_newsupp;
-    newsupplement(4) = eststage2_newsupp;
-    newsupplement(5) = eststage1_newsupp;
-    newsupplement(6) = givenrate_newsupp;
-    newsupplement(7) = multiplier_newsupp;
-    newsupplement(8) = convtype_newsupp;
-    newsupplement(9) = convtype_t12_newsupp;
-  } else {
-    newsupplement(0) = NULL;
-    newsupplement(1) = NULL;
-    newsupplement(2) = NULL;
-    newsupplement(3) = NULL;
-    newsupplement(4) = NULL;
-    newsupplement(5) = NULL;
-    newsupplement(6) = NULL;
-    newsupplement(7) = NULL;
-    newsupplement(8) = NULL;
-    newsupplement(9) = NULL;
-  }
-  
-  CharacterVector su_namevec = {"stage3", "stage2", "stage1", "eststage3", "eststage2",
-    "eststage1", "givenrate", "multiplier", "convtype", "convtype_t12"};
-  CharacterVector su_newclasses = {"data.frame", "lefkoSD"};
-  newsupplement.attr("names") = su_namevec;
-  newsupplement.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, newsupp_rows);
-  newsupplement.attr("class") = su_newclasses;
-  
-  return Rcpp::List::create(_["stageframe"] = newstageframe, _["repmatrix"] = repmat2,
-    _["ovtable"] = newsupplement);
+  return Rcpp::List::create(_["stageframe"] = newstageframe,
+    _["repmatrix"] = repmat2, _["ovtable"] = newsupplement);
 }
 
 //' Create Stageframe for Population Matrix Projection Analysis
@@ -4370,9 +3572,18 @@ Rcpp::List minorpatrolgroup(const DataFrame& MainData, const DataFrame& StageFra
     double fecsum {0.0};
     
     for (int k = 0; k < noages; k++) { 
-      arma::uvec data_indices = find(dataagei == sf_minage(k));
-      arma::uvec aget_alive = intersect(data_allalivei, data_indices);
-      int num_aget_alive = static_cast<int>(aget_alive.n_elem);
+      arma::uvec data_indices;
+      arma::uvec aget_alive;
+      int num_aget_alive {0};
+      
+      if (k < (noages - 1) || !cont) {
+        data_indices = find(dataagei == sf_minage(k));
+      } else { 
+        data_indices = find(dataagei >= sf_minage(k));
+      }
+      
+      aget_alive = intersect(data_allalivei, data_indices);
+      num_aget_alive = static_cast<int>(aget_alive.n_elem);
       
       if (num_aget_alive > 0) {
         for (int j = 0; j < num_aget_alive; j++) {
@@ -4837,9 +4048,10 @@ List subvertedpatrolgroup(const DataFrame& sge3, const arma::ivec& sge2index21,
 //' category names.
 //' @param StageFrame The stageframe object identifying the life history model
 //' being operationalized.
-//' @param OverWrite The overwrite table used in analysis, as modified by 
-//' \code{.overwrite_reassess}. Must be processed via \code{.overwrite_reassess}
-//' rather than being a raw overwrite or supplement table.
+//' @param OverWrite The supplement or overwrite table used in analysis, as
+//' modified by \code{.sf_reassess()} (which technically uses function
+//' \code{supp_reassess()}). Must be processed via \code{.supp_reassess} rather
+//' than being a raw overwrite or supplement table.
 //' @param repmatrix The reproductive matrix used in analysis.
 //' @param f2_inda_num A numeric vector of length equal to the number of years,
 //' holding values equal to the mean value of individual covariate \code{a} at
@@ -15831,26 +15043,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
           stageexpansion3.attr("names") = se3_names;
           stageexpansion3.attr("class") = "data.frame";
           
-          
-          
-          
-          
-          
-          //StringVector se3_row_names(melchett_stageframe_length * melchett_stageframe_length);
-          //for (int i = 0; i < (melchett_stageframe_length * melchett_stageframe_length); ++i) {
-          //  char name[5];
-          //  snprintf(&(name[0]), sizeof(name), "%d", i);
-          //  se3_row_names(i) = name;
-          //}
-          //stageexpansion3.attr("row.names") = se3_row_names;
-          
-          
-          
           stageexpansion3.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, (melchett_stageframe_length * melchett_stageframe_length));
-          
-          
-          
-          
           
           if (err_check) sge3 = stageexpansion3;
         }
@@ -16031,6 +15224,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         
       } else if (!stage && age) {
         // Age-only function-based
+        ahstages = melchett_stageframe_;
         IntegerVector actualages = seq(start_age, last_age);
         
         List new_madsexmadrigal = mothermccooney(list_of_years, modelsuite_,

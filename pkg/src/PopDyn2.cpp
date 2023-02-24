@@ -427,10 +427,10 @@ Rcpp::List demolition4 (List cmats) {
     
     if (is<S4>(cont_0(0))) sparse_input = true;
     
-    List temp_df ((conts_num * 3) + 1);
+    List temp_df ((conts_num * 4) + 1);
     rowlabels = seq(1, mats_num);
     temp_df(0) = rowlabels;
-    StringVector varnames ((conts_num * 3) + 1);
+    StringVector varnames ((conts_num * 4) + 1);
     varnames(0) = "matrix";
     
     for (int i = 0; i < conts_num; i++) {
@@ -438,6 +438,7 @@ Rcpp::List demolition4 (List cmats) {
       
       NumericVector pos_cont (mats_num);
       NumericVector neg_cont (mats_num);
+      NumericVector abs_cont (mats_num);
       NumericVector tot_cont (mats_num);
       
       for (int j = 0; j < mats_num; j++) {
@@ -451,6 +452,7 @@ Rcpp::List demolition4 (List cmats) {
           
           pos_cont(j) = pos_sum;
           neg_cont(j) = neg_sum;
+          abs_cont(j) = pos_sum + (-1.0 * neg_sum);
           tot_cont(j) = pos_sum + neg_sum;
           
         } else {
@@ -469,6 +471,7 @@ Rcpp::List demolition4 (List cmats) {
           
           pos_cont(j) = pos_sum;
           neg_cont(j) = neg_sum;
+          abs_cont(j) = pos_sum + (-1.0 * neg_sum);
           tot_cont(j) = pos_sum + neg_sum;
           
         }
@@ -477,41 +480,45 @@ Rcpp::List demolition4 (List cmats) {
       if (i == 0) {
         varnames(1) = "means_positive";
         varnames(2) = "means_negative";
-        varnames(3) = "means_total";
+        varnames(3) = "means_abs_sum";
+        varnames(4) = "means_total";
       }
       
       if (i == 1) {
         if (conts_num == 2) {
-          varnames(4) = "sd_positive";
-          varnames(5) = "sd_negative";
-          varnames(6) = "sd_total";
+          varnames(5) = "sd_positive";
+          varnames(6) = "sd_negative";
+          varnames(7) = "sd_abs_sum";
+          varnames(8) = "sd_total";
         } else {
-          varnames(4) = "elas_positive";
-          varnames(5) = "elas_negative";
-          varnames(6) = "elas_total";
+          varnames(5) = "elas_positive";
+          varnames(6) = "elas_negative";
+          varnames(7) = "elas_abs_sum";
+          varnames(8) = "elas_total";
         }
       }
       
       if (i == 2) {
-        varnames(7) = "cv_positive";
-        varnames(8) = "cv_negative";
-        varnames(9) = "cv_total";
+        varnames(9) = "cv_positive";
+        varnames(10) = "cv_negative";
+        varnames(11) = "cv_abs_sum";
+        varnames(12) = "cv_total";
       }
       
       if (i == 3) {
-        varnames(10) = "cor_positive";
-        varnames(11) = "cor_negative";
-        varnames(12) = "cor_total";
+        varnames(13) = "cor_positive";
+        varnames(14) = "cor_negative";
+        varnames(15) = "cor_abs_sum";
+        varnames(16) = "cor_total";
       }
       
-      temp_df(1 + (3 * i) + 0) = pos_cont;
-      temp_df(1 + (3 * i) + 1) = neg_cont;
-      temp_df(1 + (3 * i) + 2) = tot_cont;
+      temp_df(1 + (4 * i) + 0) = pos_cont;
+      temp_df(1 + (4 * i) + 1) = neg_cont;
+      temp_df(1 + (4 * i) + 2) = abs_cont;
+      temp_df(1 + (4 * i) + 3) = tot_cont;
     }
     output_df = temp_df;
     varnames_ = varnames;
-  } else { 
-    
   }
   
   StringVector rowlabels_str = as<StringVector>(rowlabels);

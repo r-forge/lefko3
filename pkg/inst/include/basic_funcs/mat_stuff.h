@@ -1166,5 +1166,622 @@ namespace LefkoMats {
     
     return output;
   }
+  
+  //' Create Skeleton Plan of Expanded Supplemental Table
+  //' 
+  //' This function is used to take a supplemental table input and expand it
+  //' given shorthand codes that users may have used.
+  //' 
+  //' @name supp_decision1
+  //' 
+  //' @param base_check The string input from the user's supplemental table.
+  //' @param np_s Number of propagule stages.
+  //' @param np0_s Number of non-propagule stages.
+  //' @param ni_s Number of immature stages.
+  //' @param nm_s Number of mature stages.
+  //' @param nr_s Number of reproductive stages.
+  //' @param nmr0_s Number of mature, non-reproductive stages.
+  //' @param no_s Number of observable stages.
+  //' @param no0_s Number of unobservable stages.
+  //' @param a_s Total number of stages.
+  //' @param no_groups Total number of stage groups.
+  //' @param newgroupvec An integer vector giving the group number for each stage.
+  //' @param group_text A string vector giving the names of all stage groups.
+  //' 
+  //' @return This function returns a single integer value corresponding to the
+  //' number of stages to include for the given code in the expanded supplemental
+  //' table.
+  //' 
+  //' @keywords internal
+  //' @noRd
+  inline int supp_decision1 (std::string base_check, int np_s, int np0_s,
+    int ni_s, int nm_s, int nr_s, int nmr0_s, int no_s, int no0_s, int a_s,
+    int no_groups, arma::ivec newgroupvec, StringVector group_text) {
+    
+    int decided {0};
+    int no_current_group {0};
+    
+    if (base_check == "prop") {
+      decided = np_s;
+    } else if (base_check == "npr") {
+      decided = np0_s;
+    } else if (base_check == "immat") {
+      decided = ni_s;
+    } else if (base_check == "mat") {
+      decided = nm_s;
+    } else if (base_check == "rep") {
+      decided = nr_s;
+    } else if (base_check == "nrep") {
+      decided = nmr0_s;
+    } else if (base_check == "obs") {
+      decided = no_s;
+    } else if (base_check == "nobs") {
+      decided = no0_s;
+    } else if (base_check == "all") {
+      decided = a_s;
+    } else {
+      for (int j = 0; j < no_groups; j++) {
+        if (base_check == as<std::string>(group_text(j))) {
+          arma::uvec current_group = find(newgroupvec == j);
+          no_current_group = static_cast<int>(current_group.n_elem);
+          
+          decided = no_current_group;
+        }
+      }
+    }
+    if (decided == 0) decided = 1;
+    
+    return decided;
+  }
+  
+  //' Decide on Stage for Each Entry in Supplemental Table
+  //' 
+  //' This function is used to take a supplemental table input and expand it
+  //' given shorthand codes that users may have used. It provides the actual stage
+  //' designations given the numbers of stages decided on via function
+  //' \code{supp_decision1()}.
+  //' 
+  //' @name supp_decision2
+  //' 
+  //' @param base_check The string input from the user's supplemental table.
+  //' @param newprop_stages Integer designations of all propagule stages.
+  //' @param newprop0_stages Integer designations of all non-propagule stages.
+  //' @param newimm_stages Integer designations of all immature stages.
+  //' @param newmat_stages Integer designations of all mature stages.
+  //' @param newrep_stages Integer designations of all reproductive stages.
+  //' @param newmat_rep0_stages Integer designations of all mature,
+  //' non-reproductive stages.
+  //' @param newobs_stages Integer designations of all observable stages.
+  //' @param newobs0_stages Integer designations of all unobservable stages.
+  //' @param all_stages Integer designations of all stages.
+  //' @param no_groups Total number of stage groups.
+  //' @param newgroupvec An integer vector giving the group number for each stage.
+  //' @param group_text A string vector giving the names of all stage groups.
+  //' @param stagevec A string vector with the names of all stages.
+  //' @param counter An integer giving the correct position within vectors for
+  //' stage designations.
+  //' @param group_check An integer used to decide whether to continue checking
+  //' group deisngation.
+  //' @param group_ratchet An integer giving a cut-off number for gropup
+  //' designation, input as a pointer to allow processing across supplemental
+  //' table lines.
+  //' @param group_baseline An integer used in calculating the correct stage
+  //' designation given a group code.
+  //' @param prevl An integer allowing the counter value in the preceding time
+  //' step to be kept in memory.
+  //' 
+  //' @return This function returns a single string value corresponding to the
+  //' correct stage to include for the given code in the input supplemental table.
+  //' 
+  //' @keywords internal
+  //' @noRd
+  inline String supp_decision2 (std::string base_check,
+    arma::uvec newprop_stages, arma::uvec newprop0_stages,
+    arma::uvec newimm_stages, arma::uvec newmat_stages,
+    arma::uvec newrep_stages, arma::uvec newmat_rep0_stages,
+    arma::uvec newobs_stages, arma::uvec newobs0_stages, arma::uvec all_stages,
+    int no_groups, arma::ivec newgroupvec, StringVector group_text,
+    StringVector stagevec, int counter, int group_check, int& group_ratchet,
+    int& group_baseline, int& prevl) {
+    
+    String decided;
+    
+    if (base_check == "prop") {
+      decided = stagevec(newprop_stages(counter));
+    } else if (base_check == "npr") {
+      decided = stagevec(newprop0_stages(counter));
+    } else if (base_check == "immat") {
+      decided = stagevec(newimm_stages(counter));
+    } else if (base_check == "mat") {
+      decided = stagevec(newmat_stages(counter));
+    } else if (base_check == "rep") {
+      decided = stagevec(newrep_stages(counter));
+    } else if (base_check == "nrep") {
+      decided = stagevec(newmat_rep0_stages(counter));
+    } else if (base_check == "obs") {
+      decided = stagevec(newobs_stages(counter));
+    } else if (base_check == "nobs") {
+      decided = stagevec(newobs0_stages(counter));
+    } else if (base_check == "all") {
+      decided = stagevec(all_stages(counter));
+    } else {
+      for (int j = 0; j < no_groups; j++) {
+        if (base_check == as<std::string>(group_text(j))) {
+          if (counter == 0) group_ratchet = 0;
+          if (counter != prevl && counter != 0) group_ratchet += 1;
+          
+          group_check = 1;
+          arma::uvec current_group = find(newgroupvec == j);
+          int current_group_length = static_cast<int>(current_group.n_elem);
+          if (group_ratchet > (current_group_length - 1)) {
+            group_ratchet = 0;
+          }
+          
+          if (group_ratchet == 0) {
+            group_baseline = counter;
+          }
+          
+          decided = stagevec(current_group(counter - group_baseline));
+          
+          prevl = counter;
+        }
+      }
+      
+      if (group_check == 0) {
+        decided = base_check;
+      }
+      
+      group_check = 0;
+    }
+    if (decided == 0) decided = 1;
+    
+    return decided;
+  }
+  
+  //' Expand Supplemental Table Given User Input
+  //' 
+  //' The function takes a supplemental table as input and produces an edited and
+  //' expanded version for calculation.
+  //' 
+  //' @name supp_reassess
+  //' 
+  //' @param stageframe The stageframe used for assessment.
+  //' @param historical A logical value indicating whether the MPM should be
+  //' historical (\code{TRUE}) or not (\code{FALSE}).
+  //' @param supplement The user's supplemental table, if used.
+  //' @param overwrite The user's overwrite table, if used.
+  //' 
+  //' @return This function returns a new data frame that acts as the expanded
+  //' supplemental table without shorthand codes. It uses only stage designations
+  //' from the stageframe used.
+  //' 
+  //' @keywords internal
+  //' @noRd
+  inline Rcpp::DataFrame supp_reassess (Rcpp::DataFrame stageframe,
+    bool historical, Nullable<DataFrame> supplement = R_NilValue,
+    Nullable<DataFrame> overwrite = R_NilValue) {
+    
+    StringVector stagevec = as<StringVector>(stageframe["stage"]);
+    
+    arma::ivec groupvec = as<arma::ivec>(stageframe["group"]);
+    int stageframe_length {static_cast<int>(stagevec.length())};
+    IntegerVector stage_id = seq(1, stageframe_length);
+    
+    // Identify all groups
+    arma::ivec all_groups = unique(groupvec);
+    int no_groups {static_cast<int>(all_groups.n_elem)};
+    StringVector group_text(no_groups);
+    
+    for (int i = 0; i < no_groups; i++) {
+      group_text(i) = "group";
+      group_text(i) += std::to_string(all_groups(i));
+    }
+    
+    StringVector stage3_supp;
+    StringVector stage2_supp;
+    StringVector stage1_supp;
+    StringVector eststage3_supp;
+    StringVector eststage2_supp;
+    StringVector eststage1_supp;
+    NumericVector givenrate_supp;
+    NumericVector multiplier_supp;
+    IntegerVector convtype_supp;
+    IntegerVector convtype_t12_supp;
+    int supp_rows {0};
+    
+    if (supplement.isNotNull()) {
+      Rcpp::DataFrame supplement_true(supplement);
+      
+      stage3_supp = supplement_true["stage3"];
+      stage2_supp = supplement_true["stage2"];
+      stage1_supp = supplement_true["stage1"];
+      eststage3_supp = supplement_true["eststage3"];
+      eststage2_supp = supplement_true["eststage2"];
+      eststage1_supp = supplement_true["eststage1"];
+      givenrate_supp = supplement_true["givenrate"];
+      multiplier_supp = supplement_true["multiplier"];
+      convtype_supp = supplement_true["convtype"];
+      convtype_t12_supp = supplement_true["convtype_t12"];
+      supp_rows = stage3_supp.length();
+      
+    } else if (overwrite.isNotNull()) {
+      Rcpp::DataFrame supplement_true(supplement);
+      
+      stage3_supp = supplement_true["stage3"];
+      stage2_supp = supplement_true["stage2"];
+      stage1_supp = supplement_true["stage1"];
+      eststage3_supp = supplement_true["eststage3"];
+      eststage2_supp = supplement_true["eststage2"];
+      eststage1_supp = supplement_true["eststage1"];
+      givenrate_supp = supplement_true["givenrate"];
+      convtype_supp = supplement_true["convtype"];
+      convtype_t12_supp = supplement_true["convtype_t12"];
+      
+      supp_rows = givenrate_supp.length();
+      multiplier_supp = Rcpp::NumericVector::create(1.0, supp_rows);
+      
+    } else {
+      throw Rcpp::exception("No supplement provided.", false);
+    }
+    
+    StringVector unique_stages = unique(stagevec);
+    StringVector extra_terms = {"rep", "nrep", "immat", "mat", "prop", "npr", "all", "obs", "nobs"};
+    
+    int no_newstages {static_cast<int>(unique_stages.length())};
+    int no_extraterms {static_cast<int>(extra_terms.length())};
+    
+    StringVector all_possible_stage_terms(no_newstages + no_extraterms + no_groups);
+    for (int i = 0; i < no_newstages; i++) {
+      all_possible_stage_terms(i) = unique_stages(i);
+    }
+    for (int i = 0; i < no_extraterms; i++) {
+      all_possible_stage_terms(i + no_newstages) = extra_terms(i);
+    }
+    for (int i = 0; i < no_groups; i++) {
+      all_possible_stage_terms(i + no_newstages + no_extraterms) = group_text(i);
+    }
+    
+    // Check entries in supplement / overwrite table
+    for (int i = 0; i < static_cast<int>(stage3_supp.length()); i++) {
+      int s3supp_count {0};
+      int s2supp_count {0};
+      int s1supp_count {0};
+      
+      bool ests3_used {false};
+      bool ests2_used {false};
+      bool ests1_used {false};
+      
+      int ests3supp_count {0};
+      int ests2supp_count {0};
+      int ests1supp_count {0};
+      
+      for (int j = 0; j < static_cast<int>(all_possible_stage_terms.length()); j++) {
+        if (stage3_supp(i) == all_possible_stage_terms(j)) s3supp_count++;
+        if (stage2_supp(i) == all_possible_stage_terms(j)) s2supp_count++;
+        
+        if (!StringVector::is_na(eststage3_supp(i))) {
+          ests3_used = true;
+          if (eststage3_supp(i) == all_possible_stage_terms(j)) ests3supp_count++;
+        }
+        if (!StringVector::is_na(eststage2_supp(i))) {
+          ests2_used = true;
+          if (eststage2_supp(i) == all_possible_stage_terms(j)) ests2supp_count++;
+        }
+        
+        if (historical) {
+          if (stage1_supp(i) == all_possible_stage_terms(j)) s1supp_count++;
+          
+          if (!StringVector::is_na(eststage1_supp(i))) {
+            ests1_used = true;
+            if (eststage1_supp(i) == all_possible_stage_terms(j)) ests1supp_count++;
+          }
+        } 
+      }
+      
+      if (s3supp_count == 0) {
+        String eat_my_shorts = "Stage names in supplement or overwrite table ";
+        String eat_my_shorts1 = "(stage3) must match stageframe.";
+        eat_my_shorts += eat_my_shorts1;
+        
+        throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+      }
+      if (s2supp_count == 0) {
+        String eat_my_shorts = "Stage names in supplement or overwrite table ";
+        String eat_my_shorts1 = "(stage2) must match stageframe.";
+        eat_my_shorts += eat_my_shorts1;
+        
+        throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+      }
+      if (ests3_used) {
+        if (s3supp_count == 0) {
+          String eat_my_shorts = "Stage names in supplement or overwrite table ";
+          String eat_my_shorts1 = "(eststage3) must match stageframe.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+      }
+      if (ests2_used) {
+        if (s2supp_count == 0) {
+          String eat_my_shorts = "Stage names in supplement or overwrite table ";
+          String eat_my_shorts1 = "(eststage2) must match stageframe.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+      }
+      if (historical) {
+        if (s1supp_count == 0) {
+          String eat_my_shorts = "Stage names in supplement or overwrite table ";
+          String eat_my_shorts1 = "(stage1) must match stageframe.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+        if (ests1_used) {
+          if (s1supp_count == 0) {
+            String eat_my_shorts = "Stage names in supplement or overwrite table ";
+            String eat_my_shorts1 = "(eststage1) must match stageframe.";
+            eat_my_shorts += eat_my_shorts1;
+            
+            throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+          }
+        }
+      }
+    }
+    
+    IntegerVector s1_calls (supp_rows, 1);
+    IntegerVector s2_calls (supp_rows, 1);
+    IntegerVector s3_calls (supp_rows, 1);
+    IntegerVector ests1_calls (supp_rows, 1);
+    IntegerVector ests2_calls (supp_rows, 1);
+    IntegerVector ests3_calls (supp_rows, 1);
+    IntegerVector s3_planned (supp_rows, 1);
+    IntegerVector s2_planned (supp_rows, 1);
+    IntegerVector s1_planned (supp_rows, 1);
+    
+    IntegerVector s123_calls (supp_rows, 1);
+    
+    // Create indices for edited supplement/overwrite table
+    arma::uvec alive;
+    if (stageframe.containsElementNamed("alive")) {
+      arma::uvec alive_temp = as<arma::uvec>(stageframe["alive"]);
+      alive = alive_temp;
+    } else {
+      arma::uvec alive_temp (stageframe_length, fill::ones);
+      alive = alive_temp;
+    }
+    arma::uvec repvec = as<arma::uvec>(stageframe["repstatus"]);
+    arma::uvec obsvec = as<arma::uvec>(stageframe["obsstatus"]);
+    arma::uvec propvec = as<arma::uvec>(stageframe["propstatus"]);
+    arma::uvec immvec = as<arma::uvec>(stageframe["immstatus"]);
+    arma::uvec matvec = as<arma::uvec>(stageframe["matstatus"]);
+    arma::uvec indvec = as<arma::uvec>(stageframe["indataset"]);
+    
+    arma::uvec newprop_stages = find(propvec);
+    arma::uvec newprop0_stages = find(propvec == 0);
+    arma::uvec newimm_stages = find(immvec);
+    arma::uvec newalive_stages = find(alive);
+    arma::uvec newmat_stages1 = find(matvec);
+    arma::uvec newmat_stages = intersect(newalive_stages, newmat_stages1);
+    arma::uvec newrep_stages = find(repvec);
+    arma::uvec newrep0_stages = find(repvec == 0);
+    arma::uvec newmat_rep0_stages = intersect(newmat_stages, newrep0_stages);
+    arma::uvec newobs_stages = find(obsvec);
+    arma::uvec newobs0_stages = find(obsvec == 0);
+    arma::uvec all_stages = find(alive);
+    
+    int np_s = static_cast<int>(newprop_stages.n_elem);
+    int np0_s = static_cast<int>(newprop0_stages.n_elem);
+    int ni_s = static_cast<int>(newimm_stages.n_elem);
+    int nm_s = static_cast<int>(newmat_stages.n_elem);
+    int nr_s = static_cast<int>(newrep_stages.n_elem);
+    int nmr0_s = static_cast<int>(newmat_rep0_stages.n_elem);
+    int no_s = static_cast<int>(newobs_stages.n_elem);
+    int no0_s = static_cast<int>(newobs0_stages.n_elem);
+    int a_s = static_cast<int>(all_stages.n_elem);
+    
+    // Build expanded supplement table
+    for (int i = 0; i < supp_rows; i++) {
+      s3_calls(i) = supp_decision1(as<std::string>(stage3_supp(i)), np_s, np0_s,
+        ni_s, nm_s, nr_s, nmr0_s, no_s, no0_s, a_s, no_groups, groupvec,
+        group_text);
+      
+      ests3_calls(i) = supp_decision1(as<std::string>(eststage3_supp(i)), np_s,
+        np0_s, ni_s, nm_s, nr_s, nmr0_s, no_s, no0_s, a_s, no_groups, groupvec,
+        group_text);
+      
+      s2_calls(i) = supp_decision1(as<std::string>(stage2_supp(i)), np_s, np0_s,
+        ni_s, nm_s, nr_s, nmr0_s, no_s, no0_s, a_s, no_groups, groupvec,
+        group_text);
+      
+      ests2_calls(i) = supp_decision1(as<std::string>(eststage2_supp(i)), np_s,
+        np0_s, ni_s, nm_s, nr_s, nmr0_s, no_s, no0_s, a_s, no_groups, groupvec,
+        group_text);
+      
+      s1_calls(i) = supp_decision1(as<std::string>(stage1_supp(i)), np_s, np0_s,
+        ni_s, nm_s, nr_s, nmr0_s, no_s, no0_s, a_s, no_groups, groupvec,
+        group_text);
+      
+      ests1_calls(i) = supp_decision1(as<std::string>(eststage1_supp(i)), np_s,
+        np0_s, ni_s, nm_s, nr_s, nmr0_s, no_s, no0_s, a_s, no_groups, groupvec,
+        group_text);
+      
+      String eat_my_shorts_gse = "If stage group shorthand is used to designate ";
+      String eat_my_shorts1_gse = "both a transition and a proxy, then the ";
+      String eat_my_shorts2_gse = "shorthand group must be the same in both cases.";
+      eat_my_shorts_gse += eat_my_shorts1_gse;
+      eat_my_shorts_gse += eat_my_shorts2_gse;
+      
+      if (!StringVector::is_na(eststage3_supp(i))) {
+        if (eststage3_supp(i) != stage3_supp(i)) {
+          if (s3_calls(i) == 1 && ests3_calls(i) > 1) {
+            s3_planned(i) = ests3_calls(i);
+          } else if (s3_calls(i) > 1 && ests3_calls(i) > 1) {
+            throw Rcpp::exception(eat_my_shorts_gse.get_cstring(), false);
+          }
+        } else {
+          s3_planned(i) = s3_calls(i);
+        }
+      } else {
+        s3_planned(i) = s3_calls(i);
+      }
+      
+      if (!StringVector::is_na(eststage2_supp(i))) {
+        if (eststage2_supp(i) != stage2_supp(i)) {
+          if (s2_calls(i) == 1 && ests2_calls(i) > 1) {
+            s2_planned(i) = ests2_calls(i);
+          } else if (s2_calls(i) > 1 && ests2_calls(i) > 1) {
+            throw Rcpp::exception(eat_my_shorts_gse.get_cstring(), false);
+          }
+        } else {
+          s2_planned(i) = s2_calls(i);
+        }
+      } else {
+        s2_planned(i) = s2_calls(i);
+      }
+      
+      if (!StringVector::is_na(eststage1_supp(i))) {
+        if (historical && eststage1_supp(i) != stage1_supp(i)) {
+          if (s1_calls(i) == 1 && ests1_calls(i) > 1) {
+            s1_planned(i) = ests1_calls(i);
+          } else if (s1_calls(i) > 1 && ests1_calls(i) > 1) {
+            throw Rcpp::exception(eat_my_shorts_gse.get_cstring(), false);
+          }
+        } else if (historical) {
+          s1_planned(i) = s1_calls(i);
+        } else if (!historical) {
+          s1_planned(i) = 1;
+        }
+      } else {
+        s1_planned(i) = s1_calls(i);
+      }
+      
+      s123_calls(i) = s3_planned(i) * s2_planned(i) * s1_planned(i);
+    }
+    
+    NumericVector basepoints(supp_rows, 0.0);
+    for (int i = 0; i < (supp_rows - 1); i++) {
+      basepoints(i+1) = basepoints(i) + s123_calls(i);
+    }
+    
+    int newsupp_rows = sum(s123_calls);
+    
+    StringVector stage3_newsupp(newsupp_rows);
+    StringVector stage2_newsupp(newsupp_rows);
+    StringVector stage1_newsupp(newsupp_rows);
+    StringVector eststage3_newsupp(newsupp_rows);
+    StringVector eststage2_newsupp(newsupp_rows);
+    StringVector eststage1_newsupp(newsupp_rows);
+    NumericVector givenrate_newsupp(newsupp_rows);
+    IntegerVector convtype_newsupp(newsupp_rows);
+    IntegerVector convtype_t12_newsupp(newsupp_rows);
+    NumericVector multiplier_newsupp(newsupp_rows);
+    
+    int overall_counter {0};
+    int group_check {0};
+    
+    int group_baseline3 {0};
+    int group_baseline2 {0};
+    int group_baseline1 {0};
+    int group_baselinee3 {0};
+    int group_baselinee2 {0};
+    int group_baselinee1 {0};
+    
+    int group_ratchet3 {0};
+    int group_ratchet2 {0};
+    int group_ratchet1 {0};
+    int group_ratchete3 {0};
+    int group_ratchete2 {0};
+    int group_ratchete1 {0};
+    
+    int prevl3 {0};
+    int prevl2 {0};
+    int prevl1 {0};
+    int prevle3 {0};
+    int prevle2 {0};
+    int prevle1 {0};
+    
+    for (int i = 0; i < supp_rows; i++) {
+      overall_counter = 0;
+      for (int j = 0; j < s1_planned(i); j++) {
+        for (int k = 0; k < s2_planned(i); k++) {
+          for (int l = 0; l < s3_planned(i); l++) {
+            stage3_newsupp(basepoints(i) + overall_counter) =
+              supp_decision2(as<std::string>(stage3_supp(i)), newprop_stages,
+                newprop0_stages, newimm_stages, newmat_stages, newrep_stages,
+                newmat_rep0_stages, newobs_stages, newobs0_stages, all_stages,
+                no_groups, groupvec, group_text, stagevec, l, group_check,
+                group_ratchet3, group_baseline3, prevl3);
+            
+            givenrate_newsupp(basepoints(i) + overall_counter) = givenrate_supp(i);
+            multiplier_newsupp(basepoints(i) + overall_counter) = multiplier_supp(i);
+            convtype_newsupp(basepoints(i) + overall_counter) = convtype_supp(i);
+            convtype_t12_newsupp(basepoints(i) + overall_counter) = convtype_t12_supp(i);
+            
+            eststage3_newsupp(basepoints(i) + overall_counter) =
+              supp_decision2(as<std::string>(eststage3_supp(i)), newprop_stages,
+                newprop0_stages, newimm_stages, newmat_stages, newrep_stages,
+                newmat_rep0_stages, newobs_stages, newobs0_stages, all_stages,
+                no_groups, groupvec, group_text, stagevec, l, group_check,
+                group_ratchete3, group_baselinee3, prevle3);
+            
+            stage2_newsupp(basepoints(i) + overall_counter) =
+              supp_decision2(as<std::string>(stage2_supp(i)), newprop_stages,
+                newprop0_stages, newimm_stages, newmat_stages, newrep_stages,
+                newmat_rep0_stages, newobs_stages, newobs0_stages, all_stages,
+                no_groups, groupvec, group_text, stagevec, k, group_check,
+                group_ratchet2, group_baseline2, prevl2);
+            
+            eststage2_newsupp(basepoints(i) + overall_counter) =
+              supp_decision2(as<std::string>(eststage2_supp(i)), newprop_stages,
+                newprop0_stages, newimm_stages, newmat_stages, newrep_stages,
+                newmat_rep0_stages, newobs_stages, newobs0_stages, all_stages,
+                no_groups, groupvec, group_text, stagevec, k, group_check,
+                group_ratchete2, group_baselinee2, prevle2);
+            
+            stage1_newsupp(basepoints(i) + overall_counter) =
+              supp_decision2(as<std::string>(stage1_supp(i)), newprop_stages,
+                newprop0_stages, newimm_stages, newmat_stages, newrep_stages,
+                newmat_rep0_stages, newobs_stages, newobs0_stages, all_stages,
+                no_groups, groupvec, group_text, stagevec, j, group_check,
+                group_ratchet1, group_baseline1, prevl1);
+            
+            eststage1_newsupp(basepoints(i) + overall_counter) =
+              supp_decision2(as<std::string>(eststage1_supp(i)), newprop_stages,
+                newprop0_stages, newimm_stages, newmat_stages, newrep_stages,
+                newmat_rep0_stages, newobs_stages, newobs0_stages, all_stages,
+                no_groups, groupvec, group_text, stagevec, j, group_check,
+                group_ratchete1, group_baselinee1, prevle1);
+            
+            overall_counter++;
+          }
+        }
+      }
+    }
+    
+    Rcpp::List newsupplement(10);
+    
+    newsupplement(0) = stage3_newsupp;
+    newsupplement(1) = stage2_newsupp;
+    newsupplement(2) = stage1_newsupp;
+    newsupplement(3) = eststage3_newsupp;
+    newsupplement(4) = eststage2_newsupp;
+    newsupplement(5) = eststage1_newsupp;
+    newsupplement(6) = givenrate_newsupp;
+    newsupplement(7) = multiplier_newsupp;
+    newsupplement(8) = convtype_newsupp;
+    newsupplement(9) = convtype_t12_newsupp;
+    
+    CharacterVector su_namevec = {"stage3", "stage2", "stage1", "eststage3", "eststage2",
+      "eststage1", "givenrate", "multiplier", "convtype", "convtype_t12"};
+    CharacterVector su_newclasses = {"data.frame", "lefkoSD"};
+    newsupplement.attr("names") = su_namevec;
+    newsupplement.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, newsupp_rows);
+    newsupplement.attr("class") = su_newclasses;
+    
+    return newsupplement;
+  }
+
 }
 #endif

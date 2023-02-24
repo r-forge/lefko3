@@ -2824,10 +2824,10 @@ arlefko2 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
 #'   patchidcol = "patch", individcol = "plantid", blocksize = 4,
 #'   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04",
 #'   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
-#'   NAas0 = TRUE, NRasRep = TRUE)
+#'   age_offset = 3, NAas0 = TRUE, NRasRep = TRUE)
 #' 
-#' cyp_rl <- rleslie(data = cypraw_v1, start_age = 0, last_age = 4, continue = TRUE,
-#'   fecage_min = 3, fecage_max = 4, year = "all", pop = NA, patch = "all",
+#' cyp_rl <- rleslie(data = cypraw_v1, start_age = 0, last_age = 4,
+#'   continue = TRUE, fecage_min = 3, year = "all", pop = NA, patch = "all",
 #'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
 #' 
 #' @export

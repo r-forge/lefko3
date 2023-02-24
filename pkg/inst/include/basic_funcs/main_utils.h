@@ -8247,6 +8247,47 @@ namespace LefkoUtils {
     return;
   }
   
+  //' Assess if MPM is ahistorical, historical, age-by-stage, or Leslie
+  //' 
+  //' Function \code{whichbrew()} assesses whether a \code{lefkoMat} object is
+  //' ahistorical, historical, age-based, or age-by-stage based.
+  //' 
+  //' @name whichbrew
+  //' 
+  //' @param ahstages The \code{ahstages} object from a \code{lefkoMat} object.
+  //' @param hstages The \code{hstages} object from a \code{lefkoMat} object.
+  //' @param agestages The \code{agestages} object from a \code{lefkoMat} object.
+  //' 
+  //' @return An integer corresponding to the type of \code{lefkoMat}object, with
+  //' the following possible values: \code{0}: historical MPM, \code{1}:
+  //' ahistorical MPM, \code{2}: age-by-stage MPM, and \code{3}: age-based MPM.
+  //' 
+  //' @keywords internal
+  //' @noRd
+  inline int whichbrew (Rcpp::DataFrame& ahstages, Rcpp::DataFrame& hstages,
+    Rcpp::DataFrame& agestages) {
+    
+    int current_brew {1}; // 0 - historical; 1 - ahistorical; 2 - agestage; 3 - age
+    
+    int hst_cols = static_cast<int>(hstages.length());
+    int ast_cols = static_cast<int>(agestages.length());
+    
+    if (hst_cols > 1) {
+      current_brew = 0;
+      
+    } else if (ast_cols > 1) {
+      current_brew = 2;
+      
+    } else {
+      StringVector stage = as<StringVector>(ahstages["stage"]);
+      if (stringcompare_simple(as<std::string>(stage(0)), "Age")) {
+        current_brew = 3;
+      } else current_brew = 1;
+    }
+    
+    return current_brew;
+  }
+  
 }
 
 #endif

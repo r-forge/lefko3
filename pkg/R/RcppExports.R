@@ -1475,9 +1475,10 @@ NULL
 #' category names.
 #' @param StageFrame The stageframe object identifying the life history model
 #' being operationalized.
-#' @param OverWrite The overwrite table used in analysis, as modified by 
-#' \code{.overwrite_reassess}. Must be processed via \code{.overwrite_reassess}
-#' rather than being a raw overwrite or supplement table.
+#' @param OverWrite The supplement or overwrite table used in analysis, as
+#' modified by \code{.sf_reassess()} (which technically uses function
+#' \code{supp_reassess()}). Must be processed via \code{.supp_reassess} rather
+#' than being a raw overwrite or supplement table.
 #' @param repmatrix The reproductive matrix used in analysis.
 #' @param f2_inda_num A numeric vector of length equal to the number of years,
 #' holding values equal to the mean value of individual covariate \code{a} at
