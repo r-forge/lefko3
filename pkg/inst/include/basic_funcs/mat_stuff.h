@@ -1352,8 +1352,8 @@ namespace LefkoMats {
   //' @param overwrite The user's overwrite table, if used.
   //' 
   //' @return This function returns a new data frame that acts as the expanded
-  //' supplemental table without shorthand codes. It uses only stage designations
-  //' from the stageframe used.
+  //' supplemental table without shorthand codes. It uses only stage
+  //' designations from the stageframe used.
   //' 
   //' @keywords internal
   //' @noRd
@@ -1380,45 +1380,96 @@ namespace LefkoMats {
     StringVector stage3_supp;
     StringVector stage2_supp;
     StringVector stage1_supp;
+    IntegerVector age2_supp;
     StringVector eststage3_supp;
     StringVector eststage2_supp;
     StringVector eststage1_supp;
+    IntegerVector estage2_supp;
     NumericVector givenrate_supp;
     NumericVector multiplier_supp;
     IntegerVector convtype_supp;
     IntegerVector convtype_t12_supp;
+    
+    StringVector pop_supp;
+    StringVector patch_supp;
+    StringVector year2_supp;
+    
     int supp_rows {0};
     
     if (supplement.isNotNull()) {
       Rcpp::DataFrame supplement_true(supplement);
       
-      stage3_supp = supplement_true["stage3"];
-      stage2_supp = supplement_true["stage2"];
-      stage1_supp = supplement_true["stage1"];
-      eststage3_supp = supplement_true["eststage3"];
-      eststage2_supp = supplement_true["eststage2"];
-      eststage1_supp = supplement_true["eststage1"];
-      givenrate_supp = supplement_true["givenrate"];
-      multiplier_supp = supplement_true["multiplier"];
-      convtype_supp = supplement_true["convtype"];
-      convtype_t12_supp = supplement_true["convtype_t12"];
+      stage3_supp = as<StringVector>(supplement_true["stage3"]);
+      stage2_supp = as<StringVector>(supplement_true["stage2"]);
+      stage1_supp = as<StringVector>(supplement_true["stage1"]);
+      eststage3_supp = as<StringVector>(supplement_true["eststage3"]);
+      eststage2_supp = as<StringVector>(supplement_true["eststage2"]);
+      eststage1_supp = as<StringVector>(supplement_true["eststage1"]);
+      givenrate_supp = as<NumericVector>(supplement_true["givenrate"]);
+      multiplier_supp = as<NumericVector>(supplement_true["multiplier"]);
+      convtype_supp = as<IntegerVector>(supplement_true["convtype"]);
+      convtype_t12_supp = as<IntegerVector>(supplement_true["convtype_t12"]);
       supp_rows = stage3_supp.length();
+      
+      if (supplement_true.containsElementNamed("age2")) {
+        age2_supp = as<IntegerVector>(supplement_true["age2"]);
+        estage2_supp = as<IntegerVector>(supplement_true["estage2"]);
+      } else {
+        IntegerVector age2_supp_ (stage2_supp.length(), NA_INTEGER);
+        IntegerVector estage2_supp_ (eststage2_supp.length(), NA_INTEGER);
+        
+        age2_supp = age2_supp_;
+        estage2_supp = estage2_supp_;
+      }
+      
+      if (supplement_true.containsElementNamed("pop")) {
+        pop_supp = as<StringVector>(supplement_true["pop"]);
+      } else {
+        StringVector pop_supp_ (stage2_supp.length(), NA_STRING);
+        pop_supp = pop_supp_;
+      }
+      if (supplement_true.containsElementNamed("patch")) {
+        patch_supp = as<StringVector>(supplement_true["patch"]);
+      } else {
+        StringVector patch_supp_ (stage2_supp.length(), NA_STRING);
+        patch_supp = patch_supp_;
+      }
+      if (supplement_true.containsElementNamed("year2")) {
+        year2_supp = as<StringVector>(supplement_true["year2"]);
+      } else {
+        StringVector year2_supp_ (stage2_supp.length(), NA_STRING);
+        year2_supp = year2_supp_;
+      }
       
     } else if (overwrite.isNotNull()) {
       Rcpp::DataFrame supplement_true(supplement);
       
-      stage3_supp = supplement_true["stage3"];
-      stage2_supp = supplement_true["stage2"];
-      stage1_supp = supplement_true["stage1"];
-      eststage3_supp = supplement_true["eststage3"];
-      eststage2_supp = supplement_true["eststage2"];
-      eststage1_supp = supplement_true["eststage1"];
-      givenrate_supp = supplement_true["givenrate"];
-      convtype_supp = supplement_true["convtype"];
-      convtype_t12_supp = supplement_true["convtype_t12"];
+      stage3_supp = as<StringVector>(supplement_true["stage3"]);
+      stage2_supp = as<StringVector>(supplement_true["stage2"]);
+      stage1_supp = as<StringVector>(supplement_true["stage1"]);
+      eststage3_supp = as<StringVector>(supplement_true["eststage3"]);
+      eststage2_supp = as<StringVector>(supplement_true["eststage2"]);
+      eststage1_supp = as<StringVector>(supplement_true["eststage1"]);
+      givenrate_supp = as<NumericVector>(supplement_true["givenrate"]);
+      convtype_supp = as<IntegerVector>(supplement_true["convtype"]);
+      convtype_t12_supp = as<IntegerVector>(supplement_true["convtype_t12"]);
       
       supp_rows = givenrate_supp.length();
       multiplier_supp = Rcpp::NumericVector::create(1.0, supp_rows);
+      
+      IntegerVector age2_supp_ (stage2_supp.length(), NA_INTEGER);
+      IntegerVector estage2_supp_ (eststage2_supp.length(), NA_INTEGER);
+      
+      age2_supp = age2_supp_;
+      estage2_supp = estage2_supp_;
+      
+      StringVector pop_supp_ (stage2_supp.length(), NA_STRING);
+      StringVector patch_supp_ (stage2_supp.length(), NA_STRING);
+      StringVector year2_supp_ (stage2_supp.length(), NA_STRING);
+      
+      pop_supp = pop_supp_;
+      patch_supp = patch_supp_;
+      year2_supp = year2_supp_;
       
     } else {
       throw Rcpp::exception("No supplement provided.", false);
@@ -1667,16 +1718,22 @@ namespace LefkoMats {
     
     int newsupp_rows = sum(s123_calls);
     
-    StringVector stage3_newsupp(newsupp_rows);
-    StringVector stage2_newsupp(newsupp_rows);
-    StringVector stage1_newsupp(newsupp_rows);
-    StringVector eststage3_newsupp(newsupp_rows);
-    StringVector eststage2_newsupp(newsupp_rows);
-    StringVector eststage1_newsupp(newsupp_rows);
-    NumericVector givenrate_newsupp(newsupp_rows);
-    IntegerVector convtype_newsupp(newsupp_rows);
-    IntegerVector convtype_t12_newsupp(newsupp_rows);
-    NumericVector multiplier_newsupp(newsupp_rows);
+    StringVector stage3_newsupp (newsupp_rows);
+    StringVector stage2_newsupp (newsupp_rows);
+    StringVector stage1_newsupp (newsupp_rows);
+    IntegerVector age2_newsupp (newsupp_rows);
+    StringVector eststage3_newsupp (newsupp_rows);
+    StringVector eststage2_newsupp (newsupp_rows);
+    StringVector eststage1_newsupp (newsupp_rows);
+    IntegerVector estage2_newsupp (newsupp_rows);
+    NumericVector givenrate_newsupp (newsupp_rows);
+    IntegerVector convtype_newsupp (newsupp_rows);
+    IntegerVector convtype_t12_newsupp (newsupp_rows);
+    NumericVector multiplier_newsupp (newsupp_rows);
+    
+    StringVector pop_newsupp (newsupp_rows);
+    StringVector patch_newsupp (newsupp_rows);
+    StringVector year2_newsupp (newsupp_rows);
     
     int overall_counter {0};
     int group_check {0};
@@ -1754,33 +1811,161 @@ namespace LefkoMats {
                 no_groups, groupvec, group_text, stagevec, j, group_check,
                 group_ratchete1, group_baselinee1, prevle1);
             
+            age2_newsupp(basepoints(i) + overall_counter) = age2_supp(i);
+            estage2_newsupp(basepoints(i) + overall_counter) = estage2_supp(i);
+            
+            pop_newsupp(basepoints(i) + overall_counter) = pop_supp(i);
+            patch_newsupp(basepoints(i) + overall_counter) = patch_supp(i);
+            year2_newsupp(basepoints(i) + overall_counter) = year2_supp(i);
+            
             overall_counter++;
           }
         }
       }
     }
     
-    Rcpp::List newsupplement(10);
+    Rcpp::List newsupplement(15);
     
     newsupplement(0) = stage3_newsupp;
     newsupplement(1) = stage2_newsupp;
     newsupplement(2) = stage1_newsupp;
-    newsupplement(3) = eststage3_newsupp;
-    newsupplement(4) = eststage2_newsupp;
-    newsupplement(5) = eststage1_newsupp;
-    newsupplement(6) = givenrate_newsupp;
-    newsupplement(7) = multiplier_newsupp;
-    newsupplement(8) = convtype_newsupp;
-    newsupplement(9) = convtype_t12_newsupp;
+    newsupplement(3) = age2_newsupp;
+    newsupplement(4) = eststage3_newsupp;
+    newsupplement(5) = eststage2_newsupp;
+    newsupplement(6) = eststage1_newsupp;
+    newsupplement(7) = estage2_newsupp;
+    newsupplement(8) = givenrate_newsupp;
+    newsupplement(9) = multiplier_newsupp;
+    newsupplement(10) = convtype_newsupp;
+    newsupplement(11) = convtype_t12_newsupp;
+    newsupplement(12) = pop_newsupp;
+    newsupplement(13) = patch_newsupp;
+    newsupplement(14) = year2_newsupp;
     
-    CharacterVector su_namevec = {"stage3", "stage2", "stage1", "eststage3", "eststage2",
-      "eststage1", "givenrate", "multiplier", "convtype", "convtype_t12"};
+    CharacterVector su_namevec = {"stage3", "stage2", "stage1", "age2",
+      "eststage3", "eststage2", "eststage1", "estage2", "givenrate", "multiplier",
+      "convtype", "convtype_t12", "pop", "patch", "year2"};
     CharacterVector su_newclasses = {"data.frame", "lefkoSD"};
     newsupplement.attr("names") = su_namevec;
     newsupplement.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, newsupp_rows);
     newsupplement.attr("class") = su_newclasses;
     
     return newsupplement;
+  }
+  
+  //' Expand Supplemental Table by Age Inputs
+  //' 
+  //' The function takes an already expanded supplemental table as input and
+  //' produces an edited version expanded by age. This is used in editing
+  //' age-by-stage MPMs.
+  //' 
+  //' @name age_expanded
+  //' 
+  //' @param supplement The expanded supplemental table.
+  //' @param minage An integer denoting the minimum age used in the MPM.
+  //' @param maxage An integer denoting the maximum age used in the MPM.
+  //' 
+  //' @return This function returns a new data frame that acts as the expanded
+  //' supplemental table without shorthand codes and with ages explicit.
+  //' 
+  //' @keywords internal
+  //' @noRd
+  inline Rcpp::DataFrame age_expanded (DataFrame supplement, int minage, int maxage) {
+    
+    StringVector supp_stage3 = as<StringVector>(supplement["stage3"]);
+    StringVector supp_stage2 = as<StringVector>(supplement["stage2"]);
+    StringVector supp_stage1 = as<StringVector>(supplement["stage1"]);
+    IntegerVector supp_age2 = as<IntegerVector>(supplement["age2"]);
+    StringVector supp_eststage3 = as<StringVector>(supplement["eststage3"]);
+    StringVector supp_eststage2 = as<StringVector>(supplement["eststage2"]);
+    StringVector supp_eststage1 = as<StringVector>(supplement["eststage1"]);
+    IntegerVector supp_estage2 = as<IntegerVector>(supplement["estage2"]);
+    NumericVector supp_givenrate = as<NumericVector>(supplement["givenrate"]);
+    NumericVector supp_multiplier = as<NumericVector>(supplement["multiplier"]);
+    IntegerVector supp_convtype = as<IntegerVector>(supplement["convtype"]);
+    IntegerVector supp_convtype_t12 = as<IntegerVector>(supplement["convtype_t12"]);
+    StringVector supp_pop = as<StringVector>(supplement["pop"]);
+    StringVector supp_patch = as<StringVector>(supplement["patch"]);
+    StringVector supp_year2 = as<StringVector>(supplement["year2"]);
+    
+    int base_length = static_cast<int>(supp_stage2.length());
+    arma::uvec estimated_elements (base_length, fill::zeros);
+    
+    int total_ages = maxage - minage + 1; // Originally maxage - minage + 1
+    IntegerVector total_ages_seq = seq(minage, maxage); // Originally seq(minage, maxage)
+    
+    for (int i = 0; i < base_length; i++) {
+      if (IntegerVector::is_na(supp_age2(i))) {
+        estimated_elements(i) = total_ages;
+      } else {
+        estimated_elements(i) = 1;
+      }
+    }
+    
+    int new_length = static_cast<int>(accu(estimated_elements));
+    
+    StringVector new_supp_stage3 (new_length);
+    StringVector new_supp_stage2 (new_length);
+    StringVector new_supp_stage1 (new_length);
+    IntegerVector new_supp_age2 (new_length);
+    StringVector new_supp_eststage3 (new_length);
+    StringVector new_supp_eststage2 (new_length);
+    StringVector new_supp_eststage1 (new_length);
+    IntegerVector new_supp_estage2 (new_length);
+    NumericVector new_supp_givenrate (new_length);
+    NumericVector new_supp_multiplier (new_length);
+    IntegerVector new_supp_convtype (new_length);
+    IntegerVector new_supp_convtype_t12 (new_length);
+    StringVector new_supp_pop (new_length);
+    StringVector new_supp_patch (new_length);
+    StringVector new_supp_year2 (new_length);
+    
+    int cookie_counter {0};
+    for (int i = 0; i < base_length; i++) {
+      for (int j = 0; j < estimated_elements(i); j++) {
+        new_supp_stage3(cookie_counter) = supp_stage3(i);
+        new_supp_stage2(cookie_counter) = supp_stage2(i);
+        new_supp_stage1(cookie_counter) = supp_stage1(i);
+        
+        if (estimated_elements(i) > 1) {
+          new_supp_age2(cookie_counter) = total_ages_seq(j);
+        } else {
+          new_supp_age2(cookie_counter) = supp_age2(i);
+        }
+        
+        new_supp_eststage3(cookie_counter) = supp_eststage3(i);
+        new_supp_eststage2(cookie_counter) = supp_eststage2(i);
+        new_supp_eststage1(cookie_counter) = supp_eststage1(i);
+        
+        if (estimated_elements(i) > 1) {
+          new_supp_estage2(cookie_counter) = total_ages_seq(j);
+        } else {
+          new_supp_estage2(cookie_counter) = supp_estage2(i);
+        }
+        
+        new_supp_givenrate(cookie_counter) = supp_givenrate(i);
+        new_supp_multiplier(cookie_counter) = supp_multiplier(i);
+        new_supp_convtype(cookie_counter) = supp_convtype(i);
+        new_supp_convtype_t12(cookie_counter) = supp_convtype_t12(i);
+        
+        new_supp_pop(cookie_counter) = supp_pop(i);
+        new_supp_patch(cookie_counter) = supp_patch(i);
+        new_supp_year2(cookie_counter) = supp_year2(i);
+        
+        cookie_counter++;
+      }
+    }
+    
+    Rcpp::DataFrame new_supplement = DataFrame::create(_["stage3"] = new_supp_stage3,
+      _["stage2"] = new_supp_stage2, _["stage1"] = new_supp_stage1,
+      _["age2"] = new_supp_age2, _["eststage3"] = new_supp_eststage3,
+      _["eststage2"] = new_supp_eststage2, _["eststage1"] = new_supp_eststage1,
+      _["estage2"] = new_supp_estage2, _["givenrate"] = new_supp_givenrate,
+      _["multiplier"] = new_supp_multiplier, _["convtype"] = new_supp_convtype,
+      _["convtype_t12"] = new_supp_convtype_t12, _["pop"] = new_supp_pop,
+      _["patch"] = new_supp_patch, _["year2"] = new_supp_year2);
+    
+    return new_supplement;
   }
 
 }

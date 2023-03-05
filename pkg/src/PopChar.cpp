@@ -12,8 +12,8 @@ using namespace LefkoUtils;
 //' life history stage in the life history model. This data frame can be used as 
 //' input into MPM creation functions including \code{\link{flefko3}()}, 
 //' \code{\link{flefko2}()}, \code{\link{aflefko2}()}, \code{\link{rlefko3}()},
-//' and \code{\link{rlefko2}()}, in which it determines how each stage is
-//' treated during matrix estimation.
+//' \code{\link{rlefko2}()}, and \code{\link{arlefko2}()}, in which it
+//' determines how each stage is treated during matrix estimation.
 //' 
 //' @name sf_create
 //' 
@@ -21,10 +21,11 @@ using namespace LefkoUtils;
 //' life history stage. If making function-based MPMs, then this should be a
 //' vector composed of the midpoints of each size bin. If denoting the boundary
 //' of an automated size classification group, then should denote the absolute
-//' minimum size of that group, or the absolute size of that group (see Notes).
+//' minimum size of that group, or the absolute size of that group (see
+//' \code{Notes}).
 //' @param stagenames A vector of stage names, in the same order as elements in
 //' sizes. Can also be set to \code{ipm} for automated size classification (see
-//' Notes section).
+//' \code{Notes} section).
 //' @param sizesb An optional numeric vector for a second size metric for each
 //' life history stage. Only to be used if stages are defined by at least two
 //' size metrics in all cases. Same issues apply as in \code{sizes}.
@@ -32,13 +33,13 @@ using namespace LefkoUtils;
 //' life history stage. Only to be used if stages are defined by at least three
 //' size metrics in all cases. Same issues apply as in \code{sizes}.
 //' @param repstatus A vector denoting the binomial reproductive status of each
-//' life history stage. Defaults to 1.
+//' life history stage. Defaults to \code{1}.
 //' @param obsstatus A vector denoting the binomial observation status of each
-//' life history stage. Defaults to 1, but may be changed for unobservable 
-//' stages.
+//' life history stage. Defaults to \code{1}, but may be changed for
+//' unobservable stages.
 //' @param propstatus A vector denoting whether each life history stage is a 
 //' propagule. Such stages are generally only used in fecundity estimation. 
-//' Defaults to 0.
+//' Defaults to \code{0}.
 //' @param matstatus A vector denoting whether each stage is mature. Must be
 //' composed of binomial values if given. Defaults to 1 for all stages defined 
 //' in \code{sizes}.
@@ -46,57 +47,62 @@ using namespace LefkoUtils;
 //' composed of binomial values if given. Defaults to the complement of vector
 //' \code{matstatus}.
 //' @param minage An optional vector denoting the minimum age at which a stage
-//' can occur. Only used in age x stage matrix development. Defaults to NA.
+//' can occur. Only used in age x stage matrix development. Defaults to
+//' \code{NA}.
 //' @param maxage An optional vector denoting the maximum age at which a stage
-//' should occur. Only used in age x stage matrix development. Defaults to NA.
+//' should occur. Only used in age x stage matrix development. Defaults to
+//' \code{NA}.
 //' @param indataset A vector designating which stages are found within the 
 //' dataset. While \code{\link{rlefko2}()} and \code{\link{rlefko3}()} can use
 //' all stages in the input dataset, \code{\link{flefko3}()} and
 //' \code{\link{flefko2}()} can only handle size-classified stages with
 //' non-overlapping combinations of size and status variables. Stages that do
-//' not actually exist within the dataset should be marked as 0 in this vector.
+//' not actually exist within the dataset should be marked as \code{0} in this
+//' vector.
 //' @param binhalfwidth A numeric vector giving the half-width of size bins.
 //' Required to classify individuals appropriately within size classes.
-//' Defaults to 0.5 for all sizes.
+//' Defaults to \code{0.5} for all sizes.
 //' @param binhalfwidthb A numeric vector giving the half-width of size bins
 //' used for the optional second size metric. Required to classify individuals
-//' appropriately with two or three size classes. Defaults to 0.5 for all sizes.
+//' appropriately with two or three size classes. Defaults to \code{0.5} for all
+//' sizes.
 //' @param binhalfwidthc A numeric vector giving the half-width of size bins
 //' used for the optional third size metric. Required to classify individuals
-//' appropriately with three size classes. Defaults to 0.5 for all sizes.
+//' appropriately with three size classes. Defaults to \code{0.5} for all sizes.
 //' @param group An integer vector providing information on each respective
 //' stage's size classification group. If used, then function-based MPM creation
 //' functions \code{\link{flefko2}()}, \code{\link{flefko3}()}, and
 //' \code{\link{aflefko2}()} will estimate transitions only within these groups
 //' and for allowed cross-group transitions noted within the supplement table.
-//' Defaults to 0.
+//' Defaults to \code{0}.
 //' @param comments An optional vector of text entries holding useful text
 //' descriptions of all stages.
 //' @param roundsize This parameter sets the precision of size classification,
-//' and equals the number of digits used in rounding sizes. Defaults to 5.
+//' and equals the number of digits used in rounding sizes. Defaults to
+//' \code{5}.
 //' @param roundsizeb This parameter sets the precision of size classification
 //' in the optional second size metric, and equals the number of digits used in
-//' rounding sizes. Defaults to 5.
+//' rounding sizes. Defaults to \code{5}.
 //' @param roundsizec This parameter sets the precision of size classification
 //' in the optional third size metric, and equals the number of digits used in
-//' rounding sizes. Defaults to 5.
+//' rounding sizes. Defaults to \code{5}.
 //' @param ipmbins An integer giving the number of size bins to create using the
 //' primary size classification variable. This number is in addition to any
-//' stages that are not size classified. Defaults to 100, and numbers greater
-//' than this yield a warning about the loss of statistical power and increasing
-//' chance of matrix over-parameterization resulting from increasing numbers of
-//' stages.
+//' stages that are not size classified. Defaults to \code{100}, and numbers
+//' greater than this yield a warning about the loss of statistical power and
+//' increasing chance of matrix over-parameterization resulting from increasing
+//' numbers of stages.
 //' @param ipmbinsb An optional integer giving the number of size bins to create
 //' using the secondary size classification variable. This number is in addition
 //' to any stages that are not size classified, as well as in addition to any
 //' automated size classification using the primary and tertiary size variables.
-//' Defaults to NA, and must be set to a positive integer for automated size
-//' classification to progress.
+//' Defaults to \code{NA}, and must be set to a positive integer for automated
+//' size classification to progress.
 //' @param ipmbinsc An optional integer giving the number of size bins to create
 //' using the tertiary size classification variable. This number is in addition
 //' to any stages that are not size classified, as well as in addition to any
 //' automated size classification using the primary and secondary size
-//' variables. Defaults to NA, and must be set to a positive integer for
+//' variables. Defaults to \code{NA}, and must be set to a positive integer for
 //' automated size classification to progress.
 //' 
 //' @return A data frame of class \code{stageframe}, which includes information
@@ -5901,4 +5907,2458 @@ DataFrame density_input(List mpm, RObject stage3, RObject stage2,
   
   return output;
 }
+
+//' Create a Data Frame of Supplemental Data for MPM Development
+//' 
+//' Function \code{supplemental()} provides all necessary supplemental data for
+//' matrix estimation, particularly bringing together data on proxy rates, data
+//' to overwrite existing rates, identified reproductive transitions complete,
+//' and fecundity multipliers. The function should be used to incorporate data
+//' that affects all matrices to be created. To edit MPMs after creation, use
+//' \code{\link{edit_lM}()} instead.
+//' 
+//' @name supplemental
+//' 
+//' @param stageframe The stageframe used to produce the MPM.
+//' @param historical A logical value indicating whether the MPMs intended will
+//' be historical or ahistorical. Defaults to \code{TRUE}.
+//' @param stagebased A logical value indicating whether the MPM will be stage-
+//' based or age-by-stage. Defaults to \code{TRUE}.
+//' @param agebased A logical value indicating whether the MPM will be age-based
+//' or age-by-stage. Defaults to \code{FALSE}.
+//' @param stage3 The name of the stage in occasion \emph{t}+1 in the transition
+//' to be replaced. Abbreviations for groups of stages are also usable (see
+//' \code{Notes}). Required in all stage-based and age-by-stage MPMs.
+//' @param stage2 The name of the stage in occasion \emph{t} in the transition
+//' to be replaced. Abbreviations for groups of stages are also usable (see
+//' \code{Notes}). Required in all stage-based and age-by-stage MPMs.
+//' @param stage1 The name of the stage in occasion \emph{t}-1 in the transition
+//' to be replaced. Only needed if a historical matrix is to be produced.
+//' Abbreviations for groups of stages are also usable (see \code{Notes}).
+//' Required for historical stage-based MPMs.
+//' @param age2 An integer vector of the ages in occasion \emph{t} to use in
+//' transitions to be changed or replaced. Required for all age- and
+//' age-by-stage MPMs.
+//' @param eststage3 The name of the stage to replace \code{stage3} in a proxy
+//' transition. Only needed if a transition will be replaced by another
+//' estimated transition, and only in stage-based and age-by-stage MPMs.
+//' @param eststage2 The name of the stage to replace \code{stage2} in a proxy
+//' transition. Only needed if a transition will be replaced by another
+//' estimated transition, and only in stage-based and age-by-stage MPMs.
+//' @param eststage1 The name of the stage to replace \code{stage1} in a proxy
+//' historical transition. Only needed if a transition will be replaced by
+//' another estimated transition, and the matrix to be estimated is historical
+//' and stage-based. Stage \code{NotAlive} is also possible for raw hMPMs as a
+//' means of handling the prior stage for individuals entering the population in
+//' occasion \emph{t}.
+//' @param estage2 The age at time \emph{t} to replace \code{age2} in a proxy
+//' transition. Only needed if a transition will be replaced by another
+//' estimated transition, and only in age-based and age-by-stage MPMs.
+//' @param givenrate A fixed rate or probability to replace for the transition
+//' described by \code{stage3}, \code{stage2}, and \code{stage1}.
+//' @param multiplier A vector of numeric multipliers for fecundity or for proxy
+//' transitions. Defaults to \code{1}.
+//' @param type A vector denoting the kind of transition between occasions
+//' \emph{t} and \emph{t}+1 to be replaced. This should be entered as \code{1},
+//' \code{S}, or \code{s} for the replacement of a survival transition;
+//' \code{2}, \code{F}, or \code{f} for the replacement of a fecundity
+//' transition; or \code{3}, \code{R}, or \code{r} for a fecundity multiplier.
+//' If empty or not provided, then defaults to \code{1} for survival transition.
+//' @param type_t12 An optional vector denoting the kind of transition between
+//' occasions \emph{t}-1 and \emph{t}. Only necessary if a historical MPM in
+//' deVries format is desired. This should be entered as \code{1}, \code{S}, or
+//' \code{s} for a survival transition; or \code{2}, \code{F}, or \code{f} for a
+//' fecundity transitions. Defaults to \code{1} for survival transition, with
+//' impacts only on the construction of deVries-format hMPMs.
+//' 
+//' @return A data frame of class \code{lefkoSD}. This object can be used as
+//' input in \code{\link{flefko3}()}, \code{\link{flefko2}()}, 
+//' \code{\link{rlefko3}()}, \code{\link{rlefko2}()}, and 
+//' \code{\link{aflefko2}()}.
+//' 
+//' Variables in this object include the following:
+//' \item{stage3}{Stage at occasion \emph{t}+1 in the transition to be
+//' replaced.}
+//' \item{stage2}{Stage at occasion \emph{t} in the transition to be replaced.}
+//' \item{stage1}{Stage at occasion \emph{t}-1 in the transition to be
+//' replaced.}
+//' \item{age2}{Age at occasion \emph{t} in the transition to be replaced.}
+//' \item{eststage3}{Stage at occasion \emph{t}+1 in the transition to replace
+//' the transition designated by \code{stage3}, \code{stage2}, and 
+//' \code{stage1}.}
+//' \item{eststage2}{Stage at occasion \emph{t} in the transition to replace the
+//' transition designated by \code{stage3}, \code{stage2}, and \code{stage1}.}
+//' \item{eststage1}{Stage at occasion \emph{t}-1 in the transition to replace
+//' the transition designated by \code{stage3}, \code{stage2}, and 
+//' \code{stage1}.}
+//' \item{estage2}{Age at occasion \emph{t} in the transition to replace the
+//' transition designated by \code{age2}.}
+//' \item{givenrate}{A constant to be used as the value of the transition.}
+//' \item{multiplier}{A multiplier for proxy transitions or for fecundity.}
+//' \item{convtype}{Designates whether the transition from occasion \emph{t} to
+//' occasion \emph{t}+1 is a survival transition probability (1), a fecundity
+//' rate (2), or a fecundity multiplier (3).}
+//' \item{convtype_t12}{Designates whether the transition from occasion
+//' \emph{t}-1 to occasion \emph{t} is a survival transition probability (1), a
+//' fecundity rate (2).}
+//' 
+//' @section Notes:
+//' Negative values are not allowed in \code{givenrate} and \code{multiplier}
+//' input. Stage entries should not be used for purely age-based MPMs, and age
+//' entries should not be used for purely stage-based MPMs.
+//' 
+//' Fecundity multiplier data supplied via the \code{supplemental()} function
+//' acts in the same way as non-zero entries supplied via a reproductive matrix,
+//' but gets priority in all matrix creations. Thus, in cases where fecundity
+//' multipliers are provided for the same function via the reproductive matrix
+//' and function \code{supplemental()}, the latter is used.
+//' 
+//' Entries in \code{stage3}, \code{stage2}, and \code{stage1} can include
+//' abbreviations for groups of stages. Use \code{rep} if all reproductive
+//' stages are to be used, \code{nrep} if all mature but non-reproductive stages
+//' are to be used, \code{mat} if all mature stages are to be used, \code{immat}
+//' if all immature stages are to be used, \code{prop} if all propagule stages
+//' are to be used, \code{npr} if all non-propagule stages are to be used,
+//' \code{obs} if all observable stages are to be used, \code{nobs} if all
+//' unobservable stages are to be used, and leave empty or use \code{all} if all
+//' stages in stageframe are to be used. Also use \code{groupX} to denote all
+//' stages in group X (e.g. \code{group1} will use all stages in the respective
+//' stageframe's group 1).
+//' 
+//' @seealso \code{\link{edit_lM}()}
+//' 
+//' @examples
+//' # Lathyrus example
+//' data(lathyrus)
+//' 
+//' sizevector <- c(0, 100, 13, 127, 3730, 3800, 0)
+//' stagevector <- c("Sd", "Sdl", "VSm", "Sm", "VLa", "Flo", "Dorm")
+//' repvector <- c(0, 0, 0, 0, 0, 1, 0)
+//' obsvector <- c(0, 1, 1, 1, 1, 1, 0)
+//' matvector <- c(0, 0, 1, 1, 1, 1, 1)
+//' immvector <- c(1, 1, 0, 0, 0, 0, 0)
+//' propvector <- c(1, 0, 0, 0, 0, 0, 0)
+//' indataset <- c(0, 1, 1, 1, 1, 1, 1)
+//' binvec <- c(0, 100, 11, 103, 3500, 3800, 0.5)
+//' 
+//' lathframe <- sf_create(sizes = sizevector, stagenames = stagevector,
+//'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
+//'   immstatus = immvector, indataset = indataset, binhalfwidth = binvec,
+//'   propstatus = propvector)
+//' 
+//' lathvert <- verticalize3(lathyrus, noyears = 4, firstyear = 1988,
+//'   patchidcol = "SUBPLOT", individcol = "GENET", blocksize = 9,
+//'   juvcol = "Seedling1988", sizeacol = "Volume88", repstracol = "FCODE88",
+//'   fecacol = "Intactseed88", deadacol = "Dead1988",
+//'   nonobsacol = "Dormant1988", stageassign = lathframe, stagesize = "sizea",
+//'   censorcol = "Missing1988", censorkeep = NA, censor = TRUE)
+//' 
+//' lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "Sd", "Sdl", "mat"),
+//'   stage2 = c("Sd", "Sd", "Sd", "Sd", "rep", "rep", "Sdl"),
+//'   stage1 = c("Sd", "rep", "Sd", "rep", "npr", "npr", "Sd"),
+//'   eststage3 = c(NA, NA, NA, NA, NA, NA, "mat"),
+//'   eststage2 = c(NA, NA, NA, NA, NA, NA, "Sdl"),
+//'   eststage1 = c(NA, NA, NA, NA, NA, NA, "NotAlive"),
+//'   givenrate = c(0.345, 0.345, 0.054, 0.054, NA, NA, NA),
+//'   multiplier = c(NA, NA, NA, NA, 0.345, 0.054, NA),
+//'   type = c(1, 1, 1, 1, 3, 3, 1), type_t12 = c(1, 2, 1, 2, 1, 1, 1),
+//'   stageframe = lathframe, historical = TRUE)
+//' 
+//' ehrlen3 <- rlefko3(data = lathvert, stageframe = lathframe, year = "all", 
+//'   stages = c("stage3", "stage2", "stage1"), supplement = lathsupp3,
+//'   yearcol = "year2", indivcol = "individ")
+//' 
+//' # Cypripedium example
+//' data(cypdata)
+//' 
+//' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
+//' stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
+//'   "XLg")
+//' repvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
+//' obsvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
+//' matvector <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
+//' immvector <- c(0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
+//' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+//' indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
+//' binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 2.5, 7)
+//' 
+//' cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector,
+//'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
+//'   propstatus = propvector, immstatus = immvector, indataset = indataset,
+//'   binhalfwidth = binvec)
+//' 
+//' cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
+//'   patchidcol = "patch", individcol = "plantid", blocksize = 4,
+//'   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04",
+//'   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
+//'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
+//'   NRasRep = TRUE)
+//' 
+//' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
+//'     "XSm", "Sm", "SD", "P1"),
+//'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
+//'     "rep"),
+//'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+//'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+//'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+//'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+//'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+//'   stageframe = cypframe_raw, historical = FALSE)
+//' 
+//' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
+//'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
+//'   size = c("size3added", "size2added"), supplement = cypsupp2r,
+//'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
+//' 
+//' @export supplemental
+// [[Rcpp::export(supplemental)]]
+Rcpp::List supplemental (RObject stageframe, bool historical = true,
+  bool stagebased = true, bool agebased = false,
+  Nullable<RObject> stage3 = R_NilValue,
+  Nullable<RObject> stage2 = R_NilValue, Nullable<RObject> stage1 = R_NilValue,
+  Nullable<RObject> age2 = R_NilValue, Nullable<RObject> eststage3 = R_NilValue,
+  Nullable<RObject> eststage2 = R_NilValue,
+  Nullable<RObject> eststage1 = R_NilValue,
+  Nullable<RObject> estage2 = R_NilValue,
+  Nullable<RObject> givenrate = R_NilValue,
+  Nullable<RObject> multiplier = R_NilValue,
+  Nullable<RObject> type = R_NilValue,
+  Nullable<RObject> type_t12 = R_NilValue) {
+  
+  int wtf {-1};
+  
+  if (historical && stagebased && !agebased) {
+    wtf = 0;
+  } else if (!historical && stagebased && !agebased) {
+    wtf = 1;
+  } else if (!historical && stagebased && agebased) {
+    wtf = 2;
+  } else if (!historical && !stagebased && agebased) {
+    wtf = 3;
+  } else {
+    throw Rcpp::exception("Unsupported MPM type.", false);
+  }
+  
+  DataFrame stageframe_;
+  int sf_yes {0};
+  
+  if (is<DataFrame>(stageframe)) stageframe_ = stageframe;
+  StringVector sf_class = stageframe_.attr("class");
+  
+  String sf_error = "Please enter an object of class stageframe as input.";
+  if (stageframe_.containsElementNamed("stage")) {
+    sf_yes++;
+  }
+  if (stageframe_.containsElementNamed("min_age")) {
+    sf_yes++;
+  }
+  if (stageframe_.containsElementNamed("max_age")) {
+    sf_yes++;
+  }
+  if (stageframe_.containsElementNamed("group")) {
+    sf_yes++;
+  }
+  
+  for (int i = 0; i < static_cast<int>(sf_class.length()); i++) {
+    if (sf_class(i) == "stageframe")  sf_yes++;
+  }
+  if (sf_yes < 5) throw Rcpp::exception(sf_error.get_cstring(), false);
+  
+  StringVector stage3_;
+  StringVector stage2_;
+  StringVector stage1_;
+  IntegerVector age2_;
+  StringVector eststage3_;
+  StringVector eststage2_;
+  StringVector eststage1_;
+  IntegerVector estage2_;
+  NumericVector givenrate_;
+  NumericVector multiplier_;
+  IntegerVector type_;
+  IntegerVector type_t12_;
+  
+  int stage3_length {0};
+  int stage2_length {0};
+  int stage1_length {0};
+  int age2_length {0};
+  int eststage3_length {0};
+  int eststage2_length {0};
+  int eststage1_length {0};
+  int estage2_length {0};
+  int type_length {0};
+  int type_t12_length {0};
+  
+  StringVector all_stages = as<StringVector>(stageframe_["stage"]);
+  StringVector wildcard_names = {"all", "rep", "nrep", "mat", "immat", "prop",
+    "npr", "notalive", "obs", "nobs"};
+  
+  StringVector all_groups_ = as<StringVector>(stageframe_["group"]);
+  StringVector all_groups (all_groups_.length());
+  for (int i = 0; i < all_groups_.length(); i++) {
+    String group_slot = "group";
+    String group_term_added = all_groups_(i);
+    group_slot += group_term_added;
+    all_groups(i) = group_slot;
+  }
+  
+  if (stage3.isNotNull() && wtf != 3) {
+    if (is<StringVector>(stage3)) {
+      stage3_ = as<StringVector>(stage3);
+      stage3_length = static_cast<int>(stage3_.length());
+      
+      for (int i = 0; i < stage3_length; i++) {
+        bool found_stage {false};
+        
+        if (!(StringVector::is_na(stage3_(i)) || stage3_(i) == "NA")) { 
+          for (int j = 0; j < all_stages.length(); j++) {
+            if (stage3_(i) == all_stages(j)) found_stage = true;
+          }
+          for (int j = 0; j < wildcard_names.length(); j++) {
+            if (stage3_(i) == wildcard_names(j)) found_stage = true;
+          }
+          for (int j = 0; j < all_groups.length(); j++) {
+            if (stage3_(i) == all_groups(j)) found_stage = true;
+          }
+          if (stage3_(i) == "NotAlive") {
+            throw Rcpp::exception("Stage \"NotAlive\" is only allowed as input in eststage1.", false);
+          }
+        }
+        if (!found_stage) {
+          String eat_my_shorts = "Some entered stage names (stage3) do not ";
+          String eat_my_shorts1 = "match expectation.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+      }
+      
+    } else {
+      throw Rcpp::exception("Please enter stage information (stage3) as text.", 
+        false);
+    }
+  } else if (wtf != 3) {
+    throw Rcpp::exception("Stage information (stage3) for transitions is required.",
+      false);
+  }
+  
+  if (stage2.isNotNull() && wtf != 3) {
+    if (is<StringVector>(stage2)) {
+      stage2_ = as<StringVector>(stage2);
+      stage2_length = static_cast<int>(stage2_.length());
+      
+      for (int i = 0; i < stage2_length; i++) {
+        bool found_stage {false};
+        
+        if (!(StringVector::is_na(stage2_(i)) || stage2_(i) == "NA")) { 
+          for (int j = 0; j < all_stages.length(); j++) {
+            if (stage2_(i) == all_stages(j)) found_stage = true;
+          }
+          for (int j = 0; j < wildcard_names.length(); j++) {
+            if (stage2_(i) == wildcard_names(j)) found_stage = true;
+          }
+          for (int j = 0; j < all_groups.length(); j++) {
+            if (stage2_(i) == all_groups(j)) found_stage = true;
+          }
+          if (stage2_(i) == "NotAlive") {
+            throw Rcpp::exception("Stage \"NotAlive\" is only allowed as input in eststage1.", false);
+          }
+        }
+        if (!found_stage) {
+          String eat_my_shorts = "Some entered stage names (stage2) do not ";
+          String eat_my_shorts1 = "match expectation.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+      }
+      
+    } else {
+      throw Rcpp::exception("Please enter stage information (stage2) as text.",
+        false);
+    }
+  } else if (wtf != 3) {
+    throw Rcpp::exception("Stage information (stage2) for transitions is required.",
+      false);
+  }
+  
+  if (stage1.isNotNull() && wtf == 0) {
+    if (is<StringVector>(stage1)) {
+      stage1_ = as<StringVector>(stage1);
+      stage1_length = static_cast<int>(stage1_.length());
+      
+      for (int i = 0; i < stage1_length; i++) {
+        bool found_stage {false};
+        
+        if (!(StringVector::is_na(stage1_(i)) || stage1_(i) == "NA")) { 
+          for (int j = 0; j < all_stages.length(); j++) {
+            if (stage1_(i) == all_stages(j)) found_stage = true;
+          }
+          for (int j = 0; j < wildcard_names.length(); j++) {
+            if (stage1_(i) == wildcard_names(j)) found_stage = true;
+          }
+          for (int j = 0; j < all_groups.length(); j++) {
+            if (stage1_(i) == all_groups(j)) found_stage = true;
+          }
+          if (stage1_(i) == "NotAlive") {
+            throw Rcpp::exception("Stage \"NotAlive\" is only allowed as input in eststage1.", false);
+          }
+        }
+        if (!found_stage) {
+          String eat_my_shorts = "Some entered stage names (stage1) do not ";
+          String eat_my_shorts1 = "match expectation.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+      }
+      
+    } else if (is<LogicalVector>(stage1)) {
+      if (wtf == 0) {
+        throw Rcpp::exception("Stage information (stage1) for transitions is required.",
+          false);
+      }
+      
+      StringVector stage1_temp (stage2_length, NA_STRING);
+      stage1_ = stage1_temp;
+      stage1_length = stage2_length;
+      
+    } else {
+      throw Rcpp::exception("Please enter stage information (stage1) as text.", 
+        false);
+    }
+  } else {
+    if (wtf == 0) {
+      throw Rcpp::exception("Stage information (stage1) for transitions is required.",
+        false);
+    } else if (wtf != 3) {
+      StringVector stage1_temp (stage2_length, NA_STRING);
+      stage1_ = stage1_temp;
+      stage1_length = stage2_length;
+    }
+  }
+  
+  if (age2.isNotNull() && wtf > 1) {
+    if (is<IntegerVector>(age2) || is<NumericVector>(age2)) {
+      age2_ = as<IntegerVector>(age2);
+      age2_length = static_cast<int>(age2_.length());
+      
+      arma::ivec a2_arma = as<arma::ivec>(age2_);
+      arma::uvec neg_tester = find(a2_arma < 0);
+      if (neg_tester.n_elem > 0) {
+        Rf_warningcall(R_NilValue, "Some age2 values entered are negative.");
+      }
+    } else {
+      throw Rcpp::exception("Please enter age information (age2) in integer format.",
+        false);
+    }
+  } else {
+    if (wtf > 1) {
+      throw Rcpp::exception("Age information (age2) for transitions is required.",
+        false);
+    } else if (wtf != 3) {
+      IntegerVector age2_temp (stage2_length, NA_INTEGER);
+      age2_ = age2_temp;
+      age2_length = stage2_length;
+    }
+  }
+  
+  if (eststage3.isNotNull() && wtf != 3) {
+    if (is<StringVector>(eststage3)) {
+      eststage3_ = as<StringVector>(eststage3);
+      eststage3_length = static_cast<int>(eststage3_.length());
+      
+      for (int i = 0; i < eststage3_length; i++) {
+        bool found_stage {false};
+        
+        if (!(StringVector::is_na(eststage3_(i)) || eststage3_(i) == "NA")) { 
+          for (int j = 0; j < all_stages.length(); j++) {
+            if (eststage3_(i) == all_stages(j)) found_stage = true;
+          }
+          for (int j = 0; j < wildcard_names.length(); j++) {
+            if (eststage3_(i) == wildcard_names(j)) found_stage = true;
+          }
+          for (int j = 0; j < all_groups.length(); j++) {
+            if (eststage3_(i) == all_groups(j)) found_stage = true;
+          }
+          if (eststage3_(i) == "NotAlive") {
+            throw Rcpp::exception("Stage \"NotAlive\" is only allowed as input in eststage1.", false);
+          }
+        } else found_stage = true;
+        
+        if (!found_stage) {
+          String eat_my_shorts = "Some entered stage names (eststage3) do not ";
+          String eat_my_shorts1 = "match expectation.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+      }
+      
+    } else if (is<LogicalVector>(eststage3)) {
+      StringVector eststage3_temp (stage3_length, NA_STRING);
+      eststage3_ = eststage3_temp;
+      eststage3_length = stage3_length;
+      
+    } else {
+      throw Rcpp::exception("Please enter stage information (eststage3) as text.",
+        false);
+    }
+  } else if (stage3_length != 0) {
+    StringVector eststage3_temp (stage3_length, NA_STRING);
+    eststage3_ = eststage3_temp;
+    eststage3_length = stage3_length;
+  }
+  
+  if (eststage2.isNotNull() && wtf != 3) {
+    if (is<StringVector>(eststage2)) {
+      eststage2_ = as<StringVector>(eststage2);
+      eststage2_length = static_cast<int>(eststage2_.length());
+      
+      for (int i = 0; i < eststage2_length; i++) {
+        bool found_stage {false};
+        
+        if (!(StringVector::is_na(eststage2_(i)) || eststage2_(i) == "NA")) { 
+          for (int j = 0; j < all_stages.length(); j++) {
+            if (eststage2_(i) == all_stages(j)) found_stage = true;
+          }
+          for (int j = 0; j < wildcard_names.length(); j++) {
+            if (eststage2_(i) == wildcard_names(j)) found_stage = true;
+          }
+          for (int j = 0; j < all_groups.length(); j++) {
+            if (eststage2_(i) == all_groups(j)) found_stage = true;
+          }
+          if (eststage2_(i) == "NotAlive") {
+            throw Rcpp::exception("Stage \"NotAlive\" is only allowed as input in eststage1.", false);
+          }
+        } else found_stage = true;
+        
+        if (!found_stage) {
+          String eat_my_shorts = "Some entered stage names (eststage2) do not ";
+          String eat_my_shorts1 = "match expectation.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+      }
+      
+    } else if (is<LogicalVector>(eststage2)) {
+      StringVector eststage2_temp (stage2_length, NA_STRING);
+      eststage2_ = eststage2_temp;
+      eststage2_length = stage2_length;
+      
+    } else {
+      throw Rcpp::exception("Please enter stage information (eststage2) as text.",
+        false);
+    }
+  } else if (stage2_length != 0) {
+    StringVector eststage2_temp (stage2_length, NA_STRING);
+    eststage2_ = eststage2_temp;
+    eststage2_length = stage2_length;
+  }
+  
+  if (eststage1.isNotNull() && wtf == 0) {
+    if (is<StringVector>(eststage1)) {
+      eststage1_ = as<StringVector>(eststage1);
+      eststage1_length = static_cast<int>(eststage1_.length());
+      
+      for (int i = 0; i < eststage1_length; i++) {
+        bool found_stage {false};
+        
+        if (!(StringVector::is_na(eststage1_(i)) || eststage1_(i) == "NA")) { 
+          for (int j = 0; j < all_stages.length(); j++) {
+            if (eststage1_(i) == all_stages(j)) found_stage = true;
+          }
+          for (int j = 0; j < wildcard_names.length(); j++) {
+            if (eststage1_(i) == wildcard_names(j)) found_stage = true;
+          }
+          for (int j = 0; j < all_groups.length(); j++) {
+            if (eststage1_(i) == all_groups(j)) found_stage = true;
+          }
+          if (eststage1_(i) == "NotAlive") found_stage = true;
+        } else found_stage = true;
+        
+        if (!found_stage) {
+          String eat_my_shorts = "Some entered stage names (eststage1) do not ";
+          String eat_my_shorts1 = "match expectation.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+      }
+      
+    } else if (is<LogicalVector>(eststage1)) {
+      StringVector eststage1_temp (stage2_length, NA_STRING);
+      eststage1_ = eststage1_temp;
+      eststage1_length = stage2_length;
+      
+    } else {
+      throw Rcpp::exception("Please enter stage information (eststage1) as text.",
+        false);
+    }
+  } else if (stage2_length != 0) {
+    StringVector eststage1_temp (stage2_length, NA_STRING);
+    eststage1_ = eststage1_temp;
+    eststage1_length = stage2_length;
+  }
+  
+  if (estage2.isNotNull() && wtf > 1) {
+    if (is<IntegerVector>(estage2) || is<NumericVector>(estage2)) {
+      estage2_ = as<IntegerVector>(estage2);
+      estage2_length = static_cast<int>(estage2_.length());
+      
+      arma::ivec ea2_arma = as<arma::ivec>(estage2_);
+      arma::uvec neg_tester = find(ea2_arma < 0);
+      if (neg_tester.n_elem > 0) {
+        Rf_warningcall(R_NilValue, "Some estage2 values entered are negative.");
+      }
+    } else {
+      throw Rcpp::exception("Please enter age information (estage2) in integer format.",
+        false);
+    }
+  } else {
+    if (stage2_length > 0) {
+      IntegerVector estage2_temp (stage2_length, NA_INTEGER);
+      estage2_ = estage2_temp;
+      estage2_length = stage2_length;
+    } else if (age2_length > 0) {
+      IntegerVector estage2_temp (age2_length, NA_INTEGER);
+      estage2_ = estage2_temp;
+      estage2_length = age2_length;
+    }
+  }
+  
+  if (givenrate.isNotNull()) {
+    if (is<NumericVector>(givenrate)) {
+      givenrate_ = as<NumericVector>(givenrate);
+      
+      arma::vec gvr_arma = as<arma::vec>(givenrate_);
+      arma::uvec neg_tester = find(gvr_arma < 0.0);
+      if (neg_tester.n_elem > 0) {
+        Rf_warningcall(R_NilValue, "Some given rate values entered are negative.");
+      }
+    } else if (is<LogicalVector>(givenrate)) {
+      if (age2_length != 0) {
+        NumericVector givenrate_temp (age2_length, NA_REAL);
+        givenrate_ = givenrate_temp;
+      } else if (stage2_length != 0) {
+        NumericVector givenrate_temp (stage2_length, NA_REAL);
+        givenrate_ = givenrate_temp;
+      }
+      
+    } else {
+      throw Rcpp::exception("Please enter given rate information (givenrate) in numeric format.",
+        false);
+    }
+  } else {
+    if (age2_length != 0) {
+      NumericVector givenrate_temp (age2_length, NA_REAL);
+      givenrate_ = givenrate_temp;
+    } else if (stage2_length != 0) {
+      NumericVector givenrate_temp (stage2_length, NA_REAL);
+      givenrate_ = givenrate_temp;
+    }
+  }
+  
+  if (multiplier.isNotNull()) {
+    if (is<NumericVector>(multiplier)) {
+      multiplier_ = as<NumericVector>(multiplier);
+      
+      arma::vec mpl_arma = as<arma::vec>(multiplier_);
+      arma::uvec neg_tester = find(mpl_arma < 0.0);
+      if (neg_tester.n_elem > 0) {
+        Rf_warningcall(R_NilValue, "Some multiplier values entered are negative.");
+      }
+    } else if (is<LogicalVector>(multiplier)) {
+      if (age2_length != 0) {
+        NumericVector multiplier_temp (age2_length, 1.0);
+        multiplier_ = multiplier_temp;
+      } else if (stage2_length != 0) {
+        NumericVector multiplier_temp (stage2_length, 1.0);
+        multiplier_ = multiplier_temp;
+      }
+      
+    } else {
+      throw Rcpp::exception("Please enter multiplier information (multiplier) in numeric format.",
+        false);
+    }
+  } else {
+    if (age2_length != 0) {
+      NumericVector multiplier_temp (age2_length, 1.0);
+      multiplier_ = multiplier_temp;
+    } else if (stage2_length != 0) {
+      NumericVector multiplier_temp (stage2_length, 1.0);
+      multiplier_ = multiplier_temp;
+    }
+  }
+  
+  if (type.isNotNull()) {
+    if (is<IntegerVector>(type) || is<NumericVector>(type)) {
+      type_ = as<IntegerVector>(type);
+      type_length = static_cast<int>(type_.length());
+      
+      int check_type_min = min(type_);
+      int check_type_max = max(type_);
+      if (check_type_min < 1 || check_type_max > 3) {
+        String eat_my_shorts = "Please enter transition type information (type)";
+        String eat_my_shorts1 = " using only integers 1, 2, and 3.";
+        eat_my_shorts += eat_my_shorts1;
+        
+        throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+      }
+    } else if (is<StringVector>(type)) {
+      StringVector type_sv = as<StringVector>(type);
+      type_length = static_cast<int>(type_sv.length());
+      
+      IntegerVector type_temp (type_length);
+      
+      for (int i = 0; i < type_length; i++) {
+        if (stringcompare_simple(as<std::string>(type_sv(i)), "s", true)) {
+          type_temp(i) = 1;
+        } else if (stringcompare_simple(as<std::string>(type_sv(i)), "f", true)) {
+          type_temp(i) = 2;
+        } else if (stringcompare_simple(as<std::string>(type_sv(i)), "r", true)) {
+          type_temp(i) = 3;
+        } else {
+          throw Rcpp::exception("Please enter transition type information (type) using only integers 1, 2, and 3.",
+            false);
+        }
+        type_ = type_temp;
+      }
+    } else {
+      throw Rcpp::exception("Please enter transition type information (type) in integer format.",
+        false);
+    }
+  } else {
+    throw Rcpp::exception("Information on type of transition (type) is required.",
+      false);
+  }
+  
+  if (type_t12.isNotNull()) {
+    if (is<IntegerVector>(type_t12) || is<NumericVector>(type_t12)) {
+      type_t12_ = as<IntegerVector>(type_t12);
+      type_t12_length = static_cast<int>(type_t12_.length());
+      
+      int check_type_min = min(type_t12_);
+      int check_type_max = max(type_t12_);
+      if (check_type_min < 1 || check_type_max > 3) {
+        String eat_my_shorts = "Please enter transition type information (type_t12)";
+        String eat_my_shorts1 = " using only integers 1, 2, and 3.";
+        eat_my_shorts += eat_my_shorts1;
+        
+        throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+      }
+    } else if (is<StringVector>(type_t12)) {
+      StringVector type_t12_sv = as<StringVector>(type_t12);
+      type_t12_length = static_cast<int>(type_t12_sv.length());
+      
+      IntegerVector type_t12_temp (type_t12_length);
+      
+      for (int i = 0; i < type_t12_length; i++) {
+        if (stringcompare_simple(as<std::string>(type_t12_sv(i)), "s", true)) {
+          type_t12_temp(i) = 1;
+        } else if (stringcompare_simple(as<std::string>(type_t12_sv(i)), "f", true)) {
+          type_t12_temp(i) = 2;
+        } else if (stringcompare_simple(as<std::string>(type_t12_sv(i)), "r", true)) {
+          type_t12_temp(i) = 3;
+        } else {
+          String eat_my_shorts = "Please enter historical transition type information ";
+          String eat_my_shorts1 = "(type_t12) using only integers 1, 2, and 3.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+        type_t12_ = type_t12_temp;
+      }
+    } else {
+      throw Rcpp::exception("Please enter transition type information (type_t12) in integer format.",
+        false);
+    }
+  }
+  
+  if (wtf < 3 && type_length != 0  && type_length != stage2_length) { 
+    throw Rcpp::exception("All input vectors must be of the same length.", false);
+  }
+  
+  if (wtf == 0) {
+    if (stage2_length == 0) throw Rcpp::exception("Stage (stage2) information required.", false);
+    
+    if (stage2_length != stage3_length || stage2_length != stage1_length) {
+      throw Rcpp::exception("All input vectors must be of the same length.", false);
+    }
+    
+    if (eststage1_length != 0 && stage1_length != eststage1_length) {
+      throw Rcpp::exception("All input vectors must be of the same length.", false);
+    }
+    
+    if (eststage2_length != 0 && stage2_length != eststage2_length) {
+      throw Rcpp::exception("All input vectors must be of the same length.", false);
+    }
+    
+    if (eststage3_length != 0 && stage3_length != eststage3_length) {
+      throw Rcpp::exception("All input vectors must be of the same length.", false);
+    }
+    
+  } else if (wtf == 1) {
+    if (stage2_length == 0) throw Rcpp::exception("Stage (stage2) information required.", false);
+    
+    if (stage2_length != stage3_length) {
+      throw Rcpp::exception("All input vectors must be of the same length.", false);
+    }
+    
+    if (eststage2_length != 0 && stage2_length != eststage2_length) {
+      throw Rcpp::exception("All input vectors must be of the same length.", false);
+    }
+    
+    if (eststage3_length != 0 && stage3_length != eststage3_length) {
+      throw Rcpp::exception("All input vectors must be of the same length.", false);
+    }
+    
+  } else if (wtf == 2) {
+    if (stage2_length == 0) throw Rcpp::exception("Stage (stage2) information required.", false);
+    if (age2_length == 0) throw Rcpp::exception("Age (age2) information required.", false);
+    
+    if (stage2_length != stage3_length || stage2_length != age2_length) {
+      throw Rcpp::exception("All input vectors must be of the same length.", false);
+    }
+    
+    if (estage2_length != 0 && age2_length != estage2_length) {
+      throw Rcpp::exception("All input vectors must be of the same length.", false);
+    }
+  
+  } else if (wtf == 3) {
+    if (age2_length == 0) throw Rcpp::exception("Age (age2) information required.", false);
+    
+    if (estage2_length != 0 && age2_length != estage2_length) {
+      throw Rcpp::exception("All input vectors must be of the same length.", false);
+    }
+  }
+  
+  if (type_t12_length == 0) {
+    if (age2_length != 0) {
+      IntegerVector cvt12_temp (age2_length, 1);
+      type_t12_ = cvt12_temp;
+    } else if (stage2_length != 0) {
+      IntegerVector cvt12_temp (stage2_length, 1);
+      type_t12_ = cvt12_temp;
+    }
+  }
+  
+  if (stage3_length == 0) { 
+    StringVector s3_temp (age2_length, NA_STRING);
+    stage3_ = s3_temp;
+    stage3_length = age2_length;
+  }
+  if (stage2_length == 0) { 
+    StringVector s2_temp (age2_length, NA_STRING);
+    stage2_ = s2_temp;
+    stage2_length = age2_length;
+  }
+  if (stage1_length == 0) { 
+    StringVector s1_temp (stage2_length, NA_STRING);
+    stage1_ = s1_temp;
+    stage1_length = stage2_length;
+  }
+  if (eststage3_length == 0) { 
+    StringVector s3_temp (stage2_length, NA_STRING);
+    eststage3_ = s3_temp;
+    eststage3_length = stage2_length;
+  }
+  if (eststage2_length == 0) { 
+    StringVector s2_temp (stage2_length, NA_STRING);
+    eststage2_ = s2_temp;
+    eststage2_length = stage2_length;
+  }
+  if (eststage1_length == 0) { 
+    StringVector s1_temp (stage2_length, NA_STRING);
+    eststage1_ = s1_temp;
+    eststage1_length = stage2_length;
+  }
+
+  List supplement (12);
+  supplement(0) = stage3_;
+  supplement(1) = stage2_;
+  supplement(2) = stage1_;
+  supplement(3) = age2_;
+  supplement(4) = eststage3_;
+  supplement(5) = eststage2_;
+  supplement(6) = eststage1_;
+  supplement(7) = estage2_;
+  supplement(8) = givenrate_;
+  supplement(9) = multiplier_;
+  supplement(10) = type_;
+  supplement(11) = type_t12_;
+  
+  StringVector supp_names = {"stage3", "stage2", "stage1", "age2", "eststage3",
+    "eststage2", "eststage1", "estage2", "givenrate", "multiplier", "convtype",
+    "convtype_t12"};
+  StringVector supp_class = {"data.frame", "lefkoSD"};
+  
+  supplement.attr("class") = supp_class;
+  supplement.attr("names") = supp_names;
+  supplement.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, stage2_length);
+  
+  return supplement;
+}
+
+//' Edit an MPM based on Supplemental Data
+//' 
+//' Function \code{edit_lM()} edits existing \code{lefkoMat} objects with
+//' external data supplied by the user. The effects are similar to function
+//' \code{\link{supplemental}()}, though function \code{edit_lM()} allows
+//' individuals matrices within \code{lefkoMat} objects to be edited after
+//' creation, while \code{\link{supplemental}()} provides external data that
+//' modifies all matrices within a \code{lefkoMat} object.
+//' 
+//' @name edit_lM
+//' 
+//' @param mpm The \code{lefkoMat} object to be edited.
+//' @param pop A string vector denoting the populations to be edited. Defaults
+//' to \code{NULL}, in which case all populations are edited.
+//' @param patch A string vector denoting the patches to be edited. Defaults
+//' to \code{NULL}, in which case all patches are edited.
+//' @param patch A string vector denoting the years to be edited. Defaults
+//' to \code{NULL}, in which case all years are edited.
+//' @param stage3 The name of the stage in occasion \emph{t}+1 in the transition
+//' to be replaced. Abbreviations for groups of stages are also usable (see
+//' \code{Notes}). Required in all stage-based and age-by-stage MPMs.
+//' @param stage2 The name of the stage in occasion \emph{t} in the transition
+//' to be replaced. Abbreviations for groups of stages are also usable (see
+//' \code{Notes}). Required in all stage-based and age-by-stage MPMs.
+//' @param stage1 The name of the stage in occasion \emph{t}-1 in the transition
+//' to be replaced. Only needed if a historical matrix is to be produced.
+//' Abbreviations for groups of stages are also usable (see \code{Notes}).
+//' Required for historical stage-based MPMs.
+//' @param age2 An integer vector of the ages in occasion \emph{t} to use in
+//' transitions to be changed or replaced. Required for all age- and
+//' age-by-stage MPMs.
+//' @param eststage3 The name of the stage to replace \code{stage3} in a proxy
+//' transition. Only needed if a transition will be replaced by another
+//' estimated transition, and only in stage-based and age-by-stage MPMs.
+//' @param eststage2 The name of the stage to replace \code{stage2} in a proxy
+//' transition. Only needed if a transition will be replaced by another
+//' estimated transition, and only in stage-based and age-by-stage MPMs.
+//' @param eststage1 The name of the stage to replace \code{stage1} in a proxy
+//' historical transition. Only needed if a transition will be replaced by
+//' another estimated transition, and the matrix to be estimated is historical
+//' and stage-based. Stage \code{NotAlive} is also possible for raw hMPMs as a
+//' means of handling the prior stage for individuals entering the population in
+//' occasion \emph{t}.
+//' @param estage2 The age at time \emph{t} to replace \code{age2} in a proxy
+//' transition. Only needed if a transition will be replaced by another
+//' estimated transition, and only in age-based and age-by-stage MPMs.
+//' @param givenrate A fixed rate or probability to replace for the transition
+//' described by \code{stage3}, \code{stage2}, and \code{stage1}.
+//' @param multiplier A vector of numeric multipliers for fecundity or for proxy
+//' transitions. Defaults to \code{1}.
+//' @param type A vector denoting the kind of transition between occasions
+//' \emph{t} and \emph{t}+1 to be replaced. This should be entered as \code{1},
+//' \code{S}, or \code{s} for the replacement of a survival transition;
+//' \code{2}, \code{F}, or \code{f} for the replacement of a fecundity
+//' transition; or \code{3}, \code{R}, or \code{r} for a fecundity multiplier.
+//' If empty or not provided, then defaults to \code{1} for survival transition.
+//' @param type_t12 An optional vector denoting the kind of transition between
+//' occasions \emph{t}-1 and \emph{t}. Only necessary if a historical MPM in
+//' deVries format is desired. This should be entered as \code{1}, \code{S}, or
+//' \code{s} for a survival transition; or \code{2}, \code{F}, or \code{f} for a
+//' fecundity transitions. Defaults to \code{1} for survival transition, with
+//' impacts only on the construction of deVries-format hMPMs.
+//' 
+//' @return A edited copy of the original MPM is returned, also as a
+//' \code{lefkoMat} object.
+//' 
+//' @section Notes:
+//' Entries in \code{stage3}, \code{stage2}, and \code{stage1} can include
+//' abbreviations for groups of stages. Use \code{rep} if all reproductive
+//' stages are to be used, \code{nrep} if all mature but non-reproductive stages
+//' are to be used, \code{mat} if all mature stages are to be used, \code{immat}
+//' if all immature stages are to be used, \code{prop} if all propagule stages
+//' are to be used, \code{npr} if all non-propagule stages are to be used,
+//' \code{obs} if all observable stages are to be used, \code{nobs} if all
+//' unobservable stages are to be used, and leave empty or use \code{all} if all
+//' stages in stageframe are to be used. Also use \code{groupX} to denote all
+//' stages in group X (e.g. \code{group1} will use all stages in the respective
+//' stageframe's group 1).
+//' 
+//' @seealso \code{\link{supplemental}()}
+//' 
+//' @examples
+//' data(cypdata)
+//' 
+//' cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
+//'   patchidcol = "patch", individcol = "plantid", blocksize = 4,
+//'   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04",
+//'   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
+//'   age_offset = 3, NAas0 = TRUE, NRasRep = TRUE)
+//' 
+//' cyp_rl <- rleslie(data = cypraw_v1, start_age = 0, last_age = 6, continue = TRUE,
+//'   fecage_min = 3, year = "all", pop = NA, patch = "all", yearcol = "year2",
+//'   patchcol = "patchid", indivcol = "individ")
+//' 
+//' ddd1 <- edit_lM(cyp_rl, age2 = c(0, 1, 2, 3, 4, 5, 6),
+//'   givenrate = c(0.25, 0.25, 0.4, 0.4, NA, NA, NA),
+//'   multiplier = c(NA, NA, NA, NA, 2000, 2000, 2000),
+//'   type = c(1, 1, 1, 1, 3, 3, 3))
+//'   
+//' ddd1 <- edit_lM(ddd1, age2 = 6, multiplier = 1.5, type = 3, patch = "B",
+//'   year2 = "2005")
+//' 
+//' @export edit_lM
+// [[Rcpp::export(edit_lM)]]
+Rcpp::List edit_lM (const RObject mpm, Nullable<RObject> pop = R_NilValue,
+  Nullable<RObject> patch = R_NilValue, Nullable<RObject> year2 = R_NilValue,
+  Nullable<RObject> stage3 = R_NilValue, Nullable<RObject> stage2 = R_NilValue,
+  Nullable<RObject> stage1 = R_NilValue, Nullable<RObject> age2 = R_NilValue,
+  Nullable<RObject> eststage3 = R_NilValue,
+  Nullable<RObject> eststage2 = R_NilValue,
+  Nullable<RObject> eststage1 = R_NilValue,
+  Nullable<RObject> estage2 = R_NilValue,
+  Nullable<RObject> givenrate = R_NilValue,
+  Nullable<RObject> multiplier = R_NilValue,
+  Nullable<RObject> type = R_NilValue, Nullable<RObject> type_t12 = R_NilValue) {
+  
+  List mpm_list;
+  
+  if (is<List>(mpm)) mpm_list = mpm;
+  StringVector mpm_class = mpm_list.attr("class");
+  
+  String mpm_error = "Please enter a lefkoMat object as input.";
+  bool mpm_yes {false};
+  
+  if (!mpm_list.containsElementNamed("ahstages")) {
+    throw Rcpp::exception(mpm_error.get_cstring(), false);
+  }
+  if (!mpm_list.containsElementNamed("hstages")) {
+    throw Rcpp::exception(mpm_error.get_cstring(), false);
+  }
+  if (!mpm_list.containsElementNamed("agestages")) {
+    throw Rcpp::exception(mpm_error.get_cstring(), false);
+  }
+  if (!mpm_list.containsElementNamed("labels")) {
+    throw Rcpp::exception(mpm_error.get_cstring(), false);
+  }
+  for (int i = 0; i < static_cast<int>(mpm_class.length()); i++) {
+    if (mpm_class(i) == "lefkoMat") mpm_yes = true;
+  }
+  if (!mpm_yes) throw Rcpp::exception(mpm_error.get_cstring(), false);
+  
+  Rcpp::DataFrame ahstages = as<DataFrame>(mpm_list["ahstages"]);
+  Rcpp::DataFrame hstages = as<DataFrame>(mpm_list["hstages"]);
+  Rcpp::DataFrame agestages = as<DataFrame>(mpm_list["agestages"]);
+  Rcpp::DataFrame labels = as<DataFrame>(mpm_list["labels"]);
+  
+  int wtf = LefkoUtils::whichbrew(ahstages, hstages, agestages);
+  
+  StringVector pop_;
+  StringVector patch_;
+  StringVector year2_;
+  StringVector stage3_;
+  StringVector stage2_;
+  StringVector stage1_;
+  IntegerVector age2_;
+  StringVector eststage3_;
+  StringVector eststage2_;
+  StringVector eststage1_;
+  IntegerVector estage2_;
+  NumericVector givenrate_;
+  NumericVector multiplier_;
+  IntegerVector type_;
+  IntegerVector type_t12_;
+  
+  int stage3_length {0};
+  int stage2_length {0};
+  int stage1_length {0};
+  int age2_length {0};
+  int eststage3_length {0};
+  int eststage2_length {0};
+  int eststage1_length {0};
+  int estage2_length {0};
+  int type_length {0};
+  int type_t12_length {0};
+  int min_age {0};
+  int max_age {0};
+  
+  StringVector all_stages = as<StringVector>(ahstages["stage"]);
+  StringVector wildcard_names = {"all", "rep", "nrep", "mat", "immat", "prop",
+    "npr", "notalive", "obs", "nobs"};
+  
+  StringVector all_groups_ = as<StringVector>(ahstages["group"]);
+  StringVector all_groups (all_groups_.length());
+  for (int i = 0; i < all_groups_.length(); i++) {
+    String group_slot = "group";
+    String group_term_added = all_groups_(i);
+    group_slot += group_term_added;
+    all_groups(i) = group_slot;
+  }
+  
+  if (stage3.isNotNull() && wtf != 3) {
+    if (is<StringVector>(stage3)) {
+      stage3_ = as<StringVector>(stage3);
+      stage3_length = static_cast<int>(stage3_.length());
+      
+      for (int i = 0; i < stage3_length; i++) {
+        bool found_stage {false};
+        
+        if (!(StringVector::is_na(stage3_(i)) || stage3_(i) == "NA")) { 
+          for (int j = 0; j < all_stages.length(); j++) {
+            if (stage3_(i) == all_stages(j)) found_stage = true;
+          }
+          for (int j = 0; j < wildcard_names.length(); j++) {
+            if (stage3_(i) == wildcard_names(j)) found_stage = true;
+          }
+          for (int j = 0; j < all_groups.length(); j++) {
+            if (stage3_(i) == all_groups(j)) found_stage = true;
+          }
+          if (stage3_(i) == "NotAlive") {
+            throw Rcpp::exception("Stage \"NotAlive\" is only allowed as input in eststage1.", false);
+          }
+        }
+        if (!found_stage) {
+          String eat_my_shorts = "Some entered stage names (stage3) do not ";
+          String eat_my_shorts1 = "match expectation.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+      }
+      
+    } else {
+      throw Rcpp::exception("Please enter stage information (stage3) as text.", 
+        false);
+    }
+  } else if (wtf != 3) {
+    throw Rcpp::exception("Stage information (stage3) for transitions is required.",
+      false);
+  }
+  
+  if (stage2.isNotNull() && wtf != 3) {
+    if (is<StringVector>(stage2)) {
+      stage2_ = as<StringVector>(stage2);
+      stage2_length = static_cast<int>(stage2_.length());
+      
+      for (int i = 0; i < stage2_length; i++) {
+        bool found_stage {false};
+        
+        if (!(StringVector::is_na(stage2_(i)) || stage2_(i) == "NA")) { 
+          for (int j = 0; j < all_stages.length(); j++) {
+            if (stage2_(i) == all_stages(j)) found_stage = true;
+          }
+          for (int j = 0; j < wildcard_names.length(); j++) {
+            if (stage2_(i) == wildcard_names(j)) found_stage = true;
+          }
+          for (int j = 0; j < all_groups.length(); j++) {
+            if (stage2_(i) == all_groups(j)) found_stage = true;
+          }
+          if (stage2_(i) == "NotAlive") {
+            throw Rcpp::exception("Stage \"NotAlive\" is only allowed as input in eststage1.", false);
+          }
+        }
+        if (!found_stage) {
+          String eat_my_shorts = "Some entered stage names (stage2) do not ";
+          String eat_my_shorts1 = "match expectation.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+      }
+      
+    } else {
+      throw Rcpp::exception("Please enter stage information (stage2) as text.",
+        false);
+    }
+  } else if (wtf != 3) {
+    throw Rcpp::exception("Stage information (stage2) for transitions is required.",
+      false);
+  }
+  
+  if (stage1.isNotNull() && wtf == 0) {
+    if (is<StringVector>(stage1)) {
+      stage1_ = as<StringVector>(stage1);
+      stage1_length = static_cast<int>(stage1_.length());
+      
+      for (int i = 0; i < stage1_length; i++) {
+        bool found_stage {false};
+        
+        if (!(StringVector::is_na(stage1_(i)) || stage1_(i) == "NA")) { 
+          for (int j = 0; j < all_stages.length(); j++) {
+            if (stage1_(i) == all_stages(j)) found_stage = true;
+          }
+          for (int j = 0; j < wildcard_names.length(); j++) {
+            if (stage1_(i) == wildcard_names(j)) found_stage = true;
+          }
+          for (int j = 0; j < all_groups.length(); j++) {
+            if (stage1_(i) == all_groups(j)) found_stage = true;
+          }
+          if (stage1_(i) == "NotAlive") {
+            throw Rcpp::exception("Stage \"NotAlive\" is only allowed as input in eststage1.", false);
+          }
+        }
+        if (!found_stage) {
+          String eat_my_shorts = "Some entered stage names (stage1) do not ";
+          String eat_my_shorts1 = "match expectation.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+      }
+      
+    } else if (is<LogicalVector>(stage1)) {
+      if (wtf == 0) {
+        throw Rcpp::exception("Stage information (stage1) for transitions is required.",
+          false);
+      }
+      
+      StringVector stage1_temp (stage2_length, NA_STRING);
+      stage1_ = stage1_temp;
+      stage1_length = stage2_length;
+      
+    } else {
+      throw Rcpp::exception("Please enter stage information (stage1) as text.", 
+        false);
+    }
+  } else {
+    if (wtf == 0) {
+      throw Rcpp::exception("Stage information (stage1) for transitions is required.",
+        false);
+    } else if (wtf != 3) {
+      StringVector stage1_temp (stage2_length, NA_STRING);
+      stage1_ = stage1_temp;
+      stage1_length = stage2_length;
+    }
+  }
+  
+  if (age2.isNotNull() && wtf > 1) {
+    if (is<IntegerVector>(age2) || is<NumericVector>(age2)) {
+      age2_ = as<IntegerVector>(age2);
+      age2_length = static_cast<int>(age2_.length());
+      
+      arma::ivec a2_arma = as<arma::ivec>(age2_);
+      arma::uvec neg_tester = find(a2_arma < 0);
+      if (neg_tester.n_elem > 0) {
+        Rf_warningcall(R_NilValue, "Some age2 values entered are negative.");
+      }
+    } else {
+      throw Rcpp::exception("Please enter age information (age2) in integer format.",
+        false);
+    }
+  } else {
+    if (wtf > 1) {
+      throw Rcpp::exception("Age information (age2) for transitions is required.",
+        false);
+    } else if (wtf != 3) {
+      IntegerVector age2_temp (stage2_length, NA_INTEGER);
+      age2_ = age2_temp;
+      age2_length = stage2_length;
+    }
+  }
+  
+  if (pop.isNotNull()) {
+    pop_ = as<StringVector>(pop);
+  } else {
+    if (wtf < 3) {
+      StringVector pop_temp (stage2_length, NA_STRING);
+      pop_ = pop_temp;
+    } else {
+      StringVector pop_temp (age2_length, NA_STRING);
+      pop_ = pop_temp;
+    }
+  }
+  
+  if (patch.isNotNull()) {
+    patch_ = as<StringVector>(patch);
+  } else {
+    if (wtf < 3) {
+      StringVector patch_temp (stage2_length, NA_STRING);
+      patch_ = patch_temp;
+    } else {
+      StringVector patch_temp (age2_length, NA_STRING);
+      patch_ = patch_temp;
+    }
+  }
+  
+  if (year2.isNotNull()) {
+    year2_ = as<StringVector>(year2);
+  } else {
+    if (wtf < 3) {
+      StringVector year2_temp (stage2_length, NA_STRING);
+      year2_ = year2_temp;
+    } else {
+      StringVector year2_temp (age2_length, NA_STRING);
+      year2_ = year2_temp;
+    }
+  }
+  
+  if (eststage3.isNotNull() && wtf != 3) {
+    if (is<StringVector>(eststage3)) {
+      eststage3_ = as<StringVector>(eststage3);
+      eststage3_length = static_cast<int>(eststage3_.length());
+      
+      for (int i = 0; i < eststage3_length; i++) {
+        bool found_stage {false};
+        
+        if (!(StringVector::is_na(eststage3_(i)) || eststage3_(i) == "NA")) { 
+          for (int j = 0; j < all_stages.length(); j++) {
+            if (eststage3_(i) == all_stages(j)) found_stage = true;
+          }
+          for (int j = 0; j < wildcard_names.length(); j++) {
+            if (eststage3_(i) == wildcard_names(j)) found_stage = true;
+          }
+          for (int j = 0; j < all_groups.length(); j++) {
+            if (eststage3_(i) == all_groups(j)) found_stage = true;
+          }
+          if (eststage3_(i) == "NotAlive") {
+            throw Rcpp::exception("Stage \"NotAlive\" is only allowed as input in eststage1.", false);
+          }
+        } else found_stage = true;
+        
+        if (!found_stage) {
+          String eat_my_shorts = "Some entered stage names (eststage3) do not ";
+          String eat_my_shorts1 = "match expectation.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+      }
+      
+    } else if (is<LogicalVector>(eststage3)) {
+      StringVector eststage3_temp (stage3_length, NA_STRING);
+      eststage3_ = eststage3_temp;
+      eststage3_length = stage3_length;
+      
+    } else {
+      throw Rcpp::exception("Please enter stage information (eststage3) as text.",
+        false);
+    }
+  } else if (stage3_length != 0) {
+    StringVector eststage3_temp (stage3_length, NA_STRING);
+    eststage3_ = eststage3_temp;
+    eststage3_length = stage3_length;
+  }
+  
+  if (eststage2.isNotNull() && wtf != 3) {
+    if (is<StringVector>(eststage2)) {
+      eststage2_ = as<StringVector>(eststage2);
+      eststage2_length = static_cast<int>(eststage2_.length());
+      
+      for (int i = 0; i < eststage2_length; i++) {
+        bool found_stage {false};
+        
+        if (!(StringVector::is_na(eststage2_(i)) || eststage2_(i) == "NA")) { 
+          for (int j = 0; j < all_stages.length(); j++) {
+            if (eststage2_(i) == all_stages(j)) found_stage = true;
+          }
+          for (int j = 0; j < wildcard_names.length(); j++) {
+            if (eststage2_(i) == wildcard_names(j)) found_stage = true;
+          }
+          for (int j = 0; j < all_groups.length(); j++) {
+            if (eststage2_(i) == all_groups(j)) found_stage = true;
+          }
+          if (eststage2_(i) == "NotAlive") {
+            throw Rcpp::exception("Stage \"NotAlive\" is only allowed as input in eststage1.", false);
+          }
+        } else found_stage = true;
+        
+        if (!found_stage) {
+          String eat_my_shorts = "Some entered stage names (eststage2) do not ";
+          String eat_my_shorts1 = "match expectation.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+      }
+      
+    } else if (is<LogicalVector>(eststage2)) {
+      StringVector eststage2_temp (stage2_length, NA_STRING);
+      eststage2_ = eststage2_temp;
+      eststage2_length = stage2_length;
+      
+    } else {
+      throw Rcpp::exception("Please enter stage information (eststage2) as text.",
+        false);
+    }
+  } else if (stage2_length != 0) {
+    StringVector eststage2_temp (stage2_length, NA_STRING);
+    eststage2_ = eststage2_temp;
+    eststage2_length = stage2_length;
+  }
+  
+  if (eststage1.isNotNull() && wtf == 0) {
+    if (is<StringVector>(eststage1)) {
+      eststage1_ = as<StringVector>(eststage1);
+      eststage1_length = static_cast<int>(eststage1_.length());
+      
+      for (int i = 0; i < eststage1_length; i++) {
+        bool found_stage {false};
+        
+        if (!(StringVector::is_na(eststage1_(i)) || eststage1_(i) == "NA")) { 
+          for (int j = 0; j < all_stages.length(); j++) {
+            if (eststage1_(i) == all_stages(j)) found_stage = true;
+          }
+          for (int j = 0; j < wildcard_names.length(); j++) {
+            if (eststage1_(i) == wildcard_names(j)) found_stage = true;
+          }
+          for (int j = 0; j < all_groups.length(); j++) {
+            if (eststage1_(i) == all_groups(j)) found_stage = true;
+          }
+          if (eststage1_(i) == "NotAlive") found_stage = true;
+        } else found_stage = true;
+        
+        if (!found_stage) {
+          String eat_my_shorts = "Some entered stage names (eststage1) do not ";
+          String eat_my_shorts1 = "match expectation.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+      }
+      
+    } else if (is<LogicalVector>(eststage1)) {
+      StringVector eststage1_temp (stage2_length, NA_STRING);
+      eststage1_ = eststage1_temp;
+      eststage1_length = stage2_length;
+      
+    } else {
+      throw Rcpp::exception("Please enter stage information (eststage1) as text.",
+        false);
+    }
+  } else if (stage2_length != 0) {
+    StringVector eststage1_temp (stage2_length, NA_STRING);
+    eststage1_ = eststage1_temp;
+    eststage1_length = stage2_length;
+  }
+  
+  if (estage2.isNotNull() && wtf > 1) {
+    if (is<IntegerVector>(estage2) || is<NumericVector>(estage2)) {
+      estage2_ = as<IntegerVector>(estage2);
+      estage2_length = static_cast<int>(estage2_.length());
+      
+      arma::ivec ea2_arma = as<arma::ivec>(estage2_);
+      arma::uvec neg_tester = find(ea2_arma < 0);
+      if (neg_tester.n_elem > 0) {
+        Rf_warningcall(R_NilValue, "Some estage2 values entered are negative.");
+      }
+    } else {
+      throw Rcpp::exception("Please enter age information (estage2) in integer format.",
+        false);
+    }
+  } else {
+    if (stage2_length > 0) {
+      IntegerVector estage2_temp (stage2_length, NA_INTEGER);
+      estage2_ = estage2_temp;
+      estage2_length = stage2_length;
+    } else if (age2_length > 0) {
+      IntegerVector estage2_temp (age2_length, NA_INTEGER);
+      estage2_ = estage2_temp;
+      estage2_length = age2_length;
+    }
+  }
+  
+  if (givenrate.isNotNull()) {
+    if (is<NumericVector>(givenrate)) {
+      givenrate_ = as<NumericVector>(givenrate);
+      
+      arma::vec gvr_arma = as<arma::vec>(givenrate_);
+      arma::uvec neg_tester = find(gvr_arma < 0.0);
+      if (neg_tester.n_elem > 0) {
+        Rf_warningcall(R_NilValue, "Some given rate values entered are negative.");
+      }
+    } else if (is<LogicalVector>(givenrate)) {
+      if (age2_length != 0) {
+        NumericVector givenrate_temp (age2_length, NA_REAL);
+        givenrate_ = givenrate_temp;
+      } else if (stage2_length != 0) {
+        NumericVector givenrate_temp (stage2_length, NA_REAL);
+        givenrate_ = givenrate_temp;
+      }
+      
+    } else {
+      throw Rcpp::exception("Please enter given rate information (givenrate) in numeric format.",
+        false);
+    }
+  } else {
+    if (age2_length != 0) {
+      NumericVector givenrate_temp (age2_length, NA_REAL);
+      givenrate_ = givenrate_temp;
+    } else if (stage2_length != 0) {
+      NumericVector givenrate_temp (stage2_length, NA_REAL);
+      givenrate_ = givenrate_temp;
+    }
+  }
+  
+  if (multiplier.isNotNull()) {
+    if (is<NumericVector>(multiplier)) {
+      multiplier_ = as<NumericVector>(multiplier);
+      
+      arma::vec mpl_arma = as<arma::vec>(multiplier_);
+      arma::uvec neg_tester = find(mpl_arma < 0.0);
+      if (neg_tester.n_elem > 0) {
+        Rf_warningcall(R_NilValue, "Some multiplier values entered are negative.");
+      }
+    } else if (is<LogicalVector>(multiplier)) {
+      if (age2_length != 0) {
+        NumericVector multiplier_temp (age2_length, 1.0);
+        multiplier_ = multiplier_temp;
+      } else if (stage2_length != 0) {
+        NumericVector multiplier_temp (stage2_length, 1.0);
+        multiplier_ = multiplier_temp;
+      }
+    } else {
+      throw Rcpp::exception("Please enter multiplier information (multiplier) in numeric format.",
+        false);
+    }
+  } else {
+    if (age2_length != 0) {
+      NumericVector multiplier_temp (age2_length, 1.0);
+      multiplier_ = multiplier_temp;
+    } else if (stage2_length != 0) {
+      NumericVector multiplier_temp (stage2_length, 1.0);
+      multiplier_ = multiplier_temp;
+    }
+  }
+  
+  if (type.isNotNull()) {
+    if (is<IntegerVector>(type) || is<NumericVector>(type)) {
+      type_ = as<IntegerVector>(type);
+      type_length = static_cast<int>(type_.length());
+      
+      int check_type_min = min(type_);
+      int check_type_max = max(type_);
+      if (check_type_min < 1 || check_type_max > 3) {
+        String eat_my_shorts = "Please enter transition type information (type)";
+        String eat_my_shorts1 = " using only integers 1, 2, and 3.";
+        eat_my_shorts += eat_my_shorts1;
+        
+        throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+      }
+    } else if (is<StringVector>(type)) {
+      StringVector type_sv = as<StringVector>(type);
+      type_length = static_cast<int>(type_sv.length());
+      
+      IntegerVector type_temp (type_length);
+      
+      for (int i = 0; i < type_length; i++) {
+        if (stringcompare_simple(as<std::string>(type_sv(i)), "s", true)) {
+          type_temp(i) = 1;
+        } else if (stringcompare_simple(as<std::string>(type_sv(i)), "f", true)) {
+          type_temp(i) = 2;
+        } else if (stringcompare_simple(as<std::string>(type_sv(i)), "r", true)) {
+          type_temp(i) = 3;
+        } else {
+          throw Rcpp::exception("Please enter transition type information (type) using only integers 1, 2, and 3.",
+            false);
+        }
+        type_ = type_temp;
+      }
+    } else {
+      throw Rcpp::exception("Please enter transition type information (type) in integer format.",
+        false);
+    }
+  } else {
+    throw Rcpp::exception("Information on type of transition (type) is required.",
+      false);
+  }
+  
+  if (type_t12.isNotNull()) {
+    if (is<IntegerVector>(type_t12) || is<NumericVector>(type_t12)) {
+      type_t12_ = as<IntegerVector>(type_t12);
+      type_t12_length = static_cast<int>(type_t12_.length());
+      
+      int check_type_min = min(type_t12_);
+      int check_type_max = max(type_t12_);
+      if (check_type_min < 1 || check_type_max > 3) {
+        String eat_my_shorts = "Please enter transition type information (type_t12)";
+        String eat_my_shorts1 = " using only integers 1, 2, and 3.";
+        eat_my_shorts += eat_my_shorts1;
+        
+        throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+      }
+    } else if (is<StringVector>(type_t12)) {
+      StringVector type_t12_sv = as<StringVector>(type_t12);
+      type_t12_length = static_cast<int>(type_t12_sv.length());
+      
+      IntegerVector type_t12_temp (type_t12_length);
+      
+      for (int i = 0; i < type_t12_length; i++) {
+        if (stringcompare_simple(as<std::string>(type_t12_sv(i)), "s", true)) {
+          type_t12_temp(i) = 1;
+        } else if (stringcompare_simple(as<std::string>(type_t12_sv(i)), "f", true)) {
+          type_t12_temp(i) = 2;
+        } else if (stringcompare_simple(as<std::string>(type_t12_sv(i)), "r", true)) {
+          type_t12_temp(i) = 3;
+        } else {
+          String eat_my_shorts = "Please enter historical transition type information ";
+          String eat_my_shorts1 = "(type_t12) using only integers 1, 2, and 3.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+        type_t12_ = type_t12_temp;
+      }
+    } else {
+      throw Rcpp::exception("Please enter transition type information (type_t12) in integer format.",
+        false);
+    }
+  }
+  
+  if (wtf < 3 && type_length != 0  && type_length != stage2_length) { 
+    throw Rcpp::exception("All input vectors must be of the same length.", false);
+  }
+  
+  if (wtf == 0) {
+    if (stage2_length == 0) throw Rcpp::exception("Stage (stage2) information required.", false);
+    
+    if (stage2_length != stage3_length || stage2_length != stage1_length) {
+      throw Rcpp::exception("All input vectors must be of the same length.", false);
+    }
+    
+    if (eststage1_length != 0 && stage1_length != eststage1_length) {
+      throw Rcpp::exception("All input vectors must be of the same length.", false);
+    }
+    
+    if (eststage2_length != 0 && stage2_length != eststage2_length) {
+      throw Rcpp::exception("All input vectors must be of the same length.", false);
+    }
+    
+    if (eststage3_length != 0 && stage3_length != eststage3_length) {
+      throw Rcpp::exception("All input vectors must be of the same length.", false);
+    }
+  } else if (wtf == 1) {
+    if (stage2_length == 0) throw Rcpp::exception("Stage (stage2) information required.", false);
+    
+    if (stage2_length != stage3_length) {
+      throw Rcpp::exception("All input vectors must be of the same length.", false);
+    }
+    
+    if (eststage2_length != 0 && stage2_length != eststage2_length) {
+      throw Rcpp::exception("All input vectors must be of the same length.", false);
+    }
+    
+    if (eststage3_length != 0 && stage3_length != eststage3_length) {
+      throw Rcpp::exception("All input vectors must be of the same length.", false);
+    }
+  } else if (wtf == 2) {
+    if (stage2_length == 0) throw Rcpp::exception("Stage (stage2) information required.", false);
+    if (age2_length == 0) throw Rcpp::exception("Age (age2) information required.", false);
+    
+    if (stage2_length != stage3_length || stage2_length != age2_length) {
+      throw Rcpp::exception("All input vectors must be of the same length.", false);
+    }
+    
+    if (estage2_length != 0 && age2_length != estage2_length) {
+      throw Rcpp::exception("All input vectors must be of the same length.", false);
+    }
+  } else if (wtf == 3) {
+    if (age2_length == 0) throw Rcpp::exception("Age (age2) information required.", false);
+    
+    if (estage2_length != 0 && age2_length != estage2_length) {
+      throw Rcpp::exception("All input vectors must be of the same length.", false);
+    }
+  }
+  
+  if (type_t12_length == 0) {
+    if (age2_length != 0) {
+      IntegerVector cvt12_temp (age2_length, 1);
+      type_t12_ = cvt12_temp;
+    } else if (stage2_length != 0) {
+      IntegerVector cvt12_temp (stage2_length, 1);
+      type_t12_ = cvt12_temp;
+    }
+  }
+  
+  if (stage3_length == 0) { 
+    StringVector s3_temp (age2_length, NA_STRING);
+    stage3_ = s3_temp;
+    stage3_length = age2_length;
+  }
+  if (stage2_length == 0) { 
+    StringVector s2_temp (age2_length, NA_STRING);
+    stage2_ = s2_temp;
+    stage2_length = age2_length;
+  }
+  if (stage1_length == 0) { 
+    StringVector s1_temp (stage2_length, NA_STRING);
+    stage1_ = s1_temp;
+    stage1_length = stage2_length;
+  }
+  if (eststage3_length == 0) { 
+    StringVector s3_temp (stage2_length, NA_STRING);
+    eststage3_ = s3_temp;
+    eststage3_length = stage2_length;
+  }
+  if (eststage2_length == 0) { 
+    StringVector s2_temp (stage2_length, NA_STRING);
+    eststage2_ = s2_temp;
+    eststage2_length = stage2_length;
+  }
+  if (eststage1_length == 0) { 
+    StringVector s1_temp (stage2_length, NA_STRING);
+    eststage1_ = s1_temp;
+    eststage1_length = stage2_length;
+  }
+  
+  DataFrame supplement = DataFrame::create(_["stage3"] = stage3_,
+    _["stage2"] = stage2_, _["stage1"] = stage1_, _["age2"] = age2_,
+    _["eststage3"] = eststage3_, _["eststage2"] = eststage2_,
+    _["eststage1"] = eststage1_, _["estage2"] = estage2_,
+    _["givenrate"] = givenrate_, _["multiplier"] = multiplier_,
+    _["convtype"] = type_ , _["convtype_t12"] = type_t12_,
+    _["pop"] = pop_, _["patch"] = patch_, _["year2"] = year2_);
+  
+  DataFrame newsupplement;
+  DataFrame noage_supplement;
+  
+  if (wtf == 0) {
+    newsupplement = LefkoMats::supp_reassess(ahstages, true, supplement);
+  } else if (wtf == 1) {
+    newsupplement = LefkoMats::supp_reassess(ahstages, false, supplement);
+  } else if (wtf == 2) {
+    noage_supplement = LefkoMats::supp_reassess(ahstages, false, supplement);
+  } else {
+    IntegerVector ah_minage = as<IntegerVector>(ahstages["min_age"]);
+    IntegerVector ah_maxage = as<IntegerVector>(ahstages["max_age"]);
+    int ahstages_length = static_cast<int>(ah_minage.length());
+    
+    int first_age2 = ah_minage(0);
+    int final_age2 {0};
+    if (IntegerVector::is_na(ah_maxage(ahstages_length - 1))) {
+      final_age2 = first_age2 + ahstages_length - 1;
+    } else {
+      final_age2 = ah_maxage(ahstages_length - 1);
+    }
+    
+    IntegerVector newsupp_vec (age2_length);
+    for (int i = 0; i < static_cast<int>(age2_length); i++) {
+      if (IntegerVector::is_na(age2_(i))) {
+        if (age2_(i) < first_age2 || age2_(i) > final_age2) {
+          throw Rcpp::exception("Some age2 inputs are outside of the modeled ages.", false);
+        }
+        newsupp_vec(i) = ahstages_length;
+      } else { 
+        newsupp_vec(i) = 1;
+      }
+    }
+    int newsupp_length = sum(newsupp_vec);
+    
+    IntegerVector newsupp_age2 (newsupp_length);
+    IntegerVector newsupp_estage2 (newsupp_length);
+    NumericVector newsupp_givenrate (newsupp_length);
+    NumericVector newsupp_multiplier (newsupp_length);
+    IntegerVector newsupp_convtype (newsupp_length);
+    StringVector newsupp_pop (newsupp_length);
+    StringVector newsupp_patch (newsupp_length);
+    StringVector newsupp_year2 (newsupp_length);
+    
+    int newsupp_counter {0};
+    for (int i = 0; i < age2_length; i++) {
+      for (int j = 0; j < newsupp_vec(i); j++) {
+        if (IntegerVector::is_na(age2_(i))) {
+          newsupp_age2(newsupp_counter) = first_age2 + j;
+        } else {
+          newsupp_age2(newsupp_counter) = age2_(i);
+        }
+        
+        newsupp_estage2(newsupp_counter) = estage2_(i);
+        newsupp_givenrate(newsupp_counter) = givenrate_(i);
+        newsupp_multiplier(newsupp_counter) = multiplier_(i);
+        newsupp_convtype(newsupp_counter) = type_(i);
+        newsupp_pop(newsupp_counter) = pop_(i);
+        newsupp_patch(newsupp_counter) = patch_(i);
+        newsupp_year2(newsupp_counter) = year2_(i);
+        
+        newsupp_counter++;
+      }
+    }
+    
+    DataFrame newsupp = DataFrame::create(_["age2"] = newsupp_age2,
+      _["estage2"] = newsupp_estage2, _["givenrate"] = newsupp_givenrate,
+      _["multiplier"] = newsupp_multiplier, _["convtype"] = newsupp_convtype,
+      _["pop"] = newsupp_pop, _["patch"] = newsupp_patch,
+      _["year2"] = newsupp_year2);
+    newsupplement = newsupp;
+  }
+  
+  // Core element index calculation
+  IntegerVector new_col_index_;
+  IntegerVector new_row_index_;
+  IntegerVector new_use_est_;
+  IntegerVector new_est_col_index_;
+  IntegerVector new_est_row_index_;
+  NumericVector new_givenrate_;
+  NumericVector new_multiplier_;
+  IntegerVector new_convtype_;
+  
+  if (wtf == 0) { // Historical
+    NumericVector new_givenrate = as<NumericVector>(newsupplement["givenrate"]);
+    NumericVector new_multiplier = as<NumericVector>(newsupplement["multiplier"]);
+    IntegerVector new_convtype = as<IntegerVector>(newsupplement["convtype"]);
+    
+    StringVector new_stage3 = as<StringVector>(newsupplement["stage3"]);
+    StringVector new_stage2 = as<StringVector>(newsupplement["stage2"]);
+    StringVector new_stage1 = as<StringVector>(newsupplement["stage1"]);
+    
+    StringVector new_eststage3 = as<StringVector>(newsupplement["eststage3"]);
+    StringVector new_eststage2 = as<StringVector>(newsupplement["eststage2"]);
+    StringVector new_eststage1 = as<StringVector>(newsupplement["eststage1"]);
+    
+    int check_loop_length = static_cast<int>(new_stage3.length());
+    
+    arma::uvec hst_stage2_id = as<arma::uvec>(hstages["stage_id_2"]);
+    arma::uvec hst_stage1_id = as<arma::uvec>(hstages["stage_id_1"]);
+    IntegerVector ahst_stage_id = as<IntegerVector>(ahstages["stage_id"]);
+    StringVector ahst_stage = as<StringVector>(ahstages["stage"]);
+    int ahstages_length = static_cast<int>(ahst_stage.length());
+    
+    IntegerVector new_col_index (check_loop_length, -1);
+    IntegerVector new_row_index (check_loop_length, -1);
+    IntegerVector new_use_est (check_loop_length);
+    IntegerVector new_est_col_index (check_loop_length, -1);
+    IntegerVector new_est_row_index (check_loop_length, -1);
+    
+    for (int i = 0; i < check_loop_length; i++) {
+      int found_stage3 {0};
+      int found_stage2 {0};
+      int found_stage1 {0};
+      
+      int found_eststage3 {0};
+      int found_eststage2 {0};
+      int found_eststage1 {0};
+      
+      for (int j = 0; j < ahstages_length; j++) {
+        if (ahst_stage(j) == new_stage3(i)) found_stage3 = ahst_stage_id(j);
+        if (ahst_stage(j) == new_stage2(i)) found_stage2 = ahst_stage_id(j);
+        if (ahst_stage(j) == new_stage1(i)) found_stage1 = ahst_stage_id(j);
+        
+        if (!StringVector::is_na(new_eststage3(i)) && new_eststage3(i) != "NA") {
+          new_use_est(i) = 1;
+          if (ahst_stage(j) == new_eststage3(i)) found_eststage3 = ahst_stage_id(j);
+          if (ahst_stage(j) == new_eststage2(i)) found_eststage2 = ahst_stage_id(j);
+          if (ahst_stage(j) == new_eststage1(i)) found_eststage1 = ahst_stage_id(j);
+        }
+      }
+      
+      arma::uvec hst_found_stage3of32 = find(hst_stage2_id == found_stage3);
+      arma::uvec hst_found_stage2of32 = find(hst_stage1_id == found_stage2);
+      arma::uvec hst_found_stage2of21 = find(hst_stage2_id == found_stage2);
+      arma::uvec hst_found_stage1of21 = find(hst_stage1_id == found_stage1);
+      
+      arma::uvec hst_found_stage32 = intersect(hst_found_stage3of32,
+        hst_found_stage2of32);
+      arma::uvec hst_found_stage21 = intersect(hst_found_stage2of21,
+        hst_found_stage1of21);
+      
+      if (hst_found_stage32.n_elem > 0 && hst_found_stage21.n_elem > 0) {
+        new_col_index(i) = static_cast<int>(hst_found_stage21(0));
+        new_row_index(i) = static_cast<int>(hst_found_stage32(0));
+      } else {
+        Rf_warningcall(R_NilValue, "Some stage designations could not be found.");
+      }
+      
+      if (new_use_est(i) == 1) {
+        arma::uvec hst_found_eststage3of32 = find(hst_stage2_id == found_eststage3);
+        arma::uvec hst_found_eststage2of32 = find(hst_stage1_id == found_eststage2);
+        arma::uvec hst_found_eststage2of21 = find(hst_stage2_id == found_eststage2);
+        arma::uvec hst_found_eststage1of21 = find(hst_stage1_id == found_eststage1);
+        
+        arma::uvec hst_found_eststage32 = intersect(hst_found_eststage3of32,
+          hst_found_eststage2of32);
+        arma::uvec hst_found_eststage21 = intersect(hst_found_eststage2of21,
+          hst_found_eststage1of21);
+        
+        if (hst_found_eststage32.n_elem > 0 && hst_found_eststage21.n_elem > 0) {
+          new_est_col_index(i) = static_cast<int>(hst_found_eststage21(0));
+          new_est_row_index(i) = static_cast<int>(hst_found_eststage32(0));
+        } else if (!StringVector::is_na(new_eststage3(i))) {
+          Rf_warningcall(R_NilValue, "Some eststage designations could not be found.", false);
+        }
+      }
+    }
+    
+    new_col_index_ = new_col_index;
+    new_row_index_ = new_row_index;
+    new_use_est_ = new_use_est;
+    new_est_col_index_ = new_est_col_index;
+    new_est_row_index_ = new_est_row_index;
+    new_givenrate_ = new_givenrate;
+    new_multiplier_ = new_multiplier;
+    new_convtype_ = new_convtype;
+    
+  } else if (wtf == 1) { // Ahistorical
+    NumericVector new_givenrate = as<NumericVector>(newsupplement["givenrate"]);
+    NumericVector new_multiplier = as<NumericVector>(newsupplement["multiplier"]);
+    IntegerVector new_convtype = as<IntegerVector>(newsupplement["convtype"]);
+    
+    StringVector new_stage3 = as<StringVector>(newsupplement["stage3"]);
+    StringVector new_stage2 = as<StringVector>(newsupplement["stage2"]);
+    
+    StringVector new_eststage3 = as<StringVector>(newsupplement["eststage3"]);
+    StringVector new_eststage2 = as<StringVector>(newsupplement["eststage2"]);
+    
+    int check_loop_length = static_cast<int>(new_stage3.length());
+    
+    IntegerVector ahst_stage_id = as<IntegerVector>(ahstages["stage_id"]);
+    StringVector ahst_stage = as<StringVector>(ahstages["stage"]);
+    int agestages_length = static_cast<int>(ahst_stage.length());
+    
+    IntegerVector new_col_index (check_loop_length, -1);
+    IntegerVector new_row_index (check_loop_length, -1);
+    IntegerVector new_use_est (check_loop_length);
+    IntegerVector new_est_col_index (check_loop_length, -1);
+    IntegerVector new_est_row_index (check_loop_length, -1);
+    
+    for (int i = 0; i < check_loop_length; i++) {
+      int found_stage2 {0};
+      int found_stage3 {0};
+      bool found_stage2_log {false};
+      bool found_stage3_log {false};
+      
+      int found_eststage2 {0};
+      int found_eststage3 {0};
+      bool found_eststage2_log {false};
+      bool found_eststage3_log {false};
+      
+      for (int j = 0; j < agestages_length; j++) {
+        if (ahst_stage(j) == new_stage3(i)) {
+          found_stage3 = j;
+          found_stage3_log = true;
+        }
+        if (ahst_stage(j) == new_stage2(i)) {
+          found_stage2 = j;
+          found_stage2_log = true;
+        }
+        
+        if (!StringVector::is_na(new_eststage3(i)) && new_eststage3(i) != "NA") {
+          new_use_est(i) = 1;
+          if (ahst_stage(j) == new_eststage3(i)) {
+            found_eststage3 = j;
+            found_eststage3_log = true;
+          }
+          if (ahst_stage(j) == new_eststage2(i)) {
+            found_eststage2 = j;
+            found_eststage2_log = true;
+          }
+        }
+      }
+      
+      if (found_stage3_log && found_stage2_log) {
+        new_col_index(i) = found_stage2;
+        new_row_index(i) = found_stage3;
+      } else {
+        Rf_warningcall(R_NilValue, "Some stage designations could not be found.");
+      }
+      
+      if (new_use_est(i) == 1) {
+        if (found_eststage3_log && found_eststage2_log) {
+          new_est_col_index(i) = found_eststage2;
+          new_est_row_index(i) = found_eststage3;
+        } else {
+          Rf_warningcall(R_NilValue, "Some eststage designations could not be found.");
+        }
+      }
+    }
+    
+    new_col_index_ = new_col_index;
+    new_row_index_ = new_row_index;
+    new_use_est_ = new_use_est;
+    new_est_col_index_ = new_est_col_index;
+    new_est_row_index_ = new_est_row_index;
+    new_givenrate_ = new_givenrate;
+    new_multiplier_ = new_multiplier;
+    new_convtype_ = new_convtype;
+    
+  } else if (wtf == 2) {
+    arma::uvec agst_stage_id = as<arma::uvec>(agestages["stage_id"]);
+    StringVector agst_stage = as<StringVector>(agestages["stage"]);
+    arma::uvec agst_age = as<arma::uvec>(agestages["age"]);
+    int agestages_length = static_cast<int>(agst_stage_id.n_elem);
+    
+    min_age = static_cast<int>(agst_age.min());
+    max_age = static_cast<int>(agst_age.max());
+    
+    newsupplement = LefkoMats::age_expanded(noage_supplement, min_age, max_age);
+    
+    NumericVector new_givenrate = as<NumericVector>(newsupplement["givenrate"]);
+    NumericVector new_multiplier = as<NumericVector>(newsupplement["multiplier"]);
+    IntegerVector new_convtype = as<IntegerVector>(newsupplement["convtype"]);
+    
+    IntegerVector new_age2 = as<IntegerVector>(newsupplement["age2"]);
+    StringVector new_stage3 = as<StringVector>(newsupplement["stage3"]);
+    StringVector new_stage2 = as<StringVector>(newsupplement["stage2"]);
+    
+    IntegerVector new_estage2 = as<IntegerVector>(newsupplement["estage2"]);
+    StringVector new_eststage3 = as<StringVector>(newsupplement["eststage3"]);
+    StringVector new_eststage2 = as<StringVector>(newsupplement["eststage2"]);
+    
+    int check_loop_length = static_cast<int>(new_stage2.length());
+    
+    IntegerVector new_col_index (check_loop_length, -1);
+    IntegerVector new_row_index (check_loop_length, -1);
+    IntegerVector new_use_est (check_loop_length);
+    IntegerVector new_est_col_index (check_loop_length, -1);
+    IntegerVector new_est_row_index (check_loop_length, -1);
+    
+    for (int i = 0; i < check_loop_length; i++) {
+      int found_age2 {0};
+      int found_stage3 {0};
+      int found_stage2 {0};
+      
+      int found_estage2 {0};
+      int found_eststage3 {0};
+      int found_eststage2 {0};
+      
+      for (int j = 0; j < agestages_length; j++) {
+        if (agst_stage(j) == new_stage3(i)) found_stage3 = agst_stage_id(j);
+        if (agst_stage(j) == new_stage2(i)) found_stage2 = agst_stage_id(j);
+        if (agst_age(j) == new_age2(i)) found_age2 = agst_age(j);
+        
+        if (!IntegerVector::is_na(new_estage2(i))) {
+          new_use_est(i) = 1;
+          if (agst_stage(j) == new_eststage3(i)) found_eststage3 = agst_stage_id(j);
+          if (agst_stage(j) == new_eststage2(i)) found_eststage2 = agst_stage_id(j);
+          if (agst_age(j) == new_estage2(i)) found_estage2 = agst_age(j);
+        }
+      }
+      
+      arma::uvec agst_found_stage3of3a2 = find(agst_stage_id == found_stage3);
+      arma::uvec agst_found_stage2of3a2 = find(agst_age == (found_age2 + 1));
+      arma::uvec agst_found_stage2of2a1 = find(agst_stage_id == found_stage2);
+      arma::uvec agst_found_stage1of2a1 = find(agst_age == found_age2);
+      
+      arma::uvec agst_found_stage3a2 = intersect(agst_found_stage3of3a2,
+        agst_found_stage2of3a2);
+      arma::uvec agst_found_stage2a1 = intersect(agst_found_stage2of2a1,
+        agst_found_stage1of2a1);
+      
+      if (agst_found_stage3a2.n_elem > 0 && agst_found_stage2a1.n_elem > 0) {
+        new_col_index(i) = static_cast<int>(agst_found_stage2a1(0));
+        new_row_index(i) = static_cast<int>(agst_found_stage3a2(0));
+      } else {
+        Rf_warningcall(R_NilValue, "Some stage designations could not be found.");
+      }
+      
+      if (new_use_est(i) == 1) {
+        arma::uvec agst_found_eststage3of3a2 = find(agst_stage_id == found_eststage3);
+        arma::uvec agst_found_eststage2of3a2 = find(agst_age == (found_estage2 + 1));
+        arma::uvec agst_found_eststage2of2a1 = find(agst_stage_id == found_eststage2);
+        arma::uvec agst_found_eststage1of2a1 = find(agst_age == found_estage2);
+        
+        arma::uvec agst_found_eststage3a2 = intersect(agst_found_eststage3of3a2,
+        agst_found_eststage2of3a2);
+        arma::uvec agst_found_eststage2a1 = intersect(agst_found_eststage2of2a1,
+        agst_found_eststage1of2a1);
+        
+        if (agst_found_eststage3a2.n_elem > 0 && agst_found_eststage2a1.n_elem > 0) {
+          new_est_col_index(i) = static_cast<int>(agst_found_eststage2a1(0));
+          new_est_row_index(i) = static_cast<int>(agst_found_eststage3a2(0));
+        } else {
+          Rf_warningcall(R_NilValue, "Some eststage designations could not be found.");
+        }
+      }
+    }
+    
+    new_col_index_ = new_col_index;
+    new_row_index_ = new_row_index;
+    new_use_est_ = new_use_est;
+    new_est_col_index_ = new_est_col_index;
+    new_est_row_index_ = new_est_row_index;
+    new_givenrate_ = new_givenrate;
+    new_multiplier_ = new_multiplier;
+    new_convtype_ = new_convtype;
+    
+  } else { // Leslie matrix
+    NumericVector new_givenrate = as<NumericVector>(newsupplement["givenrate"]);
+    NumericVector new_multiplier = as<NumericVector>(newsupplement["multiplier"]);
+    IntegerVector new_convtype = as<IntegerVector>(newsupplement["convtype"]);
+    
+    IntegerVector new_age2 = as<IntegerVector>(newsupplement["age2"]);
+    IntegerVector new_estage2 = as<IntegerVector>(newsupplement["estage2"]);
+    
+    int check_loop_length = static_cast<int>(new_age2.length());
+    
+    IntegerVector ahst_stage_id = as<IntegerVector>(ahstages["stage_id"]);
+    IntegerVector ahst_minage = as<IntegerVector>(ahstages["min_age"]);
+    IntegerVector ahst_maxage = as<IntegerVector>(ahstages["max_age"]);
+    int ages_length = static_cast<int>(ahst_stage_id.length());
+    
+    int first_age2 = ahst_minage(0);
+    int final_age2 {0};
+    if (IntegerVector::is_na(ahst_maxage(ages_length - 1))) {
+      final_age2 = first_age2 + ages_length - 1;
+    } else {
+      final_age2 = ahst_maxage(ages_length - 1);
+    }
+    IntegerVector all_age2 = seq(first_age2, final_age2);
+    arma::ivec all_age2_arma = as<arma::ivec>(all_age2);
+    
+    IntegerVector new_col_index (check_loop_length, -1);
+    IntegerVector new_row_index (check_loop_length, -1);
+    IntegerVector new_use_est (check_loop_length);
+    IntegerVector new_est_col_index (check_loop_length, -1);
+    IntegerVector new_est_row_index (check_loop_length, -1);
+    
+    for (int i = 0; i < check_loop_length; i++) {
+      arma::uvec found_age_elems = find(all_age2_arma == new_age2(i));
+      int found_age_elem0 = static_cast<int>(found_age_elems(0));
+      int found_age2 = all_age2(found_age_elem0);
+      
+      new_col_index(i) = found_age_elem0;
+      if (new_convtype(i) == 1) {
+        if (found_age2 < final_age2) {
+          new_row_index(i) = found_age_elem0 + 1;
+        } else {
+          new_row_index(i) = found_age_elem0;
+        }
+      } else {
+        new_row_index(i) = 0;
+      }
+      
+      if (!IntegerVector::is_na(new_estage2(i))) {
+        arma::uvec found_estage_elems = find(all_age2_arma == new_estage2(i));
+        
+        if (found_estage_elems.n_elem > 0) {
+          int found_estage_elem0 = static_cast<int>(found_estage_elems(0));
+          int found_estage2 = all_age2(found_estage_elem0);
+          
+          new_est_col_index(i) = found_estage_elem0;
+          if (new_convtype(i) == 1) {
+            if (found_estage2 < final_age2) {
+              new_est_row_index(i) = found_estage_elem0 + 1;
+            } else {
+              new_est_row_index(i) = found_estage_elem0;
+            }
+          } else {
+            new_est_row_index(i) = 0;
+          }
+          
+          new_use_est(i) = 1;
+        } else {
+          throw Rcpp::exception("Value entered for estage2 cannot be found.", false);
+        }
+      }
+    }
+      
+    new_col_index_ = new_col_index;
+    new_row_index_ = new_row_index;
+    new_use_est_ = new_use_est;
+    new_est_col_index_ = new_est_col_index;
+    new_est_row_index_ = new_est_row_index;
+    new_givenrate_ = new_givenrate;
+    new_multiplier_ = new_multiplier;
+    new_convtype_ = new_convtype;
+  }
+  
+  // Core matrix editing
+  List A_mats;
+  List U_mats;
+  List F_mats;
+  
+  bool A_used {false};
+  bool U_used {false};
+  bool F_used {false};
+  
+  bool mat_sparse {false};
+  int mat_num {0};
+  
+  if (mpm_list.containsElementNamed("A")) {
+    if (is<List>(mpm_list["A"])) {
+      List new_A_mats = as<List>(mpm_list["A"]);
+      A_mats = clone(new_A_mats);
+      A_used = true;
+      mat_num = static_cast<int>(A_mats.length());
+      
+      if (is<S4>(A_mats(0))) mat_sparse = true;
+    }
+    if (is<List>(mpm_list["U"])) {
+      List new_U_mats = as<List>(mpm_list["U"]);
+      U_mats = clone(new_U_mats);
+      U_used = true;
+      mat_num = static_cast<int>(U_mats.length());
+      
+      if (is<S4>(U_mats(0))) mat_sparse = true;
+    }
+    if (is<List>(mpm_list["F"])) {
+      List new_F_mats = as<List>(mpm_list["F"]);
+      F_mats = clone(new_F_mats);
+      F_used = true;
+      mat_num = static_cast<int>(F_mats.length());
+      
+      if (is<S4>(F_mats(0))) mat_sparse = true;
+    }
+  }
+  
+  if (!A_used && !U_used && !F_used) {
+    throw Rcpp::exception("This input object does not appear to hold matrices.", false);
+  }
+  
+  StringVector new_pop = as<StringVector>(newsupplement["pop"]);
+  StringVector new_patch = as<StringVector>(newsupplement["patch"]);
+  StringVector new_year2 = as<StringVector>(newsupplement["year2"]);
+  
+  StringVector labels_pop = labels["pop"];
+  StringVector labels_patch = labels["patch"];
+  StringVector labels_year2 = labels["year2"];
+  
+  int labels_length = static_cast<int>(labels_pop.length());
+  arma::uvec main_labels_index (labels_length, fill::ones);
+  
+  int new_supp_length = static_cast<int>(new_col_index_.length());
+  int U_adjustment {0};
+  int F_adjustment {0};
+  
+  for (int i = 0; i < new_supp_length; i++) {
+    arma::uvec chosen_pops (labels_length, fill::zeros);
+    arma::uvec chosen_patches (labels_length, fill::zeros);
+    arma::uvec chosen_year2s (labels_length, fill::zeros);
+    
+    if (StringVector::is_na(new_pop(i)) || new_pop(i) == "NA") {
+      chosen_pops = main_labels_index;
+    } else {
+      for (int j = 0; j < labels_length; j++) {
+        if (new_pop(i) == labels_pop(j)) chosen_pops(j) = 1;
+      }
+    }
+    if (StringVector::is_na(new_patch(i)) || new_patch(i) == "NA") {
+      chosen_patches = main_labels_index;
+    } else {
+      for (int j = 0; j < labels_length; j++) {
+        if (new_patch(i) == labels_patch(j)) chosen_patches(j) = 1;
+      }
+    }
+    if (StringVector::is_na(new_year2(i)) || new_year2(i) == "NA") {
+      chosen_year2s = main_labels_index;
+    } else {
+      for (int j = 0; j < labels_length; j++) {
+        if (new_year2(i) == labels_year2(j)) chosen_year2s(j) = 1;
+      }
+    }
+    
+    arma::uvec pop_indices = find(chosen_pops);
+    arma::uvec patch_indices = find(chosen_patches);
+    arma::uvec year2_indices = find(chosen_year2s);
+    
+    if (pop_indices.n_elem == 0) {
+      Rf_warningcall(R_NilValue, "Pop designations could not be found in input MPM.");
+    }
+    if (patch_indices.n_elem == 0) {
+      Rf_warningcall(R_NilValue, "Patch designations could not be found in input MPM.");
+    }
+    if (year2_indices.n_elem == 0) {
+      Rf_warningcall(R_NilValue, "Year2 designations could not be found in input MPM.");
+    }
+    
+    arma::uvec pop_patch_intersect = intersect(pop_indices, patch_indices);
+    arma::uvec chosen_matrices = intersect(pop_patch_intersect, year2_indices);
+    int chosen_matrices_num = static_cast<int>(chosen_matrices.n_elem);
+    
+    for (int j = 0; j < chosen_matrices_num; j++) {
+      if (U_used && F_used) {
+        if (!mat_sparse) {
+          arma::mat chosen_U = as<arma::mat>(U_mats(chosen_matrices(j)));
+          arma::mat chosen_F = as<arma::mat>(F_mats(chosen_matrices(j)));
+          
+          if (new_convtype_(i) == 1 && new_col_index_(i) != -1) {
+            if (!NumericVector::is_na(new_givenrate_(i))) {
+              if (chosen_U(new_row_index_(i), new_col_index_(i)) == 0.0 &&
+                  new_givenrate_(i) != 0.0) {
+                U_adjustment += 1;
+              } else if (chosen_U(new_row_index_(i), new_col_index_(i)) != 0.0 &&
+                  new_givenrate_(i) == 0.0) {
+                U_adjustment -= 1;
+              }
+              
+              chosen_U(new_row_index_(i), new_col_index_(i)) = new_givenrate_(i);
+            }
+            if (!NumericVector::is_na(new_multiplier_(i))) {
+              chosen_U(new_row_index_(i), new_col_index_(i)) *= new_multiplier_(i);
+            }
+            
+            U_mats(chosen_matrices(j)) = chosen_U;
+            
+          } else if (new_convtype_(i) == 2 && new_col_index_(i) != -1) {
+            if (!NumericVector::is_na(new_givenrate_(i))) {
+              if (chosen_F(new_row_index_(i), new_col_index_(i)) == 0.0 &&
+                  new_givenrate_(i) != 0.0) {
+                F_adjustment += 1;
+              } else if (chosen_F(new_row_index_(i), new_col_index_(i)) != 0.0 &&
+                  new_givenrate_(i) == 0.0) {
+                F_adjustment -= 1;
+              }
+              chosen_F(new_row_index_(i), new_col_index_(i)) = new_givenrate_(i);
+            }
+            if (!NumericVector::is_na(new_multiplier_(i))) {
+              chosen_F(new_row_index_(i), new_col_index_(i)) *= new_multiplier_(i);
+            }
+            
+            F_mats(chosen_matrices(j)) = chosen_F;
+            
+          } else if (new_convtype_(i) == 3 && new_col_index_(i) != -1) {
+            if (!NumericVector::is_na(new_multiplier_(i))) {
+              
+              double replacement_value = chosen_F(new_row_index_(i), new_col_index_(i)) * new_multiplier_(i);
+              chosen_F(new_row_index_(i), new_col_index_(i)) = replacement_value;
+            }
+            
+            F_mats(chosen_matrices(j)) = chosen_F;
+          }
+          
+        } else {
+          arma::sp_mat chosen_U = as<arma::sp_mat>(U_mats(chosen_matrices(j)));
+          arma::sp_mat chosen_F = as<arma::sp_mat>(F_mats(chosen_matrices(j)));
+          
+          if (new_convtype_(i) == 1 && new_col_index_(i) != -1) {
+            if (!NumericVector::is_na(new_givenrate_(i))) {
+              if (chosen_U(new_row_index_(i), new_col_index_(i)) == 0.0 &&
+                  new_givenrate_(i) != 0.0) {
+                U_adjustment += 1;
+              } else if (chosen_U(new_row_index_(i), new_col_index_(i)) != 0.0 &&
+                  new_givenrate_(i) == 0.0) {
+                U_adjustment -= 1;
+              }
+              chosen_U(new_row_index_(i), new_col_index_(i)) = new_givenrate_(i);
+            }
+            if (!NumericVector::is_na(new_multiplier_(i))) {
+              chosen_U(new_row_index_(i), new_col_index_(i)) *= new_multiplier_(i);
+            }
+            
+            U_mats(chosen_matrices(j)) = chosen_U;
+            
+          } else if (new_convtype_(i) == 2 && new_col_index_(i) != -1) {
+            if (!NumericVector::is_na(new_givenrate_(i))) {
+              if (chosen_F(new_row_index_(i), new_col_index_(i)) == 0.0 &&
+                  new_givenrate_(i) != 0.0) {
+                F_adjustment += 1;
+              } else if (chosen_F(new_row_index_(i), new_col_index_(i)) != 0.0 &&
+                  new_givenrate_(i) == 0.0) {
+                F_adjustment -= 1;
+              }
+              chosen_F(new_row_index_(i), new_col_index_(i)) = new_givenrate_(i);
+            }
+            if (!NumericVector::is_na(new_multiplier_(i))) {
+              chosen_F(new_row_index_(i), new_col_index_(i)) *= new_multiplier_(i);
+            }
+            
+            F_mats(chosen_matrices(j)) = chosen_F;
+            
+          } else if (new_convtype_(i) == 3 && new_col_index_(i) != -1) {
+            if (!NumericVector::is_na(new_multiplier_(i))) {
+              chosen_F(new_row_index_(i), new_col_index_(i)) *= new_multiplier_(i);
+            }
+            
+            F_mats(chosen_matrices(j)) = chosen_F;
+          }
+        }
+      } else if (A_used) {
+        if (!mat_sparse) {
+          arma::mat chosen_A = as<arma::mat>(A_mats(chosen_matrices(j)));
+          
+          if (!NumericVector::is_na(new_givenrate_(i)) && new_col_index_(i) != -1) {
+            if (chosen_A(new_row_index_(i), new_col_index_(i)) == 0.0 &&
+                new_givenrate_(i) != 0.0) {
+              U_adjustment += 1;
+            } else if (chosen_A(new_row_index_(i), new_col_index_(i)) != 0.0 &&
+                new_givenrate_(i) == 0.0) {
+              U_adjustment -= 1;
+            }
+            chosen_A(new_row_index_(i), new_col_index_(i)) = new_givenrate_(i);
+          }
+          if (!NumericVector::is_na(new_multiplier_(i)) && new_col_index_(i) != -1) {
+            chosen_A(new_row_index_(i), new_col_index_(i)) *= new_multiplier_(i);
+          }
+          
+          A_mats(chosen_matrices(j)) = chosen_A;
+          
+        } else {
+          arma::sp_mat chosen_A = as<arma::sp_mat>(A_mats(chosen_matrices(j)));
+          
+          if (!NumericVector::is_na(new_givenrate_(i)) && new_col_index_(i) != -1) {
+            if (chosen_A(new_row_index_(i), new_col_index_(i)) == 0.0 &&
+                new_givenrate_(i) != 0.0) {
+              U_adjustment += 1;
+            } else if (chosen_A(new_row_index_(i), new_col_index_(i)) != 0.0 &&
+                new_givenrate_(i) == 0.0) {
+              U_adjustment -= 1;
+            }
+            chosen_A(new_row_index_(i), new_col_index_(i)) = new_givenrate_(i);
+          }
+          if (!NumericVector::is_na(new_multiplier_(i)) && new_col_index_(i) != -1) {
+            chosen_A(new_row_index_(i), new_col_index_(i)) *= new_multiplier_(i);
+          }
+          
+          A_mats(chosen_matrices(j)) = chosen_A;
+        }
+      }
+    }
+  }
+  
+  if (U_used && F_used) {
+    for (int i = 0; i < mat_num; i++) {
+      if (!mat_sparse) { 
+        arma::mat current_U = as<arma::mat>(U_mats(i));
+        arma::mat current_F = as<arma::mat>(F_mats(i));
+        arma::mat current_A = current_U + current_F;
+        A_mats(i) = current_A;
+      } else {
+        arma::sp_mat current_U = as<arma::sp_mat>(U_mats(i));
+        arma::sp_mat current_F = as<arma::sp_mat>(F_mats(i));
+        arma::sp_mat current_A = current_U + current_F;
+        A_mats(i) = current_A;
+      }
+    }
+  }
+  
+  IntegerVector dataqc = as<IntegerVector>(mpm_list["dataqc"]);
+  IntegerVector matrixqc = as<IntegerVector>(mpm_list["matrixqc"]);
+  
+  int total_Us = static_cast<int>(matrixqc(0)) + U_adjustment;
+  int total_Fs = static_cast<int>(matrixqc(1)) + F_adjustment;
+  
+  IntegerVector new_matrixqc = {total_Us, total_Fs, mat_num};
+  
+  List true_output;
+  
+  if (mpm_list.containsElementNamed("modelqc")) {
+    DataFrame modelqc = as<DataFrame>(mpm_list["modelqc"]);
+    
+    List new_mpm (10);
+    new_mpm(0) = A_mats;
+    new_mpm(1) = U_mats;
+    new_mpm(2) = F_mats;
+    new_mpm(3) = ahstages;
+    new_mpm(4) = hstages;
+    new_mpm(5) = agestages;
+    new_mpm(6) = labels;
+    new_mpm(7) = dataqc;
+    new_mpm(8) = new_matrixqc;
+    new_mpm(9) = modelqc;
+    
+    true_output = new_mpm;
+    
+    StringVector new_mpm_names = {"A", "U", "F", "ahstages", "hstages",
+      "agestages", "labels", "dataqc", "matrixqc", "modelqc"};
+    StringVector new_mpm_class = {"lefkoMat"};
+    true_output.attr("class") = new_mpm_class;
+    true_output.attr("names") = new_mpm_names;
+    
+  } else {
+    List new_mpm (9);
+    new_mpm(0) = A_mats;
+    new_mpm(1) = U_mats;
+    new_mpm(2) = F_mats;
+    new_mpm(3) = ahstages;
+    new_mpm(4) = hstages;
+    new_mpm(5) = agestages;
+    new_mpm(6) = labels;
+    new_mpm(7) = dataqc;
+    new_mpm(8) = new_matrixqc;
+    
+    true_output = new_mpm;
+    
+    StringVector new_mpm_names = {"A", "U", "F", "ahstages", "hstages",
+      "agestages", "labels", "dataqc", "matrixqc"};
+    StringVector new_mpm_class = {"lefkoMat"};
+    true_output.attr("class") = new_mpm_class;
+    true_output.attr("names") = new_mpm_names;
+  }
+  
+  return true_output;
+}
+
 

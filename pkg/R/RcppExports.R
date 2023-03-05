@@ -3825,8 +3825,8 @@ NULL
 #' life history stage in the life history model. This data frame can be used as 
 #' input into MPM creation functions including \code{\link{flefko3}()}, 
 #' \code{\link{flefko2}()}, \code{\link{aflefko2}()}, \code{\link{rlefko3}()},
-#' and \code{\link{rlefko2}()}, in which it determines how each stage is
-#' treated during matrix estimation.
+#' \code{\link{rlefko2}()}, and \code{\link{arlefko2}()}, in which it
+#' determines how each stage is treated during matrix estimation.
 #' 
 #' @name sf_create
 #' 
@@ -3834,10 +3834,11 @@ NULL
 #' life history stage. If making function-based MPMs, then this should be a
 #' vector composed of the midpoints of each size bin. If denoting the boundary
 #' of an automated size classification group, then should denote the absolute
-#' minimum size of that group, or the absolute size of that group (see Notes).
+#' minimum size of that group, or the absolute size of that group (see
+#' \code{Notes}).
 #' @param stagenames A vector of stage names, in the same order as elements in
 #' sizes. Can also be set to \code{ipm} for automated size classification (see
-#' Notes section).
+#' \code{Notes} section).
 #' @param sizesb An optional numeric vector for a second size metric for each
 #' life history stage. Only to be used if stages are defined by at least two
 #' size metrics in all cases. Same issues apply as in \code{sizes}.
@@ -3845,13 +3846,13 @@ NULL
 #' life history stage. Only to be used if stages are defined by at least three
 #' size metrics in all cases. Same issues apply as in \code{sizes}.
 #' @param repstatus A vector denoting the binomial reproductive status of each
-#' life history stage. Defaults to 1.
+#' life history stage. Defaults to \code{1}.
 #' @param obsstatus A vector denoting the binomial observation status of each
-#' life history stage. Defaults to 1, but may be changed for unobservable 
-#' stages.
+#' life history stage. Defaults to \code{1}, but may be changed for
+#' unobservable stages.
 #' @param propstatus A vector denoting whether each life history stage is a 
 #' propagule. Such stages are generally only used in fecundity estimation. 
-#' Defaults to 0.
+#' Defaults to \code{0}.
 #' @param matstatus A vector denoting whether each stage is mature. Must be
 #' composed of binomial values if given. Defaults to 1 for all stages defined 
 #' in \code{sizes}.
@@ -3859,57 +3860,62 @@ NULL
 #' composed of binomial values if given. Defaults to the complement of vector
 #' \code{matstatus}.
 #' @param minage An optional vector denoting the minimum age at which a stage
-#' can occur. Only used in age x stage matrix development. Defaults to NA.
+#' can occur. Only used in age x stage matrix development. Defaults to
+#' \code{NA}.
 #' @param maxage An optional vector denoting the maximum age at which a stage
-#' should occur. Only used in age x stage matrix development. Defaults to NA.
+#' should occur. Only used in age x stage matrix development. Defaults to
+#' \code{NA}.
 #' @param indataset A vector designating which stages are found within the 
 #' dataset. While \code{\link{rlefko2}()} and \code{\link{rlefko3}()} can use
 #' all stages in the input dataset, \code{\link{flefko3}()} and
 #' \code{\link{flefko2}()} can only handle size-classified stages with
 #' non-overlapping combinations of size and status variables. Stages that do
-#' not actually exist within the dataset should be marked as 0 in this vector.
+#' not actually exist within the dataset should be marked as \code{0} in this
+#' vector.
 #' @param binhalfwidth A numeric vector giving the half-width of size bins.
 #' Required to classify individuals appropriately within size classes.
-#' Defaults to 0.5 for all sizes.
+#' Defaults to \code{0.5} for all sizes.
 #' @param binhalfwidthb A numeric vector giving the half-width of size bins
 #' used for the optional second size metric. Required to classify individuals
-#' appropriately with two or three size classes. Defaults to 0.5 for all sizes.
+#' appropriately with two or three size classes. Defaults to \code{0.5} for all
+#' sizes.
 #' @param binhalfwidthc A numeric vector giving the half-width of size bins
 #' used for the optional third size metric. Required to classify individuals
-#' appropriately with three size classes. Defaults to 0.5 for all sizes.
+#' appropriately with three size classes. Defaults to \code{0.5} for all sizes.
 #' @param group An integer vector providing information on each respective
 #' stage's size classification group. If used, then function-based MPM creation
 #' functions \code{\link{flefko2}()}, \code{\link{flefko3}()}, and
 #' \code{\link{aflefko2}()} will estimate transitions only within these groups
 #' and for allowed cross-group transitions noted within the supplement table.
-#' Defaults to 0.
+#' Defaults to \code{0}.
 #' @param comments An optional vector of text entries holding useful text
 #' descriptions of all stages.
 #' @param roundsize This parameter sets the precision of size classification,
-#' and equals the number of digits used in rounding sizes. Defaults to 5.
+#' and equals the number of digits used in rounding sizes. Defaults to
+#' \code{5}.
 #' @param roundsizeb This parameter sets the precision of size classification
 #' in the optional second size metric, and equals the number of digits used in
-#' rounding sizes. Defaults to 5.
+#' rounding sizes. Defaults to \code{5}.
 #' @param roundsizec This parameter sets the precision of size classification
 #' in the optional third size metric, and equals the number of digits used in
-#' rounding sizes. Defaults to 5.
+#' rounding sizes. Defaults to \code{5}.
 #' @param ipmbins An integer giving the number of size bins to create using the
 #' primary size classification variable. This number is in addition to any
-#' stages that are not size classified. Defaults to 100, and numbers greater
-#' than this yield a warning about the loss of statistical power and increasing
-#' chance of matrix over-parameterization resulting from increasing numbers of
-#' stages.
+#' stages that are not size classified. Defaults to \code{100}, and numbers
+#' greater than this yield a warning about the loss of statistical power and
+#' increasing chance of matrix over-parameterization resulting from increasing
+#' numbers of stages.
 #' @param ipmbinsb An optional integer giving the number of size bins to create
 #' using the secondary size classification variable. This number is in addition
 #' to any stages that are not size classified, as well as in addition to any
 #' automated size classification using the primary and tertiary size variables.
-#' Defaults to NA, and must be set to a positive integer for automated size
-#' classification to progress.
+#' Defaults to \code{NA}, and must be set to a positive integer for automated
+#' size classification to progress.
 #' @param ipmbinsc An optional integer giving the number of size bins to create
 #' using the tertiary size classification variable. This number is in addition
 #' to any stages that are not size classified, as well as in addition to any
 #' automated size classification using the primary and secondary size
-#' variables. Defaults to NA, and must be set to a positive integer for
+#' variables. Defaults to \code{NA}, and must be set to a positive integer for
 #' automated size classification to progress.
 #' 
 #' @return A data frame of class \code{stageframe}, which includes information
@@ -4348,6 +4354,320 @@ actualstage3 <- function(data, check_stage = TRUE, check_age = FALSE, historical
 #' @export density_input
 density_input <- function(mpm, stage3, stage2, stage1 = NULL, age2 = NULL, style = NULL, time_delay = NULL, alpha = NULL, beta = NULL, type = NULL, type_t12 = NULL) {
     .Call('_lefko3_density_input', PACKAGE = 'lefko3', mpm, stage3, stage2, stage1, age2, style, time_delay, alpha, beta, type, type_t12)
+}
+
+#' Create a Data Frame of Supplemental Data for MPM Development
+#' 
+#' Function \code{supplemental()} provides all necessary supplemental data for
+#' matrix estimation, particularly bringing together data on proxy rates, data
+#' to overwrite existing rates, identified reproductive transitions complete,
+#' and fecundity multipliers. The function should be used to incorporate data
+#' that affects all matrices to be created. To edit MPMs after creation, use
+#' \code{\link{edit_lM}()} instead.
+#' 
+#' @name supplemental
+#' 
+#' @param stageframe The stageframe used to produce the MPM.
+#' @param historical A logical value indicating whether the MPMs intended will
+#' be historical or ahistorical. Defaults to \code{TRUE}.
+#' @param stagebased A logical value indicating whether the MPM will be stage-
+#' based or age-by-stage. Defaults to \code{TRUE}.
+#' @param agebased A logical value indicating whether the MPM will be age-based
+#' or age-by-stage. Defaults to \code{FALSE}.
+#' @param stage3 The name of the stage in occasion \emph{t}+1 in the transition
+#' to be replaced. Abbreviations for groups of stages are also usable (see
+#' \code{Notes}). Required in all stage-based and age-by-stage MPMs.
+#' @param stage2 The name of the stage in occasion \emph{t} in the transition
+#' to be replaced. Abbreviations for groups of stages are also usable (see
+#' \code{Notes}). Required in all stage-based and age-by-stage MPMs.
+#' @param stage1 The name of the stage in occasion \emph{t}-1 in the transition
+#' to be replaced. Only needed if a historical matrix is to be produced.
+#' Abbreviations for groups of stages are also usable (see \code{Notes}).
+#' Required for historical stage-based MPMs.
+#' @param age2 An integer vector of the ages in occasion \emph{t} to use in
+#' transitions to be changed or replaced. Required for all age- and
+#' age-by-stage MPMs.
+#' @param eststage3 The name of the stage to replace \code{stage3} in a proxy
+#' transition. Only needed if a transition will be replaced by another
+#' estimated transition, and only in stage-based and age-by-stage MPMs.
+#' @param eststage2 The name of the stage to replace \code{stage2} in a proxy
+#' transition. Only needed if a transition will be replaced by another
+#' estimated transition, and only in stage-based and age-by-stage MPMs.
+#' @param eststage1 The name of the stage to replace \code{stage1} in a proxy
+#' historical transition. Only needed if a transition will be replaced by
+#' another estimated transition, and the matrix to be estimated is historical
+#' and stage-based. Stage \code{NotAlive} is also possible for raw hMPMs as a
+#' means of handling the prior stage for individuals entering the population in
+#' occasion \emph{t}.
+#' @param estage2 The age at time \emph{t} to replace \code{age2} in a proxy
+#' transition. Only needed if a transition will be replaced by another
+#' estimated transition, and only in age-based and age-by-stage MPMs.
+#' @param givenrate A fixed rate or probability to replace for the transition
+#' described by \code{stage3}, \code{stage2}, and \code{stage1}.
+#' @param multiplier A vector of numeric multipliers for fecundity or for proxy
+#' transitions. Defaults to \code{1}.
+#' @param type A vector denoting the kind of transition between occasions
+#' \emph{t} and \emph{t}+1 to be replaced. This should be entered as \code{1},
+#' \code{S}, or \code{s} for the replacement of a survival transition;
+#' \code{2}, \code{F}, or \code{f} for the replacement of a fecundity
+#' transition; or \code{3}, \code{R}, or \code{r} for a fecundity multiplier.
+#' If empty or not provided, then defaults to \code{1} for survival transition.
+#' @param type_t12 An optional vector denoting the kind of transition between
+#' occasions \emph{t}-1 and \emph{t}. Only necessary if a historical MPM in
+#' deVries format is desired. This should be entered as \code{1}, \code{S}, or
+#' \code{s} for a survival transition; or \code{2}, \code{F}, or \code{f} for a
+#' fecundity transitions. Defaults to \code{1} for survival transition, with
+#' impacts only on the construction of deVries-format hMPMs.
+#' 
+#' @return A data frame of class \code{lefkoSD}. This object can be used as
+#' input in \code{\link{flefko3}()}, \code{\link{flefko2}()}, 
+#' \code{\link{rlefko3}()}, \code{\link{rlefko2}()}, and 
+#' \code{\link{aflefko2}()}.
+#' 
+#' Variables in this object include the following:
+#' \item{stage3}{Stage at occasion \emph{t}+1 in the transition to be
+#' replaced.}
+#' \item{stage2}{Stage at occasion \emph{t} in the transition to be replaced.}
+#' \item{stage1}{Stage at occasion \emph{t}-1 in the transition to be
+#' replaced.}
+#' \item{age2}{Age at occasion \emph{t} in the transition to be replaced.}
+#' \item{eststage3}{Stage at occasion \emph{t}+1 in the transition to replace
+#' the transition designated by \code{stage3}, \code{stage2}, and 
+#' \code{stage1}.}
+#' \item{eststage2}{Stage at occasion \emph{t} in the transition to replace the
+#' transition designated by \code{stage3}, \code{stage2}, and \code{stage1}.}
+#' \item{eststage1}{Stage at occasion \emph{t}-1 in the transition to replace
+#' the transition designated by \code{stage3}, \code{stage2}, and 
+#' \code{stage1}.}
+#' \item{estage2}{Age at occasion \emph{t} in the transition to replace the
+#' transition designated by \code{age2}.}
+#' \item{givenrate}{A constant to be used as the value of the transition.}
+#' \item{multiplier}{A multiplier for proxy transitions or for fecundity.}
+#' \item{convtype}{Designates whether the transition from occasion \emph{t} to
+#' occasion \emph{t}+1 is a survival transition probability (1), a fecundity
+#' rate (2), or a fecundity multiplier (3).}
+#' \item{convtype_t12}{Designates whether the transition from occasion
+#' \emph{t}-1 to occasion \emph{t} is a survival transition probability (1), a
+#' fecundity rate (2).}
+#' 
+#' @section Notes:
+#' Negative values are not allowed in \code{givenrate} and \code{multiplier}
+#' input. Stage entries should not be used for purely age-based MPMs, and age
+#' entries should not be used for purely stage-based MPMs.
+#' 
+#' Fecundity multiplier data supplied via the \code{supplemental()} function
+#' acts in the same way as non-zero entries supplied via a reproductive matrix,
+#' but gets priority in all matrix creations. Thus, in cases where fecundity
+#' multipliers are provided for the same function via the reproductive matrix
+#' and function \code{supplemental()}, the latter is used.
+#' 
+#' Entries in \code{stage3}, \code{stage2}, and \code{stage1} can include
+#' abbreviations for groups of stages. Use \code{rep} if all reproductive
+#' stages are to be used, \code{nrep} if all mature but non-reproductive stages
+#' are to be used, \code{mat} if all mature stages are to be used, \code{immat}
+#' if all immature stages are to be used, \code{prop} if all propagule stages
+#' are to be used, \code{npr} if all non-propagule stages are to be used,
+#' \code{obs} if all observable stages are to be used, \code{nobs} if all
+#' unobservable stages are to be used, and leave empty or use \code{all} if all
+#' stages in stageframe are to be used. Also use \code{groupX} to denote all
+#' stages in group X (e.g. \code{group1} will use all stages in the respective
+#' stageframe's group 1).
+#' 
+#' @seealso \code{\link{edit_lM}()}
+#' 
+#' @examples
+#' # Lathyrus example
+#' data(lathyrus)
+#' 
+#' sizevector <- c(0, 100, 13, 127, 3730, 3800, 0)
+#' stagevector <- c("Sd", "Sdl", "VSm", "Sm", "VLa", "Flo", "Dorm")
+#' repvector <- c(0, 0, 0, 0, 0, 1, 0)
+#' obsvector <- c(0, 1, 1, 1, 1, 1, 0)
+#' matvector <- c(0, 0, 1, 1, 1, 1, 1)
+#' immvector <- c(1, 1, 0, 0, 0, 0, 0)
+#' propvector <- c(1, 0, 0, 0, 0, 0, 0)
+#' indataset <- c(0, 1, 1, 1, 1, 1, 1)
+#' binvec <- c(0, 100, 11, 103, 3500, 3800, 0.5)
+#' 
+#' lathframe <- sf_create(sizes = sizevector, stagenames = stagevector,
+#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
+#'   immstatus = immvector, indataset = indataset, binhalfwidth = binvec,
+#'   propstatus = propvector)
+#' 
+#' lathvert <- verticalize3(lathyrus, noyears = 4, firstyear = 1988,
+#'   patchidcol = "SUBPLOT", individcol = "GENET", blocksize = 9,
+#'   juvcol = "Seedling1988", sizeacol = "Volume88", repstracol = "FCODE88",
+#'   fecacol = "Intactseed88", deadacol = "Dead1988",
+#'   nonobsacol = "Dormant1988", stageassign = lathframe, stagesize = "sizea",
+#'   censorcol = "Missing1988", censorkeep = NA, censor = TRUE)
+#' 
+#' lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "Sd", "Sdl", "mat"),
+#'   stage2 = c("Sd", "Sd", "Sd", "Sd", "rep", "rep", "Sdl"),
+#'   stage1 = c("Sd", "rep", "Sd", "rep", "npr", "npr", "Sd"),
+#'   eststage3 = c(NA, NA, NA, NA, NA, NA, "mat"),
+#'   eststage2 = c(NA, NA, NA, NA, NA, NA, "Sdl"),
+#'   eststage1 = c(NA, NA, NA, NA, NA, NA, "NotAlive"),
+#'   givenrate = c(0.345, 0.345, 0.054, 0.054, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, 0.345, 0.054, NA),
+#'   type = c(1, 1, 1, 1, 3, 3, 1), type_t12 = c(1, 2, 1, 2, 1, 1, 1),
+#'   stageframe = lathframe, historical = TRUE)
+#' 
+#' ehrlen3 <- rlefko3(data = lathvert, stageframe = lathframe, year = "all", 
+#'   stages = c("stage3", "stage2", "stage1"), supplement = lathsupp3,
+#'   yearcol = "year2", indivcol = "individ")
+#' 
+#' # Cypripedium example
+#' data(cypdata)
+#' 
+#' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
+#' stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
+#'   "XLg")
+#' repvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
+#' obsvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
+#' matvector <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
+#' immvector <- c(0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
+#' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+#' indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
+#' binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 2.5, 7)
+#' 
+#' cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector,
+#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
+#'   propstatus = propvector, immstatus = immvector, indataset = indataset,
+#'   binhalfwidth = binvec)
+#' 
+#' cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
+#'   patchidcol = "patch", individcol = "plantid", blocksize = 4,
+#'   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04",
+#'   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
+#'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
+#'   NRasRep = TRUE)
+#' 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
+#'     "XSm", "Sm", "SD", "P1"),
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
+#'     "rep"),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+#'   stageframe = cypframe_raw, historical = FALSE)
+#' 
+#' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
+#'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
+#'   size = c("size3added", "size2added"), supplement = cypsupp2r,
+#'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
+#' 
+#' @export supplemental
+supplemental <- function(stageframe, historical = TRUE, stagebased = TRUE, agebased = FALSE, stage3 = NULL, stage2 = NULL, stage1 = NULL, age2 = NULL, eststage3 = NULL, eststage2 = NULL, eststage1 = NULL, estage2 = NULL, givenrate = NULL, multiplier = NULL, type = NULL, type_t12 = NULL) {
+    .Call('_lefko3_supplemental', PACKAGE = 'lefko3', stageframe, historical, stagebased, agebased, stage3, stage2, stage1, age2, eststage3, eststage2, eststage1, estage2, givenrate, multiplier, type, type_t12)
+}
+
+#' Edit an MPM based on Supplemental Data
+#' 
+#' Function \code{edit_lM()} edits existing \code{lefkoMat} objects with
+#' external data supplied by the user. The effects are similar to function
+#' \code{\link{supplemental}()}, though function \code{edit_lM()} allows
+#' individuals matrices within \code{lefkoMat} objects to be edited after
+#' creation, while \code{\link{supplemental}()} provides external data that
+#' modifies all matrices within a \code{lefkoMat} object.
+#' 
+#' @name edit_lM
+#' 
+#' @param mpm The \code{lefkoMat} object to be edited.
+#' @param pop A string vector denoting the populations to be edited. Defaults
+#' to \code{NULL}, in which case all populations are edited.
+#' @param patch A string vector denoting the patches to be edited. Defaults
+#' to \code{NULL}, in which case all patches are edited.
+#' @param patch A string vector denoting the years to be edited. Defaults
+#' to \code{NULL}, in which case all years are edited.
+#' @param stage3 The name of the stage in occasion \emph{t}+1 in the transition
+#' to be replaced. Abbreviations for groups of stages are also usable (see
+#' \code{Notes}). Required in all stage-based and age-by-stage MPMs.
+#' @param stage2 The name of the stage in occasion \emph{t} in the transition
+#' to be replaced. Abbreviations for groups of stages are also usable (see
+#' \code{Notes}). Required in all stage-based and age-by-stage MPMs.
+#' @param stage1 The name of the stage in occasion \emph{t}-1 in the transition
+#' to be replaced. Only needed if a historical matrix is to be produced.
+#' Abbreviations for groups of stages are also usable (see \code{Notes}).
+#' Required for historical stage-based MPMs.
+#' @param age2 An integer vector of the ages in occasion \emph{t} to use in
+#' transitions to be changed or replaced. Required for all age- and
+#' age-by-stage MPMs.
+#' @param eststage3 The name of the stage to replace \code{stage3} in a proxy
+#' transition. Only needed if a transition will be replaced by another
+#' estimated transition, and only in stage-based and age-by-stage MPMs.
+#' @param eststage2 The name of the stage to replace \code{stage2} in a proxy
+#' transition. Only needed if a transition will be replaced by another
+#' estimated transition, and only in stage-based and age-by-stage MPMs.
+#' @param eststage1 The name of the stage to replace \code{stage1} in a proxy
+#' historical transition. Only needed if a transition will be replaced by
+#' another estimated transition, and the matrix to be estimated is historical
+#' and stage-based. Stage \code{NotAlive} is also possible for raw hMPMs as a
+#' means of handling the prior stage for individuals entering the population in
+#' occasion \emph{t}.
+#' @param estage2 The age at time \emph{t} to replace \code{age2} in a proxy
+#' transition. Only needed if a transition will be replaced by another
+#' estimated transition, and only in age-based and age-by-stage MPMs.
+#' @param givenrate A fixed rate or probability to replace for the transition
+#' described by \code{stage3}, \code{stage2}, and \code{stage1}.
+#' @param multiplier A vector of numeric multipliers for fecundity or for proxy
+#' transitions. Defaults to \code{1}.
+#' @param type A vector denoting the kind of transition between occasions
+#' \emph{t} and \emph{t}+1 to be replaced. This should be entered as \code{1},
+#' \code{S}, or \code{s} for the replacement of a survival transition;
+#' \code{2}, \code{F}, or \code{f} for the replacement of a fecundity
+#' transition; or \code{3}, \code{R}, or \code{r} for a fecundity multiplier.
+#' If empty or not provided, then defaults to \code{1} for survival transition.
+#' @param type_t12 An optional vector denoting the kind of transition between
+#' occasions \emph{t}-1 and \emph{t}. Only necessary if a historical MPM in
+#' deVries format is desired. This should be entered as \code{1}, \code{S}, or
+#' \code{s} for a survival transition; or \code{2}, \code{F}, or \code{f} for a
+#' fecundity transitions. Defaults to \code{1} for survival transition, with
+#' impacts only on the construction of deVries-format hMPMs.
+#' 
+#' @return A edited copy of the original MPM is returned, also as a
+#' \code{lefkoMat} object.
+#' 
+#' @section Notes:
+#' Entries in \code{stage3}, \code{stage2}, and \code{stage1} can include
+#' abbreviations for groups of stages. Use \code{rep} if all reproductive
+#' stages are to be used, \code{nrep} if all mature but non-reproductive stages
+#' are to be used, \code{mat} if all mature stages are to be used, \code{immat}
+#' if all immature stages are to be used, \code{prop} if all propagule stages
+#' are to be used, \code{npr} if all non-propagule stages are to be used,
+#' \code{obs} if all observable stages are to be used, \code{nobs} if all
+#' unobservable stages are to be used, and leave empty or use \code{all} if all
+#' stages in stageframe are to be used. Also use \code{groupX} to denote all
+#' stages in group X (e.g. \code{group1} will use all stages in the respective
+#' stageframe's group 1).
+#' 
+#' @seealso \code{\link{supplemental}()}
+#' 
+#' @examples
+#' data(cypdata)
+#' 
+#' cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
+#'   patchidcol = "patch", individcol = "plantid", blocksize = 4,
+#'   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04",
+#'   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
+#'   age_offset = 3, NAas0 = TRUE, NRasRep = TRUE)
+#' 
+#' cyp_rl <- rleslie(data = cypraw_v1, start_age = 0, last_age = 6, continue = TRUE,
+#'   fecage_min = 3, year = "all", pop = NA, patch = "all", yearcol = "year2",
+#'   patchcol = "patchid", indivcol = "individ")
+#' 
+#' ddd1 <- edit_lM(cyp_rl, age2 = c(0, 1, 2, 3, 4, 5, 6),
+#'   givenrate = c(0.25, 0.25, 0.4, 0.4, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, 2000, 2000, 2000),
+#'   type = c(1, 1, 1, 1, 3, 3, 3))
+#'   
+#' ddd1 <- edit_lM(ddd1, age2 = 6, multiplier = 1.5, type = 3, patch = "B",
+#'   year2 = "2005")
+#' 
+#' @export edit_lM
+edit_lM <- function(mpm, pop = NULL, patch = NULL, year2 = NULL, stage3 = NULL, stage2 = NULL, stage1 = NULL, age2 = NULL, eststage3 = NULL, eststage2 = NULL, eststage1 = NULL, estage2 = NULL, givenrate = NULL, multiplier = NULL, type = NULL, type_t12 = NULL) {
+    .Call('_lefko3_edit_lM', PACKAGE = 'lefko3', mpm, pop, patch, year2, stage3, stage2, stage1, age2, eststage3, eststage2, eststage1, estage2, givenrate, multiplier, type, type_t12)
 }
 
 #' Creates Size Index for Elasticity Summaries of hMPMs

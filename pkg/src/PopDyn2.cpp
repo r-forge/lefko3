@@ -423,6 +423,7 @@ Rcpp::List demolition4 (List cmats) {
   if (ltre_input) { 
     List cont_0 = as<List>(cmats(0));
     int conts_num = cmats.length() - 4;
+    if (conts_num > 4) conts_num -= 2;
     int mats_num = cont_0.length();
     
     if (is<S4>(cont_0(0))) sparse_input = true;

@@ -921,6 +921,58 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// supplemental
+Rcpp::List supplemental(RObject stageframe, bool historical, bool stagebased, bool agebased, Nullable<RObject> stage3, Nullable<RObject> stage2, Nullable<RObject> stage1, Nullable<RObject> age2, Nullable<RObject> eststage3, Nullable<RObject> eststage2, Nullable<RObject> eststage1, Nullable<RObject> estage2, Nullable<RObject> givenrate, Nullable<RObject> multiplier, Nullable<RObject> type, Nullable<RObject> type_t12);
+RcppExport SEXP _lefko3_supplemental(SEXP stageframeSEXP, SEXP historicalSEXP, SEXP stagebasedSEXP, SEXP agebasedSEXP, SEXP stage3SEXP, SEXP stage2SEXP, SEXP stage1SEXP, SEXP age2SEXP, SEXP eststage3SEXP, SEXP eststage2SEXP, SEXP eststage1SEXP, SEXP estage2SEXP, SEXP givenrateSEXP, SEXP multiplierSEXP, SEXP typeSEXP, SEXP type_t12SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< RObject >::type stageframe(stageframeSEXP);
+    Rcpp::traits::input_parameter< bool >::type historical(historicalSEXP);
+    Rcpp::traits::input_parameter< bool >::type stagebased(stagebasedSEXP);
+    Rcpp::traits::input_parameter< bool >::type agebased(agebasedSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type stage3(stage3SEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type stage2(stage2SEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type stage1(stage1SEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type age2(age2SEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type eststage3(eststage3SEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type eststage2(eststage2SEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type eststage1(eststage1SEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type estage2(estage2SEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type givenrate(givenrateSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type multiplier(multiplierSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type type(typeSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type type_t12(type_t12SEXP);
+    rcpp_result_gen = Rcpp::wrap(supplemental(stageframe, historical, stagebased, agebased, stage3, stage2, stage1, age2, eststage3, eststage2, eststage1, estage2, givenrate, multiplier, type, type_t12));
+    return rcpp_result_gen;
+END_RCPP
+}
+// edit_lM
+Rcpp::List edit_lM(const RObject mpm, Nullable<RObject> pop, Nullable<RObject> patch, Nullable<RObject> year2, Nullable<RObject> stage3, Nullable<RObject> stage2, Nullable<RObject> stage1, Nullable<RObject> age2, Nullable<RObject> eststage3, Nullable<RObject> eststage2, Nullable<RObject> eststage1, Nullable<RObject> estage2, Nullable<RObject> givenrate, Nullable<RObject> multiplier, Nullable<RObject> type, Nullable<RObject> type_t12);
+RcppExport SEXP _lefko3_edit_lM(SEXP mpmSEXP, SEXP popSEXP, SEXP patchSEXP, SEXP year2SEXP, SEXP stage3SEXP, SEXP stage2SEXP, SEXP stage1SEXP, SEXP age2SEXP, SEXP eststage3SEXP, SEXP eststage2SEXP, SEXP eststage1SEXP, SEXP estage2SEXP, SEXP givenrateSEXP, SEXP multiplierSEXP, SEXP typeSEXP, SEXP type_t12SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const RObject >::type mpm(mpmSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type pop(popSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type patch(patchSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type year2(year2SEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type stage3(stage3SEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type stage2(stage2SEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type stage1(stage1SEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type age2(age2SEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type eststage3(eststage3SEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type eststage2(eststage2SEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type eststage1(eststage1SEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type estage2(estage2SEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type givenrate(givenrateSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type multiplier(multiplierSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type type(typeSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type type_t12(type_t12SEXP);
+    rcpp_result_gen = Rcpp::wrap(edit_lM(mpm, pop, patch, year2, stage3, stage2, stage1, age2, eststage3, eststage2, eststage1, estage2, givenrate, multiplier, type, type_t12));
+    return rcpp_result_gen;
+END_RCPP
+}
 // bambi3
 DataFrame bambi3(const DataFrame& stages, const DataFrame& hstages);
 RcppExport SEXP _lefko3_bambi3(SEXP stagesSEXP, SEXP hstagesSEXP) {
@@ -1042,6 +1094,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_lefko3_sf_create", (DL_FUNC) &_lefko3_sf_create, 23},
     {"_lefko3_actualstage3", (DL_FUNC) &_lefko3_actualstage3, 10},
     {"_lefko3_density_input", (DL_FUNC) &_lefko3_density_input, 11},
+    {"_lefko3_supplemental", (DL_FUNC) &_lefko3_supplemental, 16},
+    {"_lefko3_edit_lM", (DL_FUNC) &_lefko3_edit_lM, 16},
     {"_lefko3_bambi3", (DL_FUNC) &_lefko3_bambi3, 2},
     {"_lefko3_bambi2", (DL_FUNC) &_lefko3_bambi2, 1},
     {"_lefko3_demolition4", (DL_FUNC) &_lefko3_demolition4, 1},

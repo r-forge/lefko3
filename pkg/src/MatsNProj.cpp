@@ -3604,10 +3604,20 @@ Rcpp::List minorpatrolgroup(const DataFrame& MainData, const DataFrame& StageFra
       }
       
       if (!sparse) {
-        if (k < (noages - 1)) tmatrix(k+1, k) = probsrates1(k);
+        if (k < (noages - 1)) {
+          tmatrix(k+1, k) = probsrates1(k);
+        } else if (cont) {
+          tmatrix(k, k) = probsrates1(k);
+        }
+        
         fmatrix(0, k) = probsrates2(k);
       } else {
-        if (k < (noages - 1)) tmatrix_sp(k+1, k) = probsrates1(k);
+        if (k < (noages - 1)) {
+          tmatrix_sp(k+1, k) = probsrates1(k);
+        } else if (cont) {
+          tmatrix_sp(k, k) = probsrates1(k);
+        }
+        
         fmatrix_sp(0, k) = probsrates2(k);
       }
       
@@ -20224,6 +20234,9 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
   }
   int tweights_total_mats = sum(tweights_int);
   
+  NumericVector rvals_poppatch (numpoppatches);
+  double rvals_ref {0.0};
+  
   // First pop/patch means and sds
   for (int i = 0; i < numpoppatches; i++) {
     arma::uvec poppatch_chosen = find(poppatchc == uniquepoppatches(i));
@@ -20253,6 +20266,12 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
           static_cast<double>(numpoppatch_extended));
       }
       poppatch_meanmat(i) = mat_mean;
+      
+      List eigenstuff = LefkoMats::decomp3(mat_mean);
+      arma::vec realeigenvals = real(as<arma::cx_vec>(eigenstuff["eigenvalues"]));
+      double lambda = max(realeigenvals);
+      rvals_poppatch(i) = log(lambda);
+      
       arma::mat mat_elas = elas3matrix(mat_mean, false);
       poppatch_elasmat(i) = mat_elas;
       
@@ -20305,6 +20324,12 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
           static_cast<double>(numpoppatch_extended));
       }
       poppatch_meanmat(i) = mat_mean;
+      
+      List eigenstuff = LefkoMats::decomp3sp_inp(mat_mean);
+      arma::vec realeigenvals = real(as<arma::cx_vec>(eigenstuff["eigenvalues"]));
+      double lambda = max(realeigenvals);
+      rvals_poppatch(i) = log(lambda);
+      
       arma::sp_mat mat_elas = elas3sp_matrix(mat_mean);
       poppatch_elasmat(i) = mat_elas;
       
@@ -20357,6 +20382,12 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
           static_cast<double>(numpoppatch_extended));
       }
       poppatch_meanmat(i) = mat_mean;
+      
+      List eigenstuff = LefkoMats::decomp3sp_inp(mat_mean);
+      arma::vec realeigenvals = real(as<arma::cx_vec>(eigenstuff["eigenvalues"]));
+      double lambda = max(realeigenvals);
+      rvals_poppatch(i) = log(lambda);
+      
       arma::sp_mat mat_elas = elas3sp_matrix(mat_mean);
       poppatch_elasmat(i) = mat_elas;
       
@@ -20418,6 +20449,11 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
         mat_mean = mat_mean + (as<arma::mat>(refmats(refnum(i))) / static_cast<double>(refmatnum));
       }
       
+      List eigenstuff = LefkoMats::decomp3(mat_mean);
+      arma::vec realeigenvals = real(as<arma::cx_vec>(eigenstuff["eigenvalues"]));
+      double lambda = max(realeigenvals);
+      rvals_ref = log(lambda);
+      
       for (int i = 0; i < ref_index_main_nonzeros; i++) {
         arma::vec mat_elems(refmatnum, fill::zeros);
         arma::vec mat_elems_forcorr (refmatnum, fill::zeros);
@@ -20471,6 +20507,11 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
           static_cast<double>(refmatnum));
       }
       
+      List eigenstuff = LefkoMats::decomp3sp_inp(mat_mean);
+      arma::vec realeigenvals = real(as<arma::cx_vec>(eigenstuff["eigenvalues"]));
+      double lambda = max(realeigenvals);
+      rvals_ref = log(lambda);
+      
       for (int i = 0; i < ref_index_main_nonzeros; i++) {
         arma::vec mat_elems(refmatnum, fill::zeros);
         arma::vec mat_elems_forcorr (refmatnum, fill::zeros);
@@ -20521,6 +20562,11 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
         mat_mean = mat_mean + (as<arma::sp_mat>(refmats(refnum(i))) /
           static_cast<double>(refmatnum));
       }
+      
+      List eigenstuff = LefkoMats::decomp3sp_inp(mat_mean);
+      arma::vec realeigenvals = real(as<arma::cx_vec>(eigenstuff["eigenvalues"]));
+      double lambda = max(realeigenvals);
+      rvals_ref = log(lambda);
       
       for (int i = 0; i < ref_index_main_nonzeros; i++) {
         arma::vec mat_elems(refmatnum, fill::zeros);
@@ -20624,6 +20670,11 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
             static_cast<double>(ref_extended_length));
         }
         
+        List eigenstuff = LefkoMats::decomp3(mat_mean);
+        arma::vec realeigenvals = real(as<arma::cx_vec>(eigenstuff["eigenvalues"]));
+        double lambda = max(realeigenvals);
+        rvals_ref = log(lambda);
+        
         for (int i = 0; i < mat_index_main_nonzeros; i++) {
           arma::vec mat_elems(ref_extended_length, fill::zeros);
           arma::vec mat_elems_forcorr (ref_extended_length, fill::zeros);
@@ -20674,6 +20725,11 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
           mat_mean = mat_mean + (as<arma::sp_mat>(ref_byyear(ref_extended(i))) /
             static_cast<double>(ref_extended_length));
         }
+        
+        List eigenstuff = LefkoMats::decomp3sp_inp(mat_mean);
+        arma::vec realeigenvals = real(as<arma::cx_vec>(eigenstuff["eigenvalues"]));
+        double lambda = max(realeigenvals);
+        rvals_ref = log(lambda);
         
         for (int i = 0; i < mat_index_main_nonzeros; i++) {
           arma::vec mat_elems(ref_extended_length, fill::zeros);
@@ -20742,6 +20798,12 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
           mat_mean = mat_mean + (as<arma::mat>(ref_byyear(i)) /
             static_cast<double>(refmatnum));
         }
+        
+        List eigenstuff = LefkoMats::decomp3(mat_mean);
+        arma::vec realeigenvals = real(as<arma::cx_vec>(eigenstuff["eigenvalues"]));
+        double lambda = max(realeigenvals);
+        rvals_ref = log(lambda);
+        
         for (int i = 0; i < mat_index_main_nonzeros; i++) {
           arma::vec mat_elems(refmatnum, fill::zeros);
           arma::vec mat_elems_forcorr (refmatnum, fill::zeros);
@@ -20792,6 +20854,12 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
           mat_mean = mat_mean + (as<arma::sp_mat>(ref_byyear(i)) /
             static_cast<double>(refmatnum));
         }
+        
+        List eigenstuff = LefkoMats::decomp3sp_inp(mat_mean);
+        arma::vec realeigenvals = real(as<arma::cx_vec>(eigenstuff["eigenvalues"]));
+        double lambda = max(realeigenvals);
+        rvals_ref = log(lambda);
+        
         for (int i = 0; i < mat_index_main_nonzeros; i++) {
           arma::vec mat_elems(refmatnum, fill::zeros);
           arma::vec mat_elems_forcorr (refmatnum, fill::zeros);
@@ -20852,8 +20920,8 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
       Rcpp::checkUserInterrupt();
       
       // Contributions of differences in element means
-      arma::mat current_contmean = (0.5 * (ref_matelas + as<arma::mat>(poppatch_elasmat(i)))) %
-        (log_ref_matmean - arma::log(as<arma::mat>(poppatch_meanmat(i))));
+      arma::mat current_contmean = ref_matelas % // Originally (0.5 * (ref_matelas + as<arma::mat>(poppatch_elasmat(i))))
+        (arma::log(as<arma::mat>(poppatch_meanmat(i))) - log_ref_matmean); // (log_ref_matmean - arma::log(as<arma::mat>(poppatch_meanmat(i)))) 
       current_contmean.elem(find_nonfinite(current_contmean)).zeros();
       
       poppatch_contmeans(i) = current_contmean;
@@ -20863,7 +20931,7 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
       arma::mat big_cv_col = cv_col * cv_col.t();
       arma::mat elas_col = vectorise(as<arma::mat>(poppatch_elasmat(i)));
       arma::mat big_elas_col = elas_col * elas_col.t();
-      arma::mat current_contelas = 0.5 * ((big_ref_cv_col % ref_matcorr) +
+      arma::mat current_contelas = -0.5 * 0.5 * ((big_ref_cv_col % ref_matcorr) +
         (big_cv_col % as<arma::mat>(poppatch_corrmat(i)))) %
         (big_ref_elas_col - big_elas_col);
       
@@ -20871,12 +20939,12 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
       
       // Contributions of differences in CV
       arma::mat current_meanelas = (0.5 * (big_ref_elas_col + big_elas_col));
-      arma::mat current_diffcv = current_meanelas % (big_ref_cv_col - big_cv_col) %
+      arma::mat current_diffcv = -0.5 * current_meanelas % (big_ref_cv_col - big_cv_col) %
         (0.5 * (ref_matcorr + as<arma::mat>(poppatch_corrmat(i))));
       poppatch_diffcv(i) = current_diffcv;
       
       // Contributions of differences in correlations
-      arma::mat current_diffcorr = current_meanelas % (0.5 * (big_ref_cv_col + big_cv_col)) %
+      arma::mat current_diffcorr = -0.5 * current_meanelas % (0.5 * (big_ref_cv_col + big_cv_col)) %
         (ref_matcorr - as<arma::mat>(poppatch_corrmat(i)));
       poppatch_diffcorr(i) = current_diffcorr;
     }
@@ -20894,18 +20962,17 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
       // Contributions of differences in element means
       arma::sp_mat log_spizzle= LefkoUtils::spmat_log(as<arma::sp_mat>(poppatch_meanmat(i)));
       
-      arma::sp_mat current_contmean = (0.5 * (ref_sp_matelas + as<arma::sp_mat>(poppatch_elasmat(i)))) %
-        (log_ref_matmean - log_spizzle);
+      arma::sp_mat current_contmean = ref_sp_matelas % (log_spizzle - log_ref_matmean);  // Originally (0.5 * (ref_sp_matelas + as<arma::sp_mat>(poppatch_elasmat(i)))) % (log_ref_matmean - log_spizzle)
       //current_contmean.elem(find_nonfinite(current_contmean)).zeros();
       
       poppatch_contmeans(i) = current_contmean;
-
+      
       // Contributions of differences in matrix element elasticities
       arma::sp_mat cv_col = vectorise(as<arma::sp_mat>(poppatch_cvmat(i)));
       arma::sp_mat big_cv_col = cv_col * cv_col.t();
       arma::sp_mat elas_col = vectorise(as<arma::sp_mat>(poppatch_elasmat(i)));
       arma::sp_mat big_elas_col = elas_col * elas_col.t();
-      arma::sp_mat current_contelas = 0.5 * ((big_ref_cv_col % ref_sp_matcorr) +
+      arma::sp_mat current_contelas = -0.5 * 0.5 * ((big_ref_cv_col % ref_sp_matcorr) +
         (big_cv_col % as<arma::sp_mat>(poppatch_corrmat(i)))) %
         (big_ref_elas_col - big_elas_col);
       
@@ -20913,24 +20980,29 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
       
       // Contributions of differences in CV
       arma::sp_mat current_meanelas = (0.5 * (big_ref_elas_col + big_elas_col));
-      arma::sp_mat current_diffcv = current_meanelas % (big_ref_cv_col - big_cv_col) %
+      arma::sp_mat current_diffcv = -0.5 * current_meanelas % (big_ref_cv_col - big_cv_col) %
         (0.5 * (ref_sp_matcorr + as<arma::sp_mat>(poppatch_corrmat(i))));
+      
       poppatch_diffcv(i) = current_diffcv;
       
       // Contributions of differences in correlations
-      arma::sp_mat current_diffcorr = current_meanelas % (0.5 * (big_ref_cv_col + big_cv_col)) %
+      arma::sp_mat current_diffcorr = -0.5 * current_meanelas % (0.5 * (big_ref_cv_col + big_cv_col)) %
         (ref_sp_matcorr - as<arma::sp_mat>(poppatch_corrmat(i)));
+      
       poppatch_diffcorr(i) = current_diffcorr;
     }
   }
   
-  List output_now(4);
+  List output_now(6);
   output_now(0) = poppatch_contmeans;
   output_now(1) = poppatch_diffelas;
   output_now(2) = poppatch_diffcv;
   output_now(3) = poppatch_diffcorr;
+  output_now(4) = rvals_poppatch;
+  output_now(5) = rvals_ref;
 
-  StringVector output_names = {"cont_mean", "cont_elas", "cont_cv", "cont_corr"};
+  StringVector output_names = {"cont_mean", "cont_elas", "cont_cv", "cont_corr",
+    "r_values_m", "r_value_ref"};
   output_now.attr("names") = output_names;
   StringVector output_class = {"lefkoLTRE"};
   output_now.attr("class") = output_class;

@@ -35,11 +35,12 @@ sf_create(
 life history stage. If making function-based MPMs, then this should be a
 vector composed of the midpoints of each size bin. If denoting the boundary
 of an automated size classification group, then should denote the absolute
-minimum size of that group, or the absolute size of that group (see Notes).}
+minimum size of that group, or the absolute size of that group (see
+\code{Notes}).}
 
 \item{stagenames}{A vector of stage names, in the same order as elements in
 sizes. Can also be set to \code{ipm} for automated size classification (see
-Notes section).}
+\code{Notes} section).}
 
 \item{sizesb}{An optional numeric vector for a second size metric for each
 life history stage. Only to be used if stages are defined by at least two
@@ -50,15 +51,15 @@ life history stage. Only to be used if stages are defined by at least three
 size metrics in all cases. Same issues apply as in \code{sizes}.}
 
 \item{repstatus}{A vector denoting the binomial reproductive status of each
-life history stage. Defaults to 1.}
+life history stage. Defaults to \code{1}.}
 
 \item{obsstatus}{A vector denoting the binomial observation status of each
-life history stage. Defaults to 1, but may be changed for unobservable 
-stages.}
+life history stage. Defaults to \code{1}, but may be changed for
+unobservable stages.}
 
 \item{propstatus}{A vector denoting whether each life history stage is a 
 propagule. Such stages are generally only used in fecundity estimation. 
-Defaults to 0.}
+Defaults to \code{0}.}
 
 \item{matstatus}{A vector denoting whether each stage is mature. Must be
 composed of binomial values if given. Defaults to 1 for all stages defined 
@@ -69,70 +70,75 @@ composed of binomial values if given. Defaults to the complement of vector
 \code{matstatus}.}
 
 \item{minage}{An optional vector denoting the minimum age at which a stage
-can occur. Only used in age x stage matrix development. Defaults to NA.}
+can occur. Only used in age x stage matrix development. Defaults to
+\code{NA}.}
 
 \item{maxage}{An optional vector denoting the maximum age at which a stage
-should occur. Only used in age x stage matrix development. Defaults to NA.}
+should occur. Only used in age x stage matrix development. Defaults to
+\code{NA}.}
 
 \item{indataset}{A vector designating which stages are found within the 
 dataset. While \code{\link{rlefko2}()} and \code{\link{rlefko3}()} can use
 all stages in the input dataset, \code{\link{flefko3}()} and
 \code{\link{flefko2}()} can only handle size-classified stages with
 non-overlapping combinations of size and status variables. Stages that do
-not actually exist within the dataset should be marked as 0 in this vector.}
+not actually exist within the dataset should be marked as \code{0} in this
+vector.}
 
 \item{binhalfwidth}{A numeric vector giving the half-width of size bins.
 Required to classify individuals appropriately within size classes.
-Defaults to 0.5 for all sizes.}
+Defaults to \code{0.5} for all sizes.}
 
 \item{binhalfwidthb}{A numeric vector giving the half-width of size bins
 used for the optional second size metric. Required to classify individuals
-appropriately with two or three size classes. Defaults to 0.5 for all sizes.}
+appropriately with two or three size classes. Defaults to \code{0.5} for all
+sizes.}
 
 \item{binhalfwidthc}{A numeric vector giving the half-width of size bins
 used for the optional third size metric. Required to classify individuals
-appropriately with three size classes. Defaults to 0.5 for all sizes.}
+appropriately with three size classes. Defaults to \code{0.5} for all sizes.}
 
 \item{group}{An integer vector providing information on each respective
 stage's size classification group. If used, then function-based MPM creation
 functions \code{\link{flefko2}()}, \code{\link{flefko3}()}, and
 \code{\link{aflefko2}()} will estimate transitions only within these groups
 and for allowed cross-group transitions noted within the supplement table.
-Defaults to 0.}
+Defaults to \code{0}.}
 
 \item{comments}{An optional vector of text entries holding useful text
 descriptions of all stages.}
 
 \item{roundsize}{This parameter sets the precision of size classification,
-and equals the number of digits used in rounding sizes. Defaults to 5.}
+and equals the number of digits used in rounding sizes. Defaults to
+\code{5}.}
 
 \item{roundsizeb}{This parameter sets the precision of size classification
 in the optional second size metric, and equals the number of digits used in
-rounding sizes. Defaults to 5.}
+rounding sizes. Defaults to \code{5}.}
 
 \item{roundsizec}{This parameter sets the precision of size classification
 in the optional third size metric, and equals the number of digits used in
-rounding sizes. Defaults to 5.}
+rounding sizes. Defaults to \code{5}.}
 
 \item{ipmbins}{An integer giving the number of size bins to create using the
 primary size classification variable. This number is in addition to any
-stages that are not size classified. Defaults to 100, and numbers greater
-than this yield a warning about the loss of statistical power and increasing
-chance of matrix over-parameterization resulting from increasing numbers of
-stages.}
+stages that are not size classified. Defaults to \code{100}, and numbers
+greater than this yield a warning about the loss of statistical power and
+increasing chance of matrix over-parameterization resulting from increasing
+numbers of stages.}
 
 \item{ipmbinsb}{An optional integer giving the number of size bins to create
 using the secondary size classification variable. This number is in addition
 to any stages that are not size classified, as well as in addition to any
 automated size classification using the primary and tertiary size variables.
-Defaults to NA, and must be set to a positive integer for automated size
-classification to progress.}
+Defaults to \code{NA}, and must be set to a positive integer for automated
+size classification to progress.}
 
 \item{ipmbinsc}{An optional integer giving the number of size bins to create
 using the tertiary size classification variable. This number is in addition
 to any stages that are not size classified, as well as in addition to any
 automated size classification using the primary and secondary size
-variables. Defaults to NA, and must be set to a positive integer for
+variables. Defaults to \code{NA}, and must be set to a positive integer for
 automated size classification to progress.}
 }
 \value{
@@ -200,8 +206,8 @@ Function \code{sf_create()} returns a data frame describing each ahistorical
 life history stage in the life history model. This data frame can be used as 
 input into MPM creation functions including \code{\link{flefko3}()}, 
 \code{\link{flefko2}()}, \code{\link{aflefko2}()}, \code{\link{rlefko3}()},
-and \code{\link{rlefko2}()}, in which it determines how each stage is
-treated during matrix estimation.
+\code{\link{rlefko2}()}, and \code{\link{arlefko2}()}, in which it
+determines how each stage is treated during matrix estimation.
 }
 \section{Notes}{
 

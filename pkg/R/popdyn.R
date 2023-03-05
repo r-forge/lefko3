@@ -3234,10 +3234,19 @@ elasticity3.list <- function(mats, stochastic = FALSE, steps = 10000,
 #' @param ... Other parameters.
 #' 
 #' @return This function returns an object of class \code{lefkoLTRE}. This
-#' includes a list of LTRE matrices as object \code{ltre_det} if a deterministic
-#' LTRE is called for, or a list of mean-value LTRE matrices as object
-#' \code{ltre_mean} and a list of SD-value LTRE matrices as object
-#' \code{ltre_sd} if a stochastic LTRE is called for. This is followed by the
+#' includes a list of LTRE matrices as object \code{cont_mean} if a
+#' deterministic LTRE is called for, or a list of mean-value LTRE matrices as
+#' object \code{cont_mean} and a list of SD-value LTRE matrices as object
+#' \code{cont_sd} if a stochastic LTRE is called for. If a small-noise
+#' approximation LTRE (SNA-LTRE) is performed, then the output includes six
+#' objects: \code{cont_mean}, which provides the contributions of shifts in mean
+#' matrix elements; \code{cont_elas}, which provides the contributions of shifts
+#' in the elasticities of matrix elements; \code{cont_cv}, which provides the
+#' contributions of temporal variation in matrix elements; \code{cont_corr},
+#' which provides the contributions of temporal correlations in matrix elements;
+#' \code{r_values_m}, which provides a vector of log deterministic lambda values
+#' for treatment populations; and \code{r_values_ref}, which provides the log
+#' deterministic lambda of the mean reference matrix.This is followed by the
 #' stageframe as object \code{ahstages}, the order of historical stages as
 #' object \code{hstages}, the age-by-stage order as object \code{agestages}, the
 #' order of matrices as object \code{labels}, and, if requested, the original A,
@@ -3688,7 +3697,8 @@ summary.lefkoElas <- function(object, ...) {
 #' mean vital rates and variability in vital rates, respectively, according to
 #' all 16 historical transition types, followed by summed positive and negative
 #' contributions, and \code{ahist_mean} and \code{ahist_sd} are the equivalent
-#' ahistorical versions.
+#' ahistorical versions. The output for the SNA-LTRE also includes the
+#' logs of the deterministic lambda estimted through function \code{ltre3()}.
 #' 
 #' @examples
 #' data(lathyrus)
@@ -3881,7 +3891,8 @@ summary.lefkoLTRE <- function(object, ...) {
     list(overall = general_df, hist_mean = hist1, hist_sd = hist2,
       ahist_mean = ahist1, ahist_sd = ahist2)
   } else {
-    list(overall = general_df, hist_mean = hist1, ahist_mean = ahist1)
+    list(overall = general_df, hist_mean = hist1, ahist_mean = ahist1,
+      r_values_m = object$r_values_m, r_value_ref = object$r_value_ref)
   }
   
   return (output)

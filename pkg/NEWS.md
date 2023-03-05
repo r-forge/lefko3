@@ -25,6 +25,9 @@
   projection3(), summary.lefkoElas(), and summary.lefkoMat() can handle sparse
   matrix format MPMs.
 * Functions stablestage3.list() and repvalue3.list() have been added.
+* Function supplemental() now also handles age transitions in Leslie and
+  age-by-stage MPMs.
+* Function edit_lM() has been added to edit MPMs with external data.
 
 ## USER-VISIBLE CHANGES
 
@@ -80,8 +83,8 @@
 * Fixed bug yielding incorrect fecundity when prebreeding in fleslie().
 * Eliminated bug causing rare glitches in fecunsdity estimation when stage order
   is altered by MPM creation functions.
-* Fixed issue causing fecundity estimation to ignore individuals older than max
-  age in function rleslie() under continue = TRUE.
+* Fixed issue causing survival and fecundity estimation to ignore individuals
+  older than max age in function rleslie() under continue = TRUE.
 
 # lefko3 5.5.0 (2022-09-14)
 
