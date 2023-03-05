@@ -1546,9 +1546,7 @@ List demolition3sp(const arma::sp_mat& e_amat, const DataFrame& bambesque,
     fmat = fmat_temp;
     
   } else {
-    //arma::mat amat1(e_amatrows, e_amatrows, fill::ones);
     arma::sp_mat fmat1(e_amatrows, e_amatrows);
-    //amat = amat1;
     fmat = fmat1;
     
     arma::uvec fec_trans = find(categories == 4);

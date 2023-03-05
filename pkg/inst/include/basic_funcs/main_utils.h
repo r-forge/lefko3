@@ -3071,12 +3071,12 @@ namespace LefkoUtils {
       arma::vec modelindc2r = as<arma::vec>(modelproxy["indcovc2s"]);
       arma::vec modelindc1r = as<arma::vec>(modelproxy["indcovc1s"]);
       
-      int v1_l = modelinda2r.n_elem;
-      int v2_l = modelinda1r.n_elem;
-      int v3_l = modelindb2r.n_elem;
-      int v4_l = modelindb1r.n_elem;
-      int v5_l = modelindc2r.n_elem;
-      int v6_l = modelindc1r.n_elem;
+      int v1_l = static_cast<int>(modelinda2r.n_elem);
+      int v2_l = static_cast<int>(modelinda1r.n_elem);
+      int v3_l = static_cast<int>(modelindb2r.n_elem);
+      int v4_l = static_cast<int>(modelindb1r.n_elem);
+      int v5_l = static_cast<int>(modelindc2r.n_elem);
+      int v6_l = static_cast<int>(modelindc1r.n_elem);
       
       return_vec = {v1_l, v2_l, v3_l, v4_l, v5_l, v6_l};
     } else {
@@ -3087,12 +3087,12 @@ namespace LefkoUtils {
       arma::vec modelindc2r = as<arma::vec>(modelproxy["zeroindcovc2s"]);
       arma::vec modelindc1r = as<arma::vec>(modelproxy["zeroindcovc1s"]);
       
-      int v1_l = modelinda2r.n_elem;
-      int v2_l = modelinda1r.n_elem;
-      int v3_l = modelindb2r.n_elem;
-      int v4_l = modelindb1r.n_elem;
-      int v5_l = modelindc2r.n_elem;
-      int v6_l = modelindc1r.n_elem;
+      int v1_l = static_cast<int>(modelinda2r.n_elem);
+      int v2_l = static_cast<int>(modelinda1r.n_elem);
+      int v3_l = static_cast<int>(modelindb2r.n_elem);
+      int v4_l = static_cast<int>(modelindb1r.n_elem);
+      int v5_l = static_cast<int>(modelindc2r.n_elem);
+      int v6_l = static_cast<int>(modelindc1r.n_elem);
       
       return_vec = {v1_l, v2_l, v3_l, v4_l, v5_l, v6_l};
     }
@@ -6316,12 +6316,12 @@ namespace LefkoUtils {
     
     Rcpp::IntegerVector aliveandequal = as<IntegerVector>(AllStages["aliveandequal"]);
     
-    int n = stage3.n_elem;
+    int n = static_cast<int>(stage3.n_elem);
     
     arma::uvec replacetvec = find(ovestt != -1.0);
     arma::uvec replacefvec = find(ovestf != -1.0);
-    int replacementst = replacetvec.n_elem;
-    int replacementsf = replacefvec.n_elem;
+    int replacementst = static_cast<int>(replacetvec.n_elem);
+    int replacementsf = static_cast<int>(replacefvec.n_elem);
     int repindex {0};
     int properindex {0};
     int proxyindex {0};
@@ -7947,13 +7947,13 @@ namespace LefkoUtils {
       arma::uvec animalhouse = find(armapopc == armapopc(i));
       arma::uvec christmasvacation = armapoppatchc.elem(animalhouse);
       arma::uvec summervacation = unique(christmasvacation);
-      int togaparty = summervacation.n_elem;
+      int togaparty = static_cast<int>(summervacation.n_elem);
       patchesinpop(i) = togaparty;
       
       arma::uvec ninebelowzero = find(armapoppatchc == armapoppatchc(i));
       arma::uvec thedamned = armayear2c.elem(ninebelowzero);
       arma::uvec motorhead = unique(thedamned);
-      int dexysmidnightrunners = motorhead.n_elem;
+      int dexysmidnightrunners = static_cast<int>(motorhead.n_elem);
       
       yearsinpatch(i) = dexysmidnightrunners;
     }
@@ -8144,7 +8144,7 @@ namespace LefkoUtils {
           }
         }
         
-        int remove_bits = bits_to_remove.n_elem;
+        int remove_bits = static_cast<int>(bits_to_remove.n_elem);
         if (remove_bits > 0) {
           // Loop to reduce matrices and package them
           for (int i = 0; i < no_matrices; i++) {

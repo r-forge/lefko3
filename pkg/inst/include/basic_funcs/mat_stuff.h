@@ -181,7 +181,7 @@ namespace LefkoMats {
     arma::vec idx321new, arma::vec convtype, arma::vec eststag3, 
     arma::vec gvnrate, arma::vec multipl) {
     
-    int n = idx321new.n_elem;
+    int n = static_cast<int>(idx321new.n_elem);
     
     arma::mat replacements(allst321.n_elem, 7);
     replacements.fill(-1.0);
@@ -189,7 +189,7 @@ namespace LefkoMats {
     for (int i = 0; i < n; i++) {
       arma::uvec correctplace = find(allst321 == idx321old[i]);
       
-      int m = correctplace.n_elem; 
+      int m = static_cast<int>(correctplace.n_elem); 
       
       for (int j = 0; j < m; j++) {
         if (convtype[i] == 1.0) {
@@ -501,8 +501,8 @@ namespace LefkoMats {
     arma::uvec uniquepops = unique(pop_num);
     arma::uvec uniquepoppatches = unique(poppatchc);
     int loydim = pops.length();
-    int numofpops = uniquepops.n_elem;
-    int numofpatches = uniquepoppatches.n_elem;
+    int numofpops = static_cast<int>(uniquepops.n_elem);
+    int numofpatches = static_cast<int>(uniquepoppatches.n_elem);
     
     if (numofpatches == 1) popmats = false;
     
@@ -554,12 +554,12 @@ namespace LefkoMats {
     }
     
     arma::uvec toestimate = find(poporderlong_num);
-    int popcount = toestimate.n_elem;
+    int popcount = static_cast<int>(toestimate.n_elem);
     
-    int totalmatrices = toestimate.n_elem + numofpops;
+    int totalmatrices = static_cast<int>(toestimate.n_elem) + numofpops;
     
     if (patchmats && !popmats) {
-      totalmatrices = toestimate.n_elem;
+      totalmatrices = static_cast<int>(toestimate.n_elem);
     } else if (!patchmats && popmats) {
       totalmatrices = numofpops;
     }
@@ -580,13 +580,13 @@ namespace LefkoMats {
     int format_int {0};
     arma::uvec astages = as<arma::uvec>(stages["stage_id"]);
     StringVector stagenames = as<StringVector>(stages["stage"]);
-    int numstages = astages.n_elem;
+    int numstages = static_cast<int>(astages.n_elem);
     
     if (stagenames(numstages - 1) == "AlmostBorn") format_int = 1;
     
     arma::uvec hstage3in = as<arma::uvec>(hstages["stage_id_2"]);
     arma::uvec hstage2nin = as<arma::uvec>(hstages["stage_id_1"]);
-    int numhstages = hstage3in.n_elem;
+    int numhstages = static_cast<int>(hstage3in.n_elem);
     
     int predictedsize = 2 * numstages * numstages * numstages;
     
@@ -658,7 +658,7 @@ namespace LefkoMats {
           arma::vec Umats_invaded_allindices (allindices.n_elem, fill::zeros);
           arma::vec Fmats_invaded_allindices (allindices.n_elem, fill::zeros);
           
-          for (int j = 0; j < allindices.n_elem; j++) {
+          for (int j = 0; j < static_cast<int>(allindices.n_elem); j++) {
             Umats_invaded_allindices(j) = Umats_invaded(allindices(j));
             Fmats_invaded_allindices(j) = Fmats_invaded(allindices(j));
           }
@@ -691,7 +691,7 @@ namespace LefkoMats {
             arma::vec Umats_invaded_allindices (allindices.n_elem, fill::zeros);
             arma::vec Fmats_invaded_allindices (allindices.n_elem, fill::zeros);
             
-            for (int j = 0; j < allindices.n_elem; j++) {
+            for (int j = 0; j < static_cast<int>(allindices.n_elem); j++) {
               Umats_invaded_allindices(j) = Umats_invaded(allindices(j));
               Fmats_invaded_allindices(j) = Fmats_invaded(allindices(j));
             }
@@ -768,15 +768,15 @@ namespace LefkoMats {
       // Matrix QC output
       arma::uvec utrans = find(umatvec);
       arma::uvec ftrans = find(fmatvec);
-      totalutrans = utrans.n_elem;
-      totalftrans = ftrans.n_elem;
+      totalutrans = static_cast<int>(utrans.n_elem);
+      totalftrans = static_cast<int>(ftrans.n_elem);
       
     } else {
       for (int i = 0; i < totalmatrices; i++) {
         arma::sp_mat umat_base(numhstages, numhstages);
         arma::sp_mat fmat_base(numhstages, numhstages);
         
-        for (int j = 0; j < allindices.n_elem; j++) {
+        for (int j = 0; j < static_cast<int>(allindices.n_elem); j++) {
           umat_base(allindices(j)) = umatvec(j, i);
           fmat_base(allindices(j)) = fmatvec(j, i);
         }
@@ -790,8 +790,8 @@ namespace LefkoMats {
       // Matrix QC output
       arma::uvec utrans = find(umatvec);
       arma::uvec ftrans = find(fmatvec);
-      totalutrans = utrans.n_elem;
-      totalftrans = ftrans.n_elem;
+      totalutrans = static_cast<int>(utrans.n_elem);
+      totalftrans = static_cast<int>(ftrans.n_elem);
     }
     
     NumericVector matrixqc(3);
@@ -848,8 +848,8 @@ namespace LefkoMats {
     arma::uvec uniquepops = unique(pop_num);
     arma::uvec uniquepoppatches = unique(poppatchc);
     int loydim = pops.length();
-    int numofpops = uniquepops.n_elem;
-    int numofpatches = uniquepoppatches.n_elem;
+    int numofpops = static_cast<int>(uniquepops.n_elem);
+    int numofpatches = static_cast<int>(uniquepoppatches.n_elem);
     
     if (numofpatches == 1) popmats = false;
     
@@ -901,12 +901,12 @@ namespace LefkoMats {
     }
     
     arma::uvec toestimate = find(poporderlong_num);
-    int popcount = toestimate.n_elem;
+    int popcount = static_cast<int>(toestimate.n_elem);
     
-    int totalmatrices = toestimate.n_elem + numofpops;
+    int totalmatrices = static_cast<int>(toestimate.n_elem) + numofpops;
     
     if (patchmats && !popmats) {
-      totalmatrices = toestimate.n_elem;
+      totalmatrices = static_cast<int>(toestimate.n_elem);
     } else if (!patchmats && popmats) {
       totalmatrices = numofpops;
     }
@@ -925,7 +925,7 @@ namespace LefkoMats {
     
     // Predicts which elements will be targeted for arithmetic mean estimation
     arma::uvec astages = as<arma::uvec>(stages["stage_id"]);
-    int initialstages = astages.n_elem;
+    int initialstages = static_cast<int>(astages.n_elem);
     
     // Test for the presence of ages, and determine matrix dimensions
     int colsused {0};
@@ -943,7 +943,7 @@ namespace LefkoMats {
     
     int agemultiplier = colsused / initialstages;
     
-    int numstages = astages.n_elem * agemultiplier;
+    int numstages = static_cast<int>(astages.n_elem) * agemultiplier;
     
     // Build U & F matrices of element-wise arithmetic means
     // Each column holds predicted non-zero elements of each mean matrix
@@ -1130,8 +1130,8 @@ namespace LefkoMats {
       // Matrix QC output
       arma::uvec utrans = find(umatvec);
       arma::uvec ftrans = find(fmatvec);
-      totalutrans = utrans.n_elem;
-      totalftrans = ftrans.n_elem;
+      totalutrans = static_cast<int>(utrans.n_elem);
+      totalftrans = static_cast<int>(ftrans.n_elem);
       
     } else {
       for (int i = 0; i < totalmatrices; i++) {
@@ -1151,8 +1151,8 @@ namespace LefkoMats {
       // Matrix QC output
       arma::uvec utrans = find(umatvec);
       arma::uvec ftrans = find(fmatvec);
-      totalutrans = utrans.n_elem;
-      totalftrans = ftrans.n_elem;
+      totalutrans = static_cast<int>(utrans.n_elem);
+      totalftrans = static_cast<int>(ftrans.n_elem);
     }
     
     NumericVector matrixqc(3);
