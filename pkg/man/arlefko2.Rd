@@ -306,7 +306,7 @@ cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D",
   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
-  stageframe = cypframe_raw, historical = FALSE)
+  stageframe = cypframe_raw, historical = FALSE, agebased = TRUE)
 
 cyp_mats <- arlefko2(data = cypraw_v1, stageframe = cypframe_raw, year = "all", 
   patch = NA, censor = FALSE, stages = c("stage3", "stage2", "stage1"),

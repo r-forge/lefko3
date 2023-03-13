@@ -486,16 +486,14 @@ immvector <- c(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0)
 indataset <- c(0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
-minima <- c(0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
-maxima <- c(NA, 1, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-  NA, NA, NA, NA, NA)
+minima <- c(1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2)
 binvec <- c(0, 4.6, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
   0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5)
 
 lathframeln <- sf_create(sizes = sizevector, stagenames = stagevector,
   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
   immstatus = immvector, indataset = indataset, binhalfwidth = binvec,
-  propstatus = propvector, minage = minima, maxage = maxima)
+  propstatus = propvector, minage = minima)
 
 lathvertln <- verticalize3(lathyrus, noyears = 4, firstyear = 1988,
   patchidcol = "SUBPLOT", individcol = "GENET", blocksize = 9,
@@ -518,11 +516,13 @@ lathmodelsln2 <- modelsearch(lathvertln, historical = FALSE,
   quiet = "partial")
 
 # Here we use supplemental() to provide overwrite and reproductive info
-lathsupp2 <- supplemental(stage3 = c("Sd", "Sdl", "Sd", "Sdl"), 
-  stage2 = c("Sd", "Sd", "rep", "rep"),
-  givenrate = c(0.345, 0.054, NA, NA),
-  multiplier = c(NA, NA, 0.345, 0.054),
-  type = c(1, 1, 3, 3), stageframe = lathframeln, historical = FALSE)
+lathsupp2 <- supplemental(stage3 = c("Sd", "Sdl", "mat", "Sd", "Sdl"), 
+  stage2 = c("Sd", "Sd", "Sdl", "rep", "rep"),
+  eststage3 = c(NA, NA, "mat", NA, NA),
+  eststage2 = c(NA, NA, "Dorm", NA, NA),
+  givenrate = c(0.345, 0.054, NA, NA, NA),
+  multiplier = c(NA, NA, 0.8, 0.345, 0.054), type = c(1, 1, 1, 3, 3),
+  stageframe = lathframeln, historical = FALSE, agebased = TRUE)
 
 lathmat2age <- aflefko2(year = "all", patch = "all", 
   stageframe = lathframeln, modelsuite = lathmodelsln2, data = lathvertln,

@@ -13,6 +13,7 @@ fleslie(
   surv_model = NULL,
   fec_model = NULL,
   paramnames = NULL,
+  supplement = NULL,
   start_age = NA,
   last_age = NA,
   fecage_min = NA,
@@ -85,6 +86,14 @@ third showing the equivalent terms used in modeling (must be named
 \code{modelparams}). Function \code{\link{create_pm}()} can be used to
 create a skeleton \code{paramnames} object, which can then be edited. Only
 required if \code{modelsuite} is not supplied.}
+
+\item{supplement}{An optional data frame of class \code{lefkoSD} that
+provides supplemental data that should be incorporated into the MPM. Three
+kinds of data may be integrated this way: transitions to be estimated via the
+use of proxy transitions, transition overwrites from the literature or
+supplemental studies, and transition multipliers for survival and fecundity.
+This data frame should be produced using the \code{\link{supplemental}()}
+function.}
 
 \item{start_age}{The age from which to start the matrix. Defaults to
 \code{NA}, in which case age \code{1} is used if \code{prebreeding = TRUE},

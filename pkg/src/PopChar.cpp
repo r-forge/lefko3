@@ -5088,15 +5088,16 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
   return new_di;
 }
 
-//' Create a Data Frame of Density Dependence Relationships in Matrix Elements
+//' Set Density Dependence Relationships in Matrix Elements
 //' 
 //' Function \code{density_input()} provides all necessary data to incorporate
 //' density dependence into a \code{lefkoMat} object, a list of matrices, or a
 //' single matrix. Four forms of density dependence are allowed, including the
 //' Ricker function, the Beverton-Holt function, the Usher function, and the
-//' logistic function. In each case, density must have an effect with at least a
-//' one time-step delay (see Notes). The resulting data frame provides a guide
-//' for other \code{lefko3} functions to modify matrix elements by density.
+//' logistic function. In each case, density must have an effect with a delay of
+//' at least one time-step (see Notes). The resulting data frame provides a
+//' guide for other \code{lefko3} functions to modify matrix elements by
+//' density.
 //'
 //' @name density_input
 //' 
@@ -5215,7 +5216,6 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
 //' 
 //' @examples
 //' \donttest{
-//' # Lathyrus example
 //' data(lathyrus)
 //' 
 //' sizevector <- c(0, 100, 13, 127, 3730, 3800, 0)
@@ -5919,13 +5919,15 @@ DataFrame density_input(List mpm, RObject stage3, RObject stage2,
 //' 
 //' @name supplemental
 //' 
-//' @param stageframe The stageframe used to produce the MPM.
 //' @param historical A logical value indicating whether the MPMs intended will
 //' be historical or ahistorical. Defaults to \code{TRUE}.
 //' @param stagebased A logical value indicating whether the MPM will be stage-
 //' based or age-by-stage. Defaults to \code{TRUE}.
 //' @param agebased A logical value indicating whether the MPM will be age-based
 //' or age-by-stage. Defaults to \code{FALSE}.
+//' @param stageframe The stageframe used to produce the MPM. Required if
+//' producing any stage-based or age-by-stage MPM. Must be omitted for purely
+//' age-based MPMs.
 //' @param stage3 The name of the stage in occasion \emph{t}+1 in the transition
 //' to be replaced. Abbreviations for groups of stages are also usable (see
 //' \code{Notes}). Required in all stage-based and age-by-stage MPMs.
@@ -5962,8 +5964,9 @@ DataFrame density_input(List mpm, RObject stage3, RObject stage2,
 //' \emph{t} and \emph{t}+1 to be replaced. This should be entered as \code{1},
 //' \code{S}, or \code{s} for the replacement of a survival transition;
 //' \code{2}, \code{F}, or \code{f} for the replacement of a fecundity
-//' transition; or \code{3}, \code{R}, or \code{r} for a fecundity multiplier.
-//' If empty or not provided, then defaults to \code{1} for survival transition.
+//' transition; or \code{3}, \code{R}, or \code{r} for a fecundity set value /
+//' general multiplier. If empty or not provided, then defaults to \code{1} for
+//' survival transition.
 //' @param type_t12 An optional vector denoting the kind of transition between
 //' occasions \emph{t}-1 and \emph{t}. Only necessary if a historical MPM in
 //' deVries format is desired. This should be entered as \code{1}, \code{S}, or
@@ -6024,6 +6027,21 @@ DataFrame density_input(List mpm, RObject stage3, RObject stage2,
 //' stages in stageframe are to be used. Also use \code{groupX} to denote all
 //' stages in group X (e.g. \code{group1} will use all stages in the respective
 //' stageframe's group 1).
+//' 
+//' Type 3 conversions are referred to as fecundity set values, or general
+//' fecundity multipliers. These set the transitions to be used as fecundity
+//' transitions. Transitions set here will be interpreted as being generally
+//' reproductive, meaning that the from and to stages will be used to determine
+//' the general fecundity transitions to incorporate into stage-based MPMs,
+//' while the age portion of the input will be used to incorporate the actual
+//' multiplier(s) specified. If only stage transitions at certain ages are
+//' expected to be the sole contributors to fecundity, then type 2 conversions
+//' should also be included in the supplement (Type 1 and 2 conversions can be
+//' purely age-specific, and do not set reproductive transitions in MPM
+//' creation). For example, if all stage 2 to stage 3 transitions above age 2
+//' yield fecundity, then stage 2 to stage 3 can be set to
+//' \code{multiplier = 1.0} with \code{convtype = 3}, and the same transition
+//' for \code{age2 = c(1, 2)} can be set to \code{multiplier = c(0, 0)}.
 //' 
 //' @seealso \code{\link{edit_lM}()}
 //' 
@@ -6112,11 +6130,11 @@ DataFrame density_input(List mpm, RObject stage3, RObject stage2,
 //' 
 //' @export supplemental
 // [[Rcpp::export(supplemental)]]
-Rcpp::List supplemental (RObject stageframe, bool historical = true,
-  bool stagebased = true, bool agebased = false,
-  Nullable<RObject> stage3 = R_NilValue,
-  Nullable<RObject> stage2 = R_NilValue, Nullable<RObject> stage1 = R_NilValue,
-  Nullable<RObject> age2 = R_NilValue, Nullable<RObject> eststage3 = R_NilValue,
+Rcpp::List supplemental (bool historical = true, bool stagebased = true,
+  bool agebased = false, Nullable<RObject> stageframe = R_NilValue,
+  Nullable<RObject> stage3 = R_NilValue, Nullable<RObject> stage2 = R_NilValue,
+  Nullable<RObject> stage1 = R_NilValue, Nullable<RObject> age2 = R_NilValue,
+  Nullable<RObject> eststage3 = R_NilValue,
   Nullable<RObject> eststage2 = R_NilValue,
   Nullable<RObject> eststage1 = R_NilValue,
   Nullable<RObject> estage2 = R_NilValue,
@@ -6142,27 +6160,33 @@ Rcpp::List supplemental (RObject stageframe, bool historical = true,
   DataFrame stageframe_;
   int sf_yes {0};
   
-  if (is<DataFrame>(stageframe)) stageframe_ = stageframe;
-  StringVector sf_class = stageframe_.attr("class");
-  
-  String sf_error = "Please enter an object of class stageframe as input.";
-  if (stageframe_.containsElementNamed("stage")) {
-    sf_yes++;
+  if (wtf < 3) {
+    if (!stageframe.isNotNull()) {
+      throw Rcpp::exception("Stageframe required for stage-based MPMs.", false);
+    }
+    
+    if (is<DataFrame>(stageframe)) stageframe_ = as<DataFrame>(stageframe);
+    StringVector sf_class = stageframe_.attr("class");
+    
+    String sf_error = "Please enter an object of class stageframe as input.";
+    if (stageframe_.containsElementNamed("stage")) {
+      sf_yes++;
+    }
+    if (stageframe_.containsElementNamed("min_age")) {
+      sf_yes++;
+    }
+    if (stageframe_.containsElementNamed("max_age")) {
+      sf_yes++;
+    }
+    if (stageframe_.containsElementNamed("group")) {
+      sf_yes++;
+    }
+    
+    for (int i = 0; i < static_cast<int>(sf_class.length()); i++) {
+      if (sf_class(i) == "stageframe")  sf_yes++;
+    }
+    if (sf_yes < 5) throw Rcpp::exception(sf_error.get_cstring(), false);
   }
-  if (stageframe_.containsElementNamed("min_age")) {
-    sf_yes++;
-  }
-  if (stageframe_.containsElementNamed("max_age")) {
-    sf_yes++;
-  }
-  if (stageframe_.containsElementNamed("group")) {
-    sf_yes++;
-  }
-  
-  for (int i = 0; i < static_cast<int>(sf_class.length()); i++) {
-    if (sf_class(i) == "stageframe")  sf_yes++;
-  }
-  if (sf_yes < 5) throw Rcpp::exception(sf_error.get_cstring(), false);
   
   StringVector stage3_;
   StringVector stage2_;
@@ -6188,17 +6212,23 @@ Rcpp::List supplemental (RObject stageframe, bool historical = true,
   int type_length {0};
   int type_t12_length {0};
   
-  StringVector all_stages = as<StringVector>(stageframe_["stage"]);
+  StringVector all_stages;
   StringVector wildcard_names = {"all", "rep", "nrep", "mat", "immat", "prop",
-    "npr", "notalive", "obs", "nobs"};
+    "npr", "notalive", "obs", "nobs"};;
+  StringVector all_groups;
   
-  StringVector all_groups_ = as<StringVector>(stageframe_["group"]);
-  StringVector all_groups (all_groups_.length());
-  for (int i = 0; i < all_groups_.length(); i++) {
-    String group_slot = "group";
-    String group_term_added = all_groups_(i);
-    group_slot += group_term_added;
-    all_groups(i) = group_slot;
+  if (wtf < 3) {
+    all_stages = as<StringVector>(stageframe_["stage"]);
+    
+    StringVector all_groups_ = as<StringVector>(stageframe_["group"]);
+    StringVector all_groups_temp (all_groups_.length());
+    for (int i = 0; i < all_groups_.length(); i++) {
+      String group_slot = "group";
+      String group_term_added = all_groups_(i);
+      group_slot += group_term_added;
+      all_groups_temp(i) = group_slot;
+    }
+    all_groups = all_groups_temp;
   }
   
   if (stage3.isNotNull() && wtf != 3) {
@@ -6343,23 +6373,22 @@ Rcpp::List supplemental (RObject stageframe, bool historical = true,
       age2_length = static_cast<int>(age2_.length());
       
       arma::ivec a2_arma = as<arma::ivec>(age2_);
-      arma::uvec neg_tester = find(a2_arma < 0);
+      arma::uvec neg_tester = find(a2_arma < 0 && a2_arma > -2147483648);
       if (neg_tester.n_elem > 0) {
         Rf_warningcall(R_NilValue, "Some age2 values entered are negative.");
       }
+    } else if (is<LogicalVector>(age2)) { 
+      IntegerVector age2_temp (stage2_length, NA_INTEGER);
+      age2_ = age2_temp;
+      age2_length = stage2_length;
     } else {
       throw Rcpp::exception("Please enter age information (age2) in integer format.",
         false);
     }
   } else {
-    if (wtf > 1) {
-      throw Rcpp::exception("Age information (age2) for transitions is required.",
-        false);
-    } else if (wtf != 3) {
-      IntegerVector age2_temp (stage2_length, NA_INTEGER);
-      age2_ = age2_temp;
-      age2_length = stage2_length;
-    }
+    IntegerVector age2_temp (stage2_length, NA_INTEGER);
+    age2_ = age2_temp;
+    age2_length = stage2_length;
   }
   
   if (eststage3.isNotNull() && wtf != 3) {
@@ -6507,7 +6536,7 @@ Rcpp::List supplemental (RObject stageframe, bool historical = true,
       estage2_length = static_cast<int>(estage2_.length());
       
       arma::ivec ea2_arma = as<arma::ivec>(estage2_);
-      arma::uvec neg_tester = find(ea2_arma < 0);
+      arma::uvec neg_tester = find(ea2_arma < 0 && ea2_arma > -2147483648);
       if (neg_tester.n_elem > 0) {
         Rf_warningcall(R_NilValue, "Some estage2 values entered are negative.");
       }
@@ -6773,7 +6802,7 @@ Rcpp::List supplemental (RObject stageframe, bool historical = true,
     eststage1_ = s1_temp;
     eststage1_length = stage2_length;
   }
-
+  
   List supplement (12);
   supplement(0) = stage3_;
   supplement(1) = stage2_;
@@ -6816,7 +6845,7 @@ Rcpp::List supplemental (RObject stageframe, bool historical = true,
 //' to \code{NULL}, in which case all populations are edited.
 //' @param patch A string vector denoting the patches to be edited. Defaults
 //' to \code{NULL}, in which case all patches are edited.
-//' @param patch A string vector denoting the years to be edited. Defaults
+//' @param year2 A string vector denoting the years to be edited. Defaults
 //' to \code{NULL}, in which case all years are edited.
 //' @param stage3 The name of the stage in occasion \emph{t}+1 in the transition
 //' to be replaced. Abbreviations for groups of stages are also usable (see

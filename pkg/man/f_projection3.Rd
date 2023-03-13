@@ -410,16 +410,16 @@ and may be density dependent in either case. Also handles replication.
 
 Population projection can be a very time-consuming activity, and it is most
 time-consuming when matrices need to be created at each time step. We have
-created this function to be as quick as possible, but some options will slow
-the analysis down. First, the \code{err_check} option should always be set
-to \code{FALSE}, as the added created output will not only slow the analysis
+created this function to work as quickly as possible, but some options will
+slow analysis. First, the \code{err_check} option should always be set to
+\code{FALSE}, as the added created output will not only slow the analysis
 down but also potentially crash the memory if matrices are large enough.
 Second, the \code{repvalue} option should be set to \code{FALSE} unless
 reproductive values are genuinely needed, since this step requires
 concurrent backward projection and so in some cases may double total run
 time. Finally, if the only needed data is the total population size and
-actual age/stage structure at each time step, then setting \code{growthonly
-= TRUE} will yield the quickest possible run time.
+age/stage structure at each time step, then setting \code{growthonly = TRUE}
+will yield the quickest possible run time.
 
 Projections with large matrices may take a long time to run. To assess the
 likely running time, try using a low number of iterations on a single
@@ -505,7 +505,7 @@ lathmodelsln3 <- modelsearch(lathvertln, historical = TRUE,
   vitalrates = c("surv", "obs", "size", "repst", "fec"), juvestimate = "Sdl",
   bestfit = "AICc&k", sizedist = "gaussian", fecdist = "poisson", 
   indiv = "individ", patch = "patchid", year = "year2", year.as.random = TRUE,
-  patch.as.random = TRUE, show.model.tables = TRUE, quiet = TRUE)
+  patch.as.random = TRUE, show.model.tables = TRUE, quiet = "partial")
 
 lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "mat", "Sd", "Sdl"), 
   stage2 = c("Sd", "Sd", "Sd", "Sd", "Sdl", "rep", "rep"),

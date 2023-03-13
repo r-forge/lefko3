@@ -187,27 +187,27 @@ namespace LefkoMats {
     replacements.fill(-1.0);
     
     for (int i = 0; i < n; i++) {
-      arma::uvec correctplace = find(allst321 == idx321old[i]);
+      arma::uvec correctplace = find(allst321 == idx321old(i));
       
       int m = static_cast<int>(correctplace.n_elem); 
       
       for (int j = 0; j < m; j++) {
-        if (convtype[i] == 1.0) {
-          if (gvnrate[i] >= 0) {replacements(correctplace[j], 0) = gvnrate[i];}
-          if (eststag3[i] != -1 && idx321new[i] >= 0) {replacements(correctplace[j], 1) = idx321new[i];}
+        if (convtype(i) == 1.0) {
+          if (gvnrate(i) >= 0.0) {replacements(correctplace(j), 0) = gvnrate(i);}
+          if (eststag3(i) != -1 && idx321new(i) >= 0) {replacements(correctplace(j), 1) = idx321new(i);}
         }
         
-        if (convtype[i] == 2.0) {
-          if (gvnrate[i] >= 0) {replacements(correctplace[j], 2) = gvnrate[i];}
-          if (eststag3[i] != -1 && idx321new[i] >= 0) {replacements(correctplace[j], 3) = idx321new[i];}
+        if (convtype(i) == 2.0) {
+          if (gvnrate(i) >= 0.0) {replacements(correctplace(j), 2) = gvnrate(i);}
+          if (eststag3(i) != -1 && idx321new(i) >= 0) {replacements(correctplace(j), 3) = idx321new(i);}
         }
         
-        if (convtype[i] == 3.0) {
-          replacements(correctplace[j], 4) = multipl[i];
-        } else if (convtype[i] == 1) {
-          replacements(correctplace[j], 5) = multipl[i];
-        } else if (convtype[i] == 2) {
-          replacements(correctplace[j], 6) = multipl[i];
+        if (convtype(i) == 3.0) {
+          replacements(correctplace(j), 4) = multipl(i);
+        } else if (convtype(i) == 1.0) {
+          replacements(correctplace(j), 5) = multipl(i);
+        } else if (convtype(i) == 2.0) {
+          replacements(correctplace(j), 6) = multipl(i);
         }
       }
     }
@@ -1884,9 +1884,26 @@ namespace LefkoMats {
     NumericVector supp_multiplier = as<NumericVector>(supplement["multiplier"]);
     IntegerVector supp_convtype = as<IntegerVector>(supplement["convtype"]);
     IntegerVector supp_convtype_t12 = as<IntegerVector>(supplement["convtype_t12"]);
-    StringVector supp_pop = as<StringVector>(supplement["pop"]);
-    StringVector supp_patch = as<StringVector>(supplement["patch"]);
-    StringVector supp_year2 = as<StringVector>(supplement["year2"]);
+    
+    StringVector supp_pop;
+    StringVector supp_patch;
+    StringVector supp_year2;
+    
+    if (supplement.containsElementNamed("pop")) {
+      supp_pop = as<StringVector>(supplement["pop"]);
+      supp_patch = as<StringVector>(supplement["patch"]);
+      supp_year2 = as<StringVector>(supplement["year2"]);
+    } else {
+      int new_string_length = static_cast<int>(supp_age2.length());
+      StringVector new1s(new_string_length);
+      for (int i = 0; i < new_string_length; i++) {
+        new1s(i) = NA_STRING;
+      }
+      
+      supp_pop = new1s;
+      supp_patch = clone(new1s);
+      supp_year2 = clone(new1s);
+    }
     
     int base_length = static_cast<int>(supp_stage2.length());
     arma::uvec estimated_elements (base_length, fill::zeros);
@@ -1922,7 +1939,7 @@ namespace LefkoMats {
     
     int cookie_counter {0};
     for (int i = 0; i < base_length; i++) {
-      for (int j = 0; j < estimated_elements(i); j++) {
+      for (int j = 0; j < static_cast<int>(estimated_elements(i)); j++) {
         new_supp_stage3(cookie_counter) = supp_stage3(i);
         new_supp_stage2(cookie_counter) = supp_stage2(i);
         new_supp_stage1(cookie_counter) = supp_stage1(i);

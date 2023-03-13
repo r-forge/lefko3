@@ -5,10 +5,10 @@
 \title{Create a Data Frame of Supplemental Data for MPM Development}
 \usage{
 supplemental(
-  stageframe,
   historical = TRUE,
   stagebased = TRUE,
   agebased = FALSE,
+  stageframe = NULL,
   stage3 = NULL,
   stage2 = NULL,
   stage1 = NULL,
@@ -24,8 +24,6 @@ supplemental(
 )
 }
 \arguments{
-\item{stageframe}{The stageframe used to produce the MPM.}
-
 \item{historical}{A logical value indicating whether the MPMs intended will
 be historical or ahistorical. Defaults to \code{TRUE}.}
 
@@ -34,6 +32,10 @@ based or age-by-stage. Defaults to \code{TRUE}.}
 
 \item{agebased}{A logical value indicating whether the MPM will be age-based
 or age-by-stage. Defaults to \code{FALSE}.}
+
+\item{stageframe}{The stageframe used to produce the MPM. Required if
+producing any stage-based or age-by-stage MPM. Must be omitted for purely
+age-based MPMs.}
 
 \item{stage3}{The name of the stage in occasion \emph{t}+1 in the transition
 to be replaced. Abbreviations for groups of stages are also usable (see
@@ -81,8 +83,9 @@ transitions. Defaults to \code{1}.}
 \emph{t} and \emph{t}+1 to be replaced. This should be entered as \code{1},
 \code{S}, or \code{s} for the replacement of a survival transition;
 \code{2}, \code{F}, or \code{f} for the replacement of a fecundity
-transition; or \code{3}, \code{R}, or \code{r} for a fecundity multiplier.
-If empty or not provided, then defaults to \code{1} for survival transition.}
+transition; or \code{3}, \code{R}, or \code{r} for a fecundity set value /
+general multiplier. If empty or not provided, then defaults to \code{1} for
+survival transition.}
 
 \item{type_t12}{An optional vector denoting the kind of transition between
 occasions \emph{t}-1 and \emph{t}. Only necessary if a historical MPM in
@@ -154,6 +157,21 @@ unobservable stages are to be used, and leave empty or use \code{all} if all
 stages in stageframe are to be used. Also use \code{groupX} to denote all
 stages in group X (e.g. \code{group1} will use all stages in the respective
 stageframe's group 1).
+
+Type 3 conversions are referred to as fecundity set values, or general
+fecundity multipliers. These set the transitions to be used as fecundity
+transitions. Transitions set here will be interpreted as being generally
+reproductive, meaning that the from and to stages will be used to determine
+the general fecundity transitions to incorporate into stage-based MPMs,
+while the age portion of the input will be used to incorporate the actual
+multiplier(s) specified. If only stage transitions at certain ages are
+expected to be the sole contributors to fecundity, then type 2 conversions
+should also be included in the supplement (Type 1 and 2 conversions can be
+purely age-specific, and do not set reproductive transitions in MPM
+creation). For example, if all stage 2 to stage 3 transitions above age 2
+yield fecundity, then stage 2 to stage 3 can be set to
+\code{multiplier = 1.0} with \code{convtype = 3}, and the same transition
+for \code{age2 = c(1, 2)} can be set to \code{multiplier = c(0, 0)}.
 }
 
 \examples{

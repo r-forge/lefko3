@@ -4,7 +4,7 @@
 
 * Function summary_hfv() now includes an error checking function that searches
   hfv data frames for problems in stage assignment.
-* New functon mpm_create() is now the workhorse function handling all MPM
+* New function mpm_create() is now the workhorse function handling all MPM
   creation. All previous matrix creation functions have been rewritten as
   wrapper functions for this new function, with arguments and handling as before
   to prevent compatibility issues.
@@ -26,13 +26,13 @@
   matrix format MPMs.
 * Functions stablestage3.list() and repvalue3.list() have been added.
 * Function supplemental() now also handles age transitions in Leslie and
-  age-by-stage MPMs.
+  age-by-stage MPMs, and in f_projection3() runs involving them.
 * Function edit_lM() has been added to edit MPMs with external data.
 
 ## USER-VISIBLE CHANGES
 
 * Functions utilizing a choice of sparse vs dense matrix approaches have been
-  sped up the optimization of the criteria used to determine which approach to
+  sped up via the optimization of criteria used to determine which approach to
   take.
 * Functions cond_hmpm() and cond_diff() now perform faster, with better memory
   management, and with corrected list structure under err_check mode.
@@ -85,6 +85,9 @@
   is altered by MPM creation functions.
 * Fixed issue causing survival and fecundity estimation to ignore individuals
   older than max age in function rleslie() under continue = TRUE.
+* Corrected issue in which survival and fecundity multipliers provided via
+  supplemental() were only incorporated into function-based MPMs involving
+  stages if the transitions involved proxy estimation.
 
 # lefko3 5.5.0 (2022-09-14)
 

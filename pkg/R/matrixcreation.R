@@ -1454,16 +1454,14 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 #'   0)
 #' indataset <- c(0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
-#' minima <- c(0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
-#' maxima <- c(NA, 1, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-#'   NA, NA, NA, NA, NA)
+#' minima <- c(1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2)
 #' binvec <- c(0, 4.6, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
 #'   0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5)
 #' 
 #' lathframeln <- sf_create(sizes = sizevector, stagenames = stagevector,
 #'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
 #'   immstatus = immvector, indataset = indataset, binhalfwidth = binvec,
-#'   propstatus = propvector, minage = minima, maxage = maxima)
+#'   propstatus = propvector, minage = minima)
 #' 
 #' lathvertln <- verticalize3(lathyrus, noyears = 4, firstyear = 1988,
 #'   patchidcol = "SUBPLOT", individcol = "GENET", blocksize = 9,
@@ -1486,11 +1484,13 @@ flefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #'   quiet = "partial")
 #' 
 #' # Here we use supplemental() to provide overwrite and reproductive info
-#' lathsupp2 <- supplemental(stage3 = c("Sd", "Sdl", "Sd", "Sdl"), 
-#'   stage2 = c("Sd", "Sd", "rep", "rep"),
-#'   givenrate = c(0.345, 0.054, NA, NA),
-#'   multiplier = c(NA, NA, 0.345, 0.054),
-#'   type = c(1, 1, 3, 3), stageframe = lathframeln, historical = FALSE)
+#' lathsupp2 <- supplemental(stage3 = c("Sd", "Sdl", "mat", "Sd", "Sdl"), 
+#'   stage2 = c("Sd", "Sd", "Sdl", "rep", "rep"),
+#'   eststage3 = c(NA, NA, "mat", NA, NA),
+#'   eststage2 = c(NA, NA, "Dorm", NA, NA),
+#'   givenrate = c(0.345, 0.054, NA, NA, NA),
+#'   multiplier = c(NA, NA, 0.8, 0.345, 0.054), type = c(1, 1, 1, 3, 3),
+#'   stageframe = lathframeln, historical = FALSE, agebased = TRUE)
 #' 
 #' lathmat2age <- aflefko2(year = "all", patch = "all", 
 #'   stageframe = lathframeln, modelsuite = lathmodelsln2, data = lathvertln,
@@ -1602,6 +1602,13 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #' \code{modelparams}). Function \code{\link{create_pm}()} can be used to
 #' create a skeleton \code{paramnames} object, which can then be edited. Only
 #' required if \code{modelsuite} is not supplied.
+#' @param supplement An optional data frame of class \code{lefkoSD} that
+#' provides supplemental data that should be incorporated into the MPM. Three
+#' kinds of data may be integrated this way: transitions to be estimated via the
+#' use of proxy transitions, transition overwrites from the literature or
+#' supplemental studies, and transition multipliers for survival and fecundity.
+#' This data frame should be produced using the \code{\link{supplemental}()}
+#' function.
 #' @param start_age The age from which to start the matrix. Defaults to
 #' \code{NA}, in which case age \code{1} is used if \code{prebreeding = TRUE},
 #' and age \code{0} is used if \code{prebreeding = FALSE}.
@@ -1760,14 +1767,14 @@ aflefko2 <- function(year = "all", patch = "all", stageframe, supplement = NULL,
 #'   modelsuite = lathmodels2_age, fecage_min = 1)
 #' }
 #' @export
-fleslie <- function(year = "all", patch = NULL, prebreeding = TRUE, data = NULL,
-  modelsuite = NULL, surv_model = NULL, fec_model = NULL, paramnames = NULL,
-  start_age = NA, last_age = NA, fecage_min = NA, fecage_max = NA,
-  continue = TRUE, inda = NULL, indb = NULL, indc = NULL, surv_dev = 0,
-  fec_dev = 0, density = NA, repmod = 1, random.inda = FALSE,
-  random.indb = FALSE, random.indc = FALSE, negfec = FALSE, reduce = FALSE,
-  simple = FALSE, err_check = FALSE, exp_tol = 700, theta_tol = 100000000,
-  sparse_output = FALSE) {
+fleslie <- function(year = "all", patch = NULL, prebreeding = TRUE,
+  data = NULL, modelsuite = NULL, surv_model = NULL, fec_model = NULL,
+  paramnames = NULL, supplement = NULL, start_age = NA, last_age = NA,
+  fecage_min = NA, fecage_max = NA, continue = TRUE, inda = NULL, indb = NULL,
+  indc = NULL, surv_dev = 0, fec_dev = 0, density = NA, repmod = 1,
+  random.inda = FALSE, random.indb = FALSE, random.indc = FALSE, negfec = FALSE,
+  reduce = FALSE, simple = FALSE, err_check = FALSE, exp_tol = 700,
+  theta_tol = 100000000, sparse_output = FALSE) {
   
   devterms <- c(surv_dev, fec_dev)
   
@@ -1784,7 +1791,7 @@ fleslie <- function(year = "all", patch = NULL, prebreeding = TRUE, data = NULL,
   
   output <- mpm_create(historical = FALSE, stage = FALSE, age = TRUE,
     devries = FALSE, reduce = reduce, data = data, year = year, patch = patch,
-    modelsuite = modelsuite, paramnames = paramnames,
+    modelsuite = modelsuite, paramnames = paramnames, supplement = supplement,
     inda = inda, indb = indb, indc = indc, dev_terms = devterms,
     density = density, fecmod = repmod, random_inda = random.inda,
     random_indb = random.indb, random_indc = random.indc, negfec = negfec,
@@ -2648,7 +2655,7 @@ rlefko2 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
 #'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
 #'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
 #'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
-#'   stageframe = cypframe_raw, historical = FALSE)
+#'   stageframe = cypframe_raw, historical = FALSE, agebased = TRUE)
 #' 
 #' cyp_mats <- arlefko2(data = cypraw_v1, stageframe = cypframe_raw, year = "all", 
 #'   patch = NA, censor = FALSE, stages = c("stage3", "stage2", "stage1"),
@@ -2722,6 +2729,13 @@ arlefko2 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
 #' of such values, given in values associated with the \code{year} term used in
 #' vital rate model development. Can also equal \code{"all"}, in which case
 #' matrices will be estimated for all occasion times. Defaults to \code{"all"}.
+#' @param supplement An optional data frame of class \code{lefkoSD} that
+#' provides supplemental data that should be incorporated into the MPM. Three
+#' kinds of data may be integrated this way: transitions to be estimated via the
+#' use of proxy transitions, transition overwrites from the literature or
+#' supplemental studies, and transition multipliers for survival and fecundity.
+#' This data frame should be produced using the \code{\link{supplemental}()}
+#' function.
 #' @param pop A variable designating which populations will have matrices
 #' estimated. Should be set to specific population names, or to \code{"all"} if
 #' all populations should have matrices estimated.
@@ -2834,17 +2848,18 @@ arlefko2 <- function(data, stageframe, year = "all", pop = NULL, patch = NULL,
 rleslie <- function(data, start_age = NA, last_age = NA, continue = TRUE,
   fecage_min = NA, fecage_max = NA, alive = c("alive3", "alive2", "alive1"),
   repst = c("repstatus3", "repstatus2", "repstatus1"),
-  fec = c("feca3", "feca2", "feca1"), agecol = "obsage", year = "all", pop = NULL,
-  patch = NULL, yearcol = NULL, popcol = NULL, patchcol = NULL, indivcol = NULL,
-  censor = FALSE, censorcol = NULL, censorkeep = 0, fectime = 2, fecmod = 1.0,
-  prebreeding = TRUE, reduce = FALSE, simple = FALSE, err_check = FALSE,
-  sparse_output = FALSE) {
+  fec = c("feca3", "feca2", "feca1"), agecol = "obsage", year = "all",
+  supplement = NULL, pop = NULL, patch = NULL, yearcol = NULL, popcol = NULL,
+  patchcol = NULL, indivcol = NULL, censor = FALSE, censorcol = NULL,
+  censorkeep = 0, fectime = 2, fecmod = 1.0, prebreeding = TRUE, reduce = FALSE,
+  simple = FALSE, err_check = FALSE, sparse_output = FALSE) {
 
   output <- mpm_create(historical = FALSE, stage = FALSE, age = TRUE,
-    devries = FALSE, reduce = reduce, data = data, year = year, pop = pop,
-    patch = patch, alive = alive, repst = repst, fec = fec, yearcol = yearcol,
-    popcol = popcol, patchcol = patchcol, indivcol = indivcol, agecol = agecol,
-    censorcol = censorcol, censor = censor, censorkeep = censorkeep, start_age = start_age,
+    devries = FALSE, reduce = reduce, data = data, supplement = supplement,
+    year = year, pop = pop, patch = patch, alive = alive, repst = repst,
+    fec = fec, yearcol = yearcol, popcol = popcol, patchcol = patchcol,
+    indivcol = indivcol, agecol = agecol, censorcol = censorcol,
+    censor = censor, censorkeep = censorkeep, start_age = start_age,
     last_age = last_age, fecage_min = fecage_min, fecage_max = fecage_max,
     fectime = fectime, fecmod = fecmod, cont = continue, prebreeding = prebreeding,
     simple = simple, err_check = err_check, sparse_output = sparse_output)

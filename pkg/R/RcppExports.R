@@ -1360,6 +1360,12 @@ NULL
 #' @param MainData The demographic dataset modified internally to have needed
 #' variables for living status, reproduction status, and fecundity.
 #' @param StageFrame The full stageframe for the analysis.
+#' @param supplement A supplement table as produced by function
+#' \code{supplemental()} and edited and age-expanded by pre-processing within
+#' function \code{mpm_create()}.
+#' @param start_age An integer denoting the first age incorporated in the MPM.
+#' @param last_age An integer denoting the last age incorporated in the MPM,
+#' not including ages set to equal the last estimated age.
 #' @param cont Should a self-loop transition be estimated for the final age.
 #' @param fec_mod A multiplier on raw fecundity to estimate true fecundity.
 #' @param err_switch A logical value. If set to \code{TRUE}, then will also
@@ -1617,6 +1623,8 @@ NULL
 #' @param mainindcovc Typically a string vector of individual covariate
 #' category names.
 #' @param ageframe The modified stageframe used in matrix calculations.
+#' @param supplement The supplement table used in analysis, as modified by
+#' \code{age_expanded()} and other pre-MPM processing.
 #' @param f2_inda_num A numeric vector of length equal to the number of years,
 #' holding values equal to the mean value of individual covariate \code{a} at
 #' each time \emph{t} to be used in analysis.
@@ -1779,8 +1787,8 @@ NULL
 #' @param supplement The original supplemental data input (class
 #' \code{lefkoSD}). Can also equal NA.
 #' @param overwrite An overwrite table.
-#' @param repmatrix The original reproduction matrix. Can also equal \code{NA}
-#' or \code{0}.
+#' @param repmatrix The original reproduction matrix. Can also equal \code{NA},
+#' \code{0}, or \code{NULL} (the last value by default).
 #' @param agemat A logical value indicating whether MPM is age-by-stage.
 #' @param historical A logical value indicating whether MPM is historical.
 #' @param format An integer indicating whether matrices will be in Ehrlen
@@ -2092,16 +2100,16 @@ NULL
 #' @section Notes:
 #' Population projection can be a very time-consuming activity, and it is most
 #' time-consuming when matrices need to be created at each time step. We have
-#' created this function to be as quick as possible, but some options will slow
-#' the analysis down. First, the \code{err_check} option should always be set
-#' to \code{FALSE}, as the added created output will not only slow the analysis
+#' created this function to work as quickly as possible, but some options will
+#' slow analysis. First, the \code{err_check} option should always be set to
+#' \code{FALSE}, as the added created output will not only slow the analysis
 #' down but also potentially crash the memory if matrices are large enough.
 #' Second, the \code{repvalue} option should be set to \code{FALSE} unless
 #' reproductive values are genuinely needed, since this step requires
 #' concurrent backward projection and so in some cases may double total run
 #' time. Finally, if the only needed data is the total population size and
-#' actual age/stage structure at each time step, then setting \code{growthonly
-#' = TRUE} will yield the quickest possible run time.
+#' age/stage structure at each time step, then setting \code{growthonly = TRUE}
+#' will yield the quickest possible run time.
 #' 
 #' Projections with large matrices may take a long time to run. To assess the
 #' likely running time, try using a low number of iterations on a single
@@ -2192,7 +2200,7 @@ NULL
 #'   vitalrates = c("surv", "obs", "size", "repst", "fec"), juvestimate = "Sdl",
 #'   bestfit = "AICc&k", sizedist = "gaussian", fecdist = "poisson", 
 #'   indiv = "individ", patch = "patchid", year = "year2", year.as.random = TRUE,
-#'   patch.as.random = TRUE, show.model.tables = TRUE, quiet = TRUE)
+#'   patch.as.random = TRUE, show.model.tables = TRUE, quiet = "partial")
 #' 
 #' lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "mat", "Sd", "Sdl"), 
 #'   stage2 = c("Sd", "Sd", "Sd", "Sd", "Sdl", "rep", "rep"),
@@ -4174,15 +4182,16 @@ actualstage3 <- function(data, check_stage = TRUE, check_age = FALSE, historical
     .Call('_lefko3_actualstage3', PACKAGE = 'lefko3', data, check_stage, check_age, historical, year2, indices, stagecol, agecol, remove_stage, t1_allow)
 }
 
-#' Create a Data Frame of Density Dependence Relationships in Matrix Elements
+#' Set Density Dependence Relationships in Matrix Elements
 #' 
 #' Function \code{density_input()} provides all necessary data to incorporate
 #' density dependence into a \code{lefkoMat} object, a list of matrices, or a
 #' single matrix. Four forms of density dependence are allowed, including the
 #' Ricker function, the Beverton-Holt function, the Usher function, and the
-#' logistic function. In each case, density must have an effect with at least a
-#' one time-step delay (see Notes). The resulting data frame provides a guide
-#' for other \code{lefko3} functions to modify matrix elements by density.
+#' logistic function. In each case, density must have an effect with a delay of
+#' at least one time-step (see Notes). The resulting data frame provides a
+#' guide for other \code{lefko3} functions to modify matrix elements by
+#' density.
 #'
 #' @name density_input
 #' 
@@ -4301,7 +4310,6 @@ actualstage3 <- function(data, check_stage = TRUE, check_age = FALSE, historical
 #' 
 #' @examples
 #' \donttest{
-#' # Lathyrus example
 #' data(lathyrus)
 #' 
 #' sizevector <- c(0, 100, 13, 127, 3730, 3800, 0)
@@ -4367,13 +4375,15 @@ density_input <- function(mpm, stage3, stage2, stage1 = NULL, age2 = NULL, style
 #' 
 #' @name supplemental
 #' 
-#' @param stageframe The stageframe used to produce the MPM.
 #' @param historical A logical value indicating whether the MPMs intended will
 #' be historical or ahistorical. Defaults to \code{TRUE}.
 #' @param stagebased A logical value indicating whether the MPM will be stage-
 #' based or age-by-stage. Defaults to \code{TRUE}.
 #' @param agebased A logical value indicating whether the MPM will be age-based
 #' or age-by-stage. Defaults to \code{FALSE}.
+#' @param stageframe The stageframe used to produce the MPM. Required if
+#' producing any stage-based or age-by-stage MPM. Must be omitted for purely
+#' age-based MPMs.
 #' @param stage3 The name of the stage in occasion \emph{t}+1 in the transition
 #' to be replaced. Abbreviations for groups of stages are also usable (see
 #' \code{Notes}). Required in all stage-based and age-by-stage MPMs.
@@ -4410,8 +4420,9 @@ density_input <- function(mpm, stage3, stage2, stage1 = NULL, age2 = NULL, style
 #' \emph{t} and \emph{t}+1 to be replaced. This should be entered as \code{1},
 #' \code{S}, or \code{s} for the replacement of a survival transition;
 #' \code{2}, \code{F}, or \code{f} for the replacement of a fecundity
-#' transition; or \code{3}, \code{R}, or \code{r} for a fecundity multiplier.
-#' If empty or not provided, then defaults to \code{1} for survival transition.
+#' transition; or \code{3}, \code{R}, or \code{r} for a fecundity set value /
+#' general multiplier. If empty or not provided, then defaults to \code{1} for
+#' survival transition.
 #' @param type_t12 An optional vector denoting the kind of transition between
 #' occasions \emph{t}-1 and \emph{t}. Only necessary if a historical MPM in
 #' deVries format is desired. This should be entered as \code{1}, \code{S}, or
@@ -4472,6 +4483,21 @@ density_input <- function(mpm, stage3, stage2, stage1 = NULL, age2 = NULL, style
 #' stages in stageframe are to be used. Also use \code{groupX} to denote all
 #' stages in group X (e.g. \code{group1} will use all stages in the respective
 #' stageframe's group 1).
+#' 
+#' Type 3 conversions are referred to as fecundity set values, or general
+#' fecundity multipliers. These set the transitions to be used as fecundity
+#' transitions. Transitions set here will be interpreted as being generally
+#' reproductive, meaning that the from and to stages will be used to determine
+#' the general fecundity transitions to incorporate into stage-based MPMs,
+#' while the age portion of the input will be used to incorporate the actual
+#' multiplier(s) specified. If only stage transitions at certain ages are
+#' expected to be the sole contributors to fecundity, then type 2 conversions
+#' should also be included in the supplement (Type 1 and 2 conversions can be
+#' purely age-specific, and do not set reproductive transitions in MPM
+#' creation). For example, if all stage 2 to stage 3 transitions above age 2
+#' yield fecundity, then stage 2 to stage 3 can be set to
+#' \code{multiplier = 1.0} with \code{convtype = 3}, and the same transition
+#' for \code{age2 = c(1, 2)} can be set to \code{multiplier = c(0, 0)}.
 #' 
 #' @seealso \code{\link{edit_lM}()}
 #' 
@@ -4559,8 +4585,8 @@ density_input <- function(mpm, stage3, stage2, stage1 = NULL, age2 = NULL, style
 #'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
 #' 
 #' @export supplemental
-supplemental <- function(stageframe, historical = TRUE, stagebased = TRUE, agebased = FALSE, stage3 = NULL, stage2 = NULL, stage1 = NULL, age2 = NULL, eststage3 = NULL, eststage2 = NULL, eststage1 = NULL, estage2 = NULL, givenrate = NULL, multiplier = NULL, type = NULL, type_t12 = NULL) {
-    .Call('_lefko3_supplemental', PACKAGE = 'lefko3', stageframe, historical, stagebased, agebased, stage3, stage2, stage1, age2, eststage3, eststage2, eststage1, estage2, givenrate, multiplier, type, type_t12)
+supplemental <- function(historical = TRUE, stagebased = TRUE, agebased = FALSE, stageframe = NULL, stage3 = NULL, stage2 = NULL, stage1 = NULL, age2 = NULL, eststage3 = NULL, eststage2 = NULL, eststage1 = NULL, estage2 = NULL, givenrate = NULL, multiplier = NULL, type = NULL, type_t12 = NULL) {
+    .Call('_lefko3_supplemental', PACKAGE = 'lefko3', historical, stagebased, agebased, stageframe, stage3, stage2, stage1, age2, eststage3, eststage2, eststage1, estage2, givenrate, multiplier, type, type_t12)
 }
 
 #' Edit an MPM based on Supplemental Data
@@ -4579,7 +4605,7 @@ supplemental <- function(stageframe, historical = TRUE, stagebased = TRUE, ageba
 #' to \code{NULL}, in which case all populations are edited.
 #' @param patch A string vector denoting the patches to be edited. Defaults
 #' to \code{NULL}, in which case all patches are edited.
-#' @param patch A string vector denoting the years to be edited. Defaults
+#' @param year2 A string vector denoting the years to be edited. Defaults
 #' to \code{NULL}, in which case all years are edited.
 #' @param stage3 The name of the stage in occasion \emph{t}+1 in the transition
 #' to be replaced. Abbreviations for groups of stages are also usable (see

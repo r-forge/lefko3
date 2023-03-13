@@ -16,6 +16,7 @@ rleslie(
   fec = c("feca3", "feca2", "feca1"),
   agecol = "obsage",
   year = "all",
+  supplement = NULL,
   pop = NULL,
   patch = NULL,
   yearcol = NULL,
@@ -75,6 +76,14 @@ occasions \emph{t}+1 and \emph{t}, respectively. Defaults to
 of such values, given in values associated with the \code{year} term used in
 vital rate model development. Can also equal \code{"all"}, in which case
 matrices will be estimated for all occasion times. Defaults to \code{"all"}.}
+
+\item{supplement}{An optional data frame of class \code{lefkoSD} that
+provides supplemental data that should be incorporated into the MPM. Three
+kinds of data may be integrated this way: transitions to be estimated via the
+use of proxy transitions, transition overwrites from the literature or
+supplemental studies, and transition multipliers for survival and fecundity.
+This data frame should be produced using the \code{\link{supplemental}()}
+function.}
 
 \item{pop}{A variable designating which populations will have matrices
 estimated. Should be set to specific population names, or to \code{"all"} if

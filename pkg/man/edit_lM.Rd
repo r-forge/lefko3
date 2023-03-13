@@ -29,7 +29,10 @@ edit_lM(
 \item{pop}{A string vector denoting the populations to be edited. Defaults
 to \code{NULL}, in which case all populations are edited.}
 
-\item{patch}{A string vector denoting the years to be edited. Defaults
+\item{patch}{A string vector denoting the patches to be edited. Defaults
+to \code{NULL}, in which case all patches are edited.}
+
+\item{year2}{A string vector denoting the years to be edited. Defaults
 to \code{NULL}, in which case all years are edited.}
 
 \item{stage3}{The name of the stage in occasion \emph{t}+1 in the transition

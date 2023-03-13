@@ -5802,8 +5802,6 @@ namespace LefkoUtils {
   //' 
   //' @name jerzeibalowski
   //' 
-  //' @param ppy A data frame showing the population, patch, and year of each
-  //' matrix to create, in order.
   //' @param AllStages A large data frame giving all required inputs for vital
   //' rate estimation other than the vital rate model coefficients themselves.
   //' Contains a row for each ultimate matrix element.
@@ -6310,6 +6308,8 @@ namespace LefkoUtils {
     
     Rcpp::NumericVector ovsurvmult = as<NumericVector>(AllStages["ovsurvmult"]);
     Rcpp::NumericVector ovfecmult = as<NumericVector>(AllStages["ovfecmult"]);
+    arma::vec ovsurvmult_arma = as<arma::vec>(ovsurvmult);
+    arma::vec ovfecmult_arma = as<arma::vec>(ovfecmult);
     
     Rcpp::IntegerVector index321_int = as<IntegerVector>(AllStages["index321"]);
     arma::uvec index321 = as<arma::uvec>(index321_int);
@@ -6322,6 +6322,16 @@ namespace LefkoUtils {
     arma::uvec replacefvec = find(ovestf != -1.0);
     int replacementst = static_cast<int>(replacetvec.n_elem);
     int replacementsf = static_cast<int>(replacefvec.n_elem);
+    
+    arma::uvec tmults = find(ovsurvmult_arma != -1.0);
+    arma::uvec fmults = find(ovfecmult_arma != -1.0);
+    arma::uvec noreplacetvec = find(ovestt == -1.0);
+    arma::uvec noreplacefvec = find(ovestf == -1.0);
+    arma::uvec tmults_only = intersect(tmults, noreplacetvec);
+    arma::uvec fmults_only = intersect(fmults, noreplacefvec);
+    int tmults_only_st = static_cast<int>(tmults_only.n_elem);
+    int fmults_only_st = static_cast<int>(fmults_only.n_elem);
+    
     int repindex {0};
     int properindex {0};
     int proxyindex {0};
@@ -7066,6 +7076,36 @@ namespace LefkoUtils {
       }
     }
     
+    if (tmults_only_st > 0) {
+      for (int i = 0; i < tmults_only_st; i++) {
+        repindex = tmults_only(i);
+        properindex = aliveandequal(repindex);
+        ov_mult = ovsurvmult(repindex);
+        if (ov_mult < 0.0) ov_mult = 1.0;
+        
+        if (!sparse) {
+          survtransmat(properindex) = survtransmat(properindex) * ov_mult;
+        } else {
+          survtransmat_sp(properindex) = survtransmat_sp(properindex) * ov_mult;
+        }
+      }
+    }
+    
+    if (fmults_only_st > 0) {
+      for (int i = 0; i < fmults_only_st; i++) {
+        repindex = fmults_only(i);
+        properindex = aliveandequal(repindex);
+        ov_mult = ovfecmult(repindex);
+        if (ov_mult < 0.0) ov_mult = 1.0;
+        
+        if (!sparse) {
+          fectransmat(properindex) = fectransmat(properindex) * ov_mult;
+        } else {
+          fectransmat_sp(properindex) = fectransmat_sp(properindex) * ov_mult;
+        }
+      }
+    }
+    
     // Final output
     List output(4);
     
@@ -7213,6 +7253,8 @@ namespace LefkoUtils {
   //' \code{FALSE}.
   //' @param sparse If \code{TRUE}, then only outputs matrices in sparse format.
   //' Defaults to \code{FALSE}.
+  //' @param supplement An optional data frame edited and age-expanded showing
+  //' supplemental transition information.
   //' 
   //' @return A list of 3 matrices, including the main MPM (A), the survival-
   //' transition matrix (U), and a fecundity matrix (F).
@@ -7232,7 +7274,8 @@ namespace LefkoUtils {
     bool dens_vr, LogicalVector dvr_yn, IntegerVector dvr_style,
     NumericVector dvr_alpha, NumericVector dvr_beta, NumericVector dens_n,
     double exp_tol = 700.0, double theta_tol = 100000000.0,
-    bool simplicity = false, bool sparse = false) {
+    bool simplicity = false, bool sparse = false,
+    Nullable<DataFrame> supplement = R_NilValue) {
     
     // Determines the size of the matrix
     StringVector sf_agenames = as<StringVector>(ageframe["stage"]);
@@ -7240,10 +7283,43 @@ namespace LefkoUtils {
     IntegerVector sf_maxage = as<IntegerVector>(ageframe["max_age"]);
     IntegerVector sf_repstatus = as<IntegerVector>(ageframe["repstatus"]);
     int noages = actualages.length();
+    int start_age = min(actualages);
+    //int last_age = max(actualages);
     
     bool cont = false;
     if (sf_maxage(noages - 1) == NA_INTEGER) {
       cont = true;
+    }
+    
+    // Supplement processing
+    IntegerVector ov_age2;
+    IntegerVector ov_estage2;
+    NumericVector ov_givenrate;
+    NumericVector ov_multiplier;
+    IntegerVector ov_convtype;
+    int supp_length {0};
+    
+    DataFrame supplement_;
+    if (supplement.isNotNull()){
+      supplement_ = as<DataFrame>(supplement);
+      
+      if (supplement_.containsElementNamed("age2")) {
+        ov_age2 = clone(as<IntegerVector>(supplement_["age2"]));
+        ov_estage2 = clone(as<IntegerVector>(supplement_["estage2"]));
+        ov_givenrate = as<NumericVector>(supplement_["givenrate"]);
+        ov_multiplier = as<NumericVector>(supplement_["multiplier"]);
+        ov_convtype = as<IntegerVector>(supplement_["convtype"]);
+        
+        supp_length = static_cast<int>(ov_givenrate.length());
+        
+        for (int i = 0; i < supp_length; i++) {
+          ov_age2(i) = ov_age2(i) - start_age;
+          
+          if (!IntegerVector::is_na(ov_estage2(i))) {
+            ov_estage2(i) = ov_estage2(i) - start_age;
+          }
+        }
+      }
     }
     
     // Proxy model imports and settings
@@ -7803,6 +7879,109 @@ namespace LefkoUtils {
             } else {
               fectransmat_sp(0, i) = feccoefs(0);
             }
+          }
+        }
+      }
+    }
+    
+    // Supplement replacement portion
+    int target_col {0};
+    int target_row {0};
+    int proxy_col {0};
+    int proxy_row {0};
+    
+    for (int l = 0; l < supp_length; l++) {
+      target_col = ov_age2(l);
+      if (target_col >= (noages - 1) && cont) {
+        target_col = noages - 1;
+      } else if (target_col >= (noages - 1)) {
+        throw Rcpp::exception("Some age2 values are too high.", false);
+      }
+      
+      if (ov_convtype(l) == 1) {
+        if (target_col >= (noages - 1) && cont) {
+          target_row = target_col;
+        } else {
+          target_row = target_col + 1;
+        }
+        
+        if (!NumericVector::is_na(ov_givenrate(l))) {
+          if (!sparse) {
+            survtransmat(target_row, target_col) = ov_givenrate(l);
+          } else {
+            survtransmat_sp(target_row, target_col) = ov_givenrate(l);
+          }
+        }
+        if (!IntegerVector::is_na(ov_estage2(l))) {
+          proxy_col = ov_estage2(l);
+          
+          if (proxy_col >= (noages - 1) && cont) {
+            proxy_col = noages - 1;
+          } else if (proxy_col >= (noages - 1)) {
+            throw Rcpp::exception("Some estage2 values are too high.", false);
+          }
+          
+          if (proxy_col >= (noages - 1) && cont) {
+            proxy_row = target_col;
+          } else {
+            proxy_row = target_col + 1;
+          }
+          
+         if (!sparse) {
+            survtransmat(target_row, target_col) = survtransmat(proxy_row, proxy_col);
+          } else {
+            survtransmat_sp(target_row, target_col) = survtransmat_sp(proxy_row, proxy_col);
+          }
+        }
+        if (!NumericVector::is_na(ov_multiplier(l))) {
+          if (!sparse) {
+            survtransmat(target_row, target_col) *= ov_multiplier(l);
+          } else {
+            survtransmat_sp(target_row, target_col) *= ov_multiplier(l);
+          }
+        }
+      } else if (ov_convtype(l) == 2) {
+        target_row = 0;
+        
+        if (!NumericVector::is_na(ov_givenrate(l))) {
+          if (!sparse) {
+            fectransmat(target_row, target_col) = ov_givenrate(l);
+          } else {
+            fectransmat_sp(target_row, target_col) = ov_givenrate(l);
+          }
+        }
+        if (!IntegerVector::is_na(ov_estage2(l))) {
+          proxy_col = ov_estage2(l);
+          
+          if (proxy_col >= (noages - 1) && cont) {
+            proxy_col = noages - 1;
+          } else if (proxy_col >= (noages - 1)) {
+            throw Rcpp::exception("Some estage2 values are too high.", false);
+          }
+          
+          proxy_row = 0;
+          
+          if (!sparse) {
+            fectransmat(target_row, target_col) = fectransmat(proxy_row, proxy_col);
+          } else {
+            fectransmat_sp(target_row, target_col) = fectransmat_sp(proxy_row, proxy_col);
+          }
+        }
+        if (!NumericVector::is_na(ov_multiplier(l))) {
+          if (!sparse) {
+            fectransmat(target_row, target_col) *= ov_multiplier(l);
+          } else {
+            fectransmat_sp(target_row, target_col) *= ov_multiplier(l);
+          }
+        }
+      } else {
+        target_row = 0;
+        
+        if (!NumericVector::is_na(ov_multiplier(l))) {
+          if (!sparse) {
+            fectransmat(target_row, target_col) *= ov_multiplier(l);
+          } else {
+            fectransmat_sp(target_row, target_col) *= ov_multiplier(l);
           }
         }
       }

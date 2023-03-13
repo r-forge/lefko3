@@ -27,8 +27,8 @@ using namespace LefkoMats;
 //' @param supplement The original supplemental data input (class
 //' \code{lefkoSD}). Can also equal NA.
 //' @param overwrite An overwrite table.
-//' @param repmatrix The original reproduction matrix. Can also equal \code{NA}
-//' or \code{0}.
+//' @param repmatrix The original reproduction matrix. Can also equal \code{NA},
+//' \code{0}, or \code{NULL} (the last value by default).
 //' @param agemat A logical value indicating whether MPM is age-by-stage.
 //' @param historical A logical value indicating whether MPM is historical.
 //' @param format An integer indicating whether matrices will be in Ehrlen
@@ -230,7 +230,7 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
         for (int j = 0; j < stageframe_length; j++) {
           if (stage2_supp(mult_elems(i)) == stagevec(j)) {
             needed_reprods(j) = 1;
-            needed_mults(j) = multiplier_supp(mult_elems(i));
+            needed_mults(j) = 1.0; // multiplier_supp(mult_elems(i));
           }
           
           if (stage2_supp(mult_elems(i)) == "rep") {
@@ -239,7 +239,7 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
             int repvec_no1s = static_cast<int>(repvec_1elems.n_elem);
             for (int k = 0; k < repvec_no1s; k++) {
               needed_reprods(repvec_1elems(k)) = 1;
-              needed_mults(repvec_1elems(k)) = multiplier_supp(mult_elems(i));
+              needed_mults(repvec_1elems(k)) = 1.0; // multiplier_supp(mult_elems(i));
             }
           }
           
@@ -250,7 +250,7 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
               int group_noelems = static_cast<int>(group_elems.n_elem);
               for (int l = 0; l < group_noelems; l++) {
                 needed_reprods(group_elems(l)) = 1;
-                needed_mults(group_elems(l)) = multiplier_supp(mult_elems(i));
+                needed_mults(group_elems(l)) = 1.0; // multiplier_supp(mult_elems(i));
               }
             }
           }
@@ -568,11 +568,16 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
       (stageframe_length + format));
   newstageframe.attr("class") = newclasses;
   
-  DataFrame newsupplement = LefkoMats::supp_reassess(newstageframe, historical,
-    supplement, overwrite);
-  
-  return Rcpp::List::create(_["stageframe"] = newstageframe,
-    _["repmatrix"] = repmat2, _["ovtable"] = newsupplement);
+  if (supp_provided) {
+    DataFrame newsupplement = LefkoMats::supp_reassess(newstageframe, historical,
+      supplement, overwrite);
+    
+    return Rcpp::List::create(_["stageframe"] = newstageframe,
+      _["repmatrix"] = repmat2, _["ovtable"] = newsupplement);
+  } else {
+    return Rcpp::List::create(_["stageframe"] = newstageframe,
+      _["repmatrix"] = repmat2, _["ovtable"] = NULL);
+  }
 }
 
 //' Create Stageframe for Population Matrix Projection Analysis
@@ -930,19 +935,26 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
   arma::vec ovconvt12 = as<arma::vec>(OverWrite["convtype_t12"]);
   int ovrows = static_cast<int>(ovconvtype.n_elem);
   
+  IntegerVector ovage2;
+  IntegerVector ovestage2;
+  if (OverWrite.containsElementNamed("age2")) {
+    ovage2 = as<IntegerVector>(OverWrite["age2"]);
+    ovestage2 = as<IntegerVector>(OverWrite["estage2"]);
+  }
+  
   int totalages = (finalage - firstage) + 1;
   
-  arma::vec ovindex3(ovrows * totalages);
-  arma::vec ovindex2(ovrows * totalages);
-  arma::vec ovindex1(ovrows * totalages);
-  arma::vec ovnew3(ovrows * totalages);
-  arma::vec ovnew2(ovrows * totalages);
-  arma::vec ovnew1(ovrows * totalages);
-  arma::vec ovindexold321(ovrows * totalages);
-  arma::vec ovindexnew321(ovrows * totalages);
-  arma::vec ovnewgivenrate(ovrows * totalages);
-  arma::vec ovnewmultiplier(ovrows * totalages);
-  arma::vec ovconvtypeage(ovrows * totalages);
+  arma::vec ovindex3(ovrows); // Originally (ovrows * totalages)
+  arma::vec ovindex2(ovrows);
+  arma::vec ovindex1(ovrows);
+  arma::vec ovnew3(ovrows);
+  arma::vec ovnew2(ovrows);
+  arma::vec ovnew1(ovrows);
+  arma::vec ovindexold321(ovrows);
+  arma::vec ovindexnew321(ovrows);
+  arma::vec ovnewgivenrate(ovrows);
+  arma::vec ovnewmultiplier(ovrows);
+  arma::vec ovconvtypeage(ovrows);
   ovindex3.fill(-1.0);
   ovindex2.fill(-1.0);
   ovindex1.fill(-1.0);
@@ -1000,7 +1012,7 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
     }
   }
   
-  // Set up repmatrix. Determine format of entered repmatrix
+  // Set up repmatrix
   int reprows = repmatrix.n_rows;
   int repmattype = 0;
   
@@ -1112,7 +1124,8 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
   
   // Change stage names to stage numbers per input stageframe for styles 0 and 1
   if (style < 2) {
-    if (ovrows > 1 || ovconvtype(0) != -1.0) {
+    if (ovrows > 0) {
+      if (ovrows > 1 || ovconvtype(0) != -1.0) {
       for (int i = 0; i < ovrows; i++) { // Loop across overwrite rows
         for (int j = 0; j < nostages; j++) { // Loop across stageframe rows
           if (ovstage3(i) == origstageid(j)) {
@@ -1141,14 +1154,13 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
         } // j for loop
       } // i for loop
     } // ovrows if statement
+    }
   } // style if statement
   
   // Main data frame creation loops
-  // When style = 0, this will create AllStages for the historical case
-  // When format = 2, the historical MPM will be in deVries format
-  if (style == 0 && format == 2) {
-    
-    if (ovrows > 1 || ovconvtype(0) != -1.0) {
+  if (style == 0 && format == 2) { // Historical MPM deVries format
+    if (ovrows > 0) {
+      if (ovrows > 1 || ovconvtype(0) != -1.0) {
       for (int i = 0; i < ovrows; i++) {  // Loop across overwrite rows
         if (ovconvtype(i) > 1.0) { // Catches all changes to fecundity and reproductive multipliers
           ovindexold321(i) = (ovindex3(i) - 1) + (prior_stage * nostages) + 
@@ -1193,6 +1205,7 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
         }
       } // i for loop
     } // ovrows if statement
+    }
     
     arma::uvec marked_for_repentry (nostages, fill::zeros); // Only in deVries format
     
@@ -1372,7 +1385,8 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
       }
     }
     
-    if (ovrows > 1 || ovconvtype(0) != -1.0) {
+    if (ovrows > 0) {
+      if (ovrows > 1 || ovconvtype(0) != -1.0) {
       asadditions = LefkoMats::ovreplace(index321, ovindexold321, ovindexnew321,
         ovconvtype, ovnew3, ovnewgivenrate, ovnewmultiplier);
       
@@ -1394,10 +1408,11 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
         }
       }
     } // ovreplace if statement
-  } else if (style == 0 && format == 1) { // Historical MPM in Ehrlen format
-    
-    if (ovrows > 1 || ovconvtype(0) != -1.0) {
-      for (int i = 0; i < ovrows; i++) { // Loop across overwrite rows
+    }
+  } else if (style == 0 && format == 1) { // Historical MPM Ehrlen format
+    if (ovrows > 0) {
+      if (ovrows > 1 || ovconvtype(0) != -1.0) {
+        for (int i = 0; i < ovrows; i++) { // Loop across overwrite rows
         
         ovindexold321(i) = (ovindex3(i) - 1) + ((ovindex2(i) - 1) * nostages_nodead_nounborn) + 
           ((ovindex2(i) - 1) * nostages_nodead_nounborn * nostages_nodead_nounborn) + 
@@ -1421,6 +1436,7 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
         ovnewmultiplier(i) = ovmultiplier(i);
       } // i for loop
     } // ovrows if statement
+    }
     
     for (int time1 = 0; time1 < nostages_nodead; time1++) {
       for (int time2o = 0; time2o < nostages_nodead; time2o++) {
@@ -1575,7 +1591,8 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
       } // time2o loop
     } // time1 loop 
     
-    if (ovrows > 1 || ovconvtype(0) != -1.0) {
+    if (ovrows > 0) {
+      if (ovrows > 1 || ovconvtype(0) != -1.0) {
       asadditions = LefkoMats::ovreplace(index321, ovindexold321, ovindexnew321, ovconvtype, 
         ovnew3, ovnewgivenrate, ovnewmultiplier);
       
@@ -1597,9 +1614,10 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
         }
       }
     } // ovreplace if statement
-  } else if (style == 1) { // Takes care of ahistorical case
-    
-    if (ovrows > 1 || ovconvtype(0) != -1.0) {
+    }
+  } else if (style == 1) { // Ahistorical case
+    if (ovrows > 0) {
+      if (ovrows > 1 || ovconvtype(0) != -1.0) {
       for (int i = 0; i < ovrows; i++) { // Loop across overwrite rows
       
         ovindexold321(i) = (ovindex3(i) - 1) + ((ovindex2(i) - 1) * nostages);
@@ -1617,6 +1635,7 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
         ovnewmultiplier(i) = ovmultiplier(i);
       } // i for loop
     } // ovrows if statement
+    }
     
     for (int time2n = 0; time2n < nostages_nodead; time2n++) {
       for (int time3 = 0; time3 < nostages; time3++) {
@@ -1726,7 +1745,8 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
       } // time3 loop
     } // time2n loop
     
-    if (ovrows > 1 || ovconvtype(0) != -1.0) {
+    if (ovrows > 0) {
+      if (ovrows > 1 || ovconvtype(0) != -1.0) {
       asadditions = LefkoMats::ovreplace(index321, ovindexold321, ovindexnew321,
         ovconvtype, ovnew3, ovnewgivenrate, ovnewmultiplier);
       
@@ -1748,7 +1768,8 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
         }
       }
     } // ovreplace if statement
-  } else if (style == 2) { // Takes care of age-by-stage case
+    }
+  } else if (style == 2) { // Age-by-stage case
     int age3 {firstage};
     
     for (int time3 = 0; time3 < nostages; time3++) {
@@ -1758,118 +1779,124 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
     }
     
     // Sets up overwrite tables
-    if (ovrows > 1 || ovconvtype(0) != -1.0) {
+    if (ovrows > 0) {
+      if (ovrows > 1 || ovconvtype(0) != -1.0) {
       // First set of loops establishes a number of indices
-      for (int age2 = firstage; age2 < (totalages + 1); age2++) {
-        for (int i = 0; i < ovrows; i++) { // Loop across overwrite rows
-          for (int j = 0; j < nostages; j++) { // Loop across stageframe rows
-            ovconvtypeage(i + (ovrows * (age2 - firstage))) = ovconvtype(i);
-              
-            if (age2 < totalages) {
-              if (ovconvtype(i) == 1.0) {
-                age3 = age2 + 1;
-              } else {
-                age3 = firstage;
-              }
-              
-              if (ovstage3(i) == origstageid(j)) {
-                ovindex3(i + (ovrows * (age2 - firstage))) = newstageid(j) - 1.0;
-              }
-              
-              if (ovstage2(i) == origstageid(j)) {
-                ovindex2(i + (ovrows * (age2 - firstage))) = newstageid(j) - 1.0;
-              }
-              
-              if (oveststage3(i) == origstageid(j)) {
-                ovnew3(i + (ovrows * (age2 - firstage))) = newstageid(j) - 1.0;
-              }
-              
-              if (oveststage2(i) == origstageid(j)) {
-                ovnew2(i + (ovrows * (age2 - firstage))) = newstageid(j) - 1.0;
-              }
-              
-              if (ovindex3(i + (ovrows * (age2 - firstage))) != -1.0 && 
-                ovindex2(i + (ovrows * (age2 - firstage))) != -1.0) {
-                ovindexold321(i + (ovrows * (age2 - firstage))) = 
-                  ovindex3(i + (ovrows * (age2 - firstage))) +
-                  ((age3 - firstage) * nostages) +
-                  (ovindex2(i + (ovrows * (age2 - firstage))) * nostages * totalages) + 
-                  ((age2 - firstage) * nostages * nostages * totalages);
-              }
-              
-              if (ovnew3(i + (ovrows * (age2 - firstage))) != -1.0 &&
-                ovnew2(i + (ovrows * (age2 - firstage))) != -1.0) {
-                ovindexnew321(i + (ovrows * (age2 - firstage))) =
-                  ovnew3(i + (ovrows * (age2 - firstage))) +
-                  ((age3 - firstage) * nostages) +
-                  (ovnew2(i + (ovrows * (age2 - firstage))) * nostages * totalages) +
-                  ((age2 - firstage) * nostages * nostages * totalages);
-              }
-              
-              if (!NumericVector::is_na(ovgivenrate(i))) {
-                ovnewgivenrate(i + (ovrows * (age2 - firstage))) = ovgivenrate(i);
-              }
-              if (NumericVector::is_na(ovmultiplier(i))) {
-                ovmultiplier(i) = 1.0;
-              }
-              ovnewmultiplier(i + (ovrows * (age2 - firstage))) = ovmultiplier(i);
+      
+      for (int i = 0; i < ovrows; i++) { // Loop across overwrite rows
+        int age2 = ovage2(i);
+        
+        for (int j = 0; j < nostages; j++) { // Loop across stageframe rows
+          ovconvtypeage(i) = ovconvtype(i);
+            
+          if (age2 < totalages) {
+            if (ovconvtype(i) == 1.0) {
+              age3 = age2 + 1;
             } else {
-              if (ovconvtype(i) == 1.0) {
-                age3 = age2;
-              } else {
-                age3 = firstage;
-              }
-              
-              if (ovstage3(i) == origstageid(j)) {
-                ovindex3(i + (ovrows * (age2 - firstage))) = newstageid(j) - 1.0;
-              }
-              
-              if (ovstage2(i) == origstageid(j)) {
-                ovindex2(i + (ovrows * (age2 - firstage))) = newstageid(j) - 1.0;
-              }
-              
-              if (oveststage3(i) == origstageid(j)) {
-                ovnew3(i + (ovrows * (age2 - firstage))) = newstageid(j) - 1.0;
-              }
-              
-              if (oveststage2(i) == origstageid(j)) {
-                ovnew2(i + (ovrows * (age2 - firstage))) = newstageid(j) - 1.0;
-              }
-              
-              if (ovindex3(i + (ovrows * (age2 - firstage))) != -1.0 &&
-                ovindex2(i + (ovrows * (age2 - firstage))) != -1.0) {
-                ovindexold321(i + (ovrows * (age2 - firstage))) =
-                  ovindex3(i + (ovrows * (age2 - firstage))) +
-                  ((age3 - firstage) * nostages) +
-                  (ovindex2(i + (ovrows * (age2 - firstage))) * nostages * totalages) +
-                  ((age2 - firstage) * nostages * nostages * totalages);
-              }
-              
-              if (ovnew3(i + (ovrows * (age2 - firstage))) != -1.0 &&
-                ovnew2(i + (ovrows * (age2 - firstage))) != -1.0) {
-                ovindexnew321(i + (ovrows * (age2 - firstage))) =
-                  ovnew3(i + (ovrows * (age2 - firstage))) +
-                  ((age3 - firstage) * nostages) +
-                  (ovnew2(i + (ovrows * (age2 - firstage))) * nostages * totalages) +
-                  ((age2 - firstage) * nostages * nostages * totalages);
-              }
-              if (!NumericVector::is_na(ovgivenrate(i))) {
-                ovnewgivenrate(i + (ovrows * (age2 - firstage))) = ovgivenrate(i);
-              }
-              if (NumericVector::is_na(ovmultiplier(i))) {
-                ovmultiplier(i) = 1.0;
-              }
-              ovnewmultiplier(i + (ovrows * (age2 - firstage))) = ovmultiplier(i);
+              age3 = firstage;
             }
-          } // j for loop
-          
-        if (ovindexold321(i) < 0) ovindexold321(i) = -1.0;
-        if (ovindexnew321(i) < 0) ovindexnew321(i) = -1.0;
-          
-        } // i for loop
-      } // age loop
+            
+            if (ovstage3(i) == origstageid(j)) {
+              ovindex3(i) = j; // newstageid(j) - 1.0
+            }
+            
+            if (ovstage2(i) == origstageid(j)) {
+              ovindex2(i) = j; // newstageid(j) - 1.0
+            }
+            
+            if (oveststage3(i) == origstageid(j)) {
+              ovnew3(i) = j; // newstageid(j) - 1.0
+            }
+            
+            if (oveststage2(i) == origstageid(j)) {
+              ovnew2(i) = j; // newstageid(j) - 1.0
+            }
+            
+            if (ovindex3(i) != -1.0 && ovindex2(i) != -1.0) {
+              ovindexold321(i) = ovindex3(i) + ((age3 - firstage) * nostages) +
+                (ovindex2(i) * nostages * totalages) + 
+                ((age2 - firstage) * nostages * nostages * totalages);
+            }
+            
+            if (ovnew3(i) != -1.0 && ovnew2(i) != -1.0) {
+              if (!IntegerVector::is_na(ovestage2(i)) && ovestage2(i) != -1) {
+                int newage2 = ovestage2(i);
+                int newage3 = newage2 + 1;
+                
+                ovindexnew321(i) = ovnew3(i) + ((newage3 - firstage) * nostages) +
+                  (ovnew2(i) * nostages * totalages) +
+                  ((newage2 - firstage) * nostages * nostages * totalages);
+              } else {
+                ovindexnew321(i) = ovnew3(i) + ((age3 - firstage) * nostages) +
+                  (ovnew2(i) * nostages * totalages) +
+                  ((age2 - firstage) * nostages * nostages * totalages);
+              }
+            }
+            
+            if (!NumericVector::is_na(ovgivenrate(i))) {
+              ovnewgivenrate(i) = ovgivenrate(i);
+            }
+            if (NumericVector::is_na(ovmultiplier(i))) ovmultiplier(i) = 1.0;
+            
+            ovnewmultiplier(i) = ovmultiplier(i);
+          } else {
+            if (ovconvtype(i) == 1.0) {
+              age3 = age2;
+            } else {
+              age3 = firstage;
+            }
+            
+            if (ovstage3(i) == origstageid(j)) {
+              ovindex3(i) = j; // newstageid(j) - 1.0
+            }
+            
+            if (ovstage2(i) == origstageid(j)) {
+              ovindex2(i) = j; // newstageid(j) - 1.0
+            }
+            
+            if (oveststage3(i) == origstageid(j)) {
+              ovnew3(i) = j; // newstageid(j) - 1.0
+            }
+            
+            if (oveststage2(i) == origstageid(j)) {
+              ovnew2(i) = j; // newstageid(j) - 1.0
+            }
+            
+            if (ovindex3(i) != -1.0 && ovindex2(i) != -1.0) {
+              ovindexold321(i) = ovindex3(i) + ((age3 - firstage) * nostages) +
+                (ovindex2(i) * nostages * totalages) +
+                ((age2 - firstage) * nostages * nostages * totalages);
+            }
+            
+            if (ovnew3(i) != -1.0 && ovnew2(i) != -1.0) {
+              if (!IntegerVector::is_na(ovestage2(i)) && ovestage2(i) != -1) {
+                int newage2 = ovestage2(i);
+                int newage3 = newage2 + 1;
+                
+                ovindexnew321(i) = ovnew3(i) + ((newage3 - firstage) * nostages) +
+                  (ovnew2(i) * nostages * totalages) +
+                  ((newage2 - firstage) * nostages * nostages * totalages);
+              } else {
+                ovindexnew321(i) = ovnew3(i) + ((age3 - firstage) * nostages) +
+                  (ovnew2(i) * nostages * totalages) +
+                  ((age2 - firstage) * nostages * nostages * totalages);
+              }
+            }
+            if (!NumericVector::is_na(ovgivenrate(i))) {
+              ovnewgivenrate(i) = ovgivenrate(i);
+            }
+            if (NumericVector::is_na(ovmultiplier(i))) ovmultiplier(i) = 1.0;
+            
+            ovnewmultiplier(i) = ovmultiplier(i);
+          }
+        } // j for loop
+        
+      if (ovindexold321(i) < 0) ovindexold321(i) = -1.0;
+      if (ovindexnew321(i) < 0) ovindexnew321(i) = -1.0;
+        
+      } // i for loop
     } // ovrows if statement
-    
+    }
     for (int age2 = firstage; age2 <= finalage; age2++) {
       if (age2 < finalage) { // First loop takes care of age transitions
         for (int time2n = 0; time2n < nostages; time2n++) {
@@ -2287,7 +2314,9 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
       }// if-else statement
     } // age2 loop
     
-    if (ovrows > 1 || ovconvtype(0) != -1.0) {
+    if (ovrows > 0) {
+      if (ovrows > 1 || ovconvtype(0) != -1.0) {
+      
       asadditions = LefkoMats::ovreplace(index321, ovindexold321, ovindexnew321,
         ovconvtypeage, ovnew3, ovnewgivenrate, ovnewmultiplier);
       
@@ -2309,6 +2338,7 @@ Rcpp::List theoldpizzle(const DataFrame& StageFrame, const DataFrame& OverWrite,
         }
       }
     } // ovreplace if statement
+    }
   } // Age-by-stage loop (style = 2)
   
   // Output formatting
@@ -3448,6 +3478,12 @@ List normalpatrolgroup(const DataFrame& sge3, const arma::ivec& sge2stage2,
 //' @param MainData The demographic dataset modified internally to have needed
 //' variables for living status, reproduction status, and fecundity.
 //' @param StageFrame The full stageframe for the analysis.
+//' @param supplement A supplement table as produced by function
+//' \code{supplemental()} and edited and age-expanded by pre-processing within
+//' function \code{mpm_create()}.
+//' @param start_age An integer denoting the first age incorporated in the MPM.
+//' @param last_age An integer denoting the last age incorporated in the MPM,
+//' not including ages set to equal the last estimated age.
 //' @param cont Should a self-loop transition be estimated for the final age.
 //' @param fec_mod A multiplier on raw fecundity to estimate true fecundity.
 //' @param err_switch A logical value. If set to \code{TRUE}, then will also
@@ -3482,8 +3518,9 @@ List normalpatrolgroup(const DataFrame& sge3, const arma::ivec& sge2stage2,
 //' 
 //' @keywords internal
 //' @noRd
-Rcpp::List minorpatrolgroup(const DataFrame& MainData, const DataFrame& StageFrame,
-  bool cont, double fec_mod, int err_switch, StringVector loypop,
+Rcpp::List minorpatrolgroup(const DataFrame& MainData,
+  const DataFrame& StageFrame, const DataFrame& supplement, int start_age,
+  int last_age, bool cont, double fec_mod, int err_switch, StringVector loypop,
   StringVector loypatch, StringVector loyyear2, IntegerVector yearorder,
   const int pop_var_int, const int patch_var_int, const int year_var_int,
   const bool loy_pop_used, const bool loy_patch_used, bool simplicity = false,
@@ -3498,6 +3535,31 @@ Rcpp::List minorpatrolgroup(const DataFrame& MainData, const DataFrame& StageFra
   IntegerVector sf_repstatus = StageFrame["repstatus"];
   int noages = sf_minage.length();
   bool small_subset {false};
+  
+  IntegerVector ov_age2;
+  IntegerVector ov_estage2;
+  NumericVector ov_givenrate;
+  NumericVector ov_multiplier;
+  IntegerVector ov_convtype;
+  int supp_length {0};
+  
+  if (supplement.containsElementNamed("age2")) {
+    ov_age2 = as<IntegerVector>(supplement["age2"]);
+    ov_estage2 = as<IntegerVector>(supplement["estage2"]);
+    ov_givenrate = as<NumericVector>(supplement["givenrate"]);
+    ov_multiplier = as<NumericVector>(supplement["multiplier"]);
+    ov_convtype = as<IntegerVector>(supplement["convtype"]);
+    
+    supp_length = static_cast<int>(ov_givenrate.length());
+    
+    for (int i = 0; i < supp_length; i++) {
+      ov_age2(i) = ov_age2(i) - start_age;
+      
+      if (!IntegerVector::is_na(ov_estage2(i))) {
+        ov_estage2(i) = ov_estage2(i) - start_age;
+      }
+    }
+  }
   
   int loy_length = yearorder.length();
   List A_output (loy_length);
@@ -3571,7 +3633,7 @@ Rcpp::List minorpatrolgroup(const DataFrame& MainData, const DataFrame& StageFra
     int survsum {0};
     double fecsum {0.0};
     
-    for (int k = 0; k < noages; k++) { 
+    for (int k = 0; k < noages; k++) {
       arma::uvec data_indices;
       arma::uvec aget_alive;
       int num_aget_alive {0};
@@ -3623,6 +3685,75 @@ Rcpp::List minorpatrolgroup(const DataFrame& MainData, const DataFrame& StageFra
       
       survsum = 0;
       fecsum = 0.0;
+    }
+    
+    // Supplement replacement portion
+    int target_col {0};
+    int target_row {0};
+    int proxy_col {0};
+    int proxy_row {0};
+    
+    for (int l = 0; l < supp_length; l++) {
+      target_col = ov_age2(l);
+      if (target_col >= (noages - 1) && cont) {
+        target_col = noages - 1;
+      }
+      
+      if (ov_convtype(l) == 1) {
+        if (target_col >= (noages - 1) && cont) {
+          target_row = target_col;
+        } else {
+          target_row = target_col + 1;
+        }
+        
+        if (!NumericVector::is_na(ov_givenrate(l))) {
+          tmatrix(target_row, target_col) = ov_givenrate(l);
+        }
+        if (!IntegerVector::is_na(ov_estage2(l))) {
+          proxy_col = ov_estage2(l);
+          
+          if (proxy_col >= (noages - 1) && cont) {
+            proxy_col = noages - 1;
+          }
+          
+          if (proxy_col >= (noages - 1) && cont) {
+            proxy_row = target_col;
+          } else {
+            proxy_row = target_col + 1;
+          }
+          
+          tmatrix(target_row, target_col) = tmatrix(proxy_row, proxy_col);
+        }
+        if (!NumericVector::is_na(ov_multiplier(l))) {
+          tmatrix(target_row, target_col) *= ov_multiplier(l);
+        }
+      } else if (ov_convtype(l) == 2) {
+        target_row = 0;
+        
+        if (!NumericVector::is_na(ov_givenrate(l))) {
+          fmatrix(target_row, target_col) = ov_givenrate(l);
+        }
+        if (!IntegerVector::is_na(ov_estage2(l))) {
+          proxy_col = ov_estage2(l);
+          
+          if (proxy_col >= (noages - 1) && cont) {
+            proxy_col = noages - 1;
+          }
+          
+          proxy_row = 0;
+          
+          fmatrix(target_row, target_col) = fmatrix(proxy_row, proxy_col);
+        }
+        if (!NumericVector::is_na(ov_multiplier(l))) {
+          fmatrix(target_row, target_col) *= ov_multiplier(l);
+        }
+      } else {
+        target_row = 0;
+        
+        if (!NumericVector::is_na(ov_multiplier(l))) {
+          fmatrix(target_row, target_col) *= ov_multiplier(l);
+        }
+      }
     }
     
     if (!sparse) {
@@ -3947,11 +4078,13 @@ List subvertedpatrolgroup(const DataFrame& sge3, const arma::ivec& sge2index21,
     if (ovestn > 0) {
       for (int j = 0; j < ovestn; j++) {
         arma::uvec replacement = find(sge3index321 == sge3ovestt(ovesttind(j)));
-        if (aliveandequal(ovesttind(j)) != -1 && aliveandequal(replacement(0)) != -1) {
-          if (!sparse) {
-            tmatrix(aliveandequal(ovesttind(j))) = tmatrix(aliveandequal(replacement(0)));
-          } else {
-            tmatrix_sp(aliveandequal(ovesttind(j))) = tmatrix_sp(aliveandequal(replacement(0)));
+        if (replacement.n_elem > 0) {
+          if (aliveandequal(ovesttind(j)) != -1 && aliveandequal(replacement(0)) != -1) {
+            if (!sparse) {
+              tmatrix(aliveandequal(ovesttind(j))) = tmatrix(aliveandequal(replacement(0)));
+            } else {
+              tmatrix_sp(aliveandequal(ovesttind(j))) = tmatrix_sp(aliveandequal(replacement(0)));
+            }
           }
         }
       }
@@ -3960,11 +4093,13 @@ List subvertedpatrolgroup(const DataFrame& sge3, const arma::ivec& sge2index21,
     if (ovesfn > 0) {
       for (int j = 0; j < ovesfn; j++) {
         arma::uvec replacement = find(sge3index321 == sge3ovestf(ovestfind(j)));
-        if (aliveandequal(ovestfind(j)) != -1 && aliveandequal(replacement(0)) != -1) {
-          if (!sparse) {
-            fmatrix(aliveandequal(ovestfind(j))) = fmatrix(aliveandequal(replacement(0)));
-          } else {
-            fmatrix_sp(aliveandequal(ovestfind(j))) = fmatrix_sp(aliveandequal(replacement(0)));
+        if (replacement.n_elem > 0) {
+          if (aliveandequal(ovestfind(j)) != -1 && aliveandequal(replacement(0)) != -1) {
+            if (!sparse) {
+              fmatrix(aliveandequal(ovestfind(j))) = fmatrix(aliveandequal(replacement(0)));
+            } else {
+              fmatrix_sp(aliveandequal(ovestfind(j))) = fmatrix_sp(aliveandequal(replacement(0)));
+            }
           }
         }
       }
@@ -5496,6 +5631,8 @@ List raymccooney(const DataFrame& listofyears, const List& modelsuite,
 //' @param mainindcovc Typically a string vector of individual covariate
 //' category names.
 //' @param ageframe The modified stageframe used in matrix calculations.
+//' @param supplement The supplement table used in analysis, as modified by
+//' \code{age_expanded()} and other pre-MPM processing.
 //' @param f2_inda_num A numeric vector of length equal to the number of years,
 //' holding values equal to the mean value of individual covariate \code{a} at
 //' each time \emph{t} to be used in analysis.
@@ -5590,7 +5727,8 @@ List raymccooney(const DataFrame& listofyears, const List& modelsuite,
 List mothermccooney(const DataFrame& listofyears, const List& modelsuite,
   const IntegerVector& actualages, const CharacterVector& mainyears,
   const CharacterVector& mainpatches, RObject maingroups, RObject mainindcova,
-  RObject mainindcovb, RObject mainindcovc, DataFrame ageframe,
+  RObject mainindcovb, RObject mainindcovc, const DataFrame& ageframe,
+  const DataFrame& supplement,
   NumericVector f2_inda_num, NumericVector f1_inda_num, NumericVector f2_indb_num,
   NumericVector f1_indb_num, NumericVector f2_indc_num, NumericVector f1_indc_num,
   StringVector f2_inda_cat, StringVector f1_inda_cat, StringVector f2_indb_cat,
@@ -5935,7 +6073,7 @@ List mothermccooney(const DataFrame& listofyears, const List& modelsuite,
       f2_indc_cat, f1_indc_cat, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc,
       r1_indc, surv_dev, fec_dev, dens, fecmod, finalage, negfec, yearnumber,
       patchnumber, false, dvr_yn, dvr_style, dvr_alpha, dvr_beta, dvr_dens,
-      exp_tol, theta_tol, simplicity, sparse);
+      exp_tol, theta_tol, simplicity, sparse, supplement);
     
     if (!simplicity) A_mats(i) = madsexmadrigal_oneyear["A"];
     F_mats(i) = madsexmadrigal_oneyear["F"];
@@ -6244,16 +6382,16 @@ List mothermccooney(const DataFrame& listofyears, const List& modelsuite,
 //' @section Notes:
 //' Population projection can be a very time-consuming activity, and it is most
 //' time-consuming when matrices need to be created at each time step. We have
-//' created this function to be as quick as possible, but some options will slow
-//' the analysis down. First, the \code{err_check} option should always be set
-//' to \code{FALSE}, as the added created output will not only slow the analysis
+//' created this function to work as quickly as possible, but some options will
+//' slow analysis. First, the \code{err_check} option should always be set to
+//' \code{FALSE}, as the added created output will not only slow the analysis
 //' down but also potentially crash the memory if matrices are large enough.
 //' Second, the \code{repvalue} option should be set to \code{FALSE} unless
 //' reproductive values are genuinely needed, since this step requires
 //' concurrent backward projection and so in some cases may double total run
 //' time. Finally, if the only needed data is the total population size and
-//' actual age/stage structure at each time step, then setting \code{growthonly
-//' = TRUE} will yield the quickest possible run time.
+//' age/stage structure at each time step, then setting \code{growthonly = TRUE}
+//' will yield the quickest possible run time.
 //' 
 //' Projections with large matrices may take a long time to run. To assess the
 //' likely running time, try using a low number of iterations on a single
@@ -6344,7 +6482,7 @@ List mothermccooney(const DataFrame& listofyears, const List& modelsuite,
 //'   vitalrates = c("surv", "obs", "size", "repst", "fec"), juvestimate = "Sdl",
 //'   bestfit = "AICc&k", sizedist = "gaussian", fecdist = "poisson", 
 //'   indiv = "individ", patch = "patchid", year = "year2", year.as.random = TRUE,
-//'   patch.as.random = TRUE, show.model.tables = TRUE, quiet = TRUE)
+//'   patch.as.random = TRUE, show.model.tables = TRUE, quiet = "partial")
 //' 
 //' lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "mat", "Sd", "Sdl"), 
 //'   stage2 = c("Sd", "Sd", "Sd", "Sd", "Sdl", "rep", "rep"),
@@ -8798,7 +8936,45 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
       agemat, historical, ehrlen);
     new_stageframe = as<DataFrame>(melchett["stageframe"]);
     new_repmatrix = as<arma::mat>(melchett["repmatrix"]);
-    new_ovtable = as<DataFrame>(melchett["ovtable"]);
+    if (format < 4) {
+      DataFrame new_ovtable_temp = as<DataFrame>(melchett["ovtable"]);
+      if (new_ovtable_temp.containsElementNamed("stage3")) {
+        new_ovtable = new_ovtable_temp;
+      } else {
+        StringVector nsst3 = {};
+        IntegerVector nsa2 = {};
+        NumericVector nsgr = {};
+        
+        DataFrame intro_ovtable = DataFrame::create(_["stage3"] = nsst3,
+          _["stage2"] = clone(nsst3), _["stage1"] = clone(nsst3),
+          _["age2"] = nsa2, _["eststage3"] = clone(nsst3),
+          _["eststage2"] = clone(nsst3), _["eststage1"] = clone(nsst3),
+          _["estage2"] = clone(nsa2), _["givenrate"] = nsgr,
+          _["multiplier"] = clone(nsgr), _["convtype"] = clone(nsa2),
+          _["convtype_t12"] = clone(nsa2), _["pop"] = clone(nsst3),
+          _["patch"] = clone(nsst3), _["year2"] = clone(nsst3));
+        new_ovtable = intro_ovtable;
+      }
+    } else {
+      DataFrame new_ovtable_temp = as<DataFrame>(melchett["ovtable"]);
+      if (new_ovtable_temp.containsElementNamed("stage3")) {
+        new_ovtable = LefkoMats::age_expanded(new_ovtable_temp, start_age, last_age);
+      } else {
+        StringVector nsst3 = {};
+        IntegerVector nsa2 = {};
+        NumericVector nsgr = {};
+        
+        DataFrame intro_ovtable = DataFrame::create(_["stage3"] = nsst3,
+          _["stage2"] = clone(nsst3), _["stage1"] = clone(nsst3),
+          _["age2"] = nsa2, _["eststage3"] = clone(nsst3),
+          _["eststage2"] = clone(nsst3), _["eststage1"] = clone(nsst3),
+          _["estage2"] = clone(nsa2), _["givenrate"] = nsgr,
+          _["multiplier"] = clone(nsgr), _["convtype"] = clone(nsa2),
+          _["convtype_t12"] = clone(nsa2), _["pop"] = clone(nsst3),
+          _["patch"] = clone(nsst3), _["year2"] = clone(nsst3));
+        new_ovtable = intro_ovtable;
+      }
+    }
     
     // the old pizzle needs to be called
     DataFrame allstages_pre = theoldpizzle(new_stageframe, new_ovtable,
@@ -8809,6 +8985,10 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     DataFrame melchett = sf_leslie(start_age, last_age, fecage_min, fecage_max, cont);
     new_stageframe = melchett;
     allstages = melchett;
+    
+    if (supplement.isNotNull()) {
+      new_ovtable = LefkoMats::age_expanded(supplement, start_age, last_age);
+    }
     
     CharacterVector maingroups_ch = {"0"};
     maingroups = as<RObject>(maingroups_ch);
@@ -9026,7 +9206,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
       r1_indb_values, r2_indc_values, r1_indc_values, sur_dev_values(0),
       fec_dev_values(0), spdensity_projected(0), repmod, last_age, false,
       yearnumber, patchnumber, dens_vr, dvr_yn, dvr_style, dvr_alpha, dvr_beta,
-      st_dvr_dens, exp_tol, theta_tol, true, sparse_switch);
+      st_dvr_dens, exp_tol, theta_tol, true, sparse_switch, new_ovtable);
   }
   
   arma::sp_mat Umat_sp;
@@ -9424,7 +9604,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
             r1_indb_values, r2_indc_values, r1_indc_values, sur_dev_values(i),
             fec_dev_values(i), spdensity_projected(i), repmod, last_age, false,
             yearnumber, patchnumber, dens_vr, dvr_yn, dvr_style, dvr_alpha, dvr_beta,
-            usable_densities, exp_tol, theta_tol, true, sparse_switch);
+            usable_densities, exp_tol, theta_tol, true, sparse_switch, new_ovtable);
         }
         
         Umat = as<arma::mat>(madsexmadrigal_oneyear["U"]);
@@ -9565,7 +9745,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
                 sur_dev_values(times - (i+1)), fec_dev_values(times - (i+1)),
                 spdensity_projected(times - (i+1)), repmod, last_age, false, yearnumber,
                 patchnumber, false, dvr_yn, dvr_style, dvr_alpha, dvr_beta,
-                usable_densities, exp_tol, theta_tol, true, sparse_switch);
+                usable_densities, exp_tol, theta_tol, true, sparse_switch, new_ovtable);
             }
             arma::mat second_U = as<arma::mat>(madsexmadrigal_forward["U"]);
             arma::mat second_F = as<arma::mat>(madsexmadrigal_forward["F"]);
@@ -10894,6 +11074,11 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
       }
     }
     
+    if (prebreeding && start_age == 0) {
+      Rf_warningcall(R_NilValue, "Switching to post-breeding model to account for start_age = 0.");
+      prebreeding = false;
+    }
+    
     if (IntegerVector::is_na(last_age)) last_age = data_age_max + 1;
     if (IntegerVector::is_na(fecage_min)) fecage_min = data_age_min;
     if (IntegerVector::is_na(fecage_max)) fecage_max = last_age;
@@ -10969,12 +11154,13 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         }
       } else {
         // Age-by-stage MPMs
+        DataFrame melchett_ovtable_temp;
         if (repmatrix_used && supplement_used) {
           List melchett = sf_reassess(stageframe_, supplement_, R_NilValue,
             repmatrix_, true, false, 1);
             
           melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
-          melchett_ovtable_ = as<DataFrame>(melchett["ovtable"]);
+          melchett_ovtable_temp = as<DataFrame>(melchett["ovtable"]);
           melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
           
         } else if (repmatrix_used && !supplement_used && !overwrite_used) {
@@ -10982,7 +11168,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
             repmatrix_, true, false, 1);
             
           melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
-          melchett_ovtable_ = as<DataFrame>(melchett["ovtable"]);
+          melchett_ovtable_temp = as<DataFrame>(melchett["ovtable"]);
           melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
           
         } else if (repmatrix_used && !supplement_used) {
@@ -10990,7 +11176,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
             repmatrix_, true, false, 1);
             
           melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
-          melchett_ovtable_ = as<DataFrame>(melchett["ovtable"]);
+          melchett_ovtable_temp = as<DataFrame>(melchett["ovtable"]);
           melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
           
         } else if (!repmatrix_used && supplement_used) {
@@ -10998,32 +11184,56 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
             R_NilValue, true, false, 1);
             
           melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
-          melchett_ovtable_ = as<DataFrame>(melchett["ovtable"]);
+          melchett_ovtable_temp = as<DataFrame>(melchett["ovtable"]);
           melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
           
         } else {
           List melchett = sf_reassess(stageframe_, R_NilValue, R_NilValue,
             R_NilValue, true, false, 1);
-            
+          
           melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
-          melchett_ovtable_ = as<DataFrame>(melchett["ovtable"]);
+          melchett_ovtable_temp = as<DataFrame>(melchett["ovtable"]);
           melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
           
         }
+        
+        if (supplement_used) {
+          melchett_ovtable_ = LefkoMats::age_expanded(melchett_ovtable_temp, start_age, last_age);
+        } else {
+          StringVector nsst3 = {};
+          IntegerVector nsa2 = {};
+          NumericVector nsgr = {};
+          
+          melchett_ovtable_ = DataFrame::create(_["stage3"] = nsst3,
+            _["stage2"] = clone(nsst3), _["stage1"] = clone(nsst3),
+            _["age2"] = nsa2, _["eststage3"] = clone(nsst3),
+            _["eststage2"] = clone(nsst3), _["eststage1"] = clone(nsst3),
+            _["estage2"] = clone(nsa2), _["givenrate"] = nsgr,
+            _["multiplier"] = clone(nsgr), _["convtype"] = clone(nsa2),
+            _["convtype_t12"] = clone(nsa2), _["pop"] = clone(nsst3),
+            _["patch"] = clone(nsst3), _["year2"] = clone(nsst3));
+        
+        }
       }
       
-      melchett_ovtable_length = static_cast<int>(melchett_ovtable_.nrows());
-      
-      DataFrame mov_short = DataFrame::create(_["0"] = as<StringVector>(melchett_ovtable_[0]),
-        _["1"] = as<StringVector>(melchett_ovtable_[1]),
-        _["2"] = as<StringVector>(melchett_ovtable_[2]));
-      
-      if (LefkoUtils::df_duplicates(mov_short)) {
-        Rf_warningcall(R_NilValue, "Supplement table contains multiple entries for the same transition(s).");
+      if (supplement_used) {
+        melchett_ovtable_length = static_cast<int>(melchett_ovtable_.nrows());
+        
+        DataFrame mov_short = DataFrame::create(_["0"] = as<StringVector>(melchett_ovtable_[0]),
+          _["1"] = as<StringVector>(melchett_ovtable_[1]),
+          _["2"] = as<StringVector>(melchett_ovtable_[2]),
+          _["3"] = as<IntegerVector>(melchett_ovtable_[3]));
+        
+        if (LefkoUtils::df_duplicates(mov_short)) {
+          Rf_warningcall(R_NilValue, "Supplement table contains multiple entries for the same transition(s).");
+        }
       }
     } else {
       if (age) {
         // Pure age-based MPMs
+        if (supplement_used) {
+          melchett_ovtable_ = LefkoMats::age_expanded(supplement_, start_age, last_age);
+        }
         melchett_stageframe_ = sf_leslie(start_age, last_age, fecage_min, fecage_max, cont);
       }
     }
@@ -14790,6 +15000,10 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         madsexmadrigal["labels"] = labels_;
         madsexmadrigal["matrixqc"] = mat_qc;
         madsexmadrigal["dataqc"] = dataqc_;
+        if (err_check) {
+          madsexmadrigal["sge3"] = stageexpansion3;
+          madsexmadrigal["supplement"] = melchett_ovtable_;
+        }
         output_draft = madsexmadrigal;
         
       } else if (!stage && age) {
@@ -14811,9 +15025,10 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         
         // Matrix estimation
         List madsexmadrigal = minorpatrolgroup(data_, melchett_stageframe_,
-          cont, fecmod, err_check, loy_pop_, loy_patch_, loy_year2_, yearorder_,
-          pop_var_int, patch_var_int, year_var_int, loy_pop_used,
-          loy_patch_used, simple, sparse_output);
+          melchett_ovtable_, start_age, last_age, cont, fecmod, err_check,
+          loy_pop_, loy_patch_, loy_year2_, yearorder_, pop_var_int,
+          patch_var_int, year_var_int, loy_pop_used, loy_patch_used, simple,
+          sparse_output);
         
         IntegerVector mat_qc = {0, 0, 0};
         LefkoUtils::matrix_reducer(madsexmadrigal, mat_qc, ahstages, NA_empty_df,
@@ -15053,7 +15268,8 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
           stageexpansion3.attr("names") = se3_names;
           stageexpansion3.attr("class") = "data.frame";
           
-          stageexpansion3.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, (melchett_stageframe_length * melchett_stageframe_length));
+          stageexpansion3.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, 
+              (melchett_stageframe_length * melchett_stageframe_length));
           
           if (err_check) sge3 = stageexpansion3;
         }
@@ -15140,6 +15356,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         if (err_check) {
           madsexmadrigal["sge9"] = stageexpansion9;
           madsexmadrigal["sge3"] = sge3;
+          madsexmadrigal["supplement"] = melchett_ovtable_;
         }
         output_draft = madsexmadrigal;
       }
@@ -15177,7 +15394,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         new_madsexmadrigal["dataqc"] = dataqc_;
         output_draft = new_madsexmadrigal;
         
-      } else if (stage && age) { 
+      } else if (stage && age) {
         // Age-stage function-based
         IntegerVector removal_row = {melchett_stageframe_length};
         StringVector removal_var = {"stage_id"};
@@ -15230,6 +15447,9 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         new_madsexmadrigal["matrixqc"] = mat_qc;
         new_madsexmadrigal["modelqc"] = mod_qc_;
         new_madsexmadrigal["dataqc"] = dataqc_;
+        if (err_check) {
+          new_madsexmadrigal["supplement"] = melchett_ovtable_;
+        }
         output_draft = new_madsexmadrigal;
         
       } else if (!stage && age) {
@@ -15239,13 +15459,13 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         
         List new_madsexmadrigal = mothermccooney(list_of_years, modelsuite_,
           actualages, mainyears_, mainpatches_, as<RObject>(maingroups_),
-          as<RObject>(inda_names), as<RObject>(indb_names), as<RObject>(indc_names),
-          melchett_stageframe_, f2_inda_num, f1_inda_num, f2_indb_num, f1_indb_num,
-          f2_indc_num, f1_indc_num, f2_inda_cat, f1_inda_cat, f2_indb_cat,
-          f1_indb_cat, f2_indc_cat, f1_indc_cat, r2_inda, r1_inda, r2_indb,
-          r1_indb, r2_indc, r1_indc, dev_terms_, density, fecmod, last_age,
-          cont, negfec, nodata, exp_tol, theta_tol, err_check, simple,
-          sparse_output);
+          as<RObject>(inda_names), as<RObject>(indb_names),
+          as<RObject>(indc_names), melchett_stageframe_, melchett_ovtable_,
+          f2_inda_num, f1_inda_num, f2_indb_num, f1_indb_num, f2_indc_num,
+          f1_indc_num, f2_inda_cat, f1_inda_cat, f2_indb_cat, f1_indb_cat,
+          f2_indc_cat, f1_indc_cat, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc,
+          r1_indc, dev_terms_, density, fecmod, last_age, cont, negfec, nodata,
+          exp_tol, theta_tol, err_check, simple, sparse_output);
         
         IntegerVector mat_qc = {0, 0, 0};
         LefkoUtils::matrix_reducer(new_madsexmadrigal, mat_qc, ahstages, NA_empty_df,

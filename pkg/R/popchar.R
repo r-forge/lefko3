@@ -523,7 +523,7 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
   }
 }
 
-#' Create a Data Frame of Density Dependence Relationships in Vital Rates
+#' Set Density Dependence Relationships in Vital Rates
 #' 
 #' Function \code{density_vr()} provides all necessary data to incorporate
 #' density dependence into the vital rate functions used to create matrices in
@@ -613,7 +613,6 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
 #' 
 #' @examples
 #' \donttest{
-#' # Lathyrus projection example with historical matrices
 #' data(lathyrus)
 #' 
 #' sizevector <- c(0, 4.6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8,
@@ -652,7 +651,7 @@ sf_distrib <- function(data, sizea = NA, sizeb = NA, sizec = NA, obs3 = NA,
 #'   vitalrates = c("surv", "obs", "size", "repst", "fec"), juvestimate = "Sdl",
 #'   bestfit = "AICc&k", sizedist = "gaussian", fecdist = "poisson", 
 #'   indiv = "individ", patch = "patchid", year = "year2", year.as.random = TRUE,
-#'   patch.as.random = TRUE, show.model.tables = TRUE, quiet = TRUE)
+#'   patch.as.random = TRUE, show.model.tables = TRUE, quiet = "partial")
 #' 
 #' lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "mat", "Sd", "Sdl"), 
 #'   stage2 = c("Sd", "Sd", "Sd", "Sd", "Sdl", "rep", "rep"),
