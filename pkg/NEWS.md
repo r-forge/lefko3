@@ -28,6 +28,7 @@
 * Function supplemental() now also handles age transitions in Leslie and
   age-by-stage MPMs, and in f_projection3() runs involving them.
 * Function edit_lM() has been added to edit MPMs with external data.
+* New dataset Pyrola hs been added.
 
 ## USER-VISIBLE CHANGES
 

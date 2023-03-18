@@ -15,9 +15,7 @@ vignette: >
   
 ### ORGANISM AND POPULATION
   
-  <p style="text-indent: 20px">*Lathyrus vernus* (family Fabaceae) is a long-lived forest herb, native to Europe and large parts of northern Asia. Individuals grow larger slowly and usually flower only after 10-15 years of vegetative growth. Flowering individuals have an average conditional lifespan of 44.3 years [@ehrlen_how_2002]. *L. vernus* lacks organs for vegetative spread and individuals are well delimited [@ehrlen_assessing_2002]. One or several erect shoots of up to 40 cm height emerge from a subterranean rhizome in March and April. Flowering occurs about four weeks after shoot emergence. Shoot growth is determinate, and the number of flowers is determined in the previous year [@ehrlen_storage_2001]. Individuals sometimes do not produce aboveground structures every year, instead remaining dormant in one or more seasons. *L. vernus* is self-compatible but requires visits from bumble-bees to produce seeds. Individuals produce few, large seeds and establishment from seeds is relatively frequent [@ehrlen_seedling_1996]. The pre-dispersal seed predator *Bruchus atomarius* often consumes a large fraction of developing seeds, and roe deer (*Capreolus capreolus*) sometimes consume the shoots [@ehrlen_timing_2009].</p>
-  
-  <p style="text-indent: 20px">Data for this study were collected from six permanent plots in a population of *L. vernus* located in a deciduous forest in the Tullgarn area in southeastern Sweden (58.9496 N, 17.6097 E), during 1988–1991 [@ehrlen_demography_1995]. The six plots were similar with regard to soil type, elevation, slope, and canopy cover. Within each plot, all individuals were marked with numbered tags that remained over the study period, and their locations were mapped. New individuals were included in the study in each year. Individuals were recorded at least three times every growing season. At the time of shoot emergence, we recorded whether individuals were alive and produced above-ground shoots, and if shoots had been grazed. During flowering, we recorded flower number and the height and diameter of all shoots. At fruit maturation, we counted the number of intact and damaged seeds. To derive a measure of above-ground size for each individual, we calculated the volume of each shoot as $\pi × (\frac{1}{2} diameter)^2 × height$, and summed the volumes of all shoots. This measure is strongly correlated with the dry mass of aboveground tissues ($R^2 = 0.924$, $P < 0.001$, $n = 50$, log-transformed values; Ehrlén 1995). Size of individuals that had been grazed was estimated based on measures of shoot diameter in grazed shoots, and the relationship between shoot diameter and shoot height in non-grazed individuals. Only individuals with an aboveground volume of more than 230 mm^3^ flowered and produced fruits during this study. Individuals that lacked aboveground structures in one season but reappeared in the following year were considered dormant. Individuals that lacked aboveground structures in two subsequent seasons were considered dead from the year in which they first lacked aboveground structures. Probabilities of seeds surviving to the next year, and of being present as seedlings or seeds in the soil seed bank, were derived from separate yearly sowing experiments in separate plots adjacent to each subplot [@ehrlen_seedling_1996].</p>
+  <p style="text-indent: 20px">*Lathyrus vernus* (family Fabaceae) is a long-lived forest herb, native to Europe and large parts of northern Asia. Please see our description of the plant, study site, and methods in our [vignette on raw ahistorical MPM creation and analysis](Chapter2.html).</p>
   
 ### BASIC WORKFLOW
   
@@ -102,7 +100,7 @@ lathvertipm$feca2 <- round(lathvertipm$feca2)
 lathvertipm$feca1 <- round(lathvertipm$feca1)
 ```
   
-  <p style="text-indent: 20px">Although we wish to treat fecundity as a count, it is still not clear what underlying distribution we should use. This package currently allows eight choices: Gaussian, Gamma, Poisson, negative binomial, zero-inflated Poisson, zero-inflated negative binomial, zero-truncated Poisson, and zero-truncated negative binomial. To assess which to use, we should first assess whether the mean and variance of the count are equal using a dispersion test. The Poisson distribution assumes that the mean and variance are equal, and so we can test this assumption using a chi-squared test. If it is not significantly different, then we may use some variant of the Poisson distribution. If the data are significantly over-dispersed, then we should use the negative binomial distribution. If fecundity of 0 is possible in reproductive stages, as in cases where reproductive status is defined by flowering rather than by offspring production, then we should also test whether the number of zeroes is significantly greater than expected under these distributions, and use a zero-inflated distribution if so (if fecundity does not equal 0 in any reproductive individuals at all, then we should use a zero-truncated distribution).</p>
+  <p style="text-indent: 20px">Although we wish to treat fecundity as a count, it is still not clear what underlying distribution we should use. The Poisson distribution assumes that the mean and variance are equal, and so we can test this assumption using a chi-squared test. If it is not significantly different, then we may use some variant of the Poisson distribution. If the data are significantly over-dispersed, then we should use the negative binomial distribution. If fecundity of 0 is possible in reproductive stages, as in cases where reproductive status is defined by flowering rather than by offspring production, then we should also test whether the number of zeroes is significantly greater than expected under these distributions, and use a zero-inflated distribution if so.</p>
   
   <p style="text-indent: 20px">Let's formally test our assumptions. We will use the `hfv_qc()` function, which will allow us to assess the quality of the data from the viewpoint of the linear models to be built later. We will use most of the input from the `modelsearch()` call that we will conduct later.</p>
 
@@ -224,7 +222,7 @@ hfv_qc(data = lathvertipm, vitalrates = c("surv", "obs", "size", "fec"),
   
 #### Step 2b: Develop supplemental information for matrix estimation  
   
-  <p style="text-indent: 20px">Now we will create **supplement tables**, which provide extra data for matrix estimation that is not included in the main demographic dataset. Specifically, we will provide the seed dormancy probability and germination rate, which are given as transitions from the dormant seed stage to another year of seed dormancy or to the germinated seedling stage, respectively. We assume that the germination rate is the same regardless of whether seed was produced in the previous year or has been in the seedbank for longer. We will incorporate these terms both as fixed constants for specific transitions within the resulting matrices, and as multipliers for fecundity, since ultimately fecundity will be estimated as the production of seed multiplied by the seed germination rate or the seed dormancy rate. Because some individuals stay in the seedling stage for only 1 year, and the seed stage itself cannot be observed and so does not exist in the dataset, we will also set a proxy set of transitions assuming that transitions from seed in occasion *t*-1 to seedling in occasion *t* to all mature stages in occasion *t*+1 are equal to the equivalent transitions from seedling in both occasions *t*-1 and *t*. We will start with the ahistorical case, and then move on to the historical case, where we also need to input the corresponding stages in occasion *t*-1 and transition types from occasion *t*-1 to *t* for each transition.</p>
+  <p style="text-indent: 20px">Now we will create **supplement tables**, which provide extra data for matrix estimation that is not included in the main demographic dataset. Specifically, we will provide the seed dormancy probability and germination rate, which are given as transitions from the dormant seed stage to another year of seed dormancy or to the germinated seedling stage, respectively. We assume that the germination rate is the same regardless of whether seed was produced in the previous year or has been in the seedbank for longer. We will incorporate these terms both as fixed constants for specific transitions within the resulting matrices, and as multipliers for fecundity, since ultimately fecundity will be estimated as the production of seed multiplied by the seed germination rate or the seed dormancy rate. The fecundity multipliers will also serve to tell R which transitions are the fecundity transitions. Because some individuals stay in the seedling stage for only 1 year, and the seed stage itself cannot be observed and so does not exist in the dataset, we will also set a proxy set of transitions assuming that transitions from seed in occasion *t*-1 to seedling in occasion *t* to all mature stages in occasion *t*+1 are equal to the equivalent transitions from seedling in both occasions *t*-1 and *t*. We will start with the ahistorical case, and then move on to the historical case, where we also need to input the corresponding stages in occasion *t*-1 and transition types from occasion *t*-1 to *t* for each transition.</p>
 
 ```r
 lathsupp2 <- supplemental(stage3 = c("Sd", "Sdl", "Sd", "Sdl"), 
@@ -250,55 +248,7 @@ lathsupp3 <- supplemental(stage3 = c("Sd", "Sd", "Sdl", "Sdl", "npr", "Sd", "Sdl
   
 #### Step 3. Tests of history, and vital rate modeling  
   
-  <p style="text-indent: 20px">Integral projection models (IPMs) require functions of vital rates to populate them. Here, we will develop these functions as linear models using `modelsearch()`. This function automates several crucial and complex tasks in MPM analysis. Specifically, it automates 1) the building of global models for each vital rate requested, 2) the exhaustive construction of all reduced models, and 3) the selection of the best-fit models. Let's look at some of the options that we will utilize for this purpose (please note that this list includes only some of the options actually offered by the function - further options are shown in the documentation for `modelsearch()`, and further theoretical details are shown in the `Basic theory and concepts` vignette):</p>
-  
-  **historical**: Setting this to `TRUE` or `FALSE` indicates to include state in occasion *t*-1 in the global models.
-  
-  **approach**: Designates whether to use generalized linear models (`glm`), in which all factors are treated as fixed, or mixed effects models (`mixed`), in which factors are treated as either fixed or random (most notably, occasion, patch, and individual identity can be treated as random).
-  
-  **suite**: Designates which factors to include in the global model. Possible values include `size`, which includes size only; `rep`, which includes reproductive status only; `main`, which includes both size and reproductive status as main effects only; `full`, which includes both size and reproductive status and all two-way interactions; and `cons`, which includes only an intercept. These factors are in addition to individual identity, patch, and occasion.
-  
-  **vitalrates**: Designates which vital rates to model. The default is to model survival, size, and fecundity, but users can also model observation status and reproduction status. Fewer vital rates may also be chosen.
-  
-  **juvestimate**: Designates the name of the juvenile stage transitioning to maturity, in cases where the dataset includes data on juveniles.
-  
-  **juvsize**: Denotes whether size should be used as an independent term in models involving transition from the juvenile stage.
-  
-  **bestfit**: Denotes whether the best-fit model should be chosen as the model with the lowest AICc (`AICc`) or as the most parsimonious model (`AICc&k`), where the latter is the model that has the fewest estimated parameters and is within 2 AICc units of the model with the lowest AICc.
-  
-  **sizedist**: Designates the distribution used for size. The options include `gaussian`, `gamma`, `poisson`, and `negbin`, the last of which refers to the negative binomial distribution (quadratic parameterization). Versions also exist for up to two further size variables in addition to primary size.
-  
-  **ipm_method**: Designates whether to estimate size transition probabilities using the cumulative density function (CDF) method (the default), or the midpoint method. The CDF method is exact while the midpoint method generally overestimates (see @doak_critical_2021 for further details).
-  
-  **fecdist**: Designates the distribution used for fecundity. The options include `gaussian`, `gamma`, `poisson`, and `negbin`, the last of which refers to the negative binomial distribution (quadratic parameterization).
-  
-  **fectime**: Designates whether fecundity is estimated within occasion *t* (the default) or occasion *t*+1. Plant ecologists are likely to choose the former, since fecundity is typically estimated via a proxy such as flowers, fruit, or seed produced. Wildlife ecologists might choose the latter, since fecundity may be best estimated as a count of actual juveniles within nests, burrows, or other family structures.
-  
-  **size.zero**: Designates whether the size distribution should be zero-inflated. Only applies to the Poisson and negative binomial distributions. Versions for up to two other size variables exist.
-  
-  **size.trunc**: Designates whether to use a zero-truncated distribution for size. Only applies to the Poisson and negative binomial distributions, and cannot be applied if `size.zero = TRUE`. Versions for up to two other size variables exist.
-  
-  **fec.zero**: Designates whether the fecundity distribution should be zero-inflated. Only applies to the Poisson and negative binomial distributions.
-  
-  **fec.trunc**: Designates whether to use a zero-truncated distribution for fecundity. Only applies to the Poisson and negative binomial distributions, and cannot be applied if `fec.zero = TRUE`.
-  
-  **jsize.zero**: Designates whether the juvenile size distribution should be zero-inflated. Only applies to the Poisson and negative binomial distributions. Versions for up to two other size variables exist.
-  
-  **jsize.trunc**: Designates whether to use a zero-truncated distribution for juvenile size. Only applies to the Poisson and negative binomial distributions, and cannot be applied if `jsize.zero = TRUE`. Versions for up to two other size variables exist.
-  
-  **indiv**: Designates the variable corresponding to individual identity in the vertical dataset.
-  
-  **patch**: Designates the variable corresponding to patch identity in the vertical dataset.
-  
-  **year**: Designates the variable corresponding to time in occasion *t* in the vertical dataset.
-  
-  **year.as.random**: Designates whether to treat year as a random factor, and is only used when `approach = "mixed"`.
-  
-  **patch.as.random**: Designates whether to treat patch identity as a random factor, and is only used when `approach = "mixed"`.
-  
-  **quiet**: Denotes whether to silence guidepost statements and most warning messages. Only warnings incurred in model testing will be visible, including warnings from the testing of global and reduced models produced during model dredging.
-  
-  <p style="text-indent: 20px">This function both develops the vital rate models necessary for function-based MPM estimation, and allows us to test whether individual history affects demography. Setting `historical = TRUE` fits size and/or reproductive status in occasions *t* and *t*-1 into global models, while setting `historical = FALSE` limits testing to the impacts of state in occasion *t* only. The model building and selection protocols can then be used to see if history has a significant impact on a vital rate, by assessing whether a historical term is retained in the best-fit model.</p>
+  <p style="text-indent: 20px">Integral projection models (IPMs) require functions of vital rates to populate them. Here, we will develop these functions as linear models using `modelsearch()`. This function automates several crucial and complex tasks in MPM analysis. Specifically, it automates 1) the building of global models for each vital rate requested, 2) the exhaustive construction of all reduced models, and 3) the selection of the best-fit models. This function also allows us to test whether individual history affects demography. Setting `historical = TRUE` fits size and/or reproductive status in occasions *t* and *t*-1 into global models, while setting `historical = FALSE` limits testing to the impacts of state in occasion *t* only. The model building and selection protocols can then be used to see if history has a significant impact on a vital rate, by assessing whether a historical term is retained in the best-fit model.</p>
   
   <p style="text-indent: 20px">First, we will create the historical models to assess whether history is a significant influence on vital rates.</p>
 
@@ -345,7 +295,7 @@ lathmodels3ipm <- modelsearch(lathvertipm, historical = TRUE, approach = "mixed"
 #summary(lathmodels3ipm)
 ```
   
-  <p style="text-indent: 20px">We see here, as before, that status in occasion *t*-1 exerts an influence on some vital rates, particularly survival to occasion *t*+1, size in occasion *t*+1, and fecundity. So, the historical IPM is the correct choice here. Accuracy is also quite high for adult survival and juvenile and adult observation, but quite poor for primary size and fecundity (R^2^ is 0.525 and 0.364, respectively).</p>
+  <p style="text-indent: 20px">We see here, as before, that status in occasion *t*-1 exerts an influence on some vital rates, particularly survival to occasion *t*+1, size in occasion *t*+1, and fecundity. So, the historical IPM is the correct choice here. Accuracy is also quite high for adult survival and juvenile and adult observation, but quite poor for primary size and fecundity.</p>
   
   <p style="text-indent: 20px">We will also create an ahistorical IPM for comparison. For that purpose, we will create the ahistorical linear model set.</p>
 
@@ -422,7 +372,7 @@ image3(lathmat2ipm, used = 1)
 #> [[1]]
 ```
 
-![Figure 6.3. Image of ahistorical projection matrix](Ch6.12-1.png)
+![Figure 6.2. Image of ahistorical projection matrix](Ch6.12-1.png)
   
   <p style="text-indent: 20px">Now the historical plot.</p>
 
@@ -431,7 +381,7 @@ image3(lathmat3ipm, used = 1)
 #> [[1]]
 ```
 
-![Figure 6.4. Image of historical projection matrix](Ch6.13-1.png)
+![Figure 6.3. Image of historical projection matrix](Ch6.13-1.png)
   
   <p style="text-indent: 20px">The plots above show that the ahistorical matrix is large but dense, mostly full of non-zero entries (the colored elements correspond to non-zero elements). In contrast, the historical matrix is huge and sparse, mostly full of zeroes with a general pattern to the distribution of non-zero elements.</p>
   
@@ -453,7 +403,7 @@ l3mcond <- cond_hmpm(lath3ipmmean)
   
 #### Step 5. MPM analysis 
   
-  <p style="text-indent: 20px">Now let's estimate and plot the deterministic population growth rate, $\lambda$, for each year.</p>
+  <p style="text-indent: 20px">Now let's estimate and plot the deterministic population growth rate, $\lambda$, for each year. We find that the ahistorical and historical estimates of $\lambda$ are roughly in line with each other.</p>
 
 ```r
 ipm2lambda <- lambda3(lathmat2ipm)
@@ -466,9 +416,7 @@ legend("bottomleft", c("ahistorical", "historical"), lty = c(1, 2),
   col = c("black", "red"), lwd = 2, bty = "n")
 ```
 
-![Figure 6.5. Ahistorical vs. historical lambda](Ch6.16-1.png)
-  
-  <p style="text-indent: 20px">Ahistorical estimates of $\lambda$ are lower than historical estimates, and the historical $\lambda$ values are more in line with estimates from the other *Lathyrus* vignettes.</p>
+![Figure 6.4. Ahistorical vs. historical lambda](Ch6.16-1.png)
   
   <p style="text-indent: 20px">Let's now look at $\lambda$ for the mean matrices and compare with the stochastic growth rate, $a = \text{log} \lambda _{S}$. We will set the number of simulations low in the historical case in order to keep the amount of memory used and computation time low, because the size of the historical matrices will use up plenty of both (the default is 10,000). We will also set the seed for the random number generator to make our results reproducible.</p>
 
@@ -511,13 +459,13 @@ legend("topright", c("det ahist", "det hist", "sto ahist", "sto hist"),
   col = c("black", "orangered", "grey", "darkred"), pch = 15, bty = "n")
 ```
 
-![Figure 6.6. Ahistorical vs. historically-corrected stable stage distribution](Ch6.18-1.png)
+![Figure 6.5. Ahistorical vs. historically-corrected stable stage distribution](Ch6.18-1.png)
 
 ```r
 par(lty = lty.o)
 ```
   
-  <p style="text-indent: 20px">Both ahistorical and historical approaches show the stable stage distribution dominated by the second stage, which is the seedling stage. The next highest is the dormant seed stage, followed by the adult dormant stage. Stochastic analysis shows similar patterns, with ahistorical analyses suggesting a greater overall share of the population in the seedling stage.</p>
+  <p style="text-indent: 20px">Both ahistorical and historical approaches show the stable stage distribution dominated by the dormant seed stage. The next highest is the seedling stage, followed by the adult dormant stage. Stochastic analysis shows similar patterns.</p>
   
   <p style="text-indent: 20px">We will now move on to elasticity analysis. We will reduce the number of occasion steps simulated in the stochastic historical analysis to reduce the amount of computer processing time (this might take several hours even with the number of steps reduced).</p>
 
@@ -545,7 +493,7 @@ legend("topright", c("det ahist", "det hist", "sto ahist", "sto hist"),
   col = c("black", "orangered", "grey", "darkred"), pch = 15, bty = "n")
 ```
 
-![Figure 6.7. Ahistorical vs. historically-corrected elasticity of lambda to stage](Ch6.19-1.png)
+![Figure 6.6. Ahistorical vs. historically-corrected elasticity of lambda to stage](Ch6.19-1.png)
 
 ```r
 par(lty = lty.o)
