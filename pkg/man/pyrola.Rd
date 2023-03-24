@@ -116,7 +116,7 @@ jp_frame <- sf_create(sizes = sizeavec_jp, stagenames = stagevec_jp,
   matstatus = matvec_jp, comments = comments_jp)
   
 jhfv <- verticalize3(data = jreg, noyears = 6, firstyear = 2015,
-  individcol = "id", blocksize = 9, sizeacol = "lvs.num.2015",
+  individcol = "id", blocksize = 8, sizeacol = "lvs.num.2015",
   obsacol = "sprouted.2015", repstracol = "flo.tot.2015",
   repstrbcol = "frt.tot.2015", fecacol = "flo.tot.2015",
   fecbcol = "frt.tot.2015", NAas0 = TRUE, stagesize = "sizea",
