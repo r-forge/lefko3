@@ -1692,10 +1692,176 @@ historicalize3 <- function(data, popidcol = 0, patchidcol = 0, individcol,
   return(popdata)
 }
 
+#' Import MPM from COMPADRE or COMADRE Database
+#' 
+#' Function \code{.import_Com()} imports matrices from the COMPADRE and COMADRE
+#' databases, given knowledge of the corresponding \code{MatrixID}, and builds
+#' them into a \code{lefkoMat} object. Users are encourage to explore package
+#' \code{Rcompadre} for further details of the use of these databases.
+#' 
+#' @name .import_Com
+#' 
+#' @param matrix_id The values of \code{MatrixID} from the used database
+#' corresponding to the matrices to import.
+#' @param database The holding the COMPADRE or COMADRE database, as in the
+#' global environment.
+#' @param add_FC A logical value indicating whether to sum the \code{matF} and
+#' \code{matC} matrices to produce the \code{F} matrix. If \code{FALSE}, then
+#' only uses the \code{matF} matrix. Defaults to \code{TRUE}.
+#' 
+#' @return A \code{lefkoMat} object with the following elements:
+#' \item{A}{A list of full projection matrices in order of sorted populations,
+#' patches, and occasions. All matrices output in the matrix class.}
+#' \item{U}{A list of survival transition matrices sorted as in A. All matrices
+#' output in the matrix class.}
+#' \item{F}{A list of fecundity matrices sorted as in A. All matrices output in
+#' the matrix class.}
+#' \item{ahstages}{A data frame detailing the characteristics of associated
+#' ahistorical stages, in the form of a modified stageframe that includes status
+#' as an entry stage through reproduction.}
+#' \item{hstages}{A single value of \code{NA}.}
+#' \item{agestages}{A single value of \code{NA}.}
+#' \item{labels}{A data frame giving the population, patch, and year of each
+#' matrix in order. Taken from the \code{MatrixPopulation},
+#' \code{MatrixTreatment}, and \code{MatrixStartYear} variables in the database
+#' metadata.}
+#' \item{matrixqc}{A short vector describing the number of non-zero elements in
+#' \code{U} and \code{F} matrices, and the number of annual matrices.}
+#' 
+#' @keywords internal
+#' @noRd
+.import_Com <- function(matrix_id, database, add_FC = TRUE) {
+  output <- core_indices <- meta_data <- stage_lists <- matrices <- NULL
+  A_mats <- U_mats <- F_mats <- NULL
+  db_format <- num_mats <- stages_num <- 0
+  
+  if (!is.null(database)) {
+    if (is(database, "CompadreDB")) {
+      core_indices <- which(is.element(database@data$MatrixID, matrix_id))
+      meta_data <- as.data.frame(database@data[core_indices,-1])
+      format <- 1
+    } else if (is.list(database)) {
+      core_indices <- which(is.element(database$metadata$MatrixID, matrix_id))
+      meta_data <- database$metadata[core_indices,]
+      format <- 2
+    } else {
+      stop("Object database not recognized.", call. = FALSE)
+    }
+    
+    if (length(core_indices) == 0) stop("Entered matrix_id cannot be found.", call. = FALSE)
+    num_mats <- length(core_indices)
+    num_mats_vec <- as.matrix(c(1:num_mats))
+    
+    if (format == 1) {
+      stage_lists <- apply(num_mats_vec, 1, function(X) {
+        return(database@data$mat[[core_indices[X]]]@matrixClass)
+      })
+      
+      matrices <- apply(num_mats_vec, 1, function(X) {
+        return(database@data$mat[[core_indices[X]]])
+      })
+      
+      A_mats <- lapply(matrices, function(X) {
+        return(X@matA)
+      })
+      
+      U_mats <- lapply(matrices, function(X) {
+        return(X@matU)
+      })
+      
+      F_mats <- lapply(matrices, function(X) {
+        if (add_FC) {
+          return(X@matF + X@matC)
+        } else {
+          return(X@matF)
+        }
+      })
+    } else if (format == 2) {
+      stage_lists <- apply(num_mats_vec, 1, function(X) {
+        return(database$matrixClass[[core_indices[X]]])
+      })
+      
+      matrices <- apply(num_mats_vec, 1, function(X) {
+        return(database$mat[[core_indices[X]]])
+      })
+      
+      A_mats <- lapply(matrices, function(X) {
+        return(X$matA)
+      })
+      
+      U_mats <- lapply(matrices, function(X) {
+        return(X$matU)
+      })
+      
+      F_mats <- lapply(matrices, function(X) {
+        if (add_FC) {
+          return(X$matF + X$matC)
+        } else {
+          return(X$matF)
+        }
+      })
+    }
+    
+    check_rows <- apply(num_mats_vec, 1, function(X) {
+      return(dim(A_mats[[X]])[1])
+    })
+    if (length(unique(check_rows)) > 1) {
+      stop("Input matrices appear to be of unequal dimension.", call. = FALSE)
+    }
+    stages_num <- check_rows[1]
+    
+    found_elems_U <- apply(num_mats_vec, 1, function(X) {
+      return(length(which(U_mats[[X]] > 0.0)))
+    })
+    found_elems_F <- apply(num_mats_vec, 1, function(X) {
+      return(length(which(F_mats[[X]] > 0.0)))
+    })
+    matrix_qc <- c(sum(found_elems_U), sum(found_elems_F), num_mats)
+    
+    reprod_stages_sum <- t(apply(num_mats_vec, 1, function(X) {
+      workup1 <- colSums(F_mats[[X]])
+    }))
+    reprod_stages <- colSums(reprod_stages_sum)
+    reprod_stages[which(reprod_stages > 0)] <- 1
+    
+    entry_stages_sum <- t(apply(num_mats_vec, 1, function(X) {
+      workup1 <- rowSums(F_mats[[X]])
+    }))
+    entry_stages <- colSums(entry_stages_sum)
+    entry_stages[which(entry_stages > 0)] <- 1
+    
+    mature_stages <- rep(0, stages_num)
+    mature_stages[which(entry_stages == 0)] <- 1
+    mature_stages[which(reprod_stages > 0)] <- 1
+    
+    pops <- meta_data$MatrixPopulation
+    patches <- meta_data$MatrixTreatment
+    years <- meta_data$MatrixStartYear
+    labels <- data.frame(pop = pops, patch = patches, year2 = years)
+    
+    new_sf <- sf_skeleton(stages_num)
+    new_sf$repstatus <- reprod_stages
+    new_sf$immstatus <- entry_stages
+    new_sf$matstatus <- mature_stages
+    new_sf$comments <- stage_lists[[1]]$MatrixClassAuthor
+    
+    output <- list(A = A_mats, U = U_mats, F = F_mats, ahstages = new_sf,
+      hstages = as.data.frame(NA), agestages = as.data.frame(NA),
+      labels = labels, matrixqc = matrix_qc)
+    class(output) <- "lefkoMat"
+  } else {
+    message("Please load either the COMPADRE or COMADRE database.")
+  }
+  
+  return(output)
+}
+
 #' Create lefkoMat Object from Given Input Matrices
 #' 
-#' Function \code{create_lM()} creates lefkoMat objects from supplied matrices
-#' and extra information.
+#' Function \code{.import_mats()} creates lefkoMat objects from supplied
+#' matrices and extra information.
+#' 
+#' @name .import_mats
 #' 
 #' @param mats A list of A matrices.
 #' @param stageframe A stageframe describing all stages utilized.
@@ -1729,172 +1895,9 @@ historicalize3 <- function(data, popidcol = 0, patchidcol = 0, individcol,
 #' a short quality control section used by the \code{\link{summary.lefkoMat}()}
 #' function.
 #' 
-#' @section Notes:
-#' U and F decomposition assumes that elements holding fecundity values are
-#' to be interpreted solely as fecundity rates. Users wishing to split these
-#' elements between fecundity and survival should do so manually after running
-#' this function.
-#' 
-#' Age-by-stage MPMs require an \code{agestages} data frame outlining the order
-#' of age-stages. This data frame has 3 variables: \code{stage_id}, which is the
-#' number of the stage as labelled by the equivalently named variable in the
-#' \code{stageframe}; \code{stage}, which is the official name of the stage as
-#' given in the equivalently named variable in the \code{stageframe}; and
-#' \code{age}, which of course gives the age associated with the stage at that
-#' time. The number of rows must be equal to the number of rows and columns of
-#' each entered matrix.
-#' 
-#' @seealso \code{\link{add_lM}()}
-#' @seealso \code{\link{delete_lM}()}
-#' @seealso \code{\link{subset_lM}()}
-#' 
-#' @examples
-#' # These matrices are of 9 populations of the plant species Anthyllis
-#' # vulneraria, and were originally published in Davison et al. (2010) Journal
-#' # of Ecology 98:255-267 (doi: 10.1111/j.1365-2745.2009.01611.x).
-#' 
-#' sizevector <- c(1, 1, 2, 3) # These sizes are not from the original paper
-#' stagevector <- c("Sdl", "Veg", "SmFlo", "LFlo")
-#' repvector <- c(0, 0, 1, 1)
-#' obsvector <- c(1, 1, 1, 1)
-#' matvector <- c(0, 1, 1, 1)
-#' immvector <- c(1, 0, 0, 0)
-#' propvector <- c(0, 0, 0, 0)
-#' indataset <- c(1, 1, 1, 1)
-#' binvec <- c(0.5, 0.5, 0.5, 0.5)
-#' 
-#' anthframe <- sf_create(sizes = sizevector, stagenames = stagevector,
-#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
-#'   immstatus = immvector, indataset = indataset, binhalfwidth = binvec,
-#'   propstatus = propvector)
-#' 
-#' # POPN C 2003-2004
-#' XC3 <- matrix(c(0, 0, 1.74, 1.74,
-#' 0.208333333, 0, 0, 0.057142857,
-#' 0.041666667, 0.076923077, 0, 0,
-#' 0.083333333, 0.076923077, 0.066666667, 0.028571429), 4, 4, byrow = TRUE)
-#' 
-#' # 2004-2005
-#' XC4 <- matrix(c(0, 0, 0.3, 0.6,
-#' 0.32183908, 0.142857143, 0, 0,
-#' 0.16091954, 0.285714286, 0, 0,
-#' 0.252873563, 0.285714286, 0.5, 0.6), 4, 4, byrow = TRUE)
-#' 
-#' # 2005-2006
-#' XC5 <- matrix(c(0, 0, 0.50625, 0.675,
-#' 0, 0, 0, 0.035714286,
-#' 0.1, 0.068965517, 0.0625, 0.107142857,
-#' 0.3, 0.137931034, 0, 0.071428571), 4, 4, byrow = TRUE)
-#' 
-#' # POPN E 2003-2004
-#' XE3 <- matrix(c(0, 0, 2.44, 6.569230769,
-#' 0.196428571, 0, 0, 0,
-#' 0.125, 0.5, 0, 0,
-#' 0.160714286, 0.5, 0.133333333, 0.076923077), 4, 4, byrow = TRUE)
-#' 
-#' XE4 <- matrix(c(0, 0, 0.45, 0.646153846,
-#' 0.06557377, 0.090909091, 0.125, 0,
-#' 0.032786885, 0, 0.125, 0.076923077,
-#' 0.049180328, 0, 0.125, 0.230769231), 4, 4, byrow = TRUE)
-#' 
-#' XE5 <- matrix(c(0, 0, 2.85, 3.99,
-#' 0.083333333, 0, 0, 0,
-#' 0, 0, 0, 0,
-#' 0.416666667, 0.1, 0, 0.1), 4, 4, byrow = TRUE)
-#' 
-#' mats_list <- list(XC3, XC4, XC5, XE3, XE4, XE5)
-#' yr_ord <- c(1, 2, 3, 1, 2, 3)
-#' pch_ord <- c(1, 1, 1, 2, 2, 2)
-#' 
-#' anth_lefkoMat <- create_lM(mats_list, anthframe, hstages = NA,
-#'   historical = FALSE, poporder = 1, patchorder = pch_ord, yearorder = yr_ord)
-#' 
-#' # A theoretical example showcasing historical matrices
-#' sizevector <- c(1, 2, 3) # These sizes are not from the original paper
-#' stagevector <- c("Sdl", "Veg", "Flo")
-#' repvector <- c(0, 0, 1)
-#' obsvector <- c(1, 1, 1)
-#' matvector <- c(0, 1, 1)
-#' immvector <- c(1, 0, 0)
-#' propvector <- c(1, 0, 0)
-#' indataset <- c(1, 1, 1)
-#' binvec <- c(0.5, 0.5, 0.5)
-#' 
-#' exframe <- sf_create(sizes = sizevector, stagenames = stagevector,
-#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
-#'   immstatus = immvector, indataset = indataset, binhalfwidth = binvec,
-#'   propstatus = propvector)
-#' 
-#' A1 <- matrix(c(0.10, 0, 0, 0.12, 0, 0, 0.15, 0, 0,
-#'   0.15, 0, 0, 0.17, 0, 0, 0.20, 0, 0,
-#'   0.20, 0, 0, 0.22, 0, 0, 0.25, 0, 0,
-#'   0, 0.20, 0, 0, 0.22, 0, 0, 0.25, 0,
-#'   0, 0.25, 0, 0, 0.27, 0, 0, 0.30, 0,
-#'   0, 0.30, 0, 0, 0.32, 0, 0, 0.35, 0,
-#'   0, 0, 2.00, 0, 0, 3.00, 0, 0, 4.00,
-#'   0, 0, 0.35, 0, 0, 0.37, 0, 0, 0.40,
-#'   0, 0, 0.40, 0, 0, 0.42, 0, 0, 0.45), 9, 9, byrow = TRUE)
-#' 
-#' A2 <- matrix(c(0.10, 0, 0, 0.12, 0, 0, 0.15, 0, 0,
-#'   0.15, 0, 0, 0.17, 0, 0, 0.20, 0, 0,
-#'   0.20, 0, 0, 0.22, 0, 0, 0.25, 0, 0,
-#'   0, 0.20, 0, 0, 0.22, 0, 0, 0.25, 0,
-#'   0, 0.25, 0, 0, 0.27, 0, 0, 0.30, 0,
-#'   0, 0.30, 0, 0, 0.32, 0, 0, 0.35, 0,
-#'   0, 0, 5.00, 0, 0, 6.00, 0, 0, 7.00,
-#'   0, 0, 0.35, 0, 0, 0.37, 0, 0, 0.40,
-#'   0, 0, 0.40, 0, 0, 0.42, 0, 0, 0.45), 9, 9, byrow = TRUE)
-#' 
-#' A3 <- matrix(c(0.10, 0, 0, 0.12, 0, 0, 0.15, 0, 0,
-#'   0.15, 0, 0, 0.17, 0, 0, 0.20, 0, 0,
-#'   0.20, 0, 0, 0.22, 0, 0, 0.25, 0, 0,
-#'   0, 0.20, 0, 0, 0.22, 0, 0, 0.25, 0,
-#'   0, 0.25, 0, 0, 0.27, 0, 0, 0.30, 0,
-#'   0, 0.30, 0, 0, 0.32, 0, 0, 0.35, 0,
-#'   0, 0, 8.00, 0, 0, 9.00, 0, 0, 10.00,
-#'   0, 0, 0.35, 0, 0, 0.37, 0, 0, 0.40,
-#'   0, 0, 0.40, 0, 0, 0.42, 0, 0, 0.45), 9, 9, byrow = TRUE)
-#' 
-#' B1 <- matrix(c(0.10, 0, 0, 0.12, 0, 0, 0.15, 0, 0,
-#'   0.15, 0, 0, 0.17, 0, 0, 0.20, 0, 0,
-#'   0.20, 0, 0, 0.22, 0, 0, 0.25, 0, 0,
-#'   0, 0.20, 0, 0, 0.22, 0, 0, 0.25, 0,
-#'   0, 0.25, 0, 0, 0.27, 0, 0, 0.30, 0,
-#'   0, 0.30, 0, 0, 0.32, 0, 0, 0.35, 0,
-#'   0, 0, 11.00, 0, 0, 12.00, 0, 0, 13.00,
-#'   0, 0, 0.35, 0, 0, 0.37, 0, 0, 0.40,
-#'   0, 0, 0.40, 0, 0, 0.42, 0, 0, 0.45), 9, 9, byrow = TRUE)
-#' 
-#' B2 <- matrix(c(0.10, 0, 0, 0.12, 0, 0, 0.15, 0, 0,
-#'   0.15, 0, 0, 0.17, 0, 0, 0.20, 0, 0,
-#'   0.20, 0, 0, 0.22, 0, 0, 0.25, 0, 0,
-#'   0, 0.20, 0, 0, 0.22, 0, 0, 0.25, 0,
-#'   0, 0.25, 0, 0, 0.27, 0, 0, 0.30, 0,
-#'   0, 0.30, 0, 0, 0.32, 0, 0, 0.35, 0,
-#'   0, 0, 14.00, 0, 0, 15.00, 0, 0, 16.00,
-#'   0, 0, 0.35, 0, 0, 0.37, 0, 0, 0.40,
-#'   0, 0, 0.40, 0, 0, 0.42, 0, 0, 0.45), 9, 9, byrow = TRUE)
-#' 
-#' B3 <- matrix(c(0.10, 0, 0, 0.12, 0, 0, 0.15, 0, 0,
-#'   0.15, 0, 0, 0.17, 0, 0, 0.20, 0, 0,
-#'   0.20, 0, 0, 0.22, 0, 0, 0.25, 0, 0,
-#'   0, 0.20, 0, 0, 0.22, 0, 0, 0.25, 0,
-#'   0, 0.25, 0, 0, 0.27, 0, 0, 0.30, 0,
-#'   0, 0.30, 0, 0, 0.32, 0, 0, 0.35, 0,
-#'   0, 0, 17.00, 0, 0, 18.00, 0, 0, 19.00,
-#'   0, 0, 0.35, 0, 0, 0.37, 0, 0, 0.40,
-#'   0, 0, 0.40, 0, 0, 0.42, 0, 0, 0.45), 9, 9, byrow = TRUE)
-#' 
-#' histmats <- list(A1, A2, A3, B1, B2, B3)
-#' stageframe <- exframe
-#' pch_ord <- c("A", "A", "A", "B", "B", "B")
-#' yr_ord <- c(1, 2, 3, 1, 2, 3)
-#' 
-#' hist_trial <- create_lM(histmats, exframe, historical = TRUE,
-#'   UFdecomp = TRUE, entrystage = 1, patchorder = pch_ord, yearorder = yr_ord)
-#'   
-#' @export
-create_lM <- function(mats, stageframe, hstages = NA, agestages = NA,
+#' @keywords internal
+#' @noRd
+.import_mats <- function(mats, stageframe, hstages = NA, agestages = NA,
   historical = FALSE, agebystage = FALSE, UFdecomp = TRUE, entrystage = 1,
   poporder = 1, patchorder = 1, yearorder = NA) {
   
@@ -2117,6 +2120,265 @@ create_lM <- function(mats, stageframe, hstages = NA, agestages = NA,
     ahstages = cbind.data.frame(stage_id = c(1:numstages), stageframe),
     labels = labels, matrixqc = matrixqc)
   class(output) <- "lefkoMat"
+  
+  return(output)
+}
+
+#' Create lefkoMat Object from Given Input Matrices or an MPM Database
+#' 
+#' Function \code{create_lM()} creates lefkoMat objects from supplied matrices
+#' and extra information, or from a supplied MPM database such as COMPADRE or
+#' COMADRE.
+#' 
+#' @name create_lM
+
+#' @param mats A list of A matrices, or, if importing from a matrix database
+#' such as COMPADRE or COMADRE, then the object holding the database.
+#' @param stageframe A stageframe describing all stages utilized.
+#' @param hstages A data frame outlining the order of historical stages, if
+#' matrices provided in \code{mats} are historical. Defaults to NA.
+#' @param agestages A data frame outlining the order of ahistorical age-stages,
+#' if age-by-stage matrices are provided.
+#' @param historical A logical value indicating whether input matrices are
+#' historical or not. Defaults to FALSE.
+#' @param agebystage A logical value indicating whether input matrices are
+#' ahistorical age-by-stage matrices. If TRUE, then object \code{agestages} is
+#' required. Defaults to FALSE.
+#' @param UFdecomp A logical value indicating whether U and F matrices should be
+#' inferred. Defaults to TRUE.
+#' @param entrystage The stage or stages produced by reproductive individuals.
+#' Used to determine which transitions are reproductive for U-F decomposition.
+#' Defaults to \code{1}, which corresponds to the first stage in the stageframe.
+#' @param poporder The order of populations in the list supplied in object
+#' \code{mats}. Defaults to 1.
+#' @param patchorder The order of patches in the list supplied in object
+#' \code{mats}. Defaults to 1.
+#' @param yearorder The order of monitoring occasions in the list supplied in
+#' object \code{mats}. Defaults to NA, which leads to each matrix within each
+#' population-patch combination being a different monitoring occasion.
+#' @param matrix_id The values of \code{MatrixID} from the used database
+#' corresponding to the matrices to import, if importing from a database. Not
+#' used if importing a list of matrices.
+#' @param add_FC A logical value indicating whether to sum the \code{matF} and
+#' \code{matC} matrices to produce the \code{F} matrix. If \code{FALSE}, then
+#' only uses the \code{matF} matrix. Only used if importing from the COMPADRE or
+#' COMADRE database. Defaults to \code{TRUE}.
+#' 
+#' @return A \code{lefkoMat} object incorporating the matrices input in object
+#' \code{mats} as object \code{A}, their U and F decompositions in objects
+#' \code{U} and \code{F} (if requested), the provided stageframe as object
+#' \code{ahstages}, the order of historical stages as object \code{hstages} (if
+#' \code{historical = TRUE}), the order of matrices as object \code{labels}, and
+#' a short quality control section used by the \code{\link{summary.lefkoMat}()}
+#' function.
+#' 
+#' @section Notes for importing lists of matrices:
+#' U and F decomposition assumes that elements holding fecundity values are
+#' to be interpreted solely as fecundity rates. Users wishing to split these
+#' elements between fecundity and survival should do so manually after running
+#' this function.
+#' 
+#' Age-by-stage MPMs require an \code{agestages} data frame outlining the order
+#' of age-stages. This data frame has 3 variables: \code{stage_id}, which is the
+#' number of the stage as labelled by the equivalently named variable in the
+#' \code{stageframe}; \code{stage}, which is the official name of the stage as
+#' given in the equivalently named variable in the \code{stageframe}; and
+#' \code{age}, which of course gives the age associated with the stage at that
+#' time. The number of rows must be equal to the number of rows and columns of
+#' each entered matrix.
+#' 
+#' @section Notes for importing from COMPADRE or COMADRE:
+#' For this function to operate, users must have either the COMPADRE database
+#' or the COMADRE database loaded into the global environment. Note that the
+#' sample databases supplied within package \code{Rcompadre} will not work with
+#' this function.
+#' 
+#' This function does not and cannot replace the wonderful tools offered to
+#' explore the COMPADRE and COMADRE packages. Please see package
+#' \code{Rcompadre} to use those tools. Note that function \code{import_Com()}
+#' has no relationship to the \code{Rcompadre} development team.
+#' 
+#' Function \code{import_Com()} requires that the dimensions of all matrices
+#' imported into a single \code{lefkoMat} object be equal.
+#' 
+#' The reproductive and maturity status of each stage is determined by patterns
+#' assessed within the \code{F} matrices. Users should check that these values
+#' make sense.
+#' 
+#' Stage names may be edited manually afterward.
+#' 
+#' @seealso \code{\link{add_lM}()}
+#' @seealso \code{\link{delete_lM}()}
+#' @seealso \code{\link{subset_lM}()}
+#' 
+#' @examples
+#' # These matrices are of 9 populations of the plant species Anthyllis
+#' # vulneraria, and were originally published in Davison et al. (2010) Journal
+#' # of Ecology 98:255-267 (doi: 10.1111/j.1365-2745.2009.01611.x).
+#' 
+#' sizevector <- c(1, 1, 2, 3) # These sizes are not from the original paper
+#' stagevector <- c("Sdl", "Veg", "SmFlo", "LFlo")
+#' repvector <- c(0, 0, 1, 1)
+#' obsvector <- c(1, 1, 1, 1)
+#' matvector <- c(0, 1, 1, 1)
+#' immvector <- c(1, 0, 0, 0)
+#' propvector <- c(0, 0, 0, 0)
+#' indataset <- c(1, 1, 1, 1)
+#' binvec <- c(0.5, 0.5, 0.5, 0.5)
+#' 
+#' anthframe <- sf_create(sizes = sizevector, stagenames = stagevector,
+#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
+#'   immstatus = immvector, indataset = indataset, binhalfwidth = binvec,
+#'   propstatus = propvector)
+#' 
+#' # POPN C 2003-2004
+#' XC3 <- matrix(c(0, 0, 1.74, 1.74,
+#' 0.208333333, 0, 0, 0.057142857,
+#' 0.041666667, 0.076923077, 0, 0,
+#' 0.083333333, 0.076923077, 0.066666667, 0.028571429), 4, 4, byrow = TRUE)
+#' 
+#' # 2004-2005
+#' XC4 <- matrix(c(0, 0, 0.3, 0.6,
+#' 0.32183908, 0.142857143, 0, 0,
+#' 0.16091954, 0.285714286, 0, 0,
+#' 0.252873563, 0.285714286, 0.5, 0.6), 4, 4, byrow = TRUE)
+#' 
+#' # 2005-2006
+#' XC5 <- matrix(c(0, 0, 0.50625, 0.675,
+#' 0, 0, 0, 0.035714286,
+#' 0.1, 0.068965517, 0.0625, 0.107142857,
+#' 0.3, 0.137931034, 0, 0.071428571), 4, 4, byrow = TRUE)
+#' 
+#' # POPN E 2003-2004
+#' XE3 <- matrix(c(0, 0, 2.44, 6.569230769,
+#' 0.196428571, 0, 0, 0,
+#' 0.125, 0.5, 0, 0,
+#' 0.160714286, 0.5, 0.133333333, 0.076923077), 4, 4, byrow = TRUE)
+#' 
+#' XE4 <- matrix(c(0, 0, 0.45, 0.646153846,
+#' 0.06557377, 0.090909091, 0.125, 0,
+#' 0.032786885, 0, 0.125, 0.076923077,
+#' 0.049180328, 0, 0.125, 0.230769231), 4, 4, byrow = TRUE)
+#' 
+#' XE5 <- matrix(c(0, 0, 2.85, 3.99,
+#' 0.083333333, 0, 0, 0,
+#' 0, 0, 0, 0,
+#' 0.416666667, 0.1, 0, 0.1), 4, 4, byrow = TRUE)
+#' 
+#' mats_list <- list(XC3, XC4, XC5, XE3, XE4, XE5)
+#' yr_ord <- c(1, 2, 3, 1, 2, 3)
+#' pch_ord <- c(1, 1, 1, 2, 2, 2)
+#' 
+#' anth_lefkoMat <- create_lM(mats_list, anthframe, hstages = NA,
+#'   historical = FALSE, poporder = 1, patchorder = pch_ord, yearorder = yr_ord)
+#' 
+#' # A theoretical example showcasing historical matrices
+#' sizevector <- c(1, 2, 3) # These sizes are not from the original paper
+#' stagevector <- c("Sdl", "Veg", "Flo")
+#' repvector <- c(0, 0, 1)
+#' obsvector <- c(1, 1, 1)
+#' matvector <- c(0, 1, 1)
+#' immvector <- c(1, 0, 0)
+#' propvector <- c(1, 0, 0)
+#' indataset <- c(1, 1, 1)
+#' binvec <- c(0.5, 0.5, 0.5)
+#' 
+#' exframe <- sf_create(sizes = sizevector, stagenames = stagevector,
+#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
+#'   immstatus = immvector, indataset = indataset, binhalfwidth = binvec,
+#'   propstatus = propvector)
+#' 
+#' A1 <- matrix(c(0.10, 0, 0, 0.12, 0, 0, 0.15, 0, 0,
+#'   0.15, 0, 0, 0.17, 0, 0, 0.20, 0, 0,
+#'   0.20, 0, 0, 0.22, 0, 0, 0.25, 0, 0,
+#'   0, 0.20, 0, 0, 0.22, 0, 0, 0.25, 0,
+#'   0, 0.25, 0, 0, 0.27, 0, 0, 0.30, 0,
+#'   0, 0.30, 0, 0, 0.32, 0, 0, 0.35, 0,
+#'   0, 0, 2.00, 0, 0, 3.00, 0, 0, 4.00,
+#'   0, 0, 0.35, 0, 0, 0.37, 0, 0, 0.40,
+#'   0, 0, 0.40, 0, 0, 0.42, 0, 0, 0.45), 9, 9, byrow = TRUE)
+#' 
+#' A2 <- matrix(c(0.10, 0, 0, 0.12, 0, 0, 0.15, 0, 0,
+#'   0.15, 0, 0, 0.17, 0, 0, 0.20, 0, 0,
+#'   0.20, 0, 0, 0.22, 0, 0, 0.25, 0, 0,
+#'   0, 0.20, 0, 0, 0.22, 0, 0, 0.25, 0,
+#'   0, 0.25, 0, 0, 0.27, 0, 0, 0.30, 0,
+#'   0, 0.30, 0, 0, 0.32, 0, 0, 0.35, 0,
+#'   0, 0, 5.00, 0, 0, 6.00, 0, 0, 7.00,
+#'   0, 0, 0.35, 0, 0, 0.37, 0, 0, 0.40,
+#'   0, 0, 0.40, 0, 0, 0.42, 0, 0, 0.45), 9, 9, byrow = TRUE)
+#' 
+#' A3 <- matrix(c(0.10, 0, 0, 0.12, 0, 0, 0.15, 0, 0,
+#'   0.15, 0, 0, 0.17, 0, 0, 0.20, 0, 0,
+#'   0.20, 0, 0, 0.22, 0, 0, 0.25, 0, 0,
+#'   0, 0.20, 0, 0, 0.22, 0, 0, 0.25, 0,
+#'   0, 0.25, 0, 0, 0.27, 0, 0, 0.30, 0,
+#'   0, 0.30, 0, 0, 0.32, 0, 0, 0.35, 0,
+#'   0, 0, 8.00, 0, 0, 9.00, 0, 0, 10.00,
+#'   0, 0, 0.35, 0, 0, 0.37, 0, 0, 0.40,
+#'   0, 0, 0.40, 0, 0, 0.42, 0, 0, 0.45), 9, 9, byrow = TRUE)
+#' 
+#' B1 <- matrix(c(0.10, 0, 0, 0.12, 0, 0, 0.15, 0, 0,
+#'   0.15, 0, 0, 0.17, 0, 0, 0.20, 0, 0,
+#'   0.20, 0, 0, 0.22, 0, 0, 0.25, 0, 0,
+#'   0, 0.20, 0, 0, 0.22, 0, 0, 0.25, 0,
+#'   0, 0.25, 0, 0, 0.27, 0, 0, 0.30, 0,
+#'   0, 0.30, 0, 0, 0.32, 0, 0, 0.35, 0,
+#'   0, 0, 11.00, 0, 0, 12.00, 0, 0, 13.00,
+#'   0, 0, 0.35, 0, 0, 0.37, 0, 0, 0.40,
+#'   0, 0, 0.40, 0, 0, 0.42, 0, 0, 0.45), 9, 9, byrow = TRUE)
+#' 
+#' B2 <- matrix(c(0.10, 0, 0, 0.12, 0, 0, 0.15, 0, 0,
+#'   0.15, 0, 0, 0.17, 0, 0, 0.20, 0, 0,
+#'   0.20, 0, 0, 0.22, 0, 0, 0.25, 0, 0,
+#'   0, 0.20, 0, 0, 0.22, 0, 0, 0.25, 0,
+#'   0, 0.25, 0, 0, 0.27, 0, 0, 0.30, 0,
+#'   0, 0.30, 0, 0, 0.32, 0, 0, 0.35, 0,
+#'   0, 0, 14.00, 0, 0, 15.00, 0, 0, 16.00,
+#'   0, 0, 0.35, 0, 0, 0.37, 0, 0, 0.40,
+#'   0, 0, 0.40, 0, 0, 0.42, 0, 0, 0.45), 9, 9, byrow = TRUE)
+#' 
+#' B3 <- matrix(c(0.10, 0, 0, 0.12, 0, 0, 0.15, 0, 0,
+#'   0.15, 0, 0, 0.17, 0, 0, 0.20, 0, 0,
+#'   0.20, 0, 0, 0.22, 0, 0, 0.25, 0, 0,
+#'   0, 0.20, 0, 0, 0.22, 0, 0, 0.25, 0,
+#'   0, 0.25, 0, 0, 0.27, 0, 0, 0.30, 0,
+#'   0, 0.30, 0, 0, 0.32, 0, 0, 0.35, 0,
+#'   0, 0, 17.00, 0, 0, 18.00, 0, 0, 19.00,
+#'   0, 0, 0.35, 0, 0, 0.37, 0, 0, 0.40,
+#'   0, 0, 0.40, 0, 0, 0.42, 0, 0, 0.45), 9, 9, byrow = TRUE)
+#' 
+#' histmats <- list(A1, A2, A3, B1, B2, B3)
+#' stageframe <- exframe
+#' pch_ord <- c("A", "A", "A", "B", "B", "B")
+#' yr_ord <- c(1, 2, 3, 1, 2, 3)
+#' 
+#' hist_trial <- create_lM(histmats, exframe, historical = TRUE,
+#'   UFdecomp = TRUE, entrystage = 1, patchorder = pch_ord, yearorder = yr_ord)
+#'   
+#' @export
+create_lM <- function(mats, stageframe = NULL, hstages = NA, agestages = NA,
+  historical = FALSE, agebystage = FALSE, UFdecomp = TRUE, entrystage = 1,
+  poporder = 1, patchorder = 1, yearorder = NA, matrix_id = NULL, add_FC = TRUE) {
+  
+  output <- NULL
+  
+  if (is(mats, "CompadreDB")) {
+    output <- .import_Com(matrix_id = matrix_id, database = mats,
+      add_FC = add_FC)
+  } else if (is.list(mats)) {
+    if (is.matrix(mats[[1]])) {
+      output <- .import_mats(mats = mats, stageframe = stageframe,
+        hstages = hstages, agestages = agestages, historical = historical,
+        agebystage = agebystage, UFdecomp = UFdecomp, entrystage = entrystage,
+        poporder = poporder, patchorder = patchorder, yearorder = yearorder)
+    } else if ("metadata" %in% names(mats)) {
+      output <- .import_Com(matrix_id = matrix_id, database = mats,
+        add_FC = add_FC)
+    }
+  } else {
+    stop("Object mats must be an object of class list, or a database holding matrices.", call. = FALSE)
+  }
   
   return(output)
 }

@@ -21,9 +21,6 @@ year.
   species.}
   \item{sprouted.2015}{A binomial indicating whether the individual had
   living aboveground tissue observable in the 2015 census.}
-  \item{stump.2015}{A binomial indicating whether the individual was a woody
-  sprout during the 2015 census, meaning that it was alive but had neither
-  leaves nor inflorescences.}
   \item{lvs.num.2015}{Number of leaves in 2015.}
   \item{lvs.lng.2015}{Length of largest leaf in 2015.}
   \item{lvs.wdt.2015}{Width of largest leaf in 2015.}
@@ -33,9 +30,6 @@ year.
   \item{frt.tot.2015}{Number of fruits in 2015.}
   \item{sprouted.2016}{A binomial indicating whether the individual had
   living aboveground tissue observable in the 2016 census.}
-  \item{stump.2016}{A binomial indicating whether the individual was a woody
-  sprout during the 2016 census, meaning that it was alive but had neither
-  leaves nor inflorescences.}
   \item{lvs.num.2016}{Number of leaves in 2016.}
   \item{lvs.lng.2016}{Length of largest leaf in 2016.}
   \item{lvs.wdt.2016}{Width of largest leaf in 2016.}
@@ -45,9 +39,6 @@ year.
   \item{frt.tot.2016}{Number of fruits in 2016.}
   \item{sprouted.2017}{A binomial indicating whether the individual had
   living aboveground tissue observable in the 2017 census.}
-  \item{stump.2017}{A binomial indicating whether the individual was a woody
-  sprout during the 2017 census, meaning that it was alive but had neither
-  leaves nor inflorescences.}
   \item{lvs.num.2017}{Number of leaves in 2017.}
   \item{lvs.lng.2017}{Length of largest leaf in 2017.}
   \item{lvs.wdt.2017}{Width of largest leaf in 2017.}
@@ -57,9 +48,6 @@ year.
   \item{frt.tot.2017}{Number of fruits in 2017.}
   \item{sprouted.2018}{A binomial indicating whether the individual had
   living aboveground tissue observable in the 2018 census.}
-  \item{stump.2018}{A binomial indicating whether the individual was a woody
-  sprout during the 2018 census, meaning that it was alive but had neither
-  leaves nor inflorescences.}
   \item{lvs.num.2018}{Number of leaves in 2018.}
   \item{lvs.lng.2018}{Length of largest leaf in 2018.}
   \item{lvs.wdt.2018}{Width of largest leaf in 2018.}
@@ -69,9 +57,6 @@ year.
   \item{frt.tot.2018}{Number of fruits in 2018.}
   \item{sprouted.2019}{A binomial indicating whether the individual had
   living aboveground tissue observable in the 2019 census.}
-  \item{stump.2019}{A binomial indicating whether the individual was a woody
-  sprout during the 2019 census, meaning that it was alive but had neither
-  leaves nor inflorescences.}
   \item{lvs.num.2019}{Number of leaves in 2019.}
   \item{lvs.lng.2019}{Length of largest leaf in 2019.}
   \item{lvs.wdt.2019}{Width of largest leaf in 2019.}
@@ -81,9 +66,6 @@ year.
   \item{frt.tot.2019}{Number of fruits in 2019.}
   \item{sprouted.2020}{A binomial indicating whether the individual had
   living aboveground tissue observable in the 2020 census.}
-  \item{stump.2020}{A binomial indicating whether the individual was a woody
-  sprout during the 2020 census, meaning that it was alive but had neither
-  leaves nor inflorescences.}
   \item{lvs.num.2020}{Number of leaves in 2020.}
   \item{lvs.lng.2020}{Length of largest leaf in 2020.}
   \item{lvs.wdt.2020}{Width of largest leaf in 2020.}

@@ -1,4 +1,4 @@
-# lefko3 6.0.0 (2022-XX-XX)
+# lefko3 6.0.0 (2022-03-24)
 
 ## NEW FEATURES
 
@@ -29,6 +29,8 @@
   age-by-stage MPMs, and in f_projection3() runs involving them.
 * Function edit_lM() has been added to edit MPMs with external data.
 * New dataset Pyrola hs been added.
+* Function create_lM() now also allows direct imports from the COMPADRE and
+  COMADRE databases as lefkoMat objects.
 
 ## USER-VISIBLE CHANGES
 

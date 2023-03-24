@@ -2,11 +2,11 @@
 % Please edit documentation in R/datamanag.R
 \name{create_lM}
 \alias{create_lM}
-\title{Create lefkoMat Object from Given Input Matrices}
+\title{Create lefkoMat Object from Given Input Matrices or an MPM Database}
 \usage{
 create_lM(
   mats,
-  stageframe,
+  stageframe = NULL,
   hstages = NA,
   agestages = NA,
   historical = FALSE,
@@ -15,11 +15,14 @@ create_lM(
   entrystage = 1,
   poporder = 1,
   patchorder = 1,
-  yearorder = NA
+  yearorder = NA,
+  matrix_id = NULL,
+  add_FC = TRUE
 )
 }
 \arguments{
-\item{mats}{A list of A matrices.}
+\item{mats}{A list of A matrices, or, if importing from a matrix database
+such as COMPADRE or COMADRE, then the object holding the database.}
 
 \item{stageframe}{A stageframe describing all stages utilized.}
 
@@ -52,6 +55,15 @@ Defaults to \code{1}, which corresponds to the first stage in the stageframe.}
 \item{yearorder}{The order of monitoring occasions in the list supplied in
 object \code{mats}. Defaults to NA, which leads to each matrix within each
 population-patch combination being a different monitoring occasion.}
+
+\item{matrix_id}{The values of \code{MatrixID} from the used database
+corresponding to the matrices to import, if importing from a database. Not
+used if importing a list of matrices.}
+
+\item{add_FC}{A logical value indicating whether to sum the \code{matF} and
+\code{matC} matrices to produce the \code{F} matrix. If \code{FALSE}, then
+only uses the \code{matF} matrix. Only used if importing from the COMPADRE or
+COMADRE database. Defaults to \code{TRUE}.}
 }
 \value{
 A \code{lefkoMat} object incorporating the matrices input in object
@@ -64,9 +76,10 @@ function.
 }
 \description{
 Function \code{create_lM()} creates lefkoMat objects from supplied matrices
-and extra information.
+and extra information, or from a supplied MPM database such as COMPADRE or
+COMADRE.
 }
-\section{Notes}{
+\section{Notes for importing lists of matrices}{
 
 U and F decomposition assumes that elements holding fecundity values are
 to be interpreted solely as fecundity rates. Users wishing to split these
@@ -81,6 +94,28 @@ given in the equivalently named variable in the \code{stageframe}; and
 \code{age}, which of course gives the age associated with the stage at that
 time. The number of rows must be equal to the number of rows and columns of
 each entered matrix.
+}
+
+\section{Notes for importing from COMPADRE or COMADRE}{
+
+For this function to operate, users must have either the COMPADRE database
+or the COMADRE database loaded into the global environment. Note that the
+sample databases supplied within package \code{Rcompadre} will not work with
+this function.
+
+This function does not and cannot replace the wonderful tools offered to
+explore the COMPADRE and COMADRE packages. Please see package
+\code{Rcompadre} to use those tools. Note that function \code{import_Com()}
+has no relationship to the \code{Rcompadre} development team.
+
+Function \code{import_Com()} requires that the dimensions of all matrices
+imported into a single \code{lefkoMat} object be equal.
+
+The reproductive and maturity status of each stage is determined by patterns
+assessed within the \code{F} matrices. Users should check that these values
+make sense.
+
+Stage names may be edited manually afterward.
 }
 
 \examples{

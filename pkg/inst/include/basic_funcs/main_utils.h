@@ -2517,18 +2517,29 @@ namespace LefkoUtils {
   //' @keywords internal
   //' @noRd
   inline Rcpp::List S4_extractor(S4 object) {
-    String model_class = object.attr("class");
+    StringVector model_class = wrap(object.attr("class"));
+    //String model_class = object.attr("class");
     
     List output;
+    bool found {false};
+    int mc_length = static_cast<int>(model_class.length());
+    int counter {0};
     
-    if (stringcompare_hard(model_class, "vglm")) {
-      output = vglm_extractor(object);
-      
-    } else if (stringcompare_hard(model_class, "lmerMod") || 
-        stringcompare_hard(model_class, "glmerMod")) {
-      output = lme4_extractor(object);
-      
-    } else {
+    while (!found && counter < mc_length) {
+      if (stringcompare_hard(String(model_class(counter)), "vglm")) {
+        found = true;
+        output = vglm_extractor(object);
+        
+      } else if (stringcompare_hard(String(model_class(counter)), "lmerMod") || 
+          stringcompare_hard(String(model_class(counter)), "glmerMod")) {
+        found = true;
+        output = lme4_extractor(object);
+        
+      }
+      counter++;
+    }
+    
+    if (!found) {
       throw Rcpp::exception("Model type unrecognized.", false);
     }
     

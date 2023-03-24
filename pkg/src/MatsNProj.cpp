@@ -10754,7 +10754,11 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
       throw Rcpp::exception("Object modelsuite not recognized.", false);
     }
     
-    StringVector modelsuite_class = modelsuite_.attr("class");
+    bool ms_has_class = modelsuite_.hasAttribute("class");
+    StringVector modelsuite_class;
+    if (ms_has_class) {
+      modelsuite_class = wrap(modelsuite_.attr("class")); // altered
+    }
     for (int i = 0; i < modelsuite_class.length(); i++) {
       if (stringcompare_hard(String(modelsuite_class(i)), "vrm_input")) modelsuite_vrm = true;
       if (stringcompare_hard(String(modelsuite_class(i)), "lefkoMod")) modelsuite_lM = true;
@@ -10819,122 +10823,107 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
       // Check modelsuite list structure
       arma::ivec used_name_vector = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1};
-      StringVector ms_names_expected = {"survival_model", "observation_model", "size_model",
-        "sizeb_model", "sizec_model", "repstatus_model", "fecundity_model",
-        "juv_survival_model", "juv_observation_model", "juv_size_model",
-        "juv_sizeb_model", "juv_sizec_model", "juv_reproduction_model",
-        "juv_maturity_model", "paramnames"};
-      int ms_names_length {15};
+      StringVector ms_names_expected = {"survival_model", "observation_model",
+        "size_model", "sizeb_model", "sizec_model", "repstatus_model",
+        "fecundity_model", "juv_survival_model", "juv_observation_model",
+        "juv_size_model", "juv_sizeb_model", "juv_sizec_model",
+        "juv_reproduction_model", "juv_maturity_model", "paramnames"};
       int modelsuite_length = modelsuite_.length();
-      StringVector modelsuite_names = modelsuite_.attr("names");
+      StringVector modelsuite_names = wrap(modelsuite_.attr("names"));
       
       StringVector ms_names_true (15);
       
       for (int i = 0; i < modelsuite_length; i++) {
-        for (int j = 0; j < ms_names_length; j++) {
-          if (stringcompare_simple(String(modelsuite_names(i)), "j", true)) {
-            // Juvenile models
-              if (stringcompare_simple(String(modelsuite_names(i)), String("sur"), true)) {
-                used_name_vector(7) = j;
-                ms_names_true(i) = ms_names_expected(7);
-                
-              } else if (stringcompare_simple(String(modelsuite_names(i)), String("obs"), true)) {
-                used_name_vector(8) = j;
-                ms_names_true(i) = ms_names_expected(8);
-                
-              } else if (stringcompare_simple(String(modelsuite_names(i)), String("size_"), true) ||
-                stringcompare_simple(String(modelsuite_names(i)), String("sizea"), true) ||
-                stringcompare_simple(String(modelsuite_names(i)), String("siza"), true)) {
-                used_name_vector(9) = j;
-                ms_names_true(i) = ms_names_expected(9);
-                
-              } else if (stringcompare_simple(String(modelsuite_names(i)), String("zeb"), true) ||
-                stringcompare_simple(String(modelsuite_names(i)), String("zb"), true)) {
-                used_name_vector(10) = j;
-                ms_names_true(i) = ms_names_expected(10);
-                
-              } else if (stringcompare_simple(String(modelsuite_names(i)), String("zec"), true) ||
-                stringcompare_simple(String(modelsuite_names(i)), String("zc"), true)) {
-                used_name_vector(11) = j;
-                ms_names_true(i) = ms_names_expected(11);
-                
-              } else if (stringcompare_simple(String(modelsuite_names(i)), String("rep"), true)) {
-                used_name_vector(12) = j;
-                ms_names_true(i) = ms_names_expected(12);
-                
-              } else if (stringcompare_simple(String(modelsuite_names(i)), String("mat"), true)) {
-                used_name_vector(13) = j;
-                ms_names_true(i) = ms_names_expected(13);
+        if (stringcompare_simple(String(modelsuite_names(i)), "j", true)) {
+          // Juvenile models
+          if (stringcompare_simple(String(modelsuite_names(i)), String("sur"), true)) {
+            used_name_vector(7) = i;
+            ms_names_true(i) = ms_names_expected(7);
+          } else if (stringcompare_simple(String(modelsuite_names(i)), String("obs"), true)) {
+            used_name_vector(8) = i;
+            ms_names_true(i) = ms_names_expected(8);
+          } else if (stringcompare_simple(String(modelsuite_names(i)), String("size_"), true) ||
+            stringcompare_simple(String(modelsuite_names(i)), String("sizea"), true) ||
+            stringcompare_simple(String(modelsuite_names(i)), String("siza"), true)) {
+            used_name_vector(9) = i;
+            ms_names_true(i) = ms_names_expected(9);
+          } else if (stringcompare_simple(String(modelsuite_names(i)), String("zeb"), true) ||
+            stringcompare_simple(String(modelsuite_names(i)), String("zb"), true)) {
+            used_name_vector(10) = i;
+            ms_names_true(i) = ms_names_expected(10);
+          } else if (stringcompare_simple(String(modelsuite_names(i)), String("zec"), true) ||
+            stringcompare_simple(String(modelsuite_names(i)), String("zc"), true)) {
+            used_name_vector(11) = i;
+            ms_names_true(i) = ms_names_expected(11);
+          } else if (stringcompare_simple(String(modelsuite_names(i)), String("rep"), true)) {
+            used_name_vector(12) = i;
+            ms_names_true(i) = ms_names_expected(12);
+          } else if (stringcompare_simple(String(modelsuite_names(i)), String("mat"), true)) {
+            used_name_vector(13) = i;
+            ms_names_true(i) = ms_names_expected(13);
+          }
+          
+        } else {
+          // Adult models
+          if (stringcompare_simple(String(modelsuite_names(i)), String("sur"), true)) {
+            used_name_vector(0) = i;
+            ms_names_true(i) = ms_names_expected(0);
+          } else if (stringcompare_simple(String(modelsuite_names(i)), String("obs"), true)) {
+            used_name_vector(1) = i;
+            ms_names_true(i) = ms_names_expected(1);
+          } else if (stringcompare_simple(String(modelsuite_names(i)), String("size_"), true) ||
+            stringcompare_simple(String(modelsuite_names(i)), String("sizea"), true) ||
+            stringcompare_simple(String(modelsuite_names(i)), String("siza"), true)) {
+            used_name_vector(2) = i;
+            ms_names_true(i) = ms_names_expected(2);
+          } else if (stringcompare_simple(String(modelsuite_names(i)), String("zeb"), true) ||
+            stringcompare_simple(String(modelsuite_names(i)), String("zb"), true)) {
+            used_name_vector(3) = i;
+            ms_names_true(i) = ms_names_expected(3);
+          } else if (stringcompare_simple(String(modelsuite_names(i)), String("zec"), true) ||
+            stringcompare_simple(String(modelsuite_names(i)), String("zc"), true)) {
+            used_name_vector(4) = i;
+            ms_names_true(i) = ms_names_expected(4);
+          } else if (stringcompare_simple(String(modelsuite_names(i)), String("rep"), true)) {
+            used_name_vector(5) = i;
+            ms_names_true(i) = ms_names_expected(5);
+          } else if (stringcompare_simple(String(modelsuite_names(i)), String("fec"), true)) {
+            used_name_vector(6) = i;
+            ms_names_true(i) = ms_names_expected(6);
+          } else if (stringcompare_simple(String(modelsuite_names(i)), String("par"), true)) {
+            used_name_vector(14) = i;
+            ms_names_true(i) = ms_names_expected(14);
+            
+            paramnames_ = as<DataFrame>(modelsuite_(i));
+            StringVector modelparams_ = paramnames_["modelparams"];
+            String indiv_var_ = String(modelparams_(1));
+            String year_var_ = String(modelparams_(0));
+            String patch_var_ = String(modelparams_(2));
+            String age_var_ = String(modelparams_(21));
+            
+            for (int i = 0; i < data_vars_no; i++) {
+              if (stringcompare_hard(String(data_vars(i)), indiv_var_)) {
+                indiv_var = indiv_var_;
+                indiv_var_int = i;
               }
-              
-            } else {
-            // Adult models
-            if (stringcompare_simple(String(modelsuite_names(i)), String("sur"), true)) {
-              used_name_vector(0) = j;
-              ms_names_true(i) = ms_names_expected(0);
-              
-            } else if (stringcompare_simple(String(modelsuite_names(i)), String("obs"), true)) {
-              used_name_vector(1) = j;
-              ms_names_true(i) = ms_names_expected(1);
-              
-            } else if (stringcompare_simple(String(modelsuite_names(i)), String("size_"), true) ||
-              stringcompare_simple(String(modelsuite_names(i)), String("sizea"), true) ||
-              stringcompare_simple(String(modelsuite_names(i)), String("siza"), true)) {
-              used_name_vector(2) = j;
-              ms_names_true(i) = ms_names_expected(2);
-              
-            } else if (stringcompare_simple(String(modelsuite_names(i)), String("zeb"), true) ||
-              stringcompare_simple(String(modelsuite_names(i)), String("zb"), true)) {
-              used_name_vector(3) = j;
-              ms_names_true(i) = ms_names_expected(3);
-              
-            } else if (stringcompare_simple(String(modelsuite_names(i)), String("zec"), true) ||
-              stringcompare_simple(String(modelsuite_names(i)), String("zc"), true)) {
-              used_name_vector(4) = j;
-              ms_names_true(i) = ms_names_expected(4);
-              
-            } else if (stringcompare_simple(String(modelsuite_names(i)), String("rep"), true)) {
-              used_name_vector(5) = j;
-              ms_names_true(i) = ms_names_expected(5);
-              
-            } else if (stringcompare_simple(String(modelsuite_names(i)), String("fec"), true)) {
-              used_name_vector(6) = j;
-              ms_names_true(i) = ms_names_expected(6);
-              
-            } else if (stringcompare_simple(String(modelsuite_names(i)), String("par"), true)) {
-              used_name_vector(14) = j;
-              ms_names_true(i) = ms_names_expected(14);
-              
-              paramnames_ = as<DataFrame>(modelsuite_(i));
-              StringVector modelparams_ = paramnames_["modelparams"];
-              String indiv_var_ = String(modelparams_(1));
-              String year_var_ = String(modelparams_(0));
-              String patch_var_ = String(modelparams_(2));
-              String age_var_ = String(modelparams_(21));
-              
-              for (int i = 0; i < data_vars_no; i++) {
-                if (stringcompare_hard(String(data_vars(i)), indiv_var_)) {
-                  indiv_var = indiv_var_;
-                  indiv_var_int = i;
-                }
-                if (stringcompare_hard(String(data_vars(i)), year_var_)) {
-                  year_var = year_var_;
-                  year_var_int = i;
-                }
-                if (stringcompare_hard(String(data_vars(i)), patch_var_)) {
-                  patch_var = patch_var_;
-                  patch_var_int = i;
-                }
-                if (stringcompare_hard(String(data_vars(i)), age_var_)) {
-                  age_var = age_var_;
-                  age_var_int = i;
-                }
+              if (stringcompare_hard(String(data_vars(i)), year_var_)) {
+                year_var = year_var_;
+                year_var_int = i;
               }
-              
-              paramnames_provided = true;
+              if (stringcompare_hard(String(data_vars(i)), patch_var_)) {
+                patch_var = patch_var_;
+                patch_var_int = i;
+              }
+              if (stringcompare_hard(String(data_vars(i)), age_var_)) {
+                age_var = age_var_;
+                age_var_int = i;
+              }
             }
+            
+            paramnames_provided = true;
           }
         }
+        if (modelsuite_(i) == R_NilValue) modelsuite_(i) = 1;
       }
       
       if (paramnames.isNotNull() && !paramnames_provided) {
@@ -10986,6 +10975,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
       
       new_modelsuite(14) = paramnames_;
       modelsuite_ = new_modelsuite;
+      modelsuite_.attr("names") = ms_names_true; // new
     }
     modelsuite_provided = true;
     paramnames_provided = true;
