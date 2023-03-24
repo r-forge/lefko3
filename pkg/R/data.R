@@ -435,7 +435,7 @@
 #'   
 #' jhfv <- verticalize3(data = jreg, noyears = 6, firstyear = 2015,
 #'   individcol = "id", blocksize = 9, sizeacol = "lvs.num.2015",
-#'   sizebcol = "stump.2015", repstracol = "flo.tot.2015",
+#'   obsacol = "sprouted.2015", repstracol = "flo.tot.2015",
 #'   repstrbcol = "frt.tot.2015", fecacol = "flo.tot.2015",
 #'   fecbcol = "frt.tot.2015", NAas0 = TRUE, stagesize = "sizea",
 #'   stageassign = jp_frame)
@@ -446,7 +446,6 @@
 #'   fecdist = "negbin", fec.trunc = TRUE, historical = FALSE,
 #'   quiet = "partial")
 #' jp_germ <- 0.90
-#' sa_germ <- jp_germ
 #' 
 #' jp_supp2 <- supplemental(stage3 = c("Sdl", "Dorm", "V0nr", "V1nr", "P1", "Sdl"), 
 #'   stage2 = c("P1", "Sdl", "Sdl", "Sdl", "rep", "rep"),
