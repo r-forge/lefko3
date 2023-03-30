@@ -1,3 +1,10 @@
+# lefko3 6.0.2 (2023-03-31)
+
+## USER VISIBLE CHANGES
+
+* Patch variable in labels object of dataset anthyllis has been corrected to
+  match population names in the source paper.
+
 # lefko3 6.0.1 (2023-03-30)
 
 ## NEW FEATURES
