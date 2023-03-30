@@ -474,6 +474,14 @@
 #' these cases. Also, the \code{suite} setting can be set to either \code{age}
 #' or \code{cons}, as the results will be exactly the same.
 #' 
+#' Users wishing to test age, density, group, or individual covariates, must
+#' include \code{test.age = TRUE}, \code{test.density = TRUE},
+#' \code{test.group = TRUE}, or \code{test.indcova = TRUE} (or
+#' \code{test.indcovb = TRUE} or \code{test.indcovc = TRUE}, whichever is most
+#' appropriate), respectively, in addition to stipulating the name of the
+#' variable within the dataset. The default for these options is always
+#' \code{FALSE}.
+#' 
 #' @examples
 #' \donttest{
 #' data(lathyrus)
@@ -538,7 +546,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
   approach = "mixed", suite = "size", bestfit = "AICc&k",
   vitalrates = c("surv", "size", "fec"), surv = c("alive3", "alive2", "alive1"),
   obs = c("obsstatus3", "obsstatus2", "obsstatus1"),
-  size = c("sizea3", "sizea2", "sizea1"), sizeb = c(NA, NA, NA), 
+  size = c("sizea3", "sizea2", "sizea1"), sizeb = c(NA, NA, NA),
   sizec = c(NA, NA, NA), repst = c("repstatus3", "repstatus2", "repstatus1"),
   fec = c("feca3", "feca2", "feca1"), stage = c("stage3", "stage2", "stage1"),
   matstat = c("matstatus3", "matstatus2", "matstatus1"), indiv = "individ",
@@ -2884,7 +2892,533 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
 #' 
 #' @keywords internal
 #' @noRd
-.headmaster_ritual <- function(vrate, approach = "mixed", dist = NA,  zero = FALSE, truncz = FALSE, quiet = FALSE, quiet.mil = FALSE, usedformula,  subdata, vind, vtrans, suite, global.only = FALSE, criterion = "AICc",  bestfit = "AICc&k", correction.patch, correction.year, correction.indiv,  alt_formula, alt_nocovsformula, alt_glmformula, extra_fac, noterms,  null_model = FALSE) {    old <- options()  on.exit(options(old))    model_null <- null_model_num <- df.models <- NA  override <- cutswitch <- FALSE    if (!is.na(dist)) {    if (!is.element(dist, c("gaussian", "poisson", "negbin", "binom", "gamma"))) {      stop("Response distribution not recognized.", call. = FALSE)    }  }    strange_vrates <- c(3, 5, 8, 10, 11, 12, 13)  if (is.element(vrate, strange_vrates)) {    if ((dist == "negbin" | dist == "poisson") & zero) {      if (noterms[1] > 15) {        if (noterms[2] > 0 & noterms[2] < 16) {          usedformula <- alt_formula          message("\nToo many terms for zero-inflated models. Will use a smaller set for those models.\n")        } else if (noterms[4] > 0 & noterms[4] < 16) {          usedformula <- alt_nocovsformula          message("\nToo many terms for zero-inflated models. Will use a smaller set for those models.\n")        } else if (noterms[3] > 0 & noterms[3] < 16) {          usedformula <- alt_glmformula          message("\nToo many terms for zero-inflated models. Will use a smaller set for those models.\n")        }      }    }  }    if (vrate == 1) {    if (!quiet.mil) {      if (usedformula != "none") {        message("\nDeveloping global model of survival probability...\n");      } else {        message("\nSurvival probability will be treated as constant.\n")      }    }    binom.model = TRUE  } else if (vrate == 2) {    if (!quiet.mil) {      if (usedformula != "none") {        message("\nDeveloping global model of observation probability...\n");      } else {        message("\nObservation probability will be treated as constant.\n")      }    }    binom.model = TRUE  } else if (vrate == 3) {    if (!quiet.mil) {      if (usedformula != "none") {        message("\nDeveloping global model of primary size...\n");      } else {        message("\nPrimary size will be treated as constant.\n")      }    }    binom.model = FALSE  } else if (vrate == 4) {    if (!quiet.mil) {      if (usedformula != "none") {        message("\nDeveloping global model of reproduction probability...\n");      } else {        message("\nReproduction probability will be treated as constant.\n")      }    }    binom.model = TRUE  } else if (vrate == 5) {    if (!quiet.mil) {      if (usedformula != "none") {        message("\nDeveloping global model of fecundity...\n");      } else {        message("\nFecundity will be treated as constant.\n")      }    }    binom.model = FALSE  } else if (vrate == 6) {    if (!quiet.mil) {      if (usedformula != "none") {        message("\nDeveloping global model of juvenile survival probability...\n");      } else {        message("\nJuvenile survival probability will be treated as constant.\n")      }    }    binom.model = TRUE  } else if (vrate == 7) {    if (!quiet.mil) {      if (usedformula != "none") {        message("\nDeveloping global model of juvenile observation probability...\n");      } else {        message("\nJuvenile observation probability will be treated as constant.\n")      }    }    binom.model = TRUE  } else if (vrate == 8) {    if (!quiet.mil) {      if (usedformula != "none") {        message("\nDeveloping global model of juvenile primary size...\n");      } else {        message("\nJuvenile primary size will be treated as constant.\n")      }    }    binom.model = FALSE  } else if (vrate == 9) {    if (!quiet.mil) {      if (usedformula != "none") {        message("\nDeveloping global model of juvenile reproduction probability...\n");      } else {        message("\nJuvenile reproduction probability will be treated as constant.\n")      }    }    binom.model = TRUE  } else if (vrate == 10) {    if (!quiet.mil) {      if (usedformula != "none") {        message("\nDeveloping global model of secondary size...\n");      } else {        message("\nSecondary size will be treated as constant.\n")      }    }    binom.model = FALSE  } else if (vrate == 11) {    if (!quiet.mil) {      if (usedformula != "none") {        message("\nDeveloping global model of tertiary size...\n");      } else {        message("\nTertiary size will be treated as constant.\n")      }    }    binom.model = FALSE  } else if (vrate == 12) {    if (!quiet.mil) {      if (usedformula != "none") {        message("\nDeveloping global model of juvenile secondary size...\n");      } else {        message("\nJuvenile secondary size will be treated as constant.\n")      }    }    binom.model = FALSE  } else if (vrate == 13) {    if (!quiet.mil) {      if (usedformula != "none") {        message("\nDeveloping global model of juvenile tertiary size...\n");      } else {        message("\nJuvenile tertiary size will be treated as constant.\n")      }    }    binom.model = FALSE  } else if (vrate == 14) {    if (!quiet.mil) {      if (usedformula != "none") {        message("\nDeveloping global model of juvenile maturity probability...\n");      } else {        message("\nJuvenile maturity probability will be treated as constant.\n")      }    }    binom.model = TRUE  } else {    stop("Vital rate model not recognized.", call. = FALSE)  }    if (usedformula != "none") {    global.model <- .levindurosier(usedformula, subdata, approach, binom.model,      dist, truncz, zero, quiet)  } else {    global.model <- 1    vind <- 0    vtrans <- 0    model_bf <- global.model    model_null <- global.model    model_table <- NA        cutswitch <- TRUE  }    if (any(is(global.model, "try-error"))) {    if (!is.na(alt_formula)) {      nox.model <- alt_formula    } else {      nox.model <- usedformula    }        if (nox.model != usedformula) {      if (!quiet) {        message("\nInitial global model estimation failed.          Attempting a global model without interaction terms.\n")      }      global.model <- .levindurosier(nox.model, subdata, approach, binom.model,        dist, truncz, zero, quiet)    }        if (any(is(global.model, "try-error"))) {      nopat.model <- nox.model            cor_patch <- apply(as.matrix(c(1:4)), 1, function(X) {grepl(correction.patch[X], nopat.model)})      if (any(cor_patch)) {        nopat.model <- gsub(correction.patch[which(cor_patch)[1]], "", nopat.model, fixed = TRUE)      }            if (nopat.model != nox.model) {        if (!quiet) {          message("\nGlobal model estimation difficulties.            Attempting a global model without a patch term.")        }        global.model <- .levindurosier(nopat.model, subdata, approach, binom.model,          dist, truncz, zero, quiet)      }    }        if (any(is(global.model, "try-error"))) {      noyr.model <- nox.model            cor_year <- apply(as.matrix(c(1:4)), 1, function(X) {grepl(correction.year[X], noyr.model)})      if (any(cor_year)) {        noyr.model <- gsub(correction.year[which(cor_year)[1]], "", noyr.model, fixed = TRUE)      }            if (noyr.model != nox.model) {        if (!quiet) {          message("\nGlobal model estimation difficulties.            Attempting a global model without a year term.")        }        global.model <- .levindurosier(noyr.model, subdata, approach, binom.model,          dist, truncz, zero, quiet)      }    }        if (any(is(global.model, "try-error"))) {      nocovs.model <- alt_nocovsformula            if (!quiet) {        message("\nGlobal model estimation difficulties.          Attempting a global model without individual covariates.")      }      global.model <- .levindurosier(nocovs.model, subdata, approach, binom.model,        dist, truncz, zero, quiet)    }        if (any(is(global.model, "try-error"))) {      nocovpat.model <- nocovs.model            cor_patch <- apply(as.matrix(c(1:4)), 1, function(X) {grepl(correction.patch[X], nocovpat.model)})      if (any(cor_patch)) {        nocovpat.model <- gsub(correction.patch[which(cor_patch)[1]], "", nocovpat.model, fixed = TRUE)      }            if (nocovpat.model != nocovs.model) {        if (!quiet) {          message("\nGlobal model estimation difficulties.            Attempting a global model without individual covariates and a patch term.")        }        global.model <- .levindurosier(nocovpat.model, subdata, approach, binom.model,          dist, truncz, zero, quiet)      }    }        if (any(is(global.model, "try-error"))) {      nocovyr.model <- nocovs.model            cor_year <- apply(as.matrix(c(1:4)), 1, function(X) {grepl(correction.year[X], nocovyr.model)})      if (any(cor_year)) {        nocovyr.model <- gsub(correction.year[which(cor_year)[1]], "", nocovyr.model, fixed = TRUE)      }            if (nocovyr.model != nocovpat.model) {        if (!quiet) {          message("\nGlobal model estimation difficulties.            Attempting a global model without individual covariates and patch and year terms.")        }        global.model <- .levindurosier(nocovyr.model, subdata, approach, binom.model,          dist, truncz, zero, quiet)      }    }        if (any(is(global.model, "try-error"))) {      noind.model <- usedformula            cor_indiv <- apply(as.matrix(c(1:4)), 1, function(X) {grepl(correction.indiv[X], noind.model)})      if (any(cor_indiv)) {        noind.model <- gsub(correction.indiv[which(cor_indiv)[1]], "", noind.model, fixed = TRUE)      }            if (noind.model != usedformula) {        if (!quiet) {          message("\nGlobal model estimation difficulties.            Attempting a global model without an individual identity term.")        }        global.model <- .levindurosier(noind.model, subdata, approach, binom.model,          dist, truncz, zero, quiet)      }    }        # The no random term version    if (any(is(global.model, "try-error")) & approach == "mixed") {      noran.model <- alt_glmformula            if (!quiet) {        message("\nGlobal model estimation difficulties.          Attempting a global GLM model without random terms.")      }      global.model <- .levindurosier(noind.model, subdata, approach = "glm",        binom.model, dist, truncz, zero, quiet)    }        if (any(is(global.model, "try-error"))) {      if (!quiet.mil) {        if (vrate == 1) {          message("\nCould not properly estimate a global model for survival probability.")        } else if (vrate == 2) {          message("\nCould not properly estimate a global model for observation probability.")        } else if (vrate == 3) {          message("\nCould not properly estimate a global model for primary size.")        } else if (vrate == 4) {          message("\nCould not properly estimate a global model for reproduction probability.")        } else if (vrate == 5) {          message("\nCould not properly estimate a global model for fecundity.")        } else if (vrate == 6) {          message("\nCould not properly estimate a global model for juvenile survival probability.")        } else if (vrate == 7) {          message("\nCould not properly estimate a global model for juvenile observation probability.")        } else if (vrate == 8) {          message("\nCould not properly estimate a global model for juvenile size.")        } else if (vrate == 9) {          message("\nCould not properly estimate a global model for juvenile reproduction probability.")        } else if (vrate == 10) {          message("\nCould not properly estimate a global model for secondary primary size.")        } else if (vrate == 11) {          message("\nCould not properly estimate a global model for tertiary size.")        } else if (vrate == 12) {          message("\nCould not properly estimate a global model for juvenile secondary size.")        } else if (vrate == 13) {          message("\nCould not properly estimate a global model for juvenile tertiary size.")        } else if (vrate == 14) {          message("\nCould not properly estimate a global model for juvenile maturity status.")        }      }            global.model <- 1      vind <- 0      vtrans <- 0      model_bf <- global.model      model_null <- global.model      model_table <- NA            cutswitch <- TRUE    }  }    if (!cutswitch) {    if (vrate == 1) {      if (!quiet.mil) {message("\nGlobal model of survival probability developed. Proceeding with model dredge...\n");}    } else if (vrate == 2) {      if (!quiet.mil) {message("\nGlobal model of observation probability developed. Proceeding with model dredge...\n");}    } else if (vrate == 3) {      if (!quiet.mil) {message("\nGlobal model of primary size developed. Proceeding with model dredge...\n");}    } else if (vrate == 4) {      if (!quiet.mil) {message("\nGlobal model of reproduction probability developed. Proceeding with model dredge...\n");}    } else if (vrate == 5) {      if (!quiet.mil) {message("\nGlobal model of fecundity developed. Proceeding with model dredge...\n");}    } else if (vrate == 6) {      if (!quiet.mil) {message("\nGlobal model of juvenile survival probability developed. Proceeding with model dredge...\n");}    } else if (vrate == 7) {      if (!quiet.mil) {message("\nGlobal model of juvenile observation probability developed. Proceeding with model dredge...\n");}    } else if (vrate == 8) {      if (!quiet.mil) {message("\nGlobal model of juvenile primary size developed. Proceeding with model dredge...\n");}    } else if (vrate == 9) {      if (!quiet.mil) {message("\nGlobal model of juvenile reproduction probability developed. Proceeding with model dredge...\n");}    } else if (vrate == 10) {      if (!quiet.mil) {message("\nGlobal model of secondary size developed. Proceeding with model dredge...\n");}    } else if (vrate == 11) {      if (!quiet.mil) {message("\nGlobal model of tertiary size developed. Proceeding with model dredge...\n");}    } else if (vrate == 12) {      if (!quiet.mil) {message("\nGlobal model of juvenile secondary size developed. Proceeding with model dredge...\n");}    } else if (vrate == 13) {      if (!quiet.mil) {message("\nGlobal model of juvenile tertiary size developed. Proceeding with model dredge...\n");}    } else if (vrate == 14) {      if (!quiet.mil) {message("\nGlobal model of juvenile maturity status developed. Proceeding with model dredge...\n");}    }        model_table <- NA        if (suite != "cons") override <- TRUE    if (extra_fac > 0) override <- TRUE        #This is the section where we dredge the models    if (override & !global.only & !any(is(global.model, "vglm"))) {        if (usedformula != 1) {        options(na.action = "na.fail")        if (!quiet) {          model_table <- try(MuMIn::dredge(global.model, rank = criterion), silent = FALSE)        } else {          model_table <- suppressWarnings(suppressMessages(try(MuMIn::dredge(global.model,                   rank = criterion), silent = TRUE)))        }        null_model_num <- try(which(model_table$df == min(model_table$df))[1])        if (is(null_model_num, "try-error")) {          stop("Currently used model cannot be run. Try running with fewer parameters.", call. = FALSE)        }                if (is(model_table, "try-error") & !quiet.mil) {          if (vrate == 1) {            message("\nDredge of survival probability failed.\n")          } else if (vrate == 2) {            message("\nDredge of observation probability failed.\n")          } else if (vrate == 3) {            message("\nDredge of primary size failed.\n")          } else if (vrate == 4) {            message("\nDredge of reproduction probability failed.\n")          } else if (vrate == 5) {            message("\nDredge of fecundity failed.\n")          } else if (vrate == 6) {            message("\nDredge of juvenile survival probability failed.\n")          } else if (vrate == 7) {            message("\nDredge of juvenile observation probability failed.\n")          } else if (vrate == 8) {            message("\nDredge of juvenile primary size failed.\n")          } else if (vrate == 9) {            message("\nDredge of juvenile reproduction probability failed.\n")          } else if (vrate == 10) {            message("\nDredge of secondary size failed.\n")          } else if (vrate == 11) {            message("\nDredge of tertiary size failed.\n")          } else if (vrate == 12) {            message("\nDredge of juvenile secondary size failed.\n")          } else if (vrate == 13) {            message("\nDredge of juvenile tertiary size failed.\n")          } else if (vrate == 14) {            message("\nDredge of juvenile maturity status failed.\n")          }        }      }    }        #Here we extract the best-fit model    if (length(grep("&k", bestfit)) > 0) {      if (any(is(model_table, "model.selection"))) {        if (!quiet) {          if (vrate == 1) {            message("\nExtracting best-fit model of survival probability.\n")          } else if (vrate == 2) {            message("\nExtracting best-fit model of observation probability.\n")          } else if (vrate == 3) {            message("\nExtracting best-fit model of primary size.\n")          } else if (vrate == 4) {            message("\nExtracting best-fit model of reproduction probability.\n")          } else if (vrate == 5) {            message("\nExtracting best-fit model of fecundity.\n")          } else if (vrate == 6) {            message("\nExtracting best-fit model of juvenile survival probability.\n")          } else if (vrate == 7) {            message("\nExtracting best-fit model of juvenile observation probability.\n")          } else if (vrate == 8) {            message("\nExtracting best-fit model of juvenile primary size.\n")          } else if (vrate == 9) {            message("\nExtracting best-fit model of juvenile reproduction probability.\n")          } else if (vrate == 10) {            message("\nExtracting best-fit model of secondary size.\n")          } else if (vrate == 11) {            message("\nExtracting best-fit model of tertiary size.\n")          } else if (vrate == 12) {            message("\nExtracting best-fit model of juvenile secondary size.\n")          } else if (vrate == 13) {            message("\nExtracting best-fit model of juvenile tertiary size.\n")          } else if (vrate == 14) {            message("\nExtracting best-fit model of juvenile maturity status.\n")          }        }                if (is.na(model_table$delta[1])) {          df.models <- c(1)        } else {          relevant.models <- which(model_table$delta <= 2)          df.models <- which(model_table$df[relevant.models] == min(model_table$df[relevant.models]))          if (length(df.models) > 1) {            df.models <- min(df.models)          }        }        if (quiet) {          model_bf <- suppressWarnings(suppressMessages(eval(stats::getCall(model_table, df.models[1]))))          if (null_model) {            model_null <- suppressWarnings(suppressMessages(eval(stats::getCall(model_table, null_model_num))))          }        } else {          model_bf <- eval(stats::getCall(model_table, df.models[1]))          if (null_model) {            model_null <- eval(stats::getCall(model_table, null_model_num))          }        }      } else {        model_bf <- global.model      }          } else {      if (any(is(model_table, "model.selection"))) {        if (!quiet) {          message("\nExtracting best-fit model.\n")        }                if (quiet) {          model_bf <- suppressWarnings(suppressMessages(eval(stats::getCall(model_table, 1))))          if (null_model) {            model_null <- suppressWarnings(suppressMessages(eval(stats::getCall(model_table, null_model_num))))          }        } else {          model_bf <- eval(stats::getCall(model_table, 1))          if (null_model) {            model_null <- eval(stats::getCall(model_table, null_model_num))          }        }      } else {        model_bf <- global.model      }    }  }  output <- list(model = global.model, ind = vind, trans = vtrans,    bf_model = model_bf, null_model = model_null, table = model_table)    return(output)}
+.headmaster_ritual <- function(vrate, approach = "mixed", dist = NA,
+  zero = FALSE, truncz = FALSE, quiet = FALSE, quiet.mil = FALSE, usedformula,
+  subdata, vind, vtrans, suite, global.only = FALSE, criterion = "AICc",
+  bestfit = "AICc&k", correction.patch, correction.year, correction.indiv,
+  alt_formula, alt_nocovsformula, alt_glmformula, extra_fac, noterms,
+  null_model = FALSE) {
+  
+  old <- options()
+  on.exit(options(old))
+  
+  model_null <- null_model_num <- df.models <- NA
+  override <- cutswitch <- FALSE
+  
+  if (!is.na(dist)) {
+    if (!is.element(dist, c("gaussian", "poisson", "negbin", "binom", "gamma"))) {
+      stop("Response distribution not recognized.", call. = FALSE)
+    }
+  }
+  
+  strange_vrates <- c(3, 5, 8, 10, 11, 12, 13)
+  if (is.element(vrate, strange_vrates)) {
+    if ((dist == "negbin" | dist == "poisson") & zero) {
+      if (noterms[1] > 15) {
+        if (noterms[2] > 0 & noterms[2] < 16) {
+          usedformula <- alt_formula
+          message("\nToo many terms for zero-inflated models. Will use a smaller set for those models.\n")
+        } else if (noterms[4] > 0 & noterms[4] < 16) {
+          usedformula <- alt_nocovsformula
+          message("\nToo many terms for zero-inflated models. Will use a smaller set for those models.\n")
+        } else if (noterms[3] > 0 & noterms[3] < 16) {
+          usedformula <- alt_glmformula
+          message("\nToo many terms for zero-inflated models. Will use a smaller set for those models.\n")
+        }
+      }
+    }
+  }
+  
+  if (vrate == 1) {
+    if (!quiet.mil) {
+      if (usedformula != "none") {
+        message("\nDeveloping global model of survival probability...\n");
+      } else {
+        message("\nSurvival probability will be treated as constant.\n")
+      }
+    }
+    binom.model = TRUE
+  } else if (vrate == 2) {
+    if (!quiet.mil) {
+      if (usedformula != "none") {
+        message("\nDeveloping global model of observation probability...\n");
+      } else {
+        message("\nObservation probability will be treated as constant.\n")
+      }
+    }
+    binom.model = TRUE
+  } else if (vrate == 3) {
+    if (!quiet.mil) {
+      if (usedformula != "none") {
+        message("\nDeveloping global model of primary size...\n");
+      } else {
+        message("\nPrimary size will be treated as constant.\n")
+      }
+    }
+    binom.model = FALSE
+  } else if (vrate == 4) {
+    if (!quiet.mil) {
+      if (usedformula != "none") {
+        message("\nDeveloping global model of reproduction probability...\n");
+      } else {
+        message("\nReproduction probability will be treated as constant.\n")
+      }
+    }
+    binom.model = TRUE
+  } else if (vrate == 5) {
+    if (!quiet.mil) {
+      if (usedformula != "none") {
+        message("\nDeveloping global model of fecundity...\n");
+      } else {
+        message("\nFecundity will be treated as constant.\n")
+      }
+    }
+    binom.model = FALSE
+  } else if (vrate == 6) {
+    if (!quiet.mil) {
+      if (usedformula != "none") {
+        message("\nDeveloping global model of juvenile survival probability...\n");
+      } else {
+        message("\nJuvenile survival probability will be treated as constant.\n")
+      }
+    }
+    binom.model = TRUE
+  } else if (vrate == 7) {
+    if (!quiet.mil) {
+      if (usedformula != "none") {
+        message("\nDeveloping global model of juvenile observation probability...\n");
+      } else {
+        message("\nJuvenile observation probability will be treated as constant.\n")
+      }
+    }
+    binom.model = TRUE
+  } else if (vrate == 8) {
+    if (!quiet.mil) {
+      if (usedformula != "none") {
+        message("\nDeveloping global model of juvenile primary size...\n");
+      } else {
+        message("\nJuvenile primary size will be treated as constant.\n")
+      }
+    }
+    binom.model = FALSE
+  } else if (vrate == 9) {
+    if (!quiet.mil) {
+      if (usedformula != "none") {
+        message("\nDeveloping global model of juvenile reproduction probability...\n");
+      } else {
+        message("\nJuvenile reproduction probability will be treated as constant.\n")
+      }
+    }
+    binom.model = TRUE
+  } else if (vrate == 10) {
+    if (!quiet.mil) {
+      if (usedformula != "none") {
+        message("\nDeveloping global model of secondary size...\n");
+      } else {
+        message("\nSecondary size will be treated as constant.\n")
+      }
+    }
+    binom.model = FALSE
+  } else if (vrate == 11) {
+    if (!quiet.mil) {
+      if (usedformula != "none") {
+        message("\nDeveloping global model of tertiary size...\n");
+      } else {
+        message("\nTertiary size will be treated as constant.\n")
+      }
+    }
+    binom.model = FALSE
+  } else if (vrate == 12) {
+    if (!quiet.mil) {
+      if (usedformula != "none") {
+        message("\nDeveloping global model of juvenile secondary size...\n");
+      } else {
+        message("\nJuvenile secondary size will be treated as constant.\n")
+      }
+    }
+    binom.model = FALSE
+  } else if (vrate == 13) {
+    if (!quiet.mil) {
+      if (usedformula != "none") {
+        message("\nDeveloping global model of juvenile tertiary size...\n");
+      } else {
+        message("\nJuvenile tertiary size will be treated as constant.\n")
+      }
+    }
+    binom.model = FALSE
+  } else if (vrate == 14) {
+    if (!quiet.mil) {
+      if (usedformula != "none") {
+        message("\nDeveloping global model of juvenile maturity probability...\n");
+      } else {
+        message("\nJuvenile maturity probability will be treated as constant.\n")
+      }
+    }
+    binom.model = TRUE
+  } else {
+    stop("Vital rate model not recognized.", call. = FALSE)
+  }
+  
+  if (usedformula != "none") {
+    global.model <- .levindurosier(usedformula, subdata, approach, binom.model,
+      dist, truncz, zero, quiet)
+  } else {
+    global.model <- 1
+    vind <- 0
+    vtrans <- 0
+    model_bf <- global.model
+    model_null <- global.model
+    model_table <- NA
+    
+    cutswitch <- TRUE
+  }
+  
+  if (any(is(global.model, "try-error"))) {
+    if (!is.na(alt_formula)) {
+      nox.model <- alt_formula
+    } else {
+      nox.model <- usedformula
+    }
+    
+    if (nox.model != usedformula) {
+      if (!quiet) {
+        message("\nInitial global model estimation failed.
+          Attempting a global model without interaction terms.\n")
+      }
+      global.model <- .levindurosier(nox.model, subdata, approach, binom.model,
+        dist, truncz, zero, quiet)
+    }
+    
+    if (any(is(global.model, "try-error"))) {
+      nopat.model <- nox.model
+      
+      cor_patch <- apply(as.matrix(c(1:4)), 1, function(X) {grepl(correction.patch[X], nopat.model)})
+      if (any(cor_patch)) {
+        nopat.model <- gsub(correction.patch[which(cor_patch)[1]], "", nopat.model, fixed = TRUE)
+      }
+      
+      if (nopat.model != nox.model) {
+        if (!quiet) {
+          message("\nGlobal model estimation difficulties.
+            Attempting a global model without a patch term.")
+        }
+        global.model <- .levindurosier(nopat.model, subdata, approach, binom.model,
+          dist, truncz, zero, quiet)
+      }
+    }
+    
+    if (any(is(global.model, "try-error"))) {
+      noyr.model <- nox.model
+      
+      cor_year <- apply(as.matrix(c(1:4)), 1, function(X) {grepl(correction.year[X], noyr.model)})
+      if (any(cor_year)) {
+        noyr.model <- gsub(correction.year[which(cor_year)[1]], "", noyr.model, fixed = TRUE)
+      }
+      
+      if (noyr.model != nox.model) {
+        if (!quiet) {
+          message("\nGlobal model estimation difficulties.
+            Attempting a global model without a year term.")
+        }
+        global.model <- .levindurosier(noyr.model, subdata, approach, binom.model,
+          dist, truncz, zero, quiet)
+      }
+    }
+    
+    if (any(is(global.model, "try-error"))) {
+      nocovs.model <- alt_nocovsformula
+      
+      if (!quiet) {
+        message("\nGlobal model estimation difficulties.
+          Attempting a global model without individual covariates.")
+      }
+      global.model <- .levindurosier(nocovs.model, subdata, approach, binom.model,
+        dist, truncz, zero, quiet)
+    }
+    
+    if (any(is(global.model, "try-error"))) {
+      nocovpat.model <- nocovs.model
+      
+      cor_patch <- apply(as.matrix(c(1:4)), 1, function(X) {grepl(correction.patch[X], nocovpat.model)})
+      if (any(cor_patch)) {
+        nocovpat.model <- gsub(correction.patch[which(cor_patch)[1]], "", nocovpat.model, fixed = TRUE)
+      }
+      
+      if (nocovpat.model != nocovs.model) {
+        if (!quiet) {
+          message("\nGlobal model estimation difficulties.
+            Attempting a global model without individual covariates and a patch term.")
+        }
+        global.model <- .levindurosier(nocovpat.model, subdata, approach, binom.model,
+          dist, truncz, zero, quiet)
+      }
+    }
+    
+    if (any(is(global.model, "try-error"))) {
+      nocovyr.model <- nocovs.model
+      
+      cor_year <- apply(as.matrix(c(1:4)), 1, function(X) {grepl(correction.year[X], nocovyr.model)})
+      if (any(cor_year)) {
+        nocovyr.model <- gsub(correction.year[which(cor_year)[1]], "", nocovyr.model, fixed = TRUE)
+      }
+      
+      if (nocovyr.model != nocovpat.model) {
+        if (!quiet) {
+          message("\nGlobal model estimation difficulties.
+            Attempting a global model without individual covariates and patch and year terms.")
+        }
+        global.model <- .levindurosier(nocovyr.model, subdata, approach, binom.model,
+          dist, truncz, zero, quiet)
+      }
+    }
+    
+    if (any(is(global.model, "try-error"))) {
+      noind.model <- usedformula
+      
+      cor_indiv <- apply(as.matrix(c(1:4)), 1, function(X) {grepl(correction.indiv[X], noind.model)})
+      if (any(cor_indiv)) {
+        noind.model <- gsub(correction.indiv[which(cor_indiv)[1]], "", noind.model, fixed = TRUE)
+      }
+      
+      if (noind.model != usedformula) {
+        if (!quiet) {
+          message("\nGlobal model estimation difficulties.
+            Attempting a global model without an individual identity term.")
+        }
+        global.model <- .levindurosier(noind.model, subdata, approach, binom.model,
+          dist, truncz, zero, quiet)
+      }
+    }
+    
+    # The no random term version
+    if (any(is(global.model, "try-error")) & approach == "mixed") {
+      noran.model <- alt_glmformula
+      
+      if (!quiet) {
+        message("\nGlobal model estimation difficulties.
+          Attempting a global GLM model without random terms.")
+      }
+      global.model <- .levindurosier(noind.model, subdata, approach = "glm",
+        binom.model, dist, truncz, zero, quiet)
+    }
+    
+    if (any(is(global.model, "try-error"))) {
+      if (!quiet.mil) {
+        if (vrate == 1) {
+          message("\nCould not properly estimate a global model for survival probability.")
+        } else if (vrate == 2) {
+          message("\nCould not properly estimate a global model for observation probability.")
+        } else if (vrate == 3) {
+          message("\nCould not properly estimate a global model for primary size.")
+        } else if (vrate == 4) {
+          message("\nCould not properly estimate a global model for reproduction probability.")
+        } else if (vrate == 5) {
+          message("\nCould not properly estimate a global model for fecundity.")
+        } else if (vrate == 6) {
+          message("\nCould not properly estimate a global model for juvenile survival probability.")
+        } else if (vrate == 7) {
+          message("\nCould not properly estimate a global model for juvenile observation probability.")
+        } else if (vrate == 8) {
+          message("\nCould not properly estimate a global model for juvenile size.")
+        } else if (vrate == 9) {
+          message("\nCould not properly estimate a global model for juvenile reproduction probability.")
+        } else if (vrate == 10) {
+          message("\nCould not properly estimate a global model for secondary primary size.")
+        } else if (vrate == 11) {
+          message("\nCould not properly estimate a global model for tertiary size.")
+        } else if (vrate == 12) {
+          message("\nCould not properly estimate a global model for juvenile secondary size.")
+        } else if (vrate == 13) {
+          message("\nCould not properly estimate a global model for juvenile tertiary size.")
+        } else if (vrate == 14) {
+          message("\nCould not properly estimate a global model for juvenile maturity status.")
+        }
+      }
+      
+      global.model <- 1
+      vind <- 0
+      vtrans <- 0
+      model_bf <- global.model
+      model_null <- global.model
+      model_table <- NA
+      
+      cutswitch <- TRUE
+    }
+  }
+  
+  if (!cutswitch) {
+    if (vrate == 1) {
+      if (!quiet.mil) {message("\nGlobal model of survival probability developed. Proceeding with model dredge...\n");}
+    } else if (vrate == 2) {
+      if (!quiet.mil) {message("\nGlobal model of observation probability developed. Proceeding with model dredge...\n");}
+    } else if (vrate == 3) {
+      if (!quiet.mil) {message("\nGlobal model of primary size developed. Proceeding with model dredge...\n");}
+    } else if (vrate == 4) {
+      if (!quiet.mil) {message("\nGlobal model of reproduction probability developed. Proceeding with model dredge...\n");}
+    } else if (vrate == 5) {
+      if (!quiet.mil) {message("\nGlobal model of fecundity developed. Proceeding with model dredge...\n");}
+    } else if (vrate == 6) {
+      if (!quiet.mil) {message("\nGlobal model of juvenile survival probability developed. Proceeding with model dredge...\n");}
+    } else if (vrate == 7) {
+      if (!quiet.mil) {message("\nGlobal model of juvenile observation probability developed. Proceeding with model dredge...\n");}
+    } else if (vrate == 8) {
+      if (!quiet.mil) {message("\nGlobal model of juvenile primary size developed. Proceeding with model dredge...\n");}
+    } else if (vrate == 9) {
+      if (!quiet.mil) {message("\nGlobal model of juvenile reproduction probability developed. Proceeding with model dredge...\n");}
+    } else if (vrate == 10) {
+      if (!quiet.mil) {message("\nGlobal model of secondary size developed. Proceeding with model dredge...\n");}
+    } else if (vrate == 11) {
+      if (!quiet.mil) {message("\nGlobal model of tertiary size developed. Proceeding with model dredge...\n");}
+    } else if (vrate == 12) {
+      if (!quiet.mil) {message("\nGlobal model of juvenile secondary size developed. Proceeding with model dredge...\n");}
+    } else if (vrate == 13) {
+      if (!quiet.mil) {message("\nGlobal model of juvenile tertiary size developed. Proceeding with model dredge...\n");}
+    } else if (vrate == 14) {
+      if (!quiet.mil) {message("\nGlobal model of juvenile maturity status developed. Proceeding with model dredge...\n");}
+    }
+    
+    model_table <- NA
+    
+    if (suite != "cons") override <- TRUE
+    if (extra_fac > 0) override <- TRUE
+    
+    #This is the section where we dredge the models
+    if (override & !global.only & !any(is(global.model, "vglm"))) {
+  
+      if (usedformula != 1) {
+        options(na.action = "na.fail")
+        if (!quiet) {
+          model_table <- try(MuMIn::dredge(global.model, rank = criterion), silent = FALSE)
+        } else {
+          model_table <- suppressWarnings(suppressMessages(try(MuMIn::dredge(global.model, 
+                  rank = criterion), silent = TRUE)))
+        }
+        null_model_num <- try(which(model_table$df == min(model_table$df))[1])
+        if (is(null_model_num, "try-error")) {
+          stop("Currently used model cannot be run. Try running with fewer parameters.", call. = FALSE)
+        }
+        
+        if (is(model_table, "try-error") & !quiet.mil) {
+          if (vrate == 1) {
+            message("\nDredge of survival probability failed.\n")
+          } else if (vrate == 2) {
+            message("\nDredge of observation probability failed.\n")
+          } else if (vrate == 3) {
+            message("\nDredge of primary size failed.\n")
+          } else if (vrate == 4) {
+            message("\nDredge of reproduction probability failed.\n")
+          } else if (vrate == 5) {
+            message("\nDredge of fecundity failed.\n")
+          } else if (vrate == 6) {
+            message("\nDredge of juvenile survival probability failed.\n")
+          } else if (vrate == 7) {
+            message("\nDredge of juvenile observation probability failed.\n")
+          } else if (vrate == 8) {
+            message("\nDredge of juvenile primary size failed.\n")
+          } else if (vrate == 9) {
+            message("\nDredge of juvenile reproduction probability failed.\n")
+          } else if (vrate == 10) {
+            message("\nDredge of secondary size failed.\n")
+          } else if (vrate == 11) {
+            message("\nDredge of tertiary size failed.\n")
+          } else if (vrate == 12) {
+            message("\nDredge of juvenile secondary size failed.\n")
+          } else if (vrate == 13) {
+            message("\nDredge of juvenile tertiary size failed.\n")
+          } else if (vrate == 14) {
+            message("\nDredge of juvenile maturity status failed.\n")
+          }
+        }
+      }
+    }
+    
+    #Here we extract the best-fit model
+    if (length(grep("&k", bestfit)) > 0) {
+      if (any(is(model_table, "model.selection"))) {
+        if (!quiet) {
+          if (vrate == 1) {
+            message("\nExtracting best-fit model of survival probability.\n")
+          } else if (vrate == 2) {
+            message("\nExtracting best-fit model of observation probability.\n")
+          } else if (vrate == 3) {
+            message("\nExtracting best-fit model of primary size.\n")
+          } else if (vrate == 4) {
+            message("\nExtracting best-fit model of reproduction probability.\n")
+          } else if (vrate == 5) {
+            message("\nExtracting best-fit model of fecundity.\n")
+          } else if (vrate == 6) {
+            message("\nExtracting best-fit model of juvenile survival probability.\n")
+          } else if (vrate == 7) {
+            message("\nExtracting best-fit model of juvenile observation probability.\n")
+          } else if (vrate == 8) {
+            message("\nExtracting best-fit model of juvenile primary size.\n")
+          } else if (vrate == 9) {
+            message("\nExtracting best-fit model of juvenile reproduction probability.\n")
+          } else if (vrate == 10) {
+            message("\nExtracting best-fit model of secondary size.\n")
+          } else if (vrate == 11) {
+            message("\nExtracting best-fit model of tertiary size.\n")
+          } else if (vrate == 12) {
+            message("\nExtracting best-fit model of juvenile secondary size.\n")
+          } else if (vrate == 13) {
+            message("\nExtracting best-fit model of juvenile tertiary size.\n")
+          } else if (vrate == 14) {
+            message("\nExtracting best-fit model of juvenile maturity status.\n")
+          }
+        }
+        
+        if (is.na(model_table$delta[1])) {
+          df.models <- c(1)
+        } else {
+          relevant.models <- which(model_table$delta <= 2)
+          df.models <- which(model_table$df[relevant.models] == min(model_table$df[relevant.models]))
+          if (length(df.models) > 1) {
+            df.models <- min(df.models)
+          }
+        }
+        if (quiet) {
+          model_bf <- suppressWarnings(suppressMessages(eval(stats::getCall(model_table, df.models[1]))))
+          if (null_model) {
+            model_null <- suppressWarnings(suppressMessages(eval(stats::getCall(model_table, null_model_num))))
+          }
+        } else {
+          model_bf <- eval(stats::getCall(model_table, df.models[1]))
+          if (null_model) {
+            model_null <- eval(stats::getCall(model_table, null_model_num))
+          }
+        }
+      } else {
+        model_bf <- global.model
+      }
+      
+    } else {
+      if (any(is(model_table, "model.selection"))) {
+        if (!quiet) {
+          message("\nExtracting best-fit model.\n")
+        }
+        
+        if (quiet) {
+          model_bf <- suppressWarnings(suppressMessages(eval(stats::getCall(model_table, 1))))
+          if (null_model) {
+            model_null <- suppressWarnings(suppressMessages(eval(stats::getCall(model_table, null_model_num))))
+          }
+        } else {
+          model_bf <- eval(stats::getCall(model_table, 1))
+          if (null_model) {
+            model_null <- eval(stats::getCall(model_table, null_model_num))
+          }
+        }
+      } else {
+        model_bf <- global.model
+      }
+    }
+  }
+  output <- list(model = global.model, ind = vind, trans = vtrans,
+    bf_model = model_bf, null_model = model_null, table = model_table)
+  
+  return(output)
+}
+
 #' Core Global Model Builder for .headmaster_ritual()
 #' 
 #' A function that gets used repeatedly in \code{\link{.headmaster_ritual}()} to
@@ -3126,7 +3660,69 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
 #' 
 #' @keywords internal
 #' @noRd
-.accu_predict <- function(bestfitmodel, subdata = NA, param, style = 1,  nullmodel = NA, dist = "binom", trunc = FALSE, approach = "mixed",  quiet = FALSE, check = TRUE) {    pred_vec <- NULL  accuracy <- NA     if (!is.numeric(bestfitmodel) & !is(bestfitmodel, "NULL")) {        if (is(bestfitmodel, "vglm")) {      pred_vec <- try(VGAM::predictvglm(bestfitmodel, newdata = subdata,        type = "response"), silent = TRUE)      if (is(pred_vec, "try-error")) return(NA)    } else {      pred_vec <- try(stats::predict(bestfitmodel, newdata = subdata,        type = "response"), silent = TRUE)      if (is(pred_vec, "try-error")) return(NA)    }        test_vec <- subdata[,which(names(subdata) == param)]        if (style == 1) {      pred_vec <- round(pred_vec)            results_vec <- pred_vec - test_vec      results_vec <- results_vec[!is.na(results_vec)]            accuracy <- length(which(results_vec == 0)) / length(results_vec)          } else if (style == 2) {            mean_y <- mean(test_vec, na.rm = TRUE)      used_test_vec <- test_vec            if (approach == "mixed") {        if (dist == "poisson" | dist == "negbin") {          pred_vec <- round(pred_vec)          mean_y <- round(mean_y)          used_test_vec <- round(used_test_vec)          if (trunc) {            pred_vec <- pred_vec + 1          }        }      }      results_vec <- pred_vec - test_vec      results_vec <- results_vec[!is.na(results_vec)]            squares_vec <- (results_vec * results_vec)      sum_squares <- sum(squares_vec)            base_total <- used_test_vec - mean_y      base_total <- base_total[!is.na(base_total)]      base_squares <- base_total * base_total      sum_base_squares <- sum(base_squares)            accuracy <- 1.000 - (sum_squares / sum_base_squares)          }  }    return(accuracy)}
+.accu_predict <- function(bestfitmodel, subdata = NA, param, style = 1,
+  nullmodel = NA, dist = "binom", trunc = FALSE, approach = "mixed",
+  quiet = FALSE, check = TRUE) {
+  
+  pred_vec <- NULL
+  accuracy <- NA 
+  
+  if (!is.numeric(bestfitmodel) & !is(bestfitmodel, "NULL")) {
+    
+    if (is(bestfitmodel, "vglm")) {
+      pred_vec <- try(VGAM::predictvglm(bestfitmodel, newdata = subdata,
+        type = "response"), silent = TRUE)
+      if (is(pred_vec, "try-error")) return(NA)
+    } else {
+      pred_vec <- try(stats::predict(bestfitmodel, newdata = subdata,
+        type = "response"), silent = TRUE)
+      if (is(pred_vec, "try-error")) return(NA)
+    }
+    
+    test_vec <- subdata[,which(names(subdata) == param)]
+    
+    if (style == 1) {
+      pred_vec <- round(pred_vec)
+      
+      results_vec <- pred_vec - test_vec
+      results_vec <- results_vec[!is.na(results_vec)]
+      
+      accuracy <- length(which(results_vec == 0)) / length(results_vec)
+      
+    } else if (style == 2) {
+      
+      mean_y <- mean(test_vec, na.rm = TRUE)
+      used_test_vec <- test_vec
+      
+      if (approach == "mixed") {
+        if (dist == "poisson" | dist == "negbin") {
+          pred_vec <- round(pred_vec)
+          mean_y <- round(mean_y)
+          used_test_vec <- round(used_test_vec)
+          if (trunc) {
+            pred_vec <- pred_vec + 1
+          }
+        }
+      }
+      results_vec <- pred_vec - test_vec
+      results_vec <- results_vec[!is.na(results_vec)]
+      
+      squares_vec <- (results_vec * results_vec)
+      sum_squares <- sum(squares_vec)
+      
+      base_total <- used_test_vec - mean_y
+      base_total <- base_total[!is.na(base_total)]
+      base_squares <- base_total * base_total
+      sum_base_squares <- sum(base_squares)
+      
+      accuracy <- 1.000 - (sum_squares / sum_base_squares)
+      
+    }
+  }
+  
+  return(accuracy)
+}
+
 #' Summary of Class "lefkoMod"
 #' 
 #' A function to summarize objects of class \code{lefkoMod}. This function shows

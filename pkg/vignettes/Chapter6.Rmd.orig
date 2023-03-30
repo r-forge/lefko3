@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 library(lefko3)
 ```
 
-  <p style="text-indent: 20px">In this vignette, we will use the `lathyrus` dataset to illustrate the estimation of **integral projection models (IPMs)**. To reduce file size, we have prevented some statements from running if they produce long stretches of output. Examples include most `summary()` calls - to run these statements, eliminate the leading hashtags and then run them. We have also written this vignette using the default Ehrlén format for all historical MPMs. All examples can be run in deVries format as well. This vignette is only a sample analysis. Detailed information and instructions on using `lefko3` are available through a free online e-book called *lefko3: a gentle introduction*, available on <a href = "http://www.sheffersonlab.com/projects">the projects page</a> of the Shefferson lab website.</p>
+  <p style="text-indent: 20px">In this vignette, we will use the `lathyrus` dataset to illustrate the estimation of **integral projection models (IPMs)**. To reduce file size, we have prevented some statements from running if they produce long stretches of output. Examples include most `summary()` calls - to run these statements, eliminate the leading hashtags and then run them. We have also written this vignette using the default Ehrlén format for all historical MPMs. All examples can be run in deVries format as well. This vignette is only a sample analysis. Detailed information and instructions on using `lefko3` are available through a free online e-book called *lefko3: a gentle introduction*, available on <a href = "http://www.sheffersonlab.com/projects.html">the projects page</a> of the Shefferson lab website.</p>
   
 ### ORGANISM AND POPULATION
   
@@ -278,7 +278,7 @@ par(lty = lty.o)
   
   <p style="text-indent: 20px">The plot of these distributions shows the strong importance of vegetative dormancy and small adults. Both environmental stochasticity and individual history increase the elasticity associated with larger, though still small, adults.</p>
   
-  <p style="text-indent: 20px">Package `lefko3` provides many other analytical capabilities. Please refer to the free e-manual called ***lefko3: a gentle introduction*** and other vignettes, all available on <a href = "http://www.sheffersonlab.com/projects">the projects page</a> of the Shefferson lab website for more information.</p>
+  <p style="text-indent: 20px">Package `lefko3` provides many other analytical capabilities. Please refer to the free e-manual called ***lefko3: a gentle introduction*** and other vignettes, all available on <a href = "http://www.sheffersonlab.com/projects.html">the projects page</a> of the Shefferson lab website for more information.</p>
   
 ## Acknowledgements 
   

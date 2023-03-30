@@ -603,6 +603,14 @@ Users building vital rate models for Leslie matrices must set
 than the default, because only survival and fecundity should be estimated in
 these cases. Also, the \code{suite} setting can be set to either \code{age}
 or \code{cons}, as the results will be exactly the same.
+
+Users wishing to test age, density, group, or individual covariates, must
+include \code{test.age = TRUE}, \code{test.density = TRUE},
+\code{test.group = TRUE}, or \code{test.indcova = TRUE} (or
+\code{test.indcovb = TRUE} or \code{test.indcovc = TRUE}, whichever is most
+appropriate), respectively, in addition to stipulating the name of the
+variable within the dataset. The default for these options is always
+\code{FALSE}.
 }
 
 \examples{

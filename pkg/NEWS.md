@@ -1,4 +1,17 @@
-# lefko3 6.0.0 (2022-03-24)
+# lefko3 6.0.1 (2023-03-30)
+
+## NEW FEATURES
+
+* Function create_lM() now includes an empty dataqc element in lefkoMat output.
+
+## USER VISIBLE CHANGES
+
+* Function edit_lM() no longer requires a dataqc element in input lefkoMat
+  objects.
+* Function summary.lefkoMat() correctly interprets lefkoMat objects missing a
+  dataqc element.
+
+# lefko3 6.0.0 (2023-03-27)
 
 ## NEW FEATURES
 
@@ -91,6 +104,7 @@
 * Corrected issue in which survival and fecundity multipliers provided via
   supplemental() were only incorporated into function-based MPMs involving
   stages if the transitions involved proxy estimation.
+* Corrected citation information.
 
 # lefko3 5.5.0 (2022-09-14)
 

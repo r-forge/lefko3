@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 library(lefko3)
 ```
 
-  <p style="text-indent: 20px">In this vignette, we use the `lathyrus` dataset to illustrate the estimation of **age-by-stage function-based MPMs**. To reduce output size, we have prevented some statements from running if they produce long stretches of output. Examples include most `summary()` calls. Remove the hashtags to run these calls. This vignette is only a sample analysis. Detailed information and instructions on using `lefko3` are available through a free online e-book called *lefko3: a gentle introduction*, available on <a href = "http://www.sheffersonlab.com/projects">the projects page</a> of the Shefferson lab website. </p>
+  <p style="text-indent: 20px">In this vignette, we use the `lathyrus` dataset to illustrate the estimation of **age-by-stage function-based MPMs**. To reduce output size, we have prevented some statements from running if they produce long stretches of output. Examples include most `summary()` calls. Remove the hashtags to run these calls. This vignette is only a sample analysis. Detailed information and instructions on using `lefko3` are available through a free online e-book called *lefko3: a gentle introduction*, available on <a href = "http://www.sheffersonlab.com/projects.html">the projects page</a> of the Shefferson lab website. </p>
   
 ### ORGANISM AND POPULATION 
   
@@ -160,22 +160,22 @@ lathsupp2 <- supplemental(stage3 = c("Sd", "Sdl", "Sd", "Sdl"),
   
   <p style="text-indent: 20px">Next we will run the `modelsearch` function with the new vertical dataset. This function will develop our best-fit vital rate models for us. We provide descriptions of this function in the documentation, in some of the other vignettes, and in *lefko3: a gentle introduction*. Please see those materials for further information.</p>
   
-  <p style="text-indent: 20px">Here, we will create two ahistorical model sets. The first will be a model set for the entire population, without separating patches. The second will include patch as a random factor, and will thus allow us to explore patch dynamics as well as population dynamics. We will not create a historical set this time because we are producing an age x stage MPM only - `lefko3` does not currently estimate or support historical age x stage MPMs.</p>
+  <p style="text-indent: 20px">Here, we will create two ahistorical model sets. The first will be a model set for the entire population, without separating patches. The second will include patch as a random factor, and will thus allow us to explore patch dynamics as well as population dynamics. We will not create a historical set this time because we are producing an age x stage MPM only - `lefko3` does not currently estimate or support historical age x stage MPMs. Note the use of `age = "obsage"` to identify the correct variable name, and `test.age = TRUE` to tell R to include age in the global models of vital rates.</p>
 ```{r Ch8.9}
 lathmodelsln2 <- modelsearch(lathvertln, historical = FALSE,
   approach = "mixed", suite = "main",
   vitalrates = c("surv", "obs", "size", "repst", "fec"), juvestimate = "Sdl",
   bestfit = "AICc&k", sizedist = "gaussian", fecdist = "negbin",
-  indiv = "individ", year = "year2", age = "obsage", year.as.random = TRUE,
-  patch.as.random = TRUE, show.model.tables = TRUE, fec.zero = TRUE,
-  quiet = "partial")
+  indiv = "individ", year = "year2", age = "obsage", test.age = TRUE,
+  year.as.random = TRUE, patch.as.random = TRUE, show.model.tables = TRUE,
+  fec.zero = TRUE, quiet = "partial")
 lathmodelsln2p <- modelsearch(lathvertln, historical = FALSE,
   approach = "mixed", suite = "main",
   vitalrates = c("surv", "obs", "size", "repst", "fec"), juvestimate = "Sdl",
   bestfit = "AICc&k", sizedist = "gaussian", fecdist = "negbin",
   indiv = "individ", patch = "patchid", year = "year2", age = "obsage",
-  year.as.random = TRUE, patch.as.random = TRUE, show.model.tables = TRUE,
-  fec.zero = TRUE, quiet = "partial")
+  test.age = TRUE, year.as.random = TRUE, patch.as.random = TRUE,
+  show.model.tables = TRUE, fec.zero = TRUE, quiet = "partial")
 
 #summary(lathmodelsln2)
 #summary(lathmodelsln2p)
@@ -183,7 +183,7 @@ lathmodelsln2p <- modelsearch(lathvertln, historical = FALSE,
   
   <p style="text-indent: 20px">The output can be rather verbose, and so we have limited it with `quiet = "partial"`. The function was developed to provide text marker posts of what the function is doing and what it has accomplished, as well as to show all warnings from all workhorse functions used. Because we used the `mixed` approach here, this includes warnings originating from estimating mixed linear models with package `lme4` [@bates_fitting_2015] and, in the case of fecundity, the package `glmmTMB` [@brooks_glmmtmb_2017]. It also shows warnings originating from the `dredge()` function of package `MuMIn` [@barton_mumin_2014], which is the core function used in model building and AICc estimation. We encourage users to get familiar with interpreting these warnings and assessing the degree to which they impact their own analyses.</p>
   
-  <p style="text-indent: 20px">A look at the summaries shows that the best-fit models vary in complexity. Age is important in three of the adult vital rates, in both the population-only model set as well as the patch model set. For example, survival is influenced by reproductive status and age in the current year, as well as by patch, individual identity, and year, while observation status is not influenced by age. We can see these models explicitly, as well as the model tables developed, by calling them directly from the lefkoMod object. The accuracy of many of our models is high, but some are mid-range and juvenile size is abysmally low, meaning that it is likely that we have not included some important factors accounting for variability in at least some of our vital rates.</p>
+  <p style="text-indent: 20px">A look at the summaries shows that the best-fit models vary in complexity. Age is important in size, reproductive status, and fecundity in both the population-only model set as well as the patch model set. For example, the conditional model for fecundity is influenced by size and age in the current year, as well as by patch, individual identity, and year, while observation status is not influenced by age. We can see these models explicitly, as well as the model tables developed, by calling them directly from the lefkoMod object. The accuracy of many of our models is high, but some are mid-range and juvenile size is abysmally low, meaning that it is likely that we have not included some important factors accounting for variability in at least some of our vital rates.</p>
   
 #### Step 4. MPM estimation 
   
@@ -448,7 +448,7 @@ legend("topleft", c("deterministic", "stochastic mean", "stochastic SD"),
   
   <p style="text-indent: 20px">The overall greatest impact on the population growth rate appears to come from growth and shrinkage transitions, with shrinkage transitions having strongly negative influences in general.</p>
   
-  <p style="text-indent: 20px">LTREs and sLTREs are powerful tools, and more complex versions of both analyses exist. Particularly view our other online resources for the SNA-LTRE, and please consult @caswell_matrix_2001 and @davison_contributions_2013 for more information. Users wishing to conduct these analyses should see our free e-manual called ***lefko3: a gentle introduction*** and other vignettes on <a href = "http://www.sheffersonlab.com/projects">the projects page</a> of the Shefferson lab website.</p>
+  <p style="text-indent: 20px">LTREs and sLTREs are powerful tools, and more complex versions of both analyses exist. Particularly view our other online resources for the SNA-LTRE, and please consult @caswell_matrix_2001 and @davison_contributions_2013 for more information. Users wishing to conduct these analyses should see our free e-manual called ***lefko3: a gentle introduction*** and other vignettes on <a href = "http://www.sheffersonlab.com/projects.html">the projects page</a> of the Shefferson lab website.</p>
 
 ## Acknowledgements
 

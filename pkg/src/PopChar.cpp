@@ -8333,7 +8333,14 @@ Rcpp::List edit_lM (const RObject mpm, Nullable<RObject> pop = R_NilValue,
     }
   }
   
-  IntegerVector dataqc = as<IntegerVector>(mpm_list["dataqc"]);
+  IntegerVector dataqc;
+  if (mpm_list.containsElementNamed("dataqc")) {
+    dataqc = as<IntegerVector>(mpm_list["dataqc"]);
+  } else {
+    IntegerVector mayhem_highway = {NA_INTEGER, NA_INTEGER};
+    dataqc = mayhem_highway;
+  }
+  
   IntegerVector matrixqc = as<IntegerVector>(mpm_list["matrixqc"]);
   
   int total_Us = static_cast<int>(matrixqc(0)) + U_adjustment;
