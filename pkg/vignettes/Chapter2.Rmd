@@ -42,7 +42,11 @@ dim(lathyrus)
   
   <p style="text-indent: 20px">We will now create a **stageframe**, which is a data frame that describes all stages in the life history of the organism, in a way usable by the functions in this package and using stage names and descriptions that completely match those used in the dataset. It links the dataset to the *life cycle graph* used to model the organism's life history. It should include complete descriptions of all stages that occur in the dataset, with each stage defined uniquely. Since this object can be used for automated classification, all sizes, reproductive states, and other characteristics defining each stage in the dataset need to be accounted for explicitly. The final description of each stage occurring in the dataset must not completely overlap with any other stage also found in the dataset, although partial overlap is allowed and expected.</p>
   
-  <p style="text-indent: 20px">Here, we create a stageframe named `lathframe` based on the classification used in @ehrlen_dynamics_2000. We build this by creating vectors of the characteristics describing each stage, with each element always in the same order within the vector. Of particular note are the vectors input as `sizes` and `binhalfwidth` in the `sf_create()` function. The values in the former vector correspond to the midpoint values of each size class bin, while values in the latter vector correspond to one-half of the width of the bin. If size values are not to be binned, then narrow half bin-widths can be used (the default is 0.5, and all entries must be positive). For example, in this dataset, vegetatively dormant individuals necessarily have a size of zero, and so we can set the `halfbinwidth` for this stage to 0.5 provided that the resulting size bin does not overlap with any other size bin matching the other characteristics of vegetative dormancy. Here we use a single size variable, but up to three size variables may be used. Vector `stagenames` must include unique names only. Vectors `repstatus`, `obsstatus`, `matstatus`, `immstatus`, `propstatus`, and `indataset` are binomial vectors referring to status as a reproductive stage, status as an observed stage, status as a mature stage, status as an immature stage, status as a propagule stage, and status as a stage occurring within the user-supplied dataset, respectively. The combination of these characteristics must be completely unique for each stage. The final vector, called `comments`, holds strings of stage descriptions.</p>
+  <p style="text-indent: 20px">Here, we create a stageframe named `lathframe` based on the classification used in @ehrlen_dynamics_2000. We build this by creating vectors of the characteristics describing each stage, with each element always in the same order within the vector, using the `sf_create()` function. The most important settings have to do with the size bins for the stages. Two methods are currently allowed: 1) a vector of representative sizes in the option called `sizes` along with the associated minimum and maximum sizes for each stage in the options called `sizemin` and `sizemax`, or 2) a vector of stage size bin midpoints in the `sizes` option along with the half-width of each size bin in the `binhalfwidth` option. Note that the representative sizes, whether midpoint or otherwise, are not actually used in any calculations - the size bin minima and maxima are the most important data used in calculations. Here, we will use approach 2), focused on the use of size bin half-widths.</p>
+  
+  <p style="text-indent: 20px">If size values are not to be binned, then narrow half bin-widths can be used (the default is 0.5, and all entries must be positive). For example, in this dataset, vegetatively dormant individuals necessarily have a size of zero, and so we can set the `halfbinwidth` for this stage to 0.5 provided that the resulting size bin does not overlap with any other size bin matching the other characteristics of vegetative dormancy. We can also set this manually with the `sizemin` and `sizemax` options, if we prefer.</p>
+  
+  <p style="text-indent: 20px">Here we use a single size variable, but up to three size variables may be used. Vector `stagenames` must include unique names only. Vectors `repstatus`, `obsstatus`, `matstatus`, `immstatus`, `propstatus`, and `indataset` are binomial vectors referring to status as a reproductive stage, status as an observed stage, status as a mature stage, status as an immature stage, status as a propagule stage, and status as a stage occurring within the user-supplied dataset, respectively. The combination of these characteristics must be completely unique for each stage. The final vector, called `comments`, holds strings of stage descriptions.</p>
 
 ```r
 sizevector <- c(0, 100, 13, 127, 3730, 3800, 0)
@@ -96,35 +100,21 @@ summary_hfv(lathvert, full = FALSE)
 
 ```r
 summary(lathvert[which(lathvert$stage2 == "Flo"),c(22:27)])
-#>      alive1         stage1           stage1index        sizea2      
-#>  Min.   :0.000   Length:599         Min.   :0.000   Min.   :  98.4  
-#>  1st Qu.:0.000   Class :character   1st Qu.:0.000   1st Qu.: 732.5  
-#>  Median :1.000   Mode  :character   Median :5.000   Median :1141.8  
-#>  Mean   :0.576                      Mean   :3.297   Mean   :1388.5  
-#>  3rd Qu.:1.000                      3rd Qu.:6.000   3rd Qu.:1758.0  
-#>  Max.   :1.000                      Max.   :7.000   Max.   :7032.0  
-#>    size2added        repstra2
-#>  Min.   :  98.4   Min.   :1  
-#>  1st Qu.: 732.5   1st Qu.:1  
-#>  Median :1141.8   Median :1  
-#>  Mean   :1388.5   Mean   :1  
-#>  3rd Qu.:1758.0   3rd Qu.:1  
-#>  Max.   :7032.0   Max.   :1
+#>      alive1         stage1           stage1index        sizea2         size2added        repstra2
+#>  Min.   :0.000   Length:599         Min.   :0.000   Min.   :  98.4   Min.   :  98.4   Min.   :1  
+#>  1st Qu.:0.000   Class :character   1st Qu.:0.000   1st Qu.: 732.5   1st Qu.: 732.5   1st Qu.:1  
+#>  Median :1.000   Mode  :character   Median :5.000   Median :1141.8   Median :1141.8   Median :1  
+#>  Mean   :0.576                      Mean   :3.297   Mean   :1388.5   Mean   :1388.5   Mean   :1  
+#>  3rd Qu.:1.000                      3rd Qu.:6.000   3rd Qu.:1758.0   3rd Qu.:1758.0   3rd Qu.:1  
+#>  Max.   :1.000                      Max.   :7.000   Max.   :7032.0   Max.   :7032.0   Max.   :1
 summary(lathvert[which(lathvert$stage2 == "Flo"),c(28:33)])
-#>   repstr2added     feca2          fec2added         censor2    juvgiven2
-#>  Min.   :1     Min.   : 0.000   Min.   : 0.000   Min.   :0   Min.   :0  
-#>  1st Qu.:1     1st Qu.: 0.000   1st Qu.: 0.000   1st Qu.:0   1st Qu.:0  
-#>  Median :1     Median : 0.000   Median : 0.000   Median :0   Median :0  
-#>  Mean   :1     Mean   : 4.793   Mean   : 4.793   Mean   :0   Mean   :0  
-#>  3rd Qu.:1     3rd Qu.: 6.000   3rd Qu.: 6.000   3rd Qu.:0   3rd Qu.:0  
-#>  Max.   :1     Max.   :66.000   Max.   :66.000   Max.   :0   Max.   :0  
-#>    obsstatus2
-#>  Min.   :1   
-#>  1st Qu.:1   
-#>  Median :1   
-#>  Mean   :1   
-#>  3rd Qu.:1   
-#>  Max.   :1
+#>   repstr2added     feca2          fec2added         censor2    juvgiven2   obsstatus2
+#>  Min.   :1     Min.   : 0.000   Min.   : 0.000   Min.   :0   Min.   :0   Min.   :1   
+#>  1st Qu.:1     1st Qu.: 0.000   1st Qu.: 0.000   1st Qu.:0   1st Qu.:0   1st Qu.:1   
+#>  Median :1     Median : 0.000   Median : 0.000   Median :0   Median :0   Median :1   
+#>  Mean   :1     Mean   : 4.793   Mean   : 4.793   Mean   :0   Mean   :0   Mean   :1   
+#>  3rd Qu.:1     3rd Qu.: 6.000   3rd Qu.: 6.000   3rd Qu.:0   3rd Qu.:0   3rd Qu.:1   
+#>  Max.   :1     Max.   :66.000   Max.   :66.000   Max.   :0   Max.   :0   Max.   :1
 ```
   
 #### Step 2b. Provide supplemental information for matrix estimation  
@@ -328,7 +318,7 @@ image3(ehrlen2mean, used = 1)
 #> [[1]]
 ```
 
-![Figure 2.1. Image of mean ahistorical matrix](Ch2.17-1.png)
+![Figure 2.1. Image of mean ahistorical matrix](figure/Ch2.17-1.png)
   
   <p style="text-indent: 20px">The resulting image shows non-zero elements as red spaces, and zero elements as white spaces. Rows and columns are numbered, and we can see that this matrix is reasonably dense.</p>
   
@@ -339,7 +329,7 @@ image3(ehrlen3mean, used = 1)
 #> [[1]]
 ```
 
-![Figure 2.2. Image of mean historical matrix](Ch2.18-1.png)
+![Figure 2.2. Image of mean historical matrix](figure/Ch2.18-1.png)
   
 #### Step 5. MPM analysis 
   
@@ -445,7 +435,7 @@ legend("topright", c("det ahistorical", "det historical", "sto ahistorical",
   pt.bg = c("black", "orangered", "grey", "darkred"), bty = "n")
 ```
 
-![Figure 2.3. Deterministic and stochastic ahistorical vs. historically-corrected stable stage distributions](Ch2.25-1.png)
+![Figure 2.3. Deterministic and stochastic ahistorical vs. historically-corrected stable stage distributions](figure/Ch2.25-1.png)
   
   <p style="text-indent: 20px">Let's take the deterministic portion first. Accounting for individual history increased the prevalence of tiny and small adults, but decreased the prevalence of dormant seeds, and dormant, large, and flowering adults. Now when we also take in the impact of temporal stochasticity, we can see differences in the proportion of dormant seeds, seedlings, and all adult stages, with the greatest differences in dormant seeds and tiny adults.</p>
   
@@ -471,7 +461,7 @@ legend("topleft", c("det ahistorical", "det historical", "sto ahistorical",
   pt.bg = c("black", "orangered", "grey", "darkred"), bty = "n")
 ```
 
-![Figure 2.4. Ahistorical vs. historically-corrected reproductive values](Ch2.26-1.png)
+![Figure 2.4. Ahistorical vs. historically-corrected reproductive values](figure/Ch2.26-1.png)
   
   <p style="text-indent: 20px">Both deterministic and stochastic analyses show that flowering adults have the greatest reproductive value in both ahistorical and historical analysis, while dormant seeds have the least. However, the historical MPMs suggest lower contributions of seedlings and vegetative dormancy, but larger contributions of flowering adults.</p>
   
@@ -627,7 +617,7 @@ legend("topleft", c("det ahistorical", "det historical", "sto ahistorical",
   pt.bg = c("black", "orangered", "grey", "darkred"), bty = "n")
 ```
 
-![Figure 2.5. Ahistorical vs. historically-corrected deterministic and stochastic elasticity to stages](Ch2.35-1.png)
+![Figure 2.5. Ahistorical vs. historically-corrected deterministic and stochastic elasticity to stages](figure/Ch2.35-1.png)
   
   <p style="text-indent: 20px">Historical analyses generally find that population growth rate is less elastic in response to seedlings, and flowering adults, and more elastic to tiny and dormant adults than in ahistorical analyses. Stochastic and deterministic population growth rates are barely elastic in response to dormant seeds and seedlings. Note the dramatic impact of environmental stochasticity and individual history combined on the impact of tiny adults.</p>
   
@@ -647,12 +637,12 @@ rownames(elas_sums_together) <- ehrlen2elas_sums$ahist$category
 
 barplot(t(elas_sums_together), beside=T, ylab = "Elasticity",
   xlab = "Transition", col = c("black", "orangered", "grey", "darkred"), bty = "n")
-legend("topright", c("det ahistorical", "det historical", "stoc ahistorical", 
-    "stoc historical"), pch = 22, col = "black",
+legend("topright", c("det ahistorical", "det historical", "sto ahistorical", 
+    "sto historical"), pch = 22, col = "black",
   pt.bg = c("black", "orangered", "grey", "darkred"), bty = "n")
 ```
 
-![Figure 2.6. Ahistorical vs. historically-corrected deterministic and stochastic elasticity to transitions](Ch2.36-1.png)
+![Figure 2.6. Ahistorical vs. historically-corrected deterministic and stochastic elasticity to transitions](figure/Ch2.36-1.png)
   
   <p style="text-indent: 20px">We see similar patterns across types of elasticity analysis. Particularly, population growth rate is most elastic in response to changes in stasis transitions, and least elastic to changes in fecundity. Environmental stochasticity appears to exacerbate these differences.</p>
   

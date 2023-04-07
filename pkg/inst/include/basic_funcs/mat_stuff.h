@@ -1502,21 +1502,15 @@ namespace LefkoMats {
       bool ests2_used {false};
       bool ests1_used {false};
       
-      int ests3supp_count {0};
-      int ests2supp_count {0};
-      int ests1supp_count {0};
-      
       for (int j = 0; j < static_cast<int>(all_possible_stage_terms.length()); j++) {
         if (stage3_supp(i) == all_possible_stage_terms(j)) s3supp_count++;
         if (stage2_supp(i) == all_possible_stage_terms(j)) s2supp_count++;
         
         if (!StringVector::is_na(eststage3_supp(i))) {
           ests3_used = true;
-          if (eststage3_supp(i) == all_possible_stage_terms(j)) ests3supp_count++;
         }
         if (!StringVector::is_na(eststage2_supp(i))) {
           ests2_used = true;
-          if (eststage2_supp(i) == all_possible_stage_terms(j)) ests2supp_count++;
         }
         
         if (historical) {
@@ -1524,7 +1518,6 @@ namespace LefkoMats {
           
           if (!StringVector::is_na(eststage1_supp(i))) {
             ests1_used = true;
-            if (eststage1_supp(i) == all_possible_stage_terms(j)) ests1supp_count++;
           }
         } 
       }

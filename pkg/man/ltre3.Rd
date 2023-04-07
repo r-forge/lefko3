@@ -129,6 +129,10 @@ determination to forced dense or sparse matrix projection. This will most
 likely occur when matrices have between 10 and 300 rows and columns.
 Defaults work best when matrices are very small and dense, or very large and
 sparse.
+
+The methodology used for SNA-LTRE involves the creation of extremely large
+matrices. Inputting historical matrices or other matrices with over 1000
+rows and columns may cause fatal errors.
 }
 
 \examples{

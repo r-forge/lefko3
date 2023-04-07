@@ -18,11 +18,11 @@ using namespace LefkoUtils;
 //' @name sf_create
 //' 
 //' @param sizes A numeric vector of the typical or representative size of each
-//' life history stage. If making function-based MPMs, then this should be a
-//' vector composed of the midpoints of each size bin. If denoting the boundary
-//' of an automated size classification group, then should denote the absolute
-//' minimum size of that group, or the absolute size of that group (see
-//' \code{Notes}).
+//' life history stage. If making function-based MPMs, then this may be a
+//' vector composed of the midpoints of each size bin, or simply of sizes
+//' characteristic of the size bins. If denoting the boundary of an automated
+//' size classification group, then should denote the absolute minimum size of
+//' that group, or the absolute size of that group (see \code{Notes}).
 //' @param stagenames A vector of stage names, in the same order as elements in
 //' sizes. Can also be set to \code{ipm} for automated size classification (see
 //' \code{Notes} section).
@@ -59,16 +59,35 @@ using namespace LefkoUtils;
 //' non-overlapping combinations of size and status variables. Stages that do
 //' not actually exist within the dataset should be marked as \code{0} in this
 //' vector.
+//' @param sizemin A vector giving the absolute minimum values corresponding to
+//' each size in the \code{sizes} vector. Requires associated values for
+//' \code{sizemax} if used. Only required if not using \code{binhalfwidth}.
+//' @param sizebmin A vector giving the absolute minimum values corresponding to
+//' each size in the \code{sizesb} vector. Requires associated values for
+//' \code{sizebmax} if used. Only required if not using \code{binhalfwidthb}.
+//' @param sizecmin A vector giving the absolute minimum values corresponding to
+//' each size in the \code{sizesc} vector. Requires associated values for
+//' \code{sizecmax} if used. Only required if not using \code{binhalfwidthc}.
+//' @param sizemax A vector giving the absolute maximum values corresponding to
+//' each size in the \code{sizes} vector. Requires associated values for
+//' \code{sizemin} if used. Only required if not using \code{binhalfwidth}.
+//' @param sizebmax A vector giving the absolute maximum values corresponding to
+//' each size in the \code{sizesb} vector. Requires associated values for
+//' \code{sizebmin} if used. Only required if not using \code{binhalfwidthb}.
+//' @param sizecmax A vector giving the absolute maximum values corresponding to
+//' each size in the \code{sizesc} vector. Requires associated values for
+//' \code{sizecmin} if used. Only required if not using \code{binhalfwidthc}.
 //' @param binhalfwidth A numeric vector giving the half-width of size bins.
-//' Required to classify individuals appropriately within size classes.
-//' Defaults to \code{0.5} for all sizes.
+//' Required if \code{sizemin} and \code{sizemax} are not used. Defaults to
+//' \code{0.5} for all sizes.
 //' @param binhalfwidthb A numeric vector giving the half-width of size bins
-//' used for the optional second size metric. Required to classify individuals
-//' appropriately with two or three size classes. Defaults to \code{0.5} for all
-//' sizes.
+//' used for the optional second size metric. Required if \code{sizebmin} and
+//' \code{sizebmax} are not used but two or three size classes are used.
+//' Defaults to \code{0.5} for all sizes.
 //' @param binhalfwidthc A numeric vector giving the half-width of size bins
-//' used for the optional third size metric. Required to classify individuals
-//' appropriately with three size classes. Defaults to \code{0.5} for all sizes.
+//' used for the optional third size metric. Required if \code{sizecmin} and
+//' \code{sizecmax} are not used but three size classes are used. Defaults to
+//' \code{0.5} for all sizes.
 //' @param group An integer vector providing information on each respective
 //' stage's size classification group. If used, then function-based MPM creation
 //' functions \code{\link{flefko2}()}, \code{\link{flefko3}()}, and
@@ -203,9 +222,9 @@ using namespace LefkoUtils;
 //' stageframe. Although no hfv data frame needs to be entered in this instance,
 //' stages for which vital rates are to be estimated via linear models
 //' parameterized with coefficients provided via function
-//' \code{\link{vrm_import}()} should be marked as occurring within the dataset,
-//' while stages for which the provided coefficients should not be used should
-//' be marked as not occurring within the dataset.
+//' \code{\link{vrm_import}()} should be marked as occurring within the dataset.
+//' Stages for which the provided coefficients should not be used should be
+//' marked as not occurring within the dataset.
 //' 
 //' @examples
 //' # Lathyrus example
@@ -259,6 +278,12 @@ Rcpp::List sf_create (NumericVector sizes,
   Nullable<NumericVector> minage = R_NilValue,
   Nullable<NumericVector> maxage = R_NilValue,
   Nullable<IntegerVector> indataset = R_NilValue,
+  Nullable<NumericVector> sizemin = R_NilValue,
+  Nullable<NumericVector> sizebmin = R_NilValue,
+  Nullable<NumericVector> sizecmin = R_NilValue,
+  Nullable<NumericVector> sizemax = R_NilValue,
+  Nullable<NumericVector> sizebmax = R_NilValue,
+  Nullable<NumericVector> sizecmax = R_NilValue,
   Nullable<NumericVector> binhalfwidth = R_NilValue,
   Nullable<NumericVector> binhalfwidthb = R_NilValue,
   Nullable<NumericVector> binhalfwidthc = R_NilValue,
@@ -300,6 +325,12 @@ Rcpp::List sf_create (NumericVector sizes,
   NumericVector binhalfwidth_true (matsize, 0.5);
   NumericVector binhalfwidthb_true (matsize, NA_REAL);
   NumericVector binhalfwidthc_true (matsize, NA_REAL);
+  NumericVector sizemin_true (matsize, NA_REAL);
+  NumericVector sizemax_true (matsize, NA_REAL);
+  NumericVector sizebmin_true (matsize, NA_REAL);
+  NumericVector sizebmax_true (matsize, NA_REAL);
+  NumericVector sizecmin_true (matsize, NA_REAL);
+  NumericVector sizecmax_true (matsize, NA_REAL);
   NumericVector sizebin_min (matsize, NA_REAL);
   NumericVector sizebin_max (matsize, NA_REAL);
   NumericVector sizebin_center (matsize, NA_REAL);
@@ -314,6 +345,10 @@ Rcpp::List sf_create (NumericVector sizes,
   NumericVector sizebinc_width (matsize, NA_REAL);
   IntegerVector group_true (matsize, 0);
   StringVector comments_true (matsize, "No description");
+  
+  bool size_manual {false};
+  bool sizeb_manual {false};
+  bool sizec_manual {false};
   
   if (stagenames.isNotNull()) {
     Rcpp::StringVector stagenames_thru(stagenames);
@@ -553,17 +588,150 @@ Rcpp::List sf_create (NumericVector sizes,
     }
   }
   
+  if (sizemin.isNotNull()) {
+    Rcpp::NumericVector sizemin_thru(sizemin);
+    
+    if (sizemin_thru.length() == matsize) {
+      sizemin_true = sizemin_thru;
+    } else if (sizemin_thru.length() == 1) {
+      NumericVector try_szmna (matsize, sizemin_thru(0));
+      sizemin_true = try_szmna;
+    } else {
+      throw Rcpp::exception("Vector sizemin should be the same length as vector sizes.",
+        false);
+    }
+    
+    if (!sizemax.isNotNull()) {
+      throw Rcpp::exception("Vector sizemax is required if sizemin if input.",
+        false);
+    }
+    
+    size_manual = true;
+  }
+  if (sizemax.isNotNull()) {
+    Rcpp::NumericVector sizemax_thru(sizemax);
+    
+    if (sizemax_thru.length() == matsize) {
+      sizemax_true = sizemax_thru;
+    } else if (sizemax_thru.length() == 1) {
+      NumericVector try_szmxa (matsize, sizemax_thru(0));
+      sizemax_true = try_szmxa;
+    } else {
+      throw Rcpp::exception("Vector sizemax should be the same length as vector sizes.",
+        false);
+    }
+    
+    if (!sizemin.isNotNull()) {
+      throw Rcpp::exception("Vector sizemin is required if sizemax if input.",
+        false);
+    }
+    if (sizemax_true.length() != sizemin_true.length()) {
+      throw Rcpp::exception("Vectors sizemax and sizemin should be the same length.",
+        false);
+    }
+  }
+  
+  if (sizebmin.isNotNull()) {
+    Rcpp::NumericVector sizebmin_thru(sizebmin);
+    
+    if (sizebmin_thru.length() == matsize) {
+      sizebmin_true = sizebmin_thru;
+    } else if (sizebmin_thru.length() == 1) {
+      NumericVector try_szmnb (matsize, sizebmin_thru(0));
+      sizebmin_true = try_szmnb;
+    } else {
+      throw Rcpp::exception("Vector sizebmin should be the same length as vector sizes.",
+        false);
+    }
+    
+    if (!sizebmax.isNotNull()) {
+      throw Rcpp::exception("Vector sizebmax is required if sizebmin if input.",
+        false);
+    }
+    
+    sizeb_manual = true;
+  }
+  if (sizebmax.isNotNull()) {
+    Rcpp::NumericVector sizebmax_thru(sizebmax);
+    
+    if (sizebmax_thru.length() == matsize) {
+      sizebmax_true = sizebmax_thru;
+    } else if (sizebmax_thru.length() == 1) {
+      NumericVector try_szmxb (matsize, sizebmax_thru(0));
+      sizebmax_true = try_szmxb;
+    } else {
+      throw Rcpp::exception("Vector sizebmax should be the same length as vector sizes.",
+        false);
+    }
+    
+    if (!sizebmin.isNotNull()) {
+      throw Rcpp::exception("Vector sizebmin is required if sizebmax if input.",
+        false);
+    }
+    if (sizebmax_true.length() != sizebmin_true.length()) {
+      throw Rcpp::exception("Vectors sizebmax and sizebmin should be the same length.",
+        false);
+    }
+  }
+  
+  if (sizecmin.isNotNull()) {
+    Rcpp::NumericVector sizecmin_thru(sizecmin);
+    
+    if (sizecmin_thru.length() == matsize) {
+      sizecmin_true = sizecmin_thru;
+    } else if (sizecmin_thru.length() == 1) {
+      NumericVector try_szmnc (matsize, sizecmin_thru(0));
+      sizecmin_true = try_szmnc;
+    } else {
+      throw Rcpp::exception("Vector sizecmin should be the same length as vector sizes.",
+        false);
+    }
+    
+    if (!sizecmax.isNotNull()) {
+      throw Rcpp::exception("Vector sizecmax is required if sizecmin if input.",
+        false);
+    }
+    
+    sizec_manual = true;
+  }
+  if (sizecmax.isNotNull()) {
+    Rcpp::NumericVector sizecmax_thru(sizecmax);
+    
+    if (sizecmax_thru.length() == matsize) {
+      sizecmax_true = sizecmax_thru;
+    } else if (sizecmax_thru.length() == 1) {
+      NumericVector try_szmxc (matsize, sizecmax_thru(0));
+      sizecmax_true = try_szmxc;
+    } else {
+      throw Rcpp::exception("Vector sizecmax should be the same length as vector sizes.",
+        false);
+    }
+    
+    if (!sizecmin.isNotNull()) {
+      throw Rcpp::exception("Vector sizecmin is required if sizecmax if input.",
+        false);
+    }
+    if (sizecmax_true.length() != sizecmin_true.length()) {
+      throw Rcpp::exception("Vectors sizecmax and sizecmin should be the same length.",
+        false);
+    }
+  }
+  
   if (binhalfwidth.isNotNull()) {
     Rcpp::NumericVector binhalfwidth_thru(binhalfwidth);
     
-    if (binhalfwidth_thru.length() == matsize) {
-      binhalfwidth_true = binhalfwidth_thru;
-    } else if (binhalfwidth_thru.length() == 1) {
-      NumericVector try_hwa (matsize, binhalfwidth_thru(0));
-      binhalfwidth_true = try_hwa;
+    if (!size_manual) {
+      if (binhalfwidth_thru.length() == matsize) {
+        binhalfwidth_true = binhalfwidth_thru;
+      } else if (binhalfwidth_thru.length() == 1) {
+        NumericVector try_hwa (matsize, binhalfwidth_thru(0));
+        binhalfwidth_true = try_hwa;
+      } else {
+        throw Rcpp::exception("Vector binhalfwidth should be the same length as vector sizes.",
+          false);
+      }
     } else {
-      throw Rcpp::exception("Vector binhalfwidth should be the same length as vector sizes.",
-        false);
+      Rf_warningcall(R_NilValue, "Size half-binwidths are not used if sizemin and sizemax are input.");
     }
   }
   if (binhalfwidthb.isNotNull()) {
@@ -577,16 +745,20 @@ Rcpp::List sf_create (NumericVector sizes,
     
     Rcpp::NumericVector binhalfwidthb_thru(binhalfwidthb);
     
-    if (binhalfwidthb_thru.length() == matsize) {
-      binhalfwidthb_true = binhalfwidthb_thru;
-    } else if (binhalfwidthb_thru.length() == 1) {
-      NumericVector try_hwb (matsize, binhalfwidthb_thru(0));
-      binhalfwidthb_true = try_hwb;
+    if (!sizeb_manual) {
+      if (binhalfwidthb_thru.length() == matsize) {
+        binhalfwidthb_true = binhalfwidthb_thru;
+      } else if (binhalfwidthb_thru.length() == 1) {
+        NumericVector try_hwb (matsize, binhalfwidthb_thru(0));
+        binhalfwidthb_true = try_hwb;
+      } else {
+        throw Rcpp::exception("Vector binhalfwidthb should be the same length as vector sizes.",
+          false);
+      }
     } else {
-      throw Rcpp::exception("Vector binhalfwidthb should be the same length as vector sizes.",
-        false);
+      Rf_warningcall(R_NilValue, "Sizeb half-binwidths are not used if sizebmin and sizebmax are input.");
     }
-  } else if (used_sizes > 1) {
+  } else if (used_sizes > 1 && !sizeb_manual) {
     for (int i = 0; i < binhalfwidthb_true.length(); i++) {
       binhalfwidthb_true(i) = 0.5;
     }
@@ -602,16 +774,20 @@ Rcpp::List sf_create (NumericVector sizes,
     
     Rcpp::NumericVector binhalfwidthc_thru(binhalfwidthc);
     
-    if (binhalfwidthc_thru.length() == matsize) {
-      binhalfwidthc_true = binhalfwidthc_thru;
-    } else if (binhalfwidthc_thru.length() == 1) {
-      NumericVector try_hwc (matsize, binhalfwidthc_thru(0));
-      binhalfwidthc_true = try_hwc;
+    if (!sizec_manual) {
+      if (binhalfwidthc_thru.length() == matsize) {
+        binhalfwidthc_true = binhalfwidthc_thru;
+      } else if (binhalfwidthc_thru.length() == 1) {
+        NumericVector try_hwc (matsize, binhalfwidthc_thru(0));
+        binhalfwidthc_true = try_hwc;
+      } else {
+        throw Rcpp::exception("Vector binhalfwidthc should be the same length as vector sizes.",
+          false);
+      }
     } else {
-      throw Rcpp::exception("Vector binhalfwidthc should be the same length as vector sizes.",
-        false);
+      Rf_warningcall(R_NilValue, "Sizec half-binwidths are not used if sizecmin and sizecmax are input.");
     }
-  } else if (used_sizes > 2) {
+  } else if (used_sizes > 2 && !sizec_manual) {
     for (int i = 0; i < binhalfwidthc_true.length(); i++) {
       binhalfwidthc_true(i) = 0.5;
     }
@@ -2018,22 +2194,73 @@ Rcpp::List sf_create (NumericVector sizes,
   sizebinc_width = concat_dbl(sizebinc_width, zeros_to_append);
   
   for (int i = 0; i < matsize; i++) {
-    sizebin_min(i) = sizes(i) - binhalfwidth_true(i);
-    sizebin_max(i) = sizes(i) + binhalfwidth_true(i);
-    sizebin_center(i) = sizebin_min(i) + ((sizebin_max(i) - sizebin_min(i))/ 2);
-    sizebin_width(i) = sizebin_max(i) - sizebin_min(i);
+    if (!size_manual) {
+      sizebin_min(i) = sizes(i) - binhalfwidth_true(i);
+      sizebin_max(i) = sizes(i) + binhalfwidth_true(i);
+      sizebin_center(i) = sizebin_min(i) + ((sizebin_max(i) - sizebin_min(i))/ 2);
+      sizebin_width(i) = sizebin_max(i) - sizebin_min(i);
+    } else {
+      if (sizemin_true(i) <= sizes(i)) {
+        sizebin_min(i) = sizemin_true(i);
+      } else {
+        throw Rcpp::exception("Some entered sizemin values are greater than their associated sizes.",
+          false);
+      }
+      if (sizemax_true(i) >= sizes(i)) {
+        sizebin_max(i) = sizemax_true(i);
+      } else {
+        throw Rcpp::exception("Some entered sizemax values are smaller than their associated sizes.",
+          false);
+      }
+      sizebin_center(i) = sizebin_min(i) + ((sizebin_max(i) - sizebin_min(i))/ 2);
+      sizebin_width(i) = sizebin_max(i) - sizebin_min(i);
+    }
     
     if (used_sizes > 1) {
-      sizebinb_min(i) = sizesb_true(i) - binhalfwidthb_true(i);
-      sizebinb_max(i) = sizesb_true(i) + binhalfwidthb_true(i);
-      sizebinb_center(i) = sizebinb_min(i) + ((sizebinb_max(i) - sizebinb_min(i))/ 2);
-      sizebinb_width(i) = sizebinb_max(i) - sizebinb_min(i);
+      if (!sizeb_manual) {
+        sizebinb_min(i) = sizesb_true(i) - binhalfwidthb_true(i);
+        sizebinb_max(i) = sizesb_true(i) + binhalfwidthb_true(i);
+        sizebinb_center(i) = sizebinb_min(i) + ((sizebinb_max(i) - sizebinb_min(i))/ 2);
+        sizebinb_width(i) = sizebinb_max(i) - sizebinb_min(i);
+      } else {
+        if (sizebmin_true(i) <= sizesb_true(i)) {
+          sizebinb_min(i) = sizebmin_true(i);
+        } else {
+          throw Rcpp::exception("Some entered sizebmin values are greater than their associated sizes.",
+            false);
+        }
+        if (sizebmax_true(i) >= sizesb_true(i)) {
+          sizebinb_max(i) = sizebmax_true(i);
+        } else {
+          throw Rcpp::exception("Some entered sizebmax values are smaller than their associated sizes.",
+            false);
+        }
+        sizebinb_center(i) = sizebinb_min(i) + ((sizebinb_max(i) - sizebinb_min(i))/ 2);
+        sizebinb_width(i) = sizebinb_max(i) - sizebinb_min(i);
+      }
     }
     if (used_sizes > 2) {
-      sizebinc_min(i) = sizesc_true(i) - binhalfwidthc_true(i);
-      sizebinc_max(i) = sizesc_true(i) + binhalfwidthc_true(i);
-      sizebinc_center(i) = sizebinc_min(i) + ((sizebinc_max(i) - sizebinc_min(i))/ 2);
-      sizebinc_width(i) = sizebinc_max(i) - sizebinc_min(i);
+      if (!sizec_manual) {
+        sizebinc_min(i) = sizesc_true(i) - binhalfwidthc_true(i);
+        sizebinc_max(i) = sizesc_true(i) + binhalfwidthc_true(i);
+        sizebinc_center(i) = sizebinc_min(i) + ((sizebinc_max(i) - sizebinc_min(i))/ 2);
+        sizebinc_width(i) = sizebinc_max(i) - sizebinc_min(i);
+      } else {
+        if (sizecmin_true(i) <= sizesc_true(i)) {
+          sizebinc_min(i) = sizecmin_true(i);
+        } else {
+          throw Rcpp::exception("Some entered sizecmin values are greater than their associated sizes.",
+            false);
+        }
+        if (sizecmax_true(i) >= sizesc_true(i)) {
+          sizebinc_max(i) = sizecmax_true(i);
+        } else {
+          throw Rcpp::exception("Some entered sizecmax values are smaller than their associated sizes.",
+            false);
+        }
+        sizebinc_center(i) = sizebinc_min(i) + ((sizebinc_max(i) - sizebinc_min(i))/ 2);
+        sizebinc_width(i) = sizebinc_max(i) - sizebinc_min(i);
+      }
     }
   }
   sizebin_min = round(sizebin_min, roundsize);
@@ -7947,7 +8174,12 @@ Rcpp::List edit_lM (const RObject mpm, Nullable<RObject> pop = R_NilValue,
       }
       
       arma::uvec agst_found_stage3of3a2 = find(agst_stage_id == found_stage3);
-      arma::uvec agst_found_stage2of3a2 = find(agst_age == (found_age2 + 1));
+      arma::uvec agst_found_stage2of3a2;
+      if (found_age2 < max_age) {
+        agst_found_stage2of3a2= find(agst_age == (found_age2 + 1));
+      } else {
+        agst_found_stage2of3a2= find(agst_age == found_age2);
+      }
       arma::uvec agst_found_stage2of2a1 = find(agst_stage_id == found_stage2);
       arma::uvec agst_found_stage1of2a1 = find(agst_age == found_age2);
       
@@ -7965,7 +8197,12 @@ Rcpp::List edit_lM (const RObject mpm, Nullable<RObject> pop = R_NilValue,
       
       if (new_use_est(i) == 1) {
         arma::uvec agst_found_eststage3of3a2 = find(agst_stage_id == found_eststage3);
-        arma::uvec agst_found_eststage2of3a2 = find(agst_age == (found_estage2 + 1));
+        arma::uvec agst_found_eststage2of3a2;
+        if (found_estage2 < max_age) {
+          agst_found_eststage2of3a2 = find(agst_age == (found_estage2 + 1));
+        } else {
+          agst_found_eststage2of3a2 = find(agst_age == found_estage2);
+        }
         arma::uvec agst_found_eststage2of2a1 = find(agst_stage_id == found_eststage2);
         arma::uvec agst_found_eststage1of2a1 = find(agst_age == found_estage2);
         
@@ -8133,35 +8370,38 @@ Rcpp::List edit_lM (const RObject mpm, Nullable<RObject> pop = R_NilValue,
   int F_adjustment {0};
   
   for (int i = 0; i < new_supp_length; i++) {
-    arma::uvec chosen_pops (labels_length, fill::zeros);
-    arma::uvec chosen_patches (labels_length, fill::zeros);
-    arma::uvec chosen_year2s (labels_length, fill::zeros);
+    arma::ivec chosen_pops (labels_length);
+    arma::ivec chosen_patches (labels_length);
+    arma::ivec chosen_year2s (labels_length);
+    chosen_pops.fill(-1);
+    chosen_patches.fill(-1);
+    chosen_year2s.fill(-1);
     
-    if (StringVector::is_na(new_pop(i)) || new_pop(i) == "NA") {
-      chosen_pops = main_labels_index;
+    if (StringVector::is_na(new_pop(i)) || new_pop(i) == "NA" || new_pop(i) == "all") {
+      chosen_pops = arma::conv_to<arma::ivec>::from(main_labels_index);
     } else {
       for (int j = 0; j < labels_length; j++) {
-        if (new_pop(i) == labels_pop(j)) chosen_pops(j) = 1;
+        if (new_pop(i) == labels_pop(j)) chosen_pops(j) = j;
       }
     }
-    if (StringVector::is_na(new_patch(i)) || new_patch(i) == "NA") {
-      chosen_patches = main_labels_index;
+    if (StringVector::is_na(new_patch(i)) || new_patch(i) == "NA" || new_patch(i) == "all") {
+      chosen_patches = arma::conv_to<arma::ivec>::from(main_labels_index);
     } else {
       for (int j = 0; j < labels_length; j++) {
-        if (new_patch(i) == labels_patch(j)) chosen_patches(j) = 1;
+        if (new_patch(i) == labels_patch(j)) chosen_patches(j) = j;
       }
     }
-    if (StringVector::is_na(new_year2(i)) || new_year2(i) == "NA") {
-      chosen_year2s = main_labels_index;
+    if (StringVector::is_na(new_year2(i)) || new_year2(i) == "NA" || new_year2(i) == "all") {
+      chosen_year2s = arma::conv_to<arma::ivec>::from(main_labels_index);
     } else {
       for (int j = 0; j < labels_length; j++) {
-        if (new_year2(i) == labels_year2(j)) chosen_year2s(j) = 1;
+        if (new_year2(i) == labels_year2(j)) chosen_year2s(j) = j;
       }
     }
     
-    arma::uvec pop_indices = find(chosen_pops);
-    arma::uvec patch_indices = find(chosen_patches);
-    arma::uvec year2_indices = find(chosen_year2s);
+    arma::uvec pop_indices = find(chosen_pops > -1);
+    arma::uvec patch_indices = find(chosen_patches > -1);
+    arma::uvec year2_indices = find(chosen_year2s > -1);
     
     if (pop_indices.n_elem == 0) {
       Rf_warningcall(R_NilValue, "Pop designations could not be found in input MPM.");
@@ -8195,6 +8435,10 @@ Rcpp::List edit_lM (const RObject mpm, Nullable<RObject> pop = R_NilValue,
               
               chosen_U(new_row_index_(i), new_col_index_(i)) = new_givenrate_(i);
             }
+            if (new_use_est_(i) == 1) {
+              chosen_U(new_row_index_(i), new_col_index_(i)) =
+                chosen_U(new_est_row_index_(i), new_est_col_index_(i));
+            }
             if (!NumericVector::is_na(new_multiplier_(i))) {
               chosen_U(new_row_index_(i), new_col_index_(i)) *= new_multiplier_(i);
             }
@@ -8211,6 +8455,10 @@ Rcpp::List edit_lM (const RObject mpm, Nullable<RObject> pop = R_NilValue,
                 F_adjustment -= 1;
               }
               chosen_F(new_row_index_(i), new_col_index_(i)) = new_givenrate_(i);
+            }
+            if (new_use_est_(i) == 1) {
+              chosen_F(new_row_index_(i), new_col_index_(i)) =
+                chosen_F(new_est_row_index_(i), new_est_col_index_(i));
             }
             if (!NumericVector::is_na(new_multiplier_(i))) {
               chosen_F(new_row_index_(i), new_col_index_(i)) *= new_multiplier_(i);
@@ -8243,6 +8491,10 @@ Rcpp::List edit_lM (const RObject mpm, Nullable<RObject> pop = R_NilValue,
               }
               chosen_U(new_row_index_(i), new_col_index_(i)) = new_givenrate_(i);
             }
+            if (new_use_est_(i) == 1) {
+              chosen_U(new_row_index_(i), new_col_index_(i)) =
+                chosen_U(new_est_row_index_(i), new_est_col_index_(i));
+            }
             if (!NumericVector::is_na(new_multiplier_(i))) {
               chosen_U(new_row_index_(i), new_col_index_(i)) *= new_multiplier_(i);
             }
@@ -8259,6 +8511,10 @@ Rcpp::List edit_lM (const RObject mpm, Nullable<RObject> pop = R_NilValue,
                 F_adjustment -= 1;
               }
               chosen_F(new_row_index_(i), new_col_index_(i)) = new_givenrate_(i);
+            }
+            if (new_use_est_(i) == 1) {
+              chosen_F(new_row_index_(i), new_col_index_(i)) =
+                chosen_F(new_est_row_index_(i), new_est_col_index_(i));
             }
             if (!NumericVector::is_na(new_multiplier_(i))) {
               chosen_F(new_row_index_(i), new_col_index_(i)) *= new_multiplier_(i);
@@ -8288,6 +8544,10 @@ Rcpp::List edit_lM (const RObject mpm, Nullable<RObject> pop = R_NilValue,
             }
             chosen_A(new_row_index_(i), new_col_index_(i)) = new_givenrate_(i);
           }
+          if (new_use_est_(i) == 1) {
+            chosen_A(new_row_index_(i), new_col_index_(i)) =
+              chosen_A(new_est_row_index_(i), new_est_col_index_(i));
+          }
           if (!NumericVector::is_na(new_multiplier_(i)) && new_col_index_(i) != -1) {
             chosen_A(new_row_index_(i), new_col_index_(i)) *= new_multiplier_(i);
           }
@@ -8306,6 +8566,10 @@ Rcpp::List edit_lM (const RObject mpm, Nullable<RObject> pop = R_NilValue,
               U_adjustment -= 1;
             }
             chosen_A(new_row_index_(i), new_col_index_(i)) = new_givenrate_(i);
+          }
+          if (new_use_est_(i) == 1) {
+            chosen_A(new_row_index_(i), new_col_index_(i)) =
+              chosen_A(new_est_row_index_(i), new_est_col_index_(i));
           }
           if (!NumericVector::is_na(new_multiplier_(i)) && new_col_index_(i) != -1) {
             chosen_A(new_row_index_(i), new_col_index_(i)) *= new_multiplier_(i);

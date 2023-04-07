@@ -63,7 +63,7 @@ plot(density(c(lathyrus$lnVol88, lathyrus$lnVol89, lathyrus$lnVol90,
   
   <p style="text-indent: 20px">The raw volume distribution is highly skewed. This might cause difficulty if we used raw size untransformed and with a Gaussian distribution. A Gamma distribution might be justified. However, we will use the log volume here, which looks 'better' than the raw volume distribution in the sense that it is closer to some semblance of a Gaussian distribution, mostly through an increased level of symmetry. We will assume that log volume is Gaussian-distributed and that the mean bears no relationship to the variance.</p>
   
-  <p style="text-indent: 20px">We will now develop a stageframe that incorporates the log volume of size. We will build this with vectors of the values describing each stage, always in the same order.</p>
+  <p style="text-indent: 20px">We will now develop a stageframe that incorporates the log volume of size. We will build this with vectors of the values describing each stage, always in the same order. Note that we are using the midpoint approach to determining the size bins here, using the default bin halfwidths of 0.5 (since all size bins are using this default, we do not include a `binhalfwidth` vector option in the `sf_create()` input). However, we could have used the `sizemin` and `sizemax` options to more deliberately set the size bin minima and maxima instead.</p>
 ```{r Ch8.3}
 sizevector <- c(0, 4.6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8, 9)
 stagevector <- c("Sd", "Sdl", "Dorm", "Sz1nr", "Sz2nr", "Sz3nr", "Sz4nr",

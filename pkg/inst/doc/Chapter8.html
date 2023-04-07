@@ -509,7 +509,13 @@ bears no relationship to the variance.
 <p style="text-indent: 20px">
 We will now develop a stageframe that incorporates the log volume of
 size. We will build this with vectors of the values describing each
-stage, always in the same order.
+stage, always in the same order. Note that we are using the midpoint
+approach to determining the size bins here, using the default bin
+halfwidths of 0.5 (since all size bins are using this default, we do not
+include a <code>binhalfwidth</code> vector option in the
+<code>sf_create()</code> input). However, we could have used the
+<code>sizemin</code> and <code>sizemax</code> options to more
+deliberately set the size bin minima and maxima instead.
 </p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>sizevector <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">4.6</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">9</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>stagevector <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Sd&quot;</span>, <span class="st">&quot;Sdl&quot;</span>, <span class="st">&quot;Dorm&quot;</span>, <span class="st">&quot;Sz1nr&quot;</span>, <span class="st">&quot;Sz2nr&quot;</span>, <span class="st">&quot;Sz3nr&quot;</span>, <span class="st">&quot;Sz4nr&quot;</span>,</span>

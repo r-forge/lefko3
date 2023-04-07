@@ -3839,11 +3839,11 @@ NULL
 #' @name sf_create
 #' 
 #' @param sizes A numeric vector of the typical or representative size of each
-#' life history stage. If making function-based MPMs, then this should be a
-#' vector composed of the midpoints of each size bin. If denoting the boundary
-#' of an automated size classification group, then should denote the absolute
-#' minimum size of that group, or the absolute size of that group (see
-#' \code{Notes}).
+#' life history stage. If making function-based MPMs, then this may be a
+#' vector composed of the midpoints of each size bin, or simply of sizes
+#' characteristic of the size bins. If denoting the boundary of an automated
+#' size classification group, then should denote the absolute minimum size of
+#' that group, or the absolute size of that group (see \code{Notes}).
 #' @param stagenames A vector of stage names, in the same order as elements in
 #' sizes. Can also be set to \code{ipm} for automated size classification (see
 #' \code{Notes} section).
@@ -3880,16 +3880,35 @@ NULL
 #' non-overlapping combinations of size and status variables. Stages that do
 #' not actually exist within the dataset should be marked as \code{0} in this
 #' vector.
+#' @param sizemin A vector giving the absolute minimum values corresponding to
+#' each size in the \code{sizes} vector. Requires associated values for
+#' \code{sizemax} if used. Only required if not using \code{binhalfwidth}.
+#' @param sizebmin A vector giving the absolute minimum values corresponding to
+#' each size in the \code{sizesb} vector. Requires associated values for
+#' \code{sizebmax} if used. Only required if not using \code{binhalfwidthb}.
+#' @param sizecmin A vector giving the absolute minimum values corresponding to
+#' each size in the \code{sizesc} vector. Requires associated values for
+#' \code{sizecmax} if used. Only required if not using \code{binhalfwidthc}.
+#' @param sizemax A vector giving the absolute maximum values corresponding to
+#' each size in the \code{sizes} vector. Requires associated values for
+#' \code{sizemin} if used. Only required if not using \code{binhalfwidth}.
+#' @param sizebmax A vector giving the absolute maximum values corresponding to
+#' each size in the \code{sizesb} vector. Requires associated values for
+#' \code{sizebmin} if used. Only required if not using \code{binhalfwidthb}.
+#' @param sizecmax A vector giving the absolute maximum values corresponding to
+#' each size in the \code{sizesc} vector. Requires associated values for
+#' \code{sizecmin} if used. Only required if not using \code{binhalfwidthc}.
 #' @param binhalfwidth A numeric vector giving the half-width of size bins.
-#' Required to classify individuals appropriately within size classes.
-#' Defaults to \code{0.5} for all sizes.
+#' Required if \code{sizemin} and \code{sizemax} are not used. Defaults to
+#' \code{0.5} for all sizes.
 #' @param binhalfwidthb A numeric vector giving the half-width of size bins
-#' used for the optional second size metric. Required to classify individuals
-#' appropriately with two or three size classes. Defaults to \code{0.5} for all
-#' sizes.
+#' used for the optional second size metric. Required if \code{sizebmin} and
+#' \code{sizebmax} are not used but two or three size classes are used.
+#' Defaults to \code{0.5} for all sizes.
 #' @param binhalfwidthc A numeric vector giving the half-width of size bins
-#' used for the optional third size metric. Required to classify individuals
-#' appropriately with three size classes. Defaults to \code{0.5} for all sizes.
+#' used for the optional third size metric. Required if \code{sizecmin} and
+#' \code{sizecmax} are not used but three size classes are used. Defaults to
+#' \code{0.5} for all sizes.
 #' @param group An integer vector providing information on each respective
 #' stage's size classification group. If used, then function-based MPM creation
 #' functions \code{\link{flefko2}()}, \code{\link{flefko3}()}, and
@@ -4024,9 +4043,9 @@ NULL
 #' stageframe. Although no hfv data frame needs to be entered in this instance,
 #' stages for which vital rates are to be estimated via linear models
 #' parameterized with coefficients provided via function
-#' \code{\link{vrm_import}()} should be marked as occurring within the dataset,
-#' while stages for which the provided coefficients should not be used should
-#' be marked as not occurring within the dataset.
+#' \code{\link{vrm_import}()} should be marked as occurring within the dataset.
+#' Stages for which the provided coefficients should not be used should be
+#' marked as not occurring within the dataset.
 #' 
 #' @examples
 #' # Lathyrus example
@@ -4067,8 +4086,8 @@ NULL
 #'   binhalfwidth = binvec)
 #' 
 #' @export sf_create
-sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, repstatus = NULL, obsstatus = NULL, propstatus = NULL, matstatus = NULL, immstatus = NULL, minage = NULL, maxage = NULL, indataset = NULL, binhalfwidth = NULL, binhalfwidthb = NULL, binhalfwidthc = NULL, group = NULL, comments = NULL, roundsize = 5L, roundsizeb = 5L, roundsizec = 5L, ipmbins = 100L, ipmbinsb = NA_integer_, ipmbinsc = NA_integer_) {
-    .Call('_lefko3_sf_create', PACKAGE = 'lefko3', sizes, stagenames, sizesb, sizesc, repstatus, obsstatus, propstatus, matstatus, immstatus, minage, maxage, indataset, binhalfwidth, binhalfwidthb, binhalfwidthc, group, comments, roundsize, roundsizeb, roundsizec, ipmbins, ipmbinsb, ipmbinsc)
+sf_create <- function(sizes, stagenames = NULL, sizesb = NULL, sizesc = NULL, repstatus = NULL, obsstatus = NULL, propstatus = NULL, matstatus = NULL, immstatus = NULL, minage = NULL, maxage = NULL, indataset = NULL, sizemin = NULL, sizebmin = NULL, sizecmin = NULL, sizemax = NULL, sizebmax = NULL, sizecmax = NULL, binhalfwidth = NULL, binhalfwidthb = NULL, binhalfwidthc = NULL, group = NULL, comments = NULL, roundsize = 5L, roundsizeb = 5L, roundsizec = 5L, ipmbins = 100L, ipmbinsb = NA_integer_, ipmbinsc = NA_integer_) {
+    .Call('_lefko3_sf_create', PACKAGE = 'lefko3', sizes, stagenames, sizesb, sizesc, repstatus, obsstatus, propstatus, matstatus, immstatus, minage, maxage, indataset, sizemin, sizebmin, sizecmin, sizemax, sizebmax, sizecmax, binhalfwidth, binhalfwidthb, binhalfwidthc, group, comments, roundsize, roundsizeb, roundsizec, ipmbins, ipmbinsb, ipmbinsc)
 }
 
 #' Calculate Actual Stage, Age, Stage-Pair, or Age-Stage Distributions

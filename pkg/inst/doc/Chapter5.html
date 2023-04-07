@@ -458,7 +458,13 @@ matching it to our dataset with a <em>stageframe</em> for our
 function-based and all sizes have reasonable representation, we will
 include all observed size classes here. Size is count-based, and refers
 to all numbers of stems that occurred, representing the life history
-diagram shown previously.
+diagram shown previously. Note that we are using the midpoint approach
+to determining the size bins here, using the default bin halfwidths of
+0.5 (since all size bins are using this default, we do not include a
+<code>binhalfwidth</code> vector option in the <code>sf_create()</code>
+input). However, we could have used the <code>sizemin</code> and
+<code>sizemax</code> options to more deliberately set the size bin
+minima and maxima instead.
 </p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>sizevector <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">t =</span> <span class="dv">24</span>), <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">1</span>, <span class="at">to =</span> <span class="dv">24</span>))</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>stagevector <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;SD&quot;</span>, <span class="st">&quot;P1&quot;</span>, <span class="st">&quot;P2&quot;</span>, <span class="st">&quot;P3&quot;</span>, <span class="st">&quot;SL&quot;</span>, <span class="st">&quot;D&quot;</span>, <span class="st">&quot;V1&quot;</span>, <span class="st">&quot;V2&quot;</span>, <span class="st">&quot;V3&quot;</span>, <span class="st">&quot;V4&quot;</span>,</span>

@@ -1,3 +1,20 @@
+# lefko3 6.0.3 (2023-04-07)
+
+## NEW FEATURES
+
+* Function sf_create() now allows flexible assignment of representative stage
+  sizes and associated minimum and maximum bin boundaries.
+
+## USER VISIBLE CHANGES
+
+* Function rlefko2() now produces an interpretable error message if an
+  incorrectly developed stageframe is applied.
+* Warnings added about use of large input matrices for SNA-LTRE analysis.
+
+## BUG FIXES
+
+* Fixed proxy transition issue in function edit_lM().
+
 # lefko3 6.0.2 (2023-03-31)
 
 ## USER VISIBLE CHANGES

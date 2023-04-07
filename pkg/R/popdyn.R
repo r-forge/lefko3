@@ -3292,6 +3292,10 @@ elasticity3.list <- function(mats, stochastic = FALSE, steps = 10000,
 #' Defaults work best when matrices are very small and dense, or very large and
 #' sparse.
 #' 
+#' The methodology used for SNA-LTRE involves the creation of extremely large
+#' matrices. Inputting historical matrices or other matrices with over 1000
+#' rows and columns may cause fatal errors.
+#' 
 #' @seealso \code{\link{summary.lefkoLTRE}()}
 #' 
 #' @examples

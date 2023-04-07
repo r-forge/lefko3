@@ -3300,6 +3300,10 @@ List normalpatrolgroup(const DataFrame& sge3, const arma::ivec& sge2stage2,
       }
       
       // Sum all individuals with particular transition
+      if (dataindex2i(j) >= no2stages) {
+        throw Rcpp::exception("Current stageframe does not account for all trait combinations in the data.",
+          false);
+      }
       stage2fec((dataindex2i(j)), 0) = stage2fec((dataindex2i(j)), 0) + 1.0; 
       if (dataalive3i(j) > 0) {
         stage2fec((dataindex2i(j)), 1) = stage2fec((dataindex2i(j)), 1) + 1.0;
@@ -11104,7 +11108,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         if (repmatrix_used && supplement_used) {
           List melchett = sf_reassess(stageframe_, supplement_, R_NilValue,
             repmatrix_, false, false, 1);
-            
+          
           melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
           melchett_ovtable_ = as<DataFrame>(melchett["ovtable"]);
           melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
@@ -11120,7 +11124,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         } else if (repmatrix_used && !supplement_used) {
           List melchett = sf_reassess(stageframe_, R_NilValue, overwrite_,
             repmatrix_, false, false, 1);
-            
+          
           melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
           melchett_ovtable_ = as<DataFrame>(melchett["ovtable"]);
           melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
@@ -11128,7 +11132,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         } else if (!repmatrix_used && supplement_used) {
           List melchett = sf_reassess(stageframe_, supplement_, R_NilValue,
             R_NilValue, false, false, 1);
-            
+          
           melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
           melchett_ovtable_ = as<DataFrame>(melchett["ovtable"]);
           melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
@@ -11136,7 +11140,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         } else {
           List melchett = sf_reassess(stageframe_, R_NilValue, R_NilValue,
             R_NilValue, false, false, 1);
-            
+          
           melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
           melchett_ovtable_ = as<DataFrame>(melchett["ovtable"]);
           melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
@@ -11148,7 +11152,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         if (repmatrix_used && supplement_used) {
           List melchett = sf_reassess(stageframe_, supplement_, R_NilValue,
             repmatrix_, true, false, 1);
-            
+          
           melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
           melchett_ovtable_temp = as<DataFrame>(melchett["ovtable"]);
           melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
@@ -11156,7 +11160,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         } else if (repmatrix_used && !supplement_used && !overwrite_used) {
           List melchett = sf_reassess(stageframe_, R_NilValue, R_NilValue,
             repmatrix_, true, false, 1);
-            
+          
           melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
           melchett_ovtable_temp = as<DataFrame>(melchett["ovtable"]);
           melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
@@ -11164,7 +11168,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         } else if (repmatrix_used && !supplement_used) {
           List melchett = sf_reassess(stageframe_, R_NilValue, overwrite_,
             repmatrix_, true, false, 1);
-            
+          
           melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
           melchett_ovtable_temp = as<DataFrame>(melchett["ovtable"]);
           melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
@@ -11172,7 +11176,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         } else if (!repmatrix_used && supplement_used) {
           List melchett = sf_reassess(stageframe_, supplement_, R_NilValue,
             R_NilValue, true, false, 1);
-            
+          
           melchett_stageframe_ = as<DataFrame>(melchett["stageframe"]);
           melchett_ovtable_temp = as<DataFrame>(melchett["ovtable"]);
           melchett_repmatrix_ = as<NumericMatrix>(melchett["repmatrix"]);
