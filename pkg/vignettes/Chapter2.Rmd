@@ -318,7 +318,7 @@ image3(ehrlen2mean, used = 1)
 #> [[1]]
 ```
 
-![Figure 2.1. Image of mean ahistorical matrix](figure/Ch2.17-1.png)
+![Figure 2.1. Image of mean ahistorical matrix](Ch2.17-1.png)
   
   <p style="text-indent: 20px">The resulting image shows non-zero elements as red spaces, and zero elements as white spaces. Rows and columns are numbered, and we can see that this matrix is reasonably dense.</p>
   
@@ -329,7 +329,7 @@ image3(ehrlen3mean, used = 1)
 #> [[1]]
 ```
 
-![Figure 2.2. Image of mean historical matrix](figure/Ch2.18-1.png)
+![Figure 2.2. Image of mean historical matrix](Ch2.18-1.png)
   
 #### Step 5. MPM analysis 
   
@@ -435,7 +435,7 @@ legend("topright", c("det ahistorical", "det historical", "sto ahistorical",
   pt.bg = c("black", "orangered", "grey", "darkred"), bty = "n")
 ```
 
-![Figure 2.3. Deterministic and stochastic ahistorical vs. historically-corrected stable stage distributions](figure/Ch2.25-1.png)
+![Figure 2.3. Deterministic and stochastic ahistorical vs. historically-corrected stable stage distributions](Ch2.25-1.png)
   
   <p style="text-indent: 20px">Let's take the deterministic portion first. Accounting for individual history increased the prevalence of tiny and small adults, but decreased the prevalence of dormant seeds, and dormant, large, and flowering adults. Now when we also take in the impact of temporal stochasticity, we can see differences in the proportion of dormant seeds, seedlings, and all adult stages, with the greatest differences in dormant seeds and tiny adults.</p>
   
@@ -461,7 +461,7 @@ legend("topleft", c("det ahistorical", "det historical", "sto ahistorical",
   pt.bg = c("black", "orangered", "grey", "darkred"), bty = "n")
 ```
 
-![Figure 2.4. Ahistorical vs. historically-corrected reproductive values](figure/Ch2.26-1.png)
+![Figure 2.4. Ahistorical vs. historically-corrected reproductive values](Ch2.26-1.png)
   
   <p style="text-indent: 20px">Both deterministic and stochastic analyses show that flowering adults have the greatest reproductive value in both ahistorical and historical analysis, while dormant seeds have the least. However, the historical MPMs suggest lower contributions of seedlings and vegetative dormancy, but larger contributions of flowering adults.</p>
   
@@ -617,7 +617,7 @@ legend("topleft", c("det ahistorical", "det historical", "sto ahistorical",
   pt.bg = c("black", "orangered", "grey", "darkred"), bty = "n")
 ```
 
-![Figure 2.5. Ahistorical vs. historically-corrected deterministic and stochastic elasticity to stages](figure/Ch2.35-1.png)
+![Figure 2.5. Ahistorical vs. historically-corrected deterministic and stochastic elasticity to stages](Ch2.35-1.png)
   
   <p style="text-indent: 20px">Historical analyses generally find that population growth rate is less elastic in response to seedlings, and flowering adults, and more elastic to tiny and dormant adults than in ahistorical analyses. Stochastic and deterministic population growth rates are barely elastic in response to dormant seeds and seedlings. Note the dramatic impact of environmental stochasticity and individual history combined on the impact of tiny adults.</p>
   
@@ -642,7 +642,7 @@ legend("topright", c("det ahistorical", "det historical", "sto ahistorical",
   pt.bg = c("black", "orangered", "grey", "darkred"), bty = "n")
 ```
 
-![Figure 2.6. Ahistorical vs. historically-corrected deterministic and stochastic elasticity to transitions](figure/Ch2.36-1.png)
+![Figure 2.6. Ahistorical vs. historically-corrected deterministic and stochastic elasticity to transitions](Ch2.36-1.png)
   
   <p style="text-indent: 20px">We see similar patterns across types of elasticity analysis. Particularly, population growth rate is most elastic in response to changes in stasis transitions, and least elastic to changes in fecundity. Environmental stochasticity appears to exacerbate these differences.</p>
   
