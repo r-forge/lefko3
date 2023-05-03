@@ -246,8 +246,7 @@ legend("topleft", c("det annual", "det mean", "stochastic"), lty = c(2, 1, 1),
 ```r
 trialltre_det <- ltre3(anth_lmean, stochastic = FALSE, steps = 10000,
   time_weights = NA, sparse = "auto")
-#> Warning: Matrices input as mats will also be used in reference matrix
-#> calculation.
+#> Warning: Matrices input as mats will also be used in reference matrix calculation.
 #> Using all refmats matrices in reference matrix calculation.
 #trialltre_det
 ```
@@ -257,8 +256,7 @@ trialltre_det <- ltre3(anth_lmean, stochastic = FALSE, steps = 10000,
 ```r
 trialltre_sto <- ltre3(anth_lefkoMat, stochastic = TRUE, steps = 10000,
   time_weights = NA, sparse = "auto")
-#> Warning: Matrices input as mats will also be used in reference matrix
-#> calculation.
+#> Warning: Matrices input as mats will also be used in reference matrix calculation.
 #> Using all refmats matrices in reference matrix calculation.
 #trialltre_sto
 ```

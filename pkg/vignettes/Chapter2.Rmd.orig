@@ -261,22 +261,24 @@ image3(ehrlen3mean, used = 1)
   
   <p style="text-indent: 20px">Package `lefko3` includes functions to conduct some analyses of population dynamics. We will start by estimating the asymptotic population growth rate ($\lambda$) and the stochastic population growth rate ($a = \text{log} \lambda _{S}$) from the ahistorical MPMs, including both the annual MPM and the mean. For the stochastic case, we will set the seed for R's random number generation to make our output reproducible. Note that each $\lambda$ estimate includes a data frame describing the matrices in order (given as the `labels` object within the output list). Here is the set of ahistorical annual $\lambda$ estimates, followed by $\lambda$ for the mean matrix, and the stochastic population growth rate ($a = \text{log} \lambda _{S}$).</p>
 ```{r Ch2.19}
-# Deterministic ahistorical:
+# Deterministic ahistorical
 lambda3(ehrlen2)
-# Deterministic mean ahistorical:
+# Deterministic mean ahistorical
 lambda3(ehrlen2mean)
-# Stochastic ahistorical:
-set.seed(42); slambda3(ehrlen2)
+# Stochastic ahistorical
+set.seed(42)
+slambda3(ehrlen2)
 ```
   
   <p style="text-indent: 20px">We will now look at the same numbers for the historical analyses. There are several differences in the output in addition to the lower growth rate estimates. First, because there are four years of data, there are three ahistorical transitions possible for estimation: year 1 to 2, year 2 to 3, and year 3 to 4. However, in the historical case, only two are possible: from years 1 and 2 to 3 (technically, from years 1 [*t*-1] and 2 [*t*] to years 2 [*t*] and 3 [*t*+1]), and from years 2 and 3 to 4. Second, historical matrices cover more of the individual heterogeneity in a population by splitting ahistorical transitions by stage in occasion *t*-1. This heterogeneity may reflect many sources, for example the impacts of trade-offs operating across years [@shefferson_longitudinal_2010]. One particularly common trade-off is the cost of growth: an individual that grows a great deal in one time step due to great environmental conditions in that year might pay a large cost of survival, growth, or reproduction in the next if those environmental conditions deteriorate [@shefferson_life_2014; @shefferson_drivers_2018].</p>
 ```{r Ch2.20}
-# Deterministic historical:
+# Deterministic historical
 lambda3(ehrlen3)
-# Deterministic mean historical:
+# Deterministic mean historical
 lambda3(ehrlen3mean)
-# Stochastic historical:
-set.seed(42); slambda3(ehrlen3)
+# Stochastic historical
+set.seed(42)
+slambda3(ehrlen3)
 ```
   
   <p style="text-indent: 20px">We can also examine the stable stage distributions, as follows for the ahistorical case.</p>

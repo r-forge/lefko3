@@ -1,3 +1,22 @@
+# lefko3 6.0.5 (2023-05-03)
+
+## USER VISIBLE CHANGES
+
+* Function ltre3() now uses tolerance limits to determine non-zero elements
+  and contributions in sLTRE and SNA-LTRE analyses.
+* Stochastic LTREs are now more easily interruptible.
+
+## BUG FIXES
+
+* Functions summary.lefkoLTRE() and summary.lefkoElas() now properly sort
+  contributions from fecundity transitions.
+
+# lefko3 6.0.4 (2023-04-11)
+
+## USER VISIBLE CHANGES
+
+* Function ltre3() can now handle SNA-LTRE of large historical MPMs.
+
 # lefko3 6.0.3 (2023-04-07)
 
 ## NEW FEATURES

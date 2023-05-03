@@ -748,8 +748,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // sltre3matrix
-Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels, Rcpp::IntegerVector refnum, Nullable<Rcpp::List> refmats_, Nullable<arma::vec> tweights_, int steps, int burnin, bool sparse);
-RcppExport SEXP _lefko3_sltre3matrix(SEXP AmatsSEXP, SEXP labelsSEXP, SEXP refnumSEXP, SEXP refmats_SEXP, SEXP tweights_SEXP, SEXP stepsSEXP, SEXP burninSEXP, SEXP sparseSEXP) {
+Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels, Rcpp::IntegerVector refnum, Nullable<Rcpp::List> refmats_, Nullable<arma::vec> tweights_, int steps, int burnin, bool sparse, double tol_used);
+RcppExport SEXP _lefko3_sltre3matrix(SEXP AmatsSEXP, SEXP labelsSEXP, SEXP refnumSEXP, SEXP refmats_SEXP, SEXP tweights_SEXP, SEXP stepsSEXP, SEXP burninSEXP, SEXP sparseSEXP, SEXP tol_usedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -761,13 +761,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type steps(stepsSEXP);
     Rcpp::traits::input_parameter< int >::type burnin(burninSEXP);
     Rcpp::traits::input_parameter< bool >::type sparse(sparseSEXP);
-    rcpp_result_gen = Rcpp::wrap(sltre3matrix(Amats, labels, refnum, refmats_, tweights_, steps, burnin, sparse));
+    Rcpp::traits::input_parameter< double >::type tol_used(tol_usedSEXP);
+    rcpp_result_gen = Rcpp::wrap(sltre3matrix(Amats, labels, refnum, refmats_, tweights_, steps, burnin, sparse, tol_used));
     return rcpp_result_gen;
 END_RCPP
 }
 // snaltre3matrix
-Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels, Rcpp::IntegerVector refnum, Nullable<Rcpp::List> refmats_, Nullable<arma::vec> tweights_, bool sparse);
-RcppExport SEXP _lefko3_snaltre3matrix(SEXP AmatsSEXP, SEXP labelsSEXP, SEXP refnumSEXP, SEXP refmats_SEXP, SEXP tweights_SEXP, SEXP sparseSEXP) {
+Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels, Rcpp::IntegerVector refnum, Nullable<Rcpp::List> refmats_, Nullable<arma::vec> tweights_, bool sparse, double tol_used);
+RcppExport SEXP _lefko3_snaltre3matrix(SEXP AmatsSEXP, SEXP labelsSEXP, SEXP refnumSEXP, SEXP refmats_SEXP, SEXP tweights_SEXP, SEXP sparseSEXP, SEXP tol_usedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -777,7 +778,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Nullable<Rcpp::List> >::type refmats_(refmats_SEXP);
     Rcpp::traits::input_parameter< Nullable<arma::vec> >::type tweights_(tweights_SEXP);
     Rcpp::traits::input_parameter< bool >::type sparse(sparseSEXP);
-    rcpp_result_gen = Rcpp::wrap(snaltre3matrix(Amats, labels, refnum, refmats_, tweights_, sparse));
+    Rcpp::traits::input_parameter< double >::type tol_used(tol_usedSEXP);
+    rcpp_result_gen = Rcpp::wrap(snaltre3matrix(Amats, labels, refnum, refmats_, tweights_, sparse, tol_used));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1093,8 +1095,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_lefko3_slambda3", (DL_FUNC) &_lefko3_slambda3, 5},
     {"_lefko3_stoch_senselas", (DL_FUNC) &_lefko3_stoch_senselas, 6},
     {"_lefko3_ltre3matrix", (DL_FUNC) &_lefko3_ltre3matrix, 5},
-    {"_lefko3_sltre3matrix", (DL_FUNC) &_lefko3_sltre3matrix, 8},
-    {"_lefko3_snaltre3matrix", (DL_FUNC) &_lefko3_snaltre3matrix, 6},
+    {"_lefko3_sltre3matrix", (DL_FUNC) &_lefko3_sltre3matrix, 9},
+    {"_lefko3_snaltre3matrix", (DL_FUNC) &_lefko3_snaltre3matrix, 7},
     {"_lefko3_stovokor", (DL_FUNC) &_lefko3_stovokor, 45},
     {"_lefko3_create_pm", (DL_FUNC) &_lefko3_create_pm, 1},
     {"_lefko3_sf_create", (DL_FUNC) &_lefko3_sf_create, 29},

@@ -16,6 +16,7 @@ ltre3(
   rseed = NA,
   append_mats = FALSE,
   sna_ltre = FALSE,
+  tol = 1e-30,
   ...
 )
 }
@@ -62,7 +63,15 @@ via the sna-LTRE approach from Davison et al. (2019) (\code{TRUE}), or the
 stochastic LTRE approximation from Davison et al. (2010) (\code{FALSE}).
 Defaults to \code{FALSE}.}
 
+\item{tol}{A numeric value indicating a lower positive limit to matrix
+element values when applied to stochatic and small noise approximation LTRE
+estimation protocols. Matrix element values lower than this will be treated
+as \code{0.0} values. Defaults to \code{1e-30}.}
+
 \item{...}{Other parameters.}
+
+\item{err_check}{A logical value indicating whether to print diagnostic
+messages during the analysis. Defaults to \code{FALSE}.}
 }
 \value{
 This function returns an object of class \code{lefkoLTRE}. This
@@ -129,10 +138,6 @@ determination to forced dense or sparse matrix projection. This will most
 likely occur when matrices have between 10 and 300 rows and columns.
 Defaults work best when matrices are very small and dense, or very large and
 sparse.
-
-The methodology used for SNA-LTRE involves the creation of extremely large
-matrices. Inputting historical matrices or other matrices with over 1000
-rows and columns may cause fatal errors.
 }
 
 \examples{

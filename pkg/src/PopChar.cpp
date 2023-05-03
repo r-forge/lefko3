@@ -2741,10 +2741,11 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
   }
   
   // New data frame variable assignments
-  arma::ivec data_year2;
-  if (years_supplied) data_year2 = as<arma::ivec>(data_[year2_num_]);
+  IntegerVector data_year2;
+  if (years_supplied) data_year2 = as<IntegerVector>(data_[year2_num_]);
+  arma::ivec data_year2_arma = as<arma::ivec>(data_year2);
   
-  if (static_cast<int>(data_year2.n_elem) != data_rows) {
+  if (static_cast<int>(data_year2.length()) != data_rows) {
     throw Rcpp::exception("Object year2 does not contain a valid variable.", false);
   }
   
@@ -2774,18 +2775,12 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
     if (stages3_supplied) {
       data_stage3 = as<CharacterVector>(data_[stage3_]);
       
-      // Rcout << "\n Length of data_stage3: " << data_stage3.length() << "\n";
-      // Rcout << "First entry in data_stage3: " << data_stage3(0) << "\n";
-      
       if (data_stage3.length() != data_rows) {
         throw Rcpp::exception("Object stagecol does not contain a valid variable for stage at time t+1.", false);
       }
     }
     if (stages2_supplied) {
       data_stage2 = as<CharacterVector>(data_[stage2_]);
-      
-      // Rcout << "\n Length of data_stage2: " << data_stage2.length() << "\n";
-      // Rcout << "First entry in data_stage2: " << data_stage2(0) << "\n";
       
       if (data_stage2.length() != data_rows) {
         throw Rcpp::exception("Object stagecol does not contain a valid variable for stage at time t.", false);
@@ -2795,18 +2790,12 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
     if (indices3_supplied) {
       data_stage3index = as<arma::ivec>(data_[stage3index_]);
       
-      // Rcout << "\n Length of data_stage3index: " << data_stage3index.n_elem << "\n";
-      // Rcout << "First entry in data_stage3index: " << data_stage3index(0) << "\n";
-      
       if (static_cast<int>(data_stage3index.n_elem) != data_rows) {
         throw Rcpp::exception("Object indices does not contain a valid variable for stage at time t+1.", false);
       }
     }
     if (indices2_supplied) {
       data_stage2index = as<arma::ivec>(data_[stage2index_]);
-      
-      // Rcout << "First entry in data_stage2index: " << data_stage2index(0) << "\n";
-      // Rcout << "\n Length of data_stage2index: " << data_stage2index.n_elem << "\n";
       
       if (static_cast<int>(data_stage2index.n_elem) != data_rows) {
         throw Rcpp::exception("Object indices does not contain a valid variable for stage at time t.", false);
@@ -2843,15 +2832,17 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
   }
   
   // Now we develop vectors of all values
-  arma::ivec all_year2 = unique(data_year2);
-  int year2_num = static_cast<int>(all_year2.n_elem);
+  IntegerVector all_year2 = sort_unique(data_year2);
+  arma::ivec all_year2_arma = as<arma::ivec>(all_year2);
+  int year2_num = static_cast<int>(all_year2.length());
   int years_num = year2_num + 1;
   
-  arma::ivec all_years (years_num);
+  IntegerVector all_years (years_num);
   for (int i = 0; i < year2_num; i++) {
     all_years(i) = all_year2(i);
   }
   all_years(year2_num) = all_years(year2_num - 1) + 1;
+  arma::ivec all_years_arma = as<arma::ivec>(all_years);
   
   CharacterVector all_stage3;
   CharacterVector all_stage2;
@@ -2991,31 +2982,13 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
         remove_stage_num_t1a = clone(transfer_remove_stage_num);
       }
       
-      
-      
-      // Error checks
-      // Rcout << "all_stages\n";
-      // for (int i=0; i < all_stages.length(); i++) {
-      //   Rcout << "stage " << i << " " << all_stages(i) << "\n";
-      // }
-      // 
-      // Rcout << "remove_stage_num_\n";
-      // for (int i=0; i < remove_stage_num_.length(); i++) {
-      //   Rcout << "remove_stage_num_ " << i << " " << all_stages(remove_stage_num_(i)) << "\n";
-      // }
-      // 
-      // Rcout << "remove_stage_num_\n";
-      // for (int i=0; i < remove_stage_num_t1a.length(); i++) {
-      //   Rcout << "remove_stage_num_t1a " << i << " " << all_stages(remove_stage_num_t1a(i)) << "\n";
-      // }
-      
       if (!remove_stage_num_yn) {
         Rf_warningcall(R_NilValue,
           "Stage(s) provided in option remove_stage could not be found and so will be ignored.");
       }
       
-      IntegerVector unique_rsn = unique(remove_stage_num_);
-      IntegerVector unique_rsn_t1a = unique(remove_stage_num_t1a);
+      IntegerVector unique_rsn = sort_unique(remove_stage_num_);
+      IntegerVector unique_rsn_t1a = sort_unique(remove_stage_num_t1a);
       
       if (unique_rsn.length() < remove_stage_num_.length() || 
           unique_rsn_t1a.length() < remove_stage_num_t1a.length()) {
@@ -3110,8 +3083,6 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
   IntegerVector new_year (new_df_rows);
   IntegerVector new_frequency (new_df_rows);
   NumericVector new_actualprop (new_df_rows);
-  
-  // Rcout << "\n new_df_rows: " << new_df_rows << "\n";
   
   if (check_stage && !check_age) {
     if (!historical) {
@@ -3245,29 +3216,6 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
     
   }
   
-  /*
-  Rcout << "Pre-loop\n";
-  Rcout << "\n Length of new_row_names: " << new_row_names.length() << "\n";
-  Rcout << " First entry: " << new_row_names(0) << "\n";
-  
-  Rcout << "\n Length of new_row_id: " << new_row_id.length() << "\n";
-  Rcout << " First entry: " << new_row_id(0) << "\n";
-  
-  Rcout << "\n Length of new_age: " << new_age.length() << "\n";
-  Rcout << " First entry: " << new_age(0) << "\n";
-  
-  Rcout << "\n Length of new_stage: " << new_stage.length() << "\n";
-  Rcout << " First entry: " << new_stage(0) << "\n";
-  
-  Rcout << "\n Length of new_stage2: " << new_stage2.length() << "\n";
-  Rcout << " First entry: " << new_stage2(0) << "\n";
-  
-  Rcout << "\n Length of new_stage1: " << new_stage1.length() << "\n";
-  Rcout << " First entry: " << new_stage1(0) << "\n";
-  
-  Rcout << "V";
-  */
-  
   // Main analysis loop
   IntegerVector pop_by_years (years_num);
   
@@ -3303,7 +3251,7 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
     }
     
     // Now we'll find the frequencies of age-stage-year combos
-    arma::uvec year_guys = find(data_year2 == new_year(i));
+    arma::uvec year_guys = find(data_year2_arma == new_year(i));
     int year_guys_length = static_cast<int>(year_guys.n_elem);
     
     if (check_stage && !check_age) {
@@ -3311,14 +3259,14 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
         for (int j = 0; j < year_guys_length; j++) {
           if (stringcompare_hard(as<std::string>(data_stage2(year_guys(j))), as<std::string>(new_stage2(i)))) {
             if (!historical) {
-              arma::uvec year_found = find(all_years == new_year(i));
+              arma::uvec year_found = find(all_years_arma == new_year(i));
               pop_by_years(year_found(0))++;
               
               new_frequency(i)++;
             } else {
             
               if (stringcompare_hard(as<std::string>(data_stage1(year_guys(j))), as<std::string>(new_stage1(i)))) {
-                arma::uvec year_found = find(all_years == new_year(i));
+                arma::uvec year_found = find(all_years_arma == new_year(i));
                 pop_by_years(year_found(0))++;
                 
                 new_frequency(i)++;
@@ -3327,19 +3275,19 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
           }
         }
       } else {
-        arma::uvec year_guys3 = find(data_year2 == new_year(i) - 1);
+        arma::uvec year_guys3 = find(data_year2_arma == (new_year(i) - 1));
         int year_guys_length3 = static_cast<int>(year_guys3.n_elem);
         
         for (int j = 0; j < year_guys_length3; j++) {
           if (stringcompare_hard(as<std::string>(data_stage3(year_guys3(j))), as<std::string>(new_stage2(i)))) {
             if (!historical) {
-              arma::uvec year_found = find(all_years == new_year(i));
+              arma::uvec year_found = find(all_years_arma == new_year(i));
               pop_by_years(year_found(0))++;
               
               new_frequency(i)++;
             } else {
               if (stringcompare_hard(as<std::string>(data_stage2(year_guys3(j))), as<std::string>(new_stage1(i)))) {
-                arma::uvec year_found = find(all_years == new_year(i));
+                arma::uvec year_found = find(all_years_arma == new_year(i));
                 pop_by_years(year_found(0))++;
                 
                 new_frequency(i)++;
@@ -3349,15 +3297,13 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
         }
       }
       
-      
-      
     } else if (check_stage && check_age) {
       if (year_guys_length > 0) {
         for (int j = 0; j < year_guys_length; j++) {
           if (stringcompare_hard(as<std::string>(data_stage2(year_guys(j))), as<std::string>(new_stage2(i)))) {
             if (data_agecol(year_guys(j)) == new_age(i)) {
               
-              arma::uvec year_found = find(all_years == new_year(i));
+              arma::uvec year_found = find(all_years_arma == new_year(i));
               pop_by_years(year_found(0))++;
               
               new_frequency(i)++;
@@ -3365,14 +3311,14 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
           }
         }
       } else {
-        arma::uvec year_guys3 = find(data_year2 == new_year(i) - 1);
+        arma::uvec year_guys3 = find(data_year2_arma == (new_year(i) - 1));
         int year_guys_length3 = static_cast<int>(year_guys3.n_elem);
         
         for (int j = 0; j < year_guys_length3; j++) {
           if (stringcompare_hard(as<std::string>(data_stage3(year_guys3(j))), as<std::string>(new_stage2(i)))) {
             if (data_agecol(year_guys3(j)) == new_age(i) - 1) {
               
-              arma::uvec year_found = find(all_years == new_year(i));
+              arma::uvec year_found = find(all_years_arma == new_year(i));
               pop_by_years(year_found(0))++;
               
               new_frequency(i)++;
@@ -3385,20 +3331,20 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
         for (int j = 0; j < year_guys_length; j++) {
           if (data_agecol(year_guys(j)) == new_age(i)) {
             
-            arma::uvec year_found = find(all_years == new_year(i));
+            arma::uvec year_found = find(all_years_arma == new_year(i));
             pop_by_years(year_found(0))++;
             
             new_frequency(i)++;
           }
         }
       } else {
-        arma::uvec year_guys3 = find(data_year2 == new_year(i) - 1);
+        arma::uvec year_guys3 = find(data_year2_arma == (new_year(i) - 1));
         int year_guys_length3 = static_cast<int>(year_guys3.n_elem);
         
         for (int j = 0; j < year_guys_length3; j++) {
           if (data_agecol(year_guys3(j)) == new_age(i) - 1) {
             
-            arma::uvec year_found = find(all_years == new_year(i));
+            arma::uvec year_found = find(all_years_arma == new_year(i));
             pop_by_years(year_found(0))++;
             
             new_frequency(i)++;
@@ -3430,7 +3376,7 @@ List actualstage3(RObject data, bool check_stage = true, bool check_age = false,
   */
   
   for (int i = 0; i < new_df_rows; i++) {
-    arma::uvec year_found = find(all_years == new_year(i));
+    arma::uvec year_found = find(all_years_arma == new_year(i));
     
     if (pop_by_years(year_found(0)) > 0) {
       new_actualprop(i) = new_frequency(i) / static_cast<double>(pop_by_years(year_found(0)));
@@ -3732,7 +3678,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         for (int j = 0; j < static_cast<int>(prop_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
-              if (prop_stages(j) == agestages_stageid(k) - 1) {
+              if (static_cast<int>(prop_stages(j)) == agestages_stageid(k) - 1) {
                 if (IntegerVector::is_na(age2_di(i))) {
                   found_stages++;
                 } else if (agestages_age(k) == (age2_di(i) + 1)) {
@@ -3740,7 +3686,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
                 }
               }
             } else {
-              if (prop_stages(j) == agestages_stageid(k) - 1) {
+              if (static_cast<int>(prop_stages(j)) == agestages_stageid(k) - 1) {
                 if (agestages_age(k) == age_min) found_stages++;
               }
             }
@@ -3755,7 +3701,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         for (int j = 0; j < static_cast<int>(prop_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
-              if (prop_stages(j) == agestages_stageid(k) - 1) {
+              if (static_cast<int>(prop_stages(j)) == agestages_stageid(k) - 1) {
                 if (IntegerVector::is_na(age2_di(i))) {
                   age3_vec(a3_counter) = agestages_age(k);
                   stageid3_vec(a3_counter) = agestages_stageid(k);
@@ -3767,7 +3713,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
                 }
               }
             } else {
-              if (prop_stages(j) == agestages_stageid(k) - 1) {
+              if (static_cast<int>(prop_stages(j)) == agestages_stageid(k) - 1) {
                 if (agestages_age(k) == age_min) {
                   age3_vec(a3_counter) = agestages_age(k);
                   stageid3_vec(a3_counter) = agestages_stageid(k);
@@ -3791,7 +3737,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         for (int j = 0; j < static_cast<int>(prop0_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
-              if (prop0_stages(j) == agestages_stageid(k) - 1) {
+              if (static_cast<int>(prop0_stages(j)) == agestages_stageid(k) - 1) {
                 if (IntegerVector::is_na(age2_di(i))) {
                   found_stages++;
                 } else if (agestages_age(k) == (age2_di(i) + 1)) {
@@ -3799,7 +3745,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
                 }
               }
             } else {
-              if (prop0_stages(j) == agestages_stageid(k) - 1) {
+              if (static_cast<int>(prop0_stages(j)) == agestages_stageid(k) - 1) {
                 if (agestages_age(k) == age_min) found_stages++;
               }
             }
@@ -3814,7 +3760,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         for (int j = 0; j < static_cast<int>(prop0_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
-              if (prop0_stages(j) == agestages_stageid(k) - 1) {
+              if (static_cast<int>(prop0_stages(j)) == agestages_stageid(k) - 1) {
                 if (IntegerVector::is_na(age2_di(i))) {
                   age3_vec(a3_counter) = agestages_age(k);
                   stageid3_vec(a3_counter) = agestages_stageid(k);
@@ -3826,7 +3772,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
                 }
               }
             } else {
-              if (prop0_stages(j) == agestages_stageid(k) - 1) {
+              if (static_cast<int>(prop0_stages(j)) == agestages_stageid(k) - 1) {
                 if (agestages_age(k) == age_min) {
                   age3_vec(a3_counter) = agestages_age(k);
                   stageid3_vec(a3_counter) = agestages_stageid(k);
@@ -3850,7 +3796,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         for (int j = 0; j < static_cast<int>(imm_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
-              if (imm_stages(j) == agestages_stageid(k) - 1) {
+              if (static_cast<int>(imm_stages(j)) == agestages_stageid(k) - 1) {
                 if (IntegerVector::is_na(age2_di(i))) {
                   found_stages++;
                 } else if (agestages_age(k) == (age2_di(i) + 1)) {
@@ -3858,7 +3804,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
                 }
               }
             } else {
-              if (imm_stages(j) == agestages_stageid(k) - 1) {
+              if (static_cast<int>(imm_stages(j)) == agestages_stageid(k) - 1) {
                 if (agestages_age(k) == age_min) found_stages++;
               }
             }
@@ -3873,7 +3819,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         for (int j = 0; j < static_cast<int>(imm_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
-              if (imm_stages(j) == agestages_stageid(k) - 1) {
+              if (static_cast<int>(imm_stages(j)) == agestages_stageid(k) - 1) {
                 if (IntegerVector::is_na(age2_di(i))) {
                   age3_vec(a3_counter) = agestages_age(k);
                   stageid3_vec(a3_counter) = agestages_stageid(k);
@@ -3885,7 +3831,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
                 }
               }
             } else {
-              if (imm_stages(j) == agestages_stageid(k) - 1) {
+              if (static_cast<int>(imm_stages(j)) == agestages_stageid(k) - 1) {
                 if (agestages_age(k) == age_min) {
                   age3_vec(a3_counter) = agestages_age(k);
                   stageid3_vec(a3_counter) = agestages_stageid(k);
@@ -3909,7 +3855,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
         for (int j = 0; j < static_cast<int>(mat_stages.n_elem); j++) {
           for (int k = 0; k < agestages_rows; k++) {
             if (type_di(i) == 1) {
-              if (mat_stages(j) == agestages_stageid(k) - 1) {
+              if (static_cast<int>(mat_stages(j)) == agestages_stageid(k) - 1) {
                 if (IntegerVector::is_na(age2_di(i))) {
                   found_stages++;
                 } else if (agestages_age(k) == (age2_di(i) + 1)) {
@@ -3917,7 +3863,7 @@ Rcpp::DataFrame density_reassess(DataFrame stageframe, DataFrame dens_inp,
                 }
               }
             } else {
-              if (mat_stages(j) == agestages_stageid(k) - 1) {
+              if (static_cast<int>(mat_stages(j)) == agestages_stageid(k) - 1) {
                 if (agestages_age(k) == age_min) found_stages++;
               }
             }

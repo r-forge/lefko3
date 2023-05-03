@@ -4325,7 +4325,7 @@ List raymccooney(const DataFrame& listofyears, const List& modelsuite,
   StringVector r2_indc, StringVector r1_indc, const NumericVector& dev_terms,
   double dens, double fecmod, int firstage, int finalage, int format, int style,
   int cont, int filter, bool negfec = false, bool nodata = false,
-  double exp_tol = 700.0, double theta_tol = 100000000.0, bool cdf = true,
+  double exp_tol = 700.0, double theta_tol = 1e8, bool cdf = true,
   bool err_check = false, bool simplicity = false, bool sparse = false) {
   
   // Dud dens_vr inputs
@@ -5741,7 +5741,7 @@ List mothermccooney(const DataFrame& listofyears, const List& modelsuite,
   StringVector r1_indb, StringVector r2_indc, StringVector r1_indc,
   const NumericVector& dev_terms, double dens, double fecmod, int finalage, int cont,
   bool negfec = false, bool nodata = false, double exp_tol = 700.0,
-  double theta_tol = 100000000.0, bool err_check = false,
+  double theta_tol = 1e8, bool err_check = false,
   bool simplicity = false, bool sparse = false) {
   
   // Dud dens_vr inputs
@@ -6526,7 +6526,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
   bool cont = true, bool stochastic = false, bool standardize = false,
   bool growthonly = true, bool repvalue = false, bool integeronly = false,
   int substoch = 0, bool ipm_cdf = true, int nreps = 1, int times = 10000,
-  double repmod = 1.0, double exp_tol = 700.0, double theta_tol = 100000000.0,
+  double repmod = 1.0, double exp_tol = 700.0, double theta_tol = 1e8,
   bool random_inda = false, bool random_indb = false, bool random_indc = false,
   bool err_check = false, bool quiet = false, Nullable<DataFrame> data = R_NilValue,
   Nullable<DataFrame> stageframe = R_NilValue, Nullable<DataFrame> supplement = R_NilValue,
@@ -10488,7 +10488,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
   Nullable<RObject> indc = R_NilValue, Nullable<RObject> dev_terms = R_NilValue,
   double density = NA_REAL, bool CDF = true, bool random_inda = false,
   bool random_indb = false, bool random_indc = false, bool negfec = false,
-  int exp_tol = 700, int theta_tol = 100000000,
+  int exp_tol = 700, int theta_tol = 1e8,
   
   bool censor = false, Nullable<RObject> censorkeep = R_NilValue, int start_age = NA_INTEGER,
   int last_age = NA_INTEGER, int fecage_min = NA_INTEGER, int fecage_max = NA_INTEGER,
@@ -11090,7 +11090,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
   arma::uvec melchett_stageframe_matst_;
   arma::uvec melchett_stageframe_indataset_;
   arma::uvec melchett_stageframe_alive_;
-  arma::ivec melchett_stageframe_stageid_;
+  IntegerVector melchett_stageframe_stageid_;
   IntegerVector melchett_stageframe_group_;
   StringVector melchett_stageframe_stage_;
   
@@ -19577,7 +19577,7 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
 //' \code{ltre3matrix()} returns the one-way fixed deterministic LTRE matrix of
 //' a dense or sparse set of input matrices.
 //' 
-//' @name ltre3matrix
+//' @name .ltre3matrix
 //' 
 //' @param Amats A list of population projection matrices (not an entire
 //' \code{lefkoMat} object.
@@ -19775,6 +19775,9 @@ Rcpp::List ltre3matrix(const List& Amats, Rcpp::IntegerVector refnum,
 //' without calculating population metrics. Defaults to \code{3000}.
 //' @param sparse A logical value indicating whether to use sparse or dense
 //' format in matrix calculations.
+//' @param tol_used A double precision numeric value indicating a lower positive
+//' limit to matrix element values used in calculations. Matrix elements lower
+//' than this value will be treated as \code{0.0} values.
 //' 
 //' @return This function returns a list of two lists of matrices. The first,
 //' \code{cont_mean}, holds the sLTRE contributions of shifts in mean elements.
@@ -19791,7 +19794,7 @@ Rcpp::List ltre3matrix(const List& Amats, Rcpp::IntegerVector refnum,
 Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
   Rcpp::IntegerVector refnum, Nullable<Rcpp::List> refmats_ = R_NilValue,
   Nullable<arma::vec> tweights_ = R_NilValue, int steps = 10000,
-  int burnin = 3000, bool sparse = false) {
+  int burnin = 3000, bool sparse = false, double tol_used = 1e-30) {
   
   bool sparse_input {false};
   if (is<S4>(Amats(0))) sparse_input = true;
@@ -19876,13 +19879,17 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
       for (int j = 0; j < matlength; j++) {
         mat_elems.zeros();
         
+        bool found_greater {false};
+        
         for (int k = 0; k < numpoppatch_chosen; k++) {
-          mat_elems(k) = as<arma::mat>(Amats(poppatch_chosen(k)))(j);
+          double elem_check_mat_elems = as<arma::mat>(Amats(poppatch_chosen(k)))(j);
+          if (elem_check_mat_elems > tol_used) {
+            mat_elems(k) = elem_check_mat_elems;
+            found_greater = true;
+          }
         }
         
-        if (sum(mat_elems) != 0.0) {
-          mat_sd(j) = stddev(mat_elems, 0);
-        }
+        if (found_greater) mat_sd(j) = arma::stddev(mat_elems, 0);
       }
       poppatch_sdmat_temp(i) = mat_sd;
       
@@ -19899,13 +19906,17 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
       for (int j = 0; j < matlength; j++) {
         mat_elems.zeros();
         
+        bool found_greater {false};
+        
         for (int k = 0; k < numpoppatch_chosen; k++) {
-          mat_elems(k) = arma::sp_mat(as<arma::mat>(Amats(poppatch_chosen(k))))(j);
+          double elem_check_mat_elems = arma::sp_mat(as<arma::mat>(Amats(poppatch_chosen(k))))(j);
+          if (elem_check_mat_elems > tol_used) {
+            mat_elems(k) = elem_check_mat_elems;
+            found_greater = true;
+          }
         }
         
-        if (sum(mat_elems) != 0.0) {
-          mat_sd(j) = stddev(mat_elems, 0);
-        }
+        if (found_greater) mat_sd(j) = arma::stddev(mat_elems, 0);
       }
       poppatch_sdmat_temp(i) = mat_sd;
       
@@ -19922,13 +19933,17 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
       for (int j = 0; j < matlength; j++) {
         mat_elems.zeros();
         
+        bool found_greater {false};
+        
         for (int k = 0; k < numpoppatch_chosen; k++) {
-          mat_elems(k) = as<arma::sp_mat>(Amats(poppatch_chosen(k)))(j);
+          double elem_check_mat_elems = as<arma::sp_mat>(Amats(poppatch_chosen(k)))(j);
+          if (elem_check_mat_elems > tol_used) {
+            mat_elems(k) = elem_check_mat_elems;
+            found_greater = true;
+          }
         }
         
-        if (sum(mat_elems) != 0.0) {
-          mat_sd(j) = stddev(mat_elems, 0);
-        }
+        if (found_greater) mat_sd(j) = arma::stddev(mat_elems, 0);
       }
       poppatch_sdmat_temp(i) = mat_sd;
     }
@@ -19952,13 +19967,17 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
       for (int i = 0; i < matlength; i++) {
         arma::vec mat_elems(refmatnum, fill::zeros);
         
+        bool found_greater {false};
+        
         for (int j = 0; j < refmatnum; j++) {
-          mat_elems(j) = as<arma::mat>(refmats(refnum(j)))(i);
+          double elem_check_mat_elems = as<arma::mat>(refmats(refnum(j)))(i);
+          if (elem_check_mat_elems > tol_used) {
+            mat_elems(j) = elem_check_mat_elems;
+            found_greater = true;
+          }
         }
         
-        if (sum(mat_elems) != 0.0) {
-          mat_sd(i) = stddev(mat_elems, 0);
-        }
+        if (found_greater) mat_sd(i) = arma::stddev(mat_elems, 0);
       }
       ref_matmean = mat_mean;
       ref_matsd = mat_sd;
@@ -19975,13 +19994,17 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
       for (int i = 0; i < matlength; i++) {
         arma::vec mat_elems(refmatnum, fill::zeros);
         
+        bool found_greater {false};
+        
         for (int j = 0; j < refmatnum; j++) {
-          mat_elems(j) = arma::sp_mat(as<arma::mat>(refmats(refnum(j))))(i);
+          double elem_check_mat_elems = arma::sp_mat(as<arma::mat>(refmats(refnum(j))))(i);
+          if (elem_check_mat_elems > tol_used) {
+            mat_elems(j) = elem_check_mat_elems;
+            found_greater = true;
+          }
         }
         
-        if (sum(mat_elems) != 0.0) {
-          mat_sd(i) = stddev(mat_elems, 0);
-        }
+        if (found_greater) mat_sd(i) = arma::stddev(mat_elems, 0);
       }
       ref_sp_matmean = mat_mean;
       ref_sp_matsd = mat_sd;
@@ -19998,13 +20021,17 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
       for (int i = 0; i < matlength; i++) {
         arma::vec mat_elems(refmatnum, fill::zeros);
         
+        bool found_greater {false};
+        
         for (int j = 0; j < refmatnum; j++) {
-          mat_elems(j) = as<arma::sp_mat>(refmats(refnum(j)))(i);
+          double elem_check_mat_elems = as<arma::sp_mat>(refmats(refnum(j)))(i);
+          if (elem_check_mat_elems > tol_used) {
+            mat_elems(j) = elem_check_mat_elems;
+            found_greater = true;
+          }
         }
         
-        if (sum(mat_elems) != 0.0) {
-          mat_sd(i) = stddev(mat_elems, 0);
-        }
+        if (found_greater) mat_sd(i) = arma::stddev(mat_elems, 0);
       }
       ref_sp_matmean = mat_mean;
       ref_sp_matsd = mat_sd;
@@ -20059,13 +20086,17 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
         for (int i = 0; i < matlength; i++) {
           arma::vec mat_elems(refmatnum, fill::zeros);
           
+          bool found_greater {false};
+          
           for (int j = 0; j < numyears; j++) {
-            mat_elems(j) = as<arma::mat>(ref_byyear(j))(i);
+            double elem_check_mat_elems = as<arma::mat>(ref_byyear(j))(i);
+            if (elem_check_mat_elems > tol_used) {
+              mat_elems(j) = elem_check_mat_elems;
+              found_greater = true;
+            }
           }
           
-          if (sum(mat_elems) != 0.0) {
-            mat_sd(i) = stddev(mat_elems, 0);
-          }
+          if (found_greater) mat_sd(i) = arma::stddev(mat_elems, 0);
         }
         ref_matmean = mat_mean;
         ref_matsd = mat_sd;
@@ -20081,13 +20112,17 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
         for (int i = 0; i < matlength; i++) {
           arma::vec mat_elems(refmatnum, fill::zeros);
           
+          bool found_greater {false};
+          
           for (int j = 0; j < numyears; j++) {
-            mat_elems(j) = as<arma::sp_mat>(ref_byyear(j))(i);
+            double elem_check_mat_elems = as<arma::sp_mat>(ref_byyear(j))(i);
+            if (elem_check_mat_elems > tol_used) {
+              mat_elems(j) = elem_check_mat_elems;
+              found_greater = true;
+            }
           }
           
-          if (sum(mat_elems) != 0.0) {
-            mat_sd(i) = stddev(mat_elems, 0);
-          }
+          if (found_greater) mat_sd(i) = arma::stddev(mat_elems, 0);
         }
         ref_sp_matmean = mat_mean;
         ref_sp_matsd = mat_sd;
@@ -20116,13 +20151,17 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
         for (int i = 0; i < matlength; i++) {
           arma::vec mat_elems(refmatnum, fill::zeros);
           
+          bool found_greater {false};
+          
           for (int j = 0; j < refmatnum; j++) {
-            mat_elems(j) = as<arma::mat>(ref_byyear(j))(i);
+            double elem_check_mat_elems = as<arma::mat>(ref_byyear(j))(i);
+            if (elem_check_mat_elems > tol_used) {
+              mat_elems(j) = elem_check_mat_elems;
+              found_greater = true;
+            }
           }
           
-          if (sum(mat_elems) != 0.0) {
-            mat_sd(i) = stddev(mat_elems, 0);
-          }
+          if (found_greater) mat_sd(i) = arma::stddev(mat_elems, 0);
         }
         ref_matmean = mat_mean;
         ref_matsd = mat_sd;
@@ -20138,13 +20177,17 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
         for (int i = 0; i < matlength; i++) {
           arma::vec mat_elems(refmatnum, fill::zeros);
           
+          bool found_greater {false};
+          
           for (int j = 0; j < refmatnum; j++) {
-            mat_elems(j) = as<arma::sp_mat>(ref_byyear(j))(i);
+            double elem_check_mat_elems = as<arma::sp_mat>(ref_byyear(j))(i);
+            if (elem_check_mat_elems > tol_used) {
+              mat_elems(j) = elem_check_mat_elems;
+              found_greater = true;
+            }
           }
           
-          if (sum(mat_elems) != 0.0) {
-            mat_sd(i) = stddev(mat_elems, 0);
-          }
+          if (found_greater) mat_sd(i) = arma::stddev(mat_elems, 0);
         }
         ref_sp_matmean = mat_mean;
         ref_sp_matsd = mat_sd;
@@ -20196,6 +20239,8 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
     
     // Time loop for sensitivity matrices
     for (int j = burnin; j < theclairvoyant; j++) { 
+      if (j % 10 == 0) Rcpp::checkUserInterrupt();
+      
       arma::vec vtplus1 = vprojection.col(j+1);
       arma::vec wtplus1 = wprojection.col(j+1);
       arma::vec wt = wprojection.col(j);
@@ -20254,6 +20299,8 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
     
     // Time loop for sensitivity matrices
     for (int j = burnin; j < theclairvoyant; j++) {
+      if (j % 10 == 0) Rcpp::checkUserInterrupt();
+      
       arma::vec vtplus1 = vprojection.col(j+1);
       arma::vec wtplus1 = wprojection.col(j+1);
       arma::vec wt = wprojection.col(j);
@@ -20318,6 +20365,9 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
 //' annual matrices. Defaults to equal weighting among occasions.
 //' @param sparse A logical value indicating whether to use sparse or dense
 //' format in matrix calculations.
+//' @param tol_used A double precision numeric value indicating a lower positive
+//' limit to matrix element values used in calculations. Matrix elements lower
+//' than this value will be treated as \code{0.0} values.
 //' 
 //' @return This function returns a list of four lists of matrices. The first,
 //' \code{cont_mean}, holds the sLTRE contributions of shifts in mean elements.
@@ -20336,7 +20386,8 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
 // [[Rcpp::export(.snaltre3matrix)]]
 Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
   Rcpp::IntegerVector refnum, Nullable<Rcpp::List> refmats_ = R_NilValue,
-  Nullable<arma::vec> tweights_ = R_NilValue, bool sparse = false) {
+  Nullable<arma::vec> tweights_ = R_NilValue, bool sparse = false,
+  double tol_used = 1e-30) {
   
   bool sparse_input {false};
   if (is<S4>(Amats(0))) sparse_input = true;
@@ -20401,7 +20452,7 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
   arma::sp_mat ref_sp_matcv;
   arma::sp_mat ref_sp_matcorr;
   
-  arma::uvec mat_index_main = LefkoMats::general_index(Amats);
+  arma::uvec mat_index_main = LefkoMats::general_index(Amats, tol_used, true);
   int mat_index_main_nonzeros = static_cast<int>(mat_index_main.n_elem);
   
   if (tweights_.isNotNull()) {
@@ -20468,12 +20519,11 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
     arma::vec mat_elems (numpoppatch_extended, fill::zeros);
     arma::vec mat_elems_forcorr (numpoppatch_extended, fill::zeros);
     
-    
     if (!sparse && !sparse_input) {
       arma::mat mat_mean (matdim, matdim, fill::zeros);
       arma::mat mat_sd (matdim, matdim, fill::zeros);
       arma::mat mat_cv (matdim, matdim, fill::zeros);
-      arma::mat mat_corr (matdim * matdim, matdim * matdim, fill::zeros); // Corr matrix is huge
+      arma::mat mat_corr (matdim * matdim, matdim * matdim, fill::zeros);
       
       for (int j = 0; j < numpoppatch_extended; j++) {
         mat_mean = mat_mean + (as<arma::mat>(Amats(poppatch_extended(j))) / 
@@ -20491,39 +20541,50 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
       
       for (int j = 0; j < mat_index_main_nonzeros; j++) {
         mat_elems.zeros();
+        bool found_greater {false};
         
         for (int k = 0; k < numpoppatch_extended; k++) {
-          mat_elems(k) = as<arma::mat>(Amats(poppatch_extended(k)))(mat_index_main(j));
+          double elem_check_mat_elems = as<arma::mat>(Amats(poppatch_extended(k)))(mat_index_main(j));
+          if (elem_check_mat_elems > tol_used) {
+            mat_elems(k) = elem_check_mat_elems;
+            found_greater = true;
+          }
         }
         
-        mat_sd(mat_index_main(j)) = stddev(mat_elems, 0);
+        if (found_greater) mat_sd(mat_index_main(j)) = arma::stddev(mat_elems, 0);
         
-        if (mat_sd(mat_index_main(j)) != 0.0) {
-          if (mat_mean(mat_index_main(j)) != 0.0) {
+        if (mat_sd(mat_index_main(j)) > tol_used) {
+          if (mat_mean(mat_index_main(j)) > tol_used) {
             mat_cv(mat_index_main(j)) = mat_sd(mat_index_main(j)) / mat_mean(mat_index_main(j));
           } else {
             mat_cv(mat_index_main(j)) = 0.0;
           }
           
-          // This is crazy - correlation matrix is ultra-high dimension...
           for (int k = 0; k < mat_index_main_nonzeros; k++) {
             if (k % 10 == 0) Rcpp::checkUserInterrupt();
             
             mat_elems_forcorr.zeros();
+            bool found_greater_forcorr {false};
             
             for (int l = 0; l < numpoppatch_extended; l++) {
-              mat_elems_forcorr(l) = as<arma::mat>(Amats(poppatch_extended(l)))(mat_index_main(k));
+              double elem_check_mef = as<arma::mat>(Amats(poppatch_extended(l)))(mat_index_main(k));
+              if (elem_check_mef > tol_used) {
+                mat_elems_forcorr(l) = elem_check_mef;
+                found_greater_forcorr = true;
+              }
             }
             
-            double mefc_sd = stddev(mat_elems_forcorr);
-            if (mefc_sd != 0.0) {
+            double mefc_sd {0.0};
+            if (found_greater_forcorr) mefc_sd = stddev(mat_elems_forcorr);
+            
+            if (mefc_sd > 0.0) {
               arma::mat new_cor = arma::cor(mat_elems, mat_elems_forcorr);
-              mat_corr(mat_index_main(j), mat_index_main(k)) = new_cor(0);
+              double corr_bit = new_cor(0);
+              if (corr_bit > tol_used) mat_corr(mat_index_main(j), mat_index_main(k)) = corr_bit;
             }
           }
         }
       }
-      
       poppatch_cvmat(i) = mat_cv;
       poppatch_corrmat(i) = mat_corr;
       
@@ -20549,39 +20610,50 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
       
       for (int j = 0; j < mat_index_main_nonzeros; j++) {
         mat_elems.zeros();
+        bool found_greater {false};
         
         for (int k = 0; k < numpoppatch_extended; k++) {
-          mat_elems(k) = arma::sp_mat(as<arma::mat>(Amats(poppatch_extended(k))))(mat_index_main(j));
+          double elem_check_mat_elems = arma::sp_mat(as<arma::mat>(Amats(poppatch_extended(k))))(mat_index_main(j));
+          if (elem_check_mat_elems > tol_used) {
+            mat_elems(k) = elem_check_mat_elems;
+            found_greater = true;
+          }
         }
         
-        mat_sd(mat_index_main(j)) = stddev(mat_elems, 0);
+        if (found_greater) mat_sd(mat_index_main(j)) = arma::stddev(mat_elems, 0);
         
-        if (mat_sd(mat_index_main(j)) != 0.0) {
-          if (mat_mean(mat_index_main(j)) != 0.0) {
+        if (mat_sd(mat_index_main(j)) > tol_used) {
+          if (mat_mean(mat_index_main(j)) > tol_used) {
             mat_cv(mat_index_main(j)) = mat_sd(mat_index_main(j)) / mat_mean(mat_index_main(j));
           } else {
             mat_cv(mat_index_main(j)) = 0.0;
           }
           
-          // This is crazy - correlation matrix is ultra-high dimension...
           for (int k = 0; k < mat_index_main_nonzeros; k++) {
             if (k % 10 == 0) Rcpp::checkUserInterrupt();
             
             mat_elems_forcorr.zeros();
+            bool found_greater_forcorr {false};
             
             for (int l = 0; l < numpoppatch_extended; l++) {
-              mat_elems_forcorr(l) = as<arma::mat>(Amats(poppatch_extended(l)))(mat_index_main(k));
+              double elem_check_mef = as<arma::mat>(Amats(poppatch_extended(l)))(mat_index_main(k));
+              if (elem_check_mef > tol_used) {
+                mat_elems_forcorr(l) = elem_check_mef;
+                found_greater_forcorr = true;
+              }
             }
             
-            double mefc_sd = stddev(mat_elems_forcorr);
-            if (mefc_sd != 0.0) {
+            double mefc_sd {0.0};
+            if (found_greater_forcorr) mefc_sd = stddev(mat_elems_forcorr);
+            
+            if (mefc_sd > 0.0) {
               arma::mat new_cor = arma::cor(mat_elems, mat_elems_forcorr);
-              mat_corr(mat_index_main(j), mat_index_main(k)) = new_cor(0);
+              double corr_bit = new_cor(0);
+              if (corr_bit > tol_used) mat_corr(mat_index_main(j), mat_index_main(k)) = corr_bit;
             }
           }
         }
       }
-      
       poppatch_cvmat(i) = mat_cv;
       poppatch_corrmat(i) = mat_corr;
       
@@ -20607,39 +20679,50 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
       
       for (int j = 0; j < mat_index_main_nonzeros; j++) {
         mat_elems.zeros();
+        bool found_greater {false};
         
         for (int k = 0; k < numpoppatch_extended; k++) {
-          mat_elems(k) = as<arma::sp_mat>(Amats(poppatch_extended(k)))(mat_index_main(j));
+          double elem_check_mat_elems = as<arma::sp_mat>(Amats(poppatch_extended(k)))(mat_index_main(j));
+          if (elem_check_mat_elems > tol_used) {
+            mat_elems(k) = elem_check_mat_elems;
+            found_greater = true;
+          }
         }
         
-        mat_sd(mat_index_main(j)) = stddev(mat_elems, 0);
+        if (found_greater) mat_sd(mat_index_main(j)) = arma::stddev(mat_elems, 0);
         
-        if (mat_sd(mat_index_main(j)) != 0.0) {
-          if (mat_mean(mat_index_main(j)) != 0.0) {
+        if (mat_sd(mat_index_main(j)) > tol_used) {
+          if (mat_mean(mat_index_main(j)) > tol_used) {
             mat_cv(mat_index_main(j)) = mat_sd(mat_index_main(j)) / mat_mean(mat_index_main(j));
           } else {
             mat_cv(mat_index_main(j)) = 0.0;
           }
           
-          // This is crazy - correlation matrix is ultra-high dimension...
           for (int k = 0; k < mat_index_main_nonzeros; k++) {
             if (k % 10 == 0) Rcpp::checkUserInterrupt();
             
             mat_elems_forcorr.zeros();
+            bool found_greater_forcorr {false};
             
             for (int l = 0; l < numpoppatch_extended; l++) {
-              mat_elems_forcorr(l) = as<arma::sp_mat>(Amats(poppatch_extended(l)))(mat_index_main(k));
+              double elem_check_mef = as<arma::sp_mat>(Amats(poppatch_extended(l)))(mat_index_main(k));
+              if (elem_check_mef > tol_used) {
+                mat_elems_forcorr(l) = elem_check_mef;
+                found_greater_forcorr = true;
+              }
             }
             
-            double mefc_sd = stddev(mat_elems_forcorr);
-            if (mefc_sd != 0.0) {
+            double mefc_sd {0.0};
+            if (found_greater_forcorr) mefc_sd = stddev(mat_elems_forcorr);
+            
+            if (mefc_sd > 0.0) {
               arma::mat new_cor = arma::cor(mat_elems, mat_elems_forcorr);
-              mat_corr(mat_index_main(j), mat_index_main(k)) = new_cor(0);
+              double corr_bit = new_cor(0);
+              if (corr_bit > tol_used) mat_corr(mat_index_main(j), mat_index_main(k)) = corr_bit;
             }
           }
         }
       }
-      
       poppatch_cvmat(i) = mat_cv;
       poppatch_corrmat(i) = mat_corr;
     }
@@ -20650,7 +20733,7 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
     Rcpp::List refmats(refmats_);
     ref_byyear = refmats;
     
-    arma::uvec ref_index_main = LefkoMats::general_index(refmats);
+    arma::uvec ref_index_main = LefkoMats::general_index(refmats, tol_used, true);
     int ref_index_main_nonzeros = static_cast<int>(ref_index_main.n_elem);
     
     if (!sparse && !sparse_input) {
@@ -20672,34 +20755,46 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
         arma::vec mat_elems(refmatnum, fill::zeros);
         arma::vec mat_elems_forcorr (refmatnum, fill::zeros);
         
+        bool found_greater {false};
+        
         for (int j = 0; j < refmatnum; j++) {
-          mat_elems(j) = as<arma::mat>(refmats(refnum(j)))(ref_index_main(i));
+          double elem_check_mat_elems = as<arma::mat>(refmats(refnum(j)))(ref_index_main(i));
+          if (elem_check_mat_elems > tol_used) {
+            mat_elems(j) = elem_check_mat_elems;
+            found_greater = true;
+          }
         }
         
-        mat_sd(ref_index_main(i)) = stddev(mat_elems, 0);
+        if (found_greater) mat_sd(ref_index_main(i)) = arma::stddev(mat_elems, 0);
         
-        if (mat_sd(ref_index_main(i)) != 0.0) {
-          if (mat_mean(ref_index_main(i)) != 0.0) {
+        if (mat_sd(ref_index_main(i)) > tol_used) {
+          if (mat_mean(ref_index_main(i)) > tol_used) {
             mat_cv(ref_index_main(i)) = mat_sd(ref_index_main(i)) / mat_mean(ref_index_main(i));
           } else {
             mat_cv(ref_index_main(i)) = 0.0;
           }
           
-          
-          // This is crazy - correlation matrix is ultra-high dimension...
           for (int k = 0; k < ref_index_main_nonzeros; k++) {
             if (k % 10 == 0) Rcpp::checkUserInterrupt();
             
             mat_elems_forcorr.zeros();
+            bool found_greater_forcorr {false};
             
             for (int l = 0; l < refmatnum; l++) {
-              mat_elems_forcorr(l) = as<arma::mat>(refmats(refnum(l)))(ref_index_main(k));
+              double elem_check_mef = as<arma::mat>(refmats(refnum(l)))(ref_index_main(k));
+              if (elem_check_mef > tol_used) {
+                mat_elems_forcorr(l) = elem_check_mef;
+                found_greater_forcorr = true;
+              }
             }
             
-            double mefc_sd = stddev(mat_elems_forcorr);
-            if (mefc_sd != 0.0) {
+            double mefc_sd {0.0};
+            if (found_greater_forcorr) mefc_sd = stddev(mat_elems_forcorr);
+            
+            if (mefc_sd > 0.0) {
               arma::mat new_cor = arma::cor(mat_elems, mat_elems_forcorr);
-              mat_corr(ref_index_main(i), ref_index_main(k)) = new_cor(0);
+              double corr_bit = new_cor(0);
+              if (corr_bit > tol_used) mat_corr(ref_index_main(i), ref_index_main(k)) = corr_bit;
             }
           }
         }
@@ -20730,32 +20825,46 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
         arma::vec mat_elems(refmatnum, fill::zeros);
         arma::vec mat_elems_forcorr (refmatnum, fill::zeros);
         
+        bool found_greater {false};
+        
         for (int j = 0; j < refmatnum; j++) {
-          mat_elems(j) = arma::sp_mat(as<arma::mat>(refmats(refnum(j))))(ref_index_main(i));
+          double elem_check_mat_elems = arma::sp_mat(as<arma::mat>(refmats(refnum(j))))(ref_index_main(i));
+          if (elem_check_mat_elems > tol_used) {
+            mat_elems(j) = elem_check_mat_elems;
+            found_greater = true;
+          }
         }
         
-        mat_sd(ref_index_main(i)) = stddev(mat_elems, 0);
-        if (mat_sd(ref_index_main(i)) != 0.0) {
-          if (mat_mean(ref_index_main(i)) != 0.0) {
+        if (found_greater) mat_sd(ref_index_main(i)) = arma::stddev(mat_elems, 0);
+        
+        if (mat_sd(ref_index_main(i)) > tol_used) {
+          if (mat_mean(ref_index_main(i)) > tol_used) {
             mat_cv(ref_index_main(i)) = mat_sd(ref_index_main(i)) / mat_mean(ref_index_main(i));
           } else {
             mat_cv(ref_index_main(i)) = 0.0;
           }
           
-          // This is crazy - correlation matrix is ultra-high dimension...
           for (int k = 0; k < ref_index_main_nonzeros; k++) {
             if (k % 10 == 0) Rcpp::checkUserInterrupt();
             
             mat_elems_forcorr.zeros();
+            bool found_greater_forcorr {false};
             
             for (int l = 0; l < refmatnum; l++) {
-              mat_elems_forcorr(l) = as<arma::mat>(refmats(refnum(l)))(ref_index_main(k));
+              double elem_check_mef = as<arma::mat>(refmats(refnum(l)))(ref_index_main(k));
+              if (elem_check_mef > tol_used) {
+                mat_elems_forcorr(l) = elem_check_mef;
+                found_greater_forcorr = true;
+              }
             }
             
-            double mefc_sd = stddev(mat_elems_forcorr);
-            if (mefc_sd != 0.0) {
+            double mefc_sd {0.0};
+            if (found_greater_forcorr) mefc_sd = stddev(mat_elems_forcorr);
+            
+            if (mefc_sd > 0.0) {
               arma::mat new_cor = arma::cor(mat_elems, mat_elems_forcorr);
-              mat_corr(ref_index_main(i), ref_index_main(k)) = new_cor(0);
+              double corr_bit = new_cor(0);
+              if (corr_bit > tol_used) mat_corr(ref_index_main(i), ref_index_main(k)) = corr_bit;
             }
           }
         }
@@ -20786,32 +20895,46 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
         arma::vec mat_elems(refmatnum, fill::zeros);
         arma::vec mat_elems_forcorr (refmatnum, fill::zeros);
         
+        bool found_greater {false};
+        
         for (int j = 0; j < refmatnum; j++) {
-          mat_elems(j) = as<arma::sp_mat>(refmats(refnum(j)))(ref_index_main(i));
+          double elem_check_mat_elems = as<arma::sp_mat>(refmats(refnum(j)))(ref_index_main(i));
+          if (elem_check_mat_elems > tol_used) {
+            mat_elems(j) = elem_check_mat_elems;
+            found_greater = true;
+          }
         }
         
-        mat_sd(ref_index_main(i)) = stddev(mat_elems, 0);
-        if (mat_sd(ref_index_main(i)) != 0.0) {
-          if (mat_mean(ref_index_main(i)) != 0.0) {
+        if (found_greater) mat_sd(ref_index_main(i)) = arma::stddev(mat_elems, 0);
+        
+        if (mat_sd(ref_index_main(i)) > tol_used) {
+          if (mat_mean(ref_index_main(i)) > tol_used) {
             mat_cv(ref_index_main(i)) = mat_sd(ref_index_main(i)) / mat_mean(ref_index_main(i));
           } else {
             mat_cv(ref_index_main(i)) = 0.0;
           }
           
-          // This is crazy - correlation matrix is ultra-high dimension...
           for (int k = 0; k < ref_index_main_nonzeros; k++) {
             if (k % 10 == 0) Rcpp::checkUserInterrupt();
             
             mat_elems_forcorr.zeros();
+            bool found_greater_forcorr {false};
             
             for (int l = 0; l < refmatnum; l++) {
-              mat_elems_forcorr(l) = as<arma::sp_mat>(refmats(refnum(l)))(ref_index_main(k));
+              double elem_check_mef = as<arma::sp_mat>(refmats(refnum(l)))(ref_index_main(k));
+              if (elem_check_mef > tol_used) {
+                mat_elems_forcorr(l) = elem_check_mef;
+                found_greater_forcorr = true;
+              }
             }
             
-            double mefc_sd = stddev(mat_elems_forcorr);
-            if (mefc_sd != 0.0) {
+            double mefc_sd {0.0};
+            if (found_greater_forcorr) mefc_sd = stddev(mat_elems_forcorr);
+            
+            if (mefc_sd > 0.0) {
               arma::mat new_cor = arma::cor(mat_elems, mat_elems_forcorr);
-              mat_corr(ref_index_main(i), ref_index_main(k)) = new_cor(0);
+              double corr_bit = new_cor(0);
+              if (corr_bit > tol_used) mat_corr(ref_index_main(i), ref_index_main(k)) = corr_bit;
             }
           }
         }
@@ -20893,32 +21016,46 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
           arma::vec mat_elems(ref_extended_length, fill::zeros);
           arma::vec mat_elems_forcorr (ref_extended_length, fill::zeros);
           
+          bool found_greater {false};
+          
           for (int j = 0; j < ref_extended_length; j++) {
-            mat_elems(j) = as<arma::mat>(ref_byyear(ref_extended(j)))(mat_index_main(i));
+            double elem_check_mat_elems = as<arma::mat>(ref_byyear(ref_extended(j)))(mat_index_main(i));
+            if (elem_check_mat_elems > tol_used) {
+              mat_elems(j) = elem_check_mat_elems;
+              found_greater = true;
+            }
           }
           
-          mat_sd(mat_index_main(i)) = stddev(mat_elems, 0);
-          if (mat_sd(mat_index_main(i)) != 0.0) {
-            if (mat_mean(mat_index_main(i)) != 0.0) {
+          if (found_greater) mat_sd(mat_index_main(i)) = arma::stddev(mat_elems, 0);
+          
+          if (mat_sd(mat_index_main(i)) > tol_used) {
+            if (mat_mean(mat_index_main(i)) > tol_used) {
               mat_cv(mat_index_main(i)) = mat_sd(mat_index_main(i)) / mat_mean(mat_index_main(i));
             } else {
               mat_cv(mat_index_main(i)) = 0.0;
             }
             
-            // This is crazy - correlation matrix is ultra-high dimension...
             for (int k = 0; k < mat_index_main_nonzeros; k++) {
               if (k % 10 == 0) Rcpp::checkUserInterrupt();
               
               mat_elems_forcorr.zeros();
+              bool found_greater_forcorr {false};
               
               for (int l = 0; l < ref_extended_length; l++) {
-                mat_elems_forcorr(l) = as<arma::mat>(ref_byyear(ref_extended(l)))(mat_index_main(k));
+                double elem_check_mef = as<arma::mat>(ref_byyear(ref_extended(l)))(mat_index_main(k));
+                if (elem_check_mef > tol_used) {
+                  mat_elems_forcorr(l) = elem_check_mef;
+                  found_greater_forcorr = true;
+                }
               }
               
-              double mefc_sd = stddev(mat_elems_forcorr);
-              if (mefc_sd != 0.0) {
+              double mefc_sd {0.0};
+              if (found_greater_forcorr) mefc_sd = stddev(mat_elems_forcorr);
+              
+              if (mefc_sd > 0.0) {
                 arma::mat new_cor = arma::cor(mat_elems, mat_elems_forcorr);
-                mat_corr(mat_index_main(i), mat_index_main(k)) = new_cor(0);
+                double corr_bit = new_cor(0);
+                if (corr_bit > tol_used) mat_corr(mat_index_main(i), mat_index_main(k)) = corr_bit;
               }
             }
           }
@@ -20949,13 +21086,20 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
           arma::vec mat_elems(ref_extended_length, fill::zeros);
           arma::vec mat_elems_forcorr (ref_extended_length, fill::zeros);
           
+          bool found_greater {false};
+          
           for (int j = 0; j < ref_extended_length; j++) {
-            mat_elems(j) = as<arma::sp_mat>(ref_byyear(ref_extended(j)))(mat_index_main(i));
+            double elem_check_mat_elems = as<arma::sp_mat>(ref_byyear(ref_extended(j)))(mat_index_main(i));
+            if (elem_check_mat_elems > tol_used) {
+              mat_elems(j) = elem_check_mat_elems;
+              found_greater = true;
+            }
           }
           
-          mat_sd(mat_index_main(i)) = stddev(mat_elems, 0);
-          if (mat_sd(mat_index_main(i)) != 0.0) {
-            if (mat_mean(mat_index_main(i)) != 0.0) {
+          if (found_greater) mat_sd(mat_index_main(i)) = arma::stddev(mat_elems, 0);
+          
+          if (mat_sd(mat_index_main(i)) > tol_used) {
+            if (mat_mean(mat_index_main(i)) > tol_used) {
               mat_cv(mat_index_main(i)) = mat_sd(mat_index_main(i)) / mat_mean(mat_index_main(i));
             } else {
               mat_cv(mat_index_main(i)) = 0.0;
@@ -20966,15 +21110,23 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
               if (k % 10 == 0) Rcpp::checkUserInterrupt();
               
               mat_elems_forcorr.zeros();
+              bool found_greater_forcorr {false};
               
               for (int l = 0; l < ref_extended_length; l++) {
-                mat_elems_forcorr(l) = as<arma::sp_mat>(ref_byyear(ref_extended(l)))(mat_index_main(k));
+                double elem_check_mef = as<arma::sp_mat>(ref_byyear(ref_extended(l)))(mat_index_main(k));
+                if (elem_check_mef > tol_used) {
+                  mat_elems_forcorr(l) = elem_check_mef;
+                  found_greater_forcorr = true;
+                }
               }
               
-              double mefc_sd = stddev(mat_elems_forcorr);
-              if (mefc_sd != 0.0) {
+              double mefc_sd {0.0};
+              if (found_greater_forcorr) mefc_sd = stddev(mat_elems_forcorr);
+              
+              if (mefc_sd > 0.0) {
                 arma::mat new_cor = arma::cor(mat_elems, mat_elems_forcorr);
-                mat_corr(mat_index_main(i), mat_index_main(k)) = new_cor(0);
+                double corr_bit = new_cor(0);
+                if (corr_bit > tol_used) mat_corr(mat_index_main(i), mat_index_main(k)) = corr_bit;
               }
             }
           }
@@ -21022,32 +21174,46 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
           arma::vec mat_elems(refmatnum, fill::zeros);
           arma::vec mat_elems_forcorr (refmatnum, fill::zeros);
           
+          bool found_greater {false};
+          
           for (int j = 0; j < refmatnum; j++) {
-            mat_elems(j) = as<arma::mat>(ref_byyear(j))(mat_index_main(i));
+            double elem_check_mat_elems = as<arma::mat>(ref_byyear(j))(mat_index_main(i));
+            if (elem_check_mat_elems > tol_used) {
+              mat_elems(j) = elem_check_mat_elems;
+              found_greater = true;
+            }
           }
           
-          mat_sd(mat_index_main(i)) = stddev(mat_elems, 0);
-          if (mat_sd(mat_index_main(i)) != 0) {
-            if (mat_mean(mat_index_main(i)) != 0.0) {
+          if (found_greater) mat_sd(mat_index_main(i)) = arma::stddev(mat_elems, 0);
+          
+          if (mat_sd(mat_index_main(i)) > tol_used) {
+            if (mat_mean(mat_index_main(i)) > tol_used) {
               mat_cv(mat_index_main(i)) = mat_sd(mat_index_main(i)) / mat_mean(mat_index_main(i));
             } else {
               mat_cv(mat_index_main(i)) = 0.0;
             }
             
-            // This is crazy - correlation matrix is ultra-high dimension...
             for (int k = 0; k < mat_index_main_nonzeros; k++) {
               if (k % 10 == 0) Rcpp::checkUserInterrupt();
               
               mat_elems_forcorr.zeros();
+              bool found_greater_forcorr {false};
               
               for (int l = 0; l < refmatnum; l++) {
-                mat_elems_forcorr(l) = as<arma::mat>(ref_byyear(l))(mat_index_main(k));
+                double elem_check_mef = as<arma::mat>(ref_byyear(l))(mat_index_main(k));
+                if (elem_check_mef > tol_used) {
+                  mat_elems_forcorr(l) = elem_check_mef;
+                  found_greater_forcorr = true;
+                }
               }
               
-              double mefc_sd = stddev(mat_elems_forcorr);
-              if (mefc_sd != 0.0) {
+              double mefc_sd {0.0};
+              if (found_greater_forcorr) mefc_sd = stddev(mat_elems_forcorr);
+              
+              if (mefc_sd > 0.0) {
                 arma::mat new_cor = arma::cor(mat_elems, mat_elems_forcorr);
-                mat_corr(mat_index_main(i), mat_index_main(k)) = new_cor(0);
+                double corr_bit = new_cor(0);
+                if (corr_bit > tol_used) mat_corr(mat_index_main(i), mat_index_main(k)) = corr_bit;
               }
             }
           }
@@ -21078,13 +21244,20 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
           arma::vec mat_elems(refmatnum, fill::zeros);
           arma::vec mat_elems_forcorr (refmatnum, fill::zeros);
           
+          bool found_greater {false};
+          
           for (int j = 0; j < refmatnum; j++) {
-            mat_elems(j) = as<arma::sp_mat>(ref_byyear(j))(mat_index_main(i));
+            double elem_check_mat_elems = as<arma::sp_mat>(ref_byyear(j))(mat_index_main(i));
+            if (elem_check_mat_elems > tol_used) {
+              mat_elems(j) = elem_check_mat_elems;
+              found_greater = true;
+            }
           }
           
-          mat_sd(mat_index_main(i)) = stddev(mat_elems, 0);
-          if (mat_sd(mat_index_main(i)) != 0) {
-            if (mat_mean(mat_index_main(i)) != 0.0) {
+          if (found_greater) mat_sd(mat_index_main(i)) = arma::stddev(mat_elems, 0);
+          
+          if (mat_sd(mat_index_main(i)) > tol_used) {
+            if (mat_mean(mat_index_main(i)) > tol_used) {
               mat_cv(mat_index_main(i)) = mat_sd(mat_index_main(i)) / mat_mean(mat_index_main(i));
             } else {
               mat_cv(mat_index_main(i)) = 0.0;
@@ -21095,15 +21268,23 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
               if (k % 10 == 0) Rcpp::checkUserInterrupt();
               
               mat_elems_forcorr.zeros();
+              bool found_greater_forcorr {false};
               
               for (int l = 0; l < refmatnum; l++) {
-                mat_elems_forcorr(l) = as<arma::sp_mat>(ref_byyear(l))(mat_index_main(k));
+                double elem_check_mef = as<arma::sp_mat>(ref_byyear(l))(mat_index_main(k));
+                if (elem_check_mef > tol_used) {
+                  mat_elems_forcorr(l) = elem_check_mef;
+                  found_greater_forcorr = true;
+                }
               }
               
-              double mefc_sd = stddev(mat_elems_forcorr);
-              if (mefc_sd != 0.0) {
+              double mefc_sd {0.0};
+              if (found_greater_forcorr) mefc_sd = stddev(mat_elems_forcorr);
+              
+              if (mefc_sd > 0.0) {
                 arma::mat new_cor = arma::cor(mat_elems, mat_elems_forcorr);
-                mat_corr(mat_index_main(i), mat_index_main(k)) = new_cor(0);
+                double corr_bit = new_cor(0);
+                if (corr_bit > tol_used) mat_corr(mat_index_main(i), mat_index_main(k)) = corr_bit;
               }
             }
           }
