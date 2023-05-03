@@ -69,9 +69,6 @@ estimation protocols. Matrix element values lower than this will be treated
 as \code{0.0} values. Defaults to \code{1e-30}.}
 
 \item{...}{Other parameters.}
-
-\item{err_check}{A logical value indicating whether to print diagnostic
-messages during the analysis. Defaults to \code{FALSE}.}
 }
 \value{
 This function returns an object of class \code{lefkoLTRE}. This

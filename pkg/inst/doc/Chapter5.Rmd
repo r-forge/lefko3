@@ -553,7 +553,7 @@ legend("topleft", c("det ahist", "det hist", "sto ahist", "sto hist"),
   col = c("black", "orangered", "grey", "darkred"), pch = 15, bty = "n")
 ```
 
-![Figure 5.7. Ahistorical vs. historically-corrected deterministic and stochastic reproductive values](figure/Ch5.20-1.png)
+![Figure 5.7. Ahistorical vs. historically-corrected deterministic and stochastic reproductive values](Ch5.20-1.png)
   
 \noindent
 We see roughly equivalent patterns here. All analyses show the smallest reproductive value in the juvenile stages, while adults have the greatest value, particularly medium- and large-sized adults of both flowering and non-flowering kinds. The key difference appears to be that historical analyses predict decreasing reproductive value for adults above a certain size.

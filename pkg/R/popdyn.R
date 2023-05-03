@@ -3235,8 +3235,6 @@ elasticity3.list <- function(mats, stochastic = FALSE, steps = 10000,
 #' element values when applied to stochatic and small noise approximation LTRE
 #' estimation protocols. Matrix element values lower than this will be treated
 #' as \code{0.0} values. Defaults to \code{1e-30}.
-#' @param err_check A logical value indicating whether to print diagnostic
-#' messages during the analysis. Defaults to \code{FALSE}.
 #' @param ... Other parameters.
 #' 
 #' @return This function returns an object of class \code{lefkoLTRE}. This
