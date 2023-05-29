@@ -1,3 +1,10 @@
+# lefko3 6.0.6 (2023-06-XX)
+
+## BUG FIXES
+
+* Function historicalize3() now correctly calculates first seen time, last seen
+  time, observed age, and alive status in time t+1.
+
 # lefko3 6.0.5 (2023-05-03)
 
 ## USER VISIBLE CHANGES
