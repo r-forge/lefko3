@@ -1345,6 +1345,8 @@ start_input <- function(mpm, stage2, stage1 = NA, age2 = NA, value = 1) {
 #' @keywords internal
 #' @noRd
 .sf_dist_check <- function(data, term, term2) {
+  gaus.check <- NULL
+  
   term_col <- which(names(data) == term)
   if (length(term_col) == 0) stop("Unrecognized term in dataset.", call. = FALSE)
   
@@ -1369,7 +1371,16 @@ start_input <- function(mpm, stage2, stage1 = NA, age2 = NA, value = 1) {
         signif(mean(correct_var, na.rm = TRUE), digits = 4), " and the variance is ",
         signif(var(correct_var, na.rm = TRUE), digits = 4), "."))
     
-    gaus.check <- stats::shapiro.test(correct_var)
+    if (length(correct_var) > 2 & length(correct_var) < 5001) {
+      gaus.check <- stats::shapiro.test(correct_var)
+    } else if (length(correct_var) > 2) {
+      used_sample <- sample(correct_var, 5000)
+      gaus.check <- stats::shapiro.test(used_sample)
+    } else {
+      stop("Variable to test Gaussian assumptions for appears to be too short.",
+        call. = FALSE)
+    }
+    
     writeLines(paste0("  The value of the Shapiro-Wilk test of normality is ",
         signif(gaus.check$statistic, digits = 4), " with P = ",
         signif(gaus.check$p.value, digits = 4), "."))

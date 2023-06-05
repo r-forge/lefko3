@@ -2,6 +2,8 @@
 
 ## BUG FIXES
 
+* Function hfv_qc() can now handle Gaussian checks on variables with more than
+  5000 data points.
 * Function historicalize3() now correctly calculates first seen time, last seen
   time, observed age, and alive status in time t+1.
 
