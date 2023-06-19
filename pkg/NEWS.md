@@ -6,6 +6,8 @@
   5000 data points.
 * Function historicalize3() now correctly calculates first seen time, last seen
   time, observed age, and alive status in time t+1.
+* Function supplemental() no longer yields an error for age-based MPM
+  supplements with estage2 option set to all NAs.
 
 # lefko3 6.0.5 (2023-05-03)
 

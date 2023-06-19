@@ -6713,6 +6713,13 @@ Rcpp::List supplemental (bool historical = true, bool stagebased = true,
       if (neg_tester.n_elem > 0) {
         Rf_warningcall(R_NilValue, "Some estage2 values entered are negative.");
       }
+    } else if (is<LogicalVector>(estage2)) {
+      LogicalVector estage2_temp = as<LogicalVector>(estage2);
+      estage2_length = static_cast<int>(estage2_temp.length());
+      
+      IntegerVector estage2_new (estage2_length, NA_INTEGER);
+      estage2_ = estage2_new;
+      
     } else {
       throw Rcpp::exception("Please enter age information (estage2) in integer format.",
         false);

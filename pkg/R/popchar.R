@@ -806,7 +806,8 @@ density_vr <- function(density_yn = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
 #' @param stage2 A vector showing the name or number of a stage in occasion
 #' \emph{t} that should be set to a positive number of individuals in the start
 #' vector. Abbreviations for groups of stages are also usable (see Notes).
-#' This input is required and has no default input.
+#' This input is required for all stage-based and age-by-stage MPMs. Defaults to
+#' \code{NA}.
 #' @param stage1 A vector showing the name or number of a stage in occasion
 #' \emph{t}-1 that should be set to a positive number of individuals in the
 #' start vector. Abbreviations for groups of stages are also usable (see Notes).
@@ -814,8 +815,8 @@ density_vr <- function(density_yn = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
 #' stage-pairs in times \emph{t} and \emph{t}-1 together. Only required for
 #' historical MPMs, and will result in errors if otherwise used.
 #' @param age2 A vector showing the age of each respective stage in occasion
-#' \emph{t} that should be set to a positie number of individuals in the start
-#' vector. Only used for age-by-stage MPMs. Defaults to NA.
+#' \emph{t} that should be set to a positive number of individuals in the start
+#' vector. Only used for Leslie and age-by-stage MPMs. Defaults to \code{NA}.
 #' @param value A vector showing the values, in order, of the number of
 #' individuals set for the stage or stage-pair in question. Defaults to 1.
 #' 
@@ -896,12 +897,19 @@ density_vr <- function(density_yn = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
 #'   start_frame = e3m_sv)
 #' 
 #' @export
-start_input <- function(mpm, stage2, stage1 = NA, age2 = NA, value = 1) {
+start_input <- function(mpm, stage2 = NA, stage1 = NA, age2 = NA, value = 1) {
   
   mpmrows <- stage2_id <- stage1_id <- start_vec <- full_length <- NULL
   
   if (all(!is(mpm, "lefkoMat"))) {
     stop("A regular lefkoMat object is required as input.", call. = FALSE)
+  }
+  
+  if (all(is.na(stage2)) & all(is.na(age2))) {
+    stop("Options stage2 and age2 cannot both be set to NA.", call. = FALSE)
+  }
+  if (all(is.null(stage2)) & all(is.null(age2))) {
+    stop("Options stage2 and age2 cannot both be empty.", call. = FALSE)
   }
   
   if (!is.element("stage", names(mpm$ahstages))) {
