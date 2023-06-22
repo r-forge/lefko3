@@ -8,6 +8,7 @@
   time, observed age, and alive status in time t+1.
 * Function supplemental() no longer yields an error for age-based MPM
   supplements with estage2 option set to all NAs.
+* Function start_input() no longer yields an error for age-based MPMs.
 
 # lefko3 6.0.5 (2023-05-03)
 

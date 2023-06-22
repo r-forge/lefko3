@@ -950,7 +950,7 @@ start_input <- function(mpm, stage2 = NA, stage1 = NA, age2 = NA, value = 1) {
     age2 <- rep(age2, full_length)
   }
   
-  if (length(stage2) != full_length) {
+  if (length(stage2) != full_length & (all(is.na(age2)) | all(is.null(age2)))) {
     stop("Option stage2 is required for all stages or stage-pairs to set to
       non-zero values.", call. = FALSE)
   }
