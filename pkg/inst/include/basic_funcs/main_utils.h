@@ -1504,7 +1504,8 @@ namespace LefkoUtils {
         StringVector var_hold_str = as<StringVector>(x[j]);
         
         for (int k = i + 1; k < df_rows_no; k++) {
-          if (j == 0) {          if (StringVector::is_na(var_hold_str(i))) {
+          if (j == 0) {
+            if (StringVector::is_na(var_hold_str(i))) {
               if (StringVector::is_na(var_hold_str(k))) {
                 old_check(k) = true;
               } else {
