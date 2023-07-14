@@ -1553,6 +1553,7 @@ namespace LefkoUtils {
           old_check.zeros();
           if (oni_length > 0) {
             old_check.elem(old_new_intersect) = ones<uvec>(oni_length);
+            old_ones = find(old_check);
           } else {
             final_check = false;
             break_j = true;

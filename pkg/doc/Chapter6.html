@@ -615,84 +615,68 @@ call that we will conduct later.
 <span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="co">#&gt;   Variable sizea3 is fully positive, lacking even 0s.</span></span>
 <span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a><span class="co">#&gt; Reproductive status:</span></span>
+<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a><span class="co">#&gt; Fecundity:</span></span>
 <span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a><span class="co">#&gt;   Data subset has 54 variables and 1916 transitions.</span></span>
+<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a><span class="co">#&gt;   Data subset has 54 variables and 2246 transitions.</span></span>
 <span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a><span class="co">#&gt;   Variable repstatus3 has 0 missing values.</span></span>
-<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a><span class="co">#&gt;   Variable repstatus3 is a binomial variable.</span></span>
+<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a><span class="co">#&gt;   Variable feca2 has 0 missing values.</span></span>
+<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a><span class="co">#&gt;   Variable feca2 appears to be an integer variable.</span></span>
 <span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a><span class="co">#&gt; Fecundity:</span></span>
-<span id="cb6-43"><a href="#cb6-43" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-44"><a href="#cb6-44" tabindex="-1"></a><span class="co">#&gt;   Data subset has 54 variables and 2246 transitions.</span></span>
-<span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-46"><a href="#cb6-46" tabindex="-1"></a><span class="co">#&gt;   Variable feca2 has 0 missing values.</span></span>
-<span id="cb6-47"><a href="#cb6-47" tabindex="-1"></a><span class="co">#&gt;   Variable feca2 appears to be an integer variable.</span></span>
-<span id="cb6-48"><a href="#cb6-48" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-49"><a href="#cb6-49" tabindex="-1"></a><span class="co">#&gt;   Variable feca2 is fully non-negative.</span></span>
+<span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a><span class="co">#&gt;   Variable feca2 is fully non-negative.</span></span>
+<span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-43"><a href="#cb6-43" tabindex="-1"></a><span class="co">#&gt;   Overdispersion test:</span></span>
+<span id="cb6-44"><a href="#cb6-44" tabindex="-1"></a><span class="co">#&gt;     Mean feca2 is 1.282</span></span>
+<span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a><span class="co">#&gt;     The variance in feca2 is 23.21</span></span>
+<span id="cb6-46"><a href="#cb6-46" tabindex="-1"></a><span class="co">#&gt;     The probability of this dispersion level by chance assuming that</span></span>
+<span id="cb6-47"><a href="#cb6-47" tabindex="-1"></a><span class="co">#&gt;     the true mean feca2 = variance in feca2,</span></span>
+<span id="cb6-48"><a href="#cb6-48" tabindex="-1"></a><span class="co">#&gt;     and an alternative hypothesis of overdispersion, is 0</span></span>
+<span id="cb6-49"><a href="#cb6-49" tabindex="-1"></a><span class="co">#&gt;     Variable feca2 is significantly overdispersed.</span></span>
 <span id="cb6-50"><a href="#cb6-50" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-51"><a href="#cb6-51" tabindex="-1"></a><span class="co">#&gt;   Overdispersion test:</span></span>
-<span id="cb6-52"><a href="#cb6-52" tabindex="-1"></a><span class="co">#&gt;     Mean feca2 is 1.282</span></span>
-<span id="cb6-53"><a href="#cb6-53" tabindex="-1"></a><span class="co">#&gt;     The variance in feca2 is 23.21</span></span>
-<span id="cb6-54"><a href="#cb6-54" tabindex="-1"></a><span class="co">#&gt;     The probability of this dispersion level by chance assuming that</span></span>
-<span id="cb6-55"><a href="#cb6-55" tabindex="-1"></a><span class="co">#&gt;     the true mean feca2 = variance in feca2,</span></span>
-<span id="cb6-56"><a href="#cb6-56" tabindex="-1"></a><span class="co">#&gt;     and an alternative hypothesis of overdispersion, is 0</span></span>
-<span id="cb6-57"><a href="#cb6-57" tabindex="-1"></a><span class="co">#&gt;     Variable feca2 is significantly overdispersed.</span></span>
+<span id="cb6-51"><a href="#cb6-51" tabindex="-1"></a><span class="co">#&gt;   Zero-inflation and truncation tests:</span></span>
+<span id="cb6-52"><a href="#cb6-52" tabindex="-1"></a><span class="co">#&gt;     Mean lambda in feca2 is 0.2774</span></span>
+<span id="cb6-53"><a href="#cb6-53" tabindex="-1"></a><span class="co">#&gt;     The actual number of 0s in feca2 is 1980</span></span>
+<span id="cb6-54"><a href="#cb6-54" tabindex="-1"></a><span class="co">#&gt;     The expected number of 0s in feca2 under the null hypothesis is 623</span></span>
+<span id="cb6-55"><a href="#cb6-55" tabindex="-1"></a><span class="co">#&gt;     The probability of this deviation in 0s from expectation by chance is 0</span></span>
+<span id="cb6-56"><a href="#cb6-56" tabindex="-1"></a><span class="co">#&gt;     Variable feca2 is significantly zero-inflated.</span></span>
+<span id="cb6-57"><a href="#cb6-57" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb6-58"><a href="#cb6-58" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-59"><a href="#cb6-59" tabindex="-1"></a><span class="co">#&gt;   Zero-inflation and truncation tests:</span></span>
-<span id="cb6-60"><a href="#cb6-60" tabindex="-1"></a><span class="co">#&gt;     Mean lambda in feca2 is 0.2774</span></span>
-<span id="cb6-61"><a href="#cb6-61" tabindex="-1"></a><span class="co">#&gt;     The actual number of 0s in feca2 is 1980</span></span>
-<span id="cb6-62"><a href="#cb6-62" tabindex="-1"></a><span class="co">#&gt;     The expected number of 0s in feca2 under the null hypothesis is 623</span></span>
-<span id="cb6-63"><a href="#cb6-63" tabindex="-1"></a><span class="co">#&gt;     The probability of this deviation in 0s from expectation by chance is 0</span></span>
-<span id="cb6-64"><a href="#cb6-64" tabindex="-1"></a><span class="co">#&gt;     Variable feca2 is significantly zero-inflated.</span></span>
+<span id="cb6-59"><a href="#cb6-59" tabindex="-1"></a><span class="co">#&gt; Juvenile survival:</span></span>
+<span id="cb6-60"><a href="#cb6-60" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-61"><a href="#cb6-61" tabindex="-1"></a><span class="co">#&gt;   Data subset has 54 variables and 281 transitions.</span></span>
+<span id="cb6-62"><a href="#cb6-62" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-63"><a href="#cb6-63" tabindex="-1"></a><span class="co">#&gt;   Variable alive3 has 0 missing values.</span></span>
+<span id="cb6-64"><a href="#cb6-64" tabindex="-1"></a><span class="co">#&gt;   Variable alive3 is a binomial variable.</span></span>
 <span id="cb6-65"><a href="#cb6-65" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb6-66"><a href="#cb6-66" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-67"><a href="#cb6-67" tabindex="-1"></a><span class="co">#&gt; Juvenile survival:</span></span>
+<span id="cb6-67"><a href="#cb6-67" tabindex="-1"></a><span class="co">#&gt; Juvenile observation status:</span></span>
 <span id="cb6-68"><a href="#cb6-68" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-69"><a href="#cb6-69" tabindex="-1"></a><span class="co">#&gt;   Data subset has 54 variables and 281 transitions.</span></span>
+<span id="cb6-69"><a href="#cb6-69" tabindex="-1"></a><span class="co">#&gt;   Data subset has 54 variables and 210 transitions.</span></span>
 <span id="cb6-70"><a href="#cb6-70" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-71"><a href="#cb6-71" tabindex="-1"></a><span class="co">#&gt;   Variable alive3 has 0 missing values.</span></span>
-<span id="cb6-72"><a href="#cb6-72" tabindex="-1"></a><span class="co">#&gt;   Variable alive3 is a binomial variable.</span></span>
+<span id="cb6-71"><a href="#cb6-71" tabindex="-1"></a><span class="co">#&gt;   Variable obsstatus3 has 0 missing values.</span></span>
+<span id="cb6-72"><a href="#cb6-72" tabindex="-1"></a><span class="co">#&gt;   Variable obsstatus3 is a binomial variable.</span></span>
 <span id="cb6-73"><a href="#cb6-73" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb6-74"><a href="#cb6-74" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-75"><a href="#cb6-75" tabindex="-1"></a><span class="co">#&gt; Juvenile observation status:</span></span>
+<span id="cb6-75"><a href="#cb6-75" tabindex="-1"></a><span class="co">#&gt; Juvenile primary size:</span></span>
 <span id="cb6-76"><a href="#cb6-76" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-77"><a href="#cb6-77" tabindex="-1"></a><span class="co">#&gt;   Data subset has 54 variables and 210 transitions.</span></span>
+<span id="cb6-77"><a href="#cb6-77" tabindex="-1"></a><span class="co">#&gt;   Data subset has 54 variables and 193 transitions.</span></span>
 <span id="cb6-78"><a href="#cb6-78" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-79"><a href="#cb6-79" tabindex="-1"></a><span class="co">#&gt;   Variable obsstatus3 has 0 missing values.</span></span>
-<span id="cb6-80"><a href="#cb6-80" tabindex="-1"></a><span class="co">#&gt;   Variable obsstatus3 is a binomial variable.</span></span>
-<span id="cb6-81"><a href="#cb6-81" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-82"><a href="#cb6-82" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-83"><a href="#cb6-83" tabindex="-1"></a><span class="co">#&gt; Juvenile primary size:</span></span>
-<span id="cb6-84"><a href="#cb6-84" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-85"><a href="#cb6-85" tabindex="-1"></a><span class="co">#&gt;   Data subset has 54 variables and 193 transitions.</span></span>
+<span id="cb6-79"><a href="#cb6-79" tabindex="-1"></a><span class="co">#&gt;   Variable sizea3 has 0 missing values.</span></span>
+<span id="cb6-80"><a href="#cb6-80" tabindex="-1"></a><span class="co">#&gt;   Variable sizea3 appears to be a floating point variable.</span></span>
+<span id="cb6-81"><a href="#cb6-81" tabindex="-1"></a><span class="co">#&gt;   127 elements are not integers.</span></span>
+<span id="cb6-82"><a href="#cb6-82" tabindex="-1"></a><span class="co">#&gt;   The minimum value of sizea3 is 2.1 and the maximum is 61.</span></span>
+<span id="cb6-83"><a href="#cb6-83" tabindex="-1"></a><span class="co">#&gt;   The mean value of sizea3 is 11.23 and the variance is 50.81.</span></span>
+<span id="cb6-84"><a href="#cb6-84" tabindex="-1"></a><span class="co">#&gt;   The value of the Shapiro-Wilk test of normality is 0.5997 with P = 5.72e-21.</span></span>
+<span id="cb6-85"><a href="#cb6-85" tabindex="-1"></a><span class="co">#&gt;   Variable sizea3 differs significantly from a Gaussian distribution.</span></span>
 <span id="cb6-86"><a href="#cb6-86" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-87"><a href="#cb6-87" tabindex="-1"></a><span class="co">#&gt;   Variable sizea3 has 0 missing values.</span></span>
-<span id="cb6-88"><a href="#cb6-88" tabindex="-1"></a><span class="co">#&gt;   Variable sizea3 appears to be a floating point variable.</span></span>
-<span id="cb6-89"><a href="#cb6-89" tabindex="-1"></a><span class="co">#&gt;   127 elements are not integers.</span></span>
-<span id="cb6-90"><a href="#cb6-90" tabindex="-1"></a><span class="co">#&gt;   The minimum value of sizea3 is 2.1 and the maximum is 61.</span></span>
-<span id="cb6-91"><a href="#cb6-91" tabindex="-1"></a><span class="co">#&gt;   The mean value of sizea3 is 11.23 and the variance is 50.81.</span></span>
-<span id="cb6-92"><a href="#cb6-92" tabindex="-1"></a><span class="co">#&gt;   The value of the Shapiro-Wilk test of normality is 0.5997 with P = 5.72e-21.</span></span>
-<span id="cb6-93"><a href="#cb6-93" tabindex="-1"></a><span class="co">#&gt;   Variable sizea3 differs significantly from a Gaussian distribution.</span></span>
-<span id="cb6-94"><a href="#cb6-94" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-95"><a href="#cb6-95" tabindex="-1"></a><span class="co">#&gt;   Variable sizea3 is fully positive, lacking even 0s.</span></span>
-<span id="cb6-96"><a href="#cb6-96" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-97"><a href="#cb6-97" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-98"><a href="#cb6-98" tabindex="-1"></a><span class="co">#&gt; Juvenile reproductive status:</span></span>
-<span id="cb6-99"><a href="#cb6-99" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-100"><a href="#cb6-100" tabindex="-1"></a><span class="co">#&gt;   Data subset has 54 variables and 193 transitions.</span></span>
-<span id="cb6-101"><a href="#cb6-101" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-102"><a href="#cb6-102" tabindex="-1"></a><span class="co">#&gt;   Variable repstatus3 has 0 missing values.</span></span>
-<span id="cb6-103"><a href="#cb6-103" tabindex="-1"></a><span class="co">#&gt;   Variable repstatus3 is a binomial variable.</span></span>
-<span id="cb6-104"><a href="#cb6-104" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-105"><a href="#cb6-105" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-106"><a href="#cb6-106" tabindex="-1"></a><span class="co">#&gt; Juvenile maturity status:</span></span>
-<span id="cb6-107"><a href="#cb6-107" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-108"><a href="#cb6-108" tabindex="-1"></a><span class="co">#&gt;   Data subset has 54 variables and 210 transitions.</span></span>
-<span id="cb6-109"><a href="#cb6-109" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-110"><a href="#cb6-110" tabindex="-1"></a><span class="co">#&gt;   Variable matstatus3 has 0 missing values.</span></span>
-<span id="cb6-111"><a href="#cb6-111" tabindex="-1"></a><span class="co">#&gt;   Variable matstatus3 is a binomial variable.</span></span></code></pre></div>
+<span id="cb6-87"><a href="#cb6-87" tabindex="-1"></a><span class="co">#&gt;   Variable sizea3 is fully positive, lacking even 0s.</span></span>
+<span id="cb6-88"><a href="#cb6-88" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-89"><a href="#cb6-89" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-90"><a href="#cb6-90" tabindex="-1"></a><span class="co">#&gt; Juvenile maturity status:</span></span>
+<span id="cb6-91"><a href="#cb6-91" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-92"><a href="#cb6-92" tabindex="-1"></a><span class="co">#&gt;   Data subset has 54 variables and 210 transitions.</span></span>
+<span id="cb6-93"><a href="#cb6-93" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-94"><a href="#cb6-94" tabindex="-1"></a><span class="co">#&gt;   Variable matstatus3 has 0 missing values.</span></span>
+<span id="cb6-95"><a href="#cb6-95" tabindex="-1"></a><span class="co">#&gt;   Variable matstatus3 is a binomial variable.</span></span></code></pre></div>
 <p style="text-indent: 20px">
 All of the probability variables look like binomials, so we have no
 problem there. Size and juvenile size appear to be continuous variables
@@ -879,8 +863,7 @@ much memory.
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>lathmat3ipm <span class="ot">&lt;-</span> <span class="fu">flefko3</span>(<span class="at">stageframe =</span> lathframeipm, <span class="at">modelsuite =</span> lathmodels3ipm,</span>
 <span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  <span class="at">supplement =</span> lathsupp3, <span class="at">data =</span> lathvertipm, <span class="at">reduce =</span> <span class="cn">FALSE</span>,</span>
 <span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="at">sparse_output =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; Warning: Supplement table contains multiple entries for the same transition(s).</span></span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#summary(lathmat3ipm)</span></span></code></pre></div>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#summary(lathmat3ipm)</span></span></code></pre></div>
 <p style="text-indent: 20px">
 These are giant matrices. With 10,609 rows and columns, there are a
 total of 112,550,881 elements per matrix. But they are also amazingly

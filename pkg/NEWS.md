@@ -1,4 +1,4 @@
-# lefko3 6.0.6 (2023-06-XX)
+# lefko3 6.1.0 (2023-07-08)
 
 ## NEW FEATURES
 
@@ -26,6 +26,8 @@
 * Function density_input() no longer yields errors for age-based MPMs.
 * Historical matrix creation functions no longer call warnings that multiple
   rows in supplement tables show the same transition even when they do not.
+* Function lambda3() no longer calls an error when an eigenvalue of 0 is
+  detected.
 
 # lefko3 6.0.5 (2023-05-03)
 

@@ -11294,9 +11294,9 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         _["1"] = as<StringVector>(melchett_ovtable_[1]),
         _["2"] = as<StringVector>(melchett_ovtable_[2]));
       
-      //if (LefkoUtils::df_duplicates(mov_short)) {
-      //  Rf_warningcall(R_NilValue, "Supplement table contains multiple entries for the same transition(s).");
-      //}
+      if (LefkoUtils::df_duplicates(mov_short)) {
+        Rf_warningcall(R_NilValue, "Supplement table contains multiple entries for the same transition(s).");
+      }
     } else {
       if (age) {
         throw Rcpp::exception("Age-based MPMs cannot be historical.", false);
