@@ -1,3 +1,10 @@
+# lefko3 6.1.1 (2023-09-XX)
+
+## NEW FEATURES
+
+* Function projection3() no longer adds an extra projection to matrix
+  projections of mean MPMs created through the lmean() function.
+
 # lefko3 6.1.0 (2023-07-08)
 
 ## NEW FEATURES

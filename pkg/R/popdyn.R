@@ -4203,6 +4203,12 @@ summary.lefkoProj <- function(object, threshold = 1, inf_alive = TRUE,
 #' Output plots are currently limited to time series and state space plots of
 #' population size.
 #' 
+#' The default settings will preferentially plot any projections marked as
+#' \code{0} in the \code{patch} portion of the \code{labels} element of the
+#' input MPM. This can produce confusing results if a mean MPM resulting from
+#' the \code{lmean()} function is used as input and the \code{add_mean} setting
+#' is set to the default, which is \code{TRUE}.
+#' 
 #' @examples
 #' data(lathyrus)
 #' 
@@ -4323,7 +4329,7 @@ plot.lefkoProj <- function(x, variable = "popsize", style = "time",
       }
       if (!all(is.element(patch, actual_patches))) {
         stop("Setting patch not understood. Please check the labels element of
-          your input lefkoProj object.", call. = FALSE)
+          the input lefkoProj object.", call. = FALSE)
       }
     }
   } else if (is.numeric(patch)) {

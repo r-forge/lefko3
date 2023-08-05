@@ -17116,8 +17116,8 @@ arma::mat proj3dens(const arma::vec& start_vec, const List& core_list,
 //' 
 //' @section Notes:
 //' Projections are run both at the patch level and at the population level.
-//' Population level estimates will be noted at the end of the
-//' data frame with 0 entries for patch designation.
+//' Population level estimates will be noted at the end of the data frame with
+//' \code{0} entries for patch designation.
 //' 
 //' Weightings given in \code{tweights} do not need to sum to 1. Final
 //' weightings used will be based on the proportion per element of the sum of
@@ -17287,7 +17287,7 @@ arma::mat proj3dens(const arma::vec& start_vec, const List& core_list,
 Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
   bool historical = false, bool stochastic = false, bool standardize = false,
   bool growthonly = true, bool integeronly = false, int substoch = 0,
-  double exp_tol = 700.0, bool sub_warnings = true, bool quiet = false, 
+  double exp_tol = 700.0, bool sub_warnings = true, bool quiet = false,
   Nullable<IntegerVector> year = R_NilValue,
   Nullable<NumericVector> start_vec = R_NilValue,
   Nullable<DataFrame> start_frame = R_NilValue,
@@ -17718,8 +17718,8 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
     // Run simulation on all patch matrices, estimate all descriptive metrics
     List meanamats = as<List>(mean_lefkomat["A"]);
     List mmlabels = as<List>(mean_lefkomat["labels"]);
-    StringVector mmpops = as<StringVector>(mmlabels["pop"]);
-    StringVector mmpatches = as<StringVector>(mmlabels["patch"]);
+    StringVector mmpops_1 = as<StringVector>(mmlabels["pop"]);
+    StringVector mmpatches_1 = as<StringVector>(mmlabels["patch"]);
     
     int meanmatsize {0};
     int meanmatrows {0};
@@ -17741,11 +17741,42 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
     arma::uvec ppcindex = as<arma::uvec>(poppatchc);
     arma::uvec allppcs = as<arma::uvec>(sort_unique(poppatchc));
     int allppcsnem = static_cast<int>(allppcs.n_elem);
+    
+    StringVector mmpops;
+    StringVector mmpatches;
+    
+    bool add_mean {true};
+    int mmpatches_1_length = mmpatches_1.length();
+    if (mmpatches_1(mmpatches_1_length - 1) == "0" && mmpatches_1_length > 1) {
+      if (mmpatches_1(mmpatches_1_length - 2) == "0") {
+        add_mean = false;
+      }
+    }
+    
+    if (!add_mean) {
+      trials = allppcsnem;
+      
+      StringVector new_mmpops (trials);
+      StringVector new_mmpatches (trials);
+      
+      for (int i = 0; i < trials; i++) {
+        new_mmpops(i) = mmpops_1(i);
+        new_mmpatches(i) = mmpatches_1(i);
+      }
+      
+      mmpops = new_mmpops;
+      mmpatches = new_mmpatches;
+    } else {
+      mmpops = mmpops_1;
+      mmpatches = mmpatches_1;
+    }
+    
     List plist_hold(allppcsnem);
     int pop_est {1};
     if (allppcsnem > 1) {
       pop_est = trials - allppcsnem;    
     }
+    
     List projection_list(trials);
     
     if(start_frame.isNotNull()) {
@@ -17794,6 +17825,7 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
           pre_prophecy(j) = year_patch_intersect(0);
         }
       }
+      
       // Replicate loop, creating final data frame of results for each pop-patch
       for (int rep = 0; rep < nreps; rep++) {
         if (stochastic) {
@@ -17868,7 +17900,7 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
         arma::uvec neededmatspop = find(popmatch);
         
         for (int j = 0; j < yl; j++) { // Develops matrix mean across patches
-          for (int k = 0; k < loysize; k++) { // Develops vector to find all matrices for current year
+          for (int k = 0; k < loysize; k++) { // Develops vector to find all mats for current year
             if (yearorder(k) == uniqueyears(j)) {
               yearmatch(k) = 1;
             } else {
