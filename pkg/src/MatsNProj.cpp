@@ -19019,7 +19019,7 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
     int meanmatsize {0};
     int meanmatrows {0};
     if (!is<S4>(meanamats(0))) {
-      meanmatsize = static_cast<int>(as<arma::mat>(meanamats(0)).n_elem); // thechosenone
+      meanmatsize = static_cast<int>(as<arma::mat>(meanamats(0)).n_elem);
       meanmatrows = static_cast<int>(as<arma::mat>(meanamats(0)).n_rows);
     } else { 
       meanmatsize = static_cast<int>(as<arma::sp_mat>(meanamats(0)).n_elem);
@@ -19032,8 +19032,6 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
     
     // Two lists for sensitivity/elasticity matrices
     // First general use, second for ahistorical versions of historical matrices
-    //arma::cube senscube(meanmatrows, meanmatrows, trials, fill::zeros);
-    //arma::cube senscube_ah(ahstages_num, ahstages_num, trials, fill::zeros);
     List senscube (trials);
     List senscube_ah (trials);
     
@@ -19054,7 +19052,7 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
       sens_base_ah_sp = sens_base_ah_;
     }
     
-    // Matrix for year values for each run
+    // Year value matrix for each run
     arma::umat yearspulled(trials, theclairvoyant, fill::zeros);
     arma::uvec ppcindex = as<arma::uvec>(poppatchc);
     arma::uvec allppcs = as<arma::uvec>(sort_unique(poppatchc));
@@ -19067,14 +19065,15 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
       arma::uvec theprophecy (theprophecy_allyears.length(), fill::zeros);
       arma::uvec tnotb_patch = find(ppcindex == allppcs(i));
       
-      for (int j = 0; j < yl; j++) { // Main index marking matrices to use
-        // Modify for situations in which patches do not have the same years
+      for (int j = 0; j < yl; j++) { // Main index for used matrices
+        // Modify in case patches do not have same years
         IntegerVector tnotb_years_IV = match(as<StringVector>(uniqueyears(j)), yearorder) - 1;
         arma::uvec tnotb_years = as<arma::uvec>(wrap(tnotb_years_IV));
         arma::uvec thenumbersofthebeast = intersect(tnotb_patch, tnotb_years);
         
         if (thenumbersofthebeast.n_elem > 0) {
-          IntegerVector prophetic_yearindices_IV = match(as<StringVector>(uniqueyears(j)), theprophecy_allyears) - 1;
+          IntegerVector prophetic_yearindices_IV = match(as<StringVector>(uniqueyears(j)), 
+              theprophecy_allyears) - 1;
           arma::uvec prophetic_yearindices = as<arma::uvec>(wrap(prophetic_yearindices_IV));
           
           if (prophetic_yearindices.n_elem > 0) {
@@ -19085,11 +19084,11 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
       }
       yearspulled.row(i) = theprophecy.t();
       
-      // Stable stage and rep value vectors, ahistorical versions of historical inputs
+      // Stable stage and rep value vectors, ahistorical versions of hMPMs
       arma::vec wprojection_ah(ahstages_num, fill::zeros);
       arma::vec vprojection_ah(ahstages_num, fill::zeros);
       
-      // Control loop to develop w and v values
+      // Control loop to develop w and v vectors
       arma::mat crazy_prophet;
       
       if (lMat_matrix_class_input) {
@@ -19104,9 +19103,8 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
       Rvecmat.row(i) = crazy_prophet.submat((static_cast<int>(startvec.n_elem) * 3), 1,
         (static_cast<int>(startvec.n_elem) * 3), theclairvoyant); // Rvec
       
-      // All references to senscube, a 3d array to hold sensitivity matrices
+      // Main sensitivity matrix loop
       for (int j = 0; j < theclairvoyant; j++) {
-        // Main loop for sensitivity matrices
         // Adds each occasion to the respective matrix for each pop-patch
         if (j % 50 == 0) Rcpp::checkUserInterrupt();
         
@@ -19124,15 +19122,27 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
         if (lMat_matrix_class_input && sparse == 0) {
           currentsens_num = vtplus1 * wt.as_row(); // Key equation numerator
           currentsens_den = (Rvecmat(i, j) * vtplus1.as_row() * wtplus1); // Denominator
-          double cd_double = currentsens_den(0,0);
+          double cd_double = static_cast<double>(currentsens_den(0,0));
+          double downward_spiral = (cd_double * static_cast<double>(theclairvoyant));
           
-          currentsens = currentsens_num / (cd_double * theclairvoyant);
+          if (downward_spiral != 0.0) {
+            currentsens = currentsens_num / downward_spiral;
+          } else {
+            arma::mat zero_mat (currentsens_num.n_rows, currentsens_num.n_cols, fill::zeros);
+            currentsens = zero_mat;
+          }
         } else {
           currentsens_num_sp = vtplus1 * wt.as_row(); // Key equation numerator
           currentsens_den_sp = (Rvecmat(i, j) * vtplus1.as_row() * wtplus1); // Denominator
-          double cd_double = currentsens_den_sp(0,0);
+          double cd_double = static_cast<double>(currentsens_den_sp(0,0));
+          double downward_spiral = (cd_double * static_cast<double>(theclairvoyant));
           
-          currentsens_sp = currentsens_num_sp / (cd_double * theclairvoyant);
+          if (downward_spiral != 0.0) {
+            currentsens_sp = currentsens_num_sp / downward_spiral;
+          } else {
+            arma::sp_mat zero_mat_sp (currentsens_num_sp.n_rows, currentsens_num_sp.n_cols);
+            currentsens_sp = zero_mat_sp;
+          }
         }
         
         // Creates sensitivity matrices
@@ -19149,7 +19159,7 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
             wprojection_ah.zeros();
             vprojection_ah.zeros();
             
-            // Loop creates ahistorical stable stage dist for projected occasion j+1
+            // Ahistorical stable stage dist for occasion j+1
             for (int k1 = 0; k1 < hstages_num; k1++) {
               int current_stage2 = hstages_id2(k1);
               wprojection_ah(current_stage2 - 1) = wprojection_ah(current_stage2 - 1)  +
@@ -19181,25 +19191,41 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
               csah_num = vprojection_ah * wtah_tpose;
               csah_den = (Rvecmat(i, j) * vtah_tpose * wprojection_ah);
               double cdah_double = csah_den(0,0);
-              csah = csah_num / (cdah_double * theclairvoyant);
+              double dismal_showing = cdah_double * static_cast<double>(theclairvoyant);
+              
+              if (dismal_showing != 0.0) {
+                csah = csah_num / dismal_showing;
+              } else {
+                arma::mat zero_csah (csah_num.n_rows, csah_num.n_cols, fill::zeros);
+                csah = zero_csah;
+              }
               sens_base_ah += csah;
               senscube_ah(i) = sens_base_ah;
+              
             } else {
               csah_num_sp = vprojection_ah * wtah_tpose;
               csah_den_sp = (Rvecmat(i, j) * vtah_tpose * wprojection_ah);
               double cdah_double = csah_den_sp(0,0);
-              csah_sp = csah_num_sp / (cdah_double * theclairvoyant);
+              double dismal_showing = cdah_double * static_cast<double>(theclairvoyant);
+              
+              if (dismal_showing != 0.0) {
+                csah_sp = csah_num_sp / dismal_showing;
+              } else {
+                arma::mat zero_csah_sp (csah_num_sp.n_rows, csah_num_sp.n_cols);
+                csah_sp = zero_csah_sp;
+              }
               sens_base_ah_sp += csah_sp;
               senscube_ah(i) = sens_base_ah_sp;
             }
           } // if historical statement
         } else {
-          //Elasticity matrices
+          // Elasticity matrices
           if (lMat_matrix_class_input && sparse == 0) {
             sens_base += currentsens % as<arma::mat>(amats[(theprophecy(j))]);
             senscube(i) = sens_base;
           } else if (lMat_matrix_class_input) {
             arma::sp_mat cs_sp = arma::sp_mat(as<arma::mat>(amats[(theprophecy(j))]));
+            
             cs_sp = currentsens_sp % cs_sp;
             sens_base_sp += cs_sp;
             senscube(i) = sens_base_sp;
@@ -19240,18 +19266,19 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
     arma::uvec theprophecy (theprophecy_allyears.length(), fill::zeros);
     
     for (int j = 0; j < yl; j++) { // Main index marking matrices to use
-      IntegerVector prophetic_yearindices_IV = match(as<StringVector>(uniqueyears(j)), theprophecy_allyears) - 1;
+      IntegerVector prophetic_yearindices_IV = match(as<StringVector>(uniqueyears(j)), 
+          theprophecy_allyears) - 1;
       arma::uvec prophetic_yearindices = as<arma::uvec>(wrap(prophetic_yearindices_IV));
       if (prophetic_yearindices.n_elem > 0) {
         theprophecy.elem(prophetic_yearindices).fill(j);
       }
     }
     
-    if (allppcsnem > 1) { // Checks for pop-mean matrices, only occurring with >1 pop-patches
+    if (allppcsnem > 1) { // Checks for pop-mean matrices, only if >1 pop-patches
       pop_est = trials - allppcsnem;
       
-      for (int i = 0; i < pop_est; i++) { // This loop goes through each population
-        for (int j = 0; j < loysize; j++) { // Checks which A matrices match current pop
+      for (int i = 0; i < pop_est; i++) { // Pop loop
+        for (int j = 0; j < loysize; j++) { // Finds A matrices matching pop
           if (poporder(j) == allpops(i)) {
             popmatch(j) = 1;
           } else {
@@ -19260,8 +19287,8 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
         }
         arma::uvec neededmatspop = find(popmatch == 1);
         
-        for (int j = 0; j < yl; j++) { // Checks each year, develops matrix mean across patches
-          for (int k = 0; k < loysize; k++) { // Vector to find all matrices for current year
+        for (int j = 0; j < yl; j++) { // Checks each year, develops patch mean matrix
+          for (int k = 0; k < loysize; k++) { // Vector of matrices for current year
             if (yearorder(k) == uniqueyears(j)) {
               yearmatch(k) = 1;
             } else {
@@ -19316,26 +19343,25 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
         }
         yearspulled.row(allppcsnem + i) = theprophecy.t();
         
-        // Use meanmatyearlist in place of amats
         arma::vec wprojection_ah(ahstages_num, fill::zeros);
         arma::vec vprojection_ah(ahstages_num, fill::zeros);
         
-        // Control loop for w and v values
+        // Control loop for w and v
         arma::mat crazy_prophet;
         if (is<NumericMatrix>(meanmatyearlist(0))) {
           crazy_prophet = proj3(startvec, meanmatyearlist, theprophecy, 1, 0, 0, false, sparse);
         } else { 
           crazy_prophet = proj3sp(startvec, meanmatyearlist, theprophecy, 1, 0, 0);
         }
-        arma::mat wprojection = crazy_prophet.submat(static_cast<int>(startvec.n_elem), 0,
-          ((static_cast<int>(startvec.n_elem) * 2) - 1), theclairvoyant);
-        arma::mat vprojection = crazy_prophet.submat((static_cast<int>(startvec.n_elem) * 2), 0,
-          ((static_cast<int>(startvec.n_elem) * 3) - 1), theclairvoyant);
-        Rvecmat.row(allppcsnem + i) = crazy_prophet.submat((static_cast<int>(startvec.n_elem) * 3), 1,
-          (static_cast<int>(startvec.n_elem) * 3), theclairvoyant); // Rvec
+        arma::mat wprojection = crazy_prophet.submat(static_cast<int>(startvec.n_elem),
+            0, ((static_cast<int>(startvec.n_elem) * 2) - 1), theclairvoyant);
+        arma::mat vprojection = crazy_prophet.submat((static_cast<int>(startvec.n_elem) * 2),
+            0, ((static_cast<int>(startvec.n_elem) * 3) - 1), theclairvoyant);
+        Rvecmat.row(allppcsnem + i) = crazy_prophet.submat((static_cast<int>(startvec.n_elem) * 3),
+            1, (static_cast<int>(startvec.n_elem) * 3), theclairvoyant);
         
-        // Loop for sens matrices, adding each occasion to each pop-patch matrix
-        for (int j = 0; j < theclairvoyant; j++) {  
+        // Sens matrix loop, adding each occasion to each pop-patch matrix
+        for (int j = 0; j < theclairvoyant; j++) {
           arma::vec vtplus1 = vprojection.col(j+1);
           arma::vec wtplus1 = wprojection.col(j+1);
           arma::vec wt = wprojection.col(j);
@@ -19352,13 +19378,27 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
             currentsens_den = (Rvecmat((allppcsnem + i), j) *
             vtplus1.as_row() * wtplus1); // Denominator
             double cd_double = currentsens_den(0,0);
-            currentsens = currentsens_num / (cd_double * theclairvoyant);
+            double downward_spiral = (cd_double * static_cast<double>(theclairvoyant));
+            
+            if (downward_spiral != 0.0) {
+              currentsens = currentsens_num / downward_spiral;
+            } else {
+              arma::mat zero_mat (currentsens_num.n_rows, currentsens_num.n_cols, fill::zeros);
+              currentsens = zero_mat;
+            }
           } else {
             currentsens_num_sp = vtplus1 * wt.as_row(); // Key equation numerator
             currentsens_den_sp = (Rvecmat((allppcsnem + i), j) * vtplus1.as_row() *
               wtplus1); // Denominator
             double cd_double = currentsens_den_sp(0,0);
-            currentsens_sp = currentsens_num_sp / (cd_double * theclairvoyant);
+            double downward_spiral = (cd_double * static_cast<double>(theclairvoyant));
+            
+            if (downward_spiral != 0.0) {
+              currentsens_sp = currentsens_num_sp / downward_spiral;
+            } else {
+              arma::sp_mat zero_mat_sp (currentsens_num.n_rows, currentsens_num.n_cols);
+              currentsens_sp = zero_mat_sp;
+            }
           }
           
           if (style == 1) {
@@ -19375,7 +19415,7 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
               wprojection_ah.zeros();
               vprojection_ah.zeros();
               
-              // Ahistorical stable stage dist for projected occasion j+1
+              // Ahistorical stable stage vector for occasion j+1
               for (int k1 = 0; k1 < hstages_num; k1++) {
                 int current_stage2 = hstages_id2(k1);
                 wprojection_ah(current_stage2 - 1) = wprojection_ah(current_stage2 - 1)  +
@@ -19406,15 +19446,32 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
               if (lMat_matrix_class_input && sparse == 0) {
                 csah_num = vprojection_ah * wtah_tpose;
                 csah_den = (Rvecmat(i, j) * vtah_tpose * wprojection_ah);
+                
                 double cdah_double = csah_den(0,0);
-                csah = csah_num / (cdah_double * theclairvoyant);
+                double downward_spiral = (cdah_double * static_cast<double>(theclairvoyant));
+                
+                if (downward_spiral != 0.0) {
+                  csah = csah_num / downward_spiral;
+                } else {
+                  arma::mat zero_csah (csah_num.n_rows, csah_num.n_cols, fill::zeros);
+                  csah = zero_csah;
+                }
                 pop_sens_base_ah += csah;
                 senscube_ah(allppcsnem + i) = pop_sens_base_ah;
+                
               } else {
                 csah_num_sp = vprojection_ah * wtah_tpose;
                 csah_den_sp = (Rvecmat(i, j) * vtah_tpose * wprojection_ah);
+                
                 double cdah_double = csah_den_sp(0,0);
-                csah_sp = csah_num_sp / (cdah_double * theclairvoyant);
+                double downward_spiral = (cdah_double * static_cast<double>(theclairvoyant));
+                
+                if (downward_spiral > 0.0) {
+                  csah_sp = csah_num_sp / downward_spiral;
+                } else {
+                  arma::sp_mat zero_csah_sp (csah_num_sp.n_rows, csah_num_sp.n_cols);
+                  csah_sp = zero_csah_sp;
+                }
                 pop_sens_base_ah_sp += csah_sp;
                 senscube_ah(allppcsnem + i) = pop_sens_base_ah_sp;
               }
@@ -19574,13 +19631,20 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
         currentsens_den = (Rvecmat(0, j) * vtplus1.as_row() * 
           wprojection.col(j+1)); // Denominator
         double cd_double = currentsens_den(0,0);
-        currentsens = currentsens_num / (cd_double * theclairvoyant);
+        double downward_spiral = (cd_double * static_cast<double>(theclairvoyant));
         
+        if (downward_spiral != 0.0) {
+          currentsens = currentsens_num / downward_spiral;
+        } else {
+          arma::mat zero_cursen (currentsens_num.n_rows, currentsens_num.n_cols, fill::zeros);
+          currentsens = zero_cursen;
+        }
+          
         if (style == 1) {
           sens_base += currentsens;
           senscube(0) = sens_base; // Sensitivity matrix
         } else {
-          sens_base += currentsens % as<arma::mat>(amats[(theprophecy(j))]); // Elasticity matrix
+          sens_base += currentsens % as<arma::mat>(amats[(theprophecy(j))]);
           senscube(0) = sens_base; // Elasticity matrix
         }
       } else {
@@ -19588,7 +19652,14 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
         currentsens_den_sp = (Rvecmat(0, j) * vtplus1.as_row() * 
           wprojection.col(j+1)); // Denominator
         double cd_double = currentsens_den_sp(0,0);
-        currentsens_sp = currentsens_num_sp / (cd_double * theclairvoyant);
+        double downward_spiral = (cd_double * static_cast<double>(theclairvoyant));
+        
+        if (downward_spiral > 0.0) {
+          currentsens_sp = currentsens_num_sp / downward_spiral;
+        } else {
+          arma::sp_mat zero_cursen_sp (currentsens_num_sp.n_rows, currentsens_num_sp.n_cols);
+          currentsens_sp = zero_cursen_sp;
+        }
         
         if (style == 1) {
           sens_base += currentsens;

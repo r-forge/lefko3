@@ -5,6 +5,11 @@
 * Function projection3() no longer adds an extra projection to matrix
   projections of mean MPMs created through the lmean() function.
 
+## BUG FIXES
+
+* Functions sensitivity3() and elasticity3() no longer produce zero division
+  errors in some stochastic runs with sparse matrix output.
+
 # lefko3 6.1.0 (2023-07-08)
 
 ## NEW FEATURES

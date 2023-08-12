@@ -1810,7 +1810,8 @@ sensitivity3 <- function(mats, ...) UseMethod("sensitivity3")
 #' (\code{"yes"}) or dense matrix encoding (\code{"no"}). Defaults to
 #' \code{"auto"}, in which case sparse matrix encoding is used with square
 #' matrices with at least 50 rows and no more than 50\% of elements with values
-#' greater than zero.
+#' greater than zero. Note that sparse matrix is used regardless if the input
+#' MPM is in sparse mtrix format.
 #' @param append_mats A logical value indicating whether to include the original
 #' A, U, and F matrices in the output \code{lefkoSens} object.
 #' @param ... Other parameters.
@@ -1902,7 +1903,7 @@ sensitivity3.lefkoMat <- function(mats, stochastic = FALSE, steps = 10000,
   
   if (!sparse_input) {
     if (is.logical(sparse)) {
-      if (sparse) {
+      if (sparse[1]) {
         sparsemethod <- 1
       } else sparsemethod <- 0
     } else if (is.element(tolower(sparse), c("y", "yes", "yea", "yeah", "t", "true", "ja", "tak"))) {
@@ -1944,23 +1945,23 @@ sensitivity3.lefkoMat <- function(mats, stochastic = FALSE, steps = 10000,
       }
     }
     
+    hlabels <- mats$hstages
+    ahlabels <- mats$ahstages
+    new_labels <- mats$labels
+    
     if (all(is.na(mats$hstages))) {
       
       ahlabels <- mats$ahstages
       
       output <- list(h_sensmats = NULL, ah_sensmats = baldrick, hstages = NULL, 
-        ahstages = ahlabels)
+        ahstages = ahlabels, labels = new_labels)
       
     } else {
-      
       he_list <- lapply(baldrick, function(X) {X$h_smat})
       ahe_list <- lapply(baldrick, function(X) {X$ah_smat})
       
-      hlabels <- mats$hstages
-      ahlabels <- mats$ahstages
-      
       output <- list(h_sensmats = he_list, ah_sensmats = ahe_list,
-        hstages = hlabels, ahstages = ahlabels)
+        hstages = hlabels, ahstages = ahlabels, labels = new_labels)
     }
   } else {
     # Stochastic sensitivity analysis
@@ -1972,14 +1973,25 @@ sensitivity3.lefkoMat <- function(mats, stochastic = FALSE, steps = 10000,
         style = 1, sparsemethod)
     }
     
+    old_labels <- mats$labels
+    old_labels$concat <- paste(old_labels$pop, old_labels$patch)
+    labs_unique <- unique(old_labels$concat)
+    lab_indices <- apply(as.matrix(labs_unique), 1, function(X) {
+      found_guys <- which(old_labels$concat == X)
+      min_guy <- min(found_guys)
+      
+      return(min_guy)
+    })
+    new_labels <- mats$labels[lab_indices, c(1, 2)]
+    
     if (!all(is.na(mats$hstages))) {
       output <- list(h_sensmats = returned_cubes[[1]], ah_sensmats = returned_cubes[[2]],
         hstages = mats$hstages, agestages = mats$agestages,
-        ahstages = mats$ahstages)
+        ahstages = mats$ahstages, labels = new_labels)
     } else {
       output <- list(h_sensmats = NULL, ah_sensmats = returned_cubes[[1]],
         hstages = mats$hstages, agestages = mats$agestages,
-        ahstages = mats$ahstages)
+        ahstages = mats$ahstages, labels = new_labels)
     }
   }
   
@@ -2545,11 +2557,12 @@ elasticity3 <- function(mats, ...) UseMethod("elasticity3")
 #' simulation. Defaults to 10,000.
 #' @param time_weights Numeric vector denoting the probabilistic weightings of
 #' annual matrices. Defaults to equal weighting among occasions.
-#' @param force_sparse A text string indicating whether to use sparse matrix
-#' encoding (\code{"yes"}) or not (\code{"no"}) with standard matrix input.
-#' Defaults to \code{"auto"}, in which case sparse matrix encoding is used with
-#' square matrices with at least 50 rows and no more than 50\% of elements with
-#' values greater than zero.
+#' @param sparse A text string indicating whether to use sparse matrix encoding
+#' (\code{"yes"}) or not (\code{"no"}) with standard matrix input. Defaults to
+#' \code{"auto"}, in which case sparse matrix encoding is used with square
+#' matrices with at least 50 rows and no more than 50\% of elements with values
+#' greater than zero. Note that sparse matrix is used regardless if the input
+#' MPM is in sparse matrix format.
 #' @param append_mats A logical value indicating whether to include the original
 #' A, U, and F matrices in the output \code{lefkoElas} object.
 #' @param ... Other parameters.
@@ -2678,7 +2691,7 @@ elasticity3 <- function(mats, ...) UseMethod("elasticity3")
 #' 
 #' @export
 elasticity3.lefkoMat <- function(mats, stochastic = FALSE, steps = 10000,
-  time_weights = NA, force_sparse = "auto", append_mats = FALSE, ...) {
+  time_weights = NA, sparse = "auto", append_mats = FALSE, ...) {
   
   sparsemethod <- 0
   sparse_input <- FALSE
@@ -2686,13 +2699,13 @@ elasticity3.lefkoMat <- function(mats, stochastic = FALSE, steps = 10000,
   if (is(mats$A[[1]], "dgCMatrix")) sparse_input <- TRUE
   
   if (!sparse_input) {
-    if (is.logical(force_sparse)) {
-      if (force_sparse) {
+    if (is.logical(sparse)) {
+      if (sparse) {
         sparsemethod <- 1
       } else sparsemethod <- 0
-    } else if (is.element(tolower(force_sparse), c("y", "yes", "yea", "yeah", "t", "true", "ja", "tak"))) {
+    } else if (is.element(tolower(sparse), c("y", "yes", "yea", "yeah", "t", "true", "ja", "tak"))) {
       sparsemethod <- 1
-    } else if (is.element(tolower(force_sparse), c("n", "no", "non", "nah", "f", "false", "nein", "nie"))) {
+    } else if (is.element(tolower(sparse), c("n", "no", "non", "nah", "f", "false", "nein", "nie"))) {
       sparsemethod <- 0
     } else {
       elements_total <- length(mats$A[[1]])
@@ -2740,12 +2753,16 @@ elasticity3.lefkoMat <- function(mats, stochastic = FALSE, steps = 10000,
       multiplier <- length(mats$A)
     } else multiplier <- 1
     
+    hlabels <- mats$hstages
+    ahlabels <- mats$ahstages
+    new_labels <- mats$labels
+    
     if (all(is.na(mats$hstages))) {
       
       ahlabels <- mats$ahstages #Originally only the first two columns
       
       output <- list(h_elasmats = NULL, ah_elasmats = baldrick, hstages = NULL,
-        agestages = mats$agestages, ahstages = ahlabels)
+        agestages = mats$agestages, ahstages = ahlabels, labels = new_labels)
     } else {
       
       he_list <- lapply(baldrick, function(X) {X$h_emat})
@@ -2755,7 +2772,8 @@ elasticity3.lefkoMat <- function(mats, stochastic = FALSE, steps = 10000,
       ahlabels <- mats$ahstages #Originally only the first two columns
       
       output <- list(h_elasmats = he_list, ah_elasmats = ahe_list, 
-        hstages = hlabels, agestages = mats$agestages, ahstages = ahlabels)
+        hstages = hlabels, agestages = mats$agestages, ahstages = ahlabels,
+        labels = new_labels)
     }
   } else {
     # Stochastic elasticity analysis
@@ -2767,14 +2785,25 @@ elasticity3.lefkoMat <- function(mats, stochastic = FALSE, steps = 10000,
         style = 2, sparsemethod) 
     }
     
+    old_labels <- mats$labels
+    old_labels$concat <- paste(old_labels$pop, old_labels$patch)
+    labs_unique <- unique(old_labels$concat)
+    lab_indices <- apply(as.matrix(labs_unique), 1, function(X) {
+      found_guys <- which(old_labels$concat == X)
+      min_guy <- min(found_guys)
+      
+      return(min_guy)
+    })
+    new_labels <- mats$labels[lab_indices, c(1, 2)]
+    
     if (!all(is.na(mats$hstages))) {
       output <- list(h_elasmats = returned_cubes[[1]], ah_elasmats = returned_cubes[[2]],
         hstages = mats$hstages, agestages = mats$agestages, 
-        ahstages = mats$ahstages)
+        ahstages = mats$ahstages, labels = new_labels)
     } else {
       output <- list(h_elasmats = NULL, ah_elasmats = returned_cubes[[1]],
         hstages = mats$hstages, agestages = mats$agestages, 
-        ahstages = mats$ahstages)
+        ahstages = mats$ahstages, labels = new_labels)
     }
   }
   
