@@ -1,4 +1,4 @@
-# lefko3 6.1.1 (2023-09-XX)
+# lefko3 6.1.1 (2023-10-13)
 
 ## NEW FEATURES
 
@@ -7,8 +7,16 @@
 
 ## BUG FIXES
 
+* Function density_input() no longer throws an error when using shorthand
+  stage group designations with age-by-stage MPMs.
+  
 * Functions sensitivity3() and elasticity3() no longer produce zero division
   errors in some stochastic runs with sparse matrix output.
+  
+* Fixed indexing issue affecting propagation of multipliers for supplement
+  tables used in function-based and raw Leslie MPMs.
+  
+* Fixed package documentation.
 
 # lefko3 6.1.0 (2023-07-08)
 

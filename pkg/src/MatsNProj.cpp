@@ -3728,9 +3728,9 @@ Rcpp::List minorpatrolgroup(const DataFrame& MainData,
           }
           
           if (proxy_col >= (noages - 1) && cont) {
-            proxy_row = target_col;
+            proxy_row = proxy_col; // Used to be target_col
           } else {
-            proxy_row = target_col + 1;
+            proxy_row = proxy_col + 1;
           }
           
           tmatrix(target_row, target_col) = tmatrix(proxy_row, proxy_col);
