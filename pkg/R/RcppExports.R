@@ -2596,6 +2596,10 @@ f_projection3 <- function(format, prebreeding = TRUE, start_age = NA_integer_, l
 #' either historical or ahistorical. If provided as historical, then
 #' a historical MPM must be estimated.
 #' 
+#' If neither a supplement nor a reproduction matrix are used, and the MPM
+#' to create is stage-based, then fecundity will be assumed to occur from all
+#' reproductive stages to all propagule and immature stages.
+#' 
 #' @section Function-based MPM Notes:
 #' Users may at times wish to estimate MPMs using a dataset incorporating
 #' multiple patches or subpopulations, but without discriminating between those

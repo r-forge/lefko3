@@ -89,9 +89,11 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
   StringVector stage3_supp;
   StringVector stage2_supp;
   StringVector stage1_supp;
+  NumericVector age2_supp;
   StringVector eststage3_supp;
   StringVector eststage2_supp;
   StringVector eststage1_supp;
+  NumericVector estage2_supp;
   NumericVector givenrate_supp;
   NumericVector multiplier_supp;
   IntegerVector convtype_supp;
@@ -276,11 +278,15 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
       repmatrix_true = token_mat;
     }
   } else {
+    int count_of_offspring_stages {0};
+    
     for (int i = 0; i < stageframe_length; i++) {
       if (propvec(i) > 0) {
         repentryvec(i) = 1;
+        count_of_offspring_stages++;
       } else if (immvec(i) > 0) {
         repentryvec(i) = 1;
+        count_of_offspring_stages++;
       }
     }
     
@@ -289,6 +295,12 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
       repentryvec(0) = 1;
       String eat_my_shorts = "No information on reproductive entry stages provided. Assuming ";
       String eat_my_shorts1 = "the first stage is the entry stage into the life cycle.\n";
+      eat_my_shorts += eat_my_shorts1;
+      
+      Rf_warningcall(R_NilValue, eat_my_shorts.get_cstring());
+    } else {
+      String eat_my_shorts = "No supplement or reproductiver matrix provided. Will infer ";
+      String eat_my_shorts1 = "fecundity as yielding all propagule and immature stages.\n";
       eat_my_shorts += eat_my_shorts1;
       
       Rf_warningcall(R_NilValue, eat_my_shorts.get_cstring());
@@ -307,6 +319,74 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
       }
     }
     repmatrix_true = token_mat;
+    
+    // Build new supplement for this case
+    StringVector novel_stage3 (count_of_offspring_stages);
+    StringVector novel_stage2 (count_of_offspring_stages);
+    StringVector novel_stage1 (count_of_offspring_stages);
+    IntegerVector novel_convtype_t12 (count_of_offspring_stages);
+    NumericVector novel_age2 (count_of_offspring_stages);
+    StringVector novel_eststage3 (count_of_offspring_stages);
+    StringVector novel_eststage2 (count_of_offspring_stages);
+    StringVector novel_eststage1 (count_of_offspring_stages);
+    NumericVector novel_estage2 (count_of_offspring_stages);
+    NumericVector novel_givenrate (count_of_offspring_stages);
+    NumericVector novel_multiplier (count_of_offspring_stages);
+    IntegerVector novel_convtype (count_of_offspring_stages);
+    
+    int place_counter {0};
+    
+    for (int i = 0; i < stageframe_length; i++) { 
+      if (repentryvec(i) == 1) {
+        novel_stage3(place_counter) = String(stagevec(i));
+        novel_stage2(place_counter) = "rep";
+        
+        if (historical) {
+          novel_stage1(place_counter) = "all";
+          novel_convtype_t12(place_counter) = 1;
+        } else {
+          novel_stage1(place_counter) = NA_STRING;
+          novel_convtype_t12(place_counter) = NA_INTEGER;
+        }
+        
+        novel_age2(place_counter) = NA_REAL;
+      
+        novel_eststage3(place_counter) = NA_STRING;
+        novel_eststage2(place_counter) = NA_STRING;
+        novel_eststage1(place_counter) = NA_STRING;
+        novel_estage2(place_counter) = NA_REAL;
+        
+        novel_givenrate(place_counter) = NA_REAL;
+        novel_multiplier(place_counter) = 1.0;
+        novel_convtype(place_counter) = 3;
+        
+        place_counter++;
+      }
+    }
+    
+    Rcpp::DataFrame supplement_thru = DataFrame::create(_["stage3"] = novel_stage3,
+      _["stage2"] = novel_stage2, _["stage1"] = novel_stage1, _["age2"] = novel_age2,
+      _["eststage3"] =  novel_eststage3, _["eststage2"] =  novel_eststage2,
+      _["eststage1"] = novel_eststage1, _["estage2"] = novel_estage2,
+      _["givenrate"] = novel_givenrate, _["multiplier"] = novel_multiplier,
+      _["convtype"] = novel_convtype, _["convtype_t12"] = novel_convtype_t12);
+    
+    supplement_true = supplement_thru;
+    
+    stage3_supp = novel_stage3;
+    stage2_supp = novel_stage2;
+    stage1_supp = novel_stage1;
+    age2_supp = novel_age2;
+    eststage3_supp = novel_eststage3;
+    eststage2_supp = novel_eststage2;
+    eststage1_supp = novel_eststage1;
+    estage2_supp = novel_estage2;
+    givenrate_supp = novel_givenrate;
+    multiplier_supp = novel_multiplier;
+    convtype_supp = novel_convtype;
+    convtype_t12_supp = novel_convtype_t12;
+    
+    supp_provided = true;
   }
   
   // Reorder stageframe
@@ -570,7 +650,7 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
   
   if (supp_provided) {
     DataFrame newsupplement = LefkoMats::supp_reassess(newstageframe, historical,
-      supplement, overwrite);
+      supplement_true, overwrite);
     
     return Rcpp::List::create(_["stageframe"] = newstageframe,
       _["repmatrix"] = repmat2, _["ovtable"] = newsupplement);
@@ -10376,6 +10456,10 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
 //' If used, the reproduction matrix (field \code{repmatrix}) may be supplied as
 //' either historical or ahistorical. If provided as historical, then
 //' a historical MPM must be estimated.
+//' 
+//' If neither a supplement nor a reproduction matrix are used, and the MPM
+//' to create is stage-based, then fecundity will be assumed to occur from all
+//' reproductive stages to all propagule and immature stages.
 //' 
 //' @section Function-based MPM Notes:
 //' Users may at times wish to estimate MPMs using a dataset incorporating

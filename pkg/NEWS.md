@@ -1,3 +1,9 @@
+# lefko3 6.1.2 (2023-XX-XX)
+
+## BUG FIXES
+
+* All MPMs can now be estimated without supplemental tables.
+
 # lefko3 6.1.1 (2023-10-13)
 
 ## NEW FEATURES
