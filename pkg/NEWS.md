@@ -4,6 +4,9 @@
 
 * All MPMs can now be estimated without supplemental tables.
 
+* Functions add_lM(), delete_lM(), and subset_lM() no longer fail with sparse
+  matrices.
+
 # lefko3 6.1.1 (2023-10-13)
 
 ## NEW FEATURES

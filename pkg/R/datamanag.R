@@ -2090,11 +2090,11 @@ historicalize3 <- function(data, popidcol = 0, patchidcol = 0, individcol,
     })
     
     Utrans <- sum(apply(as.matrix(c(1:mat_length)), 1, function(X) {
-      length(which(U[[X]] > 0))
+      length(which(as.matrix(U[[X]]) > 0))
     }))
     
     Ftrans <- sum(apply(as.matrix(c(1:mat_length)), 1, function(X) {
-      length(which(F[[X]] > 0))
+      length(which(as.matrix(F[[X]]) > 0))
     }))
     
     matrixqc[1] <- Utrans
@@ -2105,7 +2105,7 @@ historicalize3 <- function(data, popidcol = 0, patchidcol = 0, individcol,
     F <- NA
     
     Atrans <- sum(apply(as.matrix(c(1:mat_length)), 1, function(X) {
-      length(which(mats[[X]] > 0))
+      length(which(as.matrix(mats[[X]]) > 0))
     }))
     
     matrixqc[1] <- Atrans
@@ -2762,10 +2762,10 @@ add_lM <- function(lM, Amats = NA, Umats = NA, Fmats = NA, UFdecomp = FALSE,
   lM$F <- append(lM$F, Fmats)
   
   surv_additions <- sum(unlist(lapply(Umats, function(X) {
-    length(which(X > 0))
+    length(which(as.matrix(X) > 0))
   })))
   fec_additions <- sum(unlist(lapply(Fmats, function(X) {
-    length(which(X > 0))
+    length(which(as.matrix(X) > 0))
   })))
   
   lM$matrixqc[1] <- lM$matrixqc[1] + surv_additions
@@ -2932,10 +2932,10 @@ delete_lM <- function(lM, mat_num = NA, pop = NA, patch = NA, year = NA) {
   lM$F <- lM$F[-mat_num]
   
   surv_portions <- sum(unlist(lapply(lM$U, function(X) {
-    length(which(X > 0))
+    length(which(as.matrix(X) > 0))
   })))
   fec_portions <- sum(unlist(lapply(lM$F, function(X) {
-    length(which(X > 0))
+    length(which(as.matrix(X) > 0))
   })))
   
   lM$matrixqc[1] <- surv_portions
@@ -3221,10 +3221,10 @@ subset_lM <- function(lM, mat_num = NA, pop = NA, patch = NA, year = NA) {
   lM$F <- lM$F[mat_num]
   
   surv_portions <- sum(unlist(lapply(lM$U, function(X) {
-    length(which(X > 0))
+    length(which(as.matrix(X) > 0))
   })))
   fec_portions <- sum(unlist(lapply(lM$F, function(X) {
-    length(which(X > 0))
+    length(which(as.matrix(X) > 0))
   })))
   
   lM$matrixqc[1] <- surv_portions
