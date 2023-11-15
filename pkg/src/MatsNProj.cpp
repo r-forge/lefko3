@@ -299,7 +299,7 @@ Rcpp::List sf_reassess(const DataFrame& stageframe,
       
       Rf_warningcall(R_NilValue, eat_my_shorts.get_cstring());
     } else {
-      String eat_my_shorts = "No supplement or reproductiver matrix provided. Will infer ";
+      String eat_my_shorts = "No supplement or reproductive matrix provided. Will infer ";
       String eat_my_shorts1 = "fecundity as yielding all propagule and immature stages.\n";
       eat_my_shorts += eat_my_shorts1;
       
