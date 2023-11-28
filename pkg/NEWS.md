@@ -4,6 +4,10 @@
 
 * Function create_lM() can now handle both regular and sparse matrices.
 
+## USER VISIBLE CHANGES
+
+* Some warning and error messages have been simplified.
+
 # lefko3 6.1.2 (2023-11-07)
 
 ## BUG FIXES
