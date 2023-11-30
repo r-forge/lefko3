@@ -2,6 +2,9 @@
 
 ## NEW FEATURES
 
+* Function markov_run() created to allow 1st order Markovian temporally
+  stochastic simulations.
+  
 * Function create_lM() can now handle both regular and sparse matrices.
 
 ## USER VISIBLE CHANGES

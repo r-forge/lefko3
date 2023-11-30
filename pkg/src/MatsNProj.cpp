@@ -21507,3 +21507,191 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
   return output_now;
 }
 
+//' Creates Vector of Times Based on First-Order Markov Transition Matrix
+//' 
+//' Creates a vector of randomly sampled years / times to be used in projection.
+//' Random sampling requires a 1st order Markovian transition matrix, showing
+//' the probability of transitioning to each time from each time. Note that this
+//' function is not required if the probability of transitioning to a particular
+//' time does not vary with time.
+//' 
+//' @name markov_run
+//' 
+//' @param main_times An integer vector giving the years / times to use.
+//' @param mat A matrix giving the transition probabilities from each time to
+//' each time. Must have the same number of columns and rows as there are
+//' elements in vector \code{times}.
+//' @param times The number of times to project forward. Defaults to 10000.
+//' @param start The start time to use. Defaults to the first time in vector
+//' \code{main_times}.
+//' 
+//' @return An integer vector giving the order of times / years to use in
+//' projection. This can be used as input in the \code{year} option in
+//' functions \code{\link{projection3}()} and \code{\link{f_projection3}()}.
+//' 
+//' @seealso \code{\link{projection3}()}
+//' @seealso \code{\link{f_projection3}()}
+//' 
+//' @examples
+//' # Cypripedium example
+//' data(cypdata)
+//'  
+//' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
+//' stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
+//'   "XLg")
+//' repvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
+//' obsvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
+//' matvector <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
+//' immvector <- c(0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
+//' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+//' indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
+//' binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 2.5, 7)
+//' 
+//' cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector,
+//'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector, 
+//'   propstatus = propvector, immstatus = immvector, indataset = indataset,
+//'   binhalfwidth = binvec)
+//' 
+//' cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
+//'   patchidcol = "patch", individcol = "plantid", blocksize = 4, 
+//'   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04", 
+//'   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
+//'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE, 
+//'   NRasRep = TRUE)
+//' 
+//' cypsupp3r <- supplemental(stage3 = c("SD", "SD", "P1", "P1", "P2", "P3", "SL",
+//'     "D", "XSm", "Sm", "D", "XSm", "Sm", "mat", "mat", "mat", "SD", "P1"),
+//'   stage2 = c("SD", "SD", "SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "SL",
+//'     "SL", "SL", "D", "XSm", "Sm", "rep", "rep"),
+//'   stage1 = c("SD", "rep", "SD", "rep", "SD", "P1", "P2", "P3", "P3", "P3",
+//'     "SL", "SL", "SL", "SL", "SL", "SL", "mat", "mat"),
+//'   eststage3 = c(NA, NA, NA, NA, NA, NA, NA, "D", "XSm", "Sm", "D", "XSm", "Sm",
+//'     "mat", "mat", "mat", NA, NA),
+//'   eststage2 = c(NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", "XSm", "XSm",
+//'     "XSm", "D", "XSm", "Sm", NA, NA),
+//'   eststage1 = c(NA, NA, NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", "XSm", "XSm",
+//'     "XSm", "XSm", "XSm", "XSm", NA, NA),
+//'   givenrate = c(0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.25, NA, NA, NA, NA, NA, NA,
+//'     NA, NA, NA, NA, NA),
+//'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+//'     NA, 0.5, 0.5),
+//'   type = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+//'   type_t12 = c(1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+//'   stageframe = cypframe_raw, historical = TRUE)
+//' 
+//' cypmatrix3r <- rlefko3(data = cypraw_v1, stageframe = cypframe_raw, 
+//'   year = "all", stages = c("stage3", "stage2", "stage1"),
+//'   size = c("size3added", "size2added", "size1added"), 
+//'   supplement = cypsupp3r, yearcol = "year2", indivcol = "individ")
+//' 
+//' used_years <-c(2005, 2006, 2007, 2008)
+//' 
+//' yr_tx_vec <- c(0.4, 0.2, 0.2, 0.2, 0.2, 0.4, 0.2, 0.2, 0.2, 0.2, 0.4, 0.2,
+//'   0.2, 0.2, 0.2, 0.4)
+//' yr_tx_mat <- matrix(yr_tx_vec, 4, 4)
+//' 
+//' set.seed(1)
+//' cyp_markov_vec_1 <- markov_run(main_times = used_years, mat = yr_tx_mat,
+//'   times = 100)
+//' 
+//' set.seed(2)
+//' cyp_markov_vec_2 <- markov_run(main_times = used_years, mat = yr_tx_mat,
+//'   times = 100)
+//' 
+//' set.seed(3)
+//' cyp_markov_vec_3 <- markov_run(main_times = used_years, mat = yr_tx_mat,
+//'   times = 100)
+//' 
+//' cypstoch_1 <- projection3(cypmatrix3r, nreps = 1, times = 100,
+//'   year = cyp_markov_vec_1)
+//' cypstoch_2 <- projection3(cypmatrix3r, nreps = 1, times = 100,
+//'   year = cyp_markov_vec_2)
+//' cypstoch_3 <- projection3(cypmatrix3r, nreps = 1, times = 100,
+//'   year = cyp_markov_vec_3)
+//' 
+//' @export markov_run
+// [[Rcpp::export(markov_run)]]
+Rcpp::IntegerVector markov_run(Rcpp::IntegerVector main_times,
+  Rcpp::NumericMatrix mat, int times = 10000,
+  Nullable<IntegerVector> start = R_NilValue) {
+  
+  int start_time {0};
+  bool start_time_found {false};
+  int start_position {0};
+  
+  int mat_rows = mat.nrow();
+  int mat_cols = mat.ncol();
+  int main_times_length = main_times.length();
+  
+  if (mat_rows != mat_cols) throw Rcpp::exception("Input matrix must be square.", false);
+  if (mat_rows != main_times_length) {
+    throw Rcpp::exception("Input matrix must have the same dimensions as the length of vector main_times.", 
+      false);
+  }
+  
+  if (start.isNotNull()) {
+    IntegerVector start_entered(start);
+    
+    if (start_entered.length() != 1) {
+      throw Rcpp::exception("Enter a single integer value for option start.", false);
+    }
+    
+    for (int i = 0; i < main_times_length; i++) {
+      if (main_times(i) == start_entered(0)) {
+        start_time_found = true;
+        start_position = i;
+        start_time = main_times(i);
+      }
+    }
+    
+    if (!start_time_found && start_entered(0) == 0) {
+      start_time_found = true;
+      start_position = 0;
+      start_time = main_times(0);
+    }
+  } else {
+    start_time_found = true;
+    start_position = 0;
+    start_time = main_times(0);
+  }
+  
+  if (!start_time_found) {
+    throw Rcpp::exception("Vector main_times does not include start_time value provided.",
+      false);
+  }
+  
+  // Matrix standardization
+  NumericVector mat_colsums (mat_rows);
+  for (int i = 0; i < mat_cols; i++) {
+    for (int j = 0; j < mat_rows; j++) {
+      if (j == 0) mat_colsums(i) = 0.0;
+      mat_colsums(i) += mat(j, i);
+    }
+  }
+  
+  for (int i = 0; i < mat_cols; i++) {
+    for (int j = 0; j < mat_rows; j++) {
+      mat(j, i) = mat(j, i) / mat_colsums(i);
+    }
+  }
+  
+  // Creation of output vector
+  IntegerVector out_vector (times);
+  IntegerVector time_pulled_vec;
+  int time_pulled;
+  IntegerVector choices = Rcpp::seq(0, (main_times_length - 1));
+  
+  out_vector(0) = start_time;
+  for (int i = 1; i < times; i++) {
+    NumericVector mat_col_used = mat(_, start_position);
+    arma::vec arma_mat_col_used = arma::mat(mat_col_used);
+    time_pulled_vec = Rcpp::RcppArmadillo::sample(choices, 1, true, mat_col_used);
+    time_pulled = time_pulled_vec(0);
+    
+    out_vector(i) = main_times(time_pulled);
+    start_position = time_pulled;
+  }
+  
+  return (out_vector);
+}
+
