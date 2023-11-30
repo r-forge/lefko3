@@ -1,4 +1,4 @@
-# lefko3 6.1.3 (2023-XX-XX)
+# lefko3 6.1.3 (2023-11-30)
 
 ## NEW FEATURES
 
@@ -10,6 +10,11 @@
 ## USER VISIBLE CHANGES
 
 * Some warning and error messages have been simplified.
+
+## BUG FIXES
+
+* Function projection3() no longer crashes when using a fixed vector of year
+  inputs with lefkoMat objects holding patch-level MPMs.
 
 # lefko3 6.1.2 (2023-11-07)
 

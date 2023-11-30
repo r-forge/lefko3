@@ -17813,8 +17813,8 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
       arma::uvec pre_prophecy (theclairvoyant, fill::zeros);
       if (year_override) {
         for (int j = 0; j < theclairvoyant; j++) {
-          IntegerVector tnb_year_indices_IV = match(as<StringVector>(years_forward(j)),
-            yearorder) - 1;
+          IntegerVector tnb_year_indices_IV = (match(as<StringVector>(years_forward(j)),
+            yearorder) - 1) + (i * yl);
           arma::uvec tnb_year_indices = as<arma::uvec>(tnb_year_indices_IV);
           arma::uvec year_patch_intersect = intersect(thenumbersofthebeast,
             tnb_year_indices);
