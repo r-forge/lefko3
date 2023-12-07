@@ -1613,3 +1613,498 @@ RObject lambda3(RObject& mpm, Nullable<RObject> force_sparse = R_NilValue) {
   
   return output;
 }
+
+//' Arranges Matrix Elements in Order of Magnitude for Interpretation
+//' 
+//' Function \code{matrix_interp} summarizes matrices from \code{lefkoMat},
+//' \code{lefkoSens}, \code{lefkoElas}, and \code{lefkoLTRE} objects in terms
+//' of the magnitudes of their elements.
+//' 
+//' @name matrix_interp
+//' 
+//' @param object A list object in one of \code{lefko3}'s output formats. These
+//' may include \code{lefkoMat}, \code{lefkoSens}, \code{lefkoElas}, and
+//' \code{lefkoLTRE} objects.
+//' @param mat_chosen The number of the matrix to assess, within the appropriate
+//' matrix list. See \code{Notes} for further details.
+//' @param part An integer noting whether to provide assessments of which of the
+//' main types of matrices to analyze. In a standard \code{lefkoMat} object, the
+//' integers \code{1}, \code{2}, and \code{3} correspond to the \code{A},
+//' \code{U}, and \code{F} lists, respectively. In \code{lefkoSens} and
+//' \code{lefkoElas} objects, the integers \code{1} and \code{2} correspond to
+//' the ahistorical matrix sets and the historical matrix sets, respectively.
+//' In deterministic and stochastic \code{lefkoLTRE} objects, the integers
+//' \code{1} and \code{2} correspond to the \code{cont_mean} and \code{cont_sd}
+//' lists, respectively.
+//' @param type An integer corresponding to the type of order summary, including
+//' most to least positive (\code{1}), most to least negative (\code{2}), and
+//' greatest to lowest absolute magnitude (\code{3}). Defaults to type \code{3}.
+//' 
+//' @return A data frame arranging all elements in the matrix chosen from
+//' greatest and smallest. This can be a data frame of only positive elements,
+//' of only negative elements, or all elements in order of absolute magnitude.
+//' 
+//' @section Notes:
+//' This will be the number of the matrix within the list that it is held in.
+//' For example, if the function is applied to the \code{cont_sd} portion of
+//' a stochastic LTRE, and there are four LTRE matrices within that list element
+//' corresponding to three patch LTRE matrices and one overall population-level
+//' LTRE matrix, then setting this value to \code{4} would focus the function on
+//' the overall population-level LTRE matrix associated with contributions of
+//' the standard deviations of elements.
+//' 
+//' Huge sparse matrices may take more time to process than small, dense
+//' matrices.
+//' 
+//' @examples
+//' data(cypdata)
+//' 
+//' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
+//' stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
+//'   "XLg")
+//' repvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
+//' obsvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
+//' matvector <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
+//' immvector <- c(0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
+//' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+//' indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
+//' binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 2.5, 7)
+//' 
+//' cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector,
+//'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
+//'   propstatus = propvector, immstatus = immvector, indataset = indataset,
+//'   binhalfwidth = binvec)
+//' 
+//' cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
+//'   patchidcol = "patch", individcol = "plantid", blocksize = 4,
+//'   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04",
+//'   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
+//'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
+//'   NRasRep = TRUE)
+//' 
+//' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
+//'     "XSm", "Sm", "SD", "P1"),
+//'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
+//'     "rep"),
+//'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+//'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+//'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+//'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+//'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+//'   stageframe = cypframe_raw, historical = FALSE)
+//' 
+//' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
+//'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
+//'   size = c("size3added", "size2added"), supplement = cypsupp2r,
+//'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
+//' 
+//' aaa <- ltre3(cypmatrix2r, stochastic = TRUE)
+//' 
+//' matrix_interp(aaa, mat_chosen = 1, part = 2, type = 3)
+//' 
+//' @export matrix_interp
+// [[Rcpp::export(matrix_interp)]]
+Rcpp::DataFrame matrix_interp (Rcpp::List object, int mat_chosen = 1,
+  int part = 1, int type = 3) {
+  
+  CharacterVector object_class = object.attr("class");
+  int class_num = object_class.length();
+  
+  Rcpp::DataFrame stageframe = DataFrame(object["ahstages"]); 
+  Rcpp::DataFrame hstages = DataFrame(object["hstages"]);
+  Rcpp::DataFrame agestages = DataFrame(object["agestages"]);
+  
+  Rcpp::NumericMatrix mat;
+  arma::sp_mat smat;
+  
+  bool sparse_mat {false};
+  
+  for (int i = 0; i < class_num; i++) {
+    if (stringcompare_hard(as<std::string>(object_class(i)), "lefkoLTRE")) {
+      if (part == 1) {
+        Rcpp::List mat_list = object["cont_mean"];
+        
+        RObject the_chosen_one = RObject(mat_list[(mat_chosen - 1)]);
+        
+        if (is<S4>(the_chosen_one)) {
+          smat = as<arma::sp_mat>(the_chosen_one);
+          sparse_mat = true;
+        } else {
+          mat = NumericMatrix(mat_list[(mat_chosen - 1)]);
+        }
+      } else if (part == 2) {
+        Rcpp::List mat_list = object["cont_sd"];
+        
+        RObject the_chosen_one = RObject(mat_list[(mat_chosen - 1)]);
+        
+        if (is<S4>(the_chosen_one)) {
+          smat = as<arma::sp_mat>(the_chosen_one);
+          sparse_mat = true;
+        } else {
+          mat = NumericMatrix(mat_list[(mat_chosen - 1)]);
+        }
+      }
+    } else if (stringcompare_hard(as<std::string>(object_class(i)), "lefkoElas")) {
+      if (part == 1) {
+        Rcpp::List mat_list = object["ah_elasmats"];
+        
+        RObject the_chosen_one = RObject(mat_list[(mat_chosen - 1)]);
+        
+        if (is<S4>(the_chosen_one)) {
+          smat = as<arma::sp_mat>(the_chosen_one);
+          sparse_mat = true;
+        } else {
+          mat = NumericMatrix(mat_list[(mat_chosen - 1)]);
+        }
+      } else if (part == 2) {
+        Rcpp::List mat_list = object["h_elasmats"];
+        
+        RObject the_chosen_one = RObject(mat_list[(mat_chosen - 1)]);
+        
+        if (is<S4>(the_chosen_one)) {
+          smat = as<arma::sp_mat>(the_chosen_one);
+          sparse_mat = true;
+        } else {
+          mat = NumericMatrix(mat_list[(mat_chosen - 1)]);
+        }
+      }
+    } else if (stringcompare_hard(as<std::string>(object_class(i)), "lefkoSens")) {
+      if (part == 1) {
+        Rcpp::List mat_list = object["ah_sensmats"];
+        
+        RObject the_chosen_one = RObject(mat_list[(mat_chosen - 1)]);
+        
+        if (is<S4>(the_chosen_one)) {
+          smat = as<arma::sp_mat>(the_chosen_one);
+          sparse_mat = true;
+        } else {
+          mat = NumericMatrix(mat_list[(mat_chosen - 1)]);
+        }
+      } else if (part == 2) {
+        Rcpp::List mat_list = object["h_sensmats"];
+        
+        RObject the_chosen_one = RObject(mat_list[(mat_chosen - 1)]);
+        
+        if (is<S4>(the_chosen_one)) {
+          smat = as<arma::sp_mat>(the_chosen_one);
+          sparse_mat = true;
+        } else {
+          mat = NumericMatrix(mat_list[(mat_chosen - 1)]);
+        }
+      }
+    } else {
+      if (part == 1) {
+        Rcpp::List mat_list = object["A"];
+        
+        RObject the_chosen_one = RObject(mat_list[(mat_chosen - 1)]);
+        
+        if (is<S4>(the_chosen_one)) {
+          smat = as<arma::sp_mat>(the_chosen_one);
+          sparse_mat = true;
+        } else {
+          mat = NumericMatrix(mat_list[(mat_chosen - 1)]);
+        }
+      } else if (part == 2) {
+        Rcpp::List mat_list = object["U"];
+        
+        RObject the_chosen_one = RObject(mat_list[(mat_chosen - 1)]);
+        
+        if (is<S4>(the_chosen_one)) {
+          smat = as<arma::sp_mat>(the_chosen_one);
+          sparse_mat = true;
+        } else {
+          mat = NumericMatrix(mat_list[(mat_chosen - 1)]);
+        }
+      } else if (part == 3) {
+        Rcpp::List mat_list = object["F"];
+        
+        RObject the_chosen_one = RObject(mat_list[(mat_chosen - 1)]);
+        
+        if (is<S4>(the_chosen_one)) {
+          smat = as<arma::sp_mat>(the_chosen_one);
+          sparse_mat = true;
+        } else {
+          mat = NumericMatrix(mat_list[(mat_chosen - 1)]);
+        }
+      }
+    }
+  }
+  
+  int mat_rows {0};
+  int mat_cols {0};
+  int smat_points {0};
+  int mat_negs {0};
+  int mat_poss {0};
+  
+  arma::umat smat_loc_mat;
+  arma::vec smat_values;
+  
+  if (!sparse_mat) {
+    mat_rows = mat.nrow();
+    mat_cols = mat.ncol();
+  } else {
+    mat_rows = smat.n_rows;
+    mat_cols = smat.n_cols;
+  }
+  
+  if (!sparse_mat) {
+    for (int i_row = 0; i_row < mat_rows; i_row++) {
+      Rcpp::checkUserInterrupt();
+      for (int j_col = 0; j_col < mat_cols; j_col++) {
+        double test_value = static_cast<double>(mat(i_row, j_col));
+        
+        if (test_value > 0.0) {
+          mat_poss++;
+        } else if (test_value < 0.0) {
+          mat_negs++;
+        }
+      }
+    }
+  } else {
+    // Sparse matrix element counter
+    // Based on code from post of Coatless Professor at
+    // https://stackoverflow.com/questions/40222092/access-and-modify-the-non-zero-elements-of-sparse-matrix-of-class-armasp-mat-u
+    arma::sp_mat::const_iterator smat_start = smat.begin();
+    arma::sp_mat::const_iterator smat_end = smat.end();
+    
+    smat_points = std::distance(smat_start, smat_end);
+    if (smat_points <= 0) {
+      throw Rcpp::exception("Sparse matrix contains no non-zero elements.",
+        false);
+    }
+    
+    arma::umat smat_locs (2, smat_points);
+    arma::uvec temp (2);
+    arma::vec temp_values (smat_points);
+    
+    arma::sp_mat::const_iterator it = smat_start;
+    
+    for (int i = 0; i < smat_points; ++i) {
+      temp(0) = it.row();
+      temp(1) = it.col();
+      smat_locs.col(i) = temp;
+      
+      double smat_entry = static_cast<double>(smat(it.row(), it.col()));
+      temp_values(i) = smat_entry;
+      
+      if (smat_entry > 0.0) {
+        mat_poss++;
+      } else if (smat_entry < 0.0) {
+        mat_negs++;
+      }
+      ++it;
+    }
+    
+    smat_loc_mat = smat_locs;
+    smat_values = temp_values;
+  }
+  
+  int used_elem_nums {0};
+  
+  if (type == 1) {
+    used_elem_nums = mat_poss;
+  } else if (type == 2) {
+    used_elem_nums = mat_negs;
+  } else {
+    used_elem_nums = mat_poss + mat_negs;
+  }
+  
+  // Appropriate col & vec indices
+  int hstages_cols = hstages.length();
+  int agestages_cols = agestages.length();
+  
+  Rcpp::StringVector main_stage_vector;
+  
+  if (agestages_cols > 1) {
+    StringVector all_stages = agestages["stage"];
+    StringVector all_ages = agestages["age"];
+    int all_age_stages_num = all_stages.length();
+    
+    StringVector new_age_stages (all_age_stages_num);
+    
+    for (int i = 0; i < all_age_stages_num; i++) {
+      String new_jack = all_stages(i);
+      new_jack += "  age ";
+      new_jack += all_ages(i);
+      
+      new_age_stages(i) = new_jack;
+    }
+    
+    main_stage_vector = new_age_stages;
+  } else if (hstages_cols > 1) {
+    StringVector all_stage1 = hstages["stage_1"];
+    StringVector all_stage2 = hstages["stage_2"];
+    int all_stage_pairs_num = all_stage1.length();
+    
+    StringVector new_paired_stages (all_stage_pairs_num);
+    
+    for (int i = 0; i < all_stage_pairs_num; i++) {
+      String new_jack = "st2: ";
+      new_jack += all_stage2(i);
+      new_jack += "  st1: ";
+      new_jack += all_stage1(i);
+      
+      new_paired_stages(i) = new_jack;
+    }
+    
+    main_stage_vector = new_paired_stages;
+  } else {
+    StringVector all_stages = stageframe["stage"];
+    
+    main_stage_vector = all_stages;
+  }
+  
+  
+  // Creation of major vectors
+  Rcpp::StringVector found_from_stage (used_elem_nums);
+  Rcpp::StringVector found_to_stage (used_elem_nums);
+  Rcpp::NumericVector found_elems_current_values (used_elem_nums);
+  Rcpp::NumericVector found_elems_test_values (used_elem_nums);
+  Rcpp::IntegerVector found_elems_cols (used_elem_nums);
+  Rcpp::IntegerVector found_elems_rows (used_elem_nums);
+  Rcpp::IntegerVector found_elems_indices (used_elem_nums);
+  
+  if (!sparse_mat) {
+    if (used_elem_nums > 0) {
+      int sorted_elem_counter {0};
+      for (int j_col = 0; j_col < mat_cols; j_col++) {
+        Rcpp::checkUserInterrupt();
+        for (int i_row = 0; i_row < mat_rows; i_row++) {
+          double current_value = static_cast<double>(mat(i_row, j_col));
+          double test_value = current_value;
+          
+          if (test_value < 0.0 && type != 1) test_value = test_value * -1.0;
+          
+          if ((test_value > 0.0 && type != 2) || (current_value < 0.0 && type == 2)) {
+            if (sorted_elem_counter == 0) {
+              found_elems_current_values(0) = current_value;
+              found_elems_test_values(0) = test_value;
+              
+              found_from_stage(0) = main_stage_vector(j_col);
+              found_to_stage(0) = main_stage_vector(i_row);
+              found_elems_cols(0) = j_col + 1;
+              found_elems_rows(0) = i_row + 1;
+              found_elems_indices(0) = (j_col * mat_rows) + i_row + 1;
+            } else {
+              bool found_slot {false};
+              int new_slot {0};
+              
+              for (int k = 0; k < used_elem_nums; k++) {
+                if (test_value >= found_elems_test_values(k) && !found_slot) {
+                  new_slot = k;
+                  found_slot = true;
+                }
+              }
+              
+              if (sorted_elem_counter == 1 && !found_slot &&
+                  sorted_elem_counter < used_elem_nums) {
+                new_slot = 1;
+                found_slot = true;
+              }
+              
+              if (found_slot) {
+                for (int k = (used_elem_nums - 2); k >= new_slot ; k--) {
+                  found_elems_test_values(k+1) = found_elems_test_values(k);
+                  found_elems_current_values(k+1) = found_elems_current_values(k);
+                  
+                  found_from_stage(k+1) = found_from_stage(k);
+                  found_to_stage(k+1) = found_to_stage(k);
+                  found_elems_cols(k+1) = found_elems_cols(k);
+                  found_elems_rows(k+1) = found_elems_rows(k);
+                  found_elems_indices(k+1) = found_elems_indices(k);
+                }
+                found_elems_test_values(new_slot) = test_value;
+                found_elems_current_values(new_slot) = current_value;
+                
+                found_from_stage(new_slot) = main_stage_vector(j_col);
+                found_to_stage(new_slot) = main_stage_vector(i_row);
+                found_elems_cols(new_slot) = j_col + 1;
+                found_elems_rows(new_slot) = i_row + 1;
+                found_elems_indices(new_slot) = (j_col * mat_rows) + i_row + 1;
+              }
+            }
+            sorted_elem_counter++;
+          }
+        }
+      }
+    }
+  } else {
+    if (used_elem_nums > 0) {
+      int sorted_elem_counter {0};
+      for (int point_track = 0; point_track < smat_points; point_track++) {
+        Rcpp::checkUserInterrupt();
+        
+        double current_value = static_cast<double>(smat_values(point_track));
+        double test_value = current_value;
+        
+        if (test_value < 0.0 && type != 1) test_value = test_value * -1.0;
+        
+        if ((test_value > 0.0 && type != 2) || (current_value < 0.0 && type == 2)) {
+          if (sorted_elem_counter == 0) {
+            found_elems_current_values(0) = current_value;
+            found_elems_test_values(0) = test_value;
+            
+            int current_row = smat_loc_mat(0, point_track);
+            int current_col = smat_loc_mat(1, point_track);
+            
+            found_from_stage(0) = main_stage_vector(current_col);
+            found_to_stage(0) = main_stage_vector(current_row );
+            found_elems_cols(0) = current_col + 1;
+            found_elems_rows(0) = current_row + 1;
+            found_elems_indices(0) = (current_col * mat_rows) + current_row + 1;
+          } else {
+            bool found_slot {false};
+            int new_slot {0};
+            
+            for (int k = 0; k < used_elem_nums; k++) {
+              if (test_value >= found_elems_test_values(k) && !found_slot) {
+                new_slot = k;
+                found_slot = true;
+              }
+            }
+            
+            if (sorted_elem_counter == 1 && !found_slot &&
+                sorted_elem_counter < used_elem_nums) {
+              new_slot = 1;
+              found_slot = true;
+            }
+            
+            if (found_slot) {
+              for (int k = (used_elem_nums - 2); k >= new_slot ; k--) {
+                found_elems_test_values(k+1) = found_elems_test_values(k);
+                found_elems_current_values(k+1) = found_elems_current_values(k);
+                
+                found_from_stage(k+1) = found_from_stage(k);
+                found_to_stage(k+1) = found_to_stage(k);
+                found_elems_cols(k+1) = found_elems_cols(k);
+                found_elems_rows(k+1) = found_elems_rows(k);
+                found_elems_indices(k+1) = found_elems_indices(k);
+              }
+              
+              found_elems_test_values(new_slot) = test_value;
+              found_elems_current_values(new_slot) = current_value;
+              
+              int current_row = smat_loc_mat(0, point_track);
+              int current_col = smat_loc_mat(1, point_track);
+            
+              found_from_stage(new_slot) = main_stage_vector(current_col);
+              found_to_stage(new_slot) = main_stage_vector(current_row);
+              found_elems_cols(new_slot) = current_col + 1;
+              found_elems_rows(new_slot) = current_row + 1;
+              found_elems_indices(new_slot) = (current_col * mat_rows) + current_row + 1;
+            }
+          }
+          sorted_elem_counter++;
+        }
+      }
+    }
+  }
+  
+  Rcpp::DataFrame out_table = DataFrame::create(_["index"] = found_elems_indices,
+    _["from_stage"] = found_from_stage, _["to_stage"] = found_to_stage,
+    _["column"] = found_elems_cols, _["row"] = found_elems_rows,
+    _["value"] = found_elems_current_values);
+  
+  return(out_table);
+}
+

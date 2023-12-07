@@ -1083,6 +1083,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// matrix_interp
+Rcpp::DataFrame matrix_interp(Rcpp::List object, int mat_chosen, int part, int type);
+RcppExport SEXP _lefko3_matrix_interp(SEXP objectSEXP, SEXP mat_chosenSEXP, SEXP partSEXP, SEXP typeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type object(objectSEXP);
+    Rcpp::traits::input_parameter< int >::type mat_chosen(mat_chosenSEXP);
+    Rcpp::traits::input_parameter< int >::type part(partSEXP);
+    Rcpp::traits::input_parameter< int >::type type(typeSEXP);
+    rcpp_result_gen = Rcpp::wrap(matrix_interp(object, mat_chosen, part, type));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_lefko3_pfj", (DL_FUNC) &_lefko3_pfj, 42},
@@ -1140,6 +1154,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_lefko3_demolition3", (DL_FUNC) &_lefko3_demolition3, 4},
     {"_lefko3_demolition3sp", (DL_FUNC) &_lefko3_demolition3sp, 4},
     {"_lefko3_lambda3", (DL_FUNC) &_lefko3_lambda3, 2},
+    {"_lefko3_matrix_interp", (DL_FUNC) &_lefko3_matrix_interp, 4},
     {NULL, NULL, 0}
 };
 

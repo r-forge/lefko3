@@ -1,3 +1,10 @@
+# lefko3 6.2.0 (2023-XX-XX)
+
+## NEW FEATURES
+
+* Function matrix_interp() created to aid in summarizing results from analyses
+  of huge matrices.
+
 # lefko3 6.1.3 (2023-11-30)
 
 ## NEW FEATURES
