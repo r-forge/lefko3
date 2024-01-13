@@ -47,6 +47,9 @@ corresponding to three patch LTRE matrices and one overall population-level
 LTRE matrix, then setting this value to \code{4} would focus the function on
 the overall population-level LTRE matrix associated with contributions of
 the standard deviations of elements.
+
+Huge sparse matrices may take more time to process than small, dense
+matrices.
 }
 
 \examples{

@@ -5224,6 +5224,9 @@ lambda3 <- function(mpm, force_sparse = NULL) {
 #' the overall population-level LTRE matrix associated with contributions of
 #' the standard deviations of elements.
 #' 
+#' Huge sparse matrices may take more time to process than small, dense
+#' matrices.
+#' 
 #' @examples
 #' data(cypdata)
 #' 
@@ -5273,5 +5276,105 @@ lambda3 <- function(mpm, force_sparse = NULL) {
 #' @export matrix_interp
 matrix_interp <- function(object, mat_chosen = 1L, part = 1L, type = 3L) {
     .Call('_lefko3_matrix_interp', PACKAGE = 'lefko3', object, mat_chosen, part, type)
+}
+
+#' Append Projections Into New lefkoProj Object
+#' 
+#' Function \code{append_lP()} combines two population projections. It takes
+#' two \code{lefkoProj} objects and appends them into a new \code{lefkoPrpoj}
+#' object.
+#' 
+#' @name append_lP
+#' 
+#' @param proj1 A \code{lefkoProj} object.
+#' @param proj2 A second \code{lefkoProj} object, based on the same stageframe
+#' as \code{proj1}.
+#' 
+#' @return A list of class \code{lefkoProj}, which always includes the first
+#' three elements of the following, and also includes the remaining elements
+#' below when a \code{lefkoMat} object is used as input:
+#' \item{projection}{A list of lists of matrices showing the total number of
+#' individuals per stage per occasion. The first list corresponds to each
+#' pop-patch followed by each population (this top-level list is a single
+#' element in \code{f_projection3()}). The inner list corresponds to
+#' replicates within each pop-patch or population.}
+#' \item{stage_dist}{A list of lists of the actual stage distribution in each
+#' occasion in each replicate in each pop-patch or population.}
+#' \item{rep_value}{A list of lists of the actual reproductive value in each
+#' occasion in each replicate in each pop-patch or population.}
+#' \item{pop_size}{A list of matrices showing the total population size in each
+#' occasion per replicate (row within data frame) per pop-patch or population
+#' (list element). \code{NA} values will result if projections with different
+#' numbers of time steps are appended.}
+#' \item{labels}{A data frame showing the order of populations and patches in
+#' item \code{projection}.}
+#' \item{ahstages}{The original stageframe used in the study.}
+#' \item{hstages}{A data frame showing the order of historical stage pairs.}
+#' \item{agestages}{A data frame showing the order of age-stage pairs.}
+#' \item{labels}{A short data frame indicating the population (always \code{1}),
+#' and patch (either the numeric index of the single chosen patch, or \code{1}
+#' in all other cases). Any pop-patches having the same designation across the
+#' two input projections will be appended together.}
+#' \item{control}{A data frame showing the number of replicates and time steps
+#' corresponding to each set of projections, where each set corresponds to a
+#' pop-patch within the labels object of each input projection.}
+#' \item{density}{The data frame input under the density option. Only provided
+#' if input by the user for at least one of the two projections. Output as a
+#' nested list corresponding to each pop-patch - replicate.}
+#' \item{density_vr}{The data frame input under the density_vr option. Only
+#' provided if input by the user for at least one of the two projections.
+#' Output as a nested list corresponding to each pop-patch - replicate.}
+#' 
+#' @section Notes:
+#' \code{lefkoProj} objects resulting from previous appends can also be
+#' appended.
+#' 
+#' @seealso \code{\link{projection3}()}
+#' 
+#' @examples
+#' data(cypdata)
+#' 
+#' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
+#' stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
+#'   "XLg")
+#' repvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
+#' obsvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
+#' matvector <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
+#' immvector <- c(0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
+#' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+#' indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
+#' binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 2.5, 7)
+#' 
+#' cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector,
+#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector, 
+#'   propstatus = propvector, immstatus = immvector, indataset = indataset,
+#'   binhalfwidth = binvec)
+#' 
+#' cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
+#'   patchidcol = "patch", individcol = "plantid", blocksize = 4, 
+#'   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04", 
+#'   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
+#'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE, 
+#'   NRasRep = TRUE)
+#' 
+#' cypmatrix2r_AB <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
+#'   year = "all", patch = c("A", "B"), stages = c("stage3", "stage2"),
+#'   size = c("size3added", "size2added"), supplement = cypsupp3r,
+#'   yearcol = "year2",  patchcol = "patchid", indivcol = "individ")
+#' 
+#' cypmatrix2r_AC <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
+#'   year = "all", patch = c("A", "C"), stages = c("stage3", "stage2"),
+#'   size = c("size3added", "size2added"), supplement = cypsupp3r,
+#'   yearcol = "year2",  patchcol = "patchid", indivcol = "individ")
+#' 
+#' cypproj1 <- projection3(cypmatrix2r_AB, nreps = 5, times = 15,
+#'   stochastic = TRUE)
+#' cypproj2 <- projection3(cypmatrix2r_AC, nreps = 10, times = 20,
+#'   stochastic = TRUE)
+#' cypproj3 <- append_lP(cypproj1, cypproj2)
+#' 
+#' @export append_lP
+append_lP <- function(proj1 = NULL, proj2 = NULL) {
+    .Call('_lefko3_append_lM', PACKAGE = 'lefko3', proj1, proj2)
 }
 

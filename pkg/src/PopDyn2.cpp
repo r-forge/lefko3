@@ -2108,3 +2108,1119 @@ Rcpp::DataFrame matrix_interp (Rcpp::List object, int mat_chosen = 1,
   return(out_table);
 }
 
+//' Append Projections Into New lefkoProj Object
+//' 
+//' Function \code{append_lP()} combines two population projections. It takes
+//' two \code{lefkoProj} objects and appends them into a new \code{lefkoPrpoj}
+//' object.
+//' 
+//' @name append_lP
+//' 
+//' @param proj1 A \code{lefkoProj} object.
+//' @param proj2 A second \code{lefkoProj} object, based on the same stageframe
+//' as \code{proj1}.
+//' 
+//' @return A list of class \code{lefkoProj}, which always includes the first
+//' three elements of the following, and also includes the remaining elements
+//' below when a \code{lefkoMat} object is used as input:
+//' \item{projection}{A list of lists of matrices showing the total number of
+//' individuals per stage per occasion. The first list corresponds to each
+//' pop-patch followed by each population (this top-level list is a single
+//' element in \code{f_projection3()}). The inner list corresponds to
+//' replicates within each pop-patch or population.}
+//' \item{stage_dist}{A list of lists of the actual stage distribution in each
+//' occasion in each replicate in each pop-patch or population.}
+//' \item{rep_value}{A list of lists of the actual reproductive value in each
+//' occasion in each replicate in each pop-patch or population.}
+//' \item{pop_size}{A list of matrices showing the total population size in each
+//' occasion per replicate (row within data frame) per pop-patch or population
+//' (list element). \code{NA} values will result if projections with different
+//' numbers of time steps are appended.}
+//' \item{labels}{A data frame showing the order of populations and patches in
+//' item \code{projection}.}
+//' \item{ahstages}{The original stageframe used in the study.}
+//' \item{hstages}{A data frame showing the order of historical stage pairs.}
+//' \item{agestages}{A data frame showing the order of age-stage pairs.}
+//' \item{labels}{A short data frame indicating the population (always \code{1}),
+//' and patch (either the numeric index of the single chosen patch, or \code{1}
+//' in all other cases). Any pop-patches having the same designation across the
+//' two input projections will be appended together.}
+//' \item{control}{A data frame showing the number of replicates and time steps
+//' corresponding to each set of projections, where each set corresponds to a
+//' pop-patch within the labels object of each input projection.}
+//' \item{density}{The data frame input under the density option. Only provided
+//' if input by the user for at least one of the two projections. Output as a
+//' nested list corresponding to each pop-patch - replicate.}
+//' \item{density_vr}{The data frame input under the density_vr option. Only
+//' provided if input by the user for at least one of the two projections.
+//' Output as a nested list corresponding to each pop-patch - replicate.}
+//' 
+//' @section Notes:
+//' \code{lefkoProj} objects resulting from previous appends can also be
+//' appended.
+//' 
+//' @seealso \code{\link{projection3}()}
+//' 
+//' @examples
+//' data(cypdata)
+//' 
+//' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
+//' stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
+//'   "XLg")
+//' repvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
+//' obsvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
+//' matvector <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
+//' immvector <- c(0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
+//' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+//' indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
+//' binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 2.5, 7)
+//' 
+//' cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector,
+//'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector, 
+//'   propstatus = propvector, immstatus = immvector, indataset = indataset,
+//'   binhalfwidth = binvec)
+//' 
+//' cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
+//'   patchidcol = "patch", individcol = "plantid", blocksize = 4, 
+//'   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04", 
+//'   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
+//'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE, 
+//'   NRasRep = TRUE)
+//' 
+//' cypmatrix2r_AB <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
+//'   year = "all", patch = c("A", "B"), stages = c("stage3", "stage2"),
+//'   size = c("size3added", "size2added"), supplement = cypsupp3r,
+//'   yearcol = "year2",  patchcol = "patchid", indivcol = "individ")
+//' 
+//' cypmatrix2r_AC <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
+//'   year = "all", patch = c("A", "C"), stages = c("stage3", "stage2"),
+//'   size = c("size3added", "size2added"), supplement = cypsupp3r,
+//'   yearcol = "year2",  patchcol = "patchid", indivcol = "individ")
+//' 
+//' cypproj1 <- projection3(cypmatrix2r_AB, nreps = 5, times = 15,
+//'   stochastic = TRUE)
+//' cypproj2 <- projection3(cypmatrix2r_AC, nreps = 10, times = 20,
+//'   stochastic = TRUE)
+//' cypproj3 <- append_lP(cypproj1, cypproj2)
+//' 
+//' @export append_lP
+// [[Rcpp::export(append_lP)]]
+Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
+  Nullable<RObject> proj2 = R_NilValue) {
+  
+  Rcpp::List proj1_list;
+  Rcpp::List proj2_list;
+  
+  CharacterVector proj1_class;
+  CharacterVector proj2_class;
+  
+  if (proj1.isNotNull()) {
+    if (is<List>(proj1)) {
+      proj1_list = as<List>(proj1);
+      proj1_class = proj1_list.attr("class");
+      
+      bool lP_found {false};
+      for (int i = 0; i < proj1_class.length(); i++) {
+        if (stringcompare_simple(String(proj1_class(i)), "lefkoProj")) lP_found = true;
+      }
+      
+      if (!lP_found) throw Rcpp::exception("A lefkoProj object is required for argument proj1.", false);
+    } else {
+      throw Rcpp::exception("A lefkoProj object is required for argument proj1.", false);
+    }
+  } else {
+    throw Rcpp::exception("A lefkoProj object is required for argument proj1.", false);
+  }
+  
+  if (proj2.isNotNull()) {
+    if (is<List>(proj2)) {
+      proj2_list = as<List>(proj2);
+      proj2_class = proj2_list.attr("class");
+      
+      bool lP_found {false};
+      for (int i = 0; i < proj2_class.length(); i++) {
+        if (stringcompare_simple(String(proj2_class(i)), "lefkoProj")) lP_found = true;
+      }
+      
+      if (!lP_found) throw Rcpp::exception("A lefkoProj object is required for argument proj2.", false);
+    } else {
+      throw Rcpp::exception("A lefkoProj object is required for argument proj2.", false);
+    }
+  } else {
+    throw Rcpp::exception("A lefkoProj object is required for argument proj2.", false);
+  }
+  
+  bool proj1_lP_check {false};
+  bool proj2_lP_check {false};
+  
+  for (int i = 0; i < static_cast<int>(proj1_class.length()); i++) {
+    if (stringcompare_simple(String(proj1_class(i)), "lefkoProj")) {
+      proj1_lP_check = true;
+    }
+  }
+  
+  for (int i = 0; i < static_cast<int>(proj2_class.length()); i++) {
+    if (stringcompare_simple(String(proj2_class(i)), "lefkoProj")) {
+      proj2_lP_check = true;
+    }
+  }
+  
+  if (!proj1_lP_check || !proj2_lP_check) {
+    throw Rcpp::exception("Only lefkoProj objects are allowed in arguments proj1 and proj2.", false);
+  }
+  
+  CharacterVector proj1_element_names = proj1_list.names();
+  List proj1_projection;
+  List proj1_stage_dist;
+  List proj1_rep_value;
+  List proj1_pop_size;
+  DataFrame proj1_labels;
+  DataFrame proj1_ahstages;
+  DataFrame proj1_hstages;
+  DataFrame proj1_agestages;
+  
+  bool proj1_projection_check {false};
+  bool proj1_stage_dist_check {false};
+  bool proj1_rep_value_check {false};
+  bool proj1_pop_size_check {false};
+  bool proj1_labels_check {false};
+  bool proj1_ahstages_check {false};
+  bool proj1_hstages_check {false};
+  bool proj1_agestages_check {false};
+  bool proj1_control_check {false};
+  bool proj1_density_check {false};
+  bool proj1_density_vr_check {false};
+  
+  for (int i = 0; i < static_cast<int>(proj1_element_names.length()); i++) {
+    if (stringcompare_simple(String(proj1_element_names(i)), "projection")) {
+      proj1_projection_check = true;
+    }
+    if (stringcompare_simple(String(proj1_element_names(i)), "stage_dist")) {
+      proj1_stage_dist_check = true;
+    }
+    if (stringcompare_simple(String(proj1_element_names(i)), "rep_value")) {
+      proj1_rep_value_check = true;
+    }
+    if (stringcompare_simple(String(proj1_element_names(i)), "pop_size")) {
+      proj1_pop_size_check = true;
+    }
+    if (stringcompare_simple(String(proj1_element_names(i)), "labels")) {
+      proj1_labels_check = true;
+    }
+    if (stringcompare_simple(String(proj1_element_names(i)), "ahstages")) {
+      proj1_ahstages_check = true;
+    }
+    if (stringcompare_simple(String(proj1_element_names(i)), "hstages")) {
+      proj1_hstages_check = true;
+    }
+    if (stringcompare_simple(String(proj1_element_names(i)), "agestages")) {
+      proj1_agestages_check = true;
+    }
+    if (stringcompare_simple(String(proj1_element_names(i)), "control")) {
+      proj1_control_check = true;
+    }
+    if (stringcompare_simple(String(proj1_element_names(i)), "density")) {
+      proj1_density_check = true;
+    }
+    if (stringcompare_simple(String(proj1_element_names(i)), "density_vr")) {
+      proj1_density_vr_check = true;
+    }
+  }
+  
+  CharacterVector proj2_element_names = proj2_list.names();
+  List proj2_projection;
+  List proj2_stage_dist;
+  List proj2_rep_value;
+  List proj2_pop_size;
+  DataFrame proj2_labels;
+  
+  bool proj2_projection_check {false};
+  bool proj2_stage_dist_check {false};
+  bool proj2_rep_value_check {false};
+  bool proj2_pop_size_check {false};
+  bool proj2_labels_check {false};
+  bool proj2_ahstages_check {false};
+  bool proj2_hstages_check {false};
+  bool proj2_agestages_check {false};
+  bool proj2_control_check {false};
+  bool proj2_density_check {false};
+  bool proj2_density_vr_check {false};
+  
+  for (int i = 0; i < static_cast<int>(proj2_element_names.length()); i++) {
+    if (stringcompare_simple(String(proj2_element_names(i)), "projection")) {
+      proj2_projection_check = true;
+    }
+    if (stringcompare_simple(String(proj2_element_names(i)), "stage_dist")) {
+      proj2_stage_dist_check = true;
+    }
+    if (stringcompare_simple(String(proj2_element_names(i)), "rep_value")) {
+      proj2_rep_value_check = true;
+    }
+    if (stringcompare_simple(String(proj2_element_names(i)), "pop_size")) {
+      proj2_pop_size_check = true;
+    }
+    if (stringcompare_simple(String(proj2_element_names(i)), "labels")) {
+      proj2_labels_check = true;
+    }
+    if (stringcompare_simple(String(proj2_element_names(i)), "ahstages")) {
+      proj2_ahstages_check = true;
+    }
+    if (stringcompare_simple(String(proj2_element_names(i)), "hstages")) {
+      proj2_hstages_check = true;
+    }
+    if (stringcompare_simple(String(proj2_element_names(i)), "agestages")) {
+      proj2_agestages_check = true;
+    }
+    if (stringcompare_simple(String(proj2_element_names(i)), "control")) {
+      proj2_control_check = true;
+    }
+    if (stringcompare_simple(String(proj2_element_names(i)), "density")) {
+      proj2_density_check = true;
+    }
+    if (stringcompare_simple(String(proj2_element_names(i)), "density_vr")) {
+      proj2_density_vr_check = true;
+    }
+  }
+  
+  if (!proj1_projection_check || !proj2_projection_check) {
+    throw Rcpp::exception("Only lefkoProj objects are allowed in arguments proj1 and proj2.",
+      false);
+  }
+  if (!proj1_rep_value_check || !proj2_rep_value_check) {
+    throw Rcpp::exception("All lefkoProj objects must have rep_value elements.",
+      false);
+  }
+  if (!proj1_stage_dist_check || !proj2_stage_dist_check) {
+    throw Rcpp::exception("All lefkoProj objects must have stage_dist elements.",
+      false);
+  }
+  if (!proj1_pop_size_check || !proj2_pop_size_check) {
+    throw Rcpp::exception("All lefkoProj objects must have pop_size elements.",
+      false);
+  }
+  if (!proj1_labels_check || !proj2_labels_check) {
+    throw Rcpp::exception("All lefkoProj objects must have labels elements.",
+      false);
+  }
+  if (!proj1_ahstages_check || !proj2_ahstages_check) {
+    throw Rcpp::exception("All lefkoProj objects must have ahstages elements.",
+      false);
+  }
+  if (!proj1_hstages_check || !proj2_hstages_check) {
+    throw Rcpp::exception("All lefkoProj objects must have hstages elements.",
+      false);
+  }
+  if (!proj1_agestages_check || !proj2_agestages_check) {
+    throw Rcpp::exception("All lefkoProj objects must have agestages elements.",
+      false);
+  }
+  if (!proj1_control_check || !proj2_control_check) {
+    throw Rcpp::exception("All lefkoProj objects must have control elements.",
+      false);
+  }
+  
+  
+  // Check ahstages, hstages, agestages
+  proj1_ahstages = DataFrame(proj1_list["ahstages"]);
+  
+  
+  { // ahstages
+    DataFrame proj2_ahstages = DataFrame(proj2_list["ahstages"]);
+    
+    if (!LefkoUtils::df_compare(proj1_ahstages, proj2_ahstages)) {
+      throw Rcpp::exception("Input projections cannot use different life history models.", 
+        false);
+    }
+    
+    // hstages
+    RObject proj1_hstages_ro = RObject(proj1_list["hstages"]);
+    RObject proj2_hstages_ro = RObject(proj2_list["hstages"]);
+    
+    if (is<DataFrame>(proj1_hstages_ro)) {
+      if (!is<DataFrame>(proj2_hstages_ro)) {
+        throw Rcpp::exception("One projection seems to be historical while the other does not.", 
+          false);
+      }
+      
+      proj1_hstages = DataFrame(proj1_list["hstages"]);
+      DataFrame proj2_hstages = DataFrame(proj2_list["hstages"]);
+      
+      if (!LefkoUtils::df_compare(proj1_hstages, proj2_hstages)) {
+        throw Rcpp::exception("Input projections cannot use different hstages objects.",
+          false);
+      }
+    }
+    
+    // agestages
+    RObject proj1_agestages_ro = RObject(proj1_list["agestages"]);
+    RObject proj2_agestages_ro = RObject(proj2_list["agestages"]);
+    
+    if (is<DataFrame>(proj1_agestages_ro)) {
+      if (!is<DataFrame>(proj2_agestages_ro)) {
+        throw Rcpp::exception("One projection seems to be age-by-stage while the other does not.", 
+          false);
+      }
+      
+      proj1_agestages = DataFrame(proj1_list["agestages"]);
+      DataFrame proj2_agestages = DataFrame(proj2_list["agestages"]);
+      
+      if (!LefkoUtils::df_compare(proj1_agestages, proj2_agestages)) {
+        throw Rcpp::exception("Input projections cannot use different agestages objects.",
+          false);
+      }
+    }
+  }
+  
+  // Projection append routine
+  proj1_projection = as<List>(proj1_list["projection"]);
+  proj2_projection = as<List>(proj2_list["projection"]);
+  
+  IntegerVector proj1_control_int;
+  IntegerVector proj2_control_int;
+  IntegerMatrix proj1_control_mat;
+  IntegerMatrix proj2_control_mat;
+  IntegerVector proj1_control_index;
+  IntegerVector proj2_control_index;
+  
+  bool proj1_control_int_log {false};
+  bool proj2_control_int_log {false};
+  IntegerVector proj1_reps;
+  IntegerVector proj1_times;
+  IntegerVector proj2_reps;
+  IntegerVector proj2_times;
+  {
+    RObject proj1_control = RObject(proj1_list["control"]);
+    RObject proj2_control = RObject(proj2_list["control"]);
+    
+    if (is<IntegerVector>(proj1_control) || is<NumericVector>(proj1_control)) {
+      if (Rf_isMatrix(proj1_control)) { 
+        proj1_control_mat = IntegerMatrix(proj1_control);
+        
+        proj1_control_index = proj1_control_mat(_, 0);
+        proj1_reps = proj1_control_mat(_, 1);
+        proj1_times = proj1_control_mat(_, 2);
+      } else {
+        proj1_control_int = IntegerVector(proj1_control);
+        
+        IntegerVector p1_listing (1);
+        IntegerVector p1_times (1);
+        IntegerVector p1_reps (1);
+        
+        p1_listing(0) = 1;
+        p1_reps(0) = proj1_control_int(0);
+        p1_times(0) = proj1_control_int(1);
+        
+        proj1_control_index = p1_listing;
+        proj1_times = p1_times;
+        proj1_reps = p1_reps;
+        
+        proj1_control_int_log = true;
+      }
+    }
+    
+    if (is<IntegerVector>(proj2_control) || is<NumericVector>(proj2_control)) {
+      if (Rf_isMatrix(proj2_control)) {
+        proj2_control_mat = IntegerMatrix(proj2_control);
+        
+        proj2_control_index = proj2_control_mat(_, 0);
+        proj2_reps = proj2_control_mat(_, 1);
+        proj2_times = proj2_control_mat(_, 2);
+      } else {
+        proj2_control_int = IntegerVector(proj2_control);
+        
+        IntegerVector p2_listing (1);
+        IntegerVector p2_times (1);
+        IntegerVector p2_reps (1);
+        
+        p2_listing(0) = 1;
+        p2_reps(0) = proj2_control_int(0);
+        p2_times(0) = proj2_control_int(1);
+        
+        proj2_control_index = p2_listing;
+        proj2_times = p2_times;
+        proj2_reps = p2_reps;
+        
+        proj2_control_int_log = true;
+      }
+    }
+  }
+  
+  proj1_rep_value = List(proj1_list["rep_value"]);
+  proj2_rep_value = List(proj2_list["rep_value"]);
+  IntegerVector proj1_rep_value_lengths (static_cast<int>(proj1_projection.length()));
+  IntegerVector proj2_rep_value_lengths (static_cast<int>(proj2_projection.length()));
+  LogicalVector proj1_rep_value_list_check (static_cast<int>(proj1_projection.length()));
+  LogicalVector proj2_rep_value_list_check (static_cast<int>(proj2_projection.length()));
+  
+  for (int i = 0; i < static_cast<int>(proj1_projection.length()); i++) {
+    RObject p1_rv_i = RObject(proj1_rep_value(i));
+    if (is<List>(p1_rv_i)) {
+      List p1_rv_i_list = List(p1_rv_i);
+      
+      proj1_rep_value_list_check(i) = true;
+      
+      int p1_rv_i_list_length = static_cast<int>(p1_rv_i_list.length());
+      proj1_rep_value_lengths(i) = p1_rv_i_list_length;
+    } else if (is<NumericVector>(p1_rv_i)) {
+      proj1_rep_value_list_check(i) = false;
+      proj1_rep_value_lengths(i) = 1;
+    }
+  }
+  for (int i = 0; i < static_cast<int>(proj2_projection.length()); i++) {
+    RObject p2_rv_i = RObject(proj2_rep_value(i));
+    if (is<List>(p2_rv_i)) {
+      List p2_rv_i_list = List(p2_rv_i);
+      
+      proj2_rep_value_list_check(i) = true;
+      
+      int p2_rv_i_list_length = static_cast<int>(p2_rv_i_list.length());
+      proj2_rep_value_lengths(i) = p2_rv_i_list_length;
+      
+    } else if (is<NumericVector>(p2_rv_i)) {
+      proj2_rep_value_list_check(i) = false;
+      proj2_rep_value_lengths(i) = 1;
+    }
+  }
+  
+  proj1_stage_dist = List(proj1_list["stage_dist"]);
+  proj2_stage_dist = List(proj2_list["stage_dist"]);
+  IntegerVector proj1_stage_dist_lengths (static_cast<int>(proj1_projection.length()));
+  IntegerVector proj2_stage_dist_lengths (static_cast<int>(proj2_projection.length()));
+  LogicalVector proj1_stage_dist_list_check (static_cast<int>(proj1_projection.length()));
+  LogicalVector proj2_stage_dist_list_check (static_cast<int>(proj2_projection.length()));
+  
+  for (int i = 0; i < static_cast<int>(proj1_projection.length()); i++) {
+    RObject p1_sd_i = RObject(proj1_stage_dist(i));
+    if (is<List>(p1_sd_i)) {
+      List p1_sd_i_list = List(p1_sd_i);
+      
+      proj1_stage_dist_list_check(i) = true;
+      
+      int p1_sd_i_list_length = static_cast<int>(p1_sd_i_list.length());
+      proj1_stage_dist_lengths(i) = p1_sd_i_list_length;
+    } else if (is<NumericVector>(p1_sd_i)) {
+      proj1_stage_dist_list_check(i) = false;
+      proj1_stage_dist_lengths(i) = 1;
+    }
+  }
+  for (int i = 0; i < static_cast<int>(proj2_projection.length()); i++) {
+    RObject p2_sd_i = RObject(proj2_stage_dist(i));
+    if (is<List>(p2_sd_i)) {
+      List p2_sd_i_list = List(p2_sd_i);
+      
+      proj2_stage_dist_list_check(i) = true;
+      
+      int p2_sd_i_list_length = static_cast<int>(p2_sd_i_list.length());
+      proj2_stage_dist_lengths(i) = p2_sd_i_list_length;
+      
+    } else if (is<NumericVector>(p2_sd_i)) {
+      proj2_stage_dist_list_check(i) = false;
+      proj2_stage_dist_lengths(i) = 1;
+    }
+  }
+  
+  IntegerVector pop1_size_cols (static_cast<int>(proj1_projection.length()));
+  IntegerVector pop2_size_cols (static_cast<int>(proj2_projection.length()));
+  IntegerVector pop1_size_rows (static_cast<int>(proj1_projection.length()));
+  IntegerVector pop2_size_rows (static_cast<int>(proj2_projection.length()));
+  proj1_pop_size = List(proj1_list["pop_size"]);
+  proj2_pop_size = List(proj2_list["pop_size"]);
+  
+  for (int i = 0; i < proj1_projection.length(); i++) {
+    NumericMatrix pop_size_mat = NumericMatrix(proj1_pop_size(i));
+    int found_pop_size_cols = pop_size_mat.ncol();
+    int found_pop_size_rows = pop_size_mat.nrow();
+    
+    pop1_size_cols(i) = found_pop_size_cols;
+    pop1_size_rows(i) = found_pop_size_rows;
+  }
+  for (int i = 0; i < proj2_projection.length(); i++) {
+    NumericMatrix pop_size_mat = NumericMatrix(proj2_pop_size(i));
+    unsigned int found_pop_size_cols = pop_size_mat.ncol();
+    unsigned int found_pop_size_rows = pop_size_mat.nrow();
+    
+    pop2_size_cols(i) = found_pop_size_cols;
+    pop2_size_rows(i) = found_pop_size_rows;
+  }
+  
+  // Tests of density and density_vr elements
+  int proj1_density_type {0}; // 0 = NULL, 1 = DataFrame, 2 = List
+  int proj2_density_type {0}; // 0 = NULL, 1 = DataFrame, 2 = List
+  int proj1_density_vr_type {0}; // 0 = NULL, 1 = DataFrame, 2 = List
+  int proj2_density_vr_type {0}; // 0 = NULL, 1 = DataFrame, 2 = List
+  
+  int proj1_density_list_length {0};
+  int proj2_density_list_length {0};
+  int proj1_density_vr_list_length {0};
+  int proj2_density_vr_list_length {0};
+  
+  if (proj1_density_check) {
+    RObject proj1_density_ro = RObject(proj1_list["density"]);
+    
+    if (is<DataFrame>(proj1_density_ro)) {
+      proj1_density_type = 1;
+    } else if (is<List>(proj1_density_ro)) {
+      proj1_density_type = 2;
+      List proj1_density_li = List(proj1_list["density"]);
+      proj1_density_list_length = static_cast<int>(proj1_density_li.length());
+    }
+  }
+  if (proj2_density_check) {
+    RObject proj2_density_ro = RObject(proj2_list["density"]);
+    
+    if (is<DataFrame>(proj2_density_ro)) {
+      proj2_density_type = 1;
+    } else if (is<List>(proj2_density_ro)) {
+      proj2_density_type = 2;
+      List proj2_density_li = List(proj2_list["density"]);
+      proj2_density_list_length = static_cast<int>(proj2_density_li.length());
+    }
+  }
+  
+  if (proj1_density_vr_check) {
+    RObject proj1_density_vr_ro = RObject(proj1_list["density_vr"]);
+    
+    if (is<DataFrame>(proj1_density_vr_ro)) {
+      proj1_density_vr_type = 1;
+    } else if (is<List>(proj1_density_vr_ro)) {
+      proj1_density_vr_type = 2;
+      List proj1_density_vr_li = List(proj1_list["density_vr"]);
+      proj1_density_vr_list_length = static_cast<int>(proj1_density_vr_li.length());
+    }
+  }
+  if (proj2_density_vr_check) {
+    RObject proj2_density_vr_ro = RObject(proj2_list["density_vr"]);
+    
+    if (is<DataFrame>(proj2_density_vr_ro)) {
+      proj2_density_vr_type = 1;
+    } else if (is<List>(proj2_density_vr_ro)) {
+      proj2_density_vr_type = 2;
+      List proj2_density_vr_li = List(proj2_list["density_vr"]);
+      proj2_density_vr_list_length = static_cast<int>(proj2_density_vr_li.length());
+    }
+  }
+  
+  proj1_labels = as<DataFrame>(proj1_list["labels"]);
+  StringVector proj1_labels_pop = as<StringVector>(proj1_labels["pop"]);
+  StringVector proj1_labels_patch = as<StringVector>(proj1_labels["patch"]);
+  
+  proj2_labels = as<DataFrame>(proj2_list["labels"]);
+  StringVector proj2_labels_pop = as<StringVector>(proj2_labels["pop"]);
+  StringVector proj2_labels_patch = as<StringVector>(proj2_labels["patch"]);
+  
+  int base_length_projection = static_cast<int>(proj1_labels_pop.length());
+  int potential_to_add = static_cast<int>(proj2_labels_pop.length());
+  
+  IntegerVector proj2_labels_equivalence = rep(-1, potential_to_add);
+  IntegerVector proj2_labels_allassigned = rep(-1, potential_to_add);
+  
+  for (int i = 0; i < static_cast<int>(proj2_labels_pop.length()); i++) {
+    for (int j = 0; j < static_cast<int>(proj1_labels_pop.length()); j++) {
+      if (stringcompare_simple(String(proj2_labels_pop(i)), String(proj1_labels_pop(j)))) {
+        if (stringcompare_simple(String(proj2_labels_patch(i)), String(proj1_labels_patch(j)))) {
+          proj2_labels_equivalence(i) = j;
+          proj2_labels_allassigned(i) = j;
+        }
+      }
+    }
+  }
+  
+  int added_length {0};
+  int max_found_equivalence = max(proj2_labels_equivalence);
+  int found_in_proj1 {0};
+  
+  for (int i = 0; i < potential_to_add; i++) {
+    if (proj2_labels_equivalence(i) == -1) {
+      added_length++;
+      proj2_labels_allassigned(i) = max_found_equivalence + added_length;
+    } else {
+      found_in_proj1++;
+    }
+  }
+  
+  IntegerVector proj1_control_breaks;
+  IntegerVector proj2_control_breaks;
+  IntegerVector proj1_control_lengths;
+  IntegerVector proj2_control_lengths;
+  
+  if (proj1_control_int_log) {
+    IntegerVector p1_control_breaks (proj1_labels_pop.length());
+    IntegerVector p1_control_lengths (proj1_labels_pop.length());
+    p1_control_breaks.fill(0);
+    p1_control_lengths.fill(1);
+    
+    proj1_control_breaks = p1_control_breaks;
+    proj1_control_lengths = p1_control_lengths;
+  } else {
+    arma::ivec proj1_control_index_arma = as<arma::ivec>(proj1_control_index);
+    
+    IntegerVector p1_control_breaks (static_cast<int>(max(proj1_control_index)));
+    IntegerVector p1_control_lengths (static_cast<int>(max(proj1_control_index)));
+    
+    for (int i = 0; i < static_cast<int>(max(proj1_control_index)); i++) {
+      arma::uvec found_indices = find(proj1_control_index_arma == (i + 1));
+      p1_control_breaks(i) = min(found_indices);
+      p1_control_lengths(i) = found_indices.n_elem;
+    }
+    
+    proj1_control_breaks = p1_control_breaks;
+    proj1_control_lengths = p1_control_lengths;
+  }
+  
+  if (proj2_control_int_log) {
+    IntegerVector p2_control_breaks (proj2_labels_pop.length());
+    IntegerVector p2_control_lengths (proj2_labels_pop.length());
+    p2_control_breaks.fill(0);
+    p2_control_lengths.fill(1);
+    
+    proj2_control_breaks = p2_control_breaks;
+    proj2_control_lengths = p2_control_lengths;
+  } else {
+    arma::ivec proj2_control_index_arma = as<arma::ivec>(proj2_control_index);
+    
+    IntegerVector p2_control_breaks (static_cast<int>(max(proj2_control_index)));
+    IntegerVector p2_control_lengths (static_cast<int>(max(proj2_control_index)));
+    
+    for (int i = 0; i < static_cast<int>(max(proj2_control_index)); i++) {
+      arma::uvec found_indices = find(proj2_control_index_arma == (i + 1));
+      p2_control_breaks(i) = min(found_indices);
+      p2_control_lengths(i) = found_indices.n_elem;
+    }
+    
+    proj2_control_breaks = p2_control_breaks;
+    proj2_control_lengths = p2_control_lengths;
+  }
+  
+  int new_length = base_length_projection + added_length;
+  List new_proj_projection (new_length);
+  List new_pop_size (new_length);
+  List new_rep_value (new_length);
+  List new_stage_dist (new_length);
+  List new_density (new_length);
+  List new_density_vr (new_length);
+  
+  int new_control_rows {0};
+  
+  if (proj1_control_int_log && proj2_control_int_log) { 
+    new_control_rows = base_length_projection + found_in_proj1 + added_length;
+  } else if (proj1_control_int_log) {
+    new_control_rows = base_length_projection + 
+      static_cast<int>(proj2_control_index.length());
+  } else if (proj2_control_int_log) {
+    new_control_rows = static_cast<int>(proj1_control_index.length()) + 
+      added_length;
+  } else {
+    new_control_rows = static_cast<int>(proj1_control_index.length()) + 
+      static_cast<int>(proj2_control_index.length());
+  }
+  
+  IntegerMatrix new_control (new_control_rows, 3);
+  int control_row_tracker {0};
+  int control_row_proj2_adjuster {0};
+  
+  StringVector new_labels_pop (base_length_projection + added_length);
+  StringVector new_labels_patch (base_length_projection + added_length);
+  
+  for (int i = 0; i < new_length; i++) {
+    List new_proj_projection_i;
+    
+    if (i < base_length_projection) {
+      List proj1_projection_i = as<List>(proj1_projection(i));
+      int p1pi_length = static_cast<int>(proj1_projection_i.length());
+      bool found_check {false};
+      
+      for (int j = 0; j < static_cast<int>(proj1_control_lengths(i)); j++) {
+        new_control(control_row_tracker, 0) = i + 1;
+        new_control(control_row_tracker, 1) = proj1_reps(proj1_control_breaks(i) + j);
+        new_control(control_row_tracker, 2) = proj1_times(proj1_control_breaks(i) + j);
+        control_row_tracker++;
+      }
+      
+      new_labels_pop(i) = proj1_labels_pop(i);
+      new_labels_patch(i) = proj1_labels_patch(i);
+      
+      for (int j = 0; j < potential_to_add; j++) {
+        if (proj2_labels_equivalence(j) == i) {
+          found_check = true;
+          
+          List proj2_projection_j = as<List>(proj2_projection(j));
+          int p2pj_length = static_cast<int>(proj2_projection_j.length());
+          
+          int total_new_projection_length = p1pi_length + p2pj_length;
+          
+          List temp_new (total_new_projection_length);
+          
+          for (int k = 0; k < p1pi_length; k++) {
+            temp_new(k) = proj1_projection_i(k);
+          }
+          for (int k = 0; k < p2pj_length; k++) {
+            temp_new(k + p1pi_length) = proj2_projection_j(k);
+          }
+          new_proj_projection_i = temp_new;
+          
+          if (static_cast<bool>(proj1_rep_value_list_check(i)) &&
+            static_cast<bool>(proj2_rep_value_list_check(j))) {
+            
+            List proj1_rep_value_i = List(proj1_rep_value(i));
+            List proj2_rep_value_j = List(proj2_rep_value(j));
+            
+            List temp_new_rv (total_new_projection_length);
+            for (int k = 0; k < p1pi_length; k++) {
+              temp_new_rv(k) = proj1_rep_value_i(k);
+            }
+            for (int k = 0; k < p2pj_length; k++) {
+              temp_new_rv(k + p1pi_length) = proj2_rep_value_j(k);
+            }
+            new_rep_value(i) = temp_new_rv;
+          } else {
+            NumericVector new_0 = {0.};
+            
+            new_rep_value(i) = new_0;
+          }
+          
+          if (static_cast<bool>(proj1_stage_dist_list_check(i)) &&
+            static_cast<bool>(proj2_stage_dist_list_check(j))) {
+            
+            List proj1_stage_dist_i = List(proj1_stage_dist(i));
+            List proj2_stage_dist_j = List(proj2_stage_dist(j));
+            
+            List temp_new_sd (total_new_projection_length);
+            for (int k = 0; k < p1pi_length; k++) {
+              temp_new_sd(k) = proj1_stage_dist_i(k);
+            }
+            for (int k = 0; k < p2pj_length; k++) {
+              temp_new_sd(k + p1pi_length) = proj2_stage_dist_j(k);
+            }
+            new_stage_dist(i) = temp_new_sd;
+          } else {
+            NumericVector new_0 = {0.};
+            
+            new_stage_dist(i) = new_0;
+          }
+          
+          // density
+          if (proj1_density_check) { 
+            if (proj1_density_type == 1) {
+              DataFrame proj1_density_temp = DataFrame(proj1_list["density"]);
+              
+              List temp_new_de (total_new_projection_length);
+              for (int k = 0; k < p1pi_length; k++) {
+                temp_new_de(k) = proj1_density_temp;
+              }
+              
+              if (proj2_density_type == 1) { 
+                DataFrame proj2_density_temp = DataFrame(proj2_list["density"]);
+              
+                for (int k = 0; k < p2pj_length; k++) {
+                  temp_new_de(k + p1pi_length) = proj2_density_temp;
+                }
+              } else if (proj2_density_type == 2) {
+                List proj2_density_temp = List(proj2_list["density"]);
+              
+                for (int k = 0; k < p2pj_length; k++) {
+                  temp_new_de(k + p1pi_length) = proj2_density_temp(j);
+                }
+              } else {
+                for (int k = 0; k < p2pj_length; k++) {
+                  temp_new_de(k + p1pi_length) = R_NilValue;
+                }
+              }
+              
+              new_density(i) = temp_new_de;
+            } else if (proj1_density_type == 2) {
+              List proj1_density_temp = List(proj1_list["density"]);
+              
+              List temp_new_de (total_new_projection_length);
+              for (int k = 0; k < p1pi_length; k++) {
+                temp_new_de(k) = proj1_density_temp(i);
+              }
+              
+              if (proj2_density_type == 1) { 
+                DataFrame proj2_density_temp = DataFrame(proj2_list["density"]);
+              
+                for (int k = 0; k < p2pj_length; k++) {
+                  temp_new_de(k + p1pi_length) = proj2_density_temp;
+                }
+              } else if (proj2_density_type == 2) {
+                List proj2_density_temp = List(proj2_list["density"]);
+              
+                for (int k = 0; k < p2pj_length; k++) {
+                  temp_new_de(k + p1pi_length) = proj2_density_temp(j);
+                }
+              } else {
+                for (int k = 0; k < p2pj_length; k++) {
+                  temp_new_de(k + p1pi_length) = R_NilValue;
+                }
+              }
+              
+              new_density(i) = temp_new_de;
+            }
+          } else if (proj2_density_check) { 
+            List temp_new_de (total_new_projection_length);
+            for (int k = 0; k < p1pi_length; k++) {
+              temp_new_de(k) = R_NilValue;
+            }
+            
+            if (proj2_density_type == 1) { 
+              DataFrame proj2_density_temp = DataFrame(proj2_list["density"]);
+            
+              for (int k = 0; k < p2pj_length; k++) {
+                temp_new_de(k + p1pi_length) = proj2_density_temp;
+              }
+            } else if (proj2_density_type == 2) {
+              List proj2_density_temp = List(proj2_list["density"]);
+            
+              for (int k = 0; k < p2pj_length; k++) {
+                temp_new_de(k + p1pi_length) = proj2_density_temp(j);
+              }
+            } else {
+              for (int k = 0; k < p2pj_length; k++) {
+                temp_new_de(k + p1pi_length) = R_NilValue;
+              }
+            }
+            
+            new_density(i) = temp_new_de;
+          }
+          
+          // density_vr
+          if (proj1_density_vr_check) { 
+            if (proj1_density_vr_type == 1) {
+              DataFrame proj1_density_vr_temp = DataFrame(proj1_list["density_vr"]);
+              
+              List temp_new_devr (total_new_projection_length);
+              for (int k = 0; k < p1pi_length; k++) {
+                temp_new_devr(k) = proj1_density_vr_temp;
+              }
+              
+              if (proj2_density_vr_type == 1) { 
+                DataFrame proj2_density_vr_temp = DataFrame(proj2_list["density_vr"]);
+              
+                for (int k = 0; k < p2pj_length; k++) {
+                  temp_new_devr(k + p1pi_length) = proj2_density_vr_temp;
+                }
+              } else if (proj2_density_vr_type == 2) {
+                List proj2_density_vr_temp = List(proj2_list["density_vr"]);
+              
+                for (int k = 0; k < p2pj_length; k++) {
+                  temp_new_devr(k + p1pi_length) = proj2_density_vr_temp(j);
+                }
+              } else {
+                for (int k = 0; k < p2pj_length; k++) {
+                  temp_new_devr(k + p1pi_length) = R_NilValue;
+                }
+              }
+              
+              new_density_vr(i) = temp_new_devr;
+            } else if (proj1_density_vr_type == 2) {
+              List proj1_density_vr_temp = List(proj1_list["density_vr"]);
+              
+              List temp_new_devr (total_new_projection_length);
+              for (int k = 0; k < p1pi_length; k++) {
+                temp_new_devr(k) = proj1_density_vr_temp(i);
+              }
+              
+              if (proj2_density_vr_type == 1) { 
+                DataFrame proj2_density_vr_temp = DataFrame(proj2_list["density_vr"]);
+              
+                for (int k = 0; k < p2pj_length; k++) {
+                  temp_new_devr(k + p1pi_length) = proj2_density_vr_temp;
+                }
+              } else if (proj2_density_vr_type == 2) {
+                List proj2_density_vr_temp = List(proj2_list["density_vr"]);
+              
+                for (int k = 0; k < p2pj_length; k++) {
+                  temp_new_devr(k + p1pi_length) = proj2_density_vr_temp(j);
+                }
+              } else {
+                for (int k = 0; k < p2pj_length; k++) {
+                  temp_new_devr(k + p1pi_length) = R_NilValue;
+                }
+              }
+              
+              new_density_vr(i) = temp_new_devr;
+            }
+          } else if (proj2_density_vr_check) { 
+            List temp_new_devr (total_new_projection_length);
+            for (int k = 0; k < p1pi_length; k++) {
+              temp_new_devr(k) = R_NilValue;
+            }
+            
+            if (proj2_density_vr_type == 1) { 
+              DataFrame proj2_density_vr_temp = DataFrame(proj2_list["density_vr"]);
+            
+              for (int k = 0; k < p2pj_length; k++) {
+                temp_new_devr(k + p1pi_length) = proj2_density_vr_temp;
+              }
+            } else if (proj2_density_vr_type == 2) {
+              List proj2_density_vr_temp = List(proj2_list["density_vr"]);
+            
+              for (int k = 0; k < p2pj_length; k++) {
+                temp_new_devr(k + p1pi_length) = proj2_density_vr_temp(j);
+              }
+            } else {
+              for (int k = 0; k < p2pj_length; k++) {
+                temp_new_devr(k + p1pi_length) = R_NilValue;
+              }
+            }
+            
+            new_density_vr(i) = temp_new_devr;
+          }
+          
+          for (int l = 0; l < static_cast<int>(proj2_control_lengths(j)); l++) {
+            new_control(control_row_tracker, 0) = i + 1;
+            new_control(control_row_tracker, 1) = proj2_reps(proj2_control_breaks(j) + l);
+            new_control(control_row_tracker, 2) = proj2_times(proj2_control_breaks(j) + l);
+            control_row_tracker++;
+          }
+          
+          // Merge pop_size matrices
+          int new_pop_size_mat_rows = static_cast<int>(pop1_size_rows(i)) + static_cast<int>(pop2_size_rows(j));
+          int new_pop_size_mat_cols = static_cast<int>(pop1_size_cols(i));
+          if (pop2_size_cols(j) > pop1_size_cols(i)) new_pop_size_mat_cols = 
+            static_cast<int>(pop2_size_cols(j));
+          
+          NumericMatrix old_pop1_size_mat = NumericMatrix(proj1_pop_size(i));
+          NumericMatrix old_pop2_size_mat = NumericMatrix(proj2_pop_size(j));
+          NumericMatrix new_pop_size_mat (new_pop_size_mat_rows, new_pop_size_mat_cols);
+          new_pop_size_mat.fill(NA_REAL);
+          
+          for (int k = 0; k < pop1_size_rows(i); k++) {
+            for (int l = 0; l < pop1_size_cols(i); l++) {
+              new_pop_size_mat(k, l) = old_pop1_size_mat(k, l);
+            }
+          }
+          for (int k = 0; k < pop2_size_rows(j); k++) {
+            for (int l = 0; l < pop2_size_cols(j); l++) {
+              new_pop_size_mat((k + pop1_size_rows(j)), l) = old_pop2_size_mat(k, l);
+            }
+          }
+          
+          new_pop_size(i) = new_pop_size_mat;
+          
+          break;
+        }
+      }
+      
+      if (!found_check) {
+        new_proj_projection_i = proj1_projection_i;
+        new_pop_size(i) = proj1_pop_size(i);
+        
+        if (static_cast<bool>(proj1_rep_value_list_check(i))) {
+          
+          List proj1_rep_value_i = List(proj1_rep_value(i));
+          new_rep_value(i) = proj1_rep_value_i;
+        } else {
+          NumericVector new_0 = {0.};
+          new_rep_value(i) = new_0;
+        }
+        
+        if (static_cast<bool>(proj1_stage_dist_list_check(i))) {
+          
+          List proj1_stage_dist_i = List(proj1_stage_dist(i));
+          new_stage_dist(i) = proj1_stage_dist_i;
+        } else {
+          NumericVector new_0 = {0.};
+          new_stage_dist(i) = new_0;
+        }
+        
+        if (proj1_density_check) {
+          if (proj1_density_type == 1) {
+            DataFrame proj1_density_temp = DataFrame(proj1_list["density"]);
+            new_density(i) = proj1_density_temp;
+          } else if (proj1_density_type == 2) {
+            List proj1_density_temp = List(proj1_list["density"]);
+            new_density(i) = proj1_density_temp(i);
+          }
+        } else if (proj2_density_check) {
+          new_density(i) = R_NilValue;
+        }
+        
+        control_row_proj2_adjuster++;
+      }
+    } else {
+      for (int j = 0; j < potential_to_add; j++) {
+        if (proj2_labels_allassigned(j) == i) {
+          List proj2_projection_i = as<List>(proj2_projection(j));
+          new_proj_projection_i = proj2_projection_i;
+          
+          if (static_cast<bool>(proj2_rep_value_list_check(j))) {
+            
+            List proj2_rep_value_i = List(proj2_rep_value(j));
+            new_rep_value(i) = proj2_rep_value_i;
+          } else {
+            NumericVector new_0 = {0.};
+            new_rep_value(i) = new_0;
+          }
+          
+          if (static_cast<bool>(proj2_stage_dist_list_check(j))) {
+            
+            List proj2_stage_dist_i = List(proj2_stage_dist(j));
+            new_stage_dist(i) = proj2_stage_dist_i;
+          } else {
+            NumericVector new_0 = {0.};
+            new_stage_dist(i) = new_0;
+          }
+          
+          if (proj2_density_check) {
+            if (proj2_density_type == 1) {
+              DataFrame proj2_density_temp = DataFrame(proj2_list["density"]);
+              new_density(i) = proj2_density_temp;
+            } else if (proj2_density_type == 2) {
+              List proj2_density_temp = List(proj2_list["density"]);
+              new_density(i) = proj2_density_temp(j);
+            }
+          } else if (proj1_density_check) {
+            new_density(i) = R_NilValue;
+          }
+          
+          for (int l = 0; l < static_cast<int>(proj2_control_lengths(j)); l++) {
+            new_control(control_row_tracker, 0) = base_length_projection + j;
+            new_control(control_row_tracker, 1) = proj2_reps(proj2_control_breaks(j) + l);
+            new_control(control_row_tracker, 2) = proj2_times(proj2_control_breaks(j) + l);
+            control_row_tracker++;
+          }
+          
+          int new_label_position {-1};
+          for (int k = 0; k < proj2_labels_allassigned.length(); k++) {
+            if (proj2_labels_allassigned(k) == i) new_label_position = k;
+          }
+          
+          new_labels_pop(i) = proj2_labels_pop(new_label_position);
+          new_labels_patch(i) = proj2_labels_patch(new_label_position);
+          
+          new_pop_size(i) = proj2_pop_size(new_label_position);
+          
+          break;
+        }
+      }
+    }
+    
+    new_proj_projection(i) = new_proj_projection_i;
+  }
+  
+  DataFrame new_labels = DataFrame::create(_["pop"] = new_labels_pop,
+    _["patch"] = new_labels_patch);
+  
+  List new_output (11);
+  new_output(0) = new_proj_projection;
+  new_output(1) = new_stage_dist;
+  new_output(2) = new_rep_value;
+  new_output(3) = new_pop_size;
+  new_output(4) = new_labels;
+  new_output(5) = proj1_ahstages;
+  new_output(6) = proj1_hstages;
+  new_output(7) = proj1_agestages;
+  new_output(8) = new_control;
+  new_output(9) = new_density;
+  new_output(10) = new_density_vr;
+  
+  CharacterVector new_output_names = {"projection", "stage_dist", "rep_value",
+    "pop_size", "labels", "ahstages", "hstages", "agestages", "control",
+    "density", "density_vr"};
+  new_output.attr("names") = new_output_names;
+  new_output.attr("class") = "lefkoProj";
+  
+  return(new_output);
+}
+
+

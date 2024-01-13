@@ -2,6 +2,8 @@
 
 ## NEW FEATURES
 
+* Function append_lP() created to append projections to each other.
+
 * Function matrix_interp() created to aid in summarizing results from analyses
   of huge matrices.
 

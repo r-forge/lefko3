@@ -1097,6 +1097,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// append_lM
+Rcpp::List append_lM(Nullable<RObject> proj1, Nullable<RObject> proj2);
+RcppExport SEXP _lefko3_append_lM(SEXP proj1SEXP, SEXP proj2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type proj1(proj1SEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type proj2(proj2SEXP);
+    rcpp_result_gen = Rcpp::wrap(append_lM(proj1, proj2));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_lefko3_pfj", (DL_FUNC) &_lefko3_pfj, 42},
@@ -1155,6 +1167,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_lefko3_demolition3sp", (DL_FUNC) &_lefko3_demolition3sp, 4},
     {"_lefko3_lambda3", (DL_FUNC) &_lefko3_lambda3, 2},
     {"_lefko3_matrix_interp", (DL_FUNC) &_lefko3_matrix_interp, 4},
+    {"_lefko3_append_lM", (DL_FUNC) &_lefko3_append_lM, 2},
     {NULL, NULL, 0}
 };
 
