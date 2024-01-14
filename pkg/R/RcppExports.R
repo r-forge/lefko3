@@ -2220,11 +2220,17 @@ NULL
 #' Defaults work best when matrices are very small and dense, or very large and
 #' sparse.
 #' 
+#' @seealso \code{\link{start_input}()}
+#' @seealso \code{\link{density_input}()}
+#' @seealso \code{\link{density_vr}()}
 #' @seealso \code{\link{projection3}()}
 #' @seealso \code{\link{flefko3}()}
 #' @seealso \code{\link{flefko2}()}
 #' @seealso \code{\link{aflefko2}()}
 #' @seealso \code{\link{fleslie}()}
+#' @seealso \code{\link{append_lP()}}
+#' @seealso \code{\link{summary.lefkoProj()}}
+#' @seealso \code{\link{plot.lefkoProj()}}
 #' 
 #' @examples
 #' \donttest{
@@ -3260,6 +3266,9 @@ mpm_create <- function(historical = FALSE, stage = TRUE, age = FALSE, devries = 
 #' @seealso \code{\link{start_input}()}
 #' @seealso \code{\link{density_input}()}
 #' @seealso \code{\link{f_projection3}()}
+#' @seealso \code{\link{append_lP()}}
+#' @seealso \code{\link{summary.lefkoProj()}}
+#' @seealso \code{\link{plot.lefkoProj()}}
 #' 
 #' @examples
 #' # Lathyrus example
@@ -5357,14 +5366,24 @@ matrix_interp <- function(object, mat_chosen = 1L, part = 1L, type = 3L) {
 #'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE, 
 #'   NRasRep = TRUE)
 #' 
+#' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D",
+#'     "XSm", "Sm", "SD", "P1"),
+#'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep", "rep"),
+#'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+#'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+#'   givenrate = c(0.1, 0.2, 0.2, 0.2, 0.25, NA, NA, NA, NA, NA),
+#'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+#'   type = c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3), stageframe = cypframe_raw,
+#'   historical = FALSE)
+#' 
 #' cypmatrix2r_AB <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
 #'   year = "all", patch = c("A", "B"), stages = c("stage3", "stage2"),
-#'   size = c("size3added", "size2added"), supplement = cypsupp3r,
+#'   size = c("size3added", "size2added"), supplement = cypsupp2r,
 #'   yearcol = "year2",  patchcol = "patchid", indivcol = "individ")
 #' 
 #' cypmatrix2r_AC <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
 #'   year = "all", patch = c("A", "C"), stages = c("stage3", "stage2"),
-#'   size = c("size3added", "size2added"), supplement = cypsupp3r,
+#'   size = c("size3added", "size2added"), supplement = cypsupp2r,
 #'   yearcol = "year2",  patchcol = "patchid", indivcol = "individ")
 #' 
 #' cypproj1 <- projection3(cypmatrix2r_AB, nreps = 5, times = 15,

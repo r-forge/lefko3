@@ -6519,11 +6519,17 @@ List mothermccooney(const DataFrame& listofyears, const List& modelsuite,
 //' Defaults work best when matrices are very small and dense, or very large and
 //' sparse.
 //' 
+//' @seealso \code{\link{start_input}()}
+//' @seealso \code{\link{density_input}()}
+//' @seealso \code{\link{density_vr}()}
 //' @seealso \code{\link{projection3}()}
 //' @seealso \code{\link{flefko3}()}
 //' @seealso \code{\link{flefko2}()}
 //' @seealso \code{\link{aflefko2}()}
 //' @seealso \code{\link{fleslie}()}
+//' @seealso \code{\link{append_lP()}}
+//' @seealso \code{\link{summary.lefkoProj()}}
+//' @seealso \code{\link{plot.lefkoProj()}}
 //' 
 //' @examples
 //' \donttest{
@@ -17199,6 +17205,9 @@ arma::mat proj3dens(const arma::vec& start_vec, const List& core_list,
 //' @seealso \code{\link{start_input}()}
 //' @seealso \code{\link{density_input}()}
 //' @seealso \code{\link{f_projection3}()}
+//' @seealso \code{\link{append_lP()}}
+//' @seealso \code{\link{summary.lefkoProj()}}
+//' @seealso \code{\link{plot.lefkoProj()}}
 //' 
 //' @examples
 //' # Lathyrus example

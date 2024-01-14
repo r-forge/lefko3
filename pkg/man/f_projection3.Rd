@@ -540,6 +540,12 @@ summary(trial7a)
 
 }
 \seealso{
+\code{\link{start_input}()}
+
+\code{\link{density_input}()}
+
+\code{\link{density_vr}()}
+
 \code{\link{projection3}()}
 
 \code{\link{flefko3}()}
@@ -549,4 +555,10 @@ summary(trial7a)
 \code{\link{aflefko2}()}
 
 \code{\link{fleslie}()}
+
+\code{\link{append_lP()}}
+
+\code{\link{summary.lefkoProj()}}
+
+\code{\link{plot.lefkoProj()}}
 }

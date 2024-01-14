@@ -85,14 +85,24 @@ cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE, 
   NRasRep = TRUE)
 
+cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D",
+    "XSm", "Sm", "SD", "P1"),
+  stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep", "rep"),
+  eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+  eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+  givenrate = c(0.1, 0.2, 0.2, 0.2, 0.25, NA, NA, NA, NA, NA),
+  multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+  type = c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3), stageframe = cypframe_raw,
+  historical = FALSE)
+
 cypmatrix2r_AB <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
   year = "all", patch = c("A", "B"), stages = c("stage3", "stage2"),
-  size = c("size3added", "size2added"), supplement = cypsupp3r,
+  size = c("size3added", "size2added"), supplement = cypsupp2r,
   yearcol = "year2",  patchcol = "patchid", indivcol = "individ")
 
 cypmatrix2r_AC <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
   year = "all", patch = c("A", "C"), stages = c("stage3", "stage2"),
-  size = c("size3added", "size2added"), supplement = cypsupp3r,
+  size = c("size3added", "size2added"), supplement = cypsupp2r,
   yearcol = "year2",  patchcol = "patchid", indivcol = "individ")
 
 cypproj1 <- projection3(cypmatrix2r_AB, nreps = 5, times = 15,

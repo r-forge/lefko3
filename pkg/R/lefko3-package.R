@@ -46,7 +46,7 @@
 #' @importFrom lme4 fixef glmer lmer ranef VarCorr
 #' @importFrom MASS glm.nb
 #' @importFrom Matrix colSums
-#' @importFrom methods is
+#' @importFrom methods as is
 #' @importFrom MuMIn dredge
 #' @importFrom pscl zeroinfl
 #' @importFrom Rcpp evalCpp

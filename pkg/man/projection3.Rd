@@ -319,4 +319,10 @@ cypstoch <- projection3(cypmatrix3r, nreps = 5, stochastic = TRUE)
 \code{\link{density_input}()}
 
 \code{\link{f_projection3}()}
+
+\code{\link{append_lP()}}
+
+\code{\link{summary.lefkoProj()}}
+
+\code{\link{plot.lefkoProj()}}
 }

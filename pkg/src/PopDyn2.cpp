@@ -2187,14 +2187,24 @@ Rcpp::DataFrame matrix_interp (Rcpp::List object, int mat_chosen = 1,
 //'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE, 
 //'   NRasRep = TRUE)
 //' 
+//' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D",
+//'     "XSm", "Sm", "SD", "P1"),
+//'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep", "rep"),
+//'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+//'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+//'   givenrate = c(0.1, 0.2, 0.2, 0.2, 0.25, NA, NA, NA, NA, NA),
+//'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+//'   type = c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3), stageframe = cypframe_raw,
+//'   historical = FALSE)
+//' 
 //' cypmatrix2r_AB <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
 //'   year = "all", patch = c("A", "B"), stages = c("stage3", "stage2"),
-//'   size = c("size3added", "size2added"), supplement = cypsupp3r,
+//'   size = c("size3added", "size2added"), supplement = cypsupp2r,
 //'   yearcol = "year2",  patchcol = "patchid", indivcol = "individ")
 //' 
 //' cypmatrix2r_AC <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
 //'   year = "all", patch = c("A", "C"), stages = c("stage3", "stage2"),
-//'   size = c("size3added", "size2added"), supplement = cypsupp3r,
+//'   size = c("size3added", "size2added"), supplement = cypsupp2r,
 //'   yearcol = "year2",  patchcol = "patchid", indivcol = "individ")
 //' 
 //' cypproj1 <- projection3(cypmatrix2r_AB, nreps = 5, times = 15,
@@ -2649,11 +2659,6 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
   int proj1_density_vr_type {0}; // 0 = NULL, 1 = DataFrame, 2 = List
   int proj2_density_vr_type {0}; // 0 = NULL, 1 = DataFrame, 2 = List
   
-  int proj1_density_list_length {0};
-  int proj2_density_list_length {0};
-  int proj1_density_vr_list_length {0};
-  int proj2_density_vr_list_length {0};
-  
   if (proj1_density_check) {
     RObject proj1_density_ro = RObject(proj1_list["density"]);
     
@@ -2662,7 +2667,6 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
     } else if (is<List>(proj1_density_ro)) {
       proj1_density_type = 2;
       List proj1_density_li = List(proj1_list["density"]);
-      proj1_density_list_length = static_cast<int>(proj1_density_li.length());
     }
   }
   if (proj2_density_check) {
@@ -2673,7 +2677,6 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
     } else if (is<List>(proj2_density_ro)) {
       proj2_density_type = 2;
       List proj2_density_li = List(proj2_list["density"]);
-      proj2_density_list_length = static_cast<int>(proj2_density_li.length());
     }
   }
   
@@ -2685,7 +2688,6 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
     } else if (is<List>(proj1_density_vr_ro)) {
       proj1_density_vr_type = 2;
       List proj1_density_vr_li = List(proj1_list["density_vr"]);
-      proj1_density_vr_list_length = static_cast<int>(proj1_density_vr_li.length());
     }
   }
   if (proj2_density_vr_check) {
@@ -2696,7 +2698,6 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
     } else if (is<List>(proj2_density_vr_ro)) {
       proj2_density_vr_type = 2;
       List proj2_density_vr_li = List(proj2_list["density_vr"]);
-      proj2_density_vr_list_length = static_cast<int>(proj2_density_vr_li.length());
     }
   }
   
@@ -2816,7 +2817,6 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
   
   IntegerMatrix new_control (new_control_rows, 3);
   int control_row_tracker {0};
-  int control_row_proj2_adjuster {0};
   
   StringVector new_labels_pop (base_length_projection + added_length);
   StringVector new_labels_patch (base_length_projection + added_length);
@@ -3134,8 +3134,6 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
         } else if (proj2_density_check) {
           new_density(i) = R_NilValue;
         }
-        
-        control_row_proj2_adjuster++;
       }
     } else {
       for (int j = 0; j < potential_to_add; j++) {

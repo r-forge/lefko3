@@ -3964,16 +3964,22 @@ summary.lefkoLTRE <- function(object, ...) {
 #' population-patch. If \code{ext_time = FALSE}, then only outputs \code{NA}.}
 #' 
 #' @section Notes:
-#' The \code{inf_alive} option assesses whether replicates have reached a value
-#' of \code{NaN}. If \code{inf_alive = TRUE} and a value of \code{NaN} is found,
-#' then the replicate is considered extant if the preceding value is above the
-#' extinction threshold. If the setting is \code{inf_alive = FALSE}, then a
-#' value of \code{NaN} is considered evidence of extinction.
+#' The \code{inf_alive} and \code{ext_time} options both assess whether
+#' replicates have reached a value of \code{NaN} or \code{Inf}. If
+#' \code{inf_alive = TRUE} or \code{ext_time = TRUE} and one of these values is
+#' found, then the replicate is counted in the \code{milepost_sums} object if
+#' the last numeric value in the replicate is above the \code{threshold} value,
+#' and is counted as extant and not extinct if the last numeric value in the
+#' replicate is above the extinction threshold of a single individual.
 #' 
 #' Extinction time is calculated on the basis of whether the replicate ever
 #' falls below a single individual. A replicate with a positive population size
 #' below 0.0 that manages to rise above 1.0 individual is still considered to
 #' have gone extinct the first time it crossed below 1.0.
+#' 
+#' If the input \code{lefkoProj} object is a mixture of two or more other
+#' \code{lefkoProj} objects, then mileposts will be given relative to the
+#' maximum number of time steps noted.
 #' 
 #' @examples
 #' # Lathyrus example
@@ -4080,31 +4086,65 @@ summary.lefkoLTRE <- function(object, ...) {
 summary.lefkoProj <- function(object, threshold = 1, inf_alive = TRUE,
   milepost = c(0, 0.25, 0.50, 0.75, 1.00), ext_time = FALSE, ...) {
   
-  poppatches <- length(object$pop_size)
+  num_reps_vec <- NULL
+  appended <- FALSE
+  max_times <- max_reps <- 1L
+  ave_times <- ave_reps <- 1.0
   
-  nreps <- object$control[1]
-  times <- object$control[2]
+  poppatches <- length(object$labels[,1])
+  
+  if (is.matrix(object$control)) {
+    unique_indices <- unique(object$control[,1])
+    dup_counts <- apply(as.matrix(unique_indices), 1, function(X) {
+      found <- length(which(object$control[,1] == X))
+      return(found)
+    })
+    
+    appended <- TRUE
+    max_reps <- max(dup_counts, na.rm = TRUE)
+    ave_reps <- mean(dup_counts, na.rm = TRUE)
+    
+    max_times <- max(object$control[,3], na.rm = TRUE)
+    total_reps_across <- sum(object$control[,2], na.rm = TRUE)
+    
+    times_contribs <- apply(as.matrix(c(1:(dim(object$control)[1]))), 1, function(X) {
+      mean_div <- object$control[X, 2] / total_reps_across
+      current_contrib <- object$control[X, 3] * mean_div
+      
+      return(current_contrib)
+    })
+    ave_times <- sum(times_contribs)
+    
+    num_reps_vec <- apply(as.matrix(c(1:(dim(object$labels)[1]))), 1, function(X) {
+      found_reps <- sum(object$control[which(object$control[,1] == X), 2], na.rm = TRUE)
+    })
+  } else {
+    max_reps <- object$control[1]
+    max_times <- ave_times <- object$control[2]
+    
+    num_reps_vec <- max_reps
+  }
   
   if (any(milepost < 0)) {
     stop("Option milepost may not take negative values.", call. = FALSE)
   }
-  if (any(milepost > times)) {
+  if (any(milepost > max_times)) {
     stop("Option milepost may not take values higher than the number of actual
       number of projected occasions.", call. = FALSE)
   }
   
   if (all(milepost >= 0) & all(milepost <= 1)) {
-    milepost <- floor(milepost * times) + 1
+    milepost <- floor(milepost * max_times) + 1
   } else if (any(milepost == 0)) {
     milepost <- milepost + 1
   }
   
   if (inf_alive | ext_time) {
     for (i in c(1:poppatches)) {
-      for (j in c(1:nreps)) {
-        for (k in c(1:times)) {
-          if (is.nan(object$pop_size[[i]][j, k]) & k > 1) {
-            object$pop_size[[i]][j, k] <- object$pop_size[[i]][j, (k - 1)]
+      for (j in c(1:max_reps)) {
+        for (k in c(1:(max_times + 1))) {
+          if ((is.nan(object$pop_size[[i]][j, k]) | is.infinite(object$pop_size[[i]][j, k])) & k > 1) {
+            object$pop_size[[i]][j, k] <- object$pop_size[[i]][j, (k - 1)]   #. max_found
           }
         }
       }
@@ -4113,11 +4153,11 @@ summary.lefkoProj <- function(object, threshold = 1, inf_alive = TRUE,
   
   if (ext_time) {
     the_numbers <- apply(as.matrix(c(1:poppatches)), 1, function(X) {
-      freemasonry <- apply(as.matrix(c(1:nreps)), 1, function(Y) {
+      freemasonry <- apply(as.matrix(c(1:num_reps_vec[X])), 1, function(Y) {
         ext_points <- which(object$pop_size[[X]][Y,] < 1)
         if (length(ext_points) > 0) return (min(ext_points)) else return (NA)
       })
-      ext_varmints <- length(which(!is.na(freemasonry)))
+      ext_varmints <- length(which(!is.na(freemasonry) & !is.nan(freemasonry)))
       if (ext_varmints > 0) {
         ext_time <- mean(freemasonry, na.rm = TRUE)
       } else {
@@ -4140,7 +4180,7 @@ summary.lefkoProj <- function(object, threshold = 1, inf_alive = TRUE,
     the_numbers <- NA
   }
   
-  if (nreps > 1) {
+  if (max_reps > 1) {
     
     milepost_sums <- apply(as.matrix(c(1:poppatches)), 1, function (X) {
       
@@ -4176,10 +4216,19 @@ summary.lefkoProj <- function(object, threshold = 1, inf_alive = TRUE,
   
   writeLines(paste0("\nThe input lefkoProj object covers ", poppatches,
     " population-patches."), con = stdout())
-  writeLines(paste0("It includes ", times, " projected steps per replicate and ",
-    nreps, " replicates."), con = stdout())
-  writeLines(paste0("The number of replicates with population size above the threshold size of ", threshold,
-    " is as in"), con = stdout())
+  if (appended) {
+    writeLines("It is an appended projection, including an average and maximum")
+    writeLines(paste0("of ", format(ave_times, digits = 5), " and ", max_times,
+      " steps per replicate, and an average and maximum"))
+    writeLines(paste0("of ", format(ave_reps, digits = 5), " and ", max_reps,
+      " replicates."))
+  } else {
+  writeLines(paste0("It is a single projection including ", max_times,
+    " projected steps per replicate, and ", max_reps, " replicates, respectively."),
+    con = stdout())
+  }
+  writeLines(paste0("The number of replicates with population size above the threshold size of ",
+    threshold, " is as in"), con = stdout())
   writeLines(paste0("the following matrix, with pop-patches given by column and milepost times given by row: \n"),
     con = stdout())
   
