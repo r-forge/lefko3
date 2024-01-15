@@ -8347,6 +8347,19 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
   
   if (stochastic) {
     years_topull = Rcpp::RcppArmadillo::sample(mainyears, times * nreps, true, twinput);
+    
+  } else {
+    NumericVector true_years_topull (times * nreps);
+    int current_year_counter = 0;
+    int years_topull_length = years_topull.length();
+    for (int i = 0; i < (times * nreps); i++) {
+      true_years_topull(i) = years_topull(current_year_counter);
+      current_year_counter++;
+      
+      if (current_year_counter == years_topull_length) current_year_counter = 0;
+    }
+    
+    years_topull = true_years_topull;
   }
   
   CharacterVector patches_topull;

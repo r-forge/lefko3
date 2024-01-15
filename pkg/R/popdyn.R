@@ -4122,7 +4122,7 @@ summary.lefkoProj <- function(object, threshold = 1, inf_alive = TRUE,
     max_reps <- object$control[1]
     max_times <- ave_times <- object$control[2]
     
-    num_reps_vec <- max_reps
+    num_reps_vec <- rep(max_reps, poppatches)
   }
   
   if (any(milepost < 0)) {

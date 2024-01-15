@@ -7,6 +7,11 @@
 * Function matrix_interp() created to aid in summarizing results from analyses
   of huge matrices.
 
+## BUG FIXES
+
+* Function f_projection3() no longer fails when non-stochastic projections are
+  conducted with multiple times.
+
 # lefko3 6.1.3 (2023-11-30)
 
 ## NEW FEATURES
