@@ -2,6 +2,9 @@
 
 ## NEW FEATURES
 
+* Functions projection3() and f_projection3() can now perform first-order
+  Markovian temporally stochastic simulations.
+
 * Function append_lP() created to append projections to each other.
 
 * Function matrix_interp() created to aid in summarizing results from analyses

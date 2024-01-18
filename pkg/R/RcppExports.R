@@ -2112,8 +2112,13 @@ NULL
 #' or stage-pairs that should be set to non-zero values in the starting vector,
 #' and what those values should be. Can only be used with \code{lefkoMat}
 #' objects.
-#' @param tweights An optional numeric vector denoting the probabilistic
-#' weightings of year terms. Defaults to equal weighting among occasions.
+#' @param tweights An optional numeric vector or matrix denoting the
+#' probabilities of choosing each matrix in a stochastic projection. If a
+#' matrix is input, then a first-order Markovian environment is assumed, in
+#' which the probability of choosing a specific annual matrix depends on which
+#' annual matrix is currently chosen. If a vector is input, then the choice of
+#' annual matrix is assumed to be independent of the current matrix. Defaults
+#' to equal weighting among matrices.
 #' @param density An optional data frame describing the matrix elements that
 #' will be subject to density dependence, and the exact kind of density
 #' dependence that they will be subject to. The data frame used should be an
@@ -2219,6 +2224,11 @@ NULL
 #' likely occur when matrices have between 30 and 300 rows and columns.
 #' Defaults work best when matrices are very small and dense, or very large and
 #' sparse.
+#' 
+#' Some issues may arise in first-order Markovian stochastic projections if
+#' the \code{year} argument is used. Use the matrix input in the
+#' \code{tweights} argument to eliminate any years from consideration that are
+#' not needed.
 #' 
 #' @seealso \code{\link{start_input}()}
 #' @seealso \code{\link{density_input}()}
@@ -3152,8 +3162,13 @@ mpm_create <- function(historical = FALSE, stage = TRUE, age = FALSE, devries = 
 #' or stage-pairs that should be set to non-zero values in the starting vector,
 #' and what those values should be. Can only be used with \code{lefkoMat}
 #' objects.
-#' @param tweights An optional numeric vector denoting the probabilistic
-#' weightings of annual matrices. Defaults to equal weighting among occasions.
+#' @param tweights An optional numeric vector or matrix denoting the
+#' probabilities of choosing each matrix in a stochastic projection. If a
+#' matrix is input, then a first-order Markovian environment is assumed, in
+#' which the probability of choosing a specific annual matrix depends on which
+#' annual matrix is currently chosen. If a vector is input, then the choice of
+#' annual matrix is assumed to be independent of the current matrix. Defaults
+#' to equal weighting among matrices.
 #' @param density An optional data frame describing the matrix elements that
 #' will be subject to density dependence, and the exact kind of density
 #' dependence that they will be subject to. The data frame used should be an

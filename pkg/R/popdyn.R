@@ -4218,10 +4218,10 @@ summary.lefkoProj <- function(object, threshold = 1, inf_alive = TRUE,
     " population-patches."), con = stdout())
   if (appended) {
     writeLines("It is an appended projection, including an average and maximum")
-    writeLines(paste0("of ", format(ave_times, digits = 5), " and ", max_times,
-      " steps per replicate, and an average and maximum"))
-    writeLines(paste0("of ", format(ave_reps, digits = 5), " and ", max_reps,
-      " replicates."))
+    writeLines(paste0("It is an appended projection, including an average and maximum of ",
+      format(ave_times, digits = 5), " and ", max_times, " steps per "))
+    writeLines(paste0("replicate, and an average and maximum of ",
+      format(ave_reps, digits = 5), " and ", max_reps, " replicates."))
   } else {
   writeLines(paste0("It is a single projection including ", max_times,
     " projected steps per replicate, and ", max_reps, " replicates, respectively."),
@@ -4337,6 +4337,8 @@ plot.lefkoProj <- function(x, variable = "popsize", style = "time",
   repl = "all", patch = "pop", auto_ylim = TRUE, auto_col = TRUE,
   auto_lty = TRUE, auto_title = FALSE, ...) {
   
+  appended <- FALSE
+  
   further_args <- list(...)
   
   if (length(further_args) == 0) further_args <- list()
@@ -4359,7 +4361,14 @@ plot.lefkoProj <- function(x, variable = "popsize", style = "time",
   basal_args <- further_args
   
   actual_patches <- c(1:length(x$labels$patch))
-  actual_replicates <- c(1:x$control[1])
+  if (is.matrix(x$control)) {
+    appended <- TRUE
+    actual_replicates <- apply(as.matrix(actual_patches), 1, function(X) {
+      num_reps <- sum(x$control[which(x$control[, 1] == X), 2])
+    })
+  } else {
+    actual_replicates <- rep(x$control[1], length(x$labels$patch))
+  }
   
   if (length(grep("pop", variable)) > 0 | length(grep("size", variable)) > 0) {
     variable <- "popsize"
@@ -4423,14 +4432,9 @@ plot.lefkoProj <- function(x, variable = "popsize", style = "time",
     } else {
       stop("Setting repl not understood.", call. = FALSE)
     }
-  } else {
-    if (any(!is.element(repl, actual_replicates))) {
-      stop("Setting repl not understood.", call. = FALSE)
-    }
   }
-  
   if (variable != "popsize") {
-    stop("Function plot.lefkoProj() does not current handle plots of elements
+    stop("Function plot.lefkoProj() does not currently handle plots of elements
       other than `popsize`.", call. = FALSE)
   }
   
@@ -4468,8 +4472,8 @@ plot.lefkoProj <- function(x, variable = "popsize", style = "time",
     
     do.call("plot.default", further_args)
     
-    if (length(repl) > 1) {
-      for (j in c(2:x$control[1])) {
+    if (repl[i] > 1) {
+      for (j in c(2:actual_replicates[i])) {
         if (style == "timeseries") {
           basal_args$x <- c(1:length(x$pop_size[[i]][j,]))
           basal_args$y <- x$pop_size[[i]][j,]

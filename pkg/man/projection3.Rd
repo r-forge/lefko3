@@ -91,8 +91,13 @@ or stage-pairs that should be set to non-zero values in the starting vector,
 and what those values should be. Can only be used with \code{lefkoMat}
 objects.}
 
-\item{tweights}{An optional numeric vector denoting the probabilistic
-weightings of annual matrices. Defaults to equal weighting among occasions.}
+\item{tweights}{An optional numeric vector or matrix denoting the
+probabilities of choosing each matrix in a stochastic projection. If a
+matrix is input, then a first-order Markovian environment is assumed, in
+which the probability of choosing a specific annual matrix depends on which
+annual matrix is currently chosen. If a vector is input, then the choice of
+annual matrix is assumed to be independent of the current matrix. Defaults
+to equal weighting among matrices.}
 
 \item{density}{An optional data frame describing the matrix elements that
 will be subject to density dependence, and the exact kind of density
