@@ -131,10 +131,14 @@ stablestage3 <- function(mats, ...) UseMethod("stablestage3")
 #' \code{FALSE}.
 #' @param times An integer variable indicating number of occasions to project if
 #' using stochastic analysis. Defaults to 10000.
-#' @param tweights An optional vector indicating the probability weighting to
-#' use for each matrix in stochastic simulations. If not given, then defaults to
-#' equal weighting.
-#' @param seed A number to use as a random number seed.
+#' @param tweights An optional numeric vector or matrix denoting the
+#' probabilities of choosing each matrix in a stochastic projection. If a matrix
+#' is input, then a first-order Markovian environment is assumed, in which the
+#' probability of choosing a specific annual matrix depends on which annual
+#' matrix is currently chosen. If a vector is input, then the choice of annual
+#' matrix is assumed to be independent of the current matrix. Defaults to equal
+#' weighting among matrices.
+#' @param seed A number to use as a random number seed in stochastic projection.
 #' @param force_sparse A text string indicating whether to use sparse matrix
 #' encoding (\code{"yes"}) if standard matrices are provided. Defaults to
 #' \code{"auto"}, in which case sparse matrix encoding is used with square
@@ -296,7 +300,7 @@ stablestage3 <- function(mats, ...) UseMethod("stablestage3")
 stablestage3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
   tweights = NA, seed = NA, force_sparse = "auto", ...) {
   
-  matrix_set <- NULL
+  matrix_set <- theprohecy <- NULL
   sparsemethod <- sparse_auto <- sparse_input <- FALSE
   
   if (is(mats$A[[1]], "dgCMatrix")) sparse_input <- TRUE
@@ -338,8 +342,8 @@ stablestage3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
     }
     
   } else {
-    if (!is.na(seed)) {
-      set.seed(seed)
+    if (!is.na(seed[1])) {
+      set.seed(seed[1])
     }
     
     mats$labels$poppatch <- paste(mats$labels$pop, mats$labels$patch)
@@ -355,23 +359,52 @@ stablestage3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
           call. = FALSE)
       }
       
-      if (!is.na(tweights)) {
-        if (length(tweights) != length(used_slots)) {
-          if (length(tweights) == length(mats$A)) {
-            used_weights <- tweights[used_slots] / sum(tweights[used_slots])
-          } else {
-            stop("Option tweights must be either NA, or a numeric vector equal to the number of years supplied or matrices supplied.",
-              call. = FALSE)
+      if (!any(is.na(tweights))) {
+        tw_error_1 <- "Option tweights must be NA, a numeric vector equal to the"
+        tw_error_2 <- "number of years or matrices supplied, or a square matrix"
+        tw_error_3 <- "with dimensions equal to the number of matrices per patch."
+        tw_error <- paste(tw_error_1, tw_error_2, tw_error_3)
+        
+        if (is.matrix(tweights)) {
+          theprophecy <- rep(0, times)
+          used_weights <- tweights[, 1]
+        
+          for (i in c(1:times)) {
+            used_weights <- used_weights / sum(used_weights)
+            chosen_timepath <- sample(used_slots, 1, replace = TRUE, prob = used_weights)
+            theprophecy[i] <- chosen_timepath[1] - 1
+            used_weights <- tweights[, chosen_timepath[1]]
           }
+          
+          
+        } else if (is.numeric(tweights)) {
+          if (length(tweights) != length(used_slots)) {
+            if (length(tweights) == length(mats$A)) {
+              used_weights <- tweights[used_slots] / sum(tweights[used_slots])
+            } else {
+              stop(tw_error, call. = FALSE)
+            }
+          } else {
+            used_weights <- tweights / sum(tweights)
+          }
+          
+          theprophecy <- sample(used_slots, times, replace = TRUE,
+            prob = used_weights) - 1
         } else {
-          used_weights <- tweights / sum(tweights)
+          stop(tw_error, call. = FALSE)
         }
       } else {
         used_weights <- rep(1, length(used_slots))
         used_weights <- used_weights / sum(used_weights)
+        
+        theprophecy <- sample(used_slots, times, replace = TRUE,
+          prob = used_weights) - 1
       }
       
-      theprophecy <- sample(used_slots, times, replace = TRUE, prob = used_weights) - 1
+      
+      
+      
+      #theprophecy <- sample(used_slots, times, replace = TRUE, prob = used_weights) - 1
       starter <- if (!sparse_input) {
         .ss3matrix(mats$A[[used_slots[1]]], sparsemethod)
       } else .ss3matrix_sp(mats$A[[used_slots[1]]])
@@ -384,7 +417,7 @@ stablestage3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
       return(ssonly)
     })
     
-    # Now we create the mean distributions
+    # Create mean distributions
     baldrick <- unlist(
       lapply(princegeorge, function(X) {
         if (times > 2000) {
@@ -723,6 +756,19 @@ stablestage3.dgCMatrix <- function(mats, ...)
 #' 
 #' @param mats A list of population projection matrices, all in either class
 #' \code{matrix} or class \code{dgCMatrix}.
+#' @param stochastic A logical value indicating whether to use deterministic
+#' (\code{FALSE}) or stochastic (\code{TRUE}) analysis. Defaults to
+#' \code{FALSE}.
+#' @param times An integer variable indicating number of occasions to project if
+#' using stochastic analysis. Defaults to 10000.
+#' @param tweights An optional numeric vector or matrix denoting the
+#' probabilities of choosing each matrix in a stochastic projection. If a matrix
+#' is input, then a first-order Markovian environment is assumed, in which the
+#' probability of choosing a specific annual matrix depends on which annual
+#' matrix is currently chosen. If a vector is input, then the choice of annual
+#' matrix is assumed to be independent of the current matrix. Defaults to equal
+#' weighting among matrices.
+#' @param seed A number to use as a random number seed in stochastic projection.
 #' @param force_sparse A text string indicating whether to use sparse matrix
 #' encoding (\code{"yes"}) when supplied with standard matrices. Defaults to
 #' \code{"auto"}, in which case sparse matrix encoding is used with square
@@ -789,10 +835,12 @@ stablestage3.dgCMatrix <- function(mats, ...)
 #' stablestage3(ehrlen3mean$A)
 #' 
 #' @export
-stablestage3.list <- function(mats, force_sparse = "auto", ...)
-{
+stablestage3.list <- function(mats, stochastic = FALSE, times = 10000,
+  tweights = NA, seed = NA, force_sparse = "auto", ...) {
+  
   sparsemethod <- 0
   sparse_initial <- FALSE
+  w_list <- Xlist <- NULL
   
   if (is(mats[[1]], "dgCMatrix")) sparse_initial <- TRUE
   
@@ -817,15 +865,92 @@ stablestage3.list <- function(mats, force_sparse = "auto", ...)
   
   list_length <- length(mats)
   
-  w_list <- lapply(mats, function(X) {
-    if (is.matrix(X)) {
-      output <- .ss3matrix(X, sparsemethod)
-    } else if (is(X, "dgCMatrix")) {
-      output <- .ss3matrix_sp(X)
-    } else {
-      stop("Unrecognized input in object mats.", FALSE)
-    }
+  massive_panic <- apply(as.matrix(c(1:list_length)), 1, function(X) {
+    if (is.matrix(mats[[X]])) {
+      outchunk <- 1
+    } else if (is(mats[[X]], "dgCMatrix")) {
+      outchunk <- 2
+    } else outchunk <- 3
   })
+  
+  if (!all(massive_panic == 1) & !all(massive_panic == 2)) {
+    stop("Matrix list must be entirely in standard matrix format, or entirely in dgCMatrix format.",
+      call. = FALSE)
+  }
+  
+  if (!stochastic) {
+    w_list <- lapply(mats, function(X) {
+      if (is.matrix(X)) {
+        output <- .ss3matrix(X, sparsemethod)
+      } else if (is(X, "dgCMatrix")) {
+        output <- .ss3matrix_sp(X)
+      } else {
+        stop("Unrecognized input in object mats.", FALSE)
+      }
+    })
+  } else {
+    if (!is.na(seed[1])) {
+      set.seed(seed[1])
+    }
+    
+    used_slots <- c(1:list_length)
+    if (!any(is.na(tweights))) {
+      tw_error_1 <- "Option tweights must be NA, a numeric vector equal to the"
+      tw_error_2 <- "number of matrices supplied."
+      tw_error <- paste(tw_error_1, tw_error_2)
+      
+      if (is.matrix(tweights)) {
+        theprophecy <- rep(0, times)
+        used_weights <- tweights[, 1]
+      
+        for (i in c(1:times)) {
+          used_weights <- used_weights / sum(used_weights)
+          chosen_timepath <- sample(used_slots, 1, replace = TRUE, prob = used_weights)
+          theprophecy[i] <- chosen_timepath[1] - 1
+          used_weights <- tweights[, chosen_timepath[1]]
+        }
+      } else if (is.numeric(tweights)) {
+        if (length(tweights) != length(used_slots)) {
+          if (length(tweights) == list_length) {
+            used_weights <- tweights[used_slots] / sum(tweights[used_slots])
+          } else {
+            stop(tw_error, call. = FALSE)
+          }
+        } else {
+          used_weights <- tweights / sum(tweights)
+        }
+        
+        theprophecy <- sample(used_slots, times, replace = TRUE,
+          prob = used_weights) - 1
+      } else {
+        stop(tw_error, call. = FALSE)
+      }
+    } else {
+      used_weights <- rep(1, length(used_slots))
+      used_weights <- used_weights / sum(used_weights)
+      
+      theprophecy <- sample(used_slots, times, replace = TRUE,
+        prob = used_weights) - 1
+    }
+    
+    starter <- if (!sparse_initial) {
+      .ss3matrix(mats[[1]], sparsemethod)
+    } else .ss3matrix_sp(mats[[1]])
+    
+    theseventhmatrix <- if (!sparse_initial) {
+      .proj3(starter, mats, theprophecy, 1, 0, 0, TRUE, sparsemethod)
+    } else .proj3sp(starter, mats, theprophecy, 1, 0, 0)
+    ssonly <- theseventhmatrix[((dim(mats[[1]])[1]) + 1):(2 *(dim(mats[[1]])[1])),]
+    
+    if (times > 2000) {
+      Xlist <- ssonly[,(times - 999):(times)]
+    } else if (times > 500) {
+      Xlist <- ssoly[,(times-199):(times)]
+    } else {
+      Xlist <- ssonly
+    }
+    w_list <- apply(Xlist, 1, mean)
+  }
   
   return(w_list)
 }
@@ -963,9 +1088,13 @@ repvalue3 <- function(mats, ...) UseMethod("repvalue3")
 #' \code{FALSE}.
 #' @param times An integer variable indicating number of occasions to project if
 #' using stochastic analysis. Defaults to 10000.
-#' @param tweights An optional vector indicating the probability weighting to
-#' use for each matrix in stochastic simulations. If not given, then defaults to
-#' equal weighting.
+#' @param tweights An optional numeric vector or matrix denoting the
+#' probabilities of choosing each matrix in a stochastic projection. If a matrix
+#' is input, then a first-order Markovian environment is assumed, in which the
+#' probability of choosing a specific annual matrix depends on which annual
+#' matrix is currently chosen. If a vector is input, then the choice of annual
+#' matrix is assumed to be independent of the current matrix. Defaults to equal
+#' weighting among matrices.
 #' @param seed A number to use as a random number seed.
 #' @param force_sparse A text string indicating whether to use sparse matrix
 #' encoding (\code{"yes"}) when supplied with standard matrices. Defaults to
@@ -1148,24 +1277,47 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
           call. = FALSE)
       }
       
-      if (!is.na(tweights)) {
-        if (length(tweights) != length(used_slots)) {
-          if (length(tweights) == length(mats$A)) {
-            used_weights <- tweights[used_slots] / sum(tweights[used_slots])
-          } else {
-            stop("Option tweights must be either NA, or a numeric vector equal to the 
-              number of years supplied or matrices supplied.",
-              call. = FALSE)
+      if (!any(is.na(tweights))) {
+        tw_error_1 <- "Option tweights must be NA, a numeric vector equal to the"
+        tw_error_2 <- "number of years or matrices supplied, or a square matrix"
+        tw_error_3 <- "with dimensions equal to the number of matrices per patch."
+        tw_error <- paste(tw_error_1, tw_error_2, tw_error_3)
+        
+        if (is.matrix(tweights)) {
+          theprophecy <- rep(0, times)
+          used_weights <- tweights[, 1]
+        
+          for (i in c(1:times)) {
+            used_weights <- used_weights / sum(used_weights)
+            chosen_timepath <- sample(used_slots, 1, replace = TRUE, prob = used_weights)
+            theprophecy[i] <- chosen_timepath[1] - 1
+            used_weights <- tweights[, chosen_timepath[1]]
           }
+          
+        } else if (is.numeric(tweights)) {
+          if (length(tweights) != length(used_slots)) {
+            if (length(tweights) == length(mats$A)) {
+              used_weights <- tweights[used_slots] / sum(tweights[used_slots])
+            } else {
+              stop(tw_error, call. = FALSE)
+            }
+          } else {
+            used_weights <- tweights / sum(tweights)
+          }
+          
+          theprophecy <- sample(used_slots, times, replace = TRUE,
+            prob = used_weights) - 1
         } else {
-          used_weights <- tweights / sum(tweights)
+          stop(tw_error, call. = FALSE)
         }
       } else {
         used_weights <- rep(1, length(used_slots))
         used_weights <- used_weights / sum(used_weights)
+        
+        theprophecy <- sample(used_slots, times, replace = TRUE,
+          prob = used_weights) - 1
       }
       
-      theprophecy <- sample(used_slots, times, replace = TRUE, prob = used_weights) - 1
       if (!sparse_input) {
         starter <- .ss3matrix(mats$A[[used_slots[1]]], sparsemethod)
       } else starter <- .ss3matrix_sp(mats$A[[used_slots[1]]])
@@ -1179,7 +1331,7 @@ repvalue3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
       return(almostall)
     })
     
-    # Now we create the mean distributions
+    # Create mean distributions
     baldrick <- unlist(
       lapply(princegeorge, function(X) {
         if (times > 2000) {
@@ -1609,6 +1761,19 @@ repvalue3.dgCMatrix <- function(mats, ...)
 #' 
 #' @param mats A list of population projection matrices, all in either class
 #' \code{matrix} or class \code{dgCMatrix}.
+#' @param stochastic A logical value indicating whether to use deterministic
+#' (\code{FALSE}) or stochastic (\code{TRUE}) analysis. Defaults to
+#' \code{FALSE}.
+#' @param times An integer variable indicating number of occasions to project if
+#' using stochastic analysis. Defaults to 10000.
+#' @param tweights An optional numeric vector or matrix denoting the
+#' probabilities of choosing each matrix in a stochastic projection. If a matrix
+#' is input, then a first-order Markovian environment is assumed, in which the
+#' probability of choosing a specific annual matrix depends on which annual
+#' matrix is currently chosen. If a vector is input, then the choice of annual
+#' matrix is assumed to be independent of the current matrix. Defaults to equal
+#' weighting among matrices.
+#' @param seed A number to use as a random number seed in stochastic projection.
 #' @param force_sparse A text string indicating whether to use sparse matrix
 #' encoding (\code{"yes"}) when supplied with standard matrices. Defaults to
 #' \code{"auto"}, in which case sparse matrix encoding is used with square
@@ -1676,10 +1841,12 @@ repvalue3.dgCMatrix <- function(mats, ...)
 #' repvalue3(ehrlen3$A)
 #' 
 #' @export
-repvalue3.list <- function(mats, force_sparse = "auto", ...)
-{
+repvalue3.list <- function(mats, stochastic = FALSE, times = 10000,
+  tweights = NA, seed = NA, force_sparse = "auto", ...) {
+  
   sparsemethod <- 0
   sparse_initial <- FALSE
+  v_list <- Xlist <- NULL
   
   if (is(mats[[1]], "dgCMatrix")) sparse_initial <- TRUE
   
@@ -1704,15 +1871,99 @@ repvalue3.list <- function(mats, force_sparse = "auto", ...)
   
   list_length <- length(mats)
   
-  v_list <- lapply(mats, function(X) {
-    if (is.matrix(X)) {
-      output <- .rv3matrix(X, sparsemethod)
-    } else if (is(X, "dgCMatrix")) {
-      output <- .rv3matrix_sp(X)
-    } else {
-      stop("Unrecognized input in object mats.", FALSE)
-    }
+  massive_panic <- apply(as.matrix(c(1:list_length)), 1, function(X) {
+    if (is.matrix(mats[[X]])) {
+      outchunk <- 1
+    } else if (is(mats[[X]], "dgCMatrix")) {
+      outchunk <- 2
+    } else outchunk <- 3
   })
+  
+  if (!all(massive_panic == 1) & !all(massive_panic == 2)) {
+    stop("Matrix list must be entirely in standard matrix format, or entirely in dgCMatrix format.",
+      call. = FALSE)
+  }
+  
+  if (!stochastic) {
+    v_list <- lapply(mats, function(X) {
+      if (is.matrix(X)) {
+        output <- .rv3matrix(X, sparsemethod)
+      } else if (is(X, "dgCMatrix")) {
+        output <- .rv3matrix_sp(X)
+      } else {
+        stop("Unrecognized input in object mats.", FALSE)
+      }
+    })
+  } else {
+    if (!is.na(seed[1])) {
+      set.seed(seed[1])
+    }
+    
+    used_slots <- c(1:list_length)
+    if (!any(is.na(tweights))) {
+      tw_error_1 <- "Option tweights must be NA, a numeric vector equal to the"
+      tw_error_2 <- "number of matrices supplied."
+      tw_error <- paste(tw_error_1, tw_error_2)
+      
+      if (is.matrix(tweights)) {
+        theprophecy <- rep(0, times)
+        used_weights <- tweights[, 1]
+      
+        for (i in c(1:times)) {
+          used_weights <- used_weights / sum(used_weights)
+          chosen_timepath <- sample(used_slots, 1, replace = TRUE, prob = used_weights)
+          theprophecy[i] <- chosen_timepath[1] - 1
+          used_weights <- tweights[, chosen_timepath[1]]
+        }
+      } else if (is.numeric(tweights)) {
+        if (length(tweights) != length(used_slots)) {
+          if (length(tweights) == list_length) {
+            used_weights <- tweights[used_slots] / sum(tweights[used_slots])
+          } else {
+            stop(tw_error, call. = FALSE)
+          }
+        } else {
+          used_weights <- tweights / sum(tweights)
+        }
+        
+        theprophecy <- sample(used_slots, times, replace = TRUE,
+          prob = used_weights) - 1
+      } else {
+        stop(tw_error, call. = FALSE)
+      }
+    } else {
+      used_weights <- rep(1, length(used_slots))
+      used_weights <- used_weights / sum(used_weights)
+      
+      theprophecy <- sample(used_slots, times, replace = TRUE,
+        prob = used_weights) - 1
+    }
+    
+    starter <- if (!sparse_initial) {
+      .rv3matrix(mats[[1]], sparsemethod)
+    } else .rv3matrix_sp(mats[[1]])
+    
+    theseventhmatrix <- if (!sparse_initial) {
+      .proj3(starter, mats, theprophecy, 1, 0, 0, TRUE, sparsemethod)
+    } else .proj3sp(starter, mats, theprophecy, 1, 0, 0)
+    almostall <- theseventhmatrix[((dim(mats[[1]])[1]) + 1):(3 * (dim(mats[[1]])[1])),]
+    
+    if (times > 2000) {
+      usedX1 <- almostall[1:(dim(mats[[1]])[1]), (times - 998):(times+1)]
+      usedX2 <- almostall[((dim(mats[[1]])[1]) + 1):(2*(dim(mats[[1]])[1])),1:1000]
+    } else if (times > 500) {
+      usedX1 <- almostall[1:(dim(mats[[1]])[1]), (times - 198):(times+1)]
+      usedX2 <- almostall[((dim(mats[[1]])[1]) + 1):(2*(dim(mats[[1]])[1])), 1:200]
+    } else {
+      usedX1 <- almostall[1:(dim(mats[[1]])[1]),]
+      usedX2 <- almostall[((dim(mats[[1]])[1]) + 1):(2*(dim(mats[[1]])[1])),]
+    }
+    meanX1 <- apply(usedX1, 1, mean)
+    meanX2 <- apply(usedX2, 1, mean)
+    meanX2 <- zapsmall(meanX2)
+    meanX2 <- meanX2 / meanX2[(which(meanX2 > 0)[1])]
+    v_list <- c(meanX1, meanX2)
+  }
   
   return(v_list)
 }

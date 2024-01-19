@@ -716,7 +716,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // slambda3
-DataFrame slambda3(const List& mpm, int times, bool historical, Nullable<NumericVector> tweights, Nullable<RObject> force_sparse);
+DataFrame slambda3(const List& mpm, int times, bool historical, Nullable<RObject> tweights, Nullable<RObject> force_sparse);
 RcppExport SEXP _lefko3_slambda3(SEXP mpmSEXP, SEXP timesSEXP, SEXP historicalSEXP, SEXP tweightsSEXP, SEXP force_sparseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -724,7 +724,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const List& >::type mpm(mpmSEXP);
     Rcpp::traits::input_parameter< int >::type times(timesSEXP);
     Rcpp::traits::input_parameter< bool >::type historical(historicalSEXP);
-    Rcpp::traits::input_parameter< Nullable<NumericVector> >::type tweights(tweightsSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type tweights(tweightsSEXP);
     Rcpp::traits::input_parameter< Nullable<RObject> >::type force_sparse(force_sparseSEXP);
     rcpp_result_gen = Rcpp::wrap(slambda3(mpm, times, historical, tweights, force_sparse));
     return rcpp_result_gen;

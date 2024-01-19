@@ -2,8 +2,12 @@
 
 ## NEW FEATURES
 
-* Functions projection3() and f_projection3() can now perform first-order
-  Markovian temporally stochastic simulations.
+* Functions projection3(), f_projection3(), slambda3(), stablestage3(), and
+  repvalue3() can now perform first-order Markovian temporally stochastic
+  simulations.
+  
+* Functions stablestage3() and repvalue3() can now handle stochastic
+  projections.
 
 * Function append_lP() created to append projections to each other.
 
@@ -14,6 +18,9 @@
 
 * Function f_projection3() no longer fails when non-stochastic projections are
   conducted with multiple times.
+  
+* Functions stablestage3() and repvalue3() no longer fail when a tweights
+  vector or matrix is entered.
 
 # lefko3 6.1.3 (2023-11-30)
 

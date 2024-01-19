@@ -3400,8 +3400,13 @@ projection3 <- function(mpm, nreps = 1L, times = 10000L, historical = FALSE, sto
 #' is a list of matrices, rather than a \code{lefkoMat} object. Defaults to
 #' \code{FALSE} for the former case, and overridden by information supplied in
 #' the \code{lefkoMat} object for the latter case.
-#' @param tweights Numeric vector denoting the probabilistic weightings of
-#' annual matrices. Defaults to equal weighting among occasions.
+#' @param tweights An optional numeric vector or matrix denoting the
+#' probabilities of choosing each matrix in a stochastic projection. If a
+#' matrix is input, then a first-order Markovian environment is assumed, in
+#' which the probability of choosing a specific annual matrix depends on which
+#' annual matrix is currently chosen. If a vector is input, then the choice of
+#' annual matrix is assumed to be independent of the current matrix. Defaults
+#' to equal weighting among matrices.
 #' @param force_sparse A text string indicating whether to force sparse matrix 
 #' encoding (\code{"yes"}) or not (\code{"no"}) if the MPM is composed of
 #' simple matrices. Defaults to \code{"auto"}, in which case sparse matrix

@@ -18457,8 +18457,13 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
 //' is a list of matrices, rather than a \code{lefkoMat} object. Defaults to
 //' \code{FALSE} for the former case, and overridden by information supplied in
 //' the \code{lefkoMat} object for the latter case.
-//' @param tweights Numeric vector denoting the probabilistic weightings of
-//' annual matrices. Defaults to equal weighting among occasions.
+//' @param tweights An optional numeric vector or matrix denoting the
+//' probabilities of choosing each matrix in a stochastic projection. If a
+//' matrix is input, then a first-order Markovian environment is assumed, in
+//' which the probability of choosing a specific annual matrix depends on which
+//' annual matrix is currently chosen. If a vector is input, then the choice of
+//' annual matrix is assumed to be independent of the current matrix. Defaults
+//' to equal weighting among matrices.
 //' @param force_sparse A text string indicating whether to force sparse matrix 
 //' encoding (\code{"yes"}) or not (\code{"no"}) if the MPM is composed of
 //' simple matrices. Defaults to \code{"auto"}, in which case sparse matrix
@@ -18551,12 +18556,14 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
 //' @export slambda3
 // [[Rcpp::export(slambda3)]]
 DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
-  Nullable<NumericVector> tweights = R_NilValue,
+  Nullable<RObject> tweights = R_NilValue,
   Nullable<RObject> force_sparse = R_NilValue) {
   
   int theclairvoyant {0};
   int sparse_switch {0};
   bool sparse_auto {true};
+  bool assume_markov {false};
+  
   theclairvoyant = times;
   
   if (theclairvoyant < 1) {
@@ -18603,7 +18610,8 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
         sparse_auto = false;
         sparse_switch = 0;
       } else {
-        throw Rcpp::exception("Value entered for argument sparse not understood.", false);
+        throw Rcpp::exception("Value entered for argument sparse not understood.",
+          false);
       }
     }
   }
@@ -18627,7 +18635,7 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
     
     if (is<NumericMatrix>(amats(0))) matrix_class_input = true;
     
-    // Here we will check if the matrix is large and sparse
+    // Check if matrix is large and sparse
     if (sparse_auto && matrix_class_input) {
       int test_elems = static_cast<int>(as<arma::mat>(amats(0)).n_elem);
       int Amatrows = as<arma::mat>(amats(0)).n_rows;
@@ -18670,14 +18678,39 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
     int yl = uniqueyears.length();
     
     arma::vec twinput;
+    arma::mat twinput_markov;
     if (tweights.isNotNull()) {
-      twinput = as<arma::vec>(tweights);
-      if (static_cast<int>(twinput.n_elem) != yl) {
-        String eat_my_shorts = "Time weight vector must be the same length as the number of ";
-        String eat_my_shorts1 = "occasions represented in the lefkoMat object used as input.";
-        eat_my_shorts += eat_my_shorts1;
+      if (Rf_isMatrix(tweights)) {
+        twinput_markov = as<arma::mat>(tweights);
+        assume_markov = true;
         
-        throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        if (static_cast<int>(twinput_markov.n_cols) != yl) {
+          String eat_my_shorts = "Time weight matrix must have the same number of columns as the number ";
+          String eat_my_shorts1 = "of occasions represented in the lefkoMat object used as input.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+        if (twinput_markov.n_cols != twinput_markov.n_rows) {
+          String eat_my_shorts = "Time weight matrix must be square.";
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+        
+      } else if (is<NumericVector>(tweights)) {
+        twinput = as<arma::vec>(tweights);
+        
+        if (static_cast<int>(twinput.n_elem) != yl) {
+          String eat_my_shorts = "Time weight vector must be the same length as the number ";
+          String eat_my_shorts1 = "of occasions represented in the lefkoMat object used as input.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+        
+      } else {
+        throw Rcpp::exception("Object input in argument tweights is not a valid numeric vector or matrix.",
+          false);
       }
       
     } else {
@@ -18721,7 +18754,7 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
         agestages, stageframe, 1, 1, matrix_class_input, sparse_switch);
     }
     
-    // Take matrices for each patch, run simulation, estimate metrics
+    // Run simulation for each patch, estimate metrics
     List meanamats = as<List>(mean_lefkomat["A"]);
     List mmlabels = as<List>(mean_lefkomat["labels"]);
     StringVector mmpops = as<StringVector>(mmlabels["pop"]);
@@ -18750,16 +18783,34 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
     arma::vec sl_sd(trials, fill::zeros);
     arma::vec sl_se(trials, fill::zeros);
     
-    twinput = twinput / sum(twinput);
-    
+    arma::uvec theprophecy (theclairvoyant);
     for (int i= 0; i < allppcsnem; i++) {
       arma::uvec thenumbersofthebeast = find(ppcindex == allppcs(i));
-      arma::uvec theprophecy = Rcpp::RcppArmadillo::sample(thenumbersofthebeast,
-        theclairvoyant, true, twinput);
+      if (!assume_markov) {
+        twinput = twinput / sum(twinput);
+        
+        theprophecy = Rcpp::RcppArmadillo::sample(thenumbersofthebeast,
+          theclairvoyant, true, twinput);
+          
+      } else {
+        for (int yr_counter = 0; yr_counter < theclairvoyant; yr_counter++) {
+          if (yr_counter == 0) {
+            twinput = twinput_markov.col(0);
+          }
+          twinput = twinput / sum(twinput);
+          
+          arma::uvec theprophecy_piecemeal = Rcpp::RcppArmadillo::sample(thenumbersofthebeast,
+            1, true, twinput);
+          theprophecy(yr_counter) = theprophecy_piecemeal(0);
+          
+          arma::uvec tnotb_preassigned = find(thenumbersofthebeast == theprophecy_piecemeal(0));
+          twinput = twinput_markov.col(static_cast<int>(tnotb_preassigned(0)));
+        }
+      }
       
       arma::mat projection;
       if (!matrix_class_input || sparse_switch == 1) {
-        startvec = ss3matrix_sp(as<arma::sp_mat>(meanamats[i])); // thechosenone
+        startvec = ss3matrix_sp(as<arma::sp_mat>(meanamats[i]));
         
         if (!matrix_class_input) {
           projection = proj3sp(startvec, amats, theprophecy, 1, 1, 0);
@@ -18810,7 +18861,7 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
         }
         arma::uvec neededmatspop = find(popmatch);
         
-        // Checks each year, develops matrix mean across patches
+        // Develop mean annual matrices across patches
         for (int j = 0; j < yl; j++) { 
           for (int k = 0; k < loysize; k++) {
             if (yearorder(k) == uniqueyears(j)) {
@@ -18822,7 +18873,7 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
           arma::uvec neededmatsyear = find(yearmatch);
           arma::uvec crankybanky = intersect(neededmatsyear, neededmatspop);
           
-          // Catch indices of matrices that match current year and pop
+          // Catch matrix indices matching current year and pop
           int crankybankynem = static_cast<int>(crankybanky.n_elem);
           
           if (!matrix_class_input) {
@@ -18863,13 +18914,35 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
         
         int numyearsused = meanmatyearlist.length();
         arma::uvec choicevec = linspace<arma::uvec>(0, (numyearsused - 1), numyearsused);
-        arma::uvec theprophecy = Rcpp::RcppArmadillo::sample(choicevec, theclairvoyant, true, twinput);
+        
+        if (!assume_markov) {
+          twinput = twinput / sum(twinput);
+          
+          theprophecy = Rcpp::RcppArmadillo::sample(choicevec, theclairvoyant,
+            true, twinput);
+            
+        } else {
+          for (int yr_counter = 0; yr_counter < theclairvoyant; yr_counter++) {
+            if (yr_counter == 0) {
+              twinput = twinput_markov.col(0);
+            }
+            twinput = twinput / sum(twinput);
+            
+            arma::uvec theprophecy_piecemeal = Rcpp::RcppArmadillo::sample(choicevec,
+              1, true, twinput);
+            theprophecy(yr_counter) = theprophecy_piecemeal(0);
+            
+            arma::uvec tnotb_preassigned = find(choicevec == theprophecy_piecemeal(0));
+            twinput = twinput_markov.col(static_cast<int>(tnotb_preassigned(0)));
+          }
+        }
         
         arma::mat projection;
         if (is<S4>(meanmatyearlist(0))) { 
           projection = proj3sp(startvec, meanmatyearlist, theprophecy, 1, 1, 0);
         } else {
-          projection = proj3(startvec, meanmatyearlist, theprophecy, 1, 1, 0, sparse_auto, sparse_switch);
+          projection = proj3(startvec, meanmatyearlist, theprophecy, 1, 1, 0,
+            sparse_auto, sparse_switch);
         }
         
         for (int j = 0; j < theclairvoyant; j++) {
@@ -18877,10 +18950,10 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
           slmat(j,(allppcsnem +i)) = log(madness);
         }
         
-        sl_mean((allppcsnem +i)) = mean(slmat.col((allppcsnem +i)));
-        sl_var((allppcsnem +i)) = var(slmat.col((allppcsnem +i)));
-        sl_sd((allppcsnem +i)) = stddev(slmat.col((allppcsnem +i)));
-        sl_se((allppcsnem +i)) = sl_sd((allppcsnem +i)) / sqrt(static_cast<double>(theclairvoyant));
+        sl_mean((allppcsnem + i)) = mean(slmat.col((allppcsnem +i)));
+        sl_var((allppcsnem + i)) = var(slmat.col((allppcsnem +i)));
+        sl_sd((allppcsnem + i)) = stddev(slmat.col((allppcsnem +i)));
+        sl_se((allppcsnem + i)) = sl_sd((allppcsnem +i)) / sqrt(static_cast<double>(theclairvoyant));
       }
     }
     return DataFrame::create(_["pop"] = mmpops, _["patch"] = mmpatches,
@@ -18913,20 +18986,45 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
       uniqueyears(i) = i;
     }
     
-    arma::vec twinput;
     if (matrows != matcols) {
       throw Rcpp::exception("Supplied matrices must be square. Please check matrix dimensions.",
         false);
     }
     
+    arma::vec twinput;
+    arma::mat twinput_markov;
     if (tweights.isNotNull()) {
-      twinput = as<arma::vec>(tweights);
-      if (static_cast<int>(twinput.n_elem) != yl) {
-        String eat_my_shorts = "Time weight vector must be the same length as the number ";
-        String eat_my_shorts1 = "of occasions represented in the lefkoMat object used as input.";
-        eat_my_shorts += eat_my_shorts1;
+      if (Rf_isMatrix(tweights)) {
+        twinput_markov = as<arma::mat>(tweights);
+        assume_markov = true;
         
-        throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        if (static_cast<int>(twinput_markov.n_cols) != yl) {
+          String eat_my_shorts = "Time weight matrix must have the same number of columns as the number ";
+          String eat_my_shorts1 = "of occasions represented in the lefkoMat object used as input.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+        if (twinput_markov.n_cols != twinput_markov.n_rows) {
+          String eat_my_shorts = "Time weight matrix must be square.";
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+        
+      } else if (is<NumericVector>(tweights)) {
+        twinput = as<arma::vec>(tweights);
+        
+        if (static_cast<int>(twinput.n_elem) != yl) {
+          String eat_my_shorts = "Time weight vector must be the same length as the number ";
+          String eat_my_shorts1 = "of occasions represented in the lefkoMat object used as input.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+        
+      } else {
+        throw Rcpp::exception("Object input in argument tweights is not a valid numeric vector or matrix.",
+          false);
       }
       
     } else {
@@ -18934,7 +19032,7 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
       twinput.ones();
     }
     
-    // Now we create the mean matrix
+    // Create mean matrix
     arma::mat thechosenone;
     arma::sp_mat thechosenone_sp;
     
@@ -18954,7 +19052,7 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
       }
     }
     
-    // Take each matrix, run simulation, estimate all metrics
+    // Run simulation, estimate all metrics
     arma::vec startvec;
     int trials {1};
     
@@ -18969,11 +19067,28 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
     sl_sd.zeros();
     sl_se.zeros();
     
-    twinput = twinput / sum(twinput);
-    
     arma::uvec thenumbersofthebeast = uniqueyears;
-    arma::uvec theprophecy = Rcpp::RcppArmadillo::sample(thenumbersofthebeast,
-      theclairvoyant, true, twinput);
+    arma::uvec theprophecy (theclairvoyant);
+    if (!assume_markov) {
+      twinput = twinput / sum(twinput);
+      theprophecy = Rcpp::RcppArmadillo::sample(thenumbersofthebeast,
+        theclairvoyant, true, twinput);
+      
+    } else if (assume_markov) {
+      for (int yr_counter = 0; yr_counter < theclairvoyant; yr_counter++) {
+        if (yr_counter == 0) {
+          twinput = twinput_markov.col(0);
+        }
+        twinput = twinput / sum(twinput);
+        
+        arma::uvec theprophecy_piecemeal = Rcpp::RcppArmadillo::sample(thenumbersofthebeast,
+          1, true, twinput);
+        theprophecy(yr_counter) = theprophecy_piecemeal(0);
+          
+        arma::uvec tnotb_preassigned = find(thenumbersofthebeast == theprophecy_piecemeal(0));
+        twinput = twinput_markov.col(static_cast<int>(tnotb_preassigned(0)));
+      }
+    }
     
     arma::mat projection;
     if (!matrix_class_input) {
