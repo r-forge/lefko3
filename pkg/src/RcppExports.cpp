@@ -731,8 +731,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // stoch_senselas
-Rcpp::List stoch_senselas(const List& mpm, int times, bool historical, int style, int sparse, Nullable<NumericVector> tweights);
-RcppExport SEXP _lefko3_stoch_senselas(SEXP mpmSEXP, SEXP timesSEXP, SEXP historicalSEXP, SEXP styleSEXP, SEXP sparseSEXP, SEXP tweightsSEXP) {
+Rcpp::List stoch_senselas(const List& mpm, int times, bool historical, int style, int sparse, bool lefkoProj, Nullable<RObject> tweights);
+RcppExport SEXP _lefko3_stoch_senselas(SEXP mpmSEXP, SEXP timesSEXP, SEXP historicalSEXP, SEXP styleSEXP, SEXP sparseSEXP, SEXP lefkoProjSEXP, SEXP tweightsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -741,8 +741,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type historical(historicalSEXP);
     Rcpp::traits::input_parameter< int >::type style(styleSEXP);
     Rcpp::traits::input_parameter< int >::type sparse(sparseSEXP);
-    Rcpp::traits::input_parameter< Nullable<NumericVector> >::type tweights(tweightsSEXP);
-    rcpp_result_gen = Rcpp::wrap(stoch_senselas(mpm, times, historical, style, sparse, tweights));
+    Rcpp::traits::input_parameter< bool >::type lefkoProj(lefkoProjSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type tweights(tweightsSEXP);
+    rcpp_result_gen = Rcpp::wrap(stoch_senselas(mpm, times, historical, style, sparse, lefkoProj, tweights));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1148,7 +1149,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_lefko3_proj3sp", (DL_FUNC) &_lefko3_proj3sp, 6},
     {"_lefko3_projection3", (DL_FUNC) &_lefko3_projection3, 18},
     {"_lefko3_slambda3", (DL_FUNC) &_lefko3_slambda3, 5},
-    {"_lefko3_stoch_senselas", (DL_FUNC) &_lefko3_stoch_senselas, 6},
+    {"_lefko3_stoch_senselas", (DL_FUNC) &_lefko3_stoch_senselas, 7},
     {"_lefko3_ltre3matrix", (DL_FUNC) &_lefko3_ltre3matrix, 5},
     {"_lefko3_sltre3matrix", (DL_FUNC) &_lefko3_sltre3matrix, 9},
     {"_lefko3_snaltre3matrix", (DL_FUNC) &_lefko3_snaltre3matrix, 7},

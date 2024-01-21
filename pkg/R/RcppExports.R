@@ -3511,7 +3511,7 @@ slambda3 <- function(mpm, times = 10000L, historical = FALSE, tweights = NULL, f
 #' @name .stoch_senselas
 #' 
 #' @param mpm A matrix projection model of class \code{lefkoMat}, or a list of
-#' full matrix projection matrices.
+#' projection matrices.
 #' @param times Number of occasions to iterate. Defaults to 10,000.
 #' @param historical An optional logical value only used if object \code{mpm}
 #' is a list of matrices, rather than a \code{lefkoMat} object. Defaults to
@@ -3521,8 +3521,15 @@ slambda3 <- function(mpm, times = 10000L, historical = FALSE, tweights = NULL, f
 #' (\code{1}) or elasticity matrices (\code{2}). Defaults to \code{1}.
 #' @param sparse An integer denoting whether to run the projection in sparse
 #' (\code{1}) format or standard (\code{0}) format.
-#' @param tweights Numeric vector denoting the probabilistic weightings of
-#' annual matrices. Defaults to equal weighting among occasions.
+#' @param lefkoProj A logical value indicating whether the input MPM is a
+#' \code{lefkoProj} object. Defaults to \code{TRUE}.
+#' @param tweights An optional numeric vector or matrix denoting the
+#' probabilities of choosing each matrix in a stochastic projection. If a
+#' matrix is input, then a first-order Markovian environment is assumed, in
+#' which the probability of choosing a specific annual matrix depends on which
+#' annual matrix is currently chosen. If a vector is input, then the choice of
+#' annual matrix is assumed to be independent of the current matrix. Defaults
+#' to equal weighting among matrices.
 #' 
 #' @return A list of one or two cubes (3d array) where each slice corresponds
 #' to a sensitivity or elasticity matrix for a specific pop-patch, followed by
@@ -3535,7 +3542,9 @@ slambda3 <- function(mpm, times = 10000L, historical = FALSE, tweights = NULL, f
 #' @section Notes:
 #' Weightings given in \code{tweights} do not need to sum to 1. Final
 #' weightings used will be based on the proportion per element of the sum of
-#' elements in the user-supplied vector.
+#' elements in the user-supplied vector. Alternatively, a matrix may be
+#' supplied, in which case it is assumed that the environment is first-order
+#' Markovian.
 #' 
 #' This function currently requires all patches to have the same occasions, if
 #' a \code{lefkoMat} object is used as input. Asymmetry in the number of
@@ -3543,8 +3552,8 @@ slambda3 <- function(mpm, times = 10000L, historical = FALSE, tweights = NULL, f
 #'
 #' @keywords internal
 #' @noRd
-.stoch_senselas <- function(mpm, times = 10000L, historical = FALSE, style = 1L, sparse = 0L, tweights = NULL) {
-    .Call('_lefko3_stoch_senselas', PACKAGE = 'lefko3', mpm, times, historical, style, sparse, tweights)
+.stoch_senselas <- function(mpm, times = 10000L, historical = FALSE, style = 1L, sparse = 0L, lefkoProj = TRUE, tweights = NULL) {
+    .Call('_lefko3_stoch_senselas', PACKAGE = 'lefko3', mpm, times, historical, style, sparse, lefkoProj, tweights)
 }
 
 #' Estimate LTRE of Any Population Matrix
