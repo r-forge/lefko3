@@ -20323,8 +20323,8 @@ Rcpp::List ltre3matrix(const List& Amats, Rcpp::IntegerVector refnum,
 //' @param refnum An integer vector giving the numbers of the matrices to use as
 //' reference from \code{refmats}.
 //' @param refmats_ A list of reference population projection matrices.
-//' @param tweights_ Numeric vector denoting the probabilistic weightings of
-//' annual matrices. Defaults to equal weighting among occasions.
+//' @param tweights_ Numeric vector or matrix denoting the probabilistic
+//' weightings of annual matrices. Defaults to equal weighting among occasions.
 //' @param steps The number of occasions to project the stochastic simulation
 //' forward, if performing an sLTRE. Defaults to \code{10000}. Note that the
 //' total number of occasions projected equals this number plus the number given
@@ -20351,10 +20351,11 @@ Rcpp::List ltre3matrix(const List& Amats, Rcpp::IntegerVector refnum,
 // [[Rcpp::export(.sltre3matrix)]]
 Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
   Rcpp::IntegerVector refnum, Nullable<Rcpp::List> refmats_ = R_NilValue,
-  Nullable<arma::vec> tweights_ = R_NilValue, int steps = 10000,
+  Nullable<RObject> tweights_ = R_NilValue, int steps = 10000,
   int burnin = 3000, bool sparse = false, double tol_used = 1e-30) {
   
   bool sparse_input {false};
+  bool assume_markov {false};
   if (is<S4>(Amats(0))) sparse_input = true;
   
   int refmatnum = refnum.length();
@@ -20370,7 +20371,6 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
   }
   
   int theclairvoyant = steps + burnin;
-  arma::vec tweights;
   
   int Amatnum = Amats.length();
   int matdim {0};
@@ -20406,9 +20406,6 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
   arma::uvec uniqueyears = unique(year2c);
   int numpoppatches = static_cast<int>(uniquepoppatches.n_elem);
   int numyears = static_cast<int>(uniqueyears.n_elem);
-  
-  arma::vec twinput_corr;
-  arma::uvec theprophecy;
   
   List poppatch_meanmat_temp (numpoppatches);
   List poppatch_sdmat_temp (numpoppatches);
@@ -20754,23 +20751,69 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
   }
   
   // Time weights
+  arma::vec twinput;
+  arma::mat twinput_markov;
   if (tweights_.isNotNull()) {
-    tweights = as<arma::vec>(tweights_);
-    if (static_cast<int>(tweights.n_elem) != numyears) {
-      String eat_my_shorts = "Time weight vector must be the same length as the number ";
-      String eat_my_shorts1 = "of occasions in the reference matrix set.";
-      eat_my_shorts += eat_my_shorts1;
+    if (Rf_isMatrix(tweights_)) {
+      twinput_markov = as<arma::mat>(tweights_);
+      assume_markov = true;
       
-      throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+      if (static_cast<int>(twinput_markov.n_cols) != numyears) {
+        String eat_my_shorts = "Time weight matrix must have the same number of columns as the number ";
+        String eat_my_shorts1 = "of occasions represented in the lefkoMat object used as input.";
+        eat_my_shorts += eat_my_shorts1;
+        
+        throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+      }
+      if (twinput_markov.n_cols != twinput_markov.n_rows) {
+        String eat_my_shorts = "Time weight matrix must be square.";
+        
+        throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+      }
+      
+    } else if (is<NumericVector>(tweights_)) {
+      twinput = as<arma::vec>(tweights_);
+      
+      if (static_cast<int>(twinput.n_elem) != numyears) {
+        String eat_my_shorts = "Time weight vector must be the same length as the number ";
+        String eat_my_shorts1 = "of occasions represented in the lefkoMat object used as input.";
+        eat_my_shorts += eat_my_shorts1;
+        
+        throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+      }
+      
+    } else {
+      throw Rcpp::exception("Argument tweights must be a valid numeric vector or matrix.",
+        false);
     }
   } else {
-    tweights.resize(numyears);
-    tweights.ones();
+    twinput.resize(numyears);
+    twinput.ones();
   }
   
   // Vector of chosen occasions, sampled from all possible occasions
-  tweights = tweights / sum(tweights);
-  theprophecy = Rcpp::RcppArmadillo::sample(uniqueyears, theclairvoyant, true, tweights);
+  arma::uvec theprophecy (theclairvoyant);
+  if (!assume_markov) {
+    arma::vec twinput_corr = twinput / sum(twinput);
+    theprophecy = Rcpp::RcppArmadillo::sample(uniqueyears, theclairvoyant, true,
+      twinput_corr);
+    
+  } else if (assume_markov) {
+    arma::vec twinput_corr;
+    for (int yr_counter = 0; yr_counter < theclairvoyant; yr_counter++) {
+      if (yr_counter == 0) {
+        twinput = twinput_markov.col(0);
+      }
+      twinput_corr = twinput / sum(twinput);
+      
+      arma::uvec theprophecy_piecemeal = Rcpp::RcppArmadillo::sample(uniqueyears,
+        1, true, twinput_corr);
+      theprophecy(yr_counter) = theprophecy_piecemeal(0);
+      
+      arma::uvec tnotb_preassigned = find(uniqueyears == theprophecy_piecemeal(0));
+      twinput = twinput_markov.col(static_cast<int>(tnotb_preassigned(0)));
+    }
+  }
   
   arma::vec startvec(matdim, fill::ones);
   startvec = startvec / matdim; // This is the start vector for w and v calculations
@@ -21040,7 +21083,7 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
     
     arma::uvec unseemly_neg = find(tweights < 0.0);
     if (unseemly_neg.n_elem > 0) {
-      throw Rcpp::exception("Argument time_weights cannot include negative values.", false);
+      throw Rcpp::exception("Argument tweights cannot include negative values.", false);
     }
     
     arma::uvec nonzero_tweights_index = find(tweights);

@@ -3,8 +3,8 @@
 ## NEW FEATURES
 
 * Functions projection3(), f_projection3(), slambda3(), stablestage3(),
-  repvalue3(), sensitivity3(), and elasticity3() can now perform first-order
-  Markovian temporally stochastic simulations.
+  repvalue3(), sensitivity3(), elasticity3(), and ltre3() can now perform
+  first-order Markovian temporally stochastic simulations.
   
 * Functions stablestage3() and repvalue3() can now handle stochastic
   projections.

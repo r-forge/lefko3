@@ -763,7 +763,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // sltre3matrix
-Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels, Rcpp::IntegerVector refnum, Nullable<Rcpp::List> refmats_, Nullable<arma::vec> tweights_, int steps, int burnin, bool sparse, double tol_used);
+Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels, Rcpp::IntegerVector refnum, Nullable<Rcpp::List> refmats_, Nullable<RObject> tweights_, int steps, int burnin, bool sparse, double tol_used);
 RcppExport SEXP _lefko3_sltre3matrix(SEXP AmatsSEXP, SEXP labelsSEXP, SEXP refnumSEXP, SEXP refmats_SEXP, SEXP tweights_SEXP, SEXP stepsSEXP, SEXP burninSEXP, SEXP sparseSEXP, SEXP tol_usedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -772,7 +772,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const DataFrame& >::type labels(labelsSEXP);
     Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type refnum(refnumSEXP);
     Rcpp::traits::input_parameter< Nullable<Rcpp::List> >::type refmats_(refmats_SEXP);
-    Rcpp::traits::input_parameter< Nullable<arma::vec> >::type tweights_(tweights_SEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type tweights_(tweights_SEXP);
     Rcpp::traits::input_parameter< int >::type steps(stepsSEXP);
     Rcpp::traits::input_parameter< int >::type burnin(burninSEXP);
     Rcpp::traits::input_parameter< bool >::type sparse(sparseSEXP);

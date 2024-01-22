@@ -3596,8 +3596,8 @@ slambda3 <- function(mpm, times = 10000L, historical = FALSE, tweights = NULL, f
 #' @param refnum An integer vector giving the numbers of the matrices to use as
 #' reference from \code{refmats}.
 #' @param refmats_ A list of reference population projection matrices.
-#' @param tweights_ Numeric vector denoting the probabilistic weightings of
-#' annual matrices. Defaults to equal weighting among occasions.
+#' @param tweights_ Numeric vector or matrix denoting the probabilistic
+#' weightings of annual matrices. Defaults to equal weighting among occasions.
 #' @param steps The number of occasions to project the stochastic simulation
 #' forward, if performing an sLTRE. Defaults to \code{10000}. Note that the
 #' total number of occasions projected equals this number plus the number given

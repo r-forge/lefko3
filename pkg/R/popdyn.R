@@ -3732,18 +3732,25 @@ elasticity3.list <- function(mats, stochastic = FALSE, times = 10000,
 #' @param stochastic A logical value determining whether to conduct a
 #' deterministic (\code{FALSE}) or stochastic (\code{TRUE}) elasticity analysis.
 #' Defaults to \code{FALSE}.
-#' @param steps The number of occasions to project forward in stochastic
+#' @param times The number of occasions to project forward in stochastic
 #' simulation. Defaults to \code{10000}.
 #' @param burnin The number of initial steps to ignore in stochastic projection
 #' when calculating stochastic elasticities. Must be smaller than \code{steps}.
 #' Defaults to \code{3000}.
-#' @param time_weights Numeric vector denoting the probabilistic weightings of
-#' all matrices. Defaults to equal weighting among matrices.
-#' @param force_sparse A string indicating whether to use sparse matrix encoding
+#' @param tweights An optional numeric vector or matrix denoting the
+#' probabilities of choosing each matrix in a stochastic projection. If a matrix
+#' is input, then a first-order Markovian environment is assumed, in which the
+#' probability of choosing a specific annual matrix depends on which annual
+#' matrix is currently chosen. If a vector is input, then the choice of annual
+#' matrix is assumed to be independent of the current matrix. Defaults to equal
+#' weighting among matrices. Note that SNA-LTRE analysis cannot take matrix
+#' input.
+#' @param sparse A text string indicating whether to use sparse matrix encoding
 #' (\code{"yes"}) or dense matrix encoding (\code{"no"}). Defaults to
-#' \code{"auto"}. Can also be set to a logical value of \code{TRUE} or
-#' \code{FALSE}.
-#' @param rseed Optional numeric value corresponding to the random seed for
+#' \code{"auto"}, in which case sparse matrix encoding is used with square
+#' matrices with at least 50 rows and no more than 50\% of elements with values
+#' greater than zero.
+#' @param seed Optional numeric value corresponding to the random seed for
 #' stochastic simulation.
 #' @param append_mats A logical value denoting whether to include the original
 #' \code{A}, \code{U}, and \code{F} matrices in the returned \code{lefkoLTRE}
@@ -3788,7 +3795,7 @@ elasticity3.list <- function(mats, stochastic = FALSE, times = 10000,
 #' 108760 (doi: 10.1016/j.ecolmodel.2019.108760).
 #' 
 #' All stochastic and small noise approximation LTREs conducted without
-#' reference matrices are conducted as spatial tests of the population dynamics
+#' reference matrices are performed as spatial tests of the population dynamics
 #' among patches.
 #' 
 #' Default behavior for stochastic LTRE uses the full population provided in
@@ -3801,14 +3808,14 @@ elasticity3.list <- function(mats, stochastic = FALSE, times = 10000,
 #' the same \code{mats} object (although such analysis is possible if these
 #' populations are designated as patches instead).
 #' 
-#' If \code{force_sparse = "auto"}, the default, then sparse matrix encoding
+#' If \code{sparse = "auto"}, the default, then sparse matrix encoding
 #' will be used if the size of the input matrices is at least 50 columns by 50
 #' rows for deterministic and stochastic LTREs and 10 columns by 10 rows for
 #' small noise approximation LTREs, in all cases as long as 50\% of the elements
 #' in the first matrix are non-zero.
 #' 
-#' Note that stochastic LTREs do not test for the impact of temporal change in
-#' vital rates. An MPM with a single population, a single patch, and only annual
+#' Stochastic LTREs do not test for the impact of temporal change in vital
+#' rates. An MPM with a single population, a single patch, and only annual
 #' matrices will produce contributions of 0 to stochastic \eqn{\lambda}.
 #' 
 #' Speed can sometimes be increased by shifting from automatic sparse matrix
@@ -3816,6 +3823,14 @@ elasticity3.list <- function(mats, stochastic = FALSE, times = 10000,
 #' likely occur when matrices have between 10 and 300 rows and columns.
 #' Defaults work best when matrices are very small and dense, or very large and
 #' sparse.
+#' 
+#' SNA-LTRE analysis cannot test the impact of first-order Markovian
+#' environments. However, different random weightings of annual matrices are
+#' allowed if given in vector format.
+#' 
+#' The \code{time_weights}, \code{steps}, \code{force_sparse}, and \code{rseed}
+#' arguments are now deprecated. Instead, please use the \code{tweights},
+#' \code{times}, \code{sparse}, and \code{seed} arguments.
 #' 
 #' @seealso \code{\link{summary.lefkoLTRE}()}
 #' 
@@ -3865,40 +3880,60 @@ elasticity3.list <- function(mats, stochastic = FALSE, times = 10000,
 #' 
 #' @export
 ltre3 <- function(mats, refmats = NA, ref = NA, stochastic = FALSE,
-  steps = 10000, burnin = 3000, time_weights = NA, force_sparse = "auto",
-  rseed = NA, append_mats = FALSE, sna_ltre = FALSE, tol = 1e-30, ...) {
+  times = 10000, burnin = 3000, tweights = NA, sparse = "auto", seed = NA,
+  append_mats = FALSE, sna_ltre = FALSE, tol = 1e-30, ...) {
   
   sparsemethod <- 0
   sparse_input <- FALSE
+  
+  possible_args <- c("mats", "stochastic", "times", "tweights", "rseed",
+    "seed", "force_sparse", "sparse", "append_mats", "time_weights", "steps",
+    "refmats", "ref", "sna_ltre", "tol")
+  further_args <- list(...)
+  further_args_names <- names(further_args)
+  if (length(setdiff(further_args_names, possible_args)) > 0) {
+    stop("Some arguments not recognized.", call. = FALSE)
+  }
+  if ("time_weights" %in% further_args_names) {
+    stop("Argument time_weights is deprecated. Please use argument tweights instead",
+      call. = FALSE)
+  }
+  if ("steps" %in% further_args_names) {
+    stop("Argument steps is deprecated. Please use argument times instead",
+      call. = FALSE)
+  }
+  if ("force_sparse" %in% further_args_names) {
+    stop("Argument force_sparse is deprecated. Please use argument sparse instead",
+      call. = FALSE)
+  }
+  if ("rseed" %in% further_args_names) {
+    stop("Argument rseed is deprecated. Please use argument seed instead",
+      call. = FALSE)
+  }
   
   if (!is(mats, "lefkoMat")) stop("Function ltre3() requires a lefkoMat object as input.",
     call. = FALSE)
   if (is(mats$A[[1]], "dgCMatrix")) sparse_input = TRUE
   
-  if (!all(is.na(rseed))) set.seed(rseed);
-  
-  if (!sparse_input) {
-    if (is.logical(force_sparse)) {
-      if (force_sparse) {
-        sparsemethod <- 1
-      } else {
-        sparsemethod <- 0
-      }
-    } else if (is.element(tolower(force_sparse), c("y", "yes", "yea", "yeah", "t", "true"))) {
+  if (is.logical(sparse)) {
+    if (sparse) {
       sparsemethod <- 1
-    } else if (is.element(tolower(force_sparse), c("n", "no", "non", "nah", "f", "false"))) {
-      sparsemethod <- 0
+    } else sparsemethod <- 0
+  } else if (is.element(tolower(sparse), c("y", "yes", "yea", "yeah", "t", "true", "ja", "tak"))) {
+    sparsemethod <- 1
+  } else if (is.element(tolower(sparse), c("n", "no", "non", "nah", "f", "false", "nein", "nie"))) {
+    sparsemethod <- 0
+  } else {
+    elements_total <- length(mats$A[[1]])
+    dense_elements <- if (!sparse_input ) {
+      length(which(mats$A[[1]] != 0))
     } else {
-      elements_total <- length(mats$A[[1]])
-      dense_elements <- length(which(mats$A[[1]] != 0))
-      
-      check_elements <- 100
-      if (sna_ltre == FALSE) check_elements <- 2500
-      
-      if ((dense_elements / elements_total) <= 0.5 & elements_total > check_elements) {
-        sparsemethod <- 1
-      } else sparsemethod <- 0
+      sum(diff(mats$A[[1]]@p))
     }
+    
+    if ((dense_elements / elements_total) < 0.5 & elements_total > 2500) {
+      sparsemethod <- 1
+    } else sparsemethod <- 0
   }
   
   if (!is.element("agestages", names(mats))) {
@@ -3985,50 +4020,59 @@ ltre3 <- function(mats, refmats = NA, ref = NA, stochastic = FALSE,
     
   } else {
     # Stochastic and SNA LTRE analysis
-    if (burnin >= steps) {
+    if (burnin >= times) {
       stop("Option burnin must be smaller than option steps.", call. = FALSE)
+    }
+    
+    if (!is.na(seed[1])) {
+      set.seed(seed[1])
     }
     
     if (!sna_ltre) {
       if (all(is.na(refmats))) {
-        if (all(is.na(time_weights))) {
+        if (all(is.na(tweights))) {
           baldrick <- .sltre3matrix(mats$A, labels = mats$labels, refnum = ref,
-            steps = steps, burnin = burnin, sparse = sparsemethod,
+            steps = times, burnin = burnin, sparse = sparsemethod,
             tol_used = tol)
         } else {
           baldrick <- .sltre3matrix(mats$A, labels = mats$labels, refnum = ref,
-            tweights_ = time_weights, steps = steps, burnin = burnin,
+            tweights_ = tweights, steps = times, burnin = burnin,
             sparse = sparsemethod, tol_used = tol)
         }
       } else {
-        if (all(is.na(time_weights))) {
+        if (all(is.na(tweights))) {
           baldrick <- .sltre3matrix(mats$A, labels = mats$labels, refnum = ref,
-            refmats_ = refmats, steps = steps, burnin = burnin,
+            refmats_ = refmats, steps = times, burnin = burnin,
             sparse = sparsemethod, tol_used = tol)
         } else {
           baldrick <- .sltre3matrix(mats$A, labels = mats$labels, refnum = ref,
-            refmats_ = refmats, tweights_ = time_weights, steps = steps,
+            refmats_ = refmats, tweights_ = tweights, steps = times,
             burnin = burnin, sparse = sparsemethod, tol_used = tol)
         }
       }
     } else {
+      if (is.matrix(tweights)) {
+        stop("SNA-LTRE analysis cannot proceed with matrix input in the tweights argument. Use vectors only.",
+          call. = FALSE)
+      }
+      
       if (all(is.na(refmats))) {
-        if (all(is.na(time_weights))) {
+        if (all(is.na(tweights))) {
           baldrick <- .snaltre3matrix(mats$A, labels = mats$labels,
             refnum = ref, sparse = sparsemethod, tol_used = tol)
         } else {
           baldrick <- .snaltre3matrix(mats$A, labels = mats$labels,
-            refnum = ref, tweights_ = time_weights, sparse = sparsemethod,
+            refnum = ref, tweights_ = tweights, sparse = sparsemethod,
             tol_used = tol)
         }
       } else {
-        if (all(is.na(time_weights))) {
+        if (all(is.na(tweights))) {
           baldrick <- .snaltre3matrix(mats$A, labels = mats$labels,
             refnum = ref, refmats_ = refmats, sparse = sparsemethod,
             tol_used = tol)
         } else {
           baldrick <- .snaltre3matrix(mats$A, labels = mats$labels,
-            refnum = ref, refmats_ = refmats, tweights_ = time_weights,
+            refnum = ref, refmats_ = refmats, tweights_ = tweights,
             sparse = sparsemethod, tol_used = tol)
         }
       }
