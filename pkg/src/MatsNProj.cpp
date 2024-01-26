@@ -18345,7 +18345,7 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
           false);
       }
       
-      IntegerVector years_ = as<IntegerVector>(year);
+      IntegerVector years_ = clone(as<IntegerVector>(year));
       years_ = years_ - 1;
       
       int member_sum {0};

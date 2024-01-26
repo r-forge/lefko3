@@ -1,4 +1,4 @@
-# lefko3 6.2.0 (2023-XX-XX)
+# lefko3 6.2.0 (2024-01-26)
 
 ## NEW FEATURES
 
@@ -23,6 +23,9 @@
 ## USER VISIBLE CHANGES
 
 * Some arguments have been standardized across population dynamics functions.
+
+* Zero-inflated Poisson and negative binomial GLMs have been disabled in
+  function modelsearch() pending issues in package pscl.
 
 ## BUG FIXES
 
