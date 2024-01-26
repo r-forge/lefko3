@@ -6449,7 +6449,7 @@ List mothermccooney(const DataFrame& listofyears, const List& modelsuite,
 //' occasion in each replicate in each pop-patch or population. The list
 //' structure is the same as in \code{\link{projection3}()}.}
 //' \item{pop_size}{A list of matrices showing the total population size in each
-//' occasion per replicate (row within data frame) per pop-patch or population
+//' occasion per replicate (row within matrix) per pop-patch or population
 //' (list element). Only a single pop-patch or population is allowed in
 //' \code{f_projection3()}.}
 //' \item{labels}{A data frame showing the order of populations and patches in
@@ -8461,18 +8461,18 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
   }
   
   // Ind_terms data frame
-  NumericVector f2_inda_values(times);
-  NumericVector f2_indb_values(times);
-  NumericVector f2_indc_values(times);
-  NumericVector f1_inda_values(times);
-  NumericVector f1_indb_values(times);
-  NumericVector f1_indc_values(times);
-  CharacterVector r2_inda_values(times);
-  CharacterVector r2_indb_values(times);
-  CharacterVector r2_indc_values(times);
-  CharacterVector r1_inda_values(times);
-  CharacterVector r1_indb_values(times);
-  CharacterVector r1_indc_values(times);
+  NumericVector f2_inda_values(num_years);
+  NumericVector f2_indb_values(num_years);
+  NumericVector f2_indc_values(num_years);
+  NumericVector f1_inda_values(num_years);
+  NumericVector f1_indb_values(num_years);
+  NumericVector f1_indc_values(num_years);
+  CharacterVector r2_inda_values(num_years);
+  CharacterVector r2_indb_values(num_years);
+  CharacterVector r2_indc_values(num_years);
+  CharacterVector r1_inda_values(num_years);
+  CharacterVector r1_indb_values(num_years);
+  CharacterVector r1_indc_values(num_years);
   
   NumericVector f_inda_topull;
   NumericVector f_indb_topull;
@@ -8965,25 +8965,14 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
   int rindb_limit = r_indb_topull.length();
   int rindc_limit = r_indc_topull.length();
   
-  for (int i = 0; i < times; i++) {
-    if (year_counter == year_limit) year_counter = 0;
-    if (patch_counter == patch_limit) patch_counter = 0;
-    if (spdensity_counter == spdensity_limit) spdensity_counter = 0;
+  for (int i = 0; i < num_years; i++) {
     if (finda_counter >= finda_limit) finda_counter = 0;
     if (rinda_counter >= rinda_limit) rinda_counter = 0;
     if (findb_counter >= findb_limit) findb_counter = 0;
     if (rindb_counter >= rindb_limit) rindb_counter = 0;
     if (findc_counter >= findc_limit) findc_counter = 0;
     if (rindc_counter >= rindc_limit) rindc_counter = 0;
-    if (dev_counter >= veclimits) dev_counter = 0;
     
-    for (int j = 0; j < nreps; j++) {
-      years_projected(i, j) = years_topull(year_counter + times * j);
-    }
-    
-    patches_projected(i) = patches_topull(patch_counter);
-    spdensity_projected(i) = spdensity_topull(spdensity_counter);
-    if (NumericVector::is_na(spdensity_projected(i))) spdensity_projected(i) = 0.0;
     f2_inda_values(i) = f_inda_topull(finda_counter);
     r2_inda_values(i) = r_inda_topull(rinda_counter);
     f2_indb_values(i) = f_indb_topull(findb_counter);
@@ -9005,6 +8994,28 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
       r1_indc_values(i) = modelnone(0);
     }
     
+    finda_counter++;
+    rinda_counter++;
+    findb_counter++;
+    rindb_counter++;
+    findc_counter++;
+    rindc_counter++;
+  }
+  
+  for (int i = 0; i < times; i++) {
+    if (year_counter == year_limit) year_counter = 0;
+    if (patch_counter == patch_limit) patch_counter = 0;
+    if (spdensity_counter == spdensity_limit) spdensity_counter = 0;
+    if (dev_counter >= veclimits) dev_counter = 0;
+    
+    for (int j = 0; j < nreps; j++) {
+      years_projected(i, j) = years_topull(year_counter + times * j);
+    }
+    
+    patches_projected(i) = patches_topull(patch_counter);
+    spdensity_projected(i) = spdensity_topull(spdensity_counter);
+    if (NumericVector::is_na(spdensity_projected(i))) spdensity_projected(i) = 0.0;
+    
     sur_dev_values(i) = surv_dev_extracted(dev_counter);
     obs_dev_values(i) = obs_dev_extracted(dev_counter);
     siz_dev_values(i) = size_dev_extracted(dev_counter);
@@ -9023,12 +9034,6 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     year_counter++;
     patch_counter++;
     spdensity_counter++;
-    finda_counter++;
-    rinda_counter++;
-    findb_counter++;
-    rindb_counter++;
-    findc_counter++;
-    rindc_counter++;
     dev_counter++;
   }
   
@@ -17195,8 +17200,8 @@ arma::mat proj3dens(const arma::vec& start_vec, const List& core_list,
 //' \item{rep_value}{A list of lists of the actual reproductive value in each
 //' occasion in each replicate in each pop-patch or population. The list order
 //' is the same as in \code{projection}.}
-//' \item{pop_size}{A list of data frames showing the total population size in
-//' each occasion per replicate (row within data frame) per pop-patch or
+//' \item{pop_size}{A list of matrices showing the total population size in
+//' each occasion per replicate (row within matrix) per pop-patch or
 //' population (list element).}
 //' \item{labels}{A data frame showing the order of populations and patches in
 //' item \code{projection}.}

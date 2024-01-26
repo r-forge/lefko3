@@ -16,6 +16,9 @@
 
 * Function matrix_interp() created to aid in summarizing results from analyses
   of huge matrices.
+  
+* Function lambda3() now estimates population growth rate and its logarithm in
+  lefkoProj objects.
 
 ## USER VISIBLE CHANGES
 
@@ -25,6 +28,9 @@
 
 * Function f_projection3() no longer fails when non-stochastic projections are
   conducted with multiple times.
+  
+* Function f_projection3() no longer fails when the number of times requested is
+  lower than the number of recognized times in the dataset.
   
 * Functions stablestage3() and repvalue3() no longer fail when a tweights
   vector or matrix is entered.

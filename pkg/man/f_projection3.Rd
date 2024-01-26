@@ -385,7 +385,7 @@ structure is the same as in \code{\link{projection3}()}.}
 occasion in each replicate in each pop-patch or population. The list
 structure is the same as in \code{\link{projection3}()}.}
 \item{pop_size}{A list of matrices showing the total population size in each
-occasion per replicate (row within data frame) per pop-patch or population
+occasion per replicate (row within matrix) per pop-patch or population
 (list element). Only a single pop-patch or population is allowed in
 \code{f_projection3()}.}
 \item{labels}{A data frame showing the order of populations and patches in

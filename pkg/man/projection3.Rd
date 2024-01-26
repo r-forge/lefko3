@@ -127,8 +127,8 @@ is the same as in \code{projection}.}
 \item{rep_value}{A list of lists of the actual reproductive value in each
 occasion in each replicate in each pop-patch or population. The list order
 is the same as in \code{projection}.}
-\item{pop_size}{A list of data frames showing the total population size in
-each occasion per replicate (row within data frame) per pop-patch or
+\item{pop_size}{A list of matrices showing the total population size in
+each occasion per replicate (row within matrix) per pop-patch or
 population (list element).}
 \item{labels}{A data frame showing the order of populations and patches in
 item \code{projection}.}

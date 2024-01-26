@@ -2150,7 +2150,7 @@ NULL
 #' occasion in each replicate in each pop-patch or population. The list
 #' structure is the same as in \code{\link{projection3}()}.}
 #' \item{pop_size}{A list of matrices showing the total population size in each
-#' occasion per replicate (row within data frame) per pop-patch or population
+#' occasion per replicate (row within matrix) per pop-patch or population
 #' (list element). Only a single pop-patch or population is allowed in
 #' \code{f_projection3()}.}
 #' \item{labels}{A data frame showing the order of populations and patches in
@@ -3195,8 +3195,8 @@ mpm_create <- function(historical = FALSE, stage = TRUE, age = FALSE, devries = 
 #' \item{rep_value}{A list of lists of the actual reproductive value in each
 #' occasion in each replicate in each pop-patch or population. The list order
 #' is the same as in \code{projection}.}
-#' \item{pop_size}{A list of data frames showing the total population size in
-#' each occasion per replicate (row within data frame) per pop-patch or
+#' \item{pop_size}{A list of matrices showing the total population size in
+#' each occasion per replicate (row within matrix) per pop-patch or
 #' population (list element).}
 #' \item{labels}{A data frame showing the order of populations and patches in
 #' item \code{projection}.}
@@ -5098,17 +5098,19 @@ edit_lM <- function(mpm, pop = NULL, patch = NULL, year2 = NULL, stage3 = NULL, 
     .Call('_lefko3_demolition3sp', PACKAGE = 'lefko3', e_amat, bambesque, amat_, fmat_)
 }
 
-#' Estimate Deterministic Population Growth Rate As Dominant Eigenvalue
+#' Estimate Actual or Deterministic Population Growth Rate
 #' 
 #' Function \code{lambda3()} is a generic function that returns the dominant
 #' eigenvalue of a matrix, set of dominant eigenvalues of a set of matrices,
-#' or set of dominant eigenvalues for a \code{lefkoMat} object. It can handle
+#' set of dominant eigenvalues for a \code{lefkoMat} object, or actual
+#' \eqn{\lambda} in each year in a \code{lefkoProj} object. It can handle
 #' large and sparse matrices supplied as \code{lefkoMat} objects or as
 #' individual matrices, and can be used with large historical matrices, IPMs, 
-#' age x stage matrices, as well as smaller ahistorical matrices.
+#' age x stage matrices, as well as smaller ahistorical matrices, and general
+#' projetions.
 #' 
-#' @param mpm A lefkoMat object, a list of projection matrices, or a single
-#' projection matrix.
+#' @param mpm A \code{lefkoMat} object, a list of projection matrices, a
+#' \code{lefkoProj} object, or a single projection matrix.
 #' @param force_sparse A logical value or string detailing whether to force
 #' sparse matrix encoding for simple matrix input. Defaults to \code{"auto"},
 #' which only forces sparse matrix coding if simple matrices are input that are
@@ -5116,9 +5118,9 @@ edit_lM <- function(mpm, pop = NULL, patch = NULL, year2 = NULL, stage3 = NULL, 
 #' and have more than 20 rows. Can also be set to \code{"yes"}, \code{"no"},
 #' \code{TRUE}, or \code{FALSE}. Note that sparse matrix coding is always used
 #' for \code{lefkoMat} objects with matrices in sparse format (class
-#' \code{dgCMatrix}).
+#' \code{dgCMatrix}). Ignored with \code{lefkoProj} objects.
 #' 
-#' @return The value returned depends on the class of the \code{mats} argument.
+#' @return The value returned depends on the class of the \code{mpm} argument.
 #' If a \code{lefkoMat} object is provided, then this function will return the
 #' \code{labels} data frame with a new column named \code{lambda} showing the
 #' dominant eigenvalues for each matrix. If a list of matrices is provided,
@@ -5126,6 +5128,13 @@ edit_lM <- function(mpm, pop = NULL, patch = NULL, year2 = NULL, stage3 = NULL, 
 #' eigenvalues provided in order of matrix. If a single matrix is provided,
 #' then this function will return the dominant eigenvalue of that matrix. Only
 #' the largest real parts of the eigenvalues are returned.
+#' 
+#' If a \code{lefkoProj} object is provided, then the output consists of a list
+#' with three elements. The second and third elements are lists of matrices
+#' with each lower-level list elements corresponding to \code{labels} rows,
+#' and matrices within these lists showing the actual \eqn{\lambda} and
+#' \code{log} \eqn{\lambda} for each consecutive year or time index (columns)
+#' within each replicate (row).
 #' 
 #' @seealso \code{\link{slambda3}()}
 #' 

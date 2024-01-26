@@ -1099,17 +1099,19 @@ List demolition3sp(const arma::sp_mat& e_amat, const DataFrame& bambesque,
   return output;
 }
 
-//' Estimate Deterministic Population Growth Rate As Dominant Eigenvalue
+//' Estimate Actual or Deterministic Population Growth Rate
 //' 
 //' Function \code{lambda3()} is a generic function that returns the dominant
 //' eigenvalue of a matrix, set of dominant eigenvalues of a set of matrices,
-//' or set of dominant eigenvalues for a \code{lefkoMat} object. It can handle
+//' set of dominant eigenvalues for a \code{lefkoMat} object, or actual
+//' \eqn{\lambda} in each year in a \code{lefkoProj} object. It can handle
 //' large and sparse matrices supplied as \code{lefkoMat} objects or as
 //' individual matrices, and can be used with large historical matrices, IPMs, 
-//' age x stage matrices, as well as smaller ahistorical matrices.
+//' age x stage matrices, as well as smaller ahistorical matrices, and general
+//' projetions.
 //' 
-//' @param mpm A lefkoMat object, a list of projection matrices, or a single
-//' projection matrix.
+//' @param mpm A \code{lefkoMat} object, a list of projection matrices, a
+//' \code{lefkoProj} object, or a single projection matrix.
 //' @param force_sparse A logical value or string detailing whether to force
 //' sparse matrix encoding for simple matrix input. Defaults to \code{"auto"},
 //' which only forces sparse matrix coding if simple matrices are input that are
@@ -1117,9 +1119,9 @@ List demolition3sp(const arma::sp_mat& e_amat, const DataFrame& bambesque,
 //' and have more than 20 rows. Can also be set to \code{"yes"}, \code{"no"},
 //' \code{TRUE}, or \code{FALSE}. Note that sparse matrix coding is always used
 //' for \code{lefkoMat} objects with matrices in sparse format (class
-//' \code{dgCMatrix}).
+//' \code{dgCMatrix}). Ignored with \code{lefkoProj} objects.
 //' 
-//' @return The value returned depends on the class of the \code{mats} argument.
+//' @return The value returned depends on the class of the \code{mpm} argument.
 //' If a \code{lefkoMat} object is provided, then this function will return the
 //' \code{labels} data frame with a new column named \code{lambda} showing the
 //' dominant eigenvalues for each matrix. If a list of matrices is provided,
@@ -1127,6 +1129,13 @@ List demolition3sp(const arma::sp_mat& e_amat, const DataFrame& bambesque,
 //' eigenvalues provided in order of matrix. If a single matrix is provided,
 //' then this function will return the dominant eigenvalue of that matrix. Only
 //' the largest real parts of the eigenvalues are returned.
+//' 
+//' If a \code{lefkoProj} object is provided, then the output consists of a list
+//' with three elements. The second and third elements are lists of matrices
+//' with each lower-level list elements corresponding to \code{labels} rows,
+//' and matrices within these lists showing the actual \eqn{\lambda} and
+//' \code{log} \eqn{\lambda} for each consecutive year or time index (columns)
+//' within each replicate (row).
 //' 
 //' @seealso \code{\link{slambda3}()}
 //' 
@@ -1267,19 +1276,17 @@ RObject lambda3(RObject& mpm, Nullable<RObject> force_sparse = R_NilValue) {
     if (mpm_.hasAttribute("names")) mpm_names = mpm_.attr("names");
     int no_mpm_names = mpm_names.length();
     
-    bool A_check = false;
+    bool A_check {false};
+    bool ps_check {false};
+    bool labels_check {false};
     for (int i = 0; i < no_mpm_names; i++) {
       if (stringcompare_simple(as<std::string>(mpm_names(i)), "A", false)) A_check = true;
-    }
-    
-    bool labels_check = false;
-    for (int i = 0; i < no_mpm_names; i++) {
       if (stringcompare_simple(as<std::string>(mpm_names(i)), "labels", false)) labels_check = true;
+      if (stringcompare_simple(as<std::string>(mpm_names(i)), "pop_size", false)) ps_check = true;
     }
     
-    if (!A_check || !labels_check) {
+    if (!labels_check) {
       // List of matrices input
-      
       if (is<NumericMatrix>(mpm_(0))) { 
         matrix_class_input = true;
       } else if (is<S4>(mpm_(0))) { 
@@ -1375,126 +1382,265 @@ RObject lambda3(RObject& mpm, Nullable<RObject> force_sparse = R_NilValue) {
       output = lambda_prog;
       
     } else {
-      // lefkoMat input
       
-      List A_list = mpm_["A"];
       DataFrame labels = as<DataFrame>(mpm_["labels"]);
-      
-      if (is<NumericMatrix>(A_list(0))) { 
-        matrix_class_input = true;
-      } else if (is<S4>(A_list(0))) { 
-        matrix_class_input = false;
-      } else {
-        throw Rcpp::exception("Object mpm does not appear to contain matrices.", false);
-      }
-      
-      int no_matrices = A_list.length();
-      
-      if (matrix_class_input && sparse_check == 2) {
-        arma::mat a1 = A_list[0];
-        int mat_rows = a1.n_rows;
-        int mat_cols = a1.n_cols;
-        int total_elems = mat_rows * mat_cols;
-        
-        arma::uvec nonzeros = find(a1);
-        int no_nonzeros = static_cast<int>(nonzeros.n_elem);
-        
-        double density = static_cast<double>(no_nonzeros) /
-          static_cast<double>(total_elems);
-        
-        if (density <= 0.5 && total_elems > 399) {
-          sparse_check = 1;
-        } else {
-          sparse_check = 0;
-        }
-      }
-      
-      NumericVector lambda_prog (no_matrices);
-      
-      for (int i = 0; i < no_matrices; i++) {
-        if (sparse_check == 0 && matrix_class_input) {
-          arma::mat Amat = as<arma::mat>(A_list(i));
-          
-          arma::cx_vec Aeigval;
-          arma::cx_mat Aeigvecl;
-          arma::cx_mat Aeigvecr;
-          
-          eig_gen(Aeigval, Aeigvecl, Aeigvecr, Amat);
-          
-          arma::vec all_eigenvalues = real(Aeigval);
-          double maxval = max(all_eigenvalues);
-          
-          arma::uvec max_elems = find(all_eigenvalues == maxval);
-          if (max_elems.n_elem == 0) {
-            throw Rcpp::exception("Eigenanalysis failed.", false);
-          }
-          
-          arma::vec chosen_eigvals = all_eigenvalues.elem(max_elems);
-          arma::uvec pos_max_eigvals = find(chosen_eigvals > 0);
-          
-          if (pos_max_eigvals.n_elem > 0) {
-            lambda_prog(i) = chosen_eigvals(pos_max_eigvals(0));
-          } else {
-            lambda_prog(i) = 0.0;
-            Rf_warningcall(R_NilValue,
-              "A matrix with an eigenvalue of 0 has been detected.");
-          }
-        } else {
-          arma::sp_mat spAmat;
-          
-          if (matrix_class_input) {
-            arma::sp_mat spAmat_(as<arma::mat>(A_list(i)));
-            spAmat = spAmat_;
-          } else { 
-            spAmat = as<arma::sp_mat>(A_list(i));
-          }
-          
-          arma::cx_vec Aeigval;
-          arma::cx_mat Aeigvecr;
-          
-          eigs_gen(Aeigval, Aeigvecr, spAmat, 1, "lr");
-          
-          arma::vec all_eigenvalues = real(Aeigval);
-          double maxval = max(all_eigenvalues);
-          
-          arma::uvec max_elems = find(all_eigenvalues == maxval);
-          if (max_elems.n_elem == 0) {
-            throw Rcpp::exception("Eigen analysis failed.", false);
-          }
-          arma::vec chosen_eigvals = all_eigenvalues.elem(max_elems);
-          arma::uvec pos_max_eigvals = find(chosen_eigvals > 0);
-          
-          if (pos_max_eigvals.n_elem > 0) {
-            lambda_prog(i) = chosen_eigvals(pos_max_eigvals(0));
-          } else {
-            lambda_prog(i) = 0.0;
-            Rf_warningcall(R_NilValue,
-              "A matrix with an eigenvalue of 0 has been detected.");
-          }
-        }
-      }
-      
-      DataFrame new_out;
       CharacterVector l_pop = labels["pop"];
       CharacterVector l_patch = labels["patch"];
+      int l_length = static_cast<int>(labels.length());
+      int num_poppatchyears = static_cast<int>(l_patch.length());
       
-      int l_length = labels.length();
-      
-      if (l_length == 3) {
-        CharacterVector l_year2 = labels["year2"];
+      if (A_check) {
+        // lefkoMat input
+        List A_list = mpm_["A"];
+        if (is<NumericMatrix>(A_list(0))) { 
+          matrix_class_input = true;
+        } else if (is<S4>(A_list(0))) { 
+          matrix_class_input = false;
+        } else {
+          throw Rcpp::exception("Object mpm does not appear to contain matrices.", false);
+        }
         
-        new_out = DataFrame::create(_["pop"] = l_pop, _["patch"] = l_patch,
-          _["year2"] = l_year2, _["lambda"] = lambda_prog);
+        int no_matrices = A_list.length();
+        
+        if (matrix_class_input && sparse_check == 2) {
+          arma::mat a1 = A_list[0];
+          int mat_rows = a1.n_rows;
+          int mat_cols = a1.n_cols;
+          int total_elems = mat_rows * mat_cols;
+          
+          arma::uvec nonzeros = find(a1);
+          int no_nonzeros = static_cast<int>(nonzeros.n_elem);
+          
+          double density = static_cast<double>(no_nonzeros) /
+            static_cast<double>(total_elems);
+          
+          if (density <= 0.5 && total_elems > 399) {
+            sparse_check = 1;
+          } else {
+            sparse_check = 0;
+          }
+        }
+        
+        NumericVector lambda_prog (no_matrices);
+        
+        for (int i = 0; i < no_matrices; i++) {
+          if (sparse_check == 0 && matrix_class_input) {
+            arma::mat Amat = as<arma::mat>(A_list(i));
+            
+            arma::cx_vec Aeigval;
+            arma::cx_mat Aeigvecl;
+            arma::cx_mat Aeigvecr;
+            
+            eig_gen(Aeigval, Aeigvecl, Aeigvecr, Amat);
+            
+            arma::vec all_eigenvalues = real(Aeigval);
+            double maxval = max(all_eigenvalues);
+            
+            arma::uvec max_elems = find(all_eigenvalues == maxval);
+            if (max_elems.n_elem == 0) {
+              throw Rcpp::exception("Eigenanalysis failed.", false);
+            }
+            
+            arma::vec chosen_eigvals = all_eigenvalues.elem(max_elems);
+            arma::uvec pos_max_eigvals = find(chosen_eigvals > 0);
+            
+            if (pos_max_eigvals.n_elem > 0) {
+              lambda_prog(i) = chosen_eigvals(pos_max_eigvals(0));
+            } else {
+              lambda_prog(i) = 0.0;
+              Rf_warningcall(R_NilValue,
+                "A matrix with an eigenvalue of 0 has been detected.");
+            }
+          } else {
+            arma::sp_mat spAmat;
+            
+            if (matrix_class_input) {
+              arma::sp_mat spAmat_(as<arma::mat>(A_list(i)));
+              spAmat = spAmat_;
+            } else { 
+              spAmat = as<arma::sp_mat>(A_list(i));
+            }
+            
+            arma::cx_vec Aeigval;
+            arma::cx_mat Aeigvecr;
+            
+            eigs_gen(Aeigval, Aeigvecr, spAmat, 1, "lr");
+            
+            arma::vec all_eigenvalues = real(Aeigval);
+            double maxval = max(all_eigenvalues);
+            
+            arma::uvec max_elems = find(all_eigenvalues == maxval);
+            if (max_elems.n_elem == 0) {
+              throw Rcpp::exception("Eigen analysis failed.", false);
+            }
+            arma::vec chosen_eigvals = all_eigenvalues.elem(max_elems);
+            arma::uvec pos_max_eigvals = find(chosen_eigvals > 0);
+            
+            if (pos_max_eigvals.n_elem > 0) {
+              lambda_prog(i) = chosen_eigvals(pos_max_eigvals(0));
+            } else {
+              lambda_prog(i) = 0.0;
+              Rf_warningcall(R_NilValue,
+                "A matrix with an eigenvalue of 0 has been detected.");
+            }
+          }
+        }
+        
+        DataFrame new_out;
+        
+        if (l_length == 3) {
+          CharacterVector l_year2 = labels["year2"];
+          
+          new_out = DataFrame::create(_["pop"] = l_pop, _["patch"] = l_patch,
+            _["year2"] = l_year2, _["lambda"] = lambda_prog);
+        } else {
+          new_out = DataFrame::create(_["pop"] = l_pop, _["patch"] = l_patch,
+            _["lambda"] = lambda_prog);
+        }
+        output = new_out;
+        
+      } else if (ps_check) {
+        // lefkoProj input
+        List ps_list = mpm_["pop_size"];
+        int ps_list_length = static_cast<int>(ps_list.length());
+        
+        if (ps_list_length != num_poppatchyears) {
+          throw Rcpp::exception("Structure of lefkoProj object appears broken.", false);
+        }
+        
+        Rcpp::List fine_lambdas (ps_list_length);
+        Rcpp::List fine_log_lambdas (ps_list_length);
+        Rcpp::List lambda_summary (ps_list_length);
+        
+        // Summary labels construction
+        int full_summary_labels_rows {0};
+        for (int i = 0; i < ps_list_length; i++) {
+          NumericMatrix current_ps_mat = NumericMatrix(ps_list(i));
+          int ps_mat_rows = static_cast<int>(current_ps_mat.nrow());
+          
+          full_summary_labels_rows += ps_mat_rows;
+        }
+        
+        IntegerVector sumlab_rownum = seq(1, full_summary_labels_rows);
+        StringVector sumlab_pop (full_summary_labels_rows);
+        StringVector sumlab_patch (full_summary_labels_rows);
+        IntegerVector sumlab_repl (full_summary_labels_rows);
+        NumericVector summary_mean_lambdas (full_summary_labels_rows);
+        NumericVector summary_sd_lambdas (full_summary_labels_rows);
+        NumericVector summary_mean_log_lambdas (full_summary_labels_rows);
+        NumericVector summary_sd_log_lambdas (full_summary_labels_rows);
+        IntegerVector summary_lambda_zeros (full_summary_labels_rows);
+        IntegerVector summary_lambda_nonzeros (full_summary_labels_rows);
+        
+        int sumlab_rowtracker {0};
+        
+        for (int i = 0; i < ps_list_length; i++) {
+          NumericMatrix current_ps_mat = NumericMatrix(ps_list(i));
+          int ps_mat_rows = static_cast<int>(current_ps_mat.nrow());
+          int ps_mat_cols = static_cast<int>(current_ps_mat.ncol());
+          
+          NumericMatrix lambda_mat (ps_mat_rows, (ps_mat_cols - 1));
+          NumericMatrix log_lambda_mat (ps_mat_rows, (ps_mat_cols - 1));
+          IntegerVector real_num_counts (ps_mat_rows);
+          
+          for (int repl = 0; repl < ps_mat_rows; repl++) {
+            int current_real_num_count {0};
+            int current_real_zero_count {0};
+            int current_real_nonzero_count {0};
+            
+            
+            for (int time = 1; time < ps_mat_cols; time++) {
+              if (!NumericVector::is_na(current_ps_mat(repl, (time - 1))) &&
+                  !NumericVector::is_na(current_ps_mat(repl, time))) {
+                
+                double lam_numer = current_ps_mat(repl, time);
+                double lam_denom = current_ps_mat(repl, (time - 1));
+                
+                if (lam_denom > 0.0) {
+                  lambda_mat(repl, (time - 1)) = lam_numer / lam_denom;
+                  log_lambda_mat(repl, (time - 1)) = log(lambda_mat(repl, (time - 1)));
+                  
+                  current_real_num_count++;
+                  current_real_nonzero_count++;
+                } else if (lam_denom == 0.0) {
+                  lambda_mat(repl, (time - 1)) = R_NaN;
+                  log_lambda_mat(repl, (time - 1)) = R_NaN;
+                  
+                  current_real_zero_count++;
+                } else if (lam_numer == 0.0) {
+                  lambda_mat(repl, (time - 1)) = 0.0;
+                  log_lambda_mat(repl, (time - 1)) = R_NaN;
+                  
+                  current_real_num_count++;
+                  current_real_zero_count++;
+                }
+              } else {
+                lambda_mat(repl, (time - 1)) = NA_REAL;
+                log_lambda_mat(repl, (time - 1)) = NA_REAL;
+              }
+            }
+            real_num_counts(repl) = current_real_num_count;
+            summary_lambda_zeros(sumlab_rowtracker) = current_real_zero_count;
+            summary_lambda_nonzeros(sumlab_rowtracker) = current_real_nonzero_count;
+            
+            NumericVector core_row = lambda_mat(repl, _);
+            NumericVector core_log_row = log_lambda_mat(repl, _);
+            
+            double s1 {0.0};
+            double s2 {0.0};
+            double s1_log {0.0};
+            double s2_log {0.0};
+            for (int j = 0; j < current_real_nonzero_count; j++) {
+              s1 += core_row(j) ;
+              s2 += (core_row(j) * core_row(j)) ;
+              
+              if (current_real_zero_count == 0) {
+                s1_log += core_log_row(j);
+                s2_log += (core_log_row(j) * core_log_row(j));
+              } 
+            }
+            
+            double used_denominator = static_cast<double>(current_real_nonzero_count);
+            summary_mean_lambdas(sumlab_rowtracker) = s1 / (used_denominator);
+            summary_mean_log_lambdas(sumlab_rowtracker) = s1_log / (used_denominator);
+            summary_sd_lambdas(sumlab_rowtracker) = sqrt((used_denominator) / (used_denominator - 1.0)) *
+                sqrt((s2 / used_denominator) - ((s1 / used_denominator) * (s1 / used_denominator)));
+            summary_sd_log_lambdas(sumlab_rowtracker) = sqrt((used_denominator) / (used_denominator - 1.0)) *
+                sqrt((s2_log / used_denominator) - ((s1_log / used_denominator) * (s1_log / used_denominator)));
+            
+            if (current_real_zero_count > 0) summary_mean_log_lambdas(sumlab_rowtracker) = R_NaN;
+            
+            sumlab_repl(sumlab_rowtracker) = repl;
+            sumlab_pop(sumlab_rowtracker) = l_pop(i);
+            sumlab_patch(sumlab_rowtracker) = l_patch(i);
+            
+            sumlab_rowtracker++;
+          }
+          
+          fine_lambdas(i) = lambda_mat;
+          fine_log_lambdas(i) = log_lambda_mat;
+        }
+        
+        DataFrame summary_out;
+        summary_out = DataFrame::create(_["index"] = sumlab_rownum,
+          _["pop"] = sumlab_pop, _["patch"] = sumlab_patch,
+          _["lambda_mean"] = summary_mean_lambdas, _["lambda_sd"] = summary_sd_lambdas,
+          _["log_lambda_mean"] = summary_mean_log_lambdas,
+          _["log_lambda_sd"] = summary_sd_log_lambdas,
+          _["lambda_zeros"] = summary_lambda_zeros);
+        
+        List new_out = List::create(_["summary"] = summary_out,
+          _["lambda"] = fine_lambdas, _["log_lambda"] = fine_log_lambdas);
+        output = new_out;
+        
       } else {
-        new_out = DataFrame::create(_["pop"] = l_pop, _["patch"] = l_patch,
-          _["lambda"] = lambda_prog);
+        throw Rcpp::exception("Object mpm does not appear to be an appropriate MPM, list of matrices, lefkoProj object, or matrix.",
+          false);
       }
-      output = new_out;
     }
     
   } else if(is<NumericMatrix>(mpm)) {
     // Single matrix input
-    
     arma::mat mpm_ = as<arma::mat>(mpm);
     
     if (sparse_check == 2) {
@@ -1575,7 +1721,6 @@ RObject lambda3(RObject& mpm, Nullable<RObject> force_sparse = R_NilValue) {
     
   } else if(is<S4>(mpm)) {
     // Single sparse matrix input
-    
     arma::sp_mat spAmat = as<arma::sp_mat>(mpm);
     
     NumericVector lambda_prog (1);
@@ -1607,7 +1752,7 @@ RObject lambda3(RObject& mpm, Nullable<RObject> force_sparse = R_NilValue) {
     output = lambda_prog;
     
   } else {
-    throw Rcpp::exception("Object mpm does not appear to be an appropriate MPM.",
+    throw Rcpp::exception("Object mpm does not appear to be an appropriate MPM, list of matrices, lefkoProj object, or matrix.",
       false);
   }
   
