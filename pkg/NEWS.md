@@ -1,4 +1,4 @@
-# lefko3 6.2.0 (2024-01-26)
+# lefko3 6.2.0 (2024-01-27)
 
 ## NEW FEATURES
 
@@ -26,6 +26,8 @@
 
 * Zero-inflated Poisson and negative binomial GLMs have been disabled in
   function modelsearch() pending issues in package pscl.
+  
+* Vignettes updated to deal with breaking changes.
 
 ## BUG FIXES
 
