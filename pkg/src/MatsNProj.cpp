@@ -19586,10 +19586,11 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
         } else {
           // Elasticity matrices
           if (lMat_matrix_class_input && sparse == 0) {
-            sens_base += currentsens % as<arma::mat>(amats[(theprophecy(j))]);
+            sens_base += currentsens % as<arma::mat>(amats[theprophecy(j)]);
             senscube(i) = sens_base;
           } else if (lMat_matrix_class_input) {
-            arma::sp_mat cs_sp = arma::sp_mat(arma::mat(amats[(theprophecy(j))]));
+            arma::mat temp_mat = as<arma::mat>(amats[theprophecy(j)]);
+            arma::sp_mat cs_sp = arma::sp_mat(temp_mat);
             
             cs_sp = currentsens_sp % cs_sp;
             sens_base_sp += cs_sp;
@@ -19600,7 +19601,8 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
               senscube(i) = arma::mat(sens_base_sp);
             }
           } else {
-            arma::sp_mat cs_sp = currentsens_sp % arma::sp_mat(amats[(theprophecy(j))]);
+            arma::mat temp_mat = as<arma::mat>(amats[theprophecy(j)]);
+            arma::sp_mat cs_sp = currentsens_sp % arma::sp_mat(temp_mat);
             sens_base_sp += cs_sp;
             
             if (sparse == 1) {
@@ -19898,7 +19900,7 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
         if (sparse == 0) {
           arma::mat elasah(ahstages_num, ahstages_num, fill::zeros);
           
-          arma::mat hslice = arma::mat(senscube(k));
+          arma::mat hslice = as<arma::mat>(senscube(k));
           for (int i = 0; i < hstages_num; i++) {
             for (int j = 0; j < hstages_num; j++) {
               elasah((hstages_id2(j) - 1), (hstages_id1(i) - 1)) =
@@ -19909,7 +19911,7 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
         } else {
           arma::sp_mat elasah(ahstages_num, ahstages_num);
           
-          arma::sp_mat hslice = arma::sp_mat(senscube(k));
+          arma::sp_mat hslice = as<arma::sp_mat>(senscube(k));
           for (int i = 0; i < hstages_num; i++) {
             for (int j = 0; j < hstages_num; j++) {
               elasah((hstages_id2(j) - 1), (hstages_id1(i) - 1)) =
