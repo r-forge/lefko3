@@ -1515,7 +1515,7 @@ RObject lambda3(RObject& mpm, Nullable<RObject> force_sparse = R_NilValue) {
         // Summary labels construction
         int full_summary_labels_rows {0};
         for (int i = 0; i < ps_list_length; i++) {
-          NumericMatrix current_ps_mat = NumericMatrix(ps_list(i));
+          NumericMatrix current_ps_mat = as<NumericMatrix>(ps_list[i]);
           int ps_mat_rows = static_cast<int>(current_ps_mat.nrow());
           
           full_summary_labels_rows += ps_mat_rows;
@@ -1535,7 +1535,7 @@ RObject lambda3(RObject& mpm, Nullable<RObject> force_sparse = R_NilValue) {
         int sumlab_rowtracker {0};
         
         for (int i = 0; i < ps_list_length; i++) {
-          NumericMatrix current_ps_mat = NumericMatrix(ps_list(i));
+          NumericMatrix current_ps_mat = as<NumericMatrix>(ps_list[i]);
           int ps_mat_rows = static_cast<int>(current_ps_mat.nrow());
           int ps_mat_cols = static_cast<int>(current_ps_mat.ncol());
           
@@ -1855,9 +1855,9 @@ Rcpp::DataFrame matrix_interp (Rcpp::List object, int mat_chosen = 1,
   CharacterVector object_class = object.attr("class");
   int class_num = object_class.length();
   
-  Rcpp::DataFrame stageframe = DataFrame(object["ahstages"]); 
-  Rcpp::DataFrame hstages = DataFrame(object["hstages"]);
-  Rcpp::DataFrame agestages = DataFrame(object["agestages"]);
+  Rcpp::DataFrame stageframe = as<DataFrame>(object["ahstages"]); 
+  Rcpp::DataFrame hstages = as<DataFrame>(object["hstages"]);
+  Rcpp::DataFrame agestages = as<DataFrame>(object["agestages"]);
   
   Rcpp::NumericMatrix mat;
   arma::sp_mat smat;
@@ -1869,107 +1869,107 @@ Rcpp::DataFrame matrix_interp (Rcpp::List object, int mat_chosen = 1,
       if (part == 1) {
         Rcpp::List mat_list = object["cont_mean"];
         
-        RObject the_chosen_one = RObject(mat_list[(mat_chosen - 1)]);
+        RObject the_chosen_one = as<RObject>(mat_list[(mat_chosen - 1)]);
         
         if (is<S4>(the_chosen_one)) {
           smat = as<arma::sp_mat>(the_chosen_one);
           sparse_mat = true;
         } else {
-          mat = NumericMatrix(mat_list[(mat_chosen - 1)]);
+          mat = as<NumericMatrix>(mat_list[mat_chosen - 1]);
         }
       } else if (part == 2) {
         Rcpp::List mat_list = object["cont_sd"];
         
-        RObject the_chosen_one = RObject(mat_list[(mat_chosen - 1)]);
+        RObject the_chosen_one = as<RObject>(mat_list[(mat_chosen - 1)]);
         
         if (is<S4>(the_chosen_one)) {
           smat = as<arma::sp_mat>(the_chosen_one);
           sparse_mat = true;
         } else {
-          mat = NumericMatrix(mat_list[(mat_chosen - 1)]);
+          mat = as<NumericMatrix>(mat_list[mat_chosen - 1]);
         }
       }
     } else if (stringcompare_hard(as<std::string>(object_class(i)), "lefkoElas")) {
       if (part == 1) {
         Rcpp::List mat_list = object["ah_elasmats"];
         
-        RObject the_chosen_one = RObject(mat_list[(mat_chosen - 1)]);
+        RObject the_chosen_one = as<RObject>(mat_list[(mat_chosen - 1)]);
         
         if (is<S4>(the_chosen_one)) {
           smat = as<arma::sp_mat>(the_chosen_one);
           sparse_mat = true;
         } else {
-          mat = NumericMatrix(mat_list[(mat_chosen - 1)]);
+          mat = as<NumericMatrix>(mat_list[mat_chosen - 1]);
         }
       } else if (part == 2) {
         Rcpp::List mat_list = object["h_elasmats"];
         
-        RObject the_chosen_one = RObject(mat_list[(mat_chosen - 1)]);
+        RObject the_chosen_one = as<RObject>(mat_list[(mat_chosen - 1)]);
         
         if (is<S4>(the_chosen_one)) {
           smat = as<arma::sp_mat>(the_chosen_one);
           sparse_mat = true;
         } else {
-          mat = NumericMatrix(mat_list[(mat_chosen - 1)]);
+          mat = as<NumericMatrix>(mat_list[mat_chosen - 1]);
         }
       }
     } else if (stringcompare_hard(as<std::string>(object_class(i)), "lefkoSens")) {
       if (part == 1) {
         Rcpp::List mat_list = object["ah_sensmats"];
         
-        RObject the_chosen_one = RObject(mat_list[(mat_chosen - 1)]);
+        RObject the_chosen_one = as<RObject>(mat_list[(mat_chosen - 1)]);
         
         if (is<S4>(the_chosen_one)) {
           smat = as<arma::sp_mat>(the_chosen_one);
           sparse_mat = true;
         } else {
-          mat = NumericMatrix(mat_list[(mat_chosen - 1)]);
+          mat = as<NumericMatrix>(mat_list[mat_chosen - 1]);
         }
       } else if (part == 2) {
         Rcpp::List mat_list = object["h_sensmats"];
         
-        RObject the_chosen_one = RObject(mat_list[(mat_chosen - 1)]);
+        RObject the_chosen_one = as<RObject>(mat_list[(mat_chosen - 1)]);
         
         if (is<S4>(the_chosen_one)) {
           smat = as<arma::sp_mat>(the_chosen_one);
           sparse_mat = true;
         } else {
-          mat = NumericMatrix(mat_list[(mat_chosen - 1)]);
+          mat = as<NumericMatrix>(mat_list[mat_chosen - 1]);
         }
       }
     } else {
       if (part == 1) {
         Rcpp::List mat_list = object["A"];
         
-        RObject the_chosen_one = RObject(mat_list[(mat_chosen - 1)]);
+        RObject the_chosen_one = as<RObject>(mat_list[mat_chosen - 1]);
         
         if (is<S4>(the_chosen_one)) {
           smat = as<arma::sp_mat>(the_chosen_one);
           sparse_mat = true;
         } else {
-          mat = NumericMatrix(mat_list[(mat_chosen - 1)]);
+          mat = as<NumericMatrix>(mat_list[mat_chosen - 1]);
         }
       } else if (part == 2) {
         Rcpp::List mat_list = object["U"];
         
-        RObject the_chosen_one = RObject(mat_list[(mat_chosen - 1)]);
+        RObject the_chosen_one = as<RObject>(mat_list[(mat_chosen - 1)]);
         
         if (is<S4>(the_chosen_one)) {
           smat = as<arma::sp_mat>(the_chosen_one);
           sparse_mat = true;
         } else {
-          mat = NumericMatrix(mat_list[(mat_chosen - 1)]);
+          mat = as<NumericMatrix>(mat_list[mat_chosen - 1]);
         }
       } else if (part == 3) {
         Rcpp::List mat_list = object["F"];
         
-        RObject the_chosen_one = RObject(mat_list[(mat_chosen - 1)]);
+        RObject the_chosen_one = as<RObject>(mat_list[(mat_chosen - 1)]);
         
         if (is<S4>(the_chosen_one)) {
           smat = as<arma::sp_mat>(the_chosen_one);
           sparse_mat = true;
         } else {
-          mat = NumericMatrix(mat_list[(mat_chosen - 1)]);
+          mat = as<NumericMatrix>(mat_list[mat_chosen - 1]);
         }
       }
     }
@@ -2576,11 +2576,11 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
   
   
   // Check ahstages, hstages, agestages
-  proj1_ahstages = DataFrame(proj1_list["ahstages"]);
+  proj1_ahstages = as<DataFrame>(proj1_list["ahstages"]);
   
   
   { // ahstages
-    DataFrame proj2_ahstages = DataFrame(proj2_list["ahstages"]);
+    DataFrame proj2_ahstages = as<DataFrame>(proj2_list["ahstages"]);
     
     if (!LefkoUtils::df_compare(proj1_ahstages, proj2_ahstages)) {
       throw Rcpp::exception("Input projections cannot use different life history models.", 
@@ -2588,8 +2588,8 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
     }
     
     // hstages
-    RObject proj1_hstages_ro = RObject(proj1_list["hstages"]);
-    RObject proj2_hstages_ro = RObject(proj2_list["hstages"]);
+    RObject proj1_hstages_ro = as<RObject>(proj1_list["hstages"]);
+    RObject proj2_hstages_ro = as<RObject>(proj2_list["hstages"]);
     
     if (is<DataFrame>(proj1_hstages_ro)) {
       if (!is<DataFrame>(proj2_hstages_ro)) {
@@ -2597,8 +2597,8 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
           false);
       }
       
-      proj1_hstages = DataFrame(proj1_list["hstages"]);
-      DataFrame proj2_hstages = DataFrame(proj2_list["hstages"]);
+      proj1_hstages = as<DataFrame>(proj1_list["hstages"]);
+      DataFrame proj2_hstages = as<DataFrame>(proj2_list["hstages"]);
       
       if (!LefkoUtils::df_compare(proj1_hstages, proj2_hstages)) {
         throw Rcpp::exception("Input projections cannot use different hstages objects.",
@@ -2607,8 +2607,8 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
     }
     
     // agestages
-    RObject proj1_agestages_ro = RObject(proj1_list["agestages"]);
-    RObject proj2_agestages_ro = RObject(proj2_list["agestages"]);
+    RObject proj1_agestages_ro = as<RObject>(proj1_list["agestages"]);
+    RObject proj2_agestages_ro = as<RObject>(proj2_list["agestages"]);
     
     if (is<DataFrame>(proj1_agestages_ro)) {
       if (!is<DataFrame>(proj2_agestages_ro)) {
@@ -2616,8 +2616,8 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
           false);
       }
       
-      proj1_agestages = DataFrame(proj1_list["agestages"]);
-      DataFrame proj2_agestages = DataFrame(proj2_list["agestages"]);
+      proj1_agestages = as<DataFrame>(proj1_list["agestages"]);
+      DataFrame proj2_agestages = as<DataFrame>(proj2_list["agestages"]);
       
       if (!LefkoUtils::df_compare(proj1_agestages, proj2_agestages)) {
         throw Rcpp::exception("Input projections cannot use different agestages objects.",
@@ -2644,8 +2644,8 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
   IntegerVector proj2_reps;
   IntegerVector proj2_times;
   {
-    RObject proj1_control = RObject(proj1_list["control"]);
-    RObject proj2_control = RObject(proj2_list["control"]);
+    RObject proj1_control = as<RObject>(proj1_list["control"]);
+    RObject proj2_control = as<RObject>(proj2_list["control"]);
     
     if (is<IntegerVector>(proj1_control) || is<NumericVector>(proj1_control)) {
       if (Rf_isMatrix(proj1_control)) { 
@@ -2700,17 +2700,17 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
     }
   }
   
-  proj1_rep_value = List(proj1_list["rep_value"]);
-  proj2_rep_value = List(proj2_list["rep_value"]);
+  proj1_rep_value = as<List>(proj1_list["rep_value"]);
+  proj2_rep_value = as<List>(proj2_list["rep_value"]);
   IntegerVector proj1_rep_value_lengths (static_cast<int>(proj1_projection.length()));
   IntegerVector proj2_rep_value_lengths (static_cast<int>(proj2_projection.length()));
   LogicalVector proj1_rep_value_list_check (static_cast<int>(proj1_projection.length()));
   LogicalVector proj2_rep_value_list_check (static_cast<int>(proj2_projection.length()));
   
   for (int i = 0; i < static_cast<int>(proj1_projection.length()); i++) {
-    RObject p1_rv_i = RObject(proj1_rep_value(i));
+    RObject p1_rv_i = as<RObject>(proj1_rep_value(i));
     if (is<List>(p1_rv_i)) {
-      List p1_rv_i_list = List(p1_rv_i);
+      List p1_rv_i_list = as<List>(p1_rv_i);
       
       proj1_rep_value_list_check(i) = true;
       
@@ -2722,9 +2722,9 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
     }
   }
   for (int i = 0; i < static_cast<int>(proj2_projection.length()); i++) {
-    RObject p2_rv_i = RObject(proj2_rep_value(i));
+    RObject p2_rv_i = as<RObject>(proj2_rep_value(i));
     if (is<List>(p2_rv_i)) {
-      List p2_rv_i_list = List(p2_rv_i);
+      List p2_rv_i_list = as<List>(p2_rv_i);
       
       proj2_rep_value_list_check(i) = true;
       
@@ -2737,17 +2737,17 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
     }
   }
   
-  proj1_stage_dist = List(proj1_list["stage_dist"]);
-  proj2_stage_dist = List(proj2_list["stage_dist"]);
+  proj1_stage_dist = as<List>(proj1_list["stage_dist"]);
+  proj2_stage_dist = as<List>(proj2_list["stage_dist"]);
   IntegerVector proj1_stage_dist_lengths (static_cast<int>(proj1_projection.length()));
   IntegerVector proj2_stage_dist_lengths (static_cast<int>(proj2_projection.length()));
   LogicalVector proj1_stage_dist_list_check (static_cast<int>(proj1_projection.length()));
   LogicalVector proj2_stage_dist_list_check (static_cast<int>(proj2_projection.length()));
   
   for (int i = 0; i < static_cast<int>(proj1_projection.length()); i++) {
-    RObject p1_sd_i = RObject(proj1_stage_dist(i));
+    RObject p1_sd_i = as<RObject>(proj1_stage_dist(i));
     if (is<List>(p1_sd_i)) {
-      List p1_sd_i_list = List(p1_sd_i);
+      List p1_sd_i_list = as<List>(p1_sd_i);
       
       proj1_stage_dist_list_check(i) = true;
       
@@ -2759,9 +2759,9 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
     }
   }
   for (int i = 0; i < static_cast<int>(proj2_projection.length()); i++) {
-    RObject p2_sd_i = RObject(proj2_stage_dist(i));
+    RObject p2_sd_i = as<RObject>(proj2_stage_dist(i));
     if (is<List>(p2_sd_i)) {
-      List p2_sd_i_list = List(p2_sd_i);
+      List p2_sd_i_list = as<List>(p2_sd_i);
       
       proj2_stage_dist_list_check(i) = true;
       
@@ -2778,11 +2778,11 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
   IntegerVector pop2_size_cols (static_cast<int>(proj2_projection.length()));
   IntegerVector pop1_size_rows (static_cast<int>(proj1_projection.length()));
   IntegerVector pop2_size_rows (static_cast<int>(proj2_projection.length()));
-  proj1_pop_size = List(proj1_list["pop_size"]);
-  proj2_pop_size = List(proj2_list["pop_size"]);
+  proj1_pop_size = as<List>(proj1_list["pop_size"]);
+  proj2_pop_size = as<List>(proj2_list["pop_size"]);
   
   for (int i = 0; i < proj1_projection.length(); i++) {
-    NumericMatrix pop_size_mat = NumericMatrix(proj1_pop_size(i));
+    NumericMatrix pop_size_mat = as<NumericMatrix>(proj1_pop_size(i));
     int found_pop_size_cols = pop_size_mat.ncol();
     int found_pop_size_rows = pop_size_mat.nrow();
     
@@ -2790,7 +2790,7 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
     pop1_size_rows(i) = found_pop_size_rows;
   }
   for (int i = 0; i < proj2_projection.length(); i++) {
-    NumericMatrix pop_size_mat = NumericMatrix(proj2_pop_size(i));
+    NumericMatrix pop_size_mat = as<NumericMatrix>(proj2_pop_size(i));
     unsigned int found_pop_size_cols = pop_size_mat.ncol();
     unsigned int found_pop_size_rows = pop_size_mat.nrow();
     
@@ -2805,44 +2805,44 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
   int proj2_density_vr_type {0}; // 0 = NULL, 1 = DataFrame, 2 = List
   
   if (proj1_density_check) {
-    RObject proj1_density_ro = RObject(proj1_list["density"]);
+    RObject proj1_density_ro = as<RObject>(proj1_list["density"]);
     
     if (is<DataFrame>(proj1_density_ro)) {
       proj1_density_type = 1;
     } else if (is<List>(proj1_density_ro)) {
       proj1_density_type = 2;
-      List proj1_density_li = List(proj1_list["density"]);
+      List proj1_density_li = as<List>(proj1_list["density"]);
     }
   }
   if (proj2_density_check) {
-    RObject proj2_density_ro = RObject(proj2_list["density"]);
+    RObject proj2_density_ro = as<RObject>(proj2_list["density"]);
     
     if (is<DataFrame>(proj2_density_ro)) {
       proj2_density_type = 1;
     } else if (is<List>(proj2_density_ro)) {
       proj2_density_type = 2;
-      List proj2_density_li = List(proj2_list["density"]);
+      List proj2_density_li = as<List>(proj2_list["density"]);
     }
   }
   
   if (proj1_density_vr_check) {
-    RObject proj1_density_vr_ro = RObject(proj1_list["density_vr"]);
+    RObject proj1_density_vr_ro = as<RObject>(proj1_list["density_vr"]);
     
     if (is<DataFrame>(proj1_density_vr_ro)) {
       proj1_density_vr_type = 1;
     } else if (is<List>(proj1_density_vr_ro)) {
       proj1_density_vr_type = 2;
-      List proj1_density_vr_li = List(proj1_list["density_vr"]);
+      List proj1_density_vr_li = as<List>(proj1_list["density_vr"]);
     }
   }
   if (proj2_density_vr_check) {
-    RObject proj2_density_vr_ro = RObject(proj2_list["density_vr"]);
+    RObject proj2_density_vr_ro = as<RObject>(proj2_list["density_vr"]);
     
     if (is<DataFrame>(proj2_density_vr_ro)) {
       proj2_density_vr_type = 1;
     } else if (is<List>(proj2_density_vr_ro)) {
       proj2_density_vr_type = 2;
-      List proj2_density_vr_li = List(proj2_list["density_vr"]);
+      List proj2_density_vr_li = as<List>(proj2_list["density_vr"]);
     }
   }
   
@@ -3003,11 +3003,11 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
           }
           new_proj_projection_i = temp_new;
           
-          if (static_cast<bool>(proj1_rep_value_list_check(i)) &&
-            static_cast<bool>(proj2_rep_value_list_check(j))) {
+          if (static_cast<bool>(proj1_rep_value_list_check[i]) &&
+            static_cast<bool>(proj2_rep_value_list_check[j])) {
             
-            List proj1_rep_value_i = List(proj1_rep_value(i));
-            List proj2_rep_value_j = List(proj2_rep_value(j));
+            List proj1_rep_value_i = as<List>(proj1_rep_value(i));
+            List proj2_rep_value_j = as<List>(proj2_rep_value(j));
             
             List temp_new_rv (total_new_projection_length);
             for (int k = 0; k < p1pi_length; k++) {
@@ -3023,11 +3023,11 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
             new_rep_value(i) = new_0;
           }
           
-          if (static_cast<bool>(proj1_stage_dist_list_check(i)) &&
-            static_cast<bool>(proj2_stage_dist_list_check(j))) {
+          if (static_cast<bool>(proj1_stage_dist_list_check[i]) &&
+            static_cast<bool>(proj2_stage_dist_list_check[j])) {
             
-            List proj1_stage_dist_i = List(proj1_stage_dist(i));
-            List proj2_stage_dist_j = List(proj2_stage_dist(j));
+            List proj1_stage_dist_i = as<List>(proj1_stage_dist(i));
+            List proj2_stage_dist_j = as<List>(proj2_stage_dist(j));
             
             List temp_new_sd (total_new_projection_length);
             for (int k = 0; k < p1pi_length; k++) {
@@ -3046,7 +3046,7 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
           // density
           if (proj1_density_check) { 
             if (proj1_density_type == 1) {
-              DataFrame proj1_density_temp = DataFrame(proj1_list["density"]);
+              DataFrame proj1_density_temp = as<DataFrame>(proj1_list["density"]);
               
               List temp_new_de (total_new_projection_length);
               for (int k = 0; k < p1pi_length; k++) {
@@ -3054,13 +3054,13 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
               }
               
               if (proj2_density_type == 1) { 
-                DataFrame proj2_density_temp = DataFrame(proj2_list["density"]);
+                DataFrame proj2_density_temp = as<DataFrame>(proj2_list["density"]);
               
                 for (int k = 0; k < p2pj_length; k++) {
                   temp_new_de(k + p1pi_length) = proj2_density_temp;
                 }
               } else if (proj2_density_type == 2) {
-                List proj2_density_temp = List(proj2_list["density"]);
+                List proj2_density_temp = as<List>(proj2_list["density"]);
               
                 for (int k = 0; k < p2pj_length; k++) {
                   temp_new_de(k + p1pi_length) = proj2_density_temp(j);
@@ -3073,7 +3073,7 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
               
               new_density(i) = temp_new_de;
             } else if (proj1_density_type == 2) {
-              List proj1_density_temp = List(proj1_list["density"]);
+              List proj1_density_temp = as<List>(proj1_list["density"]);
               
               List temp_new_de (total_new_projection_length);
               for (int k = 0; k < p1pi_length; k++) {
@@ -3081,13 +3081,13 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
               }
               
               if (proj2_density_type == 1) { 
-                DataFrame proj2_density_temp = DataFrame(proj2_list["density"]);
+                DataFrame proj2_density_temp = as<DataFrame>(proj2_list["density"]);
               
                 for (int k = 0; k < p2pj_length; k++) {
                   temp_new_de(k + p1pi_length) = proj2_density_temp;
                 }
               } else if (proj2_density_type == 2) {
-                List proj2_density_temp = List(proj2_list["density"]);
+                List proj2_density_temp = as<List>(proj2_list["density"]);
               
                 for (int k = 0; k < p2pj_length; k++) {
                   temp_new_de(k + p1pi_length) = proj2_density_temp(j);
@@ -3107,13 +3107,13 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
             }
             
             if (proj2_density_type == 1) { 
-              DataFrame proj2_density_temp = DataFrame(proj2_list["density"]);
+              DataFrame proj2_density_temp = as<DataFrame>(proj2_list["density"]);
             
               for (int k = 0; k < p2pj_length; k++) {
                 temp_new_de(k + p1pi_length) = proj2_density_temp;
               }
             } else if (proj2_density_type == 2) {
-              List proj2_density_temp = List(proj2_list["density"]);
+              List proj2_density_temp = as<List>(proj2_list["density"]);
             
               for (int k = 0; k < p2pj_length; k++) {
                 temp_new_de(k + p1pi_length) = proj2_density_temp(j);
@@ -3130,7 +3130,7 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
           // density_vr
           if (proj1_density_vr_check) { 
             if (proj1_density_vr_type == 1) {
-              DataFrame proj1_density_vr_temp = DataFrame(proj1_list["density_vr"]);
+              DataFrame proj1_density_vr_temp = as<DataFrame>(proj1_list["density_vr"]);
               
               List temp_new_devr (total_new_projection_length);
               for (int k = 0; k < p1pi_length; k++) {
@@ -3138,13 +3138,13 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
               }
               
               if (proj2_density_vr_type == 1) { 
-                DataFrame proj2_density_vr_temp = DataFrame(proj2_list["density_vr"]);
+                DataFrame proj2_density_vr_temp = as<DataFrame>(proj2_list["density_vr"]);
               
                 for (int k = 0; k < p2pj_length; k++) {
                   temp_new_devr(k + p1pi_length) = proj2_density_vr_temp;
                 }
               } else if (proj2_density_vr_type == 2) {
-                List proj2_density_vr_temp = List(proj2_list["density_vr"]);
+                List proj2_density_vr_temp = as<List>(proj2_list["density_vr"]);
               
                 for (int k = 0; k < p2pj_length; k++) {
                   temp_new_devr(k + p1pi_length) = proj2_density_vr_temp(j);
@@ -3157,7 +3157,7 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
               
               new_density_vr(i) = temp_new_devr;
             } else if (proj1_density_vr_type == 2) {
-              List proj1_density_vr_temp = List(proj1_list["density_vr"]);
+              List proj1_density_vr_temp = as<List>(proj1_list["density_vr"]);
               
               List temp_new_devr (total_new_projection_length);
               for (int k = 0; k < p1pi_length; k++) {
@@ -3165,13 +3165,13 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
               }
               
               if (proj2_density_vr_type == 1) { 
-                DataFrame proj2_density_vr_temp = DataFrame(proj2_list["density_vr"]);
+                DataFrame proj2_density_vr_temp = as<DataFrame>(proj2_list["density_vr"]);
               
                 for (int k = 0; k < p2pj_length; k++) {
                   temp_new_devr(k + p1pi_length) = proj2_density_vr_temp;
                 }
               } else if (proj2_density_vr_type == 2) {
-                List proj2_density_vr_temp = List(proj2_list["density_vr"]);
+                List proj2_density_vr_temp = as<List>(proj2_list["density_vr"]);
               
                 for (int k = 0; k < p2pj_length; k++) {
                   temp_new_devr(k + p1pi_length) = proj2_density_vr_temp(j);
@@ -3191,13 +3191,13 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
             }
             
             if (proj2_density_vr_type == 1) { 
-              DataFrame proj2_density_vr_temp = DataFrame(proj2_list["density_vr"]);
+              DataFrame proj2_density_vr_temp = as<DataFrame>(proj2_list["density_vr"]);
             
               for (int k = 0; k < p2pj_length; k++) {
                 temp_new_devr(k + p1pi_length) = proj2_density_vr_temp;
               }
             } else if (proj2_density_vr_type == 2) {
-              List proj2_density_vr_temp = List(proj2_list["density_vr"]);
+              List proj2_density_vr_temp = as<List>(proj2_list["density_vr"]);
             
               for (int k = 0; k < p2pj_length; k++) {
                 temp_new_devr(k + p1pi_length) = proj2_density_vr_temp(j);
@@ -3224,8 +3224,8 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
           if (pop2_size_cols(j) > pop1_size_cols(i)) new_pop_size_mat_cols = 
             static_cast<int>(pop2_size_cols(j));
           
-          NumericMatrix old_pop1_size_mat = NumericMatrix(proj1_pop_size(i));
-          NumericMatrix old_pop2_size_mat = NumericMatrix(proj2_pop_size(j));
+          NumericMatrix old_pop1_size_mat = as<NumericMatrix>(proj1_pop_size[i]);
+          NumericMatrix old_pop2_size_mat = as<NumericMatrix>(proj2_pop_size[j]);
           NumericMatrix new_pop_size_mat (new_pop_size_mat_rows, new_pop_size_mat_cols);
           new_pop_size_mat.fill(NA_REAL);
           
@@ -3252,7 +3252,7 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
         
         if (static_cast<bool>(proj1_rep_value_list_check(i))) {
           
-          List proj1_rep_value_i = List(proj1_rep_value(i));
+          List proj1_rep_value_i = as<List>(proj1_rep_value[i]);
           new_rep_value(i) = proj1_rep_value_i;
         } else {
           NumericVector new_0 = {0.};
@@ -3261,7 +3261,7 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
         
         if (static_cast<bool>(proj1_stage_dist_list_check(i))) {
           
-          List proj1_stage_dist_i = List(proj1_stage_dist(i));
+          List proj1_stage_dist_i = as<List>(proj1_stage_dist[i]);
           new_stage_dist(i) = proj1_stage_dist_i;
         } else {
           NumericVector new_0 = {0.};
@@ -3270,10 +3270,10 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
         
         if (proj1_density_check) {
           if (proj1_density_type == 1) {
-            DataFrame proj1_density_temp = DataFrame(proj1_list["density"]);
+            DataFrame proj1_density_temp = as<DataFrame>(proj1_list["density"]);
             new_density(i) = proj1_density_temp;
           } else if (proj1_density_type == 2) {
-            List proj1_density_temp = List(proj1_list["density"]);
+            List proj1_density_temp = as<List>(proj1_list["density"]);
             new_density(i) = proj1_density_temp(i);
           }
         } else if (proj2_density_check) {
@@ -3288,7 +3288,7 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
           
           if (static_cast<bool>(proj2_rep_value_list_check(j))) {
             
-            List proj2_rep_value_i = List(proj2_rep_value(j));
+            List proj2_rep_value_i = as<List>(proj2_rep_value[j]);
             new_rep_value(i) = proj2_rep_value_i;
           } else {
             NumericVector new_0 = {0.};
@@ -3297,7 +3297,7 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
           
           if (static_cast<bool>(proj2_stage_dist_list_check(j))) {
             
-            List proj2_stage_dist_i = List(proj2_stage_dist(j));
+            List proj2_stage_dist_i = as<List>(proj2_stage_dist[j]);
             new_stage_dist(i) = proj2_stage_dist_i;
           } else {
             NumericVector new_0 = {0.};
@@ -3306,10 +3306,10 @@ Rcpp::List append_lM(Nullable<RObject> proj1 = R_NilValue,
           
           if (proj2_density_check) {
             if (proj2_density_type == 1) {
-              DataFrame proj2_density_temp = DataFrame(proj2_list["density"]);
+              DataFrame proj2_density_temp = as<DataFrame>(proj2_list["density"]);
               new_density(i) = proj2_density_temp;
             } else if (proj2_density_type == 2) {
-              List proj2_density_temp = List(proj2_list["density"]);
+              List proj2_density_temp = as<List>(proj2_list["density"]);
               new_density(i) = proj2_density_temp(j);
             }
           } else if (proj1_density_check) {
