@@ -566,9 +566,9 @@ summary(trial7a)
 
 \code{\link{fleslie}()}
 
-\code{\link{append_lP()}}
+\code{\link{append_lP}()}
 
-\code{\link{summary.lefkoProj()}}
+\code{\link{summary.lefkoProj}()}
 
-\code{\link{plot.lefkoProj()}}
+\code{\link{plot.lefkoProj}()}
 }

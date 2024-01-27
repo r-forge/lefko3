@@ -945,7 +945,7 @@ stablestage3.list <- function(mats, stochastic = FALSE, times = 10000,
     if (times > 2000) {
       Xlist <- ssonly[,(times - 999):(times)]
     } else if (times > 500) {
-      Xlist <- ssoly[,(times-199):(times)]
+      Xlist <- ssonly[,(times-199):(times)]
     } else {
       Xlist <- ssonly
     }
