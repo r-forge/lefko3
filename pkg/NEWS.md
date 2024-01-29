@@ -1,3 +1,10 @@
+# lefko3 6.3.0 (2024-XX-XX)
+
+## BUG FIXES
+
+* Function summary.lefkoProj() no longer fails when summarizing appended
+  projections with differing numbers of time steps.
+
 # lefko3 6.2.0 (2024-01-27)
 
 ## NEW FEATURES
