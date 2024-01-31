@@ -1,9 +1,27 @@
 # lefko3 6.3.0 (2024-XX-XX)
 
+## USER VISIBLE CHANGES
+
+* Zero-inflated Poisson and negative binomial GLMs have been enabled again.
+
+* Function overwrite() is now deprecated and links to function supplemental().
+
+* Examples for functions involving function-based MPMs have been altered to
+  showcase generalized linear models developed with base R.
+
+* Function create_pm() now uses the same model parameter naming conventions as
+  verticalize3() and historicalize3().
+
+* Matrix creation and projection examples now use basic linear models rather
+  than function modelsearch().
+  
 ## BUG FIXES
 
 * Function summary.lefkoProj() no longer fails when summarizing appended
   projections with differing numbers of time steps.
+
+* Function modelsearch() no longer improperly subsets data in Leslie MPM
+  searches.
 
 # lefko3 6.2.0 (2024-01-27)
 

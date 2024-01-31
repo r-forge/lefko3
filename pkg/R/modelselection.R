@@ -1597,14 +1597,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     formulae$nocovs.alternate$full.surv.model <- surv.uns[1]
   }
   
-  
-  
-  
-  
-  
-  
-  if (!is.numeric(formulae$main$full.surv.model) &
-      nchar(formulae$main$full.surv.model) > 1) {
+  if (!is.numeric(formulae$main$full.surv.model) & nchar(formulae$main$full.surv.model) > 1) {
     
     if(any(!suppressWarnings(!is.na(as.numeric(as.character(surv.data[, 
           which(names(surv.data) == size[1])])))))) {
@@ -1714,7 +1707,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
   obs.ind <- length(unique(obs.data[, which(names(obs.data) == indiv)]))
   obs.trans <- dim(obs.data)[1]
     
-  if (formulae$main$full.obs.model != 1) {
+  if (formulae$main$full.obs.model != 1 & formulae$main$full.obs.model != "none") {
     obs.uns <- unique(obs.data[,which(names(obs.data) == obs[1])])
     if (length(obs.uns) == 1) {
       warning("Observation in time t+1 appears to be constant, and so will be set to constant.\n",
@@ -1726,7 +1719,9 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     }
   }
   
-  if (!is.numeric(formulae$main$full.obs.model) & nchar(formulae$main$full.obs.model) > 1) {
+  if (!is.numeric(formulae$main$full.obs.model) & nchar(formulae$main$full.obs.model) > 1 &
+    formulae$main$full.obs.model != "none") {
+    
     if (is.element(0, obs.data[, chosen_var]) & is.element(1, obs.data[, chosen_var]) &
         nchar(formulae$main$full.obs.model) > 1) {
       
@@ -1772,7 +1767,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
   }
   
   # Primary size
-  if (formulae$main$full.obs.model != 1) {
+  if (formulae$main$full.obs.model != 1 & formulae$main$full.obs.model != "none") {
     size.data <- subset(obs.data, obs.data[, which(names(obs.data) == obs[1])] == 1)
     size.data <- size.data[which(!is.na(size.data[, which(names(size.data) == size[1])])),]
     
@@ -1800,7 +1795,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
   size.ind <- length(unique(size.data[, which(names(size.data) == indiv)]))
   size.trans <- dim(size.data)[1]
   
-  if (formulae$main$full.size.model != 1) {
+  if (formulae$main$full.size.model != 1 & formulae$main$full.size.model != "none") {
     size.uns <- unique(size.data[,which(names(size.data) == size[1])])
     if (length(size.uns) == 1) {
       warning("Primary size in time t+1 appears to be constant, and so will be set to constant.\n",
@@ -1812,7 +1807,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     }
   }
   
-  if (!is.numeric(formulae$main$full.size.model)) {
+  if (!is.numeric(formulae$main$full.size.model) & formulae$main$full.size.model != "none") {
     if (sizedist == "poisson" | sizedist == "negbin") {
       if (any(size.data[, which(names(size.data) == size[1])] != 
           round(size.data[, which(names(size.data) == size[1])]))) {
@@ -1827,7 +1822,9 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     }
   }
     
-  if (!is.numeric(formulae$main$full.size.model) & nchar(formulae$main$full.size.model) > 1) {
+  if (!is.numeric(formulae$main$full.size.model) & nchar(formulae$main$full.size.model) > 1 &
+    formulae$main$full.size.model != "none") {
+    
     nosizeterms = c(formulae$main$total_terms[3], formulae$alternate$total_terms[3],
       formulae$glm.alternate$total_terms[3], formulae$nocovs.alternate$total_terms[3])
       
@@ -1864,7 +1861,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     sizeb.ind <- length(unique(sizeb.data[, which(names(sizeb.data) == indiv)]))
     sizeb.trans <- dim(sizeb.data)[1]
     
-    if (formulae$main$full.sizeb.model != 1) {
+    if (formulae$main$full.sizeb.model != 1 & formulae$main$full.sizeb.model != "none") {
       sizeb.uns <- unique(sizeb.data[,which(names(sizeb.data) == sizeb[1])])
       if (length(sizeb.uns) == 1) {
         warning("Secondary size in time t+1 appears to be constant, and so will be set to constant.\n",
@@ -1876,7 +1873,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
       }
     }
     
-    if (!is.numeric(formulae$main$full.sizeb.model)) {
+    if (!is.numeric(formulae$main$full.sizeb.model) & formulae$main$full.sizeb.model != "none") {
       if (sizebdist == "poisson" | sizebdist == "negbin") {
         if (any(sizeb.data[, which(names(sizeb.data) == sizeb[1])] != 
             round(sizeb.data[, which(names(sizeb.data) == sizeb[1])]))) {
@@ -1892,7 +1889,9 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     }
   }
   
-  if (sizeb_used & !is.numeric(formulae$main$full.sizeb.model) & nchar(formulae$main$full.sizeb.model) > 1) {
+  if (sizeb_used & !is.numeric(formulae$main$full.sizeb.model) &
+    nchar(formulae$main$full.sizeb.model) > 1 & formulae$main$full.sizeb.model != "none") {
+    
     nosizebterms = c(formulae$main$total_terms[4], formulae$alternate$total_terms[4],
       formulae$glm.alternate$total_terms[4], formulae$nocovs.alternate$total_terms[4])
       
@@ -1929,7 +1928,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     sizec.ind <- length(unique(sizec.data[, which(names(sizec.data) == indiv)]))
     sizec.trans <- dim(sizec.data)[1]
     
-    if (formulae$main$full.sizec.model != 1) {
+    if (formulae$main$full.sizec.model != 1 & formulae$main$full.sizec.model != "none") {
       sizec.uns <- unique(sizec.data[,which(names(sizec.data) == sizec[1])])
       if (length(sizec.uns) == 1) {
         warning("Tertiary size in time t+1 appears to be constant, and so will be set to constant.\n",
@@ -1941,7 +1940,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
       }
     }
     
-    if (!is.numeric(formulae$main$full.sizec.model)) {
+    if (!is.numeric(formulae$main$full.sizec.model) & formulae$main$full.sizec.model != "none") {
       if (sizecdist == "poisson" | sizecdist == "negbin") {
         if (any(sizec.data[, which(names(sizec.data) == sizec[1])] != 
             round(sizec.data[, which(names(sizec.data) == sizec[1])]))) {
@@ -1957,7 +1956,9 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     }
   }
   
-  if (sizec_used & !is.numeric(formulae$main$full.sizec.model) & nchar(formulae$main$full.sizec.model) > 1) {
+  if (sizec_used & !is.numeric(formulae$main$full.sizec.model) &
+    nchar(formulae$main$full.sizec.model) > 1  & formulae$main$full.sizec.model != "none") {
+    
     nosizecterms = c(formulae$main$total_terms[5], formulae$alternate$total_terms[5],
       formulae$glm.alternate$total_terms[5], formulae$nocovs.alternate$total_terms[5])
       
@@ -1994,7 +1995,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
   repst.ind <- length(unique(repst.data[, which(names(repst.data) == indiv)]))
   repst.trans <- dim(repst.data)[1]
   
-  if (formulae$main$full.repst.model != 1) {
+  if (formulae$main$full.repst.model != 1 & formulae$main$full.repst.model != "none") {
     repst.uns <- unique(repst.data[,which(names(repst.data) == repst[1])])
     if (length(repst.uns) == 1) {
       warning("Reproductive status in time t+1 appears to be constant, and so will be set to constant.\n",
@@ -2006,7 +2007,9 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     }
   }
   
-  if (!is.numeric(formulae$main$full.repst.model) & nchar(formulae$main$full.repst.model) > 1) {
+  if (!is.numeric(formulae$main$full.repst.model) & nchar(formulae$main$full.repst.model) > 1 &
+    formulae$main$full.repst.model != "none") {
+    
     chosen_var <- which(names(repst.data) == repst[1])
     if (is.element(0, repst.data[, chosen_var]) & is.element(1, repst.data[, chosen_var])) {
       
@@ -2056,7 +2059,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
   }
   
   # Fecundity
-  if (formulae$main$full.repst.model != 1) {
+  if (formulae$main$full.repst.model != 1 & formulae$main$full.repst.model != "none") {
     if (fectime == 2) {
       fec.data <- subset(surv.data, surv.data[, which(names(surv.data) == repst[2])] == 1)
       fec.data <- fec.data[which(!is.na(fec.data[, which(names(fec.data) == fec[2])])),]
@@ -2071,12 +2074,11 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     } else if (fectime == 3) {
       fec.data <- fec.data[which(!is.na(fec.data[, which(names(fec.data) == fec[1])])),]
     }
-    
   }
   fec.ind <- length(unique(fec.data[, which(names(fec.data) == indiv)]))
   fec.trans <- dim(fec.data)[1]
   
-  if (formulae$main$full.fec.model != 1) {
+  if (formulae$main$full.fec.model != 1 & formulae$main$full.fec.model != "none") {
     if (!is.numeric(formulae$main$full.fec.model)) {
       if (is.element(fecdist, c("poisson", "negbin"))) {
         if (any(fec.data[, usedfec] != round(fec.data[, usedfec]))) {
@@ -2111,7 +2113,9 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     }
   }
   
-  if (!is.numeric(formulae$main$full.fec.model) & nchar(formulae$main$full.fec.model) > 1) {
+  if (!is.numeric(formulae$main$full.fec.model) & nchar(formulae$main$full.fec.model) > 1 &
+    formulae$main$full.fec.model != "none") {
+    
     nofecterms = c(formulae$main$total_terms[7], formulae$alternate$total_terms[7],
       formulae$glm.alternate$total_terms[7], formulae$nocovs.alternate$total_terms[7])
       
@@ -2145,7 +2149,8 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
   }
   
   # Juvenile survival probability and maturity status
-  if (!is.na(juvestimate) & !is.numeric(formulae$main$juv.surv.model) & nchar(formulae$main$juv.surv.model) > 1) {
+  if (!is.na(juvestimate) & !is.numeric(formulae$main$juv.surv.model) & nchar(formulae$main$juv.surv.model) > 1 &
+    formulae$main$juv.surv.model != "none") {
     juvsurv.data <- subset(juv.data, juv.data[,stage2col] == juvestimate & juv.data[,which(names(juv.data) == surv[2])] == 1)
     juvsurv.data <- juvsurv.data[,vars_used_pm]
     juvsurv.data <- juvsurv.data[complete.cases(juvsurv.data),]
@@ -2245,10 +2250,10 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     }
     
     juvmatst.data <- subset(juvsurv.data, juvsurv.data[, which(names(juvsurv.data) == surv[1])] == 1)
-    if (dim(juvmatst.data)[1] < 2) formulae$main$juv.matst.model = 1
+    if (dim(juvmatst.data)[1] < 2) formulae$main$juv.matst.model <- 1
     chosen_var <- which(names(juvmatst.data) == matstat[1])
     
-    if (formulae$main$juv.matst.model != 1) {
+    if (formulae$main$juv.matst.model != 1 & formulae$main$juv.matst.model != "none") {
       juvmatst.uns <- unique(juvmatst.data[,which(names(juvmatst.data) == surv[1])])
       if (length(juvmatst.uns) == 1) {
         warning("Juvenile maturity status in time t+1 appears to be constant, and so will be set to constant.\n",
@@ -2324,7 +2329,9 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
   }
   
   # Juvenile observation status
-  if (!is.na(juvestimate) & !is.numeric(formulae$main$juv.obs.model) & nchar(formulae$main$juv.obs.model) > 1) {
+  if (!is.na(juvestimate) & !is.numeric(formulae$main$juv.obs.model) &
+    nchar(formulae$main$juv.obs.model) > 1 & formulae$main$juv.obs.model != "none") {
+    
     juvsurv.data <- subset(juv.data, juv.data[,stage2col] == juvestimate & juv.data[,which(names(juv.data) == surv[2])] == 1)
     juvsurv.data <- juvsurv.data[,vars_used_pm]
     juvsurv.data <- juvsurv.data[complete.cases(juvsurv.data),]
@@ -2395,13 +2402,15 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
   }
   
   # Juvenile primary size
-  if (!is.na(juvestimate) & !is.numeric(formulae$main$juv.size.model) & nchar(formulae$main$juv.size.model) > 1) {
+  if (!is.na(juvestimate) & !is.numeric(formulae$main$juv.size.model) &
+    nchar(formulae$main$juv.size.model) > 1 & formulae$main$juv.size.model != "none") {
+    
     juvsurv.data <- subset(juv.data, juv.data[,stage2col] == juvestimate & juv.data[,which(names(juv.data) == surv[2])] == 1)
     juvsurv.data <- juvsurv.data[,vars_used_pm]
     juvsurv.data <- juvsurv.data[complete.cases(juvsurv.data),]
     juvobs.data <- subset(juvsurv.data, juvsurv.data[, which(names(juvsurv.data) == surv[1])] == 1)
     
-    if (formulae$main$juv.obs.model != 1) {
+    if (formulae$main$juv.obs.model != 1 & formulae$main$juv.obs.model != "none") {
       juvsize.data <- subset(juvobs.data, juvobs.data[, which(names(juvobs.data) == obs[1])] == 1)
       juvsize.data <- juvsize.data[which(!is.na(juvsize.data[, which(names(juvsize.data) == size[1])])),]
       
@@ -2429,7 +2438,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
       }
     }
     
-    if (formulae$main$juv.size.model != 1) {
+    if (formulae$main$juv.size.model != 1 & formulae$main$juv.size.model != "none") {
       juvsize.uns <- unique(juvsize.data[,which(names(juvsize.data) == size[1])])
       if (length(juvsize.uns) == 1) {
         warning("Juvenile primary size in time t+1 appears to be constant, and so will be set to constant.\n",
@@ -2459,7 +2468,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     juvsize.trans <- dim(juvsize.data)[1]
     if (juvsize.trans < 2) formulae$main$juv.size.model = 1
     
-    if (nchar(formulae$main$juv.size.model) > 1) {
+    if (nchar(formulae$main$juv.size.model) > 1 & formulae$main$juv.size.model != "none") {
       nojsizeterms = c(formulae$main$total_terms[10], formulae$alternate$total_terms[10],
         formulae$glm.alternate$total_terms[10], formulae$nocovs.alternate$total_terms[10])
       
@@ -2501,8 +2510,9 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
   
   # Juvenile secondary size
   if (sizeb_used & !is.na(juvestimate) & !is.numeric(formulae$main$juv.sizeb.model) &
-      nchar(formulae$main$juv.sizeb.model) > 1) {
-    if (formulae$main$juv.sizeb.model != 1) {
+    nchar(formulae$main$juv.sizeb.model) > 1 & formulae$main$juv.sizeb.model != "none") {
+    
+    if (formulae$main$juv.sizeb.model != 1 & formulae$main$juv.sizeb.model != "none") {
       juvsizeb.uns <- unique(juvsizeb.data[,which(names(juvsizeb.data) == sizeb[1])])
       if (length(juvsizeb.uns) == 1) {
         warning("Juvenile secondary size in time t+1 appears to be constant, and so will be set to constant.\n",
@@ -2574,7 +2584,8 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
   
   # Juvenile tertiary size
   if (sizec_used & !is.na(juvestimate) & !is.numeric(formulae$main$juv.sizec.model) &
-      nchar(formulae$main$juv.sizec.model) > 1) {
+    nchar(formulae$main$juv.sizec.model) > 1 & formulae$main$juv.sizec.model != "none") {
+    
     if (sizecdist != "gamma") {
       if (sizecdist == "poisson" | sizecdist == "negbin") {
         if (any(juvsizec.data[, which(names(juvsizec.data) == sizec[1])] != 
@@ -2648,13 +2659,13 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
   
   # Juvenile reproductive status
   if (!is.na(juvestimate) & !is.numeric(formulae$main$juv.repst.model) &
-      nchar(formulae$main$juv.repst.model) > 1) {
+      nchar(formulae$main$juv.repst.model) > 1 & formulae$main$juv.repst.model != "none") {
     juvsurv.data <- subset(juv.data, juv.data[,stage2col] == juvestimate & juv.data[,which(names(juv.data) == surv[2])] == 1)
     juvsurv.data <- juvsurv.data[,vars_used_pm]
     juvsurv.data <- juvsurv.data[complete.cases(juvsurv.data),]
     juvobs.data <- subset(juvsurv.data, juvsurv.data[, which(names(juvsurv.data) == surv[1])] == 1)
     
-    if (formulae$main$juv.obs.model != 1) {
+    if (formulae$main$juv.obs.model != 1 & formulae$main$juv.obs.model != "none") {
       juvsize.data <- subset(juvobs.data, juvobs.data[, which(names(juvobs.data) == obs[1])] == 1)
       juvsize.data <- juvsize.data[which(!is.na(juvsize.data[, which(names(juvsize.data) == size[1])])),]
       
@@ -2687,7 +2698,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     if (juvrepst.trans < 2) formulae$main$juv.repst.model = 1
     chosen_var <- which(names(juvrepst.data) == repst[1])
     
-    if (formulae$main$juv.repst.model != 1) {
+    if (formulae$main$juv.repst.model != 1 & formulae$main$juv.repst.model != "none") {
       juvrepst.uns <- unique(juvrepst.data[,which(names(juvrepst.data) == repst[1])])
       if (length(juvrepst.uns) == 1) {
         warning("Juvenile reproductive status in time t+1 appears to be constant, and so will be set to constant.\n",
@@ -2700,7 +2711,8 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     }
     
     if (is.element(0, juvrepst.data[, chosen_var]) & is.element(1, juvrepst.data[, chosen_var]) & 
-        nchar(formulae$main$juv.repst.model) > 1) {
+      nchar(formulae$main$juv.repst.model) > 1 & formulae$main$juv.repst.model != "none") {
+      
       nojrepstterms = c(formulae$main$total_terms[13], formulae$alternate$total_terms[13],
         formulae$glm.alternate$total_terms[13], formulae$nocovs.alternate$total_terms[13])
       
