@@ -17,6 +17,9 @@
   
 ## BUG FIXES
 
+* Zero-inflation estimation corrected to properly account for the mixture model
+  in Poisson and negative binomial versions.
+
 * Function summary.lefkoProj() no longer fails when summarizing appended
   projections with differing numbers of time steps.
 
