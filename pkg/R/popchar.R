@@ -1751,6 +1751,7 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
   sizeb_used <- sizec_used <- density_used <- indcova_used <- FALSE
   indcovb_used <- indcovc_used <- FALSE
   
+  ran_vars <- c("none", "none", "none", "none", "none", "none") # Names of random vars: indiv, year, patch, inda, indb, indc
   total_vars <- length(names(data))
   
   #Input testing, input standardization, and exception handling
@@ -2119,6 +2120,7 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
         indcova[3] <- "none"
       }
     }
+    ran_vars[4] = names(data)[indcova2col]
   } else {indcova <- c("none", "none", "none")}
   
   if (indcova_used & !random.indcova) {
@@ -2168,6 +2170,7 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
         indcovb[3] <- "none"
       }
     }
+    ran_vars[5] = names(data)[indcovb2col]
   } else {indcovb <- c("none", "none", "none")}
   
   if (indcovb_used & !random.indcovb) {
@@ -2217,6 +2220,7 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
         indcovc[3] <- "none"
       }
     }
+    ran_vars[6] = names(data)[indcovc2col]
   } else {indcovc <- c("none", "none", "none")}
   
   if (indcovc_used & !random.indcovc) {
@@ -2245,6 +2249,7 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
     } else {
       stop("Unable to interpret indiv variable.", call. = FALSE)
     }
+    ran_vars[1] = names(data)[indivcol]
   } else {indiv <- "none"}
   
   if (!is.na(patch)) {
@@ -2263,6 +2268,7 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
     } else {
       stop("Unable to interpret patch variable.", call. = FALSE)
     }
+    ran_vars[3] = names(data)[patchcol]
   } else {patch <- "none"}
   
   if (patchcol > 0 & !patch.as.random) {
@@ -2285,6 +2291,7 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
     } else {
       stop("Unable to interpret year variable.", call. = FALSE)
     }
+    ran_vars[2] = names(data)[yearcol]
   } else {year <- "none"}
   
   if (yearcol > 0 & !year.as.random) {
@@ -2614,6 +2621,9 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
     }
   }
   
+  ran_vars_names <- c("indiv id: ", "year2: ", "patch: ", "indcova: ", "indcovb: ", "indcovc: ")
+  chosen_ran_vars <- which(ran_vars != "none")
+  
   # The major variable tests
   if (is.data.frame(surv.data) & is.element("surv", vitalrates)) {
     writeLines("Survival:\n")
@@ -2621,6 +2631,15 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
       dim(surv.data)[1], " transitions.\n"))
     
     .intbin_check(surv.data, surv[1])
+    
+    if(length(chosen_ran_vars) > 0) {
+      writeLines("  Numbers of categories in data subset in possible random variables:")
+      
+      for(i in c(1:length(chosen_ran_vars))) {
+        found_uns <- length(unique(surv.data[,ran_vars[chosen_ran_vars[i]]]))
+        writeLines(paste0("  ", ran_vars_names[chosen_ran_vars[i]], found_uns))
+      }
+    }
   }
   if (is.data.frame(obs.data) & is.element("obs", vitalrates)) {
     writeLines("\nObservation status:\n")
@@ -2628,6 +2647,15 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
       dim(obs.data)[1], " transitions.\n"))
     
     .intbin_check(obs.data, obs[1])
+    
+    if(length(chosen_ran_vars) > 0) {
+      writeLines("  Numbers of categories in data subset in possible random variables:")
+      
+      for(i in c(1:length(chosen_ran_vars))) {
+        found_uns <- length(unique(obs.data[,ran_vars[chosen_ran_vars[i]]]))
+        writeLines(paste0("  ", ran_vars_names[chosen_ran_vars[i]], found_uns))
+      }
+    }
   }
   
   if (is.data.frame(size.data) & is.element("size", vitalrates)) {
@@ -2636,6 +2664,15 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
       dim(size.data)[1], " transitions.\n"))
     
     .sf_dist_check(size.data, size[1], size[2])
+    
+    if(length(chosen_ran_vars) > 0) {
+      writeLines("  Numbers of categories in data subset in possible random variables:")
+      
+      for(i in c(1:length(chosen_ran_vars))) {
+        found_uns <- length(unique(size.data[,ran_vars[chosen_ran_vars[i]]]))
+        writeLines(paste0("  ", ran_vars_names[chosen_ran_vars[i]], found_uns))
+      }
+    }
   }
   if (is.data.frame(sizeb.data) & is.element("siz", vitalrates)) {
     writeLines("\nSecondary size:\n")
@@ -2643,6 +2680,15 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
       dim(sizeb.data)[1], " transitions.\n"))
     
     .sf_dist_check(sizeb.data, sizeb[1], sizeb[2])
+    
+    if(length(chosen_ran_vars) > 0) {
+      writeLines("  Numbers of categories in data subset in possible random variables:")
+      
+      for(i in c(1:length(chosen_ran_vars))) {
+        found_uns <- length(unique(sizeb.data[,ran_vars[chosen_ran_vars[i]]]))
+        writeLines(paste0("  ", ran_vars_names[chosen_ran_vars[i]], found_uns))
+      }
+    }
   }
   if (is.data.frame(sizec.data) & is.element("siz", vitalrates)) {
     writeLines("\nTertiary size:\n")
@@ -2650,6 +2696,15 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
       dim(sizec.data)[1], " transitions.\n"))
     
     .sf_dist_check(sizec.data, sizec[1], sizec[2])
+    
+    if(length(chosen_ran_vars) > 0) {
+      writeLines("  Numbers of categories in data subset in possible random variables:")
+      
+      for(i in c(1:length(chosen_ran_vars))) {
+        found_uns <- length(unique(sizec.data[,ran_vars[chosen_ran_vars[i]]]))
+        writeLines(paste0("  ", ran_vars_names[chosen_ran_vars[i]], found_uns))
+      }
+    }
   }
   
   if (is.data.frame(repst.data) & is.element("repst", vitalrates)) {
@@ -2658,6 +2713,15 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
       dim(repst.data)[1], " transitions.\n"))
     
     .intbin_check(repst.data, repst[1])
+    
+    if(length(chosen_ran_vars) > 0) {
+      writeLines("  Numbers of categories in data subset in possible random variables:")
+      
+      for(i in c(1:length(chosen_ran_vars))) {
+        found_uns <- length(unique(repst.data[,ran_vars[chosen_ran_vars[i]]]))
+        writeLines(paste0("  ", ran_vars_names[chosen_ran_vars[i]], found_uns))
+      }
+    }
   }
   
   if (is.data.frame(fec.data) & is.element("fec", vitalrates)) {
@@ -2671,6 +2735,15 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
       term2 <- size[1]
     }
     .sf_dist_check(fec.data, names(fec.data)[usedfec], term2)
+    
+    if(length(chosen_ran_vars) > 0) {
+      writeLines("  Numbers of categories in data subset in possible random variables:")
+      
+      for(i in c(1:length(chosen_ran_vars))) {
+        found_uns <- length(unique(fec.data[,ran_vars[chosen_ran_vars[i]]]))
+        writeLines(paste0("  ", ran_vars_names[chosen_ran_vars[i]], found_uns))
+      }
+    }
   }
   
   if (is.data.frame(juvsurv.data) & is.element("surv", vitalrates)) {
@@ -2679,6 +2752,15 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
       dim(juvsurv.data)[1], " transitions.\n"))
     
     .intbin_check(juvsurv.data, surv[1])
+    
+    if(length(chosen_ran_vars) > 0) {
+      writeLines("  Numbers of categories in data subset in possible random variables:")
+      
+      for(i in c(1:length(chosen_ran_vars))) {
+        found_uns <- length(unique(juvsurv.data[,ran_vars[chosen_ran_vars[i]]]))
+        writeLines(paste0("  ", ran_vars_names[chosen_ran_vars[i]], found_uns))
+      }
+    }
   }
   if (is.data.frame(juvobs.data) & is.element("obs", vitalrates)) {
     writeLines("\nJuvenile observation status:\n")
@@ -2686,6 +2768,15 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
       dim(juvobs.data)[1], " transitions.\n"))
     
     .intbin_check(juvobs.data, obs[1])
+    
+    if(length(chosen_ran_vars) > 0) {
+      writeLines("  Numbers of categories in data subset in possible random variables:")
+      
+      for(i in c(1:length(chosen_ran_vars))) {
+        found_uns <- length(unique(juvobs.data[,ran_vars[chosen_ran_vars[i]]]))
+        writeLines(paste0("  ", ran_vars_names[chosen_ran_vars[i]], found_uns))
+      }
+    }
   }
   
   if (is.data.frame(juvsize.data) & is.element("size", vitalrates)) {
@@ -2694,6 +2785,15 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
       dim(juvsize.data)[1], " transitions.\n"))
     
     .sf_dist_check(juvsize.data, size[1], size[2])
+    
+    if(length(chosen_ran_vars) > 0) {
+      writeLines("  Numbers of categories in data subset in possible random variables:")
+      
+      for(i in c(1:length(chosen_ran_vars))) {
+        found_uns <- length(unique(juvsize.data[,ran_vars[chosen_ran_vars[i]]]))
+        writeLines(paste0("  ", ran_vars_names[chosen_ran_vars[i]], found_uns))
+      }
+    }
   }
   if (is.data.frame(juvsizeb.data)& is.element("siz", vitalrates)) {
     writeLines("\nJuvenile secondary size:\n")
@@ -2701,6 +2801,15 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
       dim(juvsizeb.data)[1], " transitions.\n"))
     
     .sf_dist_check(juvsizeb.data, sizeb[1], sizeb[2])
+    
+    if(length(chosen_ran_vars) > 0) {
+      writeLines("  Numbers of categories in data subset in possible random variables:")
+      
+      for(i in c(1:length(chosen_ran_vars))) {
+        found_uns <- length(unique(juvsizeb.data[,ran_vars[chosen_ran_vars[i]]]))
+        writeLines(paste0("  ", ran_vars_names[chosen_ran_vars[i]], found_uns))
+      }
+    }
   }
   if (is.data.frame(juvsizec.data) & is.element("siz", vitalrates)) {
     writeLines("\nJuvenile tertiary size:\n")
@@ -2708,6 +2817,15 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
       dim(juvsizec.data)[1], " transitions.\n"))
     
     .sf_dist_check(juvsizec.data, sizec[1], sizec[2])
+    
+    if(length(chosen_ran_vars) > 0) {
+      writeLines("  Numbers of categories in data subset in possible random variables:")
+      
+      for(i in c(1:length(chosen_ran_vars))) {
+        found_uns <- length(unique(juvsizec.data[,ran_vars[chosen_ran_vars[i]]]))
+        writeLines(paste0("  ", ran_vars_names[chosen_ran_vars[i]], found_uns))
+      }
+    }
   }
   
   if (is.data.frame(juvrepst.data) & is.element("repst", vitalrates)) {
@@ -2716,6 +2834,15 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
       dim(juvrepst.data)[1], " transitions.\n"))
     
     .intbin_check(juvrepst.data, repst[1])
+    
+    if(length(chosen_ran_vars) > 0) {
+      writeLines("  Numbers of categories in data subset in possible random variables:")
+      
+      for(i in c(1:length(chosen_ran_vars))) {
+        found_uns <- length(unique(juvrepst.data[,ran_vars[chosen_ran_vars[i]]]))
+        writeLines(paste0("  ", ran_vars_names[chosen_ran_vars[i]], found_uns))
+      }
+    }
   }
   if (is.data.frame(juvobs.data)) {
     writeLines("\nJuvenile maturity status:\n")
@@ -2723,6 +2850,15 @@ hfv_qc <- function(data, stageframe = NULL, historical = TRUE, suite = "size",
       dim(juvobs.data)[1], " transitions.\n"))
     
     .intbin_check(juvobs.data, matstat[1])
+    
+    if(length(chosen_ran_vars) > 0) {
+      writeLines("  Numbers of categories in data subset in possible random variables:")
+      
+      for(i in c(1:length(chosen_ran_vars))) {
+        found_uns <- length(unique(juvobs.data[,ran_vars[chosen_ran_vars[i]]]))
+        writeLines(paste0("  ", ran_vars_names[chosen_ran_vars[i]], found_uns))
+      }
+    }
   }
 }
 

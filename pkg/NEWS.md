@@ -15,6 +15,12 @@
 * Matrix creation and projection examples now use basic linear models rather
   than function modelsearch().
   
+* Function modelsearch() now preferentially removes the most highly categorized
+  random covariate when a global model fails, if using mixed modeling.
+  
+* Function hfv_qc() now also shows the numbers of categories in variables that
+  can be used as random factors as a part of the output.
+  
 ## BUG FIXES
 
 * Zero-inflation estimation corrected to properly account for the mixture model
@@ -25,6 +31,9 @@
 
 * Function modelsearch() no longer improperly subsets data in Leslie MPM
   searches.
+  
+* Function modelsearch() now correctly removes independent terms to simplify
+  model structure if global model development fails.
 
 # lefko3 6.2.0 (2024-01-27)
 

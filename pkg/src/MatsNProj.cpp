@@ -19694,8 +19694,8 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
               senscube(i) = arma::mat(sens_base_sp);
             }
           } else {
-            arma::mat temp_mat = as<arma::mat>(amats[theprophecy(j)]);
-            arma::sp_mat cs_sp = currentsens_sp % arma::sp_mat(temp_mat);
+            arma::sp_mat temp_spmat = arma::sp_mat(amats[theprophecy(j)]);
+            arma::sp_mat cs_sp = currentsens_sp % temp_spmat;
             sens_base_sp += cs_sp;
             
             if (sparse == 1) {
