@@ -2226,14 +2226,13 @@ sensitivity3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
     
     hlabels <- mats$hstages
     ahlabels <- mats$ahstages
+    agelabels <- mats$agestages
     new_labels <- mats$labels
     
     if (all(is.na(mats$hstages))) {
       
-      ahlabels <- mats$ahstages
-      
       output <- list(h_sensmats = NULL, ah_sensmats = baldrick, hstages = NULL, 
-        ahstages = ahlabels, labels = new_labels)
+        ahstages = ahlabels, agestages = agelabels, labels = new_labels)
       
     } else {
       he_list <- lapply(baldrick, function(X) {X$h_smat})
@@ -3114,7 +3113,7 @@ elasticity3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
   }
   
   if (!is.element("agestages", names(mats))) {
-    mats$agestages <- NULL
+    mats$agestages <- NA
   }
   
   if (!stochastic) {
@@ -3152,14 +3151,14 @@ elasticity3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
     
     hlabels <- mats$hstages
     ahlabels <- mats$ahstages
+    agelabels <- mats$agestages
     new_labels <- mats$labels
     
     if (all(is.na(mats$hstages))) {
       
-      ahlabels <- mats$ahstages #Originally only the first two columns
-      
       output <- list(h_elasmats = NULL, ah_elasmats = baldrick, hstages = NULL,
-        agestages = mats$agestages, ahstages = ahlabels, labels = new_labels)
+        agestages = mats$agestages, ahstages = ahlabels, agestages = agelabels,
+        labels = new_labels)
     } else {
       
       he_list <- lapply(baldrick, function(X) {X$h_emat})
