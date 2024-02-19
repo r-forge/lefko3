@@ -2076,7 +2076,7 @@ Rcpp::DataFrame matrix_interp (Rcpp::List object, int mat_chosen = 1,
     }
     
     main_stage_vector = new_age_stages;
-  } else if (hstages_cols > 1) {
+  } else if (hstages_cols > 1 && part == 2) {
     StringVector all_stage1 = hstages["stage_1"];
     StringVector all_stage2 = hstages["stage_2"];
     int all_stage_pairs_num = all_stage1.length();

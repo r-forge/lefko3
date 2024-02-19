@@ -35,7 +35,7 @@
 * Function modelsearch() now correctly removes independent terms to simplify
   model structure if global model development fails.
   
-* Fixed structural bug preventing matrix_interp() from working with functions
+* Fixed structural bugs preventing matrix_interp() from working with functions
   sensitivity3() and elasticity3().
 
 # lefko3 6.2.0 (2024-01-27)
