@@ -2239,7 +2239,8 @@ sensitivity3.lefkoMat <- function(mats, stochastic = FALSE, times = 10000,
       ahe_list <- lapply(baldrick, function(X) {X$ah_smat})
       
       output <- list(h_sensmats = he_list, ah_sensmats = ahe_list,
-        hstages = hlabels, ahstages = ahlabels, labels = new_labels)
+        hstages = hlabels, ahstages = ahlabels, agestages = agelabels,
+        labels = new_labels)
     }
   } else {
     # Stochastic sensitivity analysis

@@ -2,6 +2,9 @@
 
 ## USER VISIBLE CHANGES
 
+* Function matrix_interp() now also handles standard matrix and sparse matrix 
+  (dgCMatrix format) inputs.
+
 * Zero-inflated Poisson and negative binomial GLMs have been enabled again.
 
 * Function overwrite() is now deprecated and links to function supplemental().

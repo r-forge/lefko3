@@ -5331,13 +5331,15 @@ lambda3 <- function(mpm, force_sparse = NULL) {
 #' 
 #' Function \code{matrix_interp} summarizes matrices from \code{lefkoMat},
 #' \code{lefkoSens}, \code{lefkoElas}, and \code{lefkoLTRE} objects in terms
-#' of the magnitudes of their elements.
+#' of the magnitudes of their elements. It can also create ordered summaries of
+#' standard matrices and sparse matrices.
 #' 
 #' @name matrix_interp
 #' 
-#' @param object A list object in one of \code{lefko3}'s output formats. These
-#' may include \code{lefkoMat}, \code{lefkoSens}, \code{lefkoElas}, and
-#' \code{lefkoLTRE} objects.
+#' @param object A list object in one of \code{lefko3}'s output formats, or a
+#' standard matrix or sparse matrix in \code{dgCMatrix} format. Standard
+#' \code{lefko3} output formats include \code{lefkoMat}, \code{lefkoSens},
+#' \code{lefkoElas}, and \code{lefkoLTRE} objects.
 #' @param mat_chosen The number of the matrix to assess, within the appropriate
 #' matrix list. See \code{Notes} for further details.
 #' @param part An integer noting whether to provide assessments of which of the
@@ -5358,13 +5360,15 @@ lambda3 <- function(mpm, force_sparse = NULL) {
 #' of only negative elements, or all elements in order of absolute magnitude.
 #' 
 #' @section Notes:
-#' This will be the number of the matrix within the list that it is held in.
-#' For example, if the function is applied to the \code{cont_sd} portion of
-#' a stochastic LTRE, and there are four LTRE matrices within that list element
-#' corresponding to three patch LTRE matrices and one overall population-level
-#' LTRE matrix, then setting this value to \code{4} would focus the function on
-#' the overall population-level LTRE matrix associated with contributions of
-#' the standard deviations of elements.
+#' Argument \code{mat_chosen} refers to the number of the matrix within the
+#' list that it is held in. For example, if the function is applied to the
+#' \code{cont_sd} portion of a stochastic LTRE, and there are four LTRE
+#' matrices within that list element corresponding to three patch LTRE matrices
+#' and one overall population-level LTRE matrix, then setting this value to
+#' \code{4} would focus the function on the overall population-level LTRE
+#' matrix associated with contributions of the standard deviations of elements.
+#' This argument should be left blank if a standard matrix or sparse matrix is
+#' input.
 #' 
 #' Huge sparse matrices may take more time to process than small, dense
 #' matrices.
