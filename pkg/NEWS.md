@@ -1,4 +1,11 @@
-# lefko3 6.2.1 (2024-XX-XX)
+# lefko3 6.2.2 (2024-XX-XX)
+
+## BUG FIXES
+
+* Function matrix_interp() no longer gives a fatal error when run on a
+  historical lefkoLTRE object with part != 2.
+
+# lefko3 6.2.1 (2024-02-24)
 
 ## USER VISIBLE CHANGES
 
