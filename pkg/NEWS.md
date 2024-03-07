@@ -1,5 +1,10 @@
 # lefko3 6.2.2 (2024-XX-XX)
 
+## NEW FEATURES
+
+* Function miniMod() was developed to create minimum memory vital rate model
+  summaries in vrm_input format useable as substitutes for lefkoMod objects.
+
 ## BUG FIXES
 
 * Function matrix_interp() no longer gives a fatal error when run on a

@@ -3969,6 +3969,27 @@ markov_run <- function(main_times, mat, times = 10000L, start = NULL) {
 #' @noRd
 NULL
 
+#' Convert modelextract Coefficient Vector to vrm_frame Vector
+#' 
+#' @name vrmf_inator
+#' 
+#' This function reorders the coefficient vector developed by function
+#' \code{modelextract} in the \code{lefko3} C++ header file \code{main_utils.h}
+#' to match the order required to create the \code{vrm_frame} element within
+#' a new \code{vrm_input} object.
+#' 
+#' @param coef_vec The main \code{coefficients} vector from the model proxy
+#' object used.
+#' @param zi A logical value indicating whether the coefficients to be handled
+#' are from the zero process model in a zero-inflated size or fecundity model.
+#' 
+#' @return A NumericVector with all coefficients in the proper order for a
+#' \code{vrm_frame} data frame.
+#' 
+#' @keywords internal
+#' @noRd
+NULL
+
 #' Main Formula Creation for Function \code{modelsearch()}
 #'
 #' Function \code{stovokor()} creates the list of formulae to be used as input
@@ -4115,6 +4136,96 @@ NULL
 #' @export
 create_pm <- function(name_terms = FALSE) {
     .Call('_lefko3_create_pm', PACKAGE = 'lefko3', name_terms)
+}
+
+#' Minimize lefkoMod Object by Conversion to vrm_input Object
+#' 
+#' This function takes a \code{lefkoMod} object, which consists of vital rate
+#' models, their associated \code{dredge} model tables, and related metadata,
+#' and converts them to minimal data frame lists useable in MPM creation and
+#' projection. The main advantage to using this approach is in memory savings.
+#' 
+#' @name miniMod
+#' 
+#' @param lMod A \code{lefkoMod} object.
+#' @param hfv_data The \code{hfv_data} formatted data frame used to develop
+#' object \code{lMod}.
+#' @param stageframe The stageframe used to develop object \code{lMod}.
+#' @param all_years A vector giving the times / years used to develop object
+#' \code{lMod}, exactly as used in the latter. Only needed if object
+#' \code{hfv_data} not provided.
+#' @param all_patches A vector giving the patch names used to develop object
+#' \code{lMod}, exactly as used in the latter. Only needed if object
+#' \code{hfv_data} not provided.
+#' @param all_groups A vector giving the stage groups used to develop object
+#' \code{lMod}, exactly as used in the latter. Only needed if object
+#' \code{stageframe} not provided.
+#' @param all_indcova The name of individual covariate a if quantitative and
+#' non-categorical, or of the categories used in the coariate if a factor
+#' variable. Only needed if object \code{hfv_data} not provided but individual
+#' covariates used in vital rate models.
+#' @param all_indcovb The name of individual covariate a if quantitative and
+#' non-categorical, or of the categories used in the coariate if a factor
+#' variable. Only needed if object \code{hfv_data} not provided but individual
+#' covariates used in vital rate models.
+#' @param all_indcovc The name of individual covariate a if quantitative and
+#' non-categorical, or of the categories used in the coariate if a factor
+#' variable. Only needed if object \code{hfv_data} not provided but individual
+#' covariates used in vital rate models.
+#' 
+#' @return An object of class \code{vrm_input}. See function
+#' \code{\link{vrm_import}()} for details.
+#'  
+#' @examples
+#' \donttest{
+#' data(lathyrus)
+#' 
+#' sizevector <- c(0, 4.6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8,
+#'   9)
+#' stagevector <- c("Sd", "Sdl", "Dorm", "Sz1nr", "Sz2nr", "Sz3nr", "Sz4nr",
+#'   "Sz5nr", "Sz6nr", "Sz7nr", "Sz8nr", "Sz9nr", "Sz1r", "Sz2r", "Sz3r", 
+#'   "Sz4r", "Sz5r", "Sz6r", "Sz7r", "Sz8r", "Sz9r")
+#' repvector <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+#' obsvector <- c(0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+#' matvector <- c(0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+#' immvector <- c(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+#' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+#'   0)
+#' indataset <- c(0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+#' binvec <- c(0, 4.6, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 
+#'   0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5)
+#' 
+#' lathframeln <- sf_create(sizes = sizevector, stagenames = stagevector, 
+#'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector, 
+#'   immstatus = immvector, indataset = indataset, binhalfwidth = binvec, 
+#'   propstatus = propvector)
+#' 
+#' lathvertln <- verticalize3(lathyrus, noyears = 4, firstyear = 1988,
+#'   patchidcol = "SUBPLOT", individcol = "GENET", blocksize = 9, 
+#'   juvcol = "Seedling1988", sizeacol = "lnVol88", repstracol = "Intactseed88",
+#'   fecacol = "Intactseed88", deadacol = "Dead1988", 
+#'   nonobsacol = "Dormant1988", stageassign = lathframeln, stagesize = "sizea",
+#'   censorcol = "Missing1988", censorkeep = NA, NAas0 = TRUE, censor = TRUE)
+#' 
+#' lathvertln$feca2 <- round(lathvertln$feca2)
+#' lathvertln$feca1 <- round(lathvertln$feca1)
+#' lathvertln$feca3 <- round(lathvertln$feca3)
+#' 
+#' lathmodelsln3 <- modelsearch(lathvertln, historical = TRUE, 
+#'   approach = "mixed", suite = "main", 
+#'   vitalrates = c("surv", "obs", "size", "repst", "fec"), juvestimate = "Sdl",
+#'   bestfit = "AICc&k", sizedist = "gaussian", fecdist = "poisson", 
+#'   indiv = "individ", patch = "patchid", year = "year2",year.as.random = TRUE,
+#'   patch.as.random = TRUE, show.model.tables = TRUE, quiet = "partial")
+#' 
+#' lathmodels_mini <- miniMod(lathmodelsln3, hfv_data = lathvertln,
+#'   stageframe = lathframeln)
+#' lathmodels_mini
+#' }
+#' 
+#' @export miniMod
+miniMod <- function(lMod, hfv_data = NULL, stageframe = NULL, all_years = NULL, all_patches = NULL, all_groups = NULL, all_indcova = NULL, all_indcovb = NULL, all_indcovc = NULL) {
+    .Call('_lefko3_miniMod', PACKAGE = 'lefko3', lMod, hfv_data, stageframe, all_years, all_patches, all_groups, all_indcova, all_indcovb, all_indcovc)
 }
 
 #' Check and Reorganize Density Input Table Into Usable Format
@@ -4354,7 +4465,7 @@ NULL
 #' between stage groups, use the \code{\link{supplemental}()} function.
 #' 
 #' If importing an IPM rather than building one with \code{lefko3}: Using the
-#' \code{vrm_input} approach to building function-based MPMs with provided
+#' \code{vrm_import} approach to building function-based MPMs with provided
 #' linear model slope coefficients requires careful attention to the
 #' stageframe. Although no hfv data frame needs to be entered in this instance,
 #' stages for which vital rates are to be estimated via linear models

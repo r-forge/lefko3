@@ -878,6 +878,25 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// miniMod
+Rcpp::List miniMod(RObject lMod, Nullable<RObject> hfv_data, Nullable<RObject> stageframe, Nullable<RObject> all_years, Nullable<RObject> all_patches, Nullable<RObject> all_groups, Nullable<RObject> all_indcova, Nullable<RObject> all_indcovb, Nullable<RObject> all_indcovc);
+RcppExport SEXP _lefko3_miniMod(SEXP lModSEXP, SEXP hfv_dataSEXP, SEXP stageframeSEXP, SEXP all_yearsSEXP, SEXP all_patchesSEXP, SEXP all_groupsSEXP, SEXP all_indcovaSEXP, SEXP all_indcovbSEXP, SEXP all_indcovcSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< RObject >::type lMod(lModSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type hfv_data(hfv_dataSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type stageframe(stageframeSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type all_years(all_yearsSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type all_patches(all_patchesSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type all_groups(all_groupsSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type all_indcova(all_indcovaSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type all_indcovb(all_indcovbSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type all_indcovc(all_indcovcSEXP);
+    rcpp_result_gen = Rcpp::wrap(miniMod(lMod, hfv_data, stageframe, all_years, all_patches, all_groups, all_indcova, all_indcovb, all_indcovc));
+    return rcpp_result_gen;
+END_RCPP
+}
 // sf_create
 Rcpp::List sf_create(NumericVector sizes, Nullable<StringVector> stagenames, Nullable<NumericVector> sizesb, Nullable<NumericVector> sizesc, Nullable<IntegerVector> repstatus, Nullable<IntegerVector> obsstatus, Nullable<IntegerVector> propstatus, Nullable<IntegerVector> matstatus, Nullable<IntegerVector> immstatus, Nullable<NumericVector> minage, Nullable<NumericVector> maxage, Nullable<IntegerVector> indataset, Nullable<NumericVector> sizemin, Nullable<NumericVector> sizebmin, Nullable<NumericVector> sizecmin, Nullable<NumericVector> sizemax, Nullable<NumericVector> sizebmax, Nullable<NumericVector> sizecmax, Nullable<NumericVector> binhalfwidth, Nullable<NumericVector> binhalfwidthb, Nullable<NumericVector> binhalfwidthc, Nullable<IntegerVector> group, Nullable<StringVector> comments, int roundsize, int roundsizeb, int roundsizec, int ipmbins, int ipmbinsb, int ipmbinsc);
 RcppExport SEXP _lefko3_sf_create(SEXP sizesSEXP, SEXP stagenamesSEXP, SEXP sizesbSEXP, SEXP sizescSEXP, SEXP repstatusSEXP, SEXP obsstatusSEXP, SEXP propstatusSEXP, SEXP matstatusSEXP, SEXP immstatusSEXP, SEXP minageSEXP, SEXP maxageSEXP, SEXP indatasetSEXP, SEXP sizeminSEXP, SEXP sizebminSEXP, SEXP sizecminSEXP, SEXP sizemaxSEXP, SEXP sizebmaxSEXP, SEXP sizecmaxSEXP, SEXP binhalfwidthSEXP, SEXP binhalfwidthbSEXP, SEXP binhalfwidthcSEXP, SEXP groupSEXP, SEXP commentsSEXP, SEXP roundsizeSEXP, SEXP roundsizebSEXP, SEXP roundsizecSEXP, SEXP ipmbinsSEXP, SEXP ipmbinsbSEXP, SEXP ipmbinscSEXP) {
@@ -1156,6 +1175,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_lefko3_markov_run", (DL_FUNC) &_lefko3_markov_run, 4},
     {"_lefko3_stovokor", (DL_FUNC) &_lefko3_stovokor, 45},
     {"_lefko3_create_pm", (DL_FUNC) &_lefko3_create_pm, 1},
+    {"_lefko3_miniMod", (DL_FUNC) &_lefko3_miniMod, 9},
     {"_lefko3_sf_create", (DL_FUNC) &_lefko3_sf_create, 29},
     {"_lefko3_actualstage3", (DL_FUNC) &_lefko3_actualstage3, 10},
     {"_lefko3_density_input", (DL_FUNC) &_lefko3_density_input, 11},

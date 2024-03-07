@@ -2544,3 +2544,1183 @@ DataFrame create_pm(bool name_terms = false) {
   return output;
 }
 
+//' Convert modelextract Coefficient Vector to vrm_frame Vector
+//' 
+//' @name vrmf_inator
+//' 
+//' This function reorders the coefficient vector developed by function
+//' \code{modelextract} in the \code{lefko3} C++ header file \code{main_utils.h}
+//' to match the order required to create the \code{vrm_frame} element within
+//' a new \code{vrm_input} object.
+//' 
+//' @param coef_vec The main \code{coefficients} vector from the model proxy
+//' object used.
+//' @param zi A logical value indicating whether the coefficients to be handled
+//' are from the zero process model in a zero-inflated size or fecundity model.
+//' 
+//' @return A NumericVector with all coefficients in the proper order for a
+//' \code{vrm_frame} data frame.
+//' 
+//' @keywords internal
+//' @noRd
+NumericVector vrmf_inator (NumericVector coef_vec, bool zi = false) {
+  
+  NumericVector main_out (128);
+  
+  if (!zi) {
+    main_out(0) = coef_vec(0); // y-intercept
+    main_out(1) = coef_vec(4); // size2
+    main_out(2) = coef_vec(3); // size1
+    main_out(3) = coef_vec(100); // sizeb2
+    main_out(4) = coef_vec(101); // sizeb1
+    main_out(5) = coef_vec(102); // sizec2
+    main_out(6) = coef_vec(103); // sizec1
+    main_out(7) = coef_vec(2); // repst2
+    main_out(8) = coef_vec(1); // repst1
+    main_out(9) = coef_vec(11); // age
+    main_out(10) = coef_vec(104); // density
+    main_out(11) = coef_vec(16); // indcova2
+    main_out(12) = coef_vec(19); // indcova1
+    main_out(13) = coef_vec(17); // indcovb2
+    main_out(14) = coef_vec(20); // indcovb1
+    main_out(15) = coef_vec(18); // indcovc2
+    main_out(16) = coef_vec(21); // indcovc1
+    main_out(17) = coef_vec(5); // repst1 repst2
+    main_out(18) = coef_vec(6); // size1 size2
+    main_out(19) = coef_vec(7); // size1 repst1
+    main_out(20) = coef_vec(8); // size2 repst2
+    main_out(21) = coef_vec(9); // size2 repst1
+    main_out(22) = coef_vec(10); // size1 repst2
+    main_out(23) = coef_vec(12); // age size1
+    main_out(24) = coef_vec(13); // age size2
+    main_out(25) = coef_vec(14); // age repst1
+    main_out(26) = coef_vec(15); // age repst2
+    main_out(27) = coef_vec(22); // indcova2 size2
+    main_out(28) = coef_vec(23); // indcovb2 size2
+    main_out(29) = coef_vec(24); // indcovc2 size2
+    main_out(30) = coef_vec(25); // indcova2 repst2
+    main_out(31) = coef_vec(26); // indcovb2 repst2
+    main_out(32) = coef_vec(27); // indcovc2 repst2
+    main_out(33) = coef_vec(28); // indcova1 size1
+    main_out(34) = coef_vec(29); // indcovb1 size1
+    main_out(35) = coef_vec(30); // indcovc1 size1
+    main_out(36) = coef_vec(31); // indcova1 repst1
+    main_out(37) = coef_vec(32); // indcovb1 repst1
+    main_out(38) = coef_vec(33); // indcovc1 repst1
+    main_out(39) = coef_vec(34); // indcova2 indcovb2
+    main_out(40) = coef_vec(35); // indcova2 indcovc2
+    main_out(41) = coef_vec(36); // indcovb2 indcovc2
+    main_out(42) = coef_vec(37); // indcova1 indcovb1
+    main_out(43) = coef_vec(38); // indcova1 indcovc1
+    main_out(44) = coef_vec(39); // indcovb1 indcovc1
+    main_out(45) = coef_vec(40); // indcova2 indcovb1
+    main_out(46) = coef_vec(41); // indcova1 indcovb2
+    main_out(47) = coef_vec(42); // indcova2 indcovc1
+    main_out(48) = coef_vec(43); // indcova1 indcovc2
+    main_out(49) = coef_vec(44); // indcovb2 indcovc1
+    main_out(50) = coef_vec(45); // indcovb1 indcovc2
+    main_out(51) = coef_vec(105); // sizeb2 sizeb1
+    main_out(52) = coef_vec(106); // sizec2 sizec1
+    main_out(53) = coef_vec(107); // size1 sizeb1
+    main_out(54) = coef_vec(108); // size1 sizec1
+    main_out(55) = coef_vec(109); // sizeb1 sizec1
+    main_out(56) = coef_vec(110); // size2 sizeb2
+    main_out(57) = coef_vec(111); // size2 sizec2
+    main_out(58) = coef_vec(112); // sizeb2 sizec2
+    main_out(59) = coef_vec(113); // size1 sizeb2
+    main_out(60) = coef_vec(114); // size1 sizec2
+    main_out(61) = coef_vec(115); // sizeb1 sizec2
+    main_out(62) = coef_vec(116); // size2 sizeb1
+    main_out(63) = coef_vec(117); // size2 sizec1
+    main_out(64) = coef_vec(118); // sizeb2 sizec1
+    main_out(65) = coef_vec(119); // density size2
+    main_out(66) = coef_vec(120); // density sizeb2
+    main_out(67) = coef_vec(121); // density sizec2
+    main_out(68) = coef_vec(122); // density size1
+    main_out(69) = coef_vec(123); // density sizeb1
+    main_out(70) = coef_vec(124); // density sizec1
+    main_out(71) = coef_vec(125); // density repst2
+    main_out(72) = coef_vec(126); // density repst1
+    main_out(73) = coef_vec(127); // sizeb2 repst2
+    main_out(74) = coef_vec(128); // sizec2 repst2
+    main_out(75) = coef_vec(130); // sizeb1 repst1
+    main_out(76) = coef_vec(131); // sizeb2 repst1
+    main_out(77) = coef_vec(132); // sizeb1 repst2
+    main_out(78) = coef_vec(133); // sizec1 repst1
+    main_out(79) = coef_vec(134); // sizec2 repst1
+    main_out(80) = coef_vec(135); // sizec1 repst2
+    main_out(81) = coef_vec(136); // sizeb2 age
+    main_out(82) = coef_vec(137); // sizec2 age
+    main_out(83) = coef_vec(138); // density age
+    main_out(84) = coef_vec(139); // sizeb1 age
+    main_out(85) = coef_vec(140); // sizec1 age
+    main_out(86) = coef_vec(141); // indcova2 sizeb2
+    main_out(87) = coef_vec(142); // indcova2 sizec2
+    main_out(88) = coef_vec(143); // indcova2 density
+    main_out(89) = coef_vec(144); // indcova1 sizeb1
+    main_out(90) = coef_vec(145); // indcova1 sizec1
+    main_out(91) = coef_vec(146); // indcova1 sizeb2
+    main_out(92) = coef_vec(147); // indcova1 sizec2
+    main_out(93) = coef_vec(148); // indcova2 sizeb1
+    main_out(94) = coef_vec(149); // indcova2 sizec1
+    main_out(95) = coef_vec(150); // indcova1 density
+    main_out(96) = coef_vec(151); // indcovb2 sizeb2
+    main_out(97) = coef_vec(152); // indcovb2 sizec2
+    main_out(98) = coef_vec(153); // indcovb2 density
+    main_out(99) = coef_vec(154); // indcovb1 sizeb1
+    main_out(100) = coef_vec(155); // indcovb1 sizec1
+    main_out(101) = coef_vec(156); // indcovb1 sizeb2
+    main_out(102) = coef_vec(157); // indcovb1 sizec2
+    main_out(103) = coef_vec(158); // indcovb2 sizeb1
+    main_out(104) = coef_vec(159); // indcovb2 sizec1
+    main_out(105) = coef_vec(160); // indcovb1 density
+    main_out(106) = coef_vec(161); // indcovc2 sizeb2
+    main_out(107) = coef_vec(162); // indcovc2 sizec2
+    main_out(108) = coef_vec(163); // indcovc2 density
+    main_out(109) = coef_vec(164); // indcovc1 sizeb1
+    main_out(110) = coef_vec(165); // indcovc1 sizec1
+    main_out(111) = coef_vec(166); // indcovc1 sizeb2
+    main_out(112) = coef_vec(167); // indcovc1 sizec2
+    main_out(113) = coef_vec(168); // indcovc2 sizeb1
+    main_out(114) = coef_vec(169); // indcovc2 sizec1
+    main_out(115) = coef_vec(170); // indcovc1 density
+    main_out(116) = coef_vec(171); // indcova2 size1
+    main_out(117) = coef_vec(172); // indcovb2 size1
+    main_out(118) = coef_vec(173); // indcovc2 size1
+    main_out(119) = coef_vec(174); // indcova1 size2
+    main_out(120) = coef_vec(175); // indcovb1 size2
+    main_out(121) = coef_vec(176); // indcovc1 size2
+    main_out(122) = coef_vec(177); // indcova2 repst1
+    main_out(123) = coef_vec(178); // indcovb2 repst1
+    main_out(124) = coef_vec(179); // indcovc2 repst1
+    main_out(125) = coef_vec(180); // indcova1 repst2
+    main_out(126) = coef_vec(181); // indcovb1 repst2
+    main_out(127) = coef_vec(182); // indcovc1 repst2
+    
+  } else {
+    
+    main_out(0) = coef_vec(46); // y-intercept
+    main_out(1) = coef_vec(50); // size2
+    main_out(2) = coef_vec(49); // size1
+    main_out(3) = coef_vec(200); // sizeb2
+    main_out(4) = coef_vec(201); // sizeb1
+    main_out(5) = coef_vec(202); // sizec2
+    main_out(6) = coef_vec(203); // sizec1
+    main_out(7) = coef_vec(48); // repst2
+    main_out(8) = coef_vec(47); // repst1
+    main_out(9) = coef_vec(57); // age
+    main_out(10) = coef_vec(204); // density
+    main_out(11) = coef_vec(62); // indcova2
+    main_out(12) = coef_vec(65); // indcova1
+    main_out(13) = coef_vec(63); // indcovb2
+    main_out(14) = coef_vec(66); // indcovb1
+    main_out(15) = coef_vec(64); // indcovc2
+    main_out(16) = coef_vec(67); // indcovc1
+    main_out(17) = coef_vec(51); // repst1 repst2
+    main_out(18) = coef_vec(52); // size1 size2
+    main_out(19) = coef_vec(53); // size1 repst1
+    main_out(20) = coef_vec(54); // size2 repst2
+    main_out(21) = coef_vec(55); // size2 repst1
+    main_out(22) = coef_vec(56); // size1 repst2
+    main_out(23) = coef_vec(58); // age size1
+    main_out(24) = coef_vec(59); // age size2
+    main_out(25) = coef_vec(60); // age repst1
+    main_out(26) = coef_vec(61); // age repst2
+    main_out(27) = coef_vec(68); // indcova2 size2
+    main_out(28) = coef_vec(69); // indcovb2 size2
+    main_out(29) = coef_vec(70); // indcovc2 size2
+    main_out(30) = coef_vec(71); // indcova2 repst2
+    main_out(31) = coef_vec(72); // indcovb2 repst2
+    main_out(32) = coef_vec(73); // indcovc2 repst2
+    main_out(33) = coef_vec(74); // indcova1 size1
+    main_out(34) = coef_vec(75); // indcovb1 size1
+    main_out(35) = coef_vec(76); // indcovc1 size1
+    main_out(36) = coef_vec(77); // indcova1 repst1
+    main_out(37) = coef_vec(78); // indcovb1 repst1
+    main_out(38) = coef_vec(79); // indcovc1 repst1
+    main_out(39) = coef_vec(80); // indcova2 indcovb2
+    main_out(40) = coef_vec(81); // indcova2 indcovc2
+    main_out(41) = coef_vec(82); // indcovb2 indcovc2
+    main_out(42) = coef_vec(83); // indcova1 indcovb1
+    main_out(43) = coef_vec(84); // indcova1 indcovc1
+    main_out(44) = coef_vec(85); // indcovb1 indcovc1
+    main_out(45) = coef_vec(86); // indcova2 indcovb1
+    main_out(46) = coef_vec(87); // indcova1 indcovb2
+    main_out(47) = coef_vec(88); // indcova2 indcovc1
+    main_out(48) = coef_vec(89); // indcova1 indcovc2
+    main_out(49) = coef_vec(90); // indcovb2 indcovc1
+    main_out(50) = coef_vec(91); // indcovb1 indcovc2
+    main_out(51) = coef_vec(205); // sizeb2 sizeb1
+    main_out(52) = coef_vec(206); // sizec2 sizec1
+    main_out(53) = coef_vec(207); // size1 sizeb1
+    main_out(54) = coef_vec(208); // size1 sizec1
+    main_out(55) = coef_vec(209); // sizeb1 sizec1
+    main_out(56) = coef_vec(210); // size2 sizeb2
+    main_out(57) = coef_vec(211); // size2 sizec2
+    main_out(58) = coef_vec(212); // sizeb2 sizec2
+    main_out(59) = coef_vec(213); // size1 sizeb2
+    main_out(60) = coef_vec(214); // size1 sizec2
+    main_out(61) = coef_vec(215); // sizeb1 sizec2
+    main_out(62) = coef_vec(216); // size2 sizeb1
+    main_out(63) = coef_vec(217); // size2 sizec1
+    main_out(64) = coef_vec(218); // sizeb2 sizec1
+    main_out(65) = coef_vec(219); // density size2
+    main_out(66) = coef_vec(220); // density sizeb2
+    main_out(67) = coef_vec(221); // density sizec2
+    main_out(68) = coef_vec(222); // density size1
+    main_out(69) = coef_vec(223); // density sizeb1
+    main_out(70) = coef_vec(224); // density sizec1
+    main_out(71) = coef_vec(225); // density repst2
+    main_out(72) = coef_vec(226); // density repst1
+    main_out(73) = coef_vec(227); // sizeb2 repst2
+    main_out(74) = coef_vec(228); // sizec2 repst2
+    main_out(75) = coef_vec(230); // sizeb1 repst1
+    main_out(76) = coef_vec(231); // sizeb2 repst1
+    main_out(77) = coef_vec(232); // sizeb1 repst2
+    main_out(78) = coef_vec(233); // sizec1 repst1
+    main_out(79) = coef_vec(234); // sizec2 repst1
+    main_out(80) = coef_vec(235); // sizec1 repst2
+    main_out(81) = coef_vec(236); // sizeb2 age
+    main_out(82) = coef_vec(237); // sizec2 age
+    main_out(83) = coef_vec(238); // density age
+    main_out(84) = coef_vec(239); // sizeb1 age
+    main_out(85) = coef_vec(240); // sizec1 age
+    main_out(86) = coef_vec(241); // indcova2 sizeb2
+    main_out(87) = coef_vec(242); // indcova2 sizec2
+    main_out(88) = coef_vec(243); // indcova2 density
+    main_out(89) = coef_vec(244); // indcova1 sizeb1
+    main_out(90) = coef_vec(245); // indcova1 sizec1
+    main_out(91) = coef_vec(246); // indcova1 sizeb2
+    main_out(92) = coef_vec(247); // indcova1 sizec2
+    main_out(93) = coef_vec(248); // indcova2 sizeb1
+    main_out(94) = coef_vec(249); // indcova2 sizec1
+    main_out(95) = coef_vec(250); // indcova1 density
+    main_out(96) = coef_vec(251); // indcovb2 sizeb2
+    main_out(97) = coef_vec(252); // indcovb2 sizec2
+    main_out(98) = coef_vec(253); // indcovb2 density
+    main_out(99) = coef_vec(254); // indcovb1 sizeb1
+    main_out(100) = coef_vec(255); // indcovb1 sizec1
+    main_out(101) = coef_vec(256); // indcovb1 sizeb2
+    main_out(102) = coef_vec(257); // indcovb1 sizec2
+    main_out(103) = coef_vec(258); // indcovb2 sizeb1
+    main_out(104) = coef_vec(259); // indcovb2 sizec1
+    main_out(105) = coef_vec(260); // indcovb1 density
+    main_out(106) = coef_vec(261); // indcovc2 sizeb2
+    main_out(107) = coef_vec(262); // indcovc2 sizec2
+    main_out(108) = coef_vec(263); // indcovc2 density
+    main_out(109) = coef_vec(264); // indcovc1 sizeb1
+    main_out(110) = coef_vec(265); // indcovc1 sizec1
+    main_out(111) = coef_vec(266); // indcovc1 sizeb2
+    main_out(112) = coef_vec(267); // indcovc1 sizec2
+    main_out(113) = coef_vec(268); // indcovc2 sizeb1
+    main_out(114) = coef_vec(269); // indcovc2 sizec1
+    main_out(115) = coef_vec(270); // indcovc1 density
+    main_out(116) = coef_vec(271); // indcova2 size1
+    main_out(117) = coef_vec(272); // indcovb2 size1
+    main_out(118) = coef_vec(273); // indcovc2 size1
+    main_out(119) = coef_vec(274); // indcova1 size2
+    main_out(120) = coef_vec(275); // indcovb1 size2
+    main_out(121) = coef_vec(276); // indcovc1 size2
+    main_out(122) = coef_vec(277); // indcova2 repst1
+    main_out(123) = coef_vec(278); // indcovb2 repst1
+    main_out(124) = coef_vec(279); // indcovc2 repst1
+    main_out(125) = coef_vec(280); // indcova1 repst2
+    main_out(126) = coef_vec(281); // indcovb1 repst2
+    main_out(127) = coef_vec(282); // indcovc1 repst2
+  }
+ 
+  return main_out;
+}
+
+//' Minimize lefkoMod Object by Conversion to vrm_input Object
+//' 
+//' This function takes a \code{lefkoMod} object, which consists of vital rate
+//' models, their associated \code{dredge} model tables, and related metadata,
+//' and converts them to minimal data frame lists useable in MPM creation and
+//' projection. The main advantage to using this approach is in memory savings.
+//' 
+//' @name miniMod
+//' 
+//' @param lMod A \code{lefkoMod} object.
+//' @param hfv_data The \code{hfv_data} formatted data frame used to develop
+//' object \code{lMod}.
+//' @param stageframe The stageframe used to develop object \code{lMod}.
+//' @param all_years A vector giving the times / years used to develop object
+//' \code{lMod}, exactly as used in the latter. Only needed if object
+//' \code{hfv_data} not provided.
+//' @param all_patches A vector giving the patch names used to develop object
+//' \code{lMod}, exactly as used in the latter. Only needed if object
+//' \code{hfv_data} not provided.
+//' @param all_groups A vector giving the stage groups used to develop object
+//' \code{lMod}, exactly as used in the latter. Only needed if object
+//' \code{stageframe} not provided.
+//' @param all_indcova The name of individual covariate a if quantitative and
+//' non-categorical, or of the categories used in the coariate if a factor
+//' variable. Only needed if object \code{hfv_data} not provided but individual
+//' covariates used in vital rate models.
+//' @param all_indcovb The name of individual covariate a if quantitative and
+//' non-categorical, or of the categories used in the coariate if a factor
+//' variable. Only needed if object \code{hfv_data} not provided but individual
+//' covariates used in vital rate models.
+//' @param all_indcovc The name of individual covariate a if quantitative and
+//' non-categorical, or of the categories used in the coariate if a factor
+//' variable. Only needed if object \code{hfv_data} not provided but individual
+//' covariates used in vital rate models.
+//' 
+//' @return An object of class \code{vrm_input}. See function
+//' \code{\link{vrm_import}()} for details.
+//'  
+//' @examples
+//' \donttest{
+//' data(lathyrus)
+//' 
+//' sizevector <- c(0, 4.6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8,
+//'   9)
+//' stagevector <- c("Sd", "Sdl", "Dorm", "Sz1nr", "Sz2nr", "Sz3nr", "Sz4nr",
+//'   "Sz5nr", "Sz6nr", "Sz7nr", "Sz8nr", "Sz9nr", "Sz1r", "Sz2r", "Sz3r", 
+//'   "Sz4r", "Sz5r", "Sz6r", "Sz7r", "Sz8r", "Sz9r")
+//' repvector <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+//' obsvector <- c(0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+//' matvector <- c(0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+//' immvector <- c(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+//' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+//'   0)
+//' indataset <- c(0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+//' binvec <- c(0, 4.6, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 
+//'   0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5)
+//' 
+//' lathframeln <- sf_create(sizes = sizevector, stagenames = stagevector, 
+//'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector, 
+//'   immstatus = immvector, indataset = indataset, binhalfwidth = binvec, 
+//'   propstatus = propvector)
+//' 
+//' lathvertln <- verticalize3(lathyrus, noyears = 4, firstyear = 1988,
+//'   patchidcol = "SUBPLOT", individcol = "GENET", blocksize = 9, 
+//'   juvcol = "Seedling1988", sizeacol = "lnVol88", repstracol = "Intactseed88",
+//'   fecacol = "Intactseed88", deadacol = "Dead1988", 
+//'   nonobsacol = "Dormant1988", stageassign = lathframeln, stagesize = "sizea",
+//'   censorcol = "Missing1988", censorkeep = NA, NAas0 = TRUE, censor = TRUE)
+//' 
+//' lathvertln$feca2 <- round(lathvertln$feca2)
+//' lathvertln$feca1 <- round(lathvertln$feca1)
+//' lathvertln$feca3 <- round(lathvertln$feca3)
+//' 
+//' lathmodelsln3 <- modelsearch(lathvertln, historical = TRUE, 
+//'   approach = "mixed", suite = "main", 
+//'   vitalrates = c("surv", "obs", "size", "repst", "fec"), juvestimate = "Sdl",
+//'   bestfit = "AICc&k", sizedist = "gaussian", fecdist = "poisson", 
+//'   indiv = "individ", patch = "patchid", year = "year2",year.as.random = TRUE,
+//'   patch.as.random = TRUE, show.model.tables = TRUE, quiet = "partial")
+//' 
+//' lathmodels_mini <- miniMod(lathmodelsln3, hfv_data = lathvertln,
+//'   stageframe = lathframeln)
+//' lathmodels_mini
+//' }
+//' 
+//' @export miniMod
+// [[Rcpp::export(miniMod)]]
+Rcpp::List miniMod (RObject lMod, Nullable<RObject> hfv_data = R_NilValue,
+  Nullable<RObject> stageframe = R_NilValue, Nullable<RObject> all_years  = R_NilValue,
+  Nullable<RObject> all_patches  = R_NilValue, Nullable<RObject> all_groups  = R_NilValue,
+  Nullable<RObject> all_indcova  = R_NilValue, Nullable<RObject> all_indcovb  = R_NilValue,
+  Nullable<RObject> all_indcovc  = R_NilValue) {
+  
+  String ms_class;
+  RObject surmodl;
+  RObject obsmodl;
+  RObject sizmodl;
+  RObject sibmodl;
+  RObject sicmodl;
+  RObject repmodl;
+  RObject fecmodl;
+  RObject jsurmodl;
+  RObject jobsmodl;
+  RObject jsizmodl;
+  RObject jsibmodl;
+  RObject jsicmodl;
+  RObject jrepmodl;
+  RObject jmatmodl;
+  DataFrame pmnames;
+  
+  DataFrame hfv_main;
+  DataFrame sf_main;
+  CharacterVector mainyears;
+  CharacterVector mainpatches;
+  CharacterVector maingroups;
+  CharacterVector mainindcova;
+  CharacterVector mainindcovb;
+  CharacterVector mainindcovc;
+  
+  if (hfv_data.isNotNull()) { 
+    if (is<DataFrame>(hfv_data)) { 
+      hfv_main = as<DataFrame>(hfv_data);
+      
+      IntegerVector year2_vec = as<IntegerVector>(hfv_main["year2"]);
+      IntegerVector year2_unique = sort_unique(year2_vec);
+      
+      mainyears = as<CharacterVector>(year2_unique);
+      
+      CharacterVector patch_vec = as<CharacterVector>(hfv_main["patchid"]);
+      CharacterVector patch_unique = sort_unique(patch_vec);
+      
+      mainpatches = patch_unique;
+      
+      CharacterVector all_hfv_vars = as<CharacterVector>(hfv_main.attr("names"));
+      
+      IntegerVector ica2_indices = index_l3(all_hfv_vars, "indcova2");
+      if (static_cast<int>(ica2_indices.length() > 0)) {
+        if (is<NumericVector>(hfv_main[static_cast<int>(ica2_indices(0))]) ||
+          is<IntegerVector>(hfv_main[static_cast<int>(ica2_indices(0))])) {
+            NumericVector toasted_almonds_a2 = as<NumericVector>(hfv_main[static_cast<int>(ica2_indices(0))]);
+            if (toasted_almonds_a2.hasAttribute("levels")) {
+              mainindcova = as<CharacterVector>(toasted_almonds_a2.attr("levels"));
+            } else mainindcova = {NA_STRING};
+          
+        } else if (is<CharacterVector>(hfv_main[static_cast<int>(ica2_indices(0))])) {
+          CharacterVector found_indcova2 = as<CharacterVector>(hfv_main[static_cast<int>(ica2_indices(0))]);
+          mainindcova = sort_unique(found_indcova2);
+        }
+      }
+      IntegerVector icb2_indices = index_l3(all_hfv_vars, "indcovb2");
+      if (static_cast<int>(icb2_indices.length() > 0)) {
+        if (is<NumericVector>(hfv_main[static_cast<int>(icb2_indices(0))]) ||
+          is<IntegerVector>(hfv_main[static_cast<int>(icb2_indices(0))])) {
+            NumericVector toasted_almonds_b2 = as<NumericVector>(hfv_main[static_cast<int>(icb2_indices(0))]);
+            if (toasted_almonds_b2.hasAttribute("levels")) {
+              mainindcovb = as<CharacterVector>(toasted_almonds_b2.attr("levels"));
+            } else mainindcovb = {NA_STRING};
+          
+        } else if (is<CharacterVector>(hfv_main[static_cast<int>(icb2_indices(0))])) {
+          CharacterVector found_indcovb2 = as<CharacterVector>(hfv_main[static_cast<int>(icb2_indices(0))]);
+          mainindcovb = sort_unique(found_indcovb2);
+        }
+      }
+      IntegerVector icc2_indices = index_l3(all_hfv_vars, "indcovc2");
+      if (static_cast<int>(icc2_indices.length() > 0)) {
+        if (is<NumericVector>(hfv_main[static_cast<int>(icc2_indices(0))]) ||
+          is<IntegerVector>(hfv_main[static_cast<int>(icc2_indices(0))])) {
+            NumericVector toasted_almonds_c2 = as<NumericVector>(hfv_main[static_cast<int>(icc2_indices(0))]);
+            if (toasted_almonds_c2.hasAttribute("levels")) {
+              mainindcovc = as<CharacterVector>(toasted_almonds_c2.attr("levels"));
+            } else mainindcovc = {NA_STRING};
+          
+        } else if (is<CharacterVector>(hfv_main[static_cast<int>(icc2_indices(0))])) {
+          CharacterVector found_indcovc2 = as<CharacterVector>(hfv_main[static_cast<int>(icc2_indices(0))]);
+          mainindcovc = sort_unique(found_indcovc2);
+        }
+      }
+      
+    }
+  } else { 
+    if (all_years.isNotNull()) { 
+      mainyears = as<CharacterVector>(all_years);
+    } else {
+      throw Rcpp::exception("Argument all_years is required.", false);
+    }
+    
+    if (all_patches.isNotNull()) { 
+      mainpatches = as<CharacterVector>(all_patches);
+    } else { 
+      mainpatches = {NA_STRING};
+    }
+  }
+  
+  if (stageframe.isNotNull()) {
+    if (is<DataFrame>(stageframe)) {
+      sf_main = as<DataFrame>(stageframe);
+      
+      IntegerVector groups_vec = as<IntegerVector>(sf_main["group"]);
+      IntegerVector groups_unique = sort_unique(groups_vec);
+      
+      maingroups = as<CharacterVector>(groups_unique);
+    }
+  } else {
+    if (all_groups.isNotNull()) {
+      maingroups = as<CharacterVector>(all_groups);
+    } else {
+      maingroups = {"0"};
+    }
+  }
+  
+  if (all_indcova.isNotNull() && !hfv_data.isNotNull()) {
+    mainindcova = as<CharacterVector>(all_indcova);
+  } else {
+    mainindcova = {"0"};
+  }
+  
+  if (all_indcovb.isNotNull() && !hfv_data.isNotNull()) {
+    mainindcovb = as<CharacterVector>(all_indcovb);
+  } else {
+    mainindcovb = {"0"};
+  }
+  
+  if (all_indcovc.isNotNull() && !hfv_data.isNotNull()) {
+    mainindcovc = as<CharacterVector>(all_indcovc);
+  } else {
+    mainindcovc = {"0"};
+  }
+  
+  if (is<List>(lMod)) {
+    Rcpp::List ms_intermediate(lMod);
+    
+    if (ms_intermediate.hasAttribute("class")) {
+      CharacterVector ms_class_vector = ms_intermediate.attr("class");
+      ms_class = ms_class_vector(0);
+    } else {
+      throw Rcpp::exception("Object lMod is List of unknown class.", false);
+    }
+    
+    if (stringcompare_simple(ms_class, "lefkoMo", false)) {
+      surmodl = ms_intermediate["survival_model"];
+      obsmodl = ms_intermediate["observation_model"];
+      sizmodl = ms_intermediate["size_model"];
+      sibmodl = ms_intermediate["sizeb_model"];
+      sicmodl = ms_intermediate["sizec_model"];
+      repmodl = ms_intermediate["repstatus_model"];
+      fecmodl = ms_intermediate["fecundity_model"];
+      jsurmodl = ms_intermediate["juv_survival_model"];
+      jobsmodl = ms_intermediate["juv_observation_model"];
+      jsizmodl = ms_intermediate["juv_size_model"];
+      jsibmodl = ms_intermediate["juv_sizeb_model"];
+      jsicmodl = ms_intermediate["juv_sizec_model"];
+      jrepmodl = ms_intermediate["juv_reproduction_model"];
+      jmatmodl = ms_intermediate["juv_maturity_model"];
+      
+      pmnames = as<DataFrame>(ms_intermediate["paramnames"]);
+    } else {
+      throw Rcpp::exception("Object lMod is List of unknown class.", false);
+    }
+    
+  } else {
+    throw Rcpp::exception("Object lMod is object of unknown class.", false);
+  }
+  
+  List surv_proxy = modelextract(surmodl, pmnames, mainyears, mainpatches,
+    maingroups, mainindcova, mainindcovb, mainindcovc, false);
+  List obs_proxy = modelextract(obsmodl, pmnames, mainyears, mainpatches,
+    maingroups, mainindcova, mainindcovb, mainindcovc, false);
+  List size_proxy = modelextract(sizmodl, pmnames, mainyears, mainpatches,
+    maingroups, mainindcova, mainindcovb, mainindcovc, false);
+  List sizeb_proxy = modelextract(sibmodl, pmnames, mainyears, mainpatches,
+    maingroups, mainindcova, mainindcovb, mainindcovc, false);
+  List sizec_proxy = modelextract(sicmodl, pmnames, mainyears, mainpatches,
+    maingroups, mainindcova, mainindcovb, mainindcovc, false);
+  List repst_proxy = modelextract(repmodl, pmnames, mainyears, mainpatches,
+    maingroups, mainindcova, mainindcovb, mainindcovc, false);
+  List fec_proxy = modelextract(fecmodl, pmnames, mainyears, mainpatches,
+    maingroups, mainindcova, mainindcovb, mainindcovc, false);
+  List jsurv_proxy = modelextract(jsurmodl, pmnames, mainyears, mainpatches,
+    maingroups, mainindcova, mainindcovb, mainindcovc, false);
+  List jobs_proxy = modelextract(jobsmodl, pmnames, mainyears, mainpatches,
+    maingroups, mainindcova, mainindcovb, mainindcovc, false);
+  List jsize_proxy = modelextract(jsizmodl, pmnames, mainyears, mainpatches,
+    maingroups, mainindcova, mainindcovb, mainindcovc, false);
+  List jsizeb_proxy = modelextract(jsibmodl, pmnames, mainyears, mainpatches,
+    maingroups, mainindcova, mainindcovb, mainindcovc, false);
+  List jsizec_proxy = modelextract(jsicmodl, pmnames, mainyears, mainpatches,
+    maingroups, mainindcova, mainindcovb, mainindcovc, false);
+  List jrepst_proxy = modelextract(jrepmodl, pmnames, mainyears, mainpatches,
+    maingroups, mainindcova, mainindcovb, mainindcovc, false);
+  List jmatst_proxy = modelextract(jmatmodl, pmnames, mainyears, mainpatches,
+    maingroups, mainindcova, mainindcovb, mainindcovc, false);
+  
+  // vrm_frame creation
+  CharacterVector main_effects = {"intercept", "size2", "size1", "sizeb2",
+    "sizeb1", "sizec2", "sizec1", "repst2", "repst1", "age", "density",
+    "indcova2", "indcova1", "indcovb2", "indcovb1", "indcovc2", "indcovc1"}; // 17 total terms
+  
+  CharacterVector main_effect_1 = {main_effects[0], main_effects[1],
+    main_effects[2], main_effects[3], main_effects[4], main_effects[5],
+    main_effects[6], main_effects[7], main_effects[8], main_effects[9],
+    main_effects[10], main_effects[11], main_effects[12], main_effects[13],
+    main_effects[14], main_effects[15], main_effects[16], main_effects[8],
+    main_effects[2], main_effects[2], main_effects[1], main_effects[1],
+    main_effects[2], main_effects[9], main_effects[9], main_effects[9],
+    main_effects[9], main_effects[11], main_effects[13], main_effects[15],
+    main_effects[11], main_effects[13], main_effects[15], main_effects[12],
+    main_effects[14], main_effects[16], main_effects[12], main_effects[14],
+    main_effects[16], main_effects[11], main_effects[11], main_effects[13],
+    main_effects[12], main_effects[12], main_effects[14], main_effects[11],
+    main_effects[12], main_effects[11], main_effects[12], main_effects[13],
+    main_effects[14], main_effects[3], main_effects[5], main_effects[2],
+    main_effects[2], main_effects[4], main_effects[1], main_effects[1],
+    main_effects[3], main_effects[2], main_effects[2], main_effects[4],
+    main_effects[1], main_effects[1], main_effects[3], main_effects[10],
+    main_effects[10], main_effects[10], main_effects[10], main_effects[10],
+    main_effects[10], main_effects[10], main_effects[10], main_effects[3],
+    main_effects[5], main_effects[4], main_effects[3], main_effects[4],
+    main_effects[6], main_effects[5], main_effects[6], main_effects[3],
+    main_effects[5], main_effects[10], main_effects[4], main_effects[6],
+    main_effects[11], main_effects[11], main_effects[11], main_effects[12],
+    main_effects[12], main_effects[12], main_effects[12], main_effects[11],
+    main_effects[11], main_effects[12], main_effects[13], main_effects[13],
+    main_effects[13], main_effects[14], main_effects[14], main_effects[14],
+    main_effects[14], main_effects[13], main_effects[13], main_effects[14],
+    main_effects[15], main_effects[15], main_effects[15], main_effects[16],
+    main_effects[16], main_effects[16], main_effects[16], main_effects[15],
+    main_effects[15], main_effects[16], main_effects[11], main_effects[13],
+    main_effects[15], main_effects[12], main_effects[14], main_effects[16],
+    main_effects[11], main_effects[13], main_effects[15], main_effects[12],
+    main_effects[14], main_effects[16]};
+  
+  CharacterVector main_effect_2 = {"", "", "", "", "", "", "", "", "", "", "",
+    "", "", "", "", "", "", main_effects[7], main_effects[1], main_effects[8],
+    main_effects[7], main_effects[8], main_effects[7], main_effects[2],
+    main_effects[1], main_effects[8], main_effects[7], main_effects[1],
+    main_effects[1], main_effects[1], main_effects[7], main_effects[7],
+    main_effects[7], main_effects[2], main_effects[2], main_effects[2],
+    main_effects[8], main_effects[8], main_effects[8], main_effects[13],
+    main_effects[15], main_effects[15], main_effects[14], main_effects[16],
+    main_effects[16], main_effects[14], main_effects[13], main_effects[16],
+    main_effects[15], main_effects[16], main_effects[15], main_effects[4],
+    main_effects[6], main_effects[4], main_effects[6], main_effects[6],
+    main_effects[3], main_effects[5], main_effects[5], main_effects[3],
+    main_effects[5], main_effects[5], main_effects[4], main_effects[6],
+    main_effects[6], main_effects[1], main_effects[3], main_effects[5],
+    main_effects[2], main_effects[4], main_effects[6], main_effects[7],
+    main_effects[8], main_effects[7], main_effects[7], main_effects[8],
+    main_effects[8], main_effects[7], main_effects[8], main_effects[8],
+    main_effects[7], main_effects[9], main_effects[9], main_effects[9],
+    main_effects[9], main_effects[9], main_effects[3], main_effects[5],
+    main_effects[10], main_effects[4], main_effects[6], main_effects[3],
+    main_effects[5], main_effects[4], main_effects[6], main_effects[10],
+    main_effects[3], main_effects[5], main_effects[10], main_effects[4],
+    main_effects[6], main_effects[3], main_effects[5], main_effects[4],
+    main_effects[6], main_effects[10], main_effects[3], main_effects[5],
+    main_effects[10], main_effects[4], main_effects[6], main_effects[3],
+    main_effects[5], main_effects[4], main_effects[6], main_effects[10],
+    main_effects[2], main_effects[2], main_effects[2], main_effects[1],
+    main_effects[1], main_effects[1], main_effects[8], main_effects[8],
+    main_effects[8], main_effects[7], main_effects[7], main_effects[7]};
+  
+  CharacterVector main_defined = {"y-intercept", "sizea in time t",
+    "sizea in time t-1", "sizeb in time t", "sizeb in time t-1",
+    "sizec in time t", "sizec in time t-1", "reproductive status in time t",
+    "reproductive status in time t-1", "age in time t", "density in time t",
+    "individual covariate a in time t", "individual covariate a in time t-1",
+    "individual covariate b in time t", "individual covariate b in time t-1",
+    "individual covariate c in time t", "individual covariate c in time t-1"};
+  
+  CharacterVector main_defined_1 = {main_defined[0], main_defined[1],
+    main_defined[2], main_defined[3], main_defined[4], main_defined[5],
+    main_defined[6], main_defined[7], main_defined[8], main_defined[9],
+    main_defined[10], main_defined[11], main_defined[12], main_defined[13],
+    main_defined[14], main_defined[15], main_defined[16], main_defined[8],
+    main_defined[2], main_defined[2], main_defined[1], main_defined[1],
+    main_defined[2], main_defined[9], main_defined[9], main_defined[9],
+    main_defined[9], main_defined[11], main_defined[13], main_defined[15],
+    main_defined[11], main_defined[13], main_defined[15], main_defined[12],
+    main_defined[14], main_defined[16], main_defined[12], main_defined[14],
+    main_defined[16], main_defined[11], main_defined[11], main_defined[13],
+    main_defined[12], main_defined[12], main_defined[14], main_defined[11],
+    main_defined[12], main_defined[11], main_defined[12], main_defined[13],
+    main_defined[14], main_defined[3], main_defined[5], main_defined[2],
+    main_defined[2], main_defined[4], main_defined[1], main_defined[1],
+    main_defined[3], main_defined[2], main_defined[2], main_defined[4],
+    main_defined[1], main_defined[1], main_defined[3], main_defined[10],
+    main_defined[10], main_defined[10], main_defined[10], main_defined[10],
+    main_defined[10], main_defined[10], main_defined[10], main_defined[3],
+    main_defined[5], main_defined[4], main_defined[3], main_defined[4],
+    main_defined[6], main_defined[5], main_defined[6], main_defined[3],
+    main_defined[5], main_defined[10], main_defined[4], main_defined[6],
+    main_defined[11], main_defined[11], main_defined[11], main_defined[12],
+    main_defined[12], main_defined[12], main_defined[12], main_defined[11],
+    main_defined[11], main_defined[12], main_defined[13], main_defined[13],
+    main_defined[13], main_defined[14], main_defined[14], main_defined[14],
+    main_defined[14], main_defined[13], main_defined[13], main_defined[14],
+    main_defined[15], main_defined[15], main_defined[15], main_defined[16],
+    main_defined[16], main_defined[16], main_defined[16], main_defined[15],
+    main_defined[15], main_defined[16], main_defined[11], main_defined[13],
+    main_defined[15], main_defined[12], main_defined[14], main_defined[16],
+    main_defined[11], main_defined[13], main_defined[15], main_defined[12],
+    main_defined[14], main_defined[16]};
+  
+  CharacterVector main_defined_2 = {"", "", "", "", "", "", "", "", "", "", "",
+    "", "", "", "", "", "", main_defined[7], main_defined[1], main_defined[8],
+    main_defined[7], main_defined[8], main_defined[7], main_defined[2],
+    main_defined[1], main_defined[8], main_defined[7], main_defined[1],
+    main_defined[1], main_defined[1], main_defined[7], main_defined[7],
+    main_defined[7], main_defined[2], main_defined[2], main_defined[2],
+    main_defined[8], main_defined[8], main_defined[8], main_defined[13],
+    main_defined[15], main_defined[15], main_defined[14], main_defined[16],
+    main_defined[16], main_defined[14], main_defined[13], main_defined[16],
+    main_defined[15], main_defined[16], main_defined[15], main_defined[4],
+    main_defined[6], main_defined[4], main_defined[6], main_defined[6],
+    main_defined[3], main_defined[5], main_defined[5], main_defined[3],
+    main_defined[5], main_defined[5], main_defined[4], main_defined[6],
+    main_defined[6], main_defined[1], main_defined[3], main_defined[5],
+    main_defined[2], main_defined[4], main_defined[6], main_defined[7],
+    main_defined[8], main_defined[7], main_defined[7], main_defined[8],
+    main_defined[8], main_defined[7], main_defined[8], main_defined[8],
+    main_defined[7], main_defined[9], main_defined[9], main_defined[9],
+    main_defined[9], main_defined[9], main_defined[3], main_defined[5],
+    main_defined[10], main_defined[4], main_defined[6], main_defined[3],
+    main_defined[5], main_defined[4], main_defined[6], main_defined[10],
+    main_defined[3], main_defined[5], main_defined[10], main_defined[4],
+    main_defined[6], main_defined[3], main_defined[5], main_defined[4],
+    main_defined[6], main_defined[10], main_defined[3], main_defined[5],
+    main_defined[10], main_defined[4], main_defined[6], main_defined[3],
+    main_defined[5], main_defined[4], main_defined[6], main_defined[10],
+    main_defined[2], main_defined[2], main_defined[2], main_defined[1],
+    main_defined[1], main_defined[1], main_defined[8], main_defined[8],
+    main_defined[8], main_defined[7], main_defined[7], main_defined[7]};
+  
+  NumericVector surv_slopes = vrmf_inator(as<NumericVector>(surv_proxy["coefficients"]), false);
+  NumericVector obs_slopes = vrmf_inator(as<NumericVector>(obs_proxy["coefficients"]), false);
+  NumericVector sizea_slopes = vrmf_inator(as<NumericVector>(size_proxy["coefficients"]), false);
+  NumericVector sizeb_slopes = vrmf_inator(as<NumericVector>(sizeb_proxy["coefficients"]), false);
+  NumericVector sizec_slopes = vrmf_inator(as<NumericVector>(sizec_proxy["coefficients"]), false);
+  NumericVector repst_slopes = vrmf_inator(as<NumericVector>(repst_proxy["coefficients"]), false);
+  NumericVector fec_slopes = vrmf_inator(as<NumericVector>(fec_proxy["coefficients"]), false);
+  NumericVector jsurv_slopes = vrmf_inator(as<NumericVector>(jsurv_proxy["coefficients"]), false);
+  NumericVector jobs_slopes = vrmf_inator(as<NumericVector>(jobs_proxy["coefficients"]), false);
+  NumericVector jsizea_slopes = vrmf_inator(as<NumericVector>(jsize_proxy["coefficients"]), false);
+  NumericVector jsizeb_slopes = vrmf_inator(as<NumericVector>(jsizeb_proxy["coefficients"]), false);
+  NumericVector jsizec_slopes = vrmf_inator(as<NumericVector>(jsizec_proxy["coefficients"]), false);
+  NumericVector jrepst_slopes = vrmf_inator(as<NumericVector>(jrepst_proxy["coefficients"]), false);
+  NumericVector jmatst_slopes = vrmf_inator(as<NumericVector>(jmatst_proxy["coefficients"]), false);
+  NumericVector sizea_zi_slopes = vrmf_inator(as<NumericVector>(size_proxy["coefficients"]), true);
+  NumericVector sizeb_zi_slopes = vrmf_inator(as<NumericVector>(sizeb_proxy["coefficients"]), true);
+  NumericVector sizec_zi_slopes = vrmf_inator(as<NumericVector>(sizec_proxy["coefficients"]), true);
+  NumericVector fec_zi_slopes = vrmf_inator(as<NumericVector>(fec_proxy["coefficients"]), true);
+  NumericVector jsizea_zi_slopes = vrmf_inator(as<NumericVector>(jsize_proxy["coefficients"]), true);
+  NumericVector jsizeb_zi_slopes = vrmf_inator(as<NumericVector>(jsizeb_proxy["coefficients"]), true);
+  NumericVector jsizec_zi_slopes = vrmf_inator(as<NumericVector>(jsizec_proxy["coefficients"]), true);
+  
+  List vrm_frame (25);
+  vrm_frame(0) = main_effect_1;
+  vrm_frame(1) = main_defined_1;
+  vrm_frame(2) = main_effect_2;
+  vrm_frame(3) = main_defined_2;
+  vrm_frame(4) = surv_slopes;
+  vrm_frame(5) = obs_slopes;
+  vrm_frame(6) = sizea_slopes;
+  vrm_frame(7) = sizeb_slopes;
+  vrm_frame(8) = sizec_slopes;
+  vrm_frame(9) = repst_slopes;
+  vrm_frame(10) = fec_slopes;
+  vrm_frame(11) = jsurv_slopes;
+  vrm_frame(12) = jobs_slopes;
+  vrm_frame(13) = jsizea_slopes;
+  vrm_frame(14) = jsizeb_slopes;
+  vrm_frame(15) = jsizec_slopes;
+  vrm_frame(16) = jrepst_slopes;
+  vrm_frame(17) = jmatst_slopes;
+  vrm_frame(18) = sizea_zi_slopes;
+  vrm_frame(19) = sizeb_zi_slopes;
+  vrm_frame(20) = sizec_zi_slopes;
+  vrm_frame(21) = fec_zi_slopes;
+  vrm_frame(22) = jsizea_zi_slopes;
+  vrm_frame(23) = jsizeb_zi_slopes;
+  vrm_frame(24) = jsizec_zi_slopes;
+  
+  CharacterVector vrm_frame_names = {"main_effect_1", "main_1_defined",
+    "main_effect_2", "main_2_defined", "surv", "obs", "sizea", "sizeb", "sizec",
+    "repst", "fec", "jsurv", "jobs", "jsizea", "jsizeb", "jsizec", "jrepst",
+    "jmatst", "sizea_zi", "sizeb_zi", "sizec_zi", "fec_zi", "jsizea_zi",
+    "jsizeb_zi", "jsizec_zi"};
+  
+  vrm_frame.attr("names") = vrm_frame_names;
+  vrm_frame.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, 128);
+  StringVector needed_classes {"data.frame", "vrm_input"};
+  vrm_frame.attr("class") = needed_classes;
+  
+  // year_frame creation
+  List year_frame (22);
+  year_frame(0) = mainyears;
+  year_frame(1) = as<NumericVector>(surv_proxy["years"]);
+  year_frame(2) = as<NumericVector>(obs_proxy["years"]);
+  year_frame(3) = as<NumericVector>(size_proxy["years"]);
+  year_frame(4) = as<NumericVector>(sizeb_proxy["years"]);
+  year_frame(5) = as<NumericVector>(sizec_proxy["years"]);
+  year_frame(6) = as<NumericVector>(repst_proxy["years"]);
+  year_frame(7) = as<NumericVector>(fec_proxy["years"]);
+  year_frame(8) = as<NumericVector>(jsurv_proxy["years"]);
+  year_frame(9) = as<NumericVector>(jobs_proxy["years"]);
+  year_frame(10) = as<NumericVector>(jsize_proxy["years"]);
+  year_frame(11) = as<NumericVector>(jsizeb_proxy["years"]);
+  year_frame(12) = as<NumericVector>(jsizec_proxy["years"]);
+  year_frame(13) = as<NumericVector>(jrepst_proxy["years"]);
+  year_frame(14) = as<NumericVector>(jmatst_proxy["years"]);
+  year_frame(15) = as<NumericVector>(size_proxy["zeroyear"]);
+  year_frame(16) = as<NumericVector>(sizeb_proxy["zeroyear"]);
+  year_frame(17) = as<NumericVector>(sizec_proxy["zeroyear"]);
+  year_frame(18) = as<NumericVector>(fec_proxy["zeroyear"]);
+  year_frame(19) = as<NumericVector>(jsize_proxy["zeroyear"]);
+  year_frame(20) = as<NumericVector>(jsizeb_proxy["zeroyear"]);
+  year_frame(21) = as<NumericVector>(jsizec_proxy["zeroyear"]);
+  
+  CharacterVector yf_names = {"years", "surv", "obs", "sizea", "sizeb", "sizec",
+    "repst", "fec", "jsurv", "jobs", "jsizea", "jsizeb", "jsizec", "jrepst",
+    "jmatst", "sizea_zi", "sizeb_zi", "sizec_zi", "fec_zi", "jsizea_zi",
+    "jsizeb_zi", "jsizec_zi"};
+  year_frame.attr("names") = yf_names;
+  year_frame.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, static_cast<int>(mainyears.length()));
+  StringVector yf_class {"data.frame"};
+  year_frame.attr("class") = yf_class;
+  
+  // patch_frame creation
+  List patch_frame (22);
+  patch_frame(0) = mainpatches;
+  patch_frame(1) = as<NumericVector>(surv_proxy["patches"]);
+  patch_frame(2) = as<NumericVector>(obs_proxy["patches"]);
+  patch_frame(3) = as<NumericVector>(size_proxy["patches"]);
+  patch_frame(4) = as<NumericVector>(sizeb_proxy["patches"]);
+  patch_frame(5) = as<NumericVector>(sizec_proxy["patches"]);
+  patch_frame(6) = as<NumericVector>(repst_proxy["patches"]);
+  patch_frame(7) = as<NumericVector>(fec_proxy["patches"]);
+  patch_frame(8) = as<NumericVector>(jsurv_proxy["patches"]);
+  patch_frame(9) = as<NumericVector>(jobs_proxy["patches"]);
+  patch_frame(10) = as<NumericVector>(jsize_proxy["patches"]);
+  patch_frame(11) = as<NumericVector>(jsizeb_proxy["patches"]);
+  patch_frame(12) = as<NumericVector>(jsizec_proxy["patches"]);
+  patch_frame(13) = as<NumericVector>(jrepst_proxy["patches"]);
+  patch_frame(14) = as<NumericVector>(jmatst_proxy["patches"]);
+  patch_frame(15) = as<NumericVector>(size_proxy["zeropatch"]);
+  patch_frame(16) = as<NumericVector>(sizeb_proxy["zeropatch"]);
+  patch_frame(17) = as<NumericVector>(sizec_proxy["zeropatch"]);
+  patch_frame(18) = as<NumericVector>(fec_proxy["zeropatch"]);
+  patch_frame(19) = as<NumericVector>(jsize_proxy["zeropatch"]);
+  patch_frame(20) = as<NumericVector>(jsizeb_proxy["zeropatch"]);
+  patch_frame(21) = as<NumericVector>(jsizec_proxy["zeropatch"]);
+  
+  CharacterVector pf_names = clone(yf_names);
+  pf_names(0) = "patches";
+  patch_frame.attr("names") = pf_names;
+  patch_frame.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, static_cast<int>(mainpatches.length()));
+  patch_frame.attr("class") = yf_class;
+  
+  // group2_frame creation
+  List group2_frame (22);
+  group2_frame(0) = maingroups;
+  group2_frame(1) = as<NumericVector>(surv_proxy["groups2"]);
+  group2_frame(2) = as<NumericVector>(obs_proxy["groups2"]);
+  group2_frame(3) = as<NumericVector>(size_proxy["groups2"]);
+  group2_frame(4) = as<NumericVector>(sizeb_proxy["groups2"]);
+  group2_frame(5) = as<NumericVector>(sizec_proxy["groups2"]);
+  group2_frame(6) = as<NumericVector>(repst_proxy["groups2"]);
+  group2_frame(7) = as<NumericVector>(fec_proxy["groups2"]);
+  group2_frame(8) = as<NumericVector>(jsurv_proxy["groups2"]);
+  group2_frame(9) = as<NumericVector>(jobs_proxy["groups2"]);
+  group2_frame(10) = as<NumericVector>(jsize_proxy["groups2"]);
+  group2_frame(11) = as<NumericVector>(jsizeb_proxy["groups2"]);
+  group2_frame(12) = as<NumericVector>(jsizec_proxy["groups2"]);
+  group2_frame(13) = as<NumericVector>(jrepst_proxy["groups2"]);
+  group2_frame(14) = as<NumericVector>(jmatst_proxy["groups2"]);
+  group2_frame(15) = as<NumericVector>(size_proxy["zerogroups2"]);
+  group2_frame(16) = as<NumericVector>(sizeb_proxy["zerogroups2"]);
+  group2_frame(17) = as<NumericVector>(sizec_proxy["zerogroups2"]);
+  group2_frame(18) = as<NumericVector>(fec_proxy["zerogroups2"]);
+  group2_frame(19) = as<NumericVector>(jsize_proxy["zerogroups2"]);
+  group2_frame(20) = as<NumericVector>(jsizeb_proxy["zerogroups2"]);
+  group2_frame(21) = as<NumericVector>(jsizec_proxy["zerogroups2"]);
+  
+  CharacterVector g2f_names = clone(yf_names);
+  g2f_names(0) = "groups";
+  group2_frame.attr("names") = g2f_names;
+  group2_frame.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, static_cast<int>(maingroups.length()));
+  group2_frame.attr("class") = yf_class;
+  
+  // group1_frame creation
+  List group1_frame (22);
+  group1_frame(0) = maingroups;
+  group1_frame(1) = as<NumericVector>(surv_proxy["groups1"]);
+  group1_frame(2) = as<NumericVector>(obs_proxy["groups1"]);
+  group1_frame(3) = as<NumericVector>(size_proxy["groups1"]);
+  group1_frame(4) = as<NumericVector>(sizeb_proxy["groups1"]);
+  group1_frame(5) = as<NumericVector>(sizec_proxy["groups1"]);
+  group1_frame(6) = as<NumericVector>(repst_proxy["groups1"]);
+  group1_frame(7) = as<NumericVector>(fec_proxy["groups1"]);
+  group1_frame(8) = as<NumericVector>(jsurv_proxy["groups1"]);
+  group1_frame(9) = as<NumericVector>(jobs_proxy["groups1"]);
+  group1_frame(10) = as<NumericVector>(jsize_proxy["groups1"]);
+  group1_frame(11) = as<NumericVector>(jsizeb_proxy["groups1"]);
+  group1_frame(12) = as<NumericVector>(jsizec_proxy["groups1"]);
+  group1_frame(13) = as<NumericVector>(jrepst_proxy["groups1"]);
+  group1_frame(14) = as<NumericVector>(jmatst_proxy["groups1"]);
+  group1_frame(15) = as<NumericVector>(size_proxy["zerogroups1"]);
+  group1_frame(16) = as<NumericVector>(sizeb_proxy["zerogroups1"]);
+  group1_frame(17) = as<NumericVector>(sizec_proxy["zerogroups1"]);
+  group1_frame(18) = as<NumericVector>(fec_proxy["zerogroups1"]);
+  group1_frame(19) = as<NumericVector>(jsize_proxy["zerogroups1"]);
+  group1_frame(20) = as<NumericVector>(jsizeb_proxy["zerogroups1"]);
+  group1_frame(21) = as<NumericVector>(jsizec_proxy["zerogroups1"]);
+  
+  group1_frame.attr("names") = g2f_names;
+  group1_frame.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, static_cast<int>(maingroups.length()));
+  group1_frame.attr("class") = yf_class;
+  
+  // dist_frame creation
+  CharacterVector distf_response = {"surv", "obs", "sizea", "sizeb", "sizec",
+    "repst", "fec", "jsurv", "jobs", "jsizea", "jsizeb", "jsizec", "jrepst",
+    "jmatst"};
+  CharacterVector distf_dist (14);
+  
+  distf_dist(0) = String(surv_proxy["family"]);
+  distf_dist(1) = String(obs_proxy["family"]);
+  distf_dist(2) = String(size_proxy["family"]);
+  distf_dist(3) = String(sizeb_proxy["family"]);
+  distf_dist(4) = String(sizec_proxy["family"]);
+  distf_dist(5) = String(repst_proxy["family"]);
+  distf_dist(6) = String(fec_proxy["family"]);
+  distf_dist(7) = String(jsurv_proxy["family"]);
+  distf_dist(8) = String(jobs_proxy["family"]);
+  distf_dist(9) = String(jsize_proxy["family"]);
+  distf_dist(10) = String(jsizeb_proxy["family"]);
+  distf_dist(11) = String(jsizec_proxy["family"]);
+  distf_dist(12) = String(jrepst_proxy["family"]);
+  distf_dist(13) = String(jmatst_proxy["family"]);
+  
+  for (int i = 0; i < 14; i++) {
+    if (distf_dist(i) == "binomial") distf_dist(i) = "binom";
+  }
+  
+  DataFrame dist_frame = DataFrame::create(_["response"] = distf_response,
+    _["dist"] = distf_dist);
+  
+  // indcova2_frame creation
+  List indcova2_frame (22);
+  indcova2_frame(0) = maingroups;
+  indcova2_frame(1) = as<NumericVector>(surv_proxy["indcova2s"]);
+  indcova2_frame(2) = as<NumericVector>(obs_proxy["indcova2s"]);
+  indcova2_frame(3) = as<NumericVector>(size_proxy["indcova2s"]);
+  indcova2_frame(4) = as<NumericVector>(sizeb_proxy["indcova2s"]);
+  indcova2_frame(5) = as<NumericVector>(sizec_proxy["indcova2s"]);
+  indcova2_frame(6) = as<NumericVector>(repst_proxy["indcova2s"]);
+  indcova2_frame(7) = as<NumericVector>(fec_proxy["indcova2s"]);
+  indcova2_frame(8) = as<NumericVector>(jsurv_proxy["indcova2s"]);
+  indcova2_frame(9) = as<NumericVector>(jobs_proxy["indcova2s"]);
+  indcova2_frame(10) = as<NumericVector>(jsize_proxy["indcova2s"]);
+  indcova2_frame(11) = as<NumericVector>(jsizeb_proxy["indcova2s"]);
+  indcova2_frame(12) = as<NumericVector>(jsizec_proxy["indcova2s"]);
+  indcova2_frame(13) = as<NumericVector>(jrepst_proxy["indcova2s"]);
+  indcova2_frame(14) = as<NumericVector>(jmatst_proxy["indcova2s"]);
+  indcova2_frame(15) = as<NumericVector>(size_proxy["zeroindcova2s"]);
+  indcova2_frame(16) = as<NumericVector>(sizeb_proxy["zeroindcova2s"]);
+  indcova2_frame(17) = as<NumericVector>(sizec_proxy["zeroindcova2s"]);
+  indcova2_frame(18) = as<NumericVector>(fec_proxy["zeroindcova2s"]);
+  indcova2_frame(19) = as<NumericVector>(jsize_proxy["zeroindcova2s"]);
+  indcova2_frame(20) = as<NumericVector>(jsizeb_proxy["zeroindcova2s"]);
+  indcova2_frame(21) = as<NumericVector>(jsizec_proxy["zeroindcova2s"]);
+  
+  CharacterVector ica2f_names = clone(yf_names);
+  ica2f_names(0) = "indcova";
+  indcova2_frame.attr("names") = ica2f_names;
+  indcova2_frame.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, static_cast<int>(mainindcova.length()));
+  indcova2_frame.attr("class") = yf_class;
+  
+  // indcova1_frame creation
+  List indcova1_frame (22);
+  indcova1_frame(0) = maingroups;
+  indcova1_frame(1) = as<NumericVector>(surv_proxy["indcova1s"]);
+  indcova1_frame(2) = as<NumericVector>(obs_proxy["indcova1s"]);
+  indcova1_frame(3) = as<NumericVector>(size_proxy["indcova1s"]);
+  indcova1_frame(4) = as<NumericVector>(sizeb_proxy["indcova1s"]);
+  indcova1_frame(5) = as<NumericVector>(sizec_proxy["indcova1s"]);
+  indcova1_frame(6) = as<NumericVector>(repst_proxy["indcova1s"]);
+  indcova1_frame(7) = as<NumericVector>(fec_proxy["indcova1s"]);
+  indcova1_frame(8) = as<NumericVector>(jsurv_proxy["indcova1s"]);
+  indcova1_frame(9) = as<NumericVector>(jobs_proxy["indcova1s"]);
+  indcova1_frame(10) = as<NumericVector>(jsize_proxy["indcova1s"]);
+  indcova1_frame(11) = as<NumericVector>(jsizeb_proxy["indcova1s"]);
+  indcova1_frame(12) = as<NumericVector>(jsizec_proxy["indcova1s"]);
+  indcova1_frame(13) = as<NumericVector>(jrepst_proxy["indcova1s"]);
+  indcova1_frame(14) = as<NumericVector>(jmatst_proxy["indcova1s"]);
+  indcova1_frame(15) = as<NumericVector>(size_proxy["zeroindcova1s"]);
+  indcova1_frame(16) = as<NumericVector>(sizeb_proxy["zeroindcova1s"]);
+  indcova1_frame(17) = as<NumericVector>(sizec_proxy["zeroindcova1s"]);
+  indcova1_frame(18) = as<NumericVector>(fec_proxy["zeroindcova1s"]);
+  indcova1_frame(19) = as<NumericVector>(jsize_proxy["zeroindcova1s"]);
+  indcova1_frame(20) = as<NumericVector>(jsizeb_proxy["zeroindcova1s"]);
+  indcova1_frame(21) = as<NumericVector>(jsizec_proxy["zeroindcova1s"]);
+  
+  indcova1_frame.attr("names") = ica2f_names;
+  indcova1_frame.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, static_cast<int>(mainindcova.length()));
+  indcova1_frame.attr("class") = yf_class;
+  
+  // indcovb2_frame creation
+  List indcovb2_frame (22);
+  indcovb2_frame(0) = maingroups;
+  indcovb2_frame(1) = as<NumericVector>(surv_proxy["indcovb2s"]);
+  indcovb2_frame(2) = as<NumericVector>(obs_proxy["indcovb2s"]);
+  indcovb2_frame(3) = as<NumericVector>(size_proxy["indcovb2s"]);
+  indcovb2_frame(4) = as<NumericVector>(sizeb_proxy["indcovb2s"]);
+  indcovb2_frame(5) = as<NumericVector>(sizec_proxy["indcovb2s"]);
+  indcovb2_frame(6) = as<NumericVector>(repst_proxy["indcovb2s"]);
+  indcovb2_frame(7) = as<NumericVector>(fec_proxy["indcovb2s"]);
+  indcovb2_frame(8) = as<NumericVector>(jsurv_proxy["indcovb2s"]);
+  indcovb2_frame(9) = as<NumericVector>(jobs_proxy["indcovb2s"]);
+  indcovb2_frame(10) = as<NumericVector>(jsize_proxy["indcovb2s"]);
+  indcovb2_frame(11) = as<NumericVector>(jsizeb_proxy["indcovb2s"]);
+  indcovb2_frame(12) = as<NumericVector>(jsizec_proxy["indcovb2s"]);
+  indcovb2_frame(13) = as<NumericVector>(jrepst_proxy["indcovb2s"]);
+  indcovb2_frame(14) = as<NumericVector>(jmatst_proxy["indcovb2s"]);
+  indcovb2_frame(15) = as<NumericVector>(size_proxy["zeroindcovb2s"]);
+  indcovb2_frame(16) = as<NumericVector>(sizeb_proxy["zeroindcovb2s"]);
+  indcovb2_frame(17) = as<NumericVector>(sizec_proxy["zeroindcovb2s"]);
+  indcovb2_frame(18) = as<NumericVector>(fec_proxy["zeroindcovb2s"]);
+  indcovb2_frame(19) = as<NumericVector>(jsize_proxy["zeroindcovb2s"]);
+  indcovb2_frame(20) = as<NumericVector>(jsizeb_proxy["zeroindcovb2s"]);
+  indcovb2_frame(21) = as<NumericVector>(jsizec_proxy["zeroindcovb2s"]);
+  
+  CharacterVector icb2f_names = clone(yf_names);
+  icb2f_names(0) = "indcovb";
+  indcovb2_frame.attr("names") = icb2f_names;
+  indcovb2_frame.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, static_cast<int>(mainindcovb.length()));
+  indcovb2_frame.attr("class") = yf_class;
+  
+  // indcovb1_frame creation
+  List indcovb1_frame (22);
+  indcovb1_frame(0) = maingroups;
+  indcovb1_frame(1) = as<NumericVector>(surv_proxy["indcovb1s"]);
+  indcovb1_frame(2) = as<NumericVector>(obs_proxy["indcovb1s"]);
+  indcovb1_frame(3) = as<NumericVector>(size_proxy["indcovb1s"]);
+  indcovb1_frame(4) = as<NumericVector>(sizeb_proxy["indcovb1s"]);
+  indcovb1_frame(5) = as<NumericVector>(sizec_proxy["indcovb1s"]);
+  indcovb1_frame(6) = as<NumericVector>(repst_proxy["indcovb1s"]);
+  indcovb1_frame(7) = as<NumericVector>(fec_proxy["indcovb1s"]);
+  indcovb1_frame(8) = as<NumericVector>(jsurv_proxy["indcovb1s"]);
+  indcovb1_frame(9) = as<NumericVector>(jobs_proxy["indcovb1s"]);
+  indcovb1_frame(10) = as<NumericVector>(jsize_proxy["indcovb1s"]);
+  indcovb1_frame(11) = as<NumericVector>(jsizeb_proxy["indcovb1s"]);
+  indcovb1_frame(12) = as<NumericVector>(jsizec_proxy["indcovb1s"]);
+  indcovb1_frame(13) = as<NumericVector>(jrepst_proxy["indcovb1s"]);
+  indcovb1_frame(14) = as<NumericVector>(jmatst_proxy["indcovb1s"]);
+  indcovb1_frame(15) = as<NumericVector>(size_proxy["zeroindcovb1s"]);
+  indcovb1_frame(16) = as<NumericVector>(sizeb_proxy["zeroindcovb1s"]);
+  indcovb1_frame(17) = as<NumericVector>(sizec_proxy["zeroindcovb1s"]);
+  indcovb1_frame(18) = as<NumericVector>(fec_proxy["zeroindcovb1s"]);
+  indcovb1_frame(19) = as<NumericVector>(jsize_proxy["zeroindcovb1s"]);
+  indcovb1_frame(20) = as<NumericVector>(jsizeb_proxy["zeroindcovb1s"]);
+  indcovb1_frame(21) = as<NumericVector>(jsizec_proxy["zeroindcovb1s"]);
+  
+  indcovb1_frame.attr("names") = icb2f_names;
+  indcovb1_frame.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, static_cast<int>(mainindcovb.length()));
+  indcovb1_frame.attr("class") = yf_class;
+  
+  // indcovc2_frame creation
+  List indcovc2_frame (22);
+  indcovc2_frame(0) = maingroups;
+  indcovc2_frame(1) = as<NumericVector>(surv_proxy["indcovc2s"]);
+  indcovc2_frame(2) = as<NumericVector>(obs_proxy["indcovc2s"]);
+  indcovc2_frame(3) = as<NumericVector>(size_proxy["indcovc2s"]);
+  indcovc2_frame(4) = as<NumericVector>(sizeb_proxy["indcovc2s"]);
+  indcovc2_frame(5) = as<NumericVector>(sizec_proxy["indcovc2s"]);
+  indcovc2_frame(6) = as<NumericVector>(repst_proxy["indcovc2s"]);
+  indcovc2_frame(7) = as<NumericVector>(fec_proxy["indcovc2s"]);
+  indcovc2_frame(8) = as<NumericVector>(jsurv_proxy["indcovc2s"]);
+  indcovc2_frame(9) = as<NumericVector>(jobs_proxy["indcovc2s"]);
+  indcovc2_frame(10) = as<NumericVector>(jsize_proxy["indcovc2s"]);
+  indcovc2_frame(11) = as<NumericVector>(jsizeb_proxy["indcovc2s"]);
+  indcovc2_frame(12) = as<NumericVector>(jsizec_proxy["indcovc2s"]);
+  indcovc2_frame(13) = as<NumericVector>(jrepst_proxy["indcovc2s"]);
+  indcovc2_frame(14) = as<NumericVector>(jmatst_proxy["indcovc2s"]);
+  indcovc2_frame(15) = as<NumericVector>(size_proxy["zeroindcovc2s"]);
+  indcovc2_frame(16) = as<NumericVector>(sizeb_proxy["zeroindcovc2s"]);
+  indcovc2_frame(17) = as<NumericVector>(sizec_proxy["zeroindcovc2s"]);
+  indcovc2_frame(18) = as<NumericVector>(fec_proxy["zeroindcovc2s"]);
+  indcovc2_frame(19) = as<NumericVector>(jsize_proxy["zeroindcovc2s"]);
+  indcovc2_frame(20) = as<NumericVector>(jsizeb_proxy["zeroindcovc2s"]);
+  indcovc2_frame(21) = as<NumericVector>(jsizec_proxy["zeroindcovc2s"]);
+  
+  CharacterVector icc2f_names = clone(yf_names);
+  icc2f_names(0) = "indcovc";
+  indcovc2_frame.attr("names") = icc2f_names;
+  indcovc2_frame.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, static_cast<int>(mainindcovc.length()));
+  indcovc2_frame.attr("class") = yf_class;
+  
+  // indcovc1_frame creation
+  List indcovc1_frame (22);
+  indcovc1_frame(0) = maingroups;
+  indcovc1_frame(1) = as<NumericVector>(surv_proxy["indcovc1s"]);
+  indcovc1_frame(2) = as<NumericVector>(obs_proxy["indcovc1s"]);
+  indcovc1_frame(3) = as<NumericVector>(size_proxy["indcovc1s"]);
+  indcovc1_frame(4) = as<NumericVector>(sizeb_proxy["indcovc1s"]);
+  indcovc1_frame(5) = as<NumericVector>(sizec_proxy["indcovc1s"]);
+  indcovc1_frame(6) = as<NumericVector>(repst_proxy["indcovc1s"]);
+  indcovc1_frame(7) = as<NumericVector>(fec_proxy["indcovc1s"]);
+  indcovc1_frame(8) = as<NumericVector>(jsurv_proxy["indcovc1s"]);
+  indcovc1_frame(9) = as<NumericVector>(jobs_proxy["indcovc1s"]);
+  indcovc1_frame(10) = as<NumericVector>(jsize_proxy["indcovc1s"]);
+  indcovc1_frame(11) = as<NumericVector>(jsizeb_proxy["indcovc1s"]);
+  indcovc1_frame(12) = as<NumericVector>(jsizec_proxy["indcovc1s"]);
+  indcovc1_frame(13) = as<NumericVector>(jrepst_proxy["indcovc1s"]);
+  indcovc1_frame(14) = as<NumericVector>(jmatst_proxy["indcovc1s"]);
+  indcovc1_frame(15) = as<NumericVector>(size_proxy["zeroindcovc1s"]);
+  indcovc1_frame(16) = as<NumericVector>(sizeb_proxy["zeroindcovc1s"]);
+  indcovc1_frame(17) = as<NumericVector>(sizec_proxy["zeroindcovc1s"]);
+  indcovc1_frame(18) = as<NumericVector>(fec_proxy["zeroindcovc1s"]);
+  indcovc1_frame(19) = as<NumericVector>(jsize_proxy["zeroindcovc1s"]);
+  indcovc1_frame(20) = as<NumericVector>(jsizeb_proxy["zeroindcovc1s"]);
+  indcovc1_frame(21) = as<NumericVector>(jsizec_proxy["zeroindcovc1s"]);
+  
+  indcovc1_frame.attr("names") = icc2f_names;
+  indcovc1_frame.attr("row.names") = Rcpp::IntegerVector::create(NA_INTEGER, static_cast<int>(mainindcovc.length()));
+  indcovc1_frame.attr("class") = yf_class;
+  
+  // st_frame creation
+  NumericVector st_frame (14);
+  st_frame(0) = static_cast<double>(as<NumericVector>(surv_proxy["sigma"])(0));
+  st_frame(1) = static_cast<double>(as<NumericVector>(obs_proxy["sigma"])(0));
+  
+  if (distf_dist(2) == "negbin") {
+    st_frame(2) = static_cast<double>(as<NumericVector>(size_proxy["theta"])(0));
+  } else {
+    st_frame(2) = static_cast<double>(as<NumericVector>(size_proxy["sigma"])(0));
+  }
+  if (distf_dist(3) == "negbin") {
+    st_frame(3) = static_cast<double>(as<NumericVector>(sizeb_proxy["theta"])(0));
+  } else {
+    st_frame(3) = static_cast<double>(as<NumericVector>(sizeb_proxy["sigma"])(0));
+  }
+  if (distf_dist(4) == "negbin") {
+    st_frame(4) = static_cast<double>(as<NumericVector>(sizec_proxy["theta"])(0));
+  } else {
+    st_frame(4) = static_cast<double>(as<NumericVector>(sizec_proxy["sigma"])(0));
+  }
+  
+  st_frame(5) = static_cast<double>(as<NumericVector>(repst_proxy["sigma"])(0));
+  
+  if (distf_dist(6) == "negbin") {
+    st_frame(6) = static_cast<double>(as<NumericVector>(fec_proxy["theta"])(0));
+  } else {
+    st_frame(6) = static_cast<double>(as<NumericVector>(fec_proxy["sigma"])(0));
+  }
+  
+  st_frame(7) = static_cast<double>(as<NumericVector>(jsurv_proxy["sigma"])(0));
+  st_frame(8) = static_cast<double>(as<NumericVector>(jobs_proxy["sigma"])(0));
+  
+  if (distf_dist(9) == "negbin") {
+    st_frame(9) = static_cast<double>(as<NumericVector>(jsize_proxy["theta"])(0));
+  } else {
+    st_frame(9) = static_cast<double>(as<NumericVector>(jsize_proxy["sigma"])(0));
+  }
+  if (distf_dist(10) == "negbin") {
+    st_frame(10) = static_cast<double>(as<NumericVector>(jsizeb_proxy["theta"])(0));
+  } else {
+    st_frame(10) = static_cast<double>(as<NumericVector>(jsizeb_proxy["sigma"])(0));
+  }
+  if (distf_dist(11) == "negbin") {
+    st_frame(11) = static_cast<double>(as<NumericVector>(jsizec_proxy["theta"])(0));
+  } else {
+    st_frame(11) = static_cast<double>(as<NumericVector>(jsizec_proxy["sigma"])(0));
+  }
+  
+  st_frame(12) = static_cast<double>(as<NumericVector>(jrepst_proxy["sigma"])(0));
+  st_frame(13) = static_cast<double>(as<NumericVector>(jmatst_proxy["sigma"])(0));
+  
+  st_frame.attr("names") = distf_response;
+  
+  // Main output
+  List output = List::create(_["vrm_frame"] = vrm_frame,
+    _["year_frame"] = year_frame, _["patch_frame"] = patch_frame,
+    _["group2_frame"] = group2_frame, _["group1_frame"] = group1_frame,
+    _["dist_frame"] = dist_frame, _["indcova2_frame"] = indcova2_frame,
+    _["indcova1_frame"] = indcova1_frame, _["indcovb2_frame"] = indcovb2_frame,
+    _["indcovb1_frame"] = indcovb1_frame, _["indcovc2_frame"] = indcovc2_frame,
+    _["indcovc1_frame"] = indcovc1_frame, _["st_frame"] = st_frame);
+  output.attr("class") = "vrm_input";
+  
+  return output;
+}
+

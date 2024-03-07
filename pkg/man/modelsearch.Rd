@@ -622,6 +622,11 @@ include \code{test.age = TRUE}, \code{test.density = TRUE},
 appropriate), respectively, in addition to stipulating the name of the
 variable within the dataset. The default for these options is always
 \code{FALSE}.
+
+\code{lefkoMod} objects can be quite large when datasets are large and models
+are complicated. To reduce the amount of memory taken up by models,
+\code{vrm_input} objects can be created to summarize all relevant aspects of
+the vital rate models using function \code{\link{miniMod}()}.
 }
 
 \examples{
@@ -663,7 +668,7 @@ lathmodelsln3 <- modelsearch(lathvertln, historical = TRUE,
   approach = "mixed", suite = "main", 
   vitalrates = c("surv", "obs", "size", "repst", "fec"), juvestimate = "Sdl",
   bestfit = "AICc&k", sizedist = "gaussian", fecdist = "poisson", 
-  indiv = "individ", patch = "patchid", year = "year2",year.as.random = TRUE,
+  indiv = "individ", patch = "patchid", year = "year2", year.as.random = TRUE,
   patch.as.random = TRUE, show.model.tables = TRUE, quiet = "partial")
 
 # Here we use supplemental() to provide overwrite and reproductive info
