@@ -554,6 +554,7 @@ namespace LefkoUtils {
   //' StringVector matching a specific text.
   //' 
   //' @name index_l3
+  //' 
   //' @param mainvec The StringVector to search through.
   //' @param target The string to find within \code{mainvec}.
   //' 
@@ -6026,11 +6027,13 @@ namespace LefkoUtils {
   //' conditional probabilities used to develop the \code{U} matrix. Defaults to
   //' \code{FALSE}.
   //' @param simplicity A logical value indicating whether to output all three
-  //' matrices (\code{FALSE}), and just matrices \code{U} and \code{F}
+  //' matrices (\code{FALSE}), or just matrices \code{U} and \code{F}
   //' (\code{TRUE}). Defaults to \code{FALSE}.
   //' @param sparse A logical value indicating whether to output matrices in
   //' standard Armadillo format or in sparse matrix format. Defaults to
   //' \code{FALSE}.
+  //' @param proj_only A logical value indicating whether to output all
+  //' matrices outined in \code{simplicity}, or just the \code{A} matrix.
   //' 
   //' @return A list with 2, 3, or 4 elements. If \code{simplicity} is set to
   //' \code{FALSE}, then the first 3 elements are matrices, including the main MPM
@@ -6078,7 +6081,7 @@ namespace LefkoUtils {
     unsigned int firstage, unsigned int finalage, bool negfec, int yearnumber,
     int patchnumber, double exp_tol = 700.0, double theta_tol = 100000000.0,
     bool ipm_cdf = true, bool err_check = false, bool simplicity = false,
-    bool sparse = false) {
+    bool sparse = false, bool proj_only = false) {
     
     NumericMatrix out;
     
@@ -7208,45 +7211,75 @@ namespace LefkoUtils {
     }
     
     // Final output
-    List output(4);
+    List output_final;
     
-    if (!sparse) {
-      if (!simplicity) {
+    if (!proj_only) {
+      List output(4);
+      
+      if (!sparse) {
+        if (!simplicity) {
+          arma::mat amatrix = survtransmat + fectransmat;
+          output(0) = amatrix;
+        } else {
+          output(0) = R_NilValue;
+        }
+        
+        output(1) = survtransmat;
+        output(2) = fectransmat;
+        
+        if (err_check) {
+          output(3) = out;
+        } else {
+          output(3) = R_NilValue;
+        }
+      } else {
+        if (!simplicity) {
+          arma::sp_mat amatrix = survtransmat_sp + fectransmat_sp;
+          output(0) = amatrix;
+        } else {
+          output(0) = R_NilValue;
+        }
+        
+        output(1) = survtransmat_sp;
+        output(2) = fectransmat_sp;
+        
+        if (err_check) {
+          output(3) = out;
+        } else {
+          output(3) = R_NilValue;
+        }
+      }
+      output_final = output;
+      CharacterVector output_names = {"A", "U", "F", "out"};
+      output_final.attr("names") = output_names;
+    } else {
+      List output (2);
+      
+      if (!sparse) {
         arma::mat amatrix = survtransmat + fectransmat;
         output(0) = amatrix;
+        
+        if (err_check) {
+          output(1) = out;
+        } else {
+          output(1) = R_NilValue;
+        }
       } else {
-        output(0) = R_NilValue;
-      }
-      
-      output(1) = survtransmat;
-      output(2) = fectransmat;
-      
-      if (err_check) {
-        output(3) = out;
-      } else {
-        output(3) = R_NilValue;
-      }
-    } else {
-      if (!simplicity) {
         arma::sp_mat amatrix = survtransmat_sp + fectransmat_sp;
         output(0) = amatrix;
-      } else {
-        output(0) = R_NilValue;
+        
+        if (err_check) {
+          output(1) = out;
+        } else {
+          output(1) = R_NilValue;
+        }
       }
-      
-      output(1) = survtransmat_sp;
-      output(2) = fectransmat_sp;
-      
-      if (err_check) {
-        output(3) = out;
-      } else {
-        output(3) = R_NilValue;
-      }
+      output_final = output;
+      CharacterVector output_names = {"A", "out"};
+      output_final.attr("names") = output_names;
     }
-    CharacterVector output_names = {"A", "U", "F", "out"};
-    output.attr("names") = output_names;
     
-    return output;
+    return output_final;
   }
   
   //' Estimate All Elements of Function-based Leslie Population Projection Matrix

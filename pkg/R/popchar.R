@@ -865,7 +865,7 @@ density_vr <- function(density_yn = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
 #' @param value A vector showing the values, in order, of the number of
 #' individuals set for the stage or stage-pair in question. Defaults to 1.
 #' 
-#' @return A list of class \code{lefkoStart}, with 4 objects, which can be used
+#' @return A list of class \code{lefkoSV}, with four objects, which can be used
 #' as input in function \code{\link{projection3}()}. The last three include the
 #' \code{ahstages}, \code{hstages}, and \code{agestages} objects from the
 #' \code{lefkoMat} object supplied in \code{mpm}. The first element in the list

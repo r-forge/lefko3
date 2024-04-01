@@ -5,6 +5,10 @@
 * Function miniMod() was developed to create minimum memory vital rate model
   summaries in vrm_input format useable as substitutes for lefkoMod objects.
 
+## USER VISIBLE CHANGES
+
+* Some help entries have been corrected and updated.
+
 ## BUG FIXES
 
 * Function matrix_interp() no longer gives a fatal error when run on a

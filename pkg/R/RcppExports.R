@@ -1217,80 +1217,6 @@ add_stage <- function(mpm, add_before = 0L, add_after = 0L, stage_name = NULL) {
 #' @noRd
 NULL
 
-#' Create hstages Index Object
-#' 
-#' Function \code{hst_maker()} creates \code{hstages} index data frames from
-#' \code{stageframe} inputs.
-#' 
-#' @name hst_maker
-#' 
-#' @param sframe The ahistorical stageframe used in MPM development.
-#' 
-#' @return A data frame with the following columns:
-#' \item{stage_id_2}{Integer index of stage in time \emph{t}+1.}
-#' \item{stage_id_1}{Integer index of stage in time \emph{t}.}
-#' \item{stage_2}{String name of stage in time \emph{t}+1.}
-#' \item{stage_1}{String name of stage in time \emph{t}.}
-#' 
-#' @keywords internal
-#' @noRd
-NULL
-
-#' Create agestages Index Object
-#' 
-#' Function \code{age_maker()} creates \code{agestages} index data frames from
-#' \code{stageframe} inputs.
-#' 
-#' @name age_maker
-#' 
-#' @param sframe The ahistorical stageframe used in MPM development.
-#' 
-#' @return A data frame with the following columns:
-#' \item{stage_id}{Integer index of stage.}
-#' \item{stage}{String name of stage.}
-#' \item{age}{The age of stage in current time.}
-#' 
-#' @keywords internal
-#' @noRd
-NULL
-
-#' Create Element Index for Matrix Estimation
-#' 
-#' Function \code{theoldpizzle()} creates a data frame object used by 
-#' functions \code{specialpatrolgroup()}, \code{normalpatrolgroup()},
-#' \code{subvertedpatrolgroup()}, and \code{jerzeibalowski()} to estimate
-#' raw and function-based matrices.
-#' 
-#' @name theoldpizzle
-#'
-#' @param StageFrame The stageframe object identifying the life history model
-#' being operationalized.
-#' @param OverWrite The supplement or overwrite table used in analysis, as
-#' modified by \code{sf_reassess()}.
-#' @param repmatrix The reproductive matrix used in analysis.
-#' @param firstage The first age to be used in the analysis. Should typically
-#' be \code{0} for pre-breeding and \code{1} for post-breeding life history
-#' models. If not building age-by-stage MPMs, then should be set to \code{0}.
-#' @param finalage The final age to be used in analysis. If not building
-#' age-by-stage MPMs, then should be set to \code{0}.
-#' @param format Indicates whether historical matrices should be in (\code{1})
-#' Ehrlen or (\code{2}) deVries format.
-#' @param style The style of analysis, where \code{0} is historical, \code{1}
-#' is ahistorical, and \code{2} is age-by-stage.
-#' @param cont Denotes whether age-by-stage matrix continues past the final
-#' age.
-#' @param filter An integer denoting whether to filter the output data frame to
-#' eliminate unusable rows, and if so, how to do so. Possible values: \code{0}:
-#' no filtering, \code{1}: filter out rows with \code{index321 == -1}, and
-#' \code{2}: filter out rows with \code{aliveandequal == -1}.
-#' 
-#' @return The output is a large data frame describing every element to be
-#' estimated in matrices.
-#' 
-#' @keywords internal
-#' @noRd
-NULL
-
 #' Estimate All Elements of Raw Historical Matrix
 #' 
 #' Function \code{specialpatrolgroup()} swiftly calculates matrix transitions
@@ -4161,15 +4087,15 @@ create_pm <- function(name_terms = FALSE) {
 #' \code{lMod}, exactly as used in the latter. Only needed if object
 #' \code{stageframe} not provided.
 #' @param all_indcova The name of individual covariate a if quantitative and
-#' non-categorical, or of the categories used in the coariate if a factor
+#' non-categorical, or of the categories used if the covariate is a factor
 #' variable. Only needed if object \code{hfv_data} not provided but individual
 #' covariates used in vital rate models.
 #' @param all_indcovb The name of individual covariate a if quantitative and
-#' non-categorical, or of the categories used in the coariate if a factor
+#' non-categorical, or of the categories used if the cvoariate is a factor
 #' variable. Only needed if object \code{hfv_data} not provided but individual
 #' covariates used in vital rate models.
 #' @param all_indcovc The name of individual covariate a if quantitative and
-#' non-categorical, or of the categories used in the coariate if a factor
+#' non-categorical, or of the categories used if the covariate is a factor
 #' variable. Only needed if object \code{hfv_data} not provided but individual
 #' covariates used in vital rate models.
 #' 
@@ -4215,8 +4141,9 @@ create_pm <- function(name_terms = FALSE) {
 #'   approach = "mixed", suite = "main", 
 #'   vitalrates = c("surv", "obs", "size", "repst", "fec"), juvestimate = "Sdl",
 #'   bestfit = "AICc&k", sizedist = "gaussian", fecdist = "poisson", 
-#'   indiv = "individ", patch = "patchid", year = "year2",year.as.random = TRUE,
-#'   patch.as.random = TRUE, show.model.tables = TRUE, quiet = "partial")
+#'   indiv = "individ", patch = "patchid", year = "year2",
+#'   year.as.random = TRUE, patch.as.random = TRUE, show.model.tables = TRUE,
+#'   quiet = "partial")
 #' 
 #' lathmodels_mini <- miniMod(lathmodelsln3, hfv_data = lathvertln,
 #'   stageframe = lathframeln)

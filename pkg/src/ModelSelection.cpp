@@ -2855,15 +2855,15 @@ NumericVector vrmf_inator (NumericVector coef_vec, bool zi = false) {
 //' \code{lMod}, exactly as used in the latter. Only needed if object
 //' \code{stageframe} not provided.
 //' @param all_indcova The name of individual covariate a if quantitative and
-//' non-categorical, or of the categories used in the coariate if a factor
+//' non-categorical, or of the categories used if the covariate is a factor
 //' variable. Only needed if object \code{hfv_data} not provided but individual
 //' covariates used in vital rate models.
 //' @param all_indcovb The name of individual covariate a if quantitative and
-//' non-categorical, or of the categories used in the coariate if a factor
+//' non-categorical, or of the categories used if the cvoariate is a factor
 //' variable. Only needed if object \code{hfv_data} not provided but individual
 //' covariates used in vital rate models.
 //' @param all_indcovc The name of individual covariate a if quantitative and
-//' non-categorical, or of the categories used in the coariate if a factor
+//' non-categorical, or of the categories used if the covariate is a factor
 //' variable. Only needed if object \code{hfv_data} not provided but individual
 //' covariates used in vital rate models.
 //' 
@@ -2909,8 +2909,9 @@ NumericVector vrmf_inator (NumericVector coef_vec, bool zi = false) {
 //'   approach = "mixed", suite = "main", 
 //'   vitalrates = c("surv", "obs", "size", "repst", "fec"), juvestimate = "Sdl",
 //'   bestfit = "AICc&k", sizedist = "gaussian", fecdist = "poisson", 
-//'   indiv = "individ", patch = "patchid", year = "year2",year.as.random = TRUE,
-//'   patch.as.random = TRUE, show.model.tables = TRUE, quiet = "partial")
+//'   indiv = "individ", patch = "patchid", year = "year2",
+//'   year.as.random = TRUE, patch.as.random = TRUE, show.model.tables = TRUE,
+//'   quiet = "partial")
 //' 
 //' lathmodels_mini <- miniMod(lathmodelsln3, hfv_data = lathvertln,
 //'   stageframe = lathframeln)
