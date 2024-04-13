@@ -23,41 +23,43 @@ using namespace arma;
 // 10. IntegerVector int_sort  Sort Integer Elements
 // 11. IntegerMatrix refsort_num  Index a Numeric Vector According to a Reference Vector
 // 12. IntegerVector refsort_str  Index a String Vector According to a Reference Vector
-// 13. arma::sp_mat spmat_log  Calculate Logarithms of Non-Zero Elements of Sparse Matrix
-// 14. Rcpp::IntegerVector shrink  Resize an IntegerVector
-// 15. IntegerVector index_l3  Find Indices of a Matching String in a StringVector
-// 16. List df_subset  Subset Data Frame
-// 17. List df_remove  Remove Rows With Specific Index Values From Data Frame
-// 18. List df_shedrows  Shrink Data Frame According to Index Vector
-// 19. List exp_grd  Repeat First Vector for Each Element of Second Vector
-// 20. bool df_duplicates  Search for Duplicate Data Frame Values
-// 21. List numeric_extractor  Extract Key Components From Simple Numerical Model
-// 22. List glm_extractor  Extract Key Components of lm/glm/negbin Objects
-// 23. List vglm_extractor  Extract Key Components of vglm Objects
-// 24. List zeroinfl_extractor  Extract Key Components of zeroinfl Objects
-// 25. List lme4_extractor  Extract Key Components of merMod Objects
-// 26. List glmmTMB_extractor  Extract Key Components of glmmTMB Objects
-// 27. List S3_extractor  Extract Core Components From S3 Vital Rate Models
-// 28. List S4_extractor  Extract Core Components From S4 Vital Rate Models
-// 29. List vrm_extractor  Extract Core Components of vrm_input Models
-// 30. NumericMatrix revelations  Create Matrices of Year and Patch Terms in Models
-// 31. double rimeotam  Create a Summation of Most Terms Needed in Vital Rate Calculation
-// 32. arma::ivec foi_counter  Count Elements in Each Random Individual Covariate Portion of Model
-// 33. NumericVector flightoficarus  Create Vector of Random Individual Covariate Terms
-// 34. StringVector bootson  Create Concatenated Vector of Random Individual Covariate Term Names
-// 35. NumericVector zero_flightoficarus  Create Vector of Random Individual Covariate Terms for Zero-Inflated Models
-// 36. StringVector zero_bootson  Create Concatenated Vector of Random Individual Covariate Term Names from a Zero-Inflated Model
-// 36. arma::imat foi_index  Create Index of Element Numbers for Random Individual Covariate Terms
-// 37. NumericMatrix revelations_leslie  Create Matrices of Year and Patch Terms in Models in Leslie Models
-// 38. arma::imat foi_index_leslie  Create Index of Element Numbers for Random Individual Covariate Terms in Leslie Models
-// 39. List modelextract  Extract Coefficients from Linear Vital Rate Models
-// 40. double preouterator  Estimate Value for Vital Rate Based on Inputs
-// 41. List jerzeibalowski  Estimate All Elements of Function-based Population Projection Matrix
-// 42. List motherbalowski  Estimate All Elements of Function-based Leslie Population Projection Matrix
-// 43. DataFrame loy_inator  Converts Labels Element to LOY Data Frame
-// 44. void matrix_reducer  Reduces Matrices In A Function-based lefkoMat Object
-// 45. int whichbrew  Assess if MPM is ahistorical, historical, age-by-stage, or Leslie
-// 46. bool df_compare  Check If Two Data Frames Are Equal
+// 13. IntegerMatrix refsort_str_m  Index a String Matrix According to a Reference Vector
+// 14. arma::sp_mat spmat_log  Calculate Logarithms of Non-Zero Elements of Sparse Matrix
+// 15. Rcpp::IntegerVector shrink  Resize an IntegerVector
+// 16. IntegerVector index_l3  Find Indices of a Matching String in a StringVector
+// 17. List df_subset  Subset Data Frame
+// 18. List df_remove  Remove Rows With Specific Index Values From Data Frame
+// 19. List df_shedrows  Shrink Data Frame According to Index Vector
+// 20. List exp_grd  Repeat First Vector for Each Element of Second Vector
+// 21. bool df_duplicates  Search for Duplicate Data Frame Values
+// 22. List numeric_extractor  Extract Key Components From Simple Numerical Model
+// 23. List glm_extractor  Extract Key Components of lm/glm/negbin Objects
+// 24. List vglm_extractor  Extract Key Components of vglm Objects
+// 25. List zeroinfl_extractor  Extract Key Components of zeroinfl Objects
+// 26. List lme4_extractor  Extract Key Components of merMod Objects
+// 27. List glmmTMB_extractor  Extract Key Components of glmmTMB Objects
+// 28. List S3_extractor  Extract Core Components From S3 Vital Rate Models
+// 29. List S4_extractor  Extract Core Components From S4 Vital Rate Models
+// 30. List vrm_extractor  Extract Core Components of vrm_input Models
+// 31. NumericMatrix revelations  Create Matrices of Year and Patch Terms in Models
+// 32. double rimeotam  Create a Summation of Most Terms Needed in Vital Rate Calculation
+// 33. arma::ivec foi_counter  Count Elements in Each Random Individual Covariate Portion of Model
+// 34. NumericVector flightoficarus  Create Vector of Random Individual Covariate Terms
+// 35. StringVector bootson  Create Concatenated Vector of Random Individual Covariate Term Names
+// 36. NumericVector zero_flightoficarus  Create Vector of Random Individual Covariate Terms for Zero-Inflated Models
+// 37. StringVector zero_bootson  Create Concatenated Vector of Random Individual Covariate Term Names from a Zero-Inflated Model
+// 38. arma::imat foi_index  Create Index of Element Numbers for Random Individual Covariate Terms
+// 39. NumericMatrix revelations_leslie  Create Matrices of Year and Patch Terms in Models in Leslie Models
+// 40. arma::imat foi_index_leslie  Create Index of Element Numbers for Random Individual Covariate Terms in Leslie Models
+// 41. List modelextract  Extract Coefficients from Linear Vital Rate Models
+// 42. double preouterator  Estimate Value for Vital Rate Based on Inputs
+// 43. List jerzeibalowski  Estimate All Elements of Function-based Population Projection Matrix
+// 44. List motherbalowski  Estimate All Elements of Function-based Leslie Population Projection Matrix
+// 45. DataFrame loy_inator  Converts Labels Element to LOY Data Frame
+// 46. void matrix_reducer  Reduces Matrices In A Function-based lefkoMat Object
+// 47. int whichbrew  Assess if MPM is ahistorical, historical, age-by-stage, or Leslie
+// 48. bool df_compare  Check If Two Data Frames Are Equal
+// 49. void pop_error  Standardized Error Messages
 
 
 
@@ -409,10 +411,10 @@ namespace LefkoUtils {
      return y;
   }
   
-  //' Index a Numeric Vector According to a Reference Vector
+  //' Index a Numeric Matrix According to a Reference Vector
   //' 
   //' Function \code{refsort_num()} takes a numeric matrix and replaces it with an
-  //' integer vector showing the position of each element in the input vector
+  //' integer matrix showing the position of each element in the input matrix
   //' within the reference vector.
   //' 
   //' @name refsort_num
@@ -420,7 +422,7 @@ namespace LefkoUtils {
   //' @param vec The matrix to index
   //' @param ref The vector to use as a reference
   //' 
-  //' @return An integer vector with integers referring to elements in vector
+  //' @return An integer matrix with integers referring to elements in vector
   //' \code{ref}.
   //' 
   //' @keywords internal
@@ -473,6 +475,38 @@ namespace LefkoUtils {
     return output;
   }
   
+  //' Index a String Matrix According to a Reference Vector
+  //' 
+  //' Function \code{refsort_str_m()} takes a string matrix and replaces it with
+  //' an integer matrix showing the position of each element in the input matrix
+  //' within the reference vector.
+  //' 
+  //' @name refsort_str_m
+  //' 
+  //' @param vec The vector to index
+  //' @param ref The vector to use as a reference
+  //' 
+  //' @return An integer matrix with integers referring to elements in vector
+  //' \code{ref}.
+  //' 
+  //' @keywords internal
+  //' @noRd
+  inline IntegerMatrix refsort_str_m(const CharacterMatrix& vec,
+    const CharacterVector& ref) {
+    int vec_length = vec.length();
+    int ref_length = ref.length();
+    
+    Rcpp::IntegerMatrix output(vec.nrow(), vec.ncol());
+    
+    for (int i = 0; i < vec_length; i++) {
+      for (int j = 0; j < ref_length; j++) {
+        if (stringcompare_hard(as<std::string>(vec[i]), as<std::string>(ref[j]))) output[i] = j + 1;
+      }
+    }
+    
+    return output;
+  }
+
   //' Calculate Logarithms of Non-Zero Elements of Sparse Matrix
   //' 
   //' Function \code{spmat_log} finds the non-zero elements in a sparse matrix,
@@ -2665,6 +2699,10 @@ namespace LefkoUtils {
       resp_family = "poisson";
       dist = 0;
     } else if (stringcompare_simple(distrib, "negbin", false)) {
+      resp_family = "negbin";
+      dist = 1;
+      theta = sigma_theta;
+    } else if (stringcompare_simple(distrib, "nbinom2", false)) {
       resp_family = "negbin";
       dist = 1;
       theta = sigma_theta;
@@ -8748,6 +8786,99 @@ namespace LefkoUtils {
     } else all_equal = false;
     
     return(all_equal);
+  }
+  
+  //' Standardized Error Messages
+  //' 
+  //' Function \code{pop_error()} produces standardized error messages.
+  //' 
+  //' @name pop_error
+  //' 
+  //' @param input1 First string input.
+  //' @param input2 Second string input.
+  //' @param input3 Third string input.
+  //' @param type Designates output message type.
+  //' 
+  //' @return Stops R and produces an error message.
+  //' 
+  //' @keywords internal
+  //' @noRd
+  inline void pop_error (String input1, String input2, String input3, int type = 1) {
+    String eat_my_shorts;
+    if (type == 1) {
+      eat_my_shorts = "Argument ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " should be entered as a list of ";
+      eat_my_shorts += input2;
+      eat_my_shorts += ".";
+      
+    } else if (type == 2) {
+      eat_my_shorts = "Argument ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " must be the same length as the number of ";
+      eat_my_shorts += input2;
+      eat_my_shorts += " entered in argument ";
+      eat_my_shorts += input3;
+      eat_my_shorts += ".";
+      
+    } else if (type == 3) {
+      eat_my_shorts = "Argument ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " should be entered as a";
+      eat_my_shorts += input2;
+      eat_my_shorts += ".";
+      
+    } else if (type == 4) {
+      eat_my_shorts = "Matrix ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " must be square.";
+      
+    } else if (type == 5) {
+      eat_my_shorts = "Matrix ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " is not recognized.";
+      
+    } else if (type == 6) {
+      eat_my_shorts = "Argument ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " must be a ";
+      eat_my_shorts += input2;
+      
+    } else if (type == 7) {
+      eat_my_shorts = "Argument ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " must be set to a ";
+      eat_my_shorts += input2;
+      eat_my_shorts += " object, or ";
+      eat_my_shorts += input3;
+      eat_my_shorts += " must be supplied with ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " not set.";
+      
+    } else if (type == 8) {
+      eat_my_shorts = "Values input for ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " in ";
+      eat_my_shorts += input2;
+      eat_my_shorts += " must be real numbers within set tolerance limits.";
+      
+    } else if (type == 9) {
+      eat_my_shorts = "Variable names designating ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " do not match variables in entered ";
+      eat_my_shorts += input2;
+      
+    } else if (type == 10) {
+      eat_my_shorts = "Argument ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " must be entered as a string vector showing status in times";
+      eat_my_shorts += " t+1 and t, and time t-1 if a historical MPM is desired.";
+      
+    }
+    
+    throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+    
+    return;
   }
 
 

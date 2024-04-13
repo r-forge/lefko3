@@ -8,11 +8,14 @@
 ## USER VISIBLE CHANGES
 
 * Some help entries have been corrected and updated.
+* Error messages standardized throughout much of the package.
 
 ## BUG FIXES
 
 * Function matrix_interp() no longer gives a fatal error when run on a
   historical lefkoLTRE object with part != 2.
+* Matrix creation and projection functions using vrm_input objects no longer
+  produce Gaussian output when provided with negative binomial inputs.
 
 # lefko3 6.2.1 (2024-02-24)
 
