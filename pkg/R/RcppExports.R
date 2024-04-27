@@ -891,7 +891,7 @@ NULL
 #' \code{stageframe} object as created by function \code{mpm_create()}
 #' (\code{FALSE}).
 #' 
-#' @return A dat frame of class \code{stageframe}.
+#' @return A data frame of class \code{stageframe}.
 #' 
 #' @export
 sf_skeleton <- function(stages, standard = TRUE) {

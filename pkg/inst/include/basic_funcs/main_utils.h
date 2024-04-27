@@ -8874,6 +8874,51 @@ namespace LefkoUtils {
       eat_my_shorts += " must be entered as a string vector showing status in times";
       eat_my_shorts += " t+1 and t, and time t-1 if a historical MPM is desired.";
       
+    } else if (type == 11) {
+      eat_my_shorts = "Argument ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " must be entered if using a";
+      eat_my_shorts += input2;
+      eat_my_shorts += " object.";
+      
+    } else if (type == 12) {
+      eat_my_shorts = "Argument ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " must be a";
+      eat_my_shorts += input2;
+      eat_my_shorts += " created with function ";
+      eat_my_shorts += input3;
+      eat_my_shorts += "().";
+      
+    } else if (type == 13) { 
+      eat_my_shorts = input1;
+      eat_my_shorts += " is not recognized in arguments ";
+      eat_my_shorts += input2;
+      eat_my_shorts += " or ";
+      eat_my_shorts += input3;
+      
+    } else if (type == 14) { 
+      eat_my_shorts = "Argument ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " must equal ";
+      eat_my_shorts += input2;
+      
+    } else if (type == 15) { 
+      eat_my_shorts = "Argument ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " is required if ";
+      eat_my_shorts += input2;
+      eat_my_shorts += " is not provided.";
+      
+    } else if (type == 16) {
+      eat_my_shorts = "Variable(s) coding for ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " not found in dataset.";
+      
+    } else if (type == 17) {
+      eat_my_shorts = "Some input ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " values not found in dataset.";
     }
     
     throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
