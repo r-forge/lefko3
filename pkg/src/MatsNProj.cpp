@@ -1498,8 +1498,7 @@ List normalpatrolgroup(const DataFrame& sge3, const arma::ivec& sge2stage2,
       
       // Sum all individuals with particular transition
       if (dataindex2i(j) >= no2stages) {
-        throw Rcpp::exception("Current stageframe does not hold all trait combinations in dataset.",
-          false);
+        throw Rcpp::exception("Current stageframe does not hold all trait combinations in dataset.", false);
       }
       stage2fec((dataindex2i(j)), 0) = stage2fec((dataindex2i(j)), 0) + 1.0; 
       if (dataalive3i(j) > 0) {
@@ -6479,10 +6478,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
       assume_markov = true;
       
       if (static_cast<int>(twinput_markov.n_cols) != num_years) {
-        String eat_my_shorts = "Time weight matrix must have the same number of columns as the number ";
-        eat_my_shorts += "of occasions in the dataset.";
-        
-        throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        pop_error("tweights", "occasions", "dataset", 20);
       }
       if (twinput_markov.n_cols != twinput_markov.n_rows) {
         pop_error("tweights", "", "", 4);
@@ -6491,12 +6487,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     } else if (is<NumericVector>(tweights)) {
       twinput = as<arma::vec>(tweights);
       
-      if (static_cast<int>(twinput.n_elem) != num_years) {
-        String eat_my_shorts = "Time weight vector must be the same length as the number ";
-        eat_my_shorts += "of occasions in the dataset.";
-        
-        throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
-      }
+      if (static_cast<int>(twinput.n_elem) != num_years) pop_error("tweights", "occasions", "dataset", 19);
       
     } else pop_error("tweights", "numeric vector or matrix.", "", 6);
     
@@ -6550,7 +6541,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     CharacterVector patch_int (patch);
     
     CharacterVector patches_unmatched = setdiff(patch_int, mainpatches);
-    if (patches_unmatched.length() > 0) pop_error("patch", "", "", 17);
+    if (patches_unmatched.length() > 0) pop_error("patch", "dataset", "", 17);
     patches_topull = patch_int;
     int crazy_patch {-1};
     if (patch_int.length() == 1) {
@@ -6613,9 +6604,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     if (is<DataFrame>(it_ROint)) {
       DataFrame it_intermediate = DataFrame(it_ROint);
       int it_size = static_cast<int>(it_intermediate.size());
-      if (it_size != 3) {
-        throw Rcpp::exception("Data frame ind_terms should have 3 columns and times rows.", false);
-      }
+      if (it_size != 3) pop_error("ind_terms", "data frame or matrix with 3 columns and times rows.", "", 6);
       
       inda_whatever = as<RObject>(it_intermediate[0]);
       indb_whatever = as<RObject>(it_intermediate[1]);
@@ -6626,9 +6615,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
       int it_rows = it_intermediate.nrow();
       int it_cols = it_intermediate.ncol();
       
-      if (it_rows != 3 && it_cols != 3) {
-        throw Rcpp::exception("Numeric matrix ind_terms should have 3 columns and times rows.", false);
-      }
+      if (it_rows != 3 && it_cols != 3) pop_error("ind_terms", "data frame or matrix with 3 columns and times rows.", "", 6);
       
       if (it_cols == 3) {
         NumericVector chuck1 = it_intermediate(_, 0);
@@ -6650,9 +6637,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
       int it_rows = it_intermediate.nrow();
       int it_cols = it_intermediate.ncol();
       
-      if (it_rows != 3 && it_cols != 3) {
-        throw Rcpp::exception("String matrix ind_terms should have 3 columns and times rows.", false);
-      }
+      if (it_rows != 3 && it_cols != 3) pop_error("ind_terms", "data frame or matrix with 3 columns and times rows.", "", 6);
       
       if (it_cols == 3) {
         CharacterVector chuck1 = it_intermediate(_, 0);
@@ -6704,7 +6689,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
       for (int i = 0; i < inda_inputlength; i++) {
         for (int j = 0; j < maininda_length; j++) {
           if (!stringcompare_hard(as<std::string>(inda_another_int(i)), as<std::string>(inda_names_ch(j)))) {
-            pop_error("indcov a", "", "", 17);
+            pop_error("indcov a", "dataset", "", 17);
           }
         }
       }
@@ -6749,7 +6734,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
       for (int i = 0; i < indb_inputlength; i++) {
         for (int j = 0; j < mainindb_length; j++) {
           if (!stringcompare_hard(as<std::string>(indb_another_int(i)), as<std::string>(indb_names_ch(j)))) {
-            pop_error("indcov b", "", "", 17);
+            pop_error("indcov b", "dataset", "", 17);
           }
         }
       }
@@ -6794,7 +6779,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
       for (int i = 0; i < indc_inputlength; i++) {
         for (int j = 0; j < mainindc_length; j++) {
           if (!stringcompare_hard(as<std::string>(indc_another_int(i)), as<std::string>(indc_names_ch(j)))) {
-            pop_error("indcov c", "", "", 17);
+            pop_error("indcov c", "dataset", "", 17);
           }
         }
       }
@@ -6869,9 +6854,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
       int dt_rows = dt_mat.nrow();
       int dt_cols = dt_mat.ncol();
       
-      if (dt_rows != 14 && dt_cols != 14) {
-        throw Rcpp::exception("Deviation term matrix must have 14 columns.", false);
-      }
+      if (dt_rows != 14 && dt_cols != 14) pop_error("dev_terms", "data frame or matrix with 14 columns.", "", 6);
       
       if (dt_rows == 14) {
         surv_dev_extracted = dt_mat(0, _);
@@ -6920,9 +6903,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
       DataFrame dt_frame = as<DataFrame>(dt_intermediate);
       int dt_vars = static_cast<int>(dt_frame.size());
       
-      if (dt_vars != 14) {
-        throw Rcpp::exception("Deviation term matrix must have 14 columns.", false);
-      }
+      if (dt_vars != 14) pop_error("dev_terms", "data frame or matrix with 14 columns.", "", 6);
       
       RObject surv_dev_a = as<RObject>(dt_frame[0]);
       RObject obs_dev_a = as<RObject>(dt_frame[1]);
@@ -6984,9 +6965,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
         jmatst_dev_extracted = as<NumericVector>(jmatst_dev_a);
       } else throw Rcpp::exception("Some dev_terms columns are not numeric.", false);
       
-    } else {
-      throw Rcpp::exception("Argument dev_terms must be a data frame with 14 numeric variables.", false);
-    }
+    } else pop_error("dev_terms", "data frame with 14 numeric variables.", "", 6);
   } else {
     veclimits = 1;
     surv_dev_extracted = clone(model0);
@@ -7301,10 +7280,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     
     for (int i = 0; i < dvr_style_.length(); i++) {
       if (dvr_yn_(i) == true) {
-        if (dvr_style_(i) < 1 || dvr_style_(i) > 4) {
-          String eat_my_shorts = "Some density inputs are not in an accepted style.";
-          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
-        }
+        if (dvr_style_(i) < 1 || dvr_style_(i) > 4) pop_error("density inputs", "", "", 21);
         
         if (NumericVector::is_na(dvr_alpha_(i))) pop_error("beta", "density dependence", "", 8);
         if (NumericVector::is_na(dvr_beta_(i))) pop_error("beta", "density dependence", "", 8);
@@ -7440,8 +7416,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     arma::vec start_values = as<arma::vec>(start_thru["value"]);
     
     if (static_cast<int>(start_elems.max()) > (meanmatrows - 1)) {
-      throw Rcpp::exception("Start vector input frame includes element indices too high for this MPM.",
-        false);
+      throw Rcpp::exception("Start vector input frame includes element indices too high for this MPM.", false);
     }
     for (int i = 0; i < static_cast<int>(start_elems.n_elem); i++) {
       startvec(start_elems(i)) = start_values(i);
@@ -7449,10 +7424,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     
   } else if (start_vec.isNotNull()) {
     startvec = as<arma::vec>(start_vec);
-    if (static_cast<int>(startvec.n_elem) != meanmatrows) {
-      throw Rcpp::exception("Start vector must be the same length as the number of rows in each matrix.",
-        false);
-    }
+    if (static_cast<int>(startvec.n_elem) != meanmatrows) pop_error("start_vec", "rows", "MPM matrices", 19);
     
   } else {
     startvec.set_size(meanmatrows);
@@ -7615,10 +7587,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     n_dyn_elems = static_cast<int>(dyn_index321.n_elem);
     
     for (int i = 0; i < static_cast<int>(dyn_style.n_elem); i++) {
-      if (dyn_style(i) < 1 || dyn_style(i) > 4) {
-        String eat_my_shorts = "Some density inputs are not in an accepted style.";
-        throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
-      }
+      if (dyn_style(i) < 1 || dyn_style(i) > 4) pop_error("density inputs", "", "", 21);
       
       if (dyn_style(i) == 1) {
         if (dyn_beta(i) > exp_tol) {
@@ -8728,7 +8697,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
           matches++;
         }
       }
-      if (matches == 0) throw Rcpp::exception("Unrecognized object entered as stageframe.", false);
+      if (matches == 0) throw Rcpp::exception("Argument stageframe is not valid.", false);
       
       StringVector sf_vars (as<StringVector>(stageframe_.attr("names")));
       
@@ -8743,9 +8712,9 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
           }
         }
       }
-      if (matches != 7) throw Rcpp::exception("Unrecognized object entered as stageframe.", false);
+      if (matches != 7) throw Rcpp::exception("Argument stageframe is not valid.", false);
       
-    } else throw Rcpp::exception("Unrecognized object entered as stageframe.", false);
+    } else throw Rcpp::exception("Argument stageframe is not valid.", false);
   } else {
     if (stage) throw Rcpp::exception("Valid stageframe is required for all stage-based MPMs.", false);
   }
@@ -8783,13 +8752,9 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
       overwrite_used = true;
       
       int no_ovr_vars {static_cast<int>(overwrite_.length())};
-      if (no_ovr_vars != 9) {
-        throw Rcpp::exception("Unrecognized object entered in argument overwrite.", false);
-      }
+      if (no_ovr_vars != 9) throw Rcpp::exception("Argument overwrite is not valid.", false);
       
-    } else {
-      throw Rcpp::exception("Unrecognized object entered in argument overwrite.", false);
-    }
+    } else throw Rcpp::exception("Argument overwrite is not valid.", false);
   }
   
   NumericMatrix repmatrix_;
@@ -8822,9 +8787,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
           pop_error("dev_terms", "numeric vector of 2 elements if developing Leslie MPMs", "", 3);
         }
       } else {
-        if (dvi_length != 14) {
-          throw Rcpp::exception("Argument dev_terms must be a numeric vector of 14 elements.", false);
-        }
+        if (dvi_length != 14) pop_error("dev_terms", "numeric vector of 14 elements.", "", 6);
       }
       dev_terms_ = dvi;
     }
@@ -8911,7 +8874,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
     if (is<List>(modelsuite_entered)) {
       modelsuite_ = as<List>(modelsuite_entered);
       
-    } else throw Rcpp::exception("Argument modelsuite is not recognized.", false);
+    } else throw Rcpp::exception("Argument modelsuite is not valid.", false);
     
     bool ms_has_class = modelsuite_.hasAttribute("class");
     StringVector modelsuite_class;
@@ -9154,10 +9117,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
       int age_no {static_cast<int>(age_.length())};
       
       if (age_no > 1) {
-        String eat_my_shorts = "Agecol term must be a single string value corresponding ";
-        eat_my_shorts += "to the name of the variable coding for age at time t.";
-        
-        throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        pop_error("agecol", "single string", "variable coding for age at time t", 22);
       }
       
       age_var = String(age_(0));
@@ -9183,8 +9143,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
       age_var = data_vars(age_var_int);
       
     } else {
-      throw Rcpp::exception("Please enter the name of the variable coding age at time t.",
-        false);
+      throw Rcpp::exception("Please enter the name of the variable coding age at time t.", false);
     }
   } else if (age && raw && !paramnames_provided) {
     String age_var_ {"obsage"};
@@ -9198,10 +9157,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
       }
     }
     if (matches != 1) {
-      String eat_my_shorts = "Default agecol variable name is not correct. ";
-      eat_my_shorts += "Please supply correct variable name.";
-      
-      throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+      throw Rcpp::exception("Default agecol variable name is not correct. Enter correct variable.", false);
     }
   }
   
@@ -9237,7 +9193,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
     }
     
     if (IntegerVector::is_na(last_age)) {
-      throw Rcpp::exception("Age-based matrices require a valid final age to be entered.", false);
+      throw Rcpp::exception("Age-based matrices require a valid final age.", false);
     }
     if (IntegerVector::is_na(fecage_min)) fecage_min = start_age;
     if (IntegerVector::is_na(fecage_max)) fecage_max = last_age;
@@ -9483,7 +9439,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         int alive_no {static_cast<int>(alive_.length())};
         IntegerVector alive_int_ (alive_no);
         
-        if (alive_no < 2 || alive_no > 3) pop_error("alive", "", "", 10);
+        if (alive_no < 2 || alive_no > 3) pop_error("alive", "status", "", 10);
         
         int matches {0};
         for (int i = 0; i < alive_no; i++) {
@@ -9556,7 +9512,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         int obsst_no {static_cast<int>(obsst_.length())};
         IntegerVector obsst_int_ (obsst_no);
         
-        if (obsst_no < 2 || obsst_no > 3) pop_error("obsst", "", "", 10);
+        if (obsst_no < 2 || obsst_no > 3) pop_error("obsst", "observation status", "", 10);
         
         int matches {0};
         for (int i = 0; i < obsst_no; i++) {
@@ -9586,7 +9542,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         obsst_ = obsst_string;
         obsst_int = obsst_int_;
         
-      } else pop_error("obsst", "", "", 10);
+      } else pop_error("obsst", "observation status", "", 10);
       
     } else if (raw && stage) {
       arma::uvec mso;
@@ -9639,7 +9595,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         int size_no {static_cast<int>(size_.length())};
         IntegerVector size_int_ (size_no);
         
-        if (size_no < 2 || size_no > 3) pop_error("size", "", "", 10);
+        if (size_no < 2 || size_no > 3) pop_error("size", "primary size", "", 10);
         
         int matches {0};
         for (int i = 0; i < size_no; i++) {
@@ -9669,7 +9625,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         size_ = size_string;
         size_int = size_int_;
         
-      } else pop_error("size", "", "", 10);
+      } else pop_error("size", "primary size", "", 10);
     } else if (raw && stage) {
       int size_no {3};
       if (historical) {
@@ -9701,7 +9657,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         int sizeb_no {static_cast<int>(sizeb_.length())};
         IntegerVector sizeb_int_ (sizeb_no);
         
-        if (sizeb_no < 2 || sizeb_no > 3) pop_error("sizeb", "", "", 10);
+        if (sizeb_no < 2 || sizeb_no > 3) pop_error("sizeb", "secondary size", "", 10);
         
         int matches {0};
         for (int i = 0; i < sizeb_no; i++) {
@@ -9731,7 +9687,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         sizeb_ = sizeb_string;
         sizeb_int = sizeb_int_;
         
-      } else pop_error("sizeb", "", "", 10);
+      } else pop_error("sizeb", "secondary size", "", 10);
     } else if (raw && stage) {
       arma::vec mssb;
       
@@ -9774,8 +9730,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
           }
         }
         if (matches != size_no) {
-          throw Rcpp::exception("Default secondary size variable names do not match data.",
-            false);
+          throw Rcpp::exception("Default secondary size variable names do not match data.", false);
         }
       } else {
         if (historical) {
@@ -9795,7 +9750,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         int sizec_no {static_cast<int>(sizec_.length())};
         IntegerVector sizec_int_ (sizec_no);
         
-        if (sizec_no < 2 || sizec_no > 3) pop_error("sizec", "", "", 10);
+        if (sizec_no < 2 || sizec_no > 3) pop_error("sizec", "tertiary size", "", 10);
         
         int matches {0};
         for (int i = 0; i < sizec_no; i++) {
@@ -9825,7 +9780,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         sizec_ = sizec_string;
         sizec_int = sizec_int_;
         
-      } else pop_error("sizec", "", "", 10);
+      } else pop_error("sizec", "tertiary size", "", 10);
     } else if (raw && stage) {
       arma::vec mssc;
       
@@ -9884,7 +9839,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         int repst_no {static_cast<int>(repst_.length())};
         IntegerVector repst_int_ (repst_no);
         
-        if (repst_no < 2 || repst_no > 3) pop_error("repst", "", "", 10);
+        if (repst_no < 2 || repst_no > 3) pop_error("repst", "reproductive status", "", 10);
         
         int matches {0};
         for (int i = 0; i < repst_no; i++) {
@@ -9914,7 +9869,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         repst_ = repst_string;
         repst_int = repst_int_;
         
-      } else pop_error("repst", "", "", 10);
+      } else pop_error("repst", "reproductive status", "", 10);
     } else if (raw) {
       arma::uvec msr;
       
@@ -9967,7 +9922,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         int matst_no {static_cast<int>(matst_.length())};
         IntegerVector matst_int_ (matst_no);
         
-        if (matst_no < 2 || matst_no > 3) pop_error("matst", "", "", 10);
+        if (matst_no < 2 || matst_no > 3) pop_error("matst", "maturity status", "", 10);
         
         int matches {0};
         for (int i = 0; i < matst_no; i++) {
@@ -9997,7 +9952,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         matst_ = matst_string;
         matst_int = matst_int_;
         
-      } else pop_error("matst", "", "", 10);
+      } else pop_error("matst", "maturity status", "", 10);
     } else if (raw && stage) {
       arma::uvec msm;
       
@@ -10049,7 +10004,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         int fec_no {static_cast<int>(fec_.length())};
         IntegerVector fec_int_ (fec_no);
         
-        if (fec_no < 2 || fec_no > 3) pop_error("fec", "", "", 10);
+        if (fec_no < 2 || fec_no > 3) pop_error("fec", "fecundity", "", 10);
         
         int matches {0};
         for (int i = 0; i < fec_no; i++) {
@@ -10079,7 +10034,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         fec_ = fec_string;
         fec_int = fec_int_;
         
-      } else pop_error("fec", "", "", 10);
+      } else pop_error("fec", "fecundity", "", 10);
     } else if (raw) {
       int fec_no {3};
       if (historical) {
@@ -10115,10 +10070,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         int year_no {static_cast<int>(year_.length())};
         
         if (year_no > 1) {
-          String eat_my_shorts = "year term must be a single string value corresponding ";
-          eat_my_shorts += "to the name of the variable coding for time t.";
-          
-          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+          pop_error("year", "single string", "variable coding for time t.", 22);
         }
         
         year_var = String(year_(0));
@@ -10183,10 +10135,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         int pop_no {static_cast<int>(pop_.length())};
         
         if (pop_no > 1) {
-          String eat_my_shorts = "popcol term must be a single string value corresponding ";
-          eat_my_shorts += "to the name of the variable coding for population identity.";
-          
-          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+          pop_error("popcol", "single string", "variable coding for population identity.", 22);
         }
         
         pop_var = String(pop_(0));
@@ -10249,10 +10198,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         int patch_no {static_cast<int>(patch_.length())};
         
         if (patch_no > 1) {
-          String eat_my_shorts = "patchcol term must be a single string value corresponding ";
-          eat_my_shorts += "to the name of the variable coding for patch identity.";
-          
-          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+          pop_error("patchcol", "single string", "variable coding for patch identity.", 22);
         }
         
         patch_var = String(patch_(0));
@@ -10318,10 +10264,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         int indiv_no {static_cast<int>(indiv_.length())};
         
         if (indiv_no > 1) {
-          String eat_my_shorts = "indivcol term must be a single string value corresponding ";
-          eat_my_shorts += "to the name of the variable coding for individual identity.";
-          
-          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+          pop_error("indivcol", "single string", "variable coding for individual identity.", 22);
         }
         
         indiv_var = String(indiv_(0));
@@ -10788,12 +10731,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
       int stages_no {static_cast<int>(stages_.length())};
       IntegerVector stages_int_ (stages_no);
       
-      if (stages_no < 2 || stages_no > 3) {
-        String eat_my_shorts = "Argument stages must be entered as a string vector showing status";
-        eat_my_shorts += " in times t+1 and t, and time t-1 if a historical MPM is desired.";
-        
-        throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
-      }
+      if (stages_no < 2 || stages_no > 3) pop_error("stages", "stage identity", "", 10);
       
       int matches {0};
       for (int i = 0; i < stages_no; i++) {
@@ -10825,12 +10763,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
       stages_ = stages_string;
       stages_int = stages_int_;
       
-    } else {
-      String eat_my_shorts = "Please enter a string vector of valid variable names coding for option";
-      eat_my_shorts += " stages in times t+1 and t, and time t-1 if a historical MPM is desired.";
-      
-      throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
-    }
+    } else pop_error("stages", "stage identity", "", 10);
     new_stage3 = as<StringVector>(data_[stages_int(0)]);
     new_stage2 = as<StringVector>(data_[stages_int(1)]);
     if (historical) new_stage1 = as<StringVector>(data_[stages_int(2)]);
@@ -11393,9 +11326,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
           for (int j = 0; j < inda_names_length; j++) {
             if (stringcompare_hard(String(inda_cat(i)), String(inda_names(j)))) inda_matches++;
           }
-          if (inda_matches == 0) {
-            throw Rcpp::exception("Some values entered for inda do not match the data.", false);
-          }
+          if (inda_matches == 0) pop_error("inda", "dataset", "", 17);
         }
         
         if (inda_cat_length == 1) {
@@ -11685,7 +11616,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         for (int j = 0; j < inda_names_length; j++) {
           if (stringcompare_hard(String(inda_cat(i)), String(inda_names(j)))) inda_matches++;
         }
-        if (inda_matches == 0) throw Rcpp::exception("Some values entered for inda do not match data.", false);
+        if (inda_matches == 0) pop_error("inda", "dataset", "", 17);
       }
       
       if (inda_cat_length == 1) {
@@ -11873,9 +11804,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
           for (int j = 0; j < indb_names_length; j++) {
             if (stringcompare_hard(String(indb_cat(i)), String(indb_names(j)))) indb_matches++;
           }
-          if (indb_matches == 0) {
-            throw Rcpp::exception("Some values entered for indb do not match data.", false);
-          }
+          if (indb_matches == 0) pop_error("indb", "dataset", "", 17);
         }
         
         if (indb_cat_length == 1) {
@@ -12164,10 +12093,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         for (int j = 0; j < indb_names_length; j++) {
           if (stringcompare_hard(String(indb_cat(i)), String(indb_names(j)))) indb_matches++;
         }
-        if (indb_matches == 0) {
-          throw Rcpp::exception("Some values entered for indb do not match the data.",
-            false);
-        }
+        if (indb_matches == 0) pop_error("indb", "dataset", "", 17);
       }
       
       if (indb_cat_length == 1) {
@@ -12355,9 +12281,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
           for (int j = 0; j < indc_names_length; j++) {
             if (stringcompare_hard(String(indc_cat(i)), String(indc_names(j)))) indc_matches++;
           }
-          if (indc_matches == 0) {
-            throw Rcpp::exception("Some values entered for indc do not match data.", false);
-          }
+          if (indc_matches == 0) pop_error("indc", "dataset", "", 17);
         }
         
         if (indc_cat_length == 1) {
@@ -12646,10 +12570,7 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         for (int j = 0; j < indc_names_length; j++) {
           if (stringcompare_hard(String(indc_cat(i)), String(indc_names(j)))) indc_matches++;
         }
-        if (indc_matches == 0) {
-          throw Rcpp::exception("Some values entered for indc do not match data.",
-            false);
-        }
+        if (indc_matches == 0) pop_error("indc", "dataset", "", 17);
       }
       
       if (indc_cat_length == 1) {
@@ -15257,9 +15178,7 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
   
   if (theclairvoyant < 1) pop_error("times", "positive integer", "", 3);
   if (nreps < 1) pop_error("nreps", "positive integer", "", 3);
-  if (substoch < 0 || substoch > 2) {
-    throw Rcpp::exception("Option substoch must be set to 0, 1, or 2.", false);
-  }
+  if (substoch < 0 || substoch > 2) pop_error("substoch", "0, 1, or 2", "", 14);
   
   if (quiet) sub_warnings = false;
   
@@ -15307,9 +15226,7 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
       } else if (no_check > 0) { 
         sparse_auto = false;
         sparse_switch = 0;
-      } else {
-        throw Rcpp::exception("Value entered for argument sparse not understood.", false);
-      }
+      } else throw Rcpp::exception("Value entered for argument sparse not understood.", false);
     }
   }
   
@@ -15469,13 +15386,7 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
       arma::vec dyn_beta = as<arma::vec>(dens_input["beta"]);
       
       for (int i = 0; i < static_cast<int>(dyn_style.n_elem); i++) {
-        if (dyn_style(i) < 1 || dyn_style(i) > 4) {
-          String eat_my_shorts = "Some density inputs are stated as yielding density ";
-          String eat_my_shorts1 = "dependence but not in an accepted style.";
-          eat_my_shorts += eat_my_shorts1;
-          
-          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
-        }
+        if (dyn_style(i) < 1 || dyn_style(i) > 4) pop_error("density inputs", "", "", 21);
         
         if (dyn_style(i) == 1) {
           if (dyn_beta(i) > exp_tol) {
@@ -15562,10 +15473,7 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
           if (years_[i] == uniqueyears[j]) member_sum++;
         }
         if (member_sum == 0) {
-          String eat_my_shorts = "Option year includes time indices that ";
-          eat_my_shorts += "do not exist in the input lefkoMat object.";
-          
-          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+          pop_error("year", "input lefkoMat object", "", 17);
         }
         member_sum = 0;
       }
@@ -15593,25 +15501,17 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
         assume_markov = true;
         
         if (static_cast<int>(twinput_markov.n_cols) != yl) {
-          String eat_my_shorts = "Time weight matrix must have the same number of columns as the number ";
-          eat_my_shorts += "of occasions represented in the lefkoMat object used as input.";
-          
-          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+          pop_error("tweights", "occasions", "lefkoMat object used as input", 20);
         }
         if (twinput_markov.n_cols != twinput_markov.n_rows) {
-          String eat_my_shorts = "Time weight matrix must be square.";
-          
-          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+          throw Rcpp::exception("Time weight matrix must be square.", false);
         }
         
       } else if (is<NumericVector>(tweights)) {
         twinput = as<arma::vec>(tweights);
         
         if (static_cast<int>(twinput.n_elem) != yl) {
-          String eat_my_shorts = "Time weight vector must be the same length as the number ";
-          eat_my_shorts += "of occasions represented in the lefkoMat object used as input.";
-          
-          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+          pop_error("tweights", "occasions", "lefkoMat object used as input", 19);
         }
         
       } else pop_error("tweights", "non-negative numeric vector or matrix.", "", 6);
@@ -15746,8 +15646,7 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
     } else if (start_vec.isNotNull()) {
       startvec = as<arma::vec>(start_vec);
       if (static_cast<int>(startvec.n_elem) != meanmatrows) {
-        throw Rcpp::exception("Start vector must be the same length as the number of rows in each matrix.",
-          false);
+        pop_error("start_vec", "rows", "MPM matrices", 19);
       }
       
     } else {
@@ -16114,10 +16013,7 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
         assume_markov = true;
         
         if (static_cast<int>(twinput_markov.n_cols) != yl) {
-          String eat_my_shorts = "Time weight matrix must have the same number of columns as the number ";
-          eat_my_shorts += "of occasions represented in the lefkoMat object used as input.";
-          
-          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+          pop_error("tweights", "occasions", "lefkoMat object used as input", 20);
         }
         if (twinput_markov.n_cols != twinput_markov.n_rows) {
           throw Rcpp::exception("Time weight matrix must be square.", false);
@@ -16127,10 +16023,7 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
         twinput = as<arma::vec>(tweights);
         
         if (static_cast<int>(twinput.n_elem) != yl) {
-          String eat_my_shorts = "Time weight vector must be the same length as the number ";
-          eat_my_shorts += "of occasions represented in the lefkoMat object used as input.";
-          
-          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+          pop_error("tweights", "occasions", "lefkoMat object used as input", 19);
         }
         
       } else pop_error("tweights", "non-negative numeric vector or matrix.", "", 6);
@@ -16146,8 +16039,7 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
     if (start_vec.isNotNull()) {
       startvec = as<arma::vec>(start_vec);
       if (static_cast<int>(startvec.n_elem) != matrows) {
-        String eat_my_shorts = "Start vector must be same length as number of rows in each matrix";
-        throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        pop_error("start_vec", "rows", "MPM matrices", 19);
       }
       
     } else {
@@ -16170,12 +16062,7 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
         for (int j = 0; j < yl; j++) {
           if (years_[i] == static_cast<int>(uniqueyears[j])) member_sum++;
         }
-        if (member_sum == 0) {
-          String eat_my_shorts = "Argument year includes time indices that do ";
-          eat_my_shorts += "not exist in the input lefkoMat object.";
-          
-          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
-        }
+        if (member_sum == 0) pop_error("year", "lefkoMat object", "", 17);
         member_sum = 0;
       }
       
@@ -16428,9 +16315,7 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
       } else if (no_check > 0) { 
         sparse_auto = false;
         sparse_switch = 0;
-      } else {
-        throw Rcpp::exception("Value entered for argument sparse not understood.", false);
-      }
+      } else throw Rcpp::exception("Argument sparse is not valid.", false);
     }
   }
   
@@ -16468,8 +16353,7 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
     }
     
     if (labels.length() < 3) {
-      String eat_my_shorts = "This function requires annual matrices, and cannot take mean matrices.";
-      throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+      throw Rcpp::exception("This function requires annual matrices, and cannot take mean matrices.", false);
     }
     
     StringVector poporder = as<StringVector>(labels["pop"]);
@@ -16498,10 +16382,7 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
         assume_markov = true;
         
         if (static_cast<int>(twinput_markov.n_cols) != yl) {
-          String eat_my_shorts = "Time weight matrix must have the same number of columns as the number ";
-          eat_my_shorts += "of occasions represented in the lefkoMat object used as input.";
-          
-          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+          pop_error("tweights", "occasions", "lefkoMat object used as input", 20);
         }
         if (twinput_markov.n_cols != twinput_markov.n_rows) {
           throw Rcpp::exception("Time weight matrix must be square.", false);
@@ -16511,10 +16392,7 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
         twinput = as<arma::vec>(tweights);
         
         if (static_cast<int>(twinput.n_elem) != yl) {
-          String eat_my_shorts = "Time weight vector must be the same length as the number ";
-          eat_my_shorts += "of occasions represented in the lefkoMat object used as input.";
-          
-          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+          pop_error("tweights", "occasions", "lefkoMat object used as input", 19);
         }
         
       } else pop_error("tweights", "non-negative numeric vector or matrix.", "", 6);
@@ -16802,10 +16680,7 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
         assume_markov = true;
         
         if (static_cast<int>(twinput_markov.n_cols) != yl) {
-          String eat_my_shorts = "Time weight matrix must have the same number of columns as the number ";
-          eat_my_shorts += "of occasions represented in the lefkoMat object used as input.";
-          
-          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+          pop_error("tweights", "occasions", "lefkoMat object used as input", 20);
         }
         if (twinput_markov.n_cols != twinput_markov.n_rows) {
           throw Rcpp::exception("Time weight matrix must be square.", false);
@@ -16815,10 +16690,7 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
         twinput = as<arma::vec>(tweights);
         
         if (static_cast<int>(twinput.n_elem) != yl) {
-          String eat_my_shorts = "Time weight vector must be the same length as the number ";
-          eat_my_shorts += "of occasions represented in the lefkoMat object used as input.";
-          
-          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+          pop_error("tweights", "occasions", "lefkoMat object used as input", 19);
         }
         
       } else pop_error("tweights", "non-negative numeric vector or matrix.", "", 6);
@@ -17059,10 +16931,7 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
         assume_markov = true;
         
         if (static_cast<int>(twinput_markov.n_cols) != yl) {
-          String eat_my_shorts = "Time weight matrix must have the same number of columns as the number ";
-          eat_my_shorts += "of occasions represented in the lefkoMat object used as input.";
-          
-          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+          pop_error("tweights", "occasions", "lefkoMat object used as input", 20);
         }
         if (twinput_markov.n_cols != twinput_markov.n_rows) {
           throw Rcpp::exception("Time weight matrix must be square.", false);
@@ -17072,10 +16941,7 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
         twinput = as<arma::vec>(tweights);
         
         if (static_cast<int>(twinput.n_elem) != yl) {
-          String eat_my_shorts = "Time weight vector must be the same length as the number ";
-          eat_my_shorts += "of occasions represented in the lefkoMat object used as input.";
-          
-          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+          pop_error("tweights", "occasions", "lefkoMat object used as input", 19);
         }
         
       } else pop_error("tweights", "non-negative numeric vector or matrix.", "", 6);
@@ -17741,10 +17607,7 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
         assume_markov = true;
         
         if (static_cast<int>(twinput_markov.n_cols) != yl) {
-          String eat_my_shorts = "Time weight matrix must have the same number of columns as the number ";
-          eat_my_shorts += "of occasions represented in the lefkoMat object used as input.";
-          
-          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+          pop_error("tweights", "occasions", "lefkoMat object used as input", 20);
         }
         if (twinput_markov.n_cols != twinput_markov.n_rows) {
           throw Rcpp::exception("Time weight matrix must be square.", false);
@@ -17754,10 +17617,7 @@ Rcpp::List stoch_senselas(const List& mpm, int times = 10000,
         twinput = as<arma::vec>(tweights);
         
         if (static_cast<int>(twinput.n_elem) != yl) {
-          String eat_my_shorts = "Time weight vector must be the same length as the number ";
-          eat_my_shorts += "of occasions represented in the lefkoMat object used as input.";
-          
-          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+          pop_error("tweights", "occasions", "lefkoMat object used as input", 19);
         }
         
       } else pop_error("tweights", "non-negative numeric vector or matrix.", "", 6);
@@ -17953,8 +17813,7 @@ Rcpp::List ltre3matrix(const List& Amats, Rcpp::IntegerVector refnum,
   for (int i = 0; i < refmatnum; i++) {
     refnum(i) = refnum(i) - 1;
     if (refnum(i) < 0) {
-      String eat_my_shorts = "Please use R indexing for reference matrices (minimum: 1).";
-      throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+      throw Rcpp::exception("Use R indexing for reference matrices (min: 1).", false);
     }
   }
   
@@ -18138,8 +17997,7 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
   for (int i = 0; i < refmatnum; i++) {
     refnum(i) = refnum(i) - 1;
     if (refnum(i) < 0) {
-      String eat_my_shorts = "Please use R indexing for reference matrices (minimum: 1). ";
-      throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+      throw Rcpp::exception("Use R indexing for reference matrices (min: 1).", false);
     }
   }
   
@@ -18532,10 +18390,7 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
       assume_markov = true;
       
       if (static_cast<int>(twinput_markov.n_cols) != numyears) {
-        String eat_my_shorts = "Time weight matrix must have the same number of columns as the number ";
-        eat_my_shorts += "of occasions represented in the lefkoMat object used as input.";
-        
-        throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        pop_error("tweights", "occasions", "lefkoMat object used as input", 20);
       }
       if (twinput_markov.n_cols != twinput_markov.n_rows) {
         throw Rcpp::exception("Time weight matrix must be square.", false);
@@ -18545,10 +18400,7 @@ Rcpp::List sltre3matrix(const List& Amats, const DataFrame& labels,
       twinput = as<arma::vec>(tweights_);
       
       if (static_cast<int>(twinput.n_elem) != numyears) {
-        String eat_my_shorts = "Time weight vector must be the same length as the number ";
-        eat_my_shorts += "of occasions represented in the lefkoMat object used as input.";
-        
-        throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        pop_error("tweights", "occasions", "lefkoMat object used as input", 19);
       }
       
     } else pop_error("tweights", "non-negative numeric vector or matrix.", "", 6);
@@ -18763,8 +18615,7 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
   for (int i = 0; i < refmatnum; i++) {
     refnum(i) = refnum(i) - 1;
     if (refnum(i) < 0) {
-      String eat_my_shorts = "Please use R indexing for reference matrices (minimum: 1).";
-      throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+      throw Rcpp::exception("Use R indexing for reference matrices (min: 1).", false);
     }
   }
   
@@ -18823,10 +18674,7 @@ Rcpp::List snaltre3matrix(const List& Amats, const DataFrame& labels,
     tweights = as<arma::vec>(tweights_);
     
     if (static_cast<int>(tweights.n_elem) != numyears) {
-      String eat_my_shorts = "Time weight vector must be the same length as the number ";
-      eat_my_shorts += "of occasions in the reference matrix set.";
-      
-      throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+      pop_error("tweights", "occasions", "reference matrix set", 19);
     }
     
     double tw_multiplier = 1.0;
@@ -19912,10 +19760,7 @@ Rcpp::IntegerVector markov_run(Rcpp::IntegerVector main_times,
     start_time = main_times(0);
   }
   
-  if (!start_time_found) {
-    throw Rcpp::exception("Vector main_times does not include start_time value provided.",
-      false);
-  }
+  if (!start_time_found) pop_error("main_times", "start_time", "", 18);
   
   // Matrix standardization
   NumericVector mat_colsums (mat_rows);

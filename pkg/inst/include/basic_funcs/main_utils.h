@@ -8871,8 +8871,10 @@ namespace LefkoUtils {
     } else if (type == 10) {
       eat_my_shorts = "Argument ";
       eat_my_shorts += input1;
-      eat_my_shorts += " must be entered as a string vector showing status in times";
-      eat_my_shorts += " t+1 and t, and time t-1 if a historical MPM is desired.";
+      eat_my_shorts += " must be entered as a string vector showing ";
+      eat_my_shorts += input2;
+      eat_my_shorts += " in times t+1 and t, ";
+      eat_my_shorts += "and time t-1 if a historical MPM is desired.";
       
     } else if (type == 11) {
       eat_my_shorts = "Argument ";
@@ -8918,7 +8920,49 @@ namespace LefkoUtils {
     } else if (type == 17) {
       eat_my_shorts = "Some input ";
       eat_my_shorts += input1;
-      eat_my_shorts += " values not found in dataset.";
+      eat_my_shorts += " values are not found in the ";
+      eat_my_shorts += input2;
+      eat_my_shorts += ".";
+      
+    } else if (type == 18) {
+      eat_my_shorts = "Vector ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " does not include ";
+      eat_my_shorts += input2;
+      eat_my_shorts += " value(s) provided.";
+      
+    } else if (type == 19) {
+      eat_my_shorts = "Vector ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " must be the same length as the number of ";
+      eat_my_shorts += input2;
+      eat_my_shorts += " in the ";
+      eat_my_shorts += input3;
+      eat_my_shorts += ".";
+      
+    } else if (type == 20) {
+      eat_my_shorts = "Matrix ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " must be the same number of columns as the number of ";
+      eat_my_shorts += input2;
+      eat_my_shorts += " in the ";
+      eat_my_shorts += input3;
+      eat_my_shorts += ".";
+      
+    } else if (type == 21) {
+      eat_my_shorts = "Some ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " are not in an accepted style.";
+      
+    } else if (type == 22) {
+      eat_my_shorts = "Argument ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " must be a ";
+      eat_my_shorts += input2;
+      eat_my_shorts += " corresponding to the ";
+      eat_my_shorts += input3;
+      eat_my_shorts += ".";
+      
     }
     
     throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
