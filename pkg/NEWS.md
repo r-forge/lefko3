@@ -1,4 +1,4 @@
-# lefko3 6.2.2 (2024-XX-XX)
+# lefko3 6.3.0 (2024-XX-XX)
 
 ## NEW FEATURES
 
@@ -8,14 +8,23 @@
 ## USER VISIBLE CHANGES
 
 * Some help entries have been corrected and updated.
+
 * Error messages standardized throughout much of the package.
+
+* Function modelsearch() now outputs linear models with function calls that
+  point to correctly named data subsets, all of which can be exported with the
+  data_out argument.
 
 ## BUG FIXES
 
 * Function matrix_interp() no longer gives a fatal error when run on a
   historical lefkoLTRE object with part != 2.
+
 * Matrix creation and projection functions using vrm_input objects no longer
   produce Gaussian output when provided with negative binomial inputs.
+
+* Function verticalize3() no longer produces errors when reproductive status,
+  fecundity status, or observation status variables are not provided.
 
 # lefko3 6.2.1 (2024-02-24)
 

@@ -1461,7 +1461,15 @@ start_input <- function(mpm, stage2 = NA, stage1 = NA, age2 = NA, value = 1) {
           " does not differ significantly from a Gaussian distribution.\n"))
     }
   } else {
-    writeLines(paste0("  Variable ", term," appears to be an integer variable.\n"))
+    no_elems <- length(unique(correct_var))
+    
+    if (no_elems == 1) {
+      writeLines(paste0("  Variable ", term," appears to be constant.\n"))
+    } else if (no_elems == 2) {
+      writeLines(paste0("  Variable ", term," has only two values, and so appears to be a binary variable.\n"))
+    } else {
+      writeLines(paste0("  Variable ", term," appears to be an integer variable.\n"))
+    }
   }
   
   if (any(correct_var < 0)) {
