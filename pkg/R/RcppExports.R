@@ -1498,6 +1498,24 @@ NULL
 #' @param f1_indc_num A numeric vector of length equal to the number of years,
 #' holding values equal to the mean value of individual covariate \code{c} at
 #' each time \emph{t}-1 to be used in analysis.
+#' @param f2_annua_num A numeric vector of length equal to the number of years,
+#' holding values equal to the mean value of annual covariate \code{a} at
+#' each time \emph{t} to be used in analysis.
+#' @param f1_annua_num A numeric vector of length equal to the number of years,
+#' holding values equal to the mean value of annual covariate \code{a} at
+#' each time \emph{t}-1 to be used in analysis.
+#' @param f2_annub_num A numeric vector of length equal to the number of years,
+#' holding values equal to the mean value of annual covariate \code{b} at
+#' each time \emph{t} to be used in analysis.
+#' @param f1_annub_num A numeric vector of length equal to the number of years,
+#' holding values equal to the mean value of annual covariate \code{b} at
+#' each time \emph{t}-1 to be used in analysis.
+#' @param f2_annuc_num A numeric vector of length equal to the number of years,
+#' holding values equal to the mean value of annual covariate \code{c} at
+#' each time \emph{t} to be used in analysis.
+#' @param f1_annuc_num A numeric vector of length equal to the number of years,
+#' holding values equal to the mean value of annual covariate \code{c} at
+#' each time \emph{t}-1 to be used in analysis.
 #' @param f2_inda_cat A string vector of length equal to the number of years,
 #' holding categories of individual covariate \code{a} at each time \emph{t} to
 #' be used in analysis.
@@ -1636,6 +1654,21 @@ NULL
 #' each time \emph{t} to be used in analysis.
 #' @param f1_indc_num A numeric vector of length equal to the number of years,
 #' holding values equal to the mean value of individual covariate \code{c} at
+#' each time \emph{t}-1 to be used in analysis.
+#' @param f1_annua_num A numeric vector of length equal to the number of years,
+#' holding values equal to the mean value of annual covariate \code{a} at
+#' each time \emph{t}-1 to be used in analysis.
+#' @param f2_annub_num A numeric vector of length equal to the number of years,
+#' holding values equal to the mean value of annual covariate \code{b} at
+#' each time \emph{t} to be used in analysis.
+#' @param f1_annub_num A numeric vector of length equal to the number of years,
+#' holding values equal to the mean value of annual covariate \code{b} at
+#' each time \emph{t}-1 to be used in analysis.
+#' @param f2_annuc_num A numeric vector of length equal to the number of years,
+#' holding values equal to the mean value of annual covariate \code{c} at
+#' each time \emph{t} to be used in analysis.
+#' @param f1_annuc_num A numeric vector of length equal to the number of years,
+#' holding values equal to the mean value of annual covariate \code{c} at
 #' each time \emph{t}-1 to be used in analysis.
 #' @param f2_inda_cat A string vector of length equal to the number of years,
 #' holding categories of individual covariate \code{a} at each time \emph{t} to
@@ -1953,6 +1986,10 @@ NULL
 #' giving the values of individual covariates a, b, and c, respectively, for
 #' each projected time. Unused terms must be set to \code{0} (use of \code{NA}
 #' will produce errors.)
+#' @param ann_terms An optional data frame with 3 columns and \code{times} rows
+#' giving the values of annual covariates a, b, and c, respectively, for each
+#' projected time. Unused terms must be set to \code{0} (use of \code{NA} will
+#' produce errors.)
 #' @param dev_terms An optional data frame with 14 columns and \code{times}
 #' rows showing the values of the deviation terms to be added to each linear
 #' vital rate. The column order should be: 1: survival, 2: observation, 3:
@@ -2292,8 +2329,8 @@ NULL
 #' }
 #' 
 #' @export f_projection3
-f_projection3 <- function(format, prebreeding = TRUE, start_age = NA_integer_, last_age = NA_integer_, fecage_min = NA_integer_, fecage_max = NA_integer_, cont = TRUE, stochastic = FALSE, standardize = FALSE, growthonly = TRUE, repvalue = FALSE, integeronly = FALSE, substoch = 0L, ipm_cdf = TRUE, nreps = 1L, times = 10000L, repmod = 1.0, exp_tol = 700.0, theta_tol = 1e8, random_inda = FALSE, random_indb = FALSE, random_indc = FALSE, err_check = FALSE, quiet = FALSE, data = NULL, stageframe = NULL, supplement = NULL, repmatrix = NULL, overwrite = NULL, modelsuite = NULL, paramnames = NULL, year = NULL, patch = NULL, sp_density = NULL, ind_terms = NULL, dev_terms = NULL, surv_model = NULL, obs_model = NULL, size_model = NULL, sizeb_model = NULL, sizec_model = NULL, repst_model = NULL, fec_model = NULL, jsurv_model = NULL, jobs_model = NULL, jsize_model = NULL, jsizeb_model = NULL, jsizec_model = NULL, jrepst_model = NULL, jmatst_model = NULL, start_vec = NULL, start_frame = NULL, tweights = NULL, density = NULL, density_vr = NULL, sparse = NULL) {
-    .Call('_lefko3_f_projection3', PACKAGE = 'lefko3', format, prebreeding, start_age, last_age, fecage_min, fecage_max, cont, stochastic, standardize, growthonly, repvalue, integeronly, substoch, ipm_cdf, nreps, times, repmod, exp_tol, theta_tol, random_inda, random_indb, random_indc, err_check, quiet, data, stageframe, supplement, repmatrix, overwrite, modelsuite, paramnames, year, patch, sp_density, ind_terms, dev_terms, surv_model, obs_model, size_model, sizeb_model, sizec_model, repst_model, fec_model, jsurv_model, jobs_model, jsize_model, jsizeb_model, jsizec_model, jrepst_model, jmatst_model, start_vec, start_frame, tweights, density, density_vr, sparse)
+f_projection3 <- function(format, prebreeding = TRUE, start_age = NA_integer_, last_age = NA_integer_, fecage_min = NA_integer_, fecage_max = NA_integer_, cont = TRUE, stochastic = FALSE, standardize = FALSE, growthonly = TRUE, repvalue = FALSE, integeronly = FALSE, substoch = 0L, ipm_cdf = TRUE, nreps = 1L, times = 10000L, repmod = 1.0, exp_tol = 700.0, theta_tol = 1e8, random_inda = FALSE, random_indb = FALSE, random_indc = FALSE, err_check = FALSE, quiet = FALSE, data = NULL, stageframe = NULL, supplement = NULL, repmatrix = NULL, overwrite = NULL, modelsuite = NULL, paramnames = NULL, year = NULL, patch = NULL, sp_density = NULL, ind_terms = NULL, ann_terms = NULL, dev_terms = NULL, surv_model = NULL, obs_model = NULL, size_model = NULL, sizeb_model = NULL, sizec_model = NULL, repst_model = NULL, fec_model = NULL, jsurv_model = NULL, jobs_model = NULL, jsize_model = NULL, jsizeb_model = NULL, jsizec_model = NULL, jrepst_model = NULL, jmatst_model = NULL, start_vec = NULL, start_frame = NULL, tweights = NULL, density = NULL, density_vr = NULL, sparse = NULL) {
+    .Call('_lefko3_f_projection3', PACKAGE = 'lefko3', format, prebreeding, start_age, last_age, fecage_min, fecage_max, cont, stochastic, standardize, growthonly, repvalue, integeronly, substoch, ipm_cdf, nreps, times, repmod, exp_tol, theta_tol, random_inda, random_indb, random_indc, err_check, quiet, data, stageframe, supplement, repmatrix, overwrite, modelsuite, paramnames, year, patch, sp_density, ind_terms, ann_terms, dev_terms, surv_model, obs_model, size_model, sizeb_model, sizec_model, repst_model, fec_model, jsurv_model, jobs_model, jsize_model, jsizeb_model, jsizec_model, jrepst_model, jmatst_model, start_vec, start_frame, tweights, density, density_vr, sparse)
 }
 
 #' General Matrix Projection Model Creation
@@ -2460,6 +2497,21 @@ f_projection3 <- function(format, prebreeding = TRUE, start_age = NA_integer_, l
 #' occasion in the dataset. Defaults to \code{NULL}. Only used in
 #' function-based MPMs.
 #' @param indc Can be a single value to use for individual covariate \code{c}
+#' in all matrices, a pair of values to use for times \emph{t} and \emph{t}-1
+#' in historical matrices, or a vector of such values corresponding to each
+#' occasion in the dataset. Defaults to \code{NULL}. Only used in
+#' function-based MPMs.
+#' @param annua Can be a single value to use for annual covariate \code{a}
+#' in all matrices, a pair of values to use for times \emph{t} and \emph{t}-1
+#' in historical matrices, or a vector of such values corresponding to each
+#' occasion in the dataset. Defaults to \code{NULL}. Only used in
+#' function-based MPMs.
+#' @param annub Can be a single value to use for annual covariate \code{b}
+#' in all matrices, a pair of values to use for times \emph{t} and \emph{t}-1
+#' in historical matrices, or a vector of such values corresponding to each
+#' occasion in the dataset. Defaults to \code{NULL}. Only used in
+#' function-based MPMs.
+#' @param annuc Can be a single value to use for annual covariate \code{c}
 #' in all matrices, a pair of values to use for times \emph{t} and \emph{t}-1
 #' in historical matrices, or a vector of such values corresponding to each
 #' occasion in the dataset. Defaults to \code{NULL}. Only used in
@@ -2734,8 +2786,8 @@ f_projection3 <- function(format, prebreeding = TRUE, start_age = NA_integer_, l
 #' }
 #' 
 #' @export mpm_create
-mpm_create <- function(historical = FALSE, stage = TRUE, age = FALSE, devries = FALSE, reduce = FALSE, simple = FALSE, err_check = FALSE, data = NULL, year = NULL, pop = NULL, patch = NULL, stageframe = NULL, supplement = NULL, overwrite = NULL, repmatrix = NULL, alive = NULL, obsst = NULL, size = NULL, sizeb = NULL, sizec = NULL, repst = NULL, matst = NULL, fec = NULL, stages = NULL, yearcol = NULL, popcol = NULL, patchcol = NULL, indivcol = NULL, agecol = NULL, censorcol = NULL, modelsuite = NULL, paramnames = NULL, inda = NULL, indb = NULL, indc = NULL, dev_terms = NULL, density = NA_real_, CDF = TRUE, random_inda = FALSE, random_indb = FALSE, random_indc = FALSE, negfec = FALSE, exp_tol = 700L, theta_tol = 1e8L, censor = FALSE, censorkeep = NULL, start_age = NA_integer_, last_age = NA_integer_, fecage_min = NA_integer_, fecage_max = NA_integer_, fectime = 2L, fecmod = 1.0, cont = TRUE, prebreeding = TRUE, stage_NRasRep = FALSE, sparse_output = FALSE) {
-    .Call('_lefko3_mpm_create', PACKAGE = 'lefko3', historical, stage, age, devries, reduce, simple, err_check, data, year, pop, patch, stageframe, supplement, overwrite, repmatrix, alive, obsst, size, sizeb, sizec, repst, matst, fec, stages, yearcol, popcol, patchcol, indivcol, agecol, censorcol, modelsuite, paramnames, inda, indb, indc, dev_terms, density, CDF, random_inda, random_indb, random_indc, negfec, exp_tol, theta_tol, censor, censorkeep, start_age, last_age, fecage_min, fecage_max, fectime, fecmod, cont, prebreeding, stage_NRasRep, sparse_output)
+mpm_create <- function(historical = FALSE, stage = TRUE, age = FALSE, devries = FALSE, reduce = FALSE, simple = FALSE, err_check = FALSE, data = NULL, year = NULL, pop = NULL, patch = NULL, stageframe = NULL, supplement = NULL, overwrite = NULL, repmatrix = NULL, alive = NULL, obsst = NULL, size = NULL, sizeb = NULL, sizec = NULL, repst = NULL, matst = NULL, fec = NULL, stages = NULL, yearcol = NULL, popcol = NULL, patchcol = NULL, indivcol = NULL, agecol = NULL, censorcol = NULL, modelsuite = NULL, paramnames = NULL, inda = NULL, indb = NULL, indc = NULL, annua = NULL, annub = NULL, annuc = NULL, dev_terms = NULL, density = NA_real_, CDF = TRUE, random_inda = FALSE, random_indb = FALSE, random_indc = FALSE, negfec = FALSE, exp_tol = 700L, theta_tol = 1e8L, censor = FALSE, censorkeep = NULL, start_age = NA_integer_, last_age = NA_integer_, fecage_min = NA_integer_, fecage_max = NA_integer_, fectime = 2L, fecmod = 1.0, cont = TRUE, prebreeding = TRUE, stage_NRasRep = FALSE, sparse_output = FALSE) {
+    .Call('_lefko3_mpm_create', PACKAGE = 'lefko3', historical, stage, age, devries, reduce, simple, err_check, data, year, pop, patch, stageframe, supplement, overwrite, repmatrix, alive, obsst, size, sizeb, sizec, repst, matst, fec, stages, yearcol, popcol, patchcol, indivcol, agecol, censorcol, modelsuite, paramnames, inda, indb, indc, annua, annub, annuc, dev_terms, density, CDF, random_inda, random_indb, random_indc, negfec, exp_tol, theta_tol, censor, censorkeep, start_age, last_age, fecage_min, fecage_max, fectime, fecmod, cont, prebreeding, stage_NRasRep, sparse_output)
 }
 
 #' Estimate Stable Stage Distribution of Any Population Matrix
@@ -2884,7 +2936,8 @@ mpm_create <- function(historical = FALSE, stage = TRUE, age = FALSE, devries = 
 #' 
 #' \code{sens3matrix_spinp()} returns the sensitivity of lambda with respect
 #' to each element in a sparse matrix. This is accomplished via the
-#' \code{eigs_gen()} function in the C++ Armadillo library.
+#' \code{eigs_gen()} function in the C++ Armadillo library. Output is in
+#' standard matrix format.
 #' 
 #' @name .sens3matrix_spinp
 #' 
@@ -2930,7 +2983,8 @@ mpm_create <- function(historical = FALSE, stage = TRUE, age = FALSE, devries = 
 #' \code{sens3hlefko()} returns the sensitivity of lambda with respect
 #' to each historical stage-pair in the matrix, and the associated
 #' sensitivity for each life history stage. This is accomplished via the 
-#' \code{eigs_gen}() function in the C++ Armadillo library.
+#' \code{eigs_gen}() function in the C++ Armadillo library. Input is in sparse
+#' matrix format.
 #' 
 #' @name .sens3hlefko_sp
 #' 
@@ -3864,6 +3918,12 @@ markov_run <- function(main_times, mat, times = 10000L, start = NULL) {
 #' is used.
 #' @param indcovcused Logical value indicating whether individual covariate c
 #' is used.
+#' @param annucovaused Logical value indicating whether annual covariate a
+#' is used.
+#' @param annucovbused Logical value indicating whether annual covariate b
+#' is used.
+#' @param annucovcused Logical value indicating whether annual covariate c
+#' is used.
 #' @param pasrand A logical value indicating whether to treat patch as a random
 #' variable within mixed models.
 #' @param yasrand A logical value indicating whether to treat year as a random
@@ -3884,6 +3944,8 @@ markov_run <- function(main_times, mat, times = 10000L, start = NULL) {
 #' time \emph{t} (2) or time \emph{t}+1 (3) as the response for fecundity.
 #' @param repstcheck A boolean variable denoting whether reproductive status is
 #' being tested as a response within the suite of vital rates being estimated.
+#' @param interactions A boolean value indicating whether all two-way
+#' interactions between fixed factors should be created.
 #' 
 #' @return A list with four elements. The first and second are both one-element
 #' string vectors, with the first coding for the adult vital rate global model,
@@ -3985,6 +4047,12 @@ NULL
 #' to be tested in each of the 14 vital rate models.
 #' @param indcovcused A logical vector indicating if individual covariate c is
 #' to be tested in each of the 14 vital rate models.
+#' @param annucovaused A logical vector indicating if annual covariate a is to
+#' be tested in each of the 14 vital rate models.
+#' @param annucovbused A logical vector indicating if annual covariate b is to
+#' be tested in each of the 14 vital rate models.
+#' @param annucovcused A logical vector indicating if annual covariate c is to
+#' be tested in each of the 14 vital rate models.
 #' @param pasrand A logical value indicating whether to treat patch as a random
 #' variable within mixed models.
 #' @param yasrand A logical value indicating whether to treat year as a random
@@ -4015,6 +4083,8 @@ NULL
 #' secondary size model is zero-inflated.
 #' @param jsizec_zero A boolean variable indicating whether the juvenile
 #' tertiary size model is zero-inflated.
+#' @param interactions A boolean variable indicating whether to include two-way
+#' interactions among all fixed variables.
 #' 
 #' @return A list of four lists. The first list includes the 14 main global
 #' models covering all 14 vital rate responses, followed by an associated
@@ -4026,8 +4096,8 @@ NULL
 #'
 #' @keywords internal
 #' @noRd
-.stovokor <- function(surv, obs, size, sizeb, sizec, repst, fec, matstat, vitalrates, historical, suite, approach, nojuvs, juvsize, indiv, patch, year, age, densitycol, indcova, indcovb, indcovc, sizebused, sizecused, grouptest, ageused, densityused, indcovaused, indcovbused, indcovcused, pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac, ibasfac, icasfac, fectime, size_zero, sizeb_zero, sizec_zero, jsize_zero, jsizeb_zero, jsizec_zero) {
-    .Call('_lefko3_stovokor', PACKAGE = 'lefko3', surv, obs, size, sizeb, sizec, repst, fec, matstat, vitalrates, historical, suite, approach, nojuvs, juvsize, indiv, patch, year, age, densitycol, indcova, indcovb, indcovc, sizebused, sizecused, grouptest, ageused, densityused, indcovaused, indcovbused, indcovcused, pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac, ibasfac, icasfac, fectime, size_zero, sizeb_zero, sizec_zero, jsize_zero, jsizeb_zero, jsizec_zero)
+.stovokor <- function(surv, obs, size, sizeb, sizec, repst, fec, matstat, vitalrates, historical, suite, approach, nojuvs, juvsize, indiv, patch, year, age, densitycol, indcova, indcovb, indcovc, sizebused, sizecused, grouptest, ageused, densityused, indcovaused, indcovbused, indcovcused, annucovaused, annucovbused, annucovcused, pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac, ibasfac, icasfac, fectime, size_zero, sizeb_zero, sizec_zero, jsize_zero, jsizeb_zero, jsizec_zero, interactions) {
+    .Call('_lefko3_stovokor', PACKAGE = 'lefko3', surv, obs, size, sizeb, sizec, repst, fec, matstat, vitalrates, historical, suite, approach, nojuvs, juvsize, indiv, patch, year, age, densitycol, indcova, indcovb, indcovc, sizebused, sizecused, grouptest, ageused, densityused, indcovaused, indcovbused, indcovcused, annucovaused, annucovbused, annucovcused, pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac, ibasfac, icasfac, fectime, size_zero, sizeb_zero, sizec_zero, jsize_zero, jsizeb_zero, jsizec_zero, interactions)
 }
 
 #' Creates a Skeleton Paramnames Object for Use in Function-based Modeling

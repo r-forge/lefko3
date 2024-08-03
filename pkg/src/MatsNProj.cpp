@@ -11,6 +11,44 @@ using namespace arma;
 using namespace LefkoUtils;
 using namespace LefkoMats;
 
+
+
+// Index of functions
+// 
+// 1. sf_reassess() - Takes a stageframe as input, information supplied there and through the supplement, reproduction and overwrite tables to rearrange this into a format usable by the matrix creation functions
+// 2. sf_leslie() - Returns a data frame describing each age in a Leslie MPM in terms of ahistorical stage info
+// 3. specialpatrolgroup() - Calculates matrix transitions in raw historical matrices
+// 4. normalpatrolgroup() - Calculates matrix transitions in raw ahistorical martrices
+// 5. minorpatrolgroup() - Calculates matrix transitions in raw Leslie MPMs
+// 6. subvertedpatrolgroup() - Calculates matrix transitions in raw age-by-stage matrices
+// 7. raymccooney() - Takes various vital rate models and other parameters and coordinates them as input into the function-based matrix estimation functions
+// 8. mothermccooney() - Takes various vital rate models and other parameters and coordinates them as input into function fleslie()
+// 9. f_projection3() - Develops and projects function-based matrix models
+// 10. mpm_create() - Core workhorse function that creates all flavors of MPM in lefko3
+// 11. .ss3matrix() - Returns stable stage distribution for a dense or sparse matrix
+// 12. .ssmatrix_sp() - Returns stable stage distribution for a sparse matrix
+// 13. .rv3matrix() - Returns reproductive values in a dense or sparse matrix
+// 14. .rv3matrix_sp() - Returns reproductive values in a sparse matrix
+// 15. .sens3matrix() - Returns sensitivity of lambda to each element of sparse or dense matrix
+// 16. .sens3sp_matrix() - Returns sensitivity of lambda to each element in a sparse matrix, with output in sparse format
+// 17. .sens3matrix_spinp() - Returns sensitivity of lambda to each element in a sparse matrix, with output in dense matrix format
+// 18. .sens3hlefko() - Returns sensitivity of lambda to each historical stage-pair, and associated life stage
+// 19. .sens3hlefko_sp() - Returns sensitivity of lambda to each historical stage-pair, and associated life stage, with input in sparse format
+// 20. .elas3matrix() - Returns elasticity of lambda to each element in dense or sparse matrix
+// 21. .ekas3sp_matrix() - Returns elasticity of lambda to each element in sparse matrix, in sparse output
+// 22. .elas3hlefko() - Returns elasticity of lambda to each historical stage-pair, and each associated life stage
+// 23. .elas3sp_hlefko() - Returns elasticity of lambda to each historical stage-pair, and each associated life stage, with sparse input
+// 24. .proj3() - Cure functiuon running matrix projections used in other functions in lefko3
+// 25. .proj3sp() - Core function running sparse matrix projections used in other functions in lefko3
+// 26. .proj3dens() - Core function running density-dependent projections used in other functions in lefko3
+// 27. projection3() - Runs projection simulations with lefkoMat objects
+// 28. slambda3() - Estimates stochastic population growth rate in lefkoMat objects and other MPMs
+// 29. .stoch_senselas() - Estimates sensitivity and elasticity of matrix elements to a
+// 30. .ltre3matrix() - Returns one-way fixed deterministic LTRE matrix
+// 31. .sltre3matrix() - Returns one-way stochastic LTRE matrices
+// 32. .snaltre3matrix() - Returns one-way small noise approximation LTRE matrices
+// 33. markov_run() - Creates vector of randomly sampled times
+
 // Pop Char
 
 //' Standardize Stageframe For MPM Analysis
@@ -2416,6 +2454,24 @@ List subvertedpatrolgroup(const DataFrame& sge3, const arma::ivec& sge2index21,
 //' @param f1_indc_num A numeric vector of length equal to the number of years,
 //' holding values equal to the mean value of individual covariate \code{c} at
 //' each time \emph{t}-1 to be used in analysis.
+//' @param f2_annua_num A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of annual covariate \code{a} at
+//' each time \emph{t} to be used in analysis.
+//' @param f1_annua_num A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of annual covariate \code{a} at
+//' each time \emph{t}-1 to be used in analysis.
+//' @param f2_annub_num A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of annual covariate \code{b} at
+//' each time \emph{t} to be used in analysis.
+//' @param f1_annub_num A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of annual covariate \code{b} at
+//' each time \emph{t}-1 to be used in analysis.
+//' @param f2_annuc_num A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of annual covariate \code{c} at
+//' each time \emph{t} to be used in analysis.
+//' @param f1_annuc_num A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of annual covariate \code{c} at
+//' each time \emph{t}-1 to be used in analysis.
 //' @param f2_inda_cat A string vector of length equal to the number of years,
 //' holding categories of individual covariate \code{a} at each time \emph{t} to
 //' be used in analysis.
@@ -2513,8 +2569,12 @@ List raymccooney(const DataFrame& listofyears, const List& modelsuite,
   RObject maingroups, RObject mainindcova, RObject mainindcovb,
   RObject mainindcovc, const DataFrame& StageFrame, const DataFrame& OverWrite,
   const arma::mat& repmatrix, NumericVector f2_inda_num,
-  NumericVector f1_inda_num, NumericVector f2_indb_num, NumericVector f1_indb_num,
-  NumericVector f2_indc_num, NumericVector f1_indc_num, StringVector f2_inda_cat,
+  NumericVector f1_inda_num, NumericVector f2_indb_num,
+  NumericVector f1_indb_num, NumericVector f2_indc_num,
+  NumericVector f1_indc_num, NumericVector f2_annua_num,
+  NumericVector f1_annua_num, NumericVector f2_annub_num,
+  NumericVector f1_annub_num, NumericVector f2_annuc_num,
+  NumericVector f1_annuc_num, StringVector f2_inda_cat,
   StringVector f1_inda_cat, StringVector f2_indb_cat, StringVector f1_indb_cat,
   StringVector f2_indc_cat, StringVector f1_indc_cat, StringVector r2_inda,
   StringVector r1_inda, StringVector r2_indb, StringVector r1_indb,
@@ -2523,6 +2583,16 @@ List raymccooney(const DataFrame& listofyears, const List& modelsuite,
   int cont, int filter, bool negfec = false, bool nodata = false,
   double exp_tol = 700.0, double theta_tol = 1e8, bool cdf = true,
   bool err_check = false, bool simplicity = false, bool sparse = false) {
+  
+  
+  
+  
+  
+  /////
+  
+  
+  
+  
   
   // Dud dens_vr inputs
   Rcpp::DataFrame dvr_frame;
@@ -2932,6 +3002,156 @@ List raymccooney(const DataFrame& listofyears, const List& modelsuite,
     NumericVector jsizec_indcova1_zi;
     NumericVector jsizec_indcovb1_zi;
     NumericVector jsizec_indcovc1_zi;
+    
+    
+    
+    
+    
+    /////
+    
+    
+    
+    
+    NumericVector surv_annucova2;
+    NumericVector surv_annucovb2;
+    NumericVector surv_annucovc2;
+    NumericVector obs_annucova2;
+    NumericVector obs_annucovb2;
+    NumericVector obs_annucovc2;
+    NumericVector sizea_annucova2;
+    NumericVector sizea_annucovb2;
+    NumericVector sizea_annucovc2;
+    NumericVector sizeb_annucova2;
+    NumericVector sizeb_annucovb2;
+    NumericVector sizeb_annucovc2;
+    NumericVector sizec_annucova2;
+    NumericVector sizec_annucovb2;
+    NumericVector sizec_annucovc2;
+    NumericVector repst_annucova2;
+    NumericVector repst_annucovb2;
+    NumericVector repst_annucovc2;
+    NumericVector fec_annucova2;
+    NumericVector fec_annucovb2;
+    NumericVector fec_annucovc2;
+    NumericVector jsurv_annucova2;
+    NumericVector jsurv_annucovb2;
+    NumericVector jsurv_annucovc2;
+    NumericVector jobs_annucova2;
+    NumericVector jobs_annucovb2;
+    NumericVector jobs_annucovc2;
+    NumericVector jsizea_annucova2;
+    NumericVector jsizea_annucovb2;
+    NumericVector jsizea_annucovc2;
+    NumericVector jsizeb_annucova2;
+    NumericVector jsizeb_annucovb2;
+    NumericVector jsizeb_annucovc2;
+    NumericVector jsizec_annucova2;
+    NumericVector jsizec_annucovb2;
+    NumericVector jsizec_annucovc2;
+    NumericVector jrepst_annucova2;
+    NumericVector jrepst_annucovb2;
+    NumericVector jrepst_annucovc2;
+    NumericVector jmatst_annucova2;
+    NumericVector jmatst_annucovb2;
+    NumericVector jmatst_annucovc2;
+    
+    NumericVector sizea_annucova2_zi;
+    NumericVector sizea_annucovb2_zi;
+    NumericVector sizea_annucovc2_zi;
+    NumericVector sizeb_annucova2_zi;
+    NumericVector sizeb_annucovb2_zi;
+    NumericVector sizeb_annucovc2_zi;
+    NumericVector sizec_annucova2_zi;
+    NumericVector sizec_annucovb2_zi;
+    NumericVector sizec_annucovc2_zi;
+    NumericVector fec_annucova2_zi;
+    NumericVector fec_annucovb2_zi;
+    NumericVector fec_annucovc2_zi;
+    NumericVector jsizea_annucova2_zi;
+    NumericVector jsizea_annucovb2_zi;
+    NumericVector jsizea_annucovc2_zi;
+    NumericVector jsizeb_annucova2_zi;
+    NumericVector jsizeb_annucovb2_zi;
+    NumericVector jsizeb_annucovc2_zi;
+    NumericVector jsizec_annucova2_zi;
+    NumericVector jsizec_annucovb2_zi;
+    NumericVector jsizec_annucovc2_zi;
+    
+    NumericVector surv_annucova1;
+    NumericVector surv_annucovb1;
+    NumericVector surv_annucovc1;
+    NumericVector obs_annucova1;
+    NumericVector obs_annucovb1;
+    NumericVector obs_annucovc1;
+    NumericVector sizea_annucova1;
+    NumericVector sizea_annucovb1;
+    NumericVector sizea_annucovc1;
+    NumericVector sizeb_annucova1;
+    NumericVector sizeb_annucovb1;
+    NumericVector sizeb_annucovc1;
+    NumericVector sizec_annucova1;
+    NumericVector sizec_annucovb1;
+    NumericVector sizec_annucovc1;
+    NumericVector repst_annucova1;
+    NumericVector repst_annucovb1;
+    NumericVector repst_annucovc1;
+    NumericVector fec_annucova1;
+    NumericVector fec_annucovb1;
+    NumericVector fec_annucovc1;
+    NumericVector jsurv_annucova1;
+    NumericVector jsurv_annucovb1;
+    NumericVector jsurv_annucovc1;
+    NumericVector jobs_annucova1;
+    NumericVector jobs_annucovb1;
+    NumericVector jobs_annucovc1;
+    NumericVector jsizea_annucova1;
+    NumericVector jsizea_annucovb1;
+    NumericVector jsizea_annucovc1;
+    NumericVector jsizeb_annucova1;
+    NumericVector jsizeb_annucovb1;
+    NumericVector jsizeb_annucovc1;
+    NumericVector jsizec_annucova1;
+    NumericVector jsizec_annucovb1;
+    NumericVector jsizec_annucovc1;
+    NumericVector jrepst_annucova1;
+    NumericVector jrepst_annucovb1;
+    NumericVector jrepst_annucovc1;
+    NumericVector jmatst_annucova1;
+    NumericVector jmatst_annucovb1;
+    NumericVector jmatst_annucovc1;
+    
+    NumericVector sizea_annucova1_zi;
+    NumericVector sizea_annucovb1_zi;
+    NumericVector sizea_annucovc1_zi;
+    NumericVector sizeb_annucova1_zi;
+    NumericVector sizeb_annucovb1_zi;
+    NumericVector sizeb_annucovc1_zi;
+    NumericVector sizec_annucova1_zi;
+    NumericVector sizec_annucovb1_zi;
+    NumericVector sizec_annucovc1_zi;
+    NumericVector fec_annucova1_zi;
+    NumericVector fec_annucovb1_zi;
+    NumericVector fec_annucovc1_zi;
+    NumericVector jsizea_annucova1_zi;
+    NumericVector jsizea_annucovb1_zi;
+    NumericVector jsizea_annucovc1_zi;
+    NumericVector jsizeb_annucova1_zi;
+    NumericVector jsizeb_annucovb1_zi;
+    NumericVector jsizeb_annucovc1_zi;
+    NumericVector jsizec_annucova1_zi;
+    NumericVector jsizec_annucovb1_zi;
+    NumericVector jsizec_annucovc1_zi;
+    
+    
+    
+    
+    
+    
+    /////
+    
+    
+    
+    
     
     int modelsuite_length = modelsuite.length();
     CharacterVector modelsuite_names = modelsuite.attr("names");
@@ -3768,12 +3988,24 @@ List raymccooney(const DataFrame& listofyears, const List& modelsuite,
     yearnumber = years(i);
     patchnumber = patches(i);
     
+    
+    
+    
+    
+    ///// mpm_create - Function-based matrix creation function
+    
+    
+    
+    
+    
     List madsexmadrigal_oneyear = jerzeibalowski(allstages, StageFrame,
       matrixformat, surv_proxy, obs_proxy, size_proxy, sizeb_proxy, sizec_proxy,
-      repst_proxy, fec_proxy, jsurv_proxy, jobs_proxy, jsize_proxy, jsizeb_proxy,
-      jsizec_proxy, jrepst_proxy, jmatst_proxy, f2_inda_num, f1_inda_num, f2_indb_num,
-      f1_indb_num, f2_indc_num, f1_indc_num, f2_inda_cat, f1_inda_cat, f2_indb_cat,
-      f1_indb_cat, f2_indc_cat, f1_indc_cat, r2_inda, r1_inda, r2_indb, r1_indb,
+      repst_proxy, fec_proxy, jsurv_proxy, jobs_proxy, jsize_proxy,
+      jsizeb_proxy, jsizec_proxy, jrepst_proxy, jmatst_proxy, f2_inda_num,
+      f1_inda_num, f2_indb_num, f1_indb_num, f2_indc_num, f1_indc_num,
+      f2_annua_num, f1_annua_num, f2_annub_num, f1_annub_num, f2_annuc_num,
+      f1_annuc_num, f2_inda_cat, f1_inda_cat, f2_indb_cat, f1_indb_cat,
+      f2_indc_cat, f1_indc_cat, r2_inda, r1_inda, r2_indb, r1_indb,
       r2_indc, r1_indc, dev_terms, false, dvr_yn, dvr_style, dvr_alpha, dvr_beta,
       dvr_dens, dens, fecmod, maxsize, maxsizeb, maxsizec, firstage, finalage,
       negfec, yearnumber, patchnumber, exp_tol, theta_tol, cdf, err_check,
@@ -3846,6 +4078,21 @@ List raymccooney(const DataFrame& listofyears, const List& modelsuite,
 //' each time \emph{t} to be used in analysis.
 //' @param f1_indc_num A numeric vector of length equal to the number of years,
 //' holding values equal to the mean value of individual covariate \code{c} at
+//' each time \emph{t}-1 to be used in analysis.
+//' @param f1_annua_num A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of annual covariate \code{a} at
+//' each time \emph{t}-1 to be used in analysis.
+//' @param f2_annub_num A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of annual covariate \code{b} at
+//' each time \emph{t} to be used in analysis.
+//' @param f1_annub_num A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of annual covariate \code{b} at
+//' each time \emph{t}-1 to be used in analysis.
+//' @param f2_annuc_num A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of annual covariate \code{c} at
+//' each time \emph{t} to be used in analysis.
+//' @param f1_annuc_num A numeric vector of length equal to the number of years,
+//' holding values equal to the mean value of annual covariate \code{c} at
 //' each time \emph{t}-1 to be used in analysis.
 //' @param f2_inda_cat A string vector of length equal to the number of years,
 //' holding categories of individual covariate \code{a} at each time \emph{t} to
@@ -3924,17 +4171,31 @@ List mothermccooney(const DataFrame& listofyears, const List& modelsuite,
   const IntegerVector& actualages, const CharacterVector& mainyears,
   const CharacterVector& mainpatches, RObject maingroups, RObject mainindcova,
   RObject mainindcovb, RObject mainindcovc, const DataFrame& ageframe,
-  const DataFrame& supplement,
-  NumericVector f2_inda_num, NumericVector f1_inda_num, NumericVector f2_indb_num,
-  NumericVector f1_indb_num, NumericVector f2_indc_num, NumericVector f1_indc_num,
-  StringVector f2_inda_cat, StringVector f1_inda_cat, StringVector f2_indb_cat,
+  const DataFrame& supplement, NumericVector f2_inda_num,
+  NumericVector f1_inda_num, NumericVector f2_indb_num,
+  NumericVector f1_indb_num, NumericVector f2_indc_num,
+  NumericVector f1_indc_num, NumericVector f2_annua_num,
+  NumericVector f1_annua_num, NumericVector f2_annub_num,
+  NumericVector f1_annub_num, NumericVector f2_annuc_num,
+  NumericVector f1_annuc_num, StringVector f2_inda_cat,
+  StringVector f1_inda_cat, StringVector f2_indb_cat,
   StringVector f1_indb_cat, StringVector f2_indc_cat, StringVector f1_indc_cat,
   StringVector r2_inda, StringVector r1_inda, StringVector r2_indb,
   StringVector r1_indb, StringVector r2_indc, StringVector r1_indc,
-  const NumericVector& dev_terms, double dens, double fecmod, int finalage, int cont,
-  bool negfec = false, bool nodata = false, double exp_tol = 700.0,
+  const NumericVector& dev_terms, double dens, double fecmod, int finalage,
+  int cont, bool negfec = false, bool nodata = false, double exp_tol = 700.0,
   double theta_tol = 1e8, bool err_check = false,
   bool simplicity = false, bool sparse = false) {
+  
+  
+  
+  
+  
+  /////
+  
+  
+  
+  
   
   // Dud dens_vr inputs
   Rcpp::DataFrame dvr_frame;
@@ -4028,6 +4289,7 @@ List mothermccooney(const DataFrame& listofyears, const List& modelsuite,
     NumericVector surv_indcova2;
     NumericVector surv_indcovb2;
     NumericVector surv_indcovc2;
+    
     NumericVector fec_indcova2;
     NumericVector fec_indcovb2;
     NumericVector fec_indcovc2;
@@ -4039,6 +4301,7 @@ List mothermccooney(const DataFrame& listofyears, const List& modelsuite,
     NumericVector surv_indcova1;
     NumericVector surv_indcovb1;
     NumericVector surv_indcovc1;
+    
     NumericVector fec_indcova1;
     NumericVector fec_indcovb1;
     NumericVector fec_indcovc1;
@@ -4046,6 +4309,51 @@ List mothermccooney(const DataFrame& listofyears, const List& modelsuite,
     NumericVector fec_indcova1_zi;
     NumericVector fec_indcovb1_zi;
     NumericVector fec_indcovc1_zi;
+    
+    
+    
+    
+    
+    
+    /////
+    
+    
+    
+    
+    NumericVector surv_annucova2;
+    NumericVector surv_annucovb2;
+    NumericVector surv_annucovc2;
+    
+    NumericVector fec_annucova2;
+    NumericVector fec_annucovb2;
+    NumericVector fec_annucovc2;
+    
+    NumericVector fec_annucova2_zi;
+    NumericVector fec_annucovb2_zi;
+    NumericVector fec_annucovc2_zi;
+    
+    NumericVector surv_annucova1;
+    NumericVector surv_annucovb1;
+    NumericVector surv_annucovc1;
+    
+    NumericVector fec_annucova1;
+    NumericVector fec_annucovb1;
+    NumericVector fec_annucovc1;
+    
+    NumericVector fec_annucova1_zi;
+    NumericVector fec_annucovb1_zi;
+    NumericVector fec_annucovc1_zi;
+    
+    
+    
+    
+    
+    
+    /////
+    
+    
+    
+    
     
     int modelsuite_length = modelsuite.length();
     CharacterVector modelsuite_names = modelsuite.attr("names");
@@ -4263,13 +4571,25 @@ List mothermccooney(const DataFrame& listofyears, const List& modelsuite,
     yearnumber = years(i);
     patchnumber = patches(i);
     
+    
+    
+    
+    
+    /////
+    
+    
+    
+    
+    
     List madsexmadrigal_oneyear = motherbalowski(actualages, ageframe,
       surv_proxy, fec_proxy, f2_inda_num, f1_inda_num, f2_indb_num, f1_indb_num,
-      f2_indc_num, f1_indc_num, f2_inda_cat, f1_inda_cat, f2_indb_cat, f1_indb_cat,
-      f2_indc_cat, f1_indc_cat, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc,
-      r1_indc, surv_dev, fec_dev, dens, fecmod, finalage, negfec, yearnumber,
-      patchnumber, false, dvr_yn, dvr_style, dvr_alpha, dvr_beta, dvr_dens,
-      exp_tol, theta_tol, simplicity, sparse, supplement);
+      f2_indc_num, f1_indc_num, f2_annua_num, f1_annua_num, f2_annub_num,
+      f1_annub_num, f2_annuc_num, f1_annuc_num, f2_inda_cat, f1_inda_cat,
+      f2_indb_cat, f1_indb_cat, f2_indc_cat, f1_indc_cat, r2_inda, r1_inda,
+      r2_indb, r1_indb, r2_indc, r1_indc, surv_dev, fec_dev, dens, fecmod,
+      finalage, negfec, yearnumber, patchnumber, false, dvr_yn, dvr_style,
+      dvr_alpha, dvr_beta, dvr_dens, exp_tol, theta_tol, simplicity, sparse,
+      supplement);
     
     if (!simplicity) A_mats(i) = madsexmadrigal_oneyear["A"];
     F_mats(i) = madsexmadrigal_oneyear["F"];
@@ -4437,6 +4757,10 @@ List mothermccooney(const DataFrame& listofyears, const List& modelsuite,
 //' giving the values of individual covariates a, b, and c, respectively, for
 //' each projected time. Unused terms must be set to \code{0} (use of \code{NA}
 //' will produce errors.)
+//' @param ann_terms An optional data frame with 3 columns and \code{times} rows
+//' giving the values of annual covariates a, b, and c, respectively, for each
+//' projected time. Unused terms must be set to \code{0} (use of \code{NA} will
+//' produce errors.)
 //' @param dev_terms An optional data frame with 14 columns and \code{times}
 //' rows showing the values of the deviation terms to be added to each linear
 //' vital rate. The column order should be: 1: survival, 2: observation, 3:
@@ -4790,17 +5114,28 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
   Nullable<List> modelsuite = R_NilValue, Nullable<DataFrame> paramnames = R_NilValue,
   Nullable<NumericVector> year = R_NilValue, Nullable<CharacterVector> patch = R_NilValue,
   Nullable<NumericVector> sp_density = R_NilValue, Nullable<RObject> ind_terms = R_NilValue,
-  Nullable<RObject> dev_terms = R_NilValue, Nullable<RObject> surv_model = R_NilValue,
-  Nullable<RObject> obs_model = R_NilValue, Nullable<RObject> size_model = R_NilValue,
-  Nullable<RObject> sizeb_model = R_NilValue, Nullable<RObject> sizec_model = R_NilValue,
-  Nullable<RObject> repst_model = R_NilValue, Nullable<RObject> fec_model = R_NilValue,
-  Nullable<RObject> jsurv_model = R_NilValue, Nullable<RObject> jobs_model = R_NilValue,
-  Nullable<RObject> jsize_model = R_NilValue, Nullable<RObject> jsizeb_model = R_NilValue,
-  Nullable<RObject> jsizec_model = R_NilValue, Nullable<RObject> jrepst_model = R_NilValue,
-  Nullable<RObject> jmatst_model = R_NilValue, Nullable<NumericVector> start_vec = R_NilValue,
-  Nullable<RObject> start_frame = R_NilValue, Nullable<RObject> tweights = R_NilValue,
-  Nullable<RObject> density = R_NilValue, Nullable<RObject> density_vr = R_NilValue,
-  Nullable<RObject> sparse = R_NilValue) {
+  Nullable<RObject> ann_terms = R_NilValue, Nullable<RObject> dev_terms = R_NilValue,
+  Nullable<RObject> surv_model = R_NilValue, Nullable<RObject> obs_model = R_NilValue,
+  Nullable<RObject> size_model = R_NilValue, Nullable<RObject> sizeb_model = R_NilValue,
+  Nullable<RObject> sizec_model = R_NilValue, Nullable<RObject> repst_model = R_NilValue,
+  Nullable<RObject> fec_model = R_NilValue, Nullable<RObject> jsurv_model = R_NilValue,
+  Nullable<RObject> jobs_model = R_NilValue, Nullable<RObject> jsize_model = R_NilValue,
+  Nullable<RObject> jsizeb_model = R_NilValue, Nullable<RObject> jsizec_model = R_NilValue,
+  Nullable<RObject> jrepst_model = R_NilValue, Nullable<RObject> jmatst_model = R_NilValue,
+  Nullable<NumericVector> start_vec = R_NilValue, Nullable<RObject> start_frame = R_NilValue,
+  Nullable<RObject> tweights = R_NilValue, Nullable<RObject> density = R_NilValue,
+  Nullable<RObject> density_vr = R_NilValue, Nullable<RObject> sparse = R_NilValue) {
+  
+  
+  
+  
+  
+  
+  ///// New ann_terms object modeled on ind_terms
+  
+  
+  
+  
   
   bool assume_markov {false};
   
@@ -6033,12 +6368,17 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
         "individual covariate a in time t", "individual covariate a in time t-1",
         "individual covariate b in time t", "individual covariate b in time t-1",
         "individual covariate c in time t", "individual covariate c in time t-1",
-        "stage group in time t", "stage group in time t-1"};
+        "stage group in time t", "stage group in time t-1",
+        "annual covariate a in time t", "annual covariate a in time t-1",
+        "annual covariate b in time t", "annual covariate b in time t-1",
+        "annual covariate c in time t", "annual covariate c in time t-1"};
       CharacterVector mainparams = {"year2", "individ", "patch", "surv3",
         "obs3", "size3", "sizeb3", "sizec3", "repst3", "fec3", "fec2", "size2",
         "size1", "sizeb2", "sizeb1", "sizec2", "sizec1", "repst2", "repst1",
         "matst3", "matst2", "age", "density", "indcova2", "indcova1",
-        "indcovb2", "indcovb1", "indcovc2", "indcovc1", "group2", "group1"};
+        "indcovb2", "indcovb1", "indcovc2", "indcovc1", "group2", "group1",
+        "annucova2", "annucova1", "annucovb2", "annucovb1", "annucovc2",
+        "annucovc1"};
       CharacterVector modelparams = clone(mainparams);
       
       DataFrame pm_names = DataFrame::create(_["parameter_names"] = parameter_names,
@@ -6811,6 +7151,131 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     }
   }
   
+  
+  
+  
+  
+  /////
+  
+  
+  
+  
+  // Ann_terms data frame
+  NumericVector f2_anna_values(num_years);
+  NumericVector f2_annb_values(num_years);
+  NumericVector f2_annc_values(num_years);
+  NumericVector f1_anna_values(num_years);
+  NumericVector f1_annb_values(num_years);
+  NumericVector f1_annc_values(num_years);
+  
+  NumericVector f_anna_topull;
+  NumericVector f_annb_topull;
+  NumericVector f_annc_topull;
+  
+  lessthan_warning = false;
+  greaterthan_warning = false;
+  
+  if (ann_terms.isNotNull()) {
+    DataFrame at_ROint = RObject(ann_terms);
+    
+    RObject anna_whatever;
+    RObject annb_whatever;
+    RObject annc_whatever;
+    
+    if (is<DataFrame>(at_ROint)) {
+      DataFrame at_intermediate = DataFrame(at_ROint);
+      int at_size = static_cast<int>(at_intermediate.size());
+      if (at_size != 3) pop_error("ann_terms", "data frame or matrix with 3 columns and times rows.", "", 6);
+      
+      anna_whatever = as<RObject>(at_intermediate[0]);
+      annb_whatever = as<RObject>(at_intermediate[1]);
+      annc_whatever = as<RObject>(at_intermediate[2]);
+      
+    } else if (is<NumericMatrix>(at_ROint)) {
+      NumericMatrix at_intermediate = NumericMatrix(at_ROint);
+      int at_rows = at_intermediate.nrow();
+      int at_cols = at_intermediate.ncol();
+      
+      if (at_rows != 3 && at_cols != 3) pop_error("ann_terms", "data frame or matrix with 3 columns and times rows.", "", 6);
+      
+      if (at_cols == 3) {
+        NumericVector chuck1 = at_intermediate(_, 0);
+        NumericVector chuck2 = at_intermediate(_, 1);
+        NumericVector chuck3 = at_intermediate(_, 2);
+        anna_whatever = as<RObject>(chuck1);
+        annb_whatever = as<RObject>(chuck2);
+        annc_whatever = as<RObject>(chuck3);
+      } else if (at_rows == 3) {
+        NumericVector chuck1 = at_intermediate(0, _);
+        NumericVector chuck2 = at_intermediate(1, _);
+        NumericVector chuck3 = at_intermediate(2, _);
+        anna_whatever = as<RObject>(chuck1);
+        annb_whatever = as<RObject>(chuck2);
+        annc_whatever = as<RObject>(chuck3);
+      }
+    }
+    
+    if (is<NumericVector>(anna_whatever)) {
+      NumericVector anna_another_int = as<NumericVector>(anna_whatever);
+      
+      int check_len = anna_another_int.length();
+      if (check_len > times) greaterthan_warning = true;
+      if (check_len < times) lessthan_warning = true;
+      
+      f_anna_topull = anna_another_int;
+      
+    }
+    
+    if (is<NumericVector>(annb_whatever)) {
+      NumericVector annb_another_int = as<NumericVector>(annb_whatever);
+      
+      int check_len = annb_another_int.length();
+      if (check_len > times) greaterthan_warning = true;
+      if (check_len < times) lessthan_warning = true;
+      
+      f_annb_topull = annb_another_int;
+      
+    }
+    
+    if (is<NumericVector>(annc_whatever)) {
+      NumericVector annc_another_int = as<NumericVector>(annc_whatever);
+      
+      int check_len = annc_another_int.length();
+      if (check_len > times) greaterthan_warning = true;
+      if (check_len < times) lessthan_warning = true;
+      
+      f_annc_topull = annc_another_int;
+      
+    }
+    
+  } else {
+    f_anna_topull = clone(model0);
+    f_annb_topull = clone(model0);
+    f_annc_topull = clone(model0);
+  }
+  
+  if (!quiet) {
+    if (greaterthan_warning) {
+      Rf_warningcall(R_NilValue,
+        "Too many values of annual covariates have been supplied. Some will be cut.");
+    }
+    if (lessthan_warning) {
+      Rf_warningcall(R_NilValue,
+        "Too few values of annual covariates have been supplied. Some will be cycled.");
+    }
+  }
+  
+  
+  
+  
+  
+  
+  /////
+  
+  
+  
+  
+  
   // dev_terms data frame or matrix
   NumericVector sur_dev_values(times);
   NumericVector obs_dev_values(times);
@@ -7005,6 +7470,31 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
   int rinda_counter {0};
   int rindb_counter {0};
   int rindc_counter {0};
+  
+  
+  
+  
+  
+  /////
+  
+  
+  
+  
+  
+  int fanna_counter {0};
+  int fannb_counter {0};
+  int fannc_counter {0};
+  
+  
+  
+  
+  
+  /////
+  
+  
+  
+  
+  
   int dev_counter {0};
   
   int year_limit = static_cast<int>(years_topull.length()) / nreps;
@@ -7017,6 +7507,30 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
   int rindb_limit = static_cast<int>(r_indb_topull.length());
   int rindc_limit = static_cast<int>(r_indc_topull.length());
   
+  
+  
+  
+  
+  /////
+  
+  
+  
+  
+  
+  int fanna_limit = static_cast<int>(f_anna_topull.length());
+  int fannb_limit = static_cast<int>(f_annb_topull.length());
+  int fannc_limit = static_cast<int>(f_annc_topull.length());
+  
+  
+  
+  
+  
+  /////
+  
+  
+  
+  
+  
   for (int i = 0; i < num_years; i++) {
     if (finda_counter >= finda_limit) finda_counter = 0;
     if (rinda_counter >= rinda_limit) rinda_counter = 0;
@@ -7025,12 +7539,40 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     if (findc_counter >= findc_limit) findc_counter = 0;
     if (rindc_counter >= rindc_limit) rindc_counter = 0;
     
+    if (fanna_counter >= fanna_limit) fanna_counter = 0;
+    if (fannb_counter >= fannb_limit) fannb_counter = 0;
+    if (fannc_counter >= fannc_limit) fannc_counter = 0;
+    
     f2_inda_values(i) = f_inda_topull(finda_counter);
     r2_inda_values(i) = r_inda_topull(rinda_counter);
     f2_indb_values(i) = f_indb_topull(findb_counter);
     r2_indb_values(i) = r_indb_topull(rindb_counter);
     f2_indc_values(i) = f_indc_topull(findc_counter);
     r2_indc_values(i) = r_indc_topull(rindc_counter);
+    
+    
+    
+    
+    
+    /////
+    
+    
+    
+    
+    
+    f2_anna_values(i) = f_anna_topull(fanna_counter);
+    f2_annb_values(i) = f_annb_topull(fanna_counter);
+    f2_annc_values(i) = f_annc_topull(fanna_counter);
+    
+    
+    
+    
+    
+    /////
+    
+    
+    
+    
     
     if (i > 0) {
       f1_inda_values(i) = f2_inda_values(i-1);
@@ -7039,6 +7581,10 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
       r1_indb_values(i) = r2_indb_values(i-1);
       f1_indc_values(i) = f2_indc_values(i-1);
       r1_indc_values(i) = r2_indc_values(i-1);
+      
+      f1_anna_values(i) = f2_anna_values(i-1);
+      f1_annb_values(i) = f2_annb_values(i-1);
+      f1_annc_values(i) = f2_annc_values(i-1);
       
     } else {
       r1_inda_values(i) = modelnone(0);
@@ -7052,6 +7598,10 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     rindb_counter++;
     findc_counter++;
     rindc_counter++;
+    
+    fanna_counter++;
+    fannb_counter++;
+    fannc_counter++;
   }
   
   for (int i = 0; i < times; i++) {
@@ -7321,15 +7871,26 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     NumericVector st_dvr_dens = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
       1.0, 1.0, 1.0, 1.0, 1.0};
     
+    
+    
+    
+    
+    /////
+    
+    
+    
+    
+    
     madsexmadrigal_oneyear = jerzeibalowski(allstages, new_stageframe,
       format, surv_proxy, obs_proxy, size_proxy, sizeb_proxy, sizec_proxy,
       repst_proxy, fec_proxy, jsurv_proxy, jobs_proxy, jsize_proxy, jsizeb_proxy,
       jsizec_proxy, jrepst_proxy, jmatst_proxy, f2_inda_values, f1_inda_values,
       f2_indb_values, f1_indb_values, f2_indc_values, f1_indc_values,
-      r2_inda_values, r1_inda_values, r2_indb_values, r1_indb_values,
-      r2_indc_values, r1_indc_values, r2_inda_values, r1_inda_values,
+      f2_anna_values, f1_anna_values, f2_annb_values, f1_annb_values,
+      f2_annc_values, f1_annc_values, r2_inda_values, r1_inda_values,
       r2_indb_values, r1_indb_values, r2_indc_values, r1_indc_values,
-      used_devs, dens_vr, dvr_yn, dvr_style,
+      r2_inda_values, r1_inda_values, r2_indb_values, r1_indb_values,
+      r2_indc_values, r1_indc_values, used_devs, dens_vr, dvr_yn, dvr_style,
       dvr_alpha, dvr_beta, st_dvr_dens, spdensity_projected(0),
       repmod, maxsize, maxsizeb, maxsizec, start_age, last_age, false,
       yearnumber, patchnumber, exp_tol, theta_tol, ipm_cdf, err_check,
@@ -7341,13 +7902,15 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     
     madsexmadrigal_oneyear = motherbalowski(actualages, new_stageframe,
       surv_proxy, fec_proxy, f2_inda_values, f1_inda_values, f2_indb_values,
-      f1_indb_values, f2_indc_values, f1_indc_values, r2_inda_values,
+      f1_indb_values, f2_indc_values, f1_indc_values, f2_anna_values,
+      f1_anna_values, f2_annb_values, f1_annb_values, f2_annc_values,
+      f1_annc_values, r2_inda_values, r1_inda_values, r2_indb_values,
+      r1_indb_values, r2_indc_values, r1_indc_values, r2_inda_values,
       r1_inda_values, r2_indb_values, r1_indb_values, r2_indc_values,
-      r1_indc_values, r2_inda_values, r1_inda_values, r2_indb_values,
-      r1_indb_values, r2_indc_values, r1_indc_values, sur_dev_values(0),
-      fec_dev_values(0), spdensity_projected(0), repmod, last_age, false,
-      yearnumber, patchnumber, dens_vr, dvr_yn, dvr_style, dvr_alpha, dvr_beta,
-      st_dvr_dens, exp_tol, theta_tol, true, sparse_switch, new_ovtable);
+      r1_indc_values, sur_dev_values(0), fec_dev_values(0),
+      spdensity_projected(0), repmod, last_age, false, yearnumber, patchnumber,
+      dens_vr, dvr_yn, dvr_style, dvr_alpha, dvr_beta, st_dvr_dens, exp_tol,
+      theta_tol, true, sparse_switch, new_ovtable);
   }
   
   arma::sp_mat Umat_sp;
@@ -7683,23 +8246,27 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
             repst_proxy, fec_proxy, jsurv_proxy, jobs_proxy, jsize_proxy, jsizeb_proxy,
             jsizec_proxy, jrepst_proxy, jmatst_proxy, f2_inda_values, f1_inda_values,
             f2_indb_values, f1_indb_values, f2_indc_values, f1_indc_values,
-            r2_inda_values, r1_inda_values, r2_indb_values, r1_indb_values,
-            r2_indc_values, r1_indc_values, r2_inda_values, r1_inda_values,
+            f2_anna_values, f1_anna_values, f2_annb_values, f1_annb_values,
+            f2_annc_values, f1_annc_values, r2_inda_values, r1_inda_values,
             r2_indb_values, r1_indb_values, r2_indc_values, r1_indc_values,
-            used_devs, dens_vr, dvr_yn, dvr_style, dvr_alpha, dvr_beta,
-            usable_densities, spdensity_projected(i), repmod, maxsize, maxsizeb,
-            maxsizec, start_age, last_age, false, yearnumber, patchnumber, exp_tol,
+            r2_inda_values, r1_inda_values, r2_indb_values, r1_indb_values,
+            r2_indc_values, r1_indc_values, used_devs, dens_vr, dvr_yn,
+            dvr_style, dvr_alpha, dvr_beta, usable_densities,
+            spdensity_projected(i), repmod, maxsize, maxsizeb, maxsizec,
+            start_age, last_age, false, yearnumber, patchnumber, exp_tol,
             theta_tol, ipm_cdf, err_check, true, sparse_switch, false);
           
         } else {
           madsexmadrigal_oneyear = motherbalowski(actualages, new_stageframe,
             surv_proxy, fec_proxy, f2_inda_values, f1_inda_values, f2_indb_values,
-            f1_indb_values, f2_indc_values, f1_indc_values, r2_inda_values,
+            f1_indb_values, f2_indc_values, f1_indc_values, f2_anna_values,
+            f1_anna_values, f2_annb_values, f1_annb_values, f2_annc_values,
+            f1_annc_values, r2_inda_values, r1_inda_values, r2_indb_values,
+            r1_indb_values, r2_indc_values, r1_indc_values, r2_inda_values,
             r1_inda_values, r2_indb_values, r1_indb_values, r2_indc_values,
-            r1_indc_values, r2_inda_values, r1_inda_values, r2_indb_values,
-            r1_indb_values, r2_indc_values, r1_indc_values, sur_dev_values(i),
-            fec_dev_values(i), spdensity_projected(i), repmod, last_age, false,
-            yearnumber, patchnumber, dens_vr, dvr_yn, dvr_style, dvr_alpha, dvr_beta,
+            r1_indc_values, sur_dev_values(i), fec_dev_values(i),
+            spdensity_projected(i), repmod, last_age, false, yearnumber,
+            patchnumber, dens_vr, dvr_yn, dvr_style, dvr_alpha, dvr_beta,
             usable_densities, exp_tol, theta_tol, true, sparse_switch, new_ovtable);
         }
         
@@ -7826,22 +8393,25 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
                 repst_proxy, fec_proxy, jsurv_proxy, jobs_proxy, jsize_proxy, jsizeb_proxy,
                 jsizec_proxy, jrepst_proxy, jmatst_proxy, f2_inda_values, f1_inda_values,
                 f2_indb_values, f1_indb_values, f2_indc_values, f1_indc_values,
-                r2_inda_values, r1_inda_values, r2_indb_values, r1_indb_values,
-                r2_indc_values, r1_indc_values, r2_inda_values, r1_inda_values,
+                f2_anna_values, f1_anna_values, f2_annb_values, f1_annb_values,
+                f2_annc_values, f1_annc_values, r2_inda_values, r1_inda_values,
                 r2_indb_values, r1_indb_values, r2_indc_values, r1_indc_values,
-                used_devs, false, dvr_yn, dvr_style, dvr_alpha, dvr_beta,
-                usable_densities, spdensity_projected(times - (i+1)), repmod,
-                maxsize, maxsizeb, maxsizec, start_age, last_age, false, yearnumber,
-                patchnumber, exp_tol, theta_tol, ipm_cdf, err_check, true, sparse_switch, false);
+                r2_inda_values, r1_inda_values, r2_indb_values, r1_indb_values,
+                r2_indc_values, r1_indc_values, used_devs, false, dvr_yn, dvr_style,
+                dvr_alpha, dvr_beta, usable_densities, spdensity_projected(times - (i+1)),
+                repmod, maxsize, maxsizeb, maxsizec, start_age, last_age, false,
+                yearnumber, patchnumber, exp_tol, theta_tol, ipm_cdf, err_check,
+                true, sparse_switch, false);
               
             } else {
               madsexmadrigal_forward = motherbalowski(actualages, new_stageframe,
                 surv_proxy, fec_proxy, f2_inda_values, f1_inda_values, f2_indb_values,
-                f1_indb_values, f2_indc_values, f1_indc_values, r2_inda_values,
+                f1_indb_values, f2_indc_values, f1_indc_values, f2_anna_values,
+                f1_anna_values, f2_annb_values, f1_annb_values, f2_annc_values,
+                f1_annc_values, r2_inda_values, r1_inda_values, r2_indb_values,
+                r1_indb_values, r2_indc_values, r1_indc_values, r2_inda_values,
                 r1_inda_values, r2_indb_values, r1_indb_values, r2_indc_values,
-                r1_indc_values, r2_inda_values, r1_inda_values, r2_indb_values,
-                r1_indb_values, r2_indc_values, r1_indc_values,
-                sur_dev_values(times - (i+1)), fec_dev_values(times - (i+1)),
+                r1_indc_values, sur_dev_values(times - (i+1)), fec_dev_values(times - (i+1)),
                 spdensity_projected(times - (i+1)), repmod, last_age, false, yearnumber,
                 patchnumber, false, dvr_yn, dvr_style, dvr_alpha, dvr_beta,
                 usable_densities, exp_tol, theta_tol, true, sparse_switch, new_ovtable);
@@ -7907,13 +8477,15 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
           repst_proxy, fec_proxy, jsurv_proxy, jobs_proxy, jsize_proxy, jsizeb_proxy,
           jsizec_proxy, jrepst_proxy, jmatst_proxy, f2_inda_values, f1_inda_values,
           f2_indb_values, f1_indb_values, f2_indc_values, f1_indc_values,
-          r2_inda_values, r1_inda_values, r2_indb_values, r1_indb_values,
-          r2_indc_values, r1_indc_values, r2_inda_values, r1_inda_values,
+          f2_anna_values, f1_anna_values, f2_annb_values, f1_annb_values,
+          f2_annc_values, f1_annc_values, r2_inda_values, r1_inda_values,
           r2_indb_values, r1_indb_values, r2_indc_values, r1_indc_values,
-          used_devs, dens_vr, dvr_yn, dvr_style, dvr_alpha, dvr_beta,
-          usable_densities, spdensity_projected(i), repmod, maxsize, maxsizeb,
-          maxsizec, start_age, last_age, false, yearnumber, patchnumber, exp_tol,
-          theta_tol, ipm_cdf, err_check, true, sparse_switch, false);
+          r2_inda_values, r1_inda_values, r2_indb_values, r1_indb_values,
+          r2_indc_values, r1_indc_values, used_devs, dens_vr, dvr_yn, dvr_style,
+          dvr_alpha, dvr_beta, usable_densities, spdensity_projected(i), repmod,
+          maxsize, maxsizeb, maxsizec, start_age, last_age, false, yearnumber,
+          patchnumber, exp_tol, theta_tol, ipm_cdf, err_check, true,
+          sparse_switch, false);
         
         Umat_sp = as<arma::sp_mat>(madsexmadrigal_oneyear["U"]);
         Fmat_sp = as<arma::sp_mat>(madsexmadrigal_oneyear["F"]);
@@ -8039,13 +8611,15 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
               repst_proxy, fec_proxy, jsurv_proxy, jobs_proxy, jsize_proxy, jsizeb_proxy,
               jsizec_proxy, jrepst_proxy, jmatst_proxy, f2_inda_values, f1_inda_values,
               f2_indb_values, f1_indb_values, f2_indc_values, f1_indc_values,
-              r2_inda_values, r1_inda_values, r2_indb_values, r1_indb_values,
-              r2_indc_values, r1_indc_values, r2_inda_values, r1_inda_values,
+              f2_anna_values, f1_anna_values, f2_annb_values, f1_annb_values,
+              f2_annc_values, f1_annc_values, r2_inda_values, r1_inda_values,
               r2_indb_values, r1_indb_values, r2_indc_values, r1_indc_values,
-              used_devs, false, dvr_yn, dvr_style, dvr_alpha, dvr_beta,
-              usable_densities, spdensity_projected(times - (i+1)), repmod,
-              maxsize, maxsizeb, maxsizec, start_age, last_age, false, yearnumber,
-              patchnumber, exp_tol, theta_tol, ipm_cdf, err_check, true, true, false);
+              r2_inda_values, r1_inda_values, r2_indb_values, r1_indb_values,
+              r2_indc_values, r1_indc_values, used_devs, false, dvr_yn, dvr_style,
+              dvr_alpha, dvr_beta, usable_densities, spdensity_projected(times - (i+1)),
+              repmod, maxsize, maxsizeb, maxsizec, start_age, last_age, false,
+              yearnumber, patchnumber, exp_tol, theta_tol, ipm_cdf, err_check,
+              true, true, false);
               
             arma::sp_mat second_U = as<arma::sp_mat>(madsexmadrigal_forward["U"]);
             arma::sp_mat second_F = as<arma::sp_mat>(madsexmadrigal_forward["F"]);
@@ -8345,6 +8919,21 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
 //' in historical matrices, or a vector of such values corresponding to each
 //' occasion in the dataset. Defaults to \code{NULL}. Only used in
 //' function-based MPMs.
+//' @param annua Can be a single value to use for annual covariate \code{a}
+//' in all matrices, a pair of values to use for times \emph{t} and \emph{t}-1
+//' in historical matrices, or a vector of such values corresponding to each
+//' occasion in the dataset. Defaults to \code{NULL}. Only used in
+//' function-based MPMs.
+//' @param annub Can be a single value to use for annual covariate \code{b}
+//' in all matrices, a pair of values to use for times \emph{t} and \emph{t}-1
+//' in historical matrices, or a vector of such values corresponding to each
+//' occasion in the dataset. Defaults to \code{NULL}. Only used in
+//' function-based MPMs.
+//' @param annuc Can be a single value to use for annual covariate \code{c}
+//' in all matrices, a pair of values to use for times \emph{t} and \emph{t}-1
+//' in historical matrices, or a vector of such values corresponding to each
+//' occasion in the dataset. Defaults to \code{NULL}. Only used in
+//' function-based MPMs.
 //' @param dev_terms A numeric vector of 2 elements in the case of a Leslie MPM,
 //' and of 14 elements in all other cases. Consists of scalar additions to the
 //' y-intercepts of vital rate linear models used to estimate vital rates in
@@ -8633,15 +9222,26 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
   
   Nullable<RObject> modelsuite = R_NilValue, Nullable<RObject> paramnames = R_NilValue,
   Nullable<RObject> inda = R_NilValue, Nullable<RObject> indb = R_NilValue,
-  Nullable<RObject> indc = R_NilValue, Nullable<RObject> dev_terms = R_NilValue,
-  double density = NA_REAL, bool CDF = true, bool random_inda = false,
-  bool random_indb = false, bool random_indc = false, bool negfec = false,
-  int exp_tol = 700, int theta_tol = 1e8,
+  Nullable<RObject> indc = R_NilValue, Nullable<RObject> annua = R_NilValue,
+  Nullable<RObject> annub = R_NilValue, Nullable<RObject> annuc = R_NilValue,
+  Nullable<RObject> dev_terms = R_NilValue, double density = NA_REAL,
+  bool CDF = true, bool random_inda = false, bool random_indb = false,
+  bool random_indc = false, bool negfec = false, int exp_tol = 700, int theta_tol = 1e8,
   
   bool censor = false, Nullable<RObject> censorkeep = R_NilValue, int start_age = NA_INTEGER,
   int last_age = NA_INTEGER, int fecage_min = NA_INTEGER, int fecage_max = NA_INTEGER,
   int fectime = 2, double fecmod = 1.0, bool cont = true, bool prebreeding = true,
   bool stage_NRasRep = false, bool sparse_output = false) {
+  
+  
+  
+  
+  
+  /////
+  
+  
+  
+  
   
   bool raw {true};
   bool nodata {true};
@@ -8931,7 +9531,8 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
       CharacterVector modelparams = {"year2", "individ", "patch", "none", "none",
         "none", "none", "none", "none", "none", "none", "none", "none", "none",
         "none", "none", "none", "none", "none", "none", "none", "none", "none",
-        "none", "none", "none", "none", "none", "none", "none", "none"};
+        "none", "none", "none", "none", "none", "none", "none", "none", "none",
+        "none", "none", "none", "none", "none"};
       if (age) modelparams(21) = "age";
       
       DataFrame paramnames_created = DataFrame::create(_["parameter_names"] = parameter_names,
@@ -12645,6 +13246,251 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
     f2_indc_cat = clone(sub_r2);
   }
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  /////
+  
+  // Annual covariate vectors for function-based MPMs
+  // Annual covariate a
+  NumericVector f1_annua_num; // Numeric values entered as input
+  NumericVector f2_annua_num;
+  
+  if (annua.isNotNull() && !raw) {
+    RObject annua_input = as<RObject>(annua);
+    
+    NumericVector annua_num;
+    
+    int no_mainyears = mainyears_.length();
+    
+    if (!paramnames_provided) {
+      throw Rcpp::exception("Use of annual covariates requires a valid paramnames object", false);
+    }
+    
+    // Fixed covariate
+    if (is<StringVector>(annua_input)) {
+      String eat_my_shorts = "Annual covariate vector a must be empty, or include ";
+      eat_my_shorts += "1, 2, or as many numbers as occasions in the dataset.";
+      
+      throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+      
+    } else if (is<IntegerVector>(annua_input) || is<NumericVector>(annua_input)) {
+      // Handles possibility of factor variables
+      annua_num = as<NumericVector>(annua_input);
+      int annua_num_length = static_cast<int>(annua_num.length());
+      
+      if (annua_num_length != 1 && annua_num_length != 2) {
+        if (annua_num_length != no_mainyears) {
+          String eat_my_shorts = "Annual covariate vector a must be empty, or include ";
+          String eat_my_shorts1 = "1, 2, or as many numbers as occasions in the dataset.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+      }
+      
+      StringVector mainparams = as<StringVector>(paramnames_["mainparams"]);
+      StringVector modelparams = as<StringVector>(paramnames_["modelparams"]);
+      
+      if (annua_num_length == 1) {
+        f1_annua_num = rep(annua_num(0), no_mainyears); 
+        f2_annua_num = rep(annua_num(0), no_mainyears);
+        
+      } else if (annua_num_length == 2 && no_years != 2) {
+        f1_annua_num = rep(annua_num(0), no_mainyears);
+        f2_annua_num = rep(annua_num(1), no_mainyears);
+        
+      } else {
+        NumericVector sub_f1(annua_num_length);
+        sub_f1(0) = 0;
+        
+        for (int i = 0; i < (annua_num_length - 1); i++) {
+          sub_f1(i + 1) = annua_num(i);
+        }
+        f1_annua_num = sub_f1;
+        
+        f2_annua_num = annua_num;
+      }
+      
+    } else {
+      throw Rcpp::exception("Format of annucova not recognized.", false);
+    }
+  } else {
+    int no_mainyears = mainyears_.length();
+    
+    f1_annua_num = rep(0, no_mainyears);
+    f2_annua_num = rep(0, no_mainyears);
+  }
+  
+  // Annual covariate b
+  NumericVector f1_annub_num; // Numeric values entered as input
+  NumericVector f2_annub_num;
+  
+  if (annub.isNotNull() && !raw) {
+    RObject annub_input = as<RObject>(annub);
+    
+    NumericVector annub_num;
+    
+    int no_mainyears = mainyears_.length();
+    
+    if (!paramnames_provided) {
+      throw Rcpp::exception("Use of annual covariates requires a valid paramnames object", false);
+    }
+    
+    // Fixed covariate
+    if (is<StringVector>(annub_input)) {
+      String eat_my_shorts = "Annual covariate vector b must be empty, or include ";
+      eat_my_shorts += "1, 2, or as many numbers as occasions in the dataset.";
+      
+      throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+      
+    } else if (is<IntegerVector>(annub_input) || is<NumericVector>(annub_input)) {
+      // Handles possibility of factor variables
+      annub_num = as<NumericVector>(annub_input);
+      int annub_num_length = static_cast<int>(annub_num.length());
+      
+      if (annub_num_length != 1 && annub_num_length != 2) {
+        if (annub_num_length != no_mainyears) {
+          String eat_my_shorts = "Annual covariate vector b must be empty, or include ";
+          String eat_my_shorts1 = "1, 2, or as many numbers as occasions in the dataset.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+      }
+      
+      StringVector mainparams = as<StringVector>(paramnames_["mainparams"]);
+      StringVector modelparams = as<StringVector>(paramnames_["modelparams"]);
+      
+      if (annub_num_length == 1) {
+        f1_annub_num = rep(annub_num(0), no_mainyears); 
+        f2_annub_num = rep(annub_num(0), no_mainyears);
+        
+      } else if (annub_num_length == 2 && no_years != 2) {
+        f1_annub_num = rep(annub_num(0), no_mainyears);
+        f2_annub_num = rep(annub_num(1), no_mainyears);
+        
+      } else {
+        NumericVector sub_f1(annub_num_length);
+        sub_f1(0) = 0;
+        
+        for (int i = 0; i < (annub_num_length - 1); i++) {
+          sub_f1(i + 1) = annub_num(i);
+        }
+        f1_annub_num = sub_f1;
+        
+        f2_annub_num = annub_num;
+      }
+      
+    } else {
+      throw Rcpp::exception("Format of annucovb not recognized.", false);
+    }
+  } else {
+    int no_mainyears = mainyears_.length();
+    
+    f1_annub_num = rep(0, no_mainyears);
+    f2_annub_num = rep(0, no_mainyears);
+  }
+  
+  // Annual covariate c
+  NumericVector f1_annuc_num; // Numeric values entered as input
+  NumericVector f2_annuc_num;
+  
+  if (annuc.isNotNull() && !raw) {
+    RObject annuc_input = as<RObject>(annuc);
+    
+    NumericVector annuc_num;
+    
+    int no_mainyears = mainyears_.length();
+    
+    if (!paramnames_provided) {
+      throw Rcpp::exception("Use of annual covariates requires a valid paramnames object", false);
+    }
+    
+    // Fixed covariate
+    if (is<StringVector>(annuc_input)) {
+      String eat_my_shorts = "Annual covariate vector c must be empty, or include ";
+      eat_my_shorts += "1, 2, or as many numbers as occasions in the dataset.";
+      
+      throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+      
+    } else if (is<IntegerVector>(annuc_input) || is<NumericVector>(annuc_input)) {
+      // Handles possibility of factor variables
+      annuc_num = as<NumericVector>(annuc_input);
+      int annuc_num_length = static_cast<int>(annuc_num.length());
+      
+      if (annuc_num_length != 1 && annuc_num_length != 2) {
+        if (annuc_num_length != no_mainyears) {
+          String eat_my_shorts = "Annual covariate vector c must be empty, or include ";
+          String eat_my_shorts1 = "1, 2, or as many numbers as occasions in the dataset.";
+          eat_my_shorts += eat_my_shorts1;
+          
+          throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
+        }
+      }
+      
+      StringVector mainparams = as<StringVector>(paramnames_["mainparams"]);
+      StringVector modelparams = as<StringVector>(paramnames_["modelparams"]);
+      
+      if (annuc_num_length == 1) {
+        f1_annuc_num = rep(annuc_num(0), no_mainyears); 
+        f2_annuc_num = rep(annuc_num(0), no_mainyears);
+        
+      } else if (annuc_num_length == 2 && no_years != 2) {
+        f1_annuc_num = rep(annuc_num(0), no_mainyears);
+        f2_annuc_num = rep(annuc_num(1), no_mainyears);
+        
+      } else {
+        NumericVector sub_f1(annuc_num_length);
+        sub_f1(0) = 0;
+        
+        for (int i = 0; i < (annuc_num_length - 1); i++) {
+          sub_f1(i + 1) = annuc_num(i);
+        }
+        f1_annuc_num = sub_f1;
+        
+        f2_annuc_num = annuc_num;
+      }
+      
+    } else {
+      throw Rcpp::exception("Format of annucovc not recognized.", false);
+    }
+  } else {
+    int no_mainyears = mainyears_.length();
+    
+    f1_annuc_num = rep(0, no_mainyears);
+    f2_annuc_num = rep(0, no_mainyears);
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  /////
+  
+  
+  
+  
+  
+  
   // Stageexpansions, data frame prep, MPM estimation
   DataFrame agestages;
   DataFrame ahstages;
@@ -13222,6 +14068,17 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
     }
   } else {
     // Function-based MPMs
+    
+    
+    
+    
+    
+    /////
+    
+    
+    
+    
+    
     if (!historical) {
       if (stage && !age) {
         // Stage-only ahistorical function-based
@@ -13235,7 +14092,8 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
           as<RObject>(inda_names), as<RObject>(indb_names), as<RObject>(indc_names),
           melchett_stageframe_, melchett_ovtable_, as<arma::mat>(melchett_repmatrix_),
           f2_inda_num, f1_inda_num, f2_indb_num, f1_indb_num, f2_indc_num,
-          f1_indc_num, f2_inda_cat, f1_inda_cat, f2_indb_cat, f1_indb_cat,
+          f1_indc_num, f2_annua_num, f1_annua_num, f2_annub_num, f1_annub_num,
+          f2_annuc_num, f1_annuc_num, f2_inda_cat, f1_inda_cat, f2_indb_cat, f1_indb_cat,
           f2_indc_cat, f1_indc_cat, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc,
           r1_indc, dev_terms_, density, fecmod, 0, 0, 1, 1, 0, 1, negfec, nodata,
           exp_tol, theta_tol, CDF, err_check, simple, sparse_output);
@@ -13290,7 +14148,8 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
           as<RObject>(inda_names), as<RObject>(indb_names), as<RObject>(indc_names),
           melchett_stageframe_, melchett_ovtable_, as<arma::mat>(melchett_repmatrix_),
           f2_inda_num, f1_inda_num, f2_indb_num, f1_indb_num, f2_indc_num,
-          f1_indc_num, f2_inda_cat, f1_inda_cat, f2_indb_cat, f1_indb_cat,
+          f1_indc_num, f2_annua_num, f1_annua_num, f2_annub_num, f1_annub_num,
+          f2_annuc_num, f1_annuc_num, f2_inda_cat, f1_inda_cat, f2_indb_cat, f1_indb_cat,
           f2_indc_cat, f1_indc_cat, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc,
           r1_indc, dev_terms_, density, fecmod, start_age, last_age, 1, 2, cont,
           2, negfec, nodata, exp_tol, theta_tol, CDF, err_check, simple,
@@ -13322,7 +14181,8 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
           as<RObject>(inda_names), as<RObject>(indb_names),
           as<RObject>(indc_names), melchett_stageframe_, melchett_ovtable_,
           f2_inda_num, f1_inda_num, f2_indb_num, f1_indb_num, f2_indc_num,
-          f1_indc_num, f2_inda_cat, f1_inda_cat, f2_indb_cat, f1_indb_cat,
+          f1_indc_num, f2_annua_num, f1_annua_num, f2_annub_num, f1_annub_num,
+          f2_annuc_num, f1_annuc_num, f2_inda_cat, f1_inda_cat, f2_indb_cat, f1_indb_cat,
           f2_indc_cat, f1_indc_cat, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc,
           r1_indc, dev_terms_, density, fecmod, last_age, cont, negfec, nodata,
           exp_tol, theta_tol, err_check, simple, sparse_output);
@@ -13374,7 +14234,8 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
           as<RObject>(inda_names), as<RObject>(indb_names), as<RObject>(indc_names),
           melchett_stageframe_, melchett_ovtable_, as<arma::mat>(melchett_repmatrix_),
           f2_inda_num, f1_inda_num, f2_indb_num, f1_indb_num, f2_indc_num,
-          f1_indc_num, f2_inda_cat, f1_inda_cat, f2_indb_cat, f1_indb_cat,
+          f1_indc_num, f2_annua_num, f1_annua_num, f2_annub_num, f1_annub_num,
+          f2_annuc_num, f1_annuc_num, f2_inda_cat, f1_inda_cat, f2_indb_cat, f1_indb_cat,
           f2_indc_cat, f1_indc_cat, r2_inda, r1_inda, r2_indb, r1_indb, r2_indc,
           r1_indc, dev_terms_, density, fecmod, 0, 0, format_int, 0, 0, 1, negfec,
           nodata, exp_tol, theta_tol, CDF, err_check, simple, sparse_output);
@@ -13704,7 +14565,8 @@ arma::sp_mat sens3sp_matrix(const arma::sp_mat& Aspmat, const arma::sp_mat& refm
 //' 
 //' \code{sens3matrix_spinp()} returns the sensitivity of lambda with respect
 //' to each element in a sparse matrix. This is accomplished via the
-//' \code{eigs_gen()} function in the C++ Armadillo library.
+//' \code{eigs_gen()} function in the C++ Armadillo library. Output is in
+//' standard matrix format.
 //' 
 //' @name .sens3matrix_spinp
 //' 
@@ -13870,7 +14732,8 @@ List sens3hlefko(const arma::mat& Amat, const DataFrame& ahstages,
 //' \code{sens3hlefko()} returns the sensitivity of lambda with respect
 //' to each historical stage-pair in the matrix, and the associated
 //' sensitivity for each life history stage. This is accomplished via the 
-//' \code{eigs_gen}() function in the C++ Armadillo library.
+//' \code{eigs_gen}() function in the C++ Armadillo library. Input is in sparse
+//' matrix format.
 //' 
 //' @name .sens3hlefko_sp
 //' 

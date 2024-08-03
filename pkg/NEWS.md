@@ -5,6 +5,16 @@
 * Function miniMod() was developed to create minimum memory vital rate model
   summaries in vrm_input format useable as substitutes for lefkoMod objects.
 
+* Function modelsearch() can now test three annual covariates in addition to the
+  three individual covariates.
+
+* All function-based matrix estimation and projeciton functions can now handle
+  values of three annual covariates.
+
+* Function modelsearch() now models fixed factor interactions separately from
+  size and reproductive status, allowing greater flexibility to choose global
+  models.
+
 ## USER VISIBLE CHANGES
 
 * Some help entries have been corrected and updated.

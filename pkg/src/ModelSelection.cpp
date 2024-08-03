@@ -79,6 +79,12 @@ using namespace LefkoMats;
 //' is used.
 //' @param indcovcused Logical value indicating whether individual covariate c
 //' is used.
+//' @param annucovaused Logical value indicating whether annual covariate a
+//' is used.
+//' @param annucovbused Logical value indicating whether annual covariate b
+//' is used.
+//' @param annucovcused Logical value indicating whether annual covariate c
+//' is used.
 //' @param pasrand A logical value indicating whether to treat patch as a random
 //' variable within mixed models.
 //' @param yasrand A logical value indicating whether to treat year as a random
@@ -99,6 +105,8 @@ using namespace LefkoMats;
 //' time \emph{t} (2) or time \emph{t}+1 (3) as the response for fecundity.
 //' @param repstcheck A boolean variable denoting whether reproductive status is
 //' being tested as a response within the suite of vital rates being estimated.
+//' @param interactions A boolean value indicating whether all two-way
+//' interactions between fixed factors should be created.
 //' 
 //' @return A list with four elements. The first and second are both one-element
 //' string vectors, with the first coding for the adult vital rate global model,
@@ -119,9 +127,10 @@ List praxis(const StringVector& surv, const StringVector& obs,
   const StringVector indcovc_raw, const bool sizebused, const bool sizecused,
   const bool grouptest, const bool ageused, const bool densityused,
   const bool indcovaused, const bool indcovbused, const bool indcovcused,
+  const bool annucovaused, const bool annucovbused, const bool annucovcused,
   bool pasrand, bool yasrand, bool iaasrand, bool ibasrand, bool icasrand,
   const bool iaasfac, const bool ibasfac, const bool icasfac, int fectime,
-  bool repstcheck) {
+  bool repstcheck, const bool interactions) {
   
   if (nojuvs) juvsize = false;
   
@@ -140,6 +149,10 @@ List praxis(const StringVector& surv, const StringVector& obs,
   String fixedtackonib {""};
   String fixedtackonic {""};
   String fixedtackon {""};
+  
+  String fixedtackonaa {""};
+  String fixedtackonab {""};
+  String fixedtackonac {""};
   
   String sizesuffix;
   String jsizesuffix;
@@ -396,7 +409,7 @@ List praxis(const StringVector& surv, const StringVector& obs,
     }
   }
   
-  if (suite == "full" && !iaasrand && !ibasrand) { 
+  if (interactions && !iaasrand && !ibasrand) {
     if ((indcova(1) != "none" && indcovb(1) != "none") && (indcovaused && indcovbused)) {
       fixedtackonib += " + ";
       fixedtackonib += indcova(1);
@@ -429,7 +442,7 @@ List praxis(const StringVector& surv, const StringVector& obs,
       }
     }
   }
-  if (suite == "full" && !iaasrand && !icasrand) {
+  if (interactions && !iaasrand && !icasrand) {
     if ((indcova(1) != "none" && indcovc(1) != "none") && (indcovaused && indcovcused)) {
       fixedtackonic += " + ";
       fixedtackonic += indcova(1);
@@ -462,7 +475,7 @@ List praxis(const StringVector& surv, const StringVector& obs,
       }
     }
   }
-  if (suite == "full" && !ibasrand && !icasrand) {
+  if (interactions && !ibasrand && !icasrand) {
     if ((indcovb(1) != "none" && indcovc(1) != "none") && (indcovbused && indcovcused)) {
       fixedtackonic += " + ";
       fixedtackonic += indcovb(1);
@@ -496,6 +509,95 @@ List praxis(const StringVector& surv, const StringVector& obs,
     }
   }
   
+  if (annucovaused || annucovbused || annucovcused) {
+    if (annucovaused) {
+      fixedtackonaa += " + annucova2";
+      fixedcovcounter += 1;
+      total_terms++;
+      
+      if (historical) {
+        fixedtackonaa += " + annucova1";
+        fixedcovcounter += 1;
+        total_terms++;
+      }
+    }
+      
+    if (annucovbused) {
+      fixedtackonab += " + annucovb2";
+      fixedcovcounter += 1;
+      total_terms++;
+      
+      if (historical) {
+        fixedtackonab += " + annucovb1";
+        fixedcovcounter += 1;
+        total_terms++;
+      }
+    }
+    
+    if (annucovcused) {
+      fixedtackonac += " + annucovc2";
+      fixedcovcounter += 1;
+      total_terms++;
+      
+      if (historical) {
+        fixedtackonac += " + annucovc1";
+        fixedcovcounter += 1;
+        total_terms++;
+      }
+    }
+    
+    if (interactions) {
+      if (annucovaused && annucovbused) {
+        fixedtackonaa += " + annucova2:annucovb2";
+        fixedcovcounter += 1;
+        total_terms++;
+        
+        if (historical) {
+          fixedtackonaa += " + annucova2:annucovb1";
+          fixedtackonaa += " + annucova1:annucovb2";
+          fixedtackonaa += " + annucova1:annucovb1";
+          
+          fixedcovcounter += 3;
+          total_terms += 3;
+        }
+      }
+      
+      if (annucovaused && annucovcused) {
+        fixedtackonaa += " + annucova2:annucovc2";
+        fixedcovcounter += 1;
+        total_terms++;
+        
+        if (historical) {
+          fixedtackonaa += " + annucova2:annucovc1";
+          fixedtackonaa += " + annucova1:annucovc2";
+          fixedtackonaa += " + annucova1:annucovc1";
+          
+          fixedcovcounter += 3;
+          total_terms += 3;
+        }
+      }
+      
+      if (annucovbused && annucovcused) {
+        fixedtackonab += " + annucovb2:annucovc2";
+        fixedcovcounter += 1;
+        total_terms++;
+        
+        if (historical) {
+          fixedtackonab += " + annucovb2:annucovc1";
+          fixedtackonab += " + annucovb1:annucovc2";
+          fixedtackonab += " + annucovb1:annucovc1";
+          
+          fixedcovcounter += 3;
+          total_terms += 3;
+        }
+      }
+    }
+  }
+  
+  fixedtackon += fixedtackonaa;
+  fixedtackon += fixedtackonab;
+  fixedtackon += fixedtackonac;
+  
   // Main model patterns
   int modelcounter {0};
   int juvmodelcounter {0};
@@ -505,7 +607,7 @@ List praxis(const StringVector& surv, const StringVector& obs,
     juvmainmodel = " ~ ";
     
     if (suite != "const") {
-      if (juvsize && suite != "repst") {
+      if (juvsize && suite != "rep") {
         juvmainmodel += size(1);
         juvmodelcounter = 1;
         
@@ -514,7 +616,7 @@ List praxis(const StringVector& surv, const StringVector& obs,
           juvmainmodel += sizeb(1);
           juvmodelcounter += 1;
           
-          if (suite == "full") {
+          if (suite == "full" || interactions) {
             juvmainmodel += " + ";
             juvmainmodel += size(1);
             juvmainmodel += ":";
@@ -527,7 +629,7 @@ List praxis(const StringVector& surv, const StringVector& obs,
           juvmainmodel += sizec(1);
           juvmodelcounter += 1;
           
-          if (suite == "full") {
+          if (suite == "full" || interactions) {
             juvmainmodel += " + ";
             juvmainmodel += size(1);
             juvmainmodel += ":";
@@ -548,7 +650,7 @@ List praxis(const StringVector& surv, const StringVector& obs,
           juvmainmodel += densitycol;
           juvmodelcounter += 1;
           
-          if (suite == "full") {
+          if (interactions) {
             juvmainmodel += " + ";
             juvmainmodel += size(1);
             juvmainmodel += ":";
@@ -568,6 +670,206 @@ List praxis(const StringVector& surv, const StringVector& obs,
               juvmainmodel += ":";
               juvmainmodel += densitycol;
               juvmodelcounter += 1;
+            }
+          }
+        }
+        
+        if (interactions) {
+          if (annucovaused) {
+            juvmainmodel += " + annucova2:";
+            juvmainmodel += size(1);
+            juvmodelcounter += 1;
+            
+            if (sizebused) {
+              juvmainmodel += " + annucova2:";
+              juvmainmodel += sizeb(1);
+              juvmodelcounter += 1;
+            }
+            
+            if (sizecused) {
+              juvmainmodel += " + annucova2:";
+              juvmainmodel += sizec(1);
+              juvmodelcounter += 1;
+            }
+            
+            if (densityused) {
+              juvmainmodel += " + annucova2:";
+              juvmainmodel += densitycol;
+              juvmodelcounter += 1;
+            }
+            
+            if (historical) {
+              juvmainmodel += " + annucova2:";
+              juvmainmodel += size(2);
+              
+              juvmainmodel += " + annucova1:";
+              juvmainmodel += size(1);
+              
+              juvmainmodel += " + annucova1:";
+              juvmainmodel += size(2);
+              juvmodelcounter += 3;
+              
+              if (densityused) {
+                juvmainmodel += " + annucova1:";
+                juvmainmodel += densitycol;
+                juvmodelcounter += 1;
+              }
+              
+              if (sizebused) {
+                juvmainmodel += " + annucova2:";
+                juvmainmodel += sizeb(2);
+                
+                juvmainmodel += " + annucova1:";
+                juvmainmodel += sizeb(1);
+                
+                juvmainmodel += " + annucova1:";
+                juvmainmodel += sizeb(2);
+                juvmodelcounter += 3;
+              }
+              
+              if (sizecused) {
+                juvmainmodel += " + annucova2:";
+                juvmainmodel += sizec(1);
+                
+                juvmainmodel += " + annucova1:";
+                juvmainmodel += sizec(1);
+                
+                juvmainmodel += " + annucova1:";
+                juvmainmodel += sizec(2);
+                juvmodelcounter += 3;
+              }
+            }
+          }
+          
+          if (annucovbused) {
+            juvmainmodel += " + annucovb2:";
+            juvmainmodel += size(1);
+            juvmodelcounter += 1;
+            
+            if (sizebused) {
+              juvmainmodel += " + annucovb2:";
+              juvmainmodel += sizeb(1);
+              juvmodelcounter += 1;
+            }
+            
+            if (sizecused) {
+              juvmainmodel += " + annucovb2:";
+              juvmainmodel += sizec(1);
+              juvmodelcounter += 1;
+            }
+            
+            if (densityused) {
+              juvmainmodel += " + annucovb2:";
+              juvmainmodel += densitycol;
+              juvmodelcounter += 1;
+            }
+            
+            if (historical) {
+              juvmainmodel += " + annucovb2:";
+              juvmainmodel += size(2);
+              
+              juvmainmodel += " + annucovb1:";
+              juvmainmodel += size(1);
+              
+              juvmainmodel += " + annucovb1:";
+              juvmainmodel += size(2);
+              juvmodelcounter += 3;
+              
+              if (densityused) {
+                juvmainmodel += " + annucovb1:";
+                juvmainmodel += densitycol;
+                juvmodelcounter += 1;
+              }
+              
+              if (sizebused) {
+                juvmainmodel += " + annucovb2:";
+                juvmainmodel += sizeb(2);
+                
+                juvmainmodel += " + annucovb1:";
+                juvmainmodel += sizeb(1);
+                
+                juvmainmodel += " + annucovb1:";
+                juvmainmodel += sizeb(2);
+                juvmodelcounter += 3;
+              }
+              
+              if (sizecused) {
+                juvmainmodel += " + annucovb2:";
+                juvmainmodel += sizec(1);
+                
+                juvmainmodel += " + annucovb1:";
+                juvmainmodel += sizec(1);
+                
+                juvmainmodel += " + annucovb1:";
+                juvmainmodel += sizec(2);
+                juvmodelcounter += 3;
+              }
+            }
+          }
+          
+          if (annucovcused) {
+            juvmainmodel += " + annucovc2:";
+            juvmainmodel += size(1);
+            juvmodelcounter += 1;
+            
+            if (sizebused) {
+              juvmainmodel += " + annucovc2:";
+              juvmainmodel += sizeb(1);
+              juvmodelcounter += 1;
+            }
+            
+            if (sizecused) {
+              juvmainmodel += " + annucovc2:";
+              juvmainmodel += sizec(1);
+              juvmodelcounter += 1;
+            }
+            
+            if (densityused) {
+              juvmainmodel += " + annucovc2:";
+              juvmainmodel += densitycol;
+              juvmodelcounter += 1;
+            }
+            
+            if (historical) {
+              juvmainmodel += " + annucovc2:";
+              juvmainmodel += size(2);
+              
+              juvmainmodel += " + annucovc1:";
+              juvmainmodel += size(1);
+              
+              juvmainmodel += " + annucovc1:";
+              juvmainmodel += size(2);
+              juvmodelcounter += 3;
+              
+              if (densityused) {
+                juvmainmodel += " + annucovc1:";
+                juvmainmodel += densitycol;
+                juvmodelcounter += 1;
+              }
+              
+              if (sizebused) {
+                juvmainmodel += " + annucovc2:";
+                juvmainmodel += sizeb(2);
+                
+                juvmainmodel += " + annucovc1:";
+                juvmainmodel += sizeb(1);
+                
+                juvmainmodel += " + annucovc1:";
+                juvmainmodel += sizeb(2);
+                juvmodelcounter += 3;
+              }
+              
+              if (sizecused) {
+                juvmainmodel += " + annucovc2:";
+                juvmainmodel += sizec(1);
+                
+                juvmainmodel += " + annucovc1:";
+                juvmainmodel += sizec(1);
+                
+                juvmainmodel += " + annucovc1:";
+                juvmainmodel += sizec(2);
+                juvmodelcounter += 3;
+              }
             }
           }
         }
@@ -614,18 +916,39 @@ List praxis(const StringVector& surv, const StringVector& obs,
     modelcounter += 1;
   }
   
-  if (suite == "full" || suite == "main" || suite == "size" || suite == "repst") {
-    if (suite != "repst") {
+  if (suite == "full" || suite == "main" || suite == "size" || suite == "rep") {
+    if (suite != "rep") {
       if (modelcounter > 0) fullmainmodel += " + ";
       fullmainmodel += size(1);
       modelcounter += 1;
       
-      if (suite == "full" && densityused) {
-        fullmainmodel += " + ";
-        fullmainmodel += size(1);
-        fullmainmodel += ":";
-        fullmainmodel += densitycol;
-        modelcounter += 1;
+      if (interactions) {
+        if (densityused) {
+          fullmainmodel += " + ";
+          fullmainmodel += size(1);
+          fullmainmodel += ":";
+          fullmainmodel += densitycol;
+          modelcounter += 1;
+        }
+        
+        if (annucovaused) {
+          fullmainmodel += " + ";
+          fullmainmodel += size(1);
+          fullmainmodel += ":annucova2";
+          modelcounter += 1;
+        }
+        if (annucovbused) {
+          fullmainmodel += " + ";
+          fullmainmodel += size(1);
+          fullmainmodel += ":annucovb2";
+          modelcounter += 1;
+        }
+        if (annucovcused) {
+          fullmainmodel += " + ";
+          fullmainmodel += size(1);
+          fullmainmodel += ":annucovc2";
+          modelcounter += 1;
+        }
       }
       
       if (historical) {
@@ -633,20 +956,69 @@ List praxis(const StringVector& surv, const StringVector& obs,
         fullmainmodel += size(2);
         modelcounter += 1;
 
-        if (suite != "main") {
+        if (interactions) {
           fullmainmodel += " + ";
           fullmainmodel += size(1);
           fullmainmodel += ":";
           fullmainmodel += size(2);
           modelcounter += 1;
-        }
-        
-        if (suite == "full" && densityused) {
-          fullmainmodel += " + ";
-          fullmainmodel += size(2);
-          fullmainmodel += ":";
-          fullmainmodel += densitycol;
-          modelcounter += 1;
+          
+          if (densityused) {
+            fullmainmodel += " + ";
+            fullmainmodel += size(2);
+            fullmainmodel += ":";
+            fullmainmodel += densitycol;
+            modelcounter += 1;
+          }
+          
+          if (annucovaused) {
+            fullmainmodel += " + ";
+            fullmainmodel += size(1);
+            fullmainmodel += ":annucova2";
+            modelcounter += 1;
+            
+            fullmainmodel += " + ";
+            fullmainmodel += size(2);
+            fullmainmodel += ":annucova2";
+            modelcounter += 1;
+            
+            fullmainmodel += " + ";
+            fullmainmodel += size(2);
+            fullmainmodel += ":annucova1";
+            modelcounter += 1;
+          }
+          if (annucovbused) {
+            fullmainmodel += " + ";
+            fullmainmodel += size(1);
+            fullmainmodel += ":annucovb2";
+            modelcounter += 1;
+            
+            fullmainmodel += " + ";
+            fullmainmodel += size(2);
+            fullmainmodel += ":annucovb2";
+            modelcounter += 1;
+            
+            fullmainmodel += " + ";
+            fullmainmodel += size(2);
+            fullmainmodel += ":annucovb1";
+            modelcounter += 1;
+          }
+          if (annucovcused) {
+            fullmainmodel += " + ";
+            fullmainmodel += size(1);
+            fullmainmodel += ":annucovc2";
+            modelcounter += 1;
+            
+            fullmainmodel += " + ";
+            fullmainmodel += size(2);
+            fullmainmodel += ":annucovc2";
+            modelcounter += 1;
+            
+            fullmainmodel += " + ";
+            fullmainmodel += size(2);
+            fullmainmodel += ":annucovc1";
+            modelcounter += 1;
+          }
         }
       }
       
@@ -655,12 +1027,33 @@ List praxis(const StringVector& surv, const StringVector& obs,
         fullmainmodel += sizeb(1);
         modelcounter += 1;
         
-        if (suite == "full" && densityused) {
-          fullmainmodel += " + ";
-          fullmainmodel += sizeb(1);
-          fullmainmodel += ":";
-          fullmainmodel += densitycol;
-          modelcounter += 1;
+        if (interactions) {
+          if (densityused) {
+            fullmainmodel += " + ";
+            fullmainmodel += sizeb(1);
+            fullmainmodel += ":";
+            fullmainmodel += densitycol;
+            modelcounter += 1;
+          }
+          
+          if (annucovaused) {
+            fullmainmodel += " + ";
+            fullmainmodel += sizeb(1);
+            fullmainmodel += ":annucova2";
+            modelcounter += 1;
+          }
+          if (annucovbused) {
+            fullmainmodel += " + ";
+            fullmainmodel += sizeb(1);
+            fullmainmodel += ":annucovb2";
+            modelcounter += 1;
+          }
+          if (annucovcused) {
+            fullmainmodel += " + ";
+            fullmainmodel += sizeb(1);
+            fullmainmodel += ":annucovc2";
+            modelcounter += 1;
+          }
         }
         
         if (historical) {
@@ -668,7 +1061,7 @@ List praxis(const StringVector& surv, const StringVector& obs,
           fullmainmodel += sizeb(2);
           modelcounter += 1;
 
-          if (suite != "main") {
+          if (interactions) {
             fullmainmodel += " + ";
             fullmainmodel += sizeb(1);
             fullmainmodel += ":";
@@ -686,14 +1079,63 @@ List praxis(const StringVector& surv, const StringVector& obs,
             fullmainmodel += ":";
             fullmainmodel += size(2);
             modelcounter += 1;
-          }
-          
-          if (suite == "full" && densityused) {
-            fullmainmodel += " + ";
-            fullmainmodel += sizeb(2);
-            fullmainmodel += ":";
-            fullmainmodel += densitycol;
-            modelcounter += 1;
+            
+            if (densityused) {
+              fullmainmodel += " + ";
+              fullmainmodel += sizeb(2);
+              fullmainmodel += ":";
+              fullmainmodel += densitycol;
+              modelcounter += 1;
+            }
+            
+            if (annucovaused) {
+              fullmainmodel += " + ";
+              fullmainmodel += sizeb(1);
+              fullmainmodel += ":annucova2";
+              modelcounter += 1;
+              
+              fullmainmodel += " + ";
+              fullmainmodel += sizeb(2);
+              fullmainmodel += ":annucova2";
+              modelcounter += 1;
+              
+              fullmainmodel += " + ";
+              fullmainmodel += sizeb(2);
+              fullmainmodel += ":annucova1";
+              modelcounter += 1;
+            }
+            if (annucovbused) {
+              fullmainmodel += " + ";
+              fullmainmodel += sizeb(1);
+              fullmainmodel += ":annucovb2";
+              modelcounter += 1;
+              
+              fullmainmodel += " + ";
+              fullmainmodel += sizeb(2);
+              fullmainmodel += ":annucovb2";
+              modelcounter += 1;
+              
+              fullmainmodel += " + ";
+              fullmainmodel += sizeb(2);
+              fullmainmodel += ":annucovb1";
+              modelcounter += 1;
+            }
+            if (annucovcused) {
+              fullmainmodel += " + ";
+              fullmainmodel += sizeb(1);
+              fullmainmodel += ":annucovc2";
+              modelcounter += 1;
+              
+              fullmainmodel += " + ";
+              fullmainmodel += sizeb(2);
+              fullmainmodel += ":annucovc2";
+              modelcounter += 1;
+              
+              fullmainmodel += " + ";
+              fullmainmodel += sizeb(2);
+              fullmainmodel += ":annucovc1";
+              modelcounter += 1;
+            }
           }
         }
       }
@@ -703,12 +1145,33 @@ List praxis(const StringVector& surv, const StringVector& obs,
         fullmainmodel += sizec(1);
         modelcounter += 1;
         
-        if (suite == "full" && densityused) {
-          fullmainmodel += " + ";
-          fullmainmodel += sizec(1);
-          fullmainmodel += ":";
-          fullmainmodel += densitycol;
-          modelcounter += 1;
+        if (interactions) {
+          if (densityused) {
+            fullmainmodel += " + ";
+            fullmainmodel += sizec(1);
+            fullmainmodel += ":";
+            fullmainmodel += densitycol;
+            modelcounter += 1;
+          }
+          
+          if (annucovaused) {
+            fullmainmodel += " + ";
+            fullmainmodel += sizec(1);
+            fullmainmodel += ":annucova2";
+            modelcounter += 1;
+          }
+          if (annucovbused) {
+            fullmainmodel += " + ";
+            fullmainmodel += sizec(1);
+            fullmainmodel += ":annucovb2";
+            modelcounter += 1;
+          }
+          if (annucovcused) {
+            fullmainmodel += " + ";
+            fullmainmodel += sizec(1);
+            fullmainmodel += ":annucovc2";
+            modelcounter += 1;
+          }
         }
         
         if (historical) {
@@ -716,7 +1179,7 @@ List praxis(const StringVector& surv, const StringVector& obs,
           fullmainmodel += sizec(2);
           modelcounter += 1;
           
-          if (suite != "main") {
+          if (interactions) {
             fullmainmodel += " + ";
             fullmainmodel += sizec(1);
             fullmainmodel += ":";
@@ -748,14 +1211,63 @@ List praxis(const StringVector& surv, const StringVector& obs,
               fullmainmodel += sizeb(2);
               modelcounter += 1;
             }
-          }
-          
-          if (suite == "full" && densityused) {
-            fullmainmodel += " + ";
-            fullmainmodel += sizec(2);
-            fullmainmodel += ":";
-            fullmainmodel += densitycol;
-            modelcounter += 1;
+            
+            if (densityused) {
+              fullmainmodel += " + ";
+              fullmainmodel += sizec(2);
+              fullmainmodel += ":";
+              fullmainmodel += densitycol;
+              modelcounter += 1;
+            }
+            
+            if (annucovaused) {
+              fullmainmodel += " + ";
+              fullmainmodel += sizec(1);
+              fullmainmodel += ":annucova2";
+              modelcounter += 1;
+              
+              fullmainmodel += " + ";
+              fullmainmodel += sizec(2);
+              fullmainmodel += ":annucova2";
+              modelcounter += 1;
+              
+              fullmainmodel += " + ";
+              fullmainmodel += sizec(2);
+              fullmainmodel += ":annucova1";
+              modelcounter += 1;
+            }
+            if (annucovbused) {
+              fullmainmodel += " + ";
+              fullmainmodel += sizec(1);
+              fullmainmodel += ":annucovb2";
+              modelcounter += 1;
+              
+              fullmainmodel += " + ";
+              fullmainmodel += sizec(2);
+              fullmainmodel += ":annucovb2";
+              modelcounter += 1;
+              
+              fullmainmodel += " + ";
+              fullmainmodel += sizec(2);
+              fullmainmodel += ":annucovb1";
+              modelcounter += 1;
+            }
+            if (annucovcused) {
+              fullmainmodel += " + ";
+              fullmainmodel += sizec(1);
+              fullmainmodel += ":annucovc2";
+              modelcounter += 1;
+              
+              fullmainmodel += " + ";
+              fullmainmodel += sizec(2);
+              fullmainmodel += ":annucovc2";
+              modelcounter += 1;
+              
+              fullmainmodel += " + ";
+              fullmainmodel += sizec(2);
+              fullmainmodel += ":annucovc1";
+              modelcounter += 1;
+            }
           }
         }
       }
@@ -766,12 +1278,33 @@ List praxis(const StringVector& surv, const StringVector& obs,
       fullmainmodel += repst(1);
       modelcounter += 1;
       
-      if (suite == "full" && densityused) {
-        fullmainmodel += " + ";
-        fullmainmodel += repst(1);
-        fullmainmodel += ":";
-        fullmainmodel += densitycol;
-        modelcounter += 1;
+      if (interactions) {
+        if (densityused) {
+          fullmainmodel += " + ";
+          fullmainmodel += repst(1);
+          fullmainmodel += ":";
+          fullmainmodel += densitycol;
+          modelcounter += 1;
+        }
+        
+        if (annucovaused) {
+          fullmainmodel += " + ";
+          fullmainmodel += repst(1);
+          fullmainmodel += ":annucova2";
+          modelcounter += 1;
+        }
+        if (annucovbused) {
+          fullmainmodel += " + ";
+          fullmainmodel += repst(1);
+          fullmainmodel += ":annucovb2";
+          modelcounter += 1;
+        }
+        if (annucovcused) {
+          fullmainmodel += " + ";
+          fullmainmodel += repst(1);
+          fullmainmodel += ":annucovc2";
+          modelcounter += 1;
+        }
       }
       
       if (historical) {
@@ -779,25 +1312,74 @@ List praxis(const StringVector& surv, const StringVector& obs,
         fullmainmodel += repst(2);
         modelcounter += 1;
         
-        if (suite == "repst" || suite == "full") {
+        if (interactions) {
           fullmainmodel += " + ";
           fullmainmodel += repst(1);
           fullmainmodel += ":";
           fullmainmodel += repst(2);
           modelcounter += 1;
-        }
-        
-        if (suite == "full" && densityused) {
-          fullmainmodel += " + ";
-          fullmainmodel += repst(2);
-          fullmainmodel += ":";
-          fullmainmodel += densitycol;
-          modelcounter += 1;
+          
+          if (densityused) {
+            fullmainmodel += " + ";
+            fullmainmodel += repst(2);
+            fullmainmodel += ":";
+            fullmainmodel += densitycol;
+            modelcounter += 1;
+          }
+          
+          if (annucovaused) {
+            fullmainmodel += " + ";
+            fullmainmodel += repst(1);
+            fullmainmodel += ":annucova2";
+            modelcounter += 1;
+            
+            fullmainmodel += " + ";
+            fullmainmodel += repst(2);
+            fullmainmodel += ":annucova2";
+            modelcounter += 1;
+            
+            fullmainmodel += " + ";
+            fullmainmodel += repst(2);
+            fullmainmodel += ":annucova1";
+            modelcounter += 1;
+          }
+          if (annucovbused) {
+            fullmainmodel += " + ";
+            fullmainmodel += repst(1);
+            fullmainmodel += ":annucovb2";
+            modelcounter += 1;
+            
+            fullmainmodel += " + ";
+            fullmainmodel += repst(2);
+            fullmainmodel += ":annucovb2";
+            modelcounter += 1;
+            
+            fullmainmodel += " + ";
+            fullmainmodel += repst(2);
+            fullmainmodel += ":annucovb1";
+            modelcounter += 1;
+          }
+          if (annucovcused) {
+            fullmainmodel += " + ";
+            fullmainmodel += repst(1);
+            fullmainmodel += ":annucovc2";
+            modelcounter += 1;
+            
+            fullmainmodel += " + ";
+            fullmainmodel += repst(2);
+            fullmainmodel += ":annucovc2";
+            modelcounter += 1;
+            
+            fullmainmodel += " + ";
+            fullmainmodel += repst(2);
+            fullmainmodel += ":annucovc1";
+            modelcounter += 1;
+          }
         }
       }
     }
     
-    if (suite == "full") {
+    if (suite == "full" || (suite == "main" && interactions)) {
       fullmainmodel += " + ";
       fullmainmodel += size(1);
       fullmainmodel += ":";
@@ -891,35 +1473,41 @@ List praxis(const StringVector& surv, const StringVector& obs,
           modelcounter += 1;
         }
       }
-      
+    }
+    
+    if (interactions) {
       if (age != "none" && ageused) {
-        fullmainmodel += " + ";
-        fullmainmodel += age;
-        fullmainmodel += ":";
-        fullmainmodel += size(1);
-        modelcounter += 1;
-        
-        if (sizebused) {
+        if (suite == "full" || suite == "main" || suite == "size") {
           fullmainmodel += " + ";
           fullmainmodel += age;
           fullmainmodel += ":";
-          fullmainmodel += sizeb(1);
+          fullmainmodel += size(1);
           modelcounter += 1;
+          
+          if (sizebused) {
+            fullmainmodel += " + ";
+            fullmainmodel += age;
+            fullmainmodel += ":";
+            fullmainmodel += sizeb(1);
+            modelcounter += 1;
+          }
+          
+          if (sizecused) {
+            fullmainmodel += " + ";
+            fullmainmodel += age;
+            fullmainmodel += ":";
+            fullmainmodel += sizec(1);
+            modelcounter += 1;
+          }
         }
         
-        if (sizecused) {
+        if (suite == "full" || suite == "main" || suite == "repst") {
           fullmainmodel += " + ";
           fullmainmodel += age;
           fullmainmodel += ":";
-          fullmainmodel += sizec(1);
+          fullmainmodel += repst(1);
           modelcounter += 1;
         }
-        
-        fullmainmodel += " + ";
-        fullmainmodel += age;
-        fullmainmodel += ":";
-        fullmainmodel += repst(1);
-        modelcounter += 1;
         
         if (densityused) {
           fullmainmodel += " + ";
@@ -929,33 +1517,118 @@ List praxis(const StringVector& surv, const StringVector& obs,
           modelcounter += 1;
         }
         
-        if (historical) {
+        if (annucovaused) {
           fullmainmodel += " + ";
           fullmainmodel += age;
-          fullmainmodel += ":";
-          fullmainmodel += size(2);
+          fullmainmodel += ":annucova2";
           modelcounter += 1;
           
-          if (sizebused) {
+          if (historical) {
+            fullmainmodel += " + ";
+            fullmainmodel += age;
+            fullmainmodel += ":annucova1";
+            modelcounter += 1;
+          }
+        }
+        if (annucovbused) {
+          fullmainmodel += " + ";
+          fullmainmodel += age;
+          fullmainmodel += ":annucovb2";
+          modelcounter += 1;
+          
+          if (historical) {
+            fullmainmodel += " + ";
+            fullmainmodel += age;
+            fullmainmodel += ":annucovb1";
+            modelcounter += 1;
+          }
+        }
+        if (annucovcused) {
+          fullmainmodel += " + ";
+          fullmainmodel += age;
+          fullmainmodel += ":annucovc2";
+          modelcounter += 1;
+          
+          if (historical) {
+            fullmainmodel += " + ";
+            fullmainmodel += age;
+            fullmainmodel += ":annucovc1";
+            modelcounter += 1;
+          }
+        }
+        
+        if (suite == "full" || suite == "main" || suite == "size") {
+          if (historical) {
             fullmainmodel += " + ";
             fullmainmodel += age;
             fullmainmodel += ":";
-            fullmainmodel += sizeb(2);
+            fullmainmodel += size(2);
             modelcounter += 1;
+            
+            if (sizebused) {
+              fullmainmodel += " + ";
+              fullmainmodel += age;
+              fullmainmodel += ":";
+              fullmainmodel += sizeb(2);
+              modelcounter += 1;
+            }
+            if (sizecused) {
+              fullmainmodel += " + ";
+              fullmainmodel += age;
+              fullmainmodel += ":";
+              fullmainmodel += sizec(2);
+              modelcounter += 1;
+            }
           }
-          if (sizecused) {
+          if (suite == "full" || suite == "main" || suite == "rep") {
             fullmainmodel += " + ";
             fullmainmodel += age;
             fullmainmodel += ":";
-            fullmainmodel += sizec(2);
+            fullmainmodel += repst(2);
             modelcounter += 1;
           }
-          
+        }
+      }
+      
+      if (densityused) {
+        if (annucovaused) {
           fullmainmodel += " + ";
-          fullmainmodel += age;
-          fullmainmodel += ":";
-          fullmainmodel += repst(2);
+          fullmainmodel += densitycol;
+          fullmainmodel += ":annucova2";
           modelcounter += 1;
+          
+          if (historical) {
+            fullmainmodel += " + ";
+            fullmainmodel += densitycol;
+            fullmainmodel += ":annucova1";
+            modelcounter += 1;
+          }
+        }
+        if (annucovbused) {
+          fullmainmodel += " + ";
+          fullmainmodel += densitycol;
+          fullmainmodel += ":annucovb2";
+          modelcounter += 1;
+          
+          if (historical) {
+            fullmainmodel += " + ";
+            fullmainmodel += densitycol;
+            fullmainmodel += ":annucovb1";
+            modelcounter += 1;
+          }
+        }
+        if (annucovcused) {
+          fullmainmodel += " + ";
+          fullmainmodel += densitycol;
+          fullmainmodel += ":annucovc2";
+          modelcounter += 1;
+          
+          if (historical) {
+            fullmainmodel += " + ";
+            fullmainmodel += densitycol;
+            fullmainmodel += ":annucovc1";
+            modelcounter += 1;
+          }
         }
       }
       
@@ -1057,6 +1730,82 @@ List praxis(const StringVector& surv, const StringVector& obs,
             modelcounter += 1;
           }
         }
+        
+        if (annucovaused) {
+          fullmainmodel += " + ";
+          fullmainmodel += indcova(1);
+          fullmainmodel += ":annucova2";
+          modelcounter += 1;
+          
+          if (historical) {
+            fullmainmodel += " + ";
+            fullmainmodel += indcova(1);
+            fullmainmodel += ":annucova1";
+            modelcounter += 1;
+            
+            if (indcova(2) != "none") {
+              fullmainmodel += " + ";
+              fullmainmodel += indcova(2);
+              fullmainmodel += ":annucova1";
+              modelcounter += 1;
+              
+              fullmainmodel += " + ";
+              fullmainmodel += indcova(2);
+              fullmainmodel += ":annucova2";
+              modelcounter += 1;
+            }
+          }
+        }
+        if (annucovbused) {
+          fullmainmodel += " + ";
+          fullmainmodel += indcova(1);
+          fullmainmodel += ":annucovb2";
+          modelcounter += 1;
+          
+          if (historical) {
+            fullmainmodel += " + ";
+            fullmainmodel += indcova(1);
+            fullmainmodel += ":annucovb1";
+            modelcounter += 1;
+            
+            if (indcova(2) != "none") {
+              fullmainmodel += " + ";
+              fullmainmodel += indcova(2);
+              fullmainmodel += ":annucovb1";
+              modelcounter += 1;
+              
+              fullmainmodel += " + ";
+              fullmainmodel += indcova(2);
+              fullmainmodel += ":annucovb2";
+              modelcounter += 1;
+            }
+          }
+        }
+        if (annucovcused) {
+          fullmainmodel += " + ";
+          fullmainmodel += indcova(1);
+          fullmainmodel += ":annucovc2";
+          modelcounter += 1;
+          
+          if (historical) {
+            fullmainmodel += " + ";
+            fullmainmodel += indcova(1);
+            fullmainmodel += ":annucovc1";
+            modelcounter += 1;
+            
+            if (indcova(2) != "none") {
+              fullmainmodel += " + ";
+              fullmainmodel += indcova(2);
+              fullmainmodel += ":annucovc1";
+              modelcounter += 1;
+              
+              fullmainmodel += " + ";
+              fullmainmodel += indcova(2);
+              fullmainmodel += ":annucovc2";
+              modelcounter += 1;
+            }
+          }
+        }
       }
       if (indcovb(1) != "none" && !ibasrand && indcovbused) {
         fullmainmodel += " + ";
@@ -1154,6 +1903,82 @@ List praxis(const StringVector& surv, const StringVector& obs,
             fullmainmodel += ":";
             fullmainmodel += densitycol;
             modelcounter += 1;
+          }
+        }
+        
+        if (annucovaused) {
+          fullmainmodel += " + ";
+          fullmainmodel += indcovb(1);
+          fullmainmodel += ":annucova2";
+          modelcounter += 1;
+          
+          if (historical) {
+            fullmainmodel += " + ";
+            fullmainmodel += indcovb(1);
+            fullmainmodel += ":annucova1";
+            modelcounter += 1;
+            
+            if (indcovb(2) != "none") {
+              fullmainmodel += " + ";
+              fullmainmodel += indcovb(2);
+              fullmainmodel += ":annucova1";
+              modelcounter += 1;
+              
+              fullmainmodel += " + ";
+              fullmainmodel += indcovb(2);
+              fullmainmodel += ":annucova2";
+              modelcounter += 1;
+            }
+          }
+        }
+        if (annucovbused) {
+          fullmainmodel += " + ";
+          fullmainmodel += indcovb(1);
+          fullmainmodel += ":annucovb2";
+          modelcounter += 1;
+          
+          if (historical) {
+            fullmainmodel += " + ";
+            fullmainmodel += indcovb(1);
+            fullmainmodel += ":annucovb1";
+            modelcounter += 1;
+            
+            if (indcovb(2) != "none") {
+              fullmainmodel += " + ";
+              fullmainmodel += indcovb(2);
+              fullmainmodel += ":annucovb1";
+              modelcounter += 1;
+              
+              fullmainmodel += " + ";
+              fullmainmodel += indcovb(2);
+              fullmainmodel += ":annucovb2";
+              modelcounter += 1;
+            }
+          }
+        }
+        if (annucovcused) {
+          fullmainmodel += " + ";
+          fullmainmodel += indcovb(1);
+          fullmainmodel += ":annucovc2";
+          modelcounter += 1;
+          
+          if (historical) {
+            fullmainmodel += " + ";
+            fullmainmodel += indcovb(1);
+            fullmainmodel += ":annucovc1";
+            modelcounter += 1;
+            
+            if (indcovb(2) != "none") {
+              fullmainmodel += " + ";
+              fullmainmodel += indcovb(2);
+              fullmainmodel += ":annucovc1";
+              modelcounter += 1;
+              
+              fullmainmodel += " + ";
+              fullmainmodel += indcovb(2);
+              fullmainmodel += ":annucovc2";
+              modelcounter += 1;
+            }
           }
         }
       }
@@ -1256,6 +2081,82 @@ List praxis(const StringVector& surv, const StringVector& obs,
             modelcounter += 1;
           }
         }
+        
+        if (annucovaused) {
+          fullmainmodel += " + ";
+          fullmainmodel += indcovc(1);
+          fullmainmodel += ":annucova2";
+          modelcounter += 1;
+          
+          if (historical) {
+            fullmainmodel += " + ";
+            fullmainmodel += indcovc(1);
+            fullmainmodel += ":annucova1";
+            modelcounter += 1;
+            
+            if (indcovc(2) != "none") {
+              fullmainmodel += " + ";
+              fullmainmodel += indcovc(2);
+              fullmainmodel += ":annucova1";
+              modelcounter += 1;
+              
+              fullmainmodel += " + ";
+              fullmainmodel += indcovc(2);
+              fullmainmodel += ":annucova2";
+              modelcounter += 1;
+            }
+          }
+        }
+        if (annucovbused) {
+          fullmainmodel += " + ";
+          fullmainmodel += indcovc(1);
+          fullmainmodel += ":annucovb2";
+          modelcounter += 1;
+          
+          if (historical) {
+            fullmainmodel += " + ";
+            fullmainmodel += indcovc(1);
+            fullmainmodel += ":annucovb1";
+            modelcounter += 1;
+            
+            if (indcovc(2) != "none") {
+              fullmainmodel += " + ";
+              fullmainmodel += indcovc(2);
+              fullmainmodel += ":annucovb1";
+              modelcounter += 1;
+              
+              fullmainmodel += " + ";
+              fullmainmodel += indcovc(2);
+              fullmainmodel += ":annucovb2";
+              modelcounter += 1;
+            }
+          }
+        }
+        if (annucovcused) {
+          fullmainmodel += " + ";
+          fullmainmodel += indcovc(1);
+          fullmainmodel += ":annucovc2";
+          modelcounter += 1;
+          
+          if (historical) {
+            fullmainmodel += " + ";
+            fullmainmodel += indcovc(1);
+            fullmainmodel += ":annucovc1";
+            modelcounter += 1;
+            
+            if (indcovc(2) != "none") {
+              fullmainmodel += " + ";
+              fullmainmodel += indcovc(2);
+              fullmainmodel += ":annucovc1";
+              modelcounter += 1;
+              
+              fullmainmodel += " + ";
+              fullmainmodel += indcovc(2);
+              fullmainmodel += ":annucovc2";
+              modelcounter += 1;
+            }
+          }
+        }
       }
     }
     
@@ -1279,11 +2180,13 @@ List praxis(const StringVector& surv, const StringVector& obs,
       fullmainmodel += repst(2);
       modelcounter += 1;
       
-      fullmainmodel += " + ";
-      fullmainmodel += repst(1);
-      fullmainmodel += ":";
-      fullmainmodel += repst(2);
-      modelcounter += 1;
+      if (interactions) {
+        fullmainmodel += " + ";
+        fullmainmodel += repst(1);
+        fullmainmodel += ":";
+        fullmainmodel += repst(2);
+        modelcounter += 1;
+      }
     }
     
     if (fixedcovcounter > 0) {
@@ -1495,6 +2398,12 @@ List praxis(const StringVector& surv, const StringVector& obs,
 //' to be tested in each of the 14 vital rate models.
 //' @param indcovcused A logical vector indicating if individual covariate c is
 //' to be tested in each of the 14 vital rate models.
+//' @param annucovaused A logical vector indicating if annual covariate a is to
+//' be tested in each of the 14 vital rate models.
+//' @param annucovbused A logical vector indicating if annual covariate b is to
+//' be tested in each of the 14 vital rate models.
+//' @param annucovcused A logical vector indicating if annual covariate c is to
+//' be tested in each of the 14 vital rate models.
 //' @param pasrand A logical value indicating whether to treat patch as a random
 //' variable within mixed models.
 //' @param yasrand A logical value indicating whether to treat year as a random
@@ -1525,6 +2434,8 @@ List praxis(const StringVector& surv, const StringVector& obs,
 //' secondary size model is zero-inflated.
 //' @param jsizec_zero A boolean variable indicating whether the juvenile
 //' tertiary size model is zero-inflated.
+//' @param interactions A boolean variable indicating whether to include two-way
+//' interactions among all fixed variables.
 //' 
 //' @return A list of four lists. The first list includes the 14 main global
 //' models covering all 14 vital rate responses, followed by an associated
@@ -1549,11 +2460,13 @@ List stovokor(const StringVector& surv, const StringVector& obs,
   const LogicalVector& grouptest, const LogicalVector& ageused,
   const LogicalVector& densityused, const LogicalVector& indcovaused,
   const LogicalVector& indcovbused, const LogicalVector& indcovcused,
-  const bool pasrand, const bool yasrand, const bool iaasrand,
-  const bool ibasrand, const bool icasrand, const bool iaasfac,
-  const bool ibasfac, const bool icasfac, const int fectime,
+  const LogicalVector& annucovaused, const LogicalVector& annucovbused,
+  const LogicalVector& annucovcused, const bool pasrand, const bool yasrand,
+  const bool iaasrand, const bool ibasrand, const bool icasrand,
+  const bool iaasfac, const bool ibasfac, const bool icasfac, const int fectime,
   const bool size_zero, const bool sizeb_zero, const bool sizec_zero,
-  const bool jsize_zero, const bool jsizeb_zero, const bool jsizec_zero) {
+  const bool jsize_zero, const bool jsizeb_zero, const bool jsizec_zero,
+  const bool interactions) {
   
   if (nojuvs) juvsize = false;
   
@@ -1723,8 +2636,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
       historical, 1, String(suite(0)), approach, nojuvs, juvsize, indiv, patch,
       year, age, densitycol, indcova, indcovb, indcovc, sizebused, sizecused,
       grouptest(0), ageused(0), densityused(0), indcovaused(0), indcovbused(0),
-      indcovcused(0), pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac,
-      ibasfac, icasfac, fectime, repstcheck);
+      indcovcused(0), annucovaused(0), annucovbused(0), annucovcused(0),
+      pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac, ibasfac, icasfac,
+      fectime, repstcheck, interactions);
     
     String sp0_proxy(as<StringVector>(surv_prax[0]));
     fullsurvmodel = sp0_proxy;
@@ -1734,8 +2648,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
       historical, 1, String(alt_suite(0)), approach, nojuvs, juvsize, indiv, patch,
       year, age, densitycol, indcova, indcovb, indcovc, sizebused, sizecused,
       grouptest(0), ageused(0), densityused(0), indcovaused(0), indcovbused(0),
-      indcovcused(0), pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac,
-      ibasfac, icasfac, fectime, repstcheck);
+      indcovcused(0), annucovaused(0), annucovbused(0), annucovcused(0),
+      pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac, ibasfac, icasfac,
+      fectime, repstcheck, interactions);
     
     String alt_sp0_proxy(as<StringVector>(alt_surv_prax[0]));
     alt_fullsurvmodel = alt_sp0_proxy;
@@ -1754,9 +2669,10 @@ List stovokor(const StringVector& surv, const StringVector& obs,
         matstat, historical, 8, String(suite(13)), approach, nojuvs, juvsize,
         indiv, patch, year, age, densitycol, indcova, indcovb, indcovc,
         sizebused, sizecused, grouptest(13), ageused(13), densityused(13),
-        indcovaused(13), indcovbused(13), indcovcused(13), pasrand, yasrand,
-        iaasrand, ibasrand, icasrand, iaasfac, ibasfac, icasfac, fectime,
-        repstcheck);
+        indcovaused(13), indcovbused(13), indcovcused(13), annucovaused(13),
+        annucovbused(13), annucovcused(13), pasrand, yasrand, iaasrand,
+        ibasrand, icasrand, iaasfac, ibasfac, icasfac, fectime, repstcheck,
+        interactions);
         
       String mt1_proxy(as<StringVector>(matstat_prax[1]));
       juvmatstmodel = mt1_proxy;
@@ -1766,9 +2682,10 @@ List stovokor(const StringVector& surv, const StringVector& obs,
         matstat, historical, 8, String(alt_suite(13)), approach, nojuvs, juvsize,
         indiv, patch, year, age, densitycol, indcova, indcovb, indcovc,
         sizebused, sizecused, grouptest(13), ageused(13), densityused(13),
-        indcovaused(13), indcovbused(13), indcovcused(13), pasrand, yasrand,
-        iaasrand, ibasrand, icasrand, iaasfac, ibasfac, icasfac, fectime,
-        repstcheck);
+        indcovaused(13), indcovbused(13), indcovcused(13), annucovaused(13),
+        annucovbused(13), annucovcused(13), pasrand, yasrand, iaasrand,
+        ibasrand, icasrand, iaasfac, ibasfac, icasfac, fectime, repstcheck,
+        interactions);
         
       String alt_mt1_proxy(as<StringVector>(alt_matstat_prax[1]));
       alt_juvmatstmodel = alt_mt1_proxy;
@@ -1780,8 +2697,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
         matstat, historical, 1, String(suite(0)), "glm", nojuvs, juvsize, indiv,
         patch, year, age, densitycol, indcova, indcovb, indcovc, sizebused,
         sizecused, grouptest(0), ageused(0), densityused(0), indcovaused(0),
-        indcovbused(0), indcovcused(0), false, false, false, false, false,
-        iaasfac, ibasfac, icasfac, fectime, repstcheck);
+        indcovbused(0), indcovcused(0), annucovaused(0), annucovbused(0),
+        annucovcused(0), false, false, false, false, false, iaasfac, ibasfac,
+        icasfac, fectime, repstcheck, interactions);
       
       String glm_sp0_proxy(as<StringVector>(glm_surv_prax[0]));
       glm_fullsurvmodel = glm_sp0_proxy;
@@ -1796,8 +2714,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
           matstat, historical, 8, String(suite(13)), "glm", nojuvs, juvsize,
           indiv, patch, year, age, densitycol, indcova, indcovb, indcovc,
           sizebused, sizecused, grouptest(13), ageused(13), densityused(13),
-          indcovaused(13), indcovbused(13), indcovcused(13), false, false,
-          false, false, false, iaasfac, ibasfac, icasfac, fectime, repstcheck);
+          indcovaused(13), indcovbused(13), indcovcused(13), annucovaused(13),
+          annucovbused(13), annucovcused(13), false, false, false, false, false,
+          iaasfac, ibasfac, icasfac, fectime, repstcheck, interactions);
           
         String glm_mt1_proxy(as<StringVector>(glm_matstat_prax[1]));
         glm_juvmatstmodel = glm_mt1_proxy;
@@ -1813,8 +2732,8 @@ List stovokor(const StringVector& surv, const StringVector& obs,
         matstat, historical, 1, String(suite(0)), approach, nojuvs, juvsize,
         indiv, patch, year, age, densitycol, indcova, indcovb, indcovc,
         sizebused, sizecused, grouptest(0), ageused(0), densityused(0), false,
-        false, false, pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac,
-        ibasfac, icasfac, fectime, repstcheck);
+        false, false, false, false, false, pasrand, yasrand, iaasrand, ibasrand,
+        icasrand, iaasfac, ibasfac, icasfac, fectime, repstcheck, interactions);
       
       String nocovs_sp0_proxy(as<StringVector>(nocovs_surv_prax[0]));
       nocovs_fullsurvmodel = nocovs_sp0_proxy;
@@ -1835,8 +2754,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
         matstat, historical, 8, String(suite(13)), approach, nojuvs, juvsize,
         indiv, patch, year, age, densitycol, indcova, indcovb, indcovc,
         sizebused, sizecused, grouptest(13), ageused(13), densityused(13),
-        false, false, false, pasrand, yasrand, iaasrand, ibasrand, icasrand,
-        iaasfac, ibasfac, icasfac, fectime, repstcheck);
+        false, false, false, false, false, false, pasrand, yasrand, iaasrand,
+        ibasrand, icasrand, iaasfac, ibasfac, icasfac, fectime, repstcheck,
+        interactions);
         
       String nocovs_mt1_proxy(as<StringVector>(nocovs_matstat_prax[1]));
       nocovs_juvmatstmodel = nocovs_mt1_proxy;
@@ -1849,8 +2769,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
       historical, 2, String(suite(1)), approach, nojuvs, juvsize, indiv, patch,
       year, age, densitycol, indcova, indcovb, indcovc, sizebused, sizecused,
       grouptest(1), ageused(1), densityused(1), indcovaused(1), indcovbused(1),
-      indcovcused(1), pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac,
-      ibasfac, icasfac, fectime, repstcheck);
+      indcovcused(1), annucovaused(1), annucovbused(1), annucovcused(1),
+      pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac, ibasfac, icasfac,
+      fectime, repstcheck, interactions);
     
     String ob0_proxy(as<StringVector>(obs_prax[0]));
     fullobsmodel = ob0_proxy;
@@ -1860,8 +2781,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
       matstat, historical, 2, String(alt_suite(1)), approach, nojuvs, juvsize,
       indiv, patch, year, age, densitycol, indcova, indcovb, indcovc, sizebused,
       sizecused, grouptest(1), ageused(1), densityused(1), indcovaused(1),
-      indcovbused(1), indcovcused(1), pasrand, yasrand, iaasrand, ibasrand,
-      icasrand, iaasfac, ibasfac, icasfac, fectime, repstcheck);
+      indcovbused(1), indcovcused(1), annucovaused(1), annucovbused(1),
+      annucovcused(1), pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac,
+      ibasfac, icasfac, fectime, repstcheck, interactions);
     
     String alt_ob0_proxy(as<StringVector>(alt_obs_prax[0]));
     alt_fullobsmodel = alt_ob0_proxy;
@@ -1882,8 +2804,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
         matstat, historical, 2, String(suite(1)), "glm", nojuvs, juvsize, indiv,
         patch, year, age, densitycol, indcova, indcovb, indcovc, sizebused,
         sizecused, grouptest(1), ageused(1), densityused(1), indcovaused(1),
-        indcovbused(1), indcovcused(1), false, false, false, false, false,
-        iaasfac, ibasfac, icasfac, fectime, repstcheck);
+        indcovbused(1), indcovcused(1), annucovaused(1), annucovbused(1),
+        annucovcused(1), false, false, false, false, false, iaasfac, ibasfac,
+        icasfac, fectime, repstcheck, interactions);
       
       String glm_ob0_proxy(as<StringVector>(glm_obs_prax[0]));
       glm_fullobsmodel = glm_ob0_proxy;
@@ -1904,8 +2827,8 @@ List stovokor(const StringVector& surv, const StringVector& obs,
         matstat, historical, 2, String(suite(1)), approach, nojuvs, juvsize,
         indiv, patch, year, age, densitycol, indcova, indcovb, indcovc,
         sizebused, sizecused, grouptest(1), ageused(1), densityused(1), false,
-        false, false, pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac,
-        ibasfac, icasfac, fectime, repstcheck);
+        false, false, false, false, false, pasrand, yasrand, iaasrand, ibasrand,
+        icasrand, iaasfac, ibasfac, icasfac, fectime, repstcheck, interactions);
       
       String nocovs_ob0_proxy(as<StringVector>(nocovs_obs_prax[0]));
       nocovs_fullobsmodel = nocovs_ob0_proxy;
@@ -1926,8 +2849,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
       historical, 3, current_suite, approach, nojuvs, juvsize, indiv, patch,
       year, age, densitycol, indcova, indcovb, indcovc, sizebused, sizecused,
       grouptest(2), ageused(2), densityused(2), indcovaused(2), indcovbused(2),
-      indcovcused(2), pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac,
-      ibasfac, icasfac, fectime, repstcheck);
+      indcovcused(2), annucovaused(2), annucovbused(2), annucovcused(2),
+      pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac, ibasfac, icasfac,
+      fectime, repstcheck, interactions);
     
     total_terms(2) = static_cast<int>(size_prax(2));
     
@@ -1935,8 +2859,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
       matstat, historical, 3, String(alt_suite(2)), approach, nojuvs, juvsize,
       indiv, patch, year, age, densitycol, indcova, indcovb, indcovc, sizebused,
       sizecused, grouptest(2), ageused(2), densityused(2), indcovaused(2),
-      indcovbused(2), indcovcused(2), pasrand, yasrand, iaasrand, ibasrand,
-      icasrand, iaasfac, ibasfac, icasfac, fectime, repstcheck);
+      indcovbused(2), indcovcused(2), annucovaused(2), annucovbused(2),
+      annucovcused(2), pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac,
+      ibasfac, icasfac, fectime, repstcheck, interactions);
     
     alt_total_terms(2) = static_cast<int>(alt_size_prax(2));
     
@@ -1948,9 +2873,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
         matstat, historical, 3, String(suite(2)), approach, nojuvs, juvsize,
         indiv, patch, year, age, densitycol, indcova, indcovb, indcovc,
         sizebused, sizecused, grouptest(2), ageused(2), densityused(2),
-        indcovaused(2), indcovbused(2), indcovcused(2), pasrand, yasrand,
-        iaasrand, ibasrand, icasrand, iaasfac, ibasfac, icasfac, fectime,
-        repstcheck);
+        indcovaused(2), indcovbused(2), indcovcused(2), annucovaused(2),
+        annucovbused(2), annucovcused(2), pasrand, yasrand, iaasrand, ibasrand,
+        icasrand, iaasfac, ibasfac, icasfac, fectime, repstcheck, interactions);
       
       String sz0_proxy(as<StringVector>(size_prax_main[0]));
       fullsizemodel = sz0_proxy;
@@ -1960,9 +2885,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
         fec, matstat, historical, 3, String(alt_suite(2)), approach, nojuvs,
         juvsize, indiv, patch, year, age, densitycol, indcova, indcovb, indcovc,
         sizebused, sizecused, grouptest(2), ageused(2), densityused(2),
-        indcovaused(2), indcovbused(2), indcovcused(2), pasrand, yasrand,
-        iaasrand, ibasrand, icasrand, iaasfac, ibasfac, icasfac, fectime,
-        repstcheck);
+        indcovaused(2), indcovbused(2), indcovcused(2), annucovaused(2),
+        annucovbused(2), annucovcused(2), pasrand, yasrand, iaasrand, ibasrand,
+        icasrand, iaasfac, ibasfac, icasfac, fectime, repstcheck, interactions);
       
       String alt_sz0_proxy(as<StringVector>(alt_size_prax_main[0]));
       alt_fullsizemodel = alt_sz0_proxy;
@@ -2000,8 +2925,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
         matstat, historical, 3, current_suite, "glm", nojuvs, juvsize, indiv,
         patch, year, age, densitycol, indcova, indcovb, indcovc, sizebused,
         sizecused, grouptest(2), ageused(2), densityused(2), indcovaused(2),
-        indcovbused(2), indcovcused(2), false, false, false, false, false,
-        iaasfac, ibasfac, icasfac, fectime, repstcheck);
+        indcovbused(2), indcovcused(2), annucovaused(2), annucovbused(2),
+        annucovcused(2), false, false, false, false, false, iaasfac, ibasfac,
+        icasfac, fectime, repstcheck, interactions);
       
       glm_total_terms(2) = static_cast<int>(glm_size_prax(2));
       
@@ -2020,8 +2946,8 @@ List stovokor(const StringVector& surv, const StringVector& obs,
         matstat, historical, 3, String(suite(2)), approach, nojuvs, juvsize,
         indiv, patch, year, age, densitycol, indcova, indcovb, indcovc,
         sizebused, sizecused, grouptest(2), ageused(2), densityused(2), false,
-        false, false, pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac,
-        ibasfac, icasfac, fectime, repstcheck);
+        false, false, false, false, false, pasrand, yasrand, iaasrand, ibasrand,
+        icasrand, iaasfac, ibasfac, icasfac, fectime, repstcheck, interactions);
       
       String nocovs_sz0_proxy(as<StringVector>(nocovs_size_prax[0]));
       nocovs_fullsizemodel = nocovs_sz0_proxy;
@@ -2041,8 +2967,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
         matstat, historical, 4, current_suite, approach, nojuvs, juvsize, indiv,
         patch, year, age, densitycol, indcova, indcovb, indcovc, sizebused,
         sizecused, grouptest(3), ageused(3), densityused(3), indcovaused(3),
-        indcovbused(3), indcovcused(3), pasrand, yasrand, iaasrand, ibasrand,
-        icasrand, iaasfac, ibasfac, icasfac, fectime, repstcheck);
+        indcovbused(3), indcovcused(3), annucovaused(3), annucovbused(3),
+        annucovcused(3), pasrand, yasrand, iaasrand, ibasrand, icasrand,
+        iaasfac, ibasfac, icasfac, fectime, repstcheck, interactions);
       
       total_terms(3) = static_cast<int>(sizeb_prax(2));
       
@@ -2050,9 +2977,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
         matstat, historical, 4, String(alt_suite(3)), approach, nojuvs, juvsize,
         indiv, patch, year, age, densitycol, indcova, indcovb, indcovc,
         sizebused, sizecused, grouptest(3), ageused(3), densityused(3),
-        indcovaused(3), indcovbused(3), indcovcused(3), pasrand, yasrand,
-        iaasrand, ibasrand, icasrand, iaasfac, ibasfac, icasfac, fectime,
-        repstcheck);
+        indcovaused(3), indcovbused(3), indcovcused(3), annucovaused(3),
+        annucovbused(3), annucovcused(3), pasrand, yasrand, iaasrand, ibasrand,
+        icasrand, iaasfac, ibasfac, icasfac, fectime, repstcheck, interactions);
       
       alt_total_terms(3) = static_cast<int>(alt_sizeb_prax(2));
       
@@ -2064,9 +2991,10 @@ List stovokor(const StringVector& surv, const StringVector& obs,
           matstat, historical, 4, String(suite(3)), approach, nojuvs, juvsize,
           indiv, patch, year, age, densitycol, indcova, indcovb, indcovc,
           sizebused, sizecused, grouptest(3), ageused(3), densityused(3),
-          indcovaused(3), indcovbused(3), indcovcused(3), pasrand, yasrand,
-          iaasrand, ibasrand, icasrand, iaasfac, ibasfac, icasfac, fectime,
-          repstcheck);
+          indcovaused(3), indcovbused(3), indcovcused(3), annucovaused(3),
+          annucovbused(3), annucovcused(3), pasrand, yasrand, iaasrand,
+          ibasrand, icasrand, iaasfac, ibasfac, icasfac, fectime, repstcheck,
+          interactions);
         
         String szb0_proxy(as<StringVector>(sizeb_prax_main[0]));
         fullsizebmodel = szb0_proxy;
@@ -2077,8 +3005,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
           juvsize, indiv, patch, year, age, densitycol, indcova, indcovb,
           indcovc, sizebused, sizecused, grouptest(3), ageused(3),
           densityused(3), indcovaused(3), indcovbused(3), indcovcused(3),
-          pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac, ibasfac,
-          icasfac, fectime, repstcheck);
+          annucovaused(3), annucovbused(3), annucovcused(3), pasrand, yasrand,
+          iaasrand, ibasrand, icasrand, iaasfac, ibasfac, icasfac, fectime,
+          repstcheck, interactions);
         
         String alt_szb0_proxy(as<StringVector>(alt_sizeb_prax_main[0]));
         alt_fullsizebmodel = alt_szb0_proxy;
@@ -2116,8 +3045,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
           matstat, historical, 4, current_suite, "glm", nojuvs, juvsize, indiv,
           patch, year, age, densitycol, indcova, indcovb, indcovc, sizebused,
           sizecused, grouptest(3), ageused(3), densityused(3), indcovaused(3),
-          indcovbused(3), indcovcused(3), false, false, false, false, false,
-          iaasfac, ibasfac, icasfac, fectime, repstcheck);
+          indcovbused(3), indcovcused(3), annucovaused(3), annucovbused(3),
+          annucovcused(3), false, false, false, false, false, iaasfac, ibasfac,
+          icasfac, fectime, repstcheck, interactions);
         
         glm_total_terms(3) = static_cast<int>(glm_sizeb_prax(3));
         
@@ -2136,8 +3066,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
           fec, matstat, historical, 4, String(suite(3)), approach, nojuvs,
           juvsize, indiv, patch, year, age, densitycol, indcova, indcovb,
           indcovc, sizebused, sizecused, grouptest(3), ageused(3),
-          densityused(3), false, false, false, pasrand, yasrand, iaasrand,
-          ibasrand, icasrand, iaasfac, ibasfac, icasfac, fectime, repstcheck);
+          densityused(3), false, false, false, false, false, false, pasrand,
+          yasrand, iaasrand, ibasrand, icasrand, iaasfac, ibasfac, icasfac,
+          fectime, repstcheck, interactions);
         
         String nocovs_szb0_proxy(as<StringVector>(nocovs_sizeb_prax[0]));
         nocovs_fullsizebmodel = nocovs_szb0_proxy;
@@ -2158,8 +3089,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
         matstat, historical, 5, current_suite, approach, nojuvs, juvsize, indiv,
         patch, year, age, densitycol, indcova, indcovb, indcovc, sizebused,
         sizecused, grouptest(4), ageused(4), densityused(4), indcovaused(4),
-        indcovbused(4), indcovcused(4), pasrand, yasrand, iaasrand, ibasrand,
-        icasrand, iaasfac, ibasfac, icasfac, fectime, repstcheck);
+        indcovbused(4), indcovcused(4), annucovaused(4), annucovbused(4),
+        annucovcused(4), pasrand, yasrand, iaasrand, ibasrand, icasrand,
+        iaasfac, ibasfac, icasfac, fectime, repstcheck, interactions);
       
       total_terms(4) = static_cast<int>(sizec_prax(2));
       
@@ -2167,9 +3099,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
         matstat, historical, 5, String(alt_suite(4)), approach, nojuvs, juvsize,
         indiv, patch, year, age, densitycol, indcova, indcovb, indcovc,
         sizebused, sizecused, grouptest(4), ageused(4), densityused(4),
-        indcovaused(4), indcovbused(4), indcovcused(4), pasrand, yasrand,
-        iaasrand, ibasrand, icasrand, iaasfac, ibasfac, icasfac, fectime,
-        repstcheck);
+        indcovaused(4), indcovbused(4), indcovcused(4), annucovaused(4),
+        annucovbused(4), annucovcused(4), pasrand, yasrand, iaasrand, ibasrand,
+        icasrand, iaasfac, ibasfac, icasfac, fectime, repstcheck, interactions);
       
       alt_total_terms(4) = static_cast<int>(alt_sizec_prax(2));
       
@@ -2181,9 +3113,10 @@ List stovokor(const StringVector& surv, const StringVector& obs,
           matstat, historical, 5, String(suite(4)), approach, nojuvs, juvsize,
           indiv, patch, year, age, densitycol, indcova, indcovb, indcovc,
           sizebused, sizecused, grouptest(4), ageused(4), densityused(4),
-          indcovaused(4), indcovbused(4), indcovcused(4), pasrand, yasrand,
-          iaasrand, ibasrand, icasrand, iaasfac, ibasfac, icasfac, fectime,
-          repstcheck);
+          indcovaused(4), indcovbused(4), indcovcused(4), annucovaused(4),
+          annucovbused(4), annucovcused(4), pasrand, yasrand, iaasrand,
+          ibasrand, icasrand, iaasfac, ibasfac, icasfac, fectime, repstcheck,
+          interactions);
         
         String szc0_proxy(as<StringVector>(sizec_prax_main[0]));
         fullsizecmodel = szc0_proxy;
@@ -2194,8 +3127,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
           juvsize, indiv, patch, year, age, densitycol, indcova, indcovb,
           indcovc, sizebused, sizecused, grouptest(4), ageused(4),
           densityused(4), indcovaused(4), indcovbused(4), indcovcused(4),
-          pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac, ibasfac,
-          icasfac, fectime, repstcheck);
+          annucovaused(4), annucovbused(4), annucovcused(4), pasrand, yasrand,
+          iaasrand, ibasrand, icasrand, iaasfac, ibasfac, icasfac, fectime,
+          repstcheck, interactions);
         
         String alt_szc0_proxy(as<StringVector>(alt_sizec_prax_main[0]));
         alt_fullsizecmodel = alt_szc0_proxy;
@@ -2233,8 +3167,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
           matstat, historical, 5, current_suite, "glm", nojuvs, juvsize, indiv,
           patch, year, age, densitycol, indcova, indcovb, indcovc, sizebused,
           sizecused, grouptest(4), ageused(4), densityused(4), indcovaused(4),
-          indcovbused(4), indcovcused(4), false, false, false, false, false,
-          iaasfac, ibasfac, icasfac, fectime, repstcheck);
+          indcovbused(4), indcovcused(4), annucovaused(4), annucovbused(4),
+          annucovcused(4), false, false, false, false, false, iaasfac, ibasfac,
+          icasfac, fectime, repstcheck, interactions);
         
         glm_total_terms(4) = static_cast<int>(glm_sizec_prax(4));
         
@@ -2253,8 +3188,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
           fec, matstat, historical, 5, String(suite(4)), approach, nojuvs,
           juvsize, indiv, patch, year, age, densitycol, indcova, indcovb,
           indcovc, sizebused, sizecused, grouptest(4), ageused(4),
-          densityused(4), false, false, false, pasrand, yasrand, iaasrand,
-          ibasrand, icasrand, iaasfac, ibasfac, icasfac, fectime, repstcheck);
+          densityused(4), false, false, false, false, false, false, pasrand,
+          yasrand, iaasrand, ibasrand, icasrand, iaasfac, ibasfac, icasfac,
+          fectime, repstcheck, interactions);
         
         String nocovs_szc0_proxy(as<StringVector>(nocovs_sizec_prax[0]));
         nocovs_fullsizecmodel = nocovs_szc0_proxy;
@@ -2274,8 +3210,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
       historical, 6, String(suite(5)), approach, nojuvs, juvsize, indiv, patch,
       year, age, densitycol, indcova, indcovb, indcovc, sizebused, sizecused,
       grouptest(5), ageused(5), densityused(5), indcovaused(5), indcovbused(5),
-      indcovcused(5), pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac,
-      ibasfac, icasfac, fectime, repstcheck);
+      indcovcused(5), annucovaused(5), annucovbused(5), annucovcused(5),
+      pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac, ibasfac, icasfac,
+      fectime, repstcheck, interactions);
     
     String rp0_proxy(as<StringVector>(repst_prax[0]));
     fullrepstmodel = rp0_proxy;
@@ -2285,8 +3222,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
       matstat, historical, 6, String(alt_suite(5)), approach, nojuvs, juvsize,
       indiv, patch, year, age, densitycol, indcova, indcovb, indcovc, sizebused,
       sizecused, grouptest(5), ageused(5), densityused(5), indcovaused(5),
-      indcovbused(5), indcovcused(5), pasrand, yasrand, iaasrand, ibasrand,
-      icasrand, iaasfac, ibasfac, icasfac, fectime, repstcheck);
+      indcovbused(5), indcovcused(5), annucovaused(5), annucovbused(5),
+      annucovcused(5), pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac,
+      ibasfac, icasfac, fectime, repstcheck, interactions);
     
     String alt_rp0_proxy(as<StringVector>(alt_repst_prax[0]));
     alt_fullrepstmodel = alt_rp0_proxy;
@@ -2307,8 +3245,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
         matstat, historical, 6, String(suite(5)), "glm", nojuvs, juvsize, indiv,
         patch, year, age, densitycol, indcova, indcovb, indcovc, sizebused,
         sizecused, grouptest(5), ageused(5), densityused(5), indcovaused(5),
-        indcovbused(5), indcovcused(5), false, false, false, false, false,
-        iaasfac, ibasfac, icasfac, fectime, repstcheck);
+        indcovbused(5), indcovcused(5), annucovaused(5), annucovbused(5),
+        annucovcused(5), false, false, false, false, false, iaasfac, ibasfac,
+        icasfac, fectime, repstcheck, interactions);
       
       String glm_rp0_proxy(as<StringVector>(glm_repst_prax[0]));
       glm_fullrepstmodel = glm_rp0_proxy;
@@ -2329,8 +3268,8 @@ List stovokor(const StringVector& surv, const StringVector& obs,
         matstat, historical, 6, String(suite(5)), approach, nojuvs, juvsize,
         indiv, patch, year, age, densitycol, indcova, indcovb, indcovc,
         sizebused, sizecused, grouptest(5), ageused(5), densityused(5), false,
-        false, false, pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac,
-        ibasfac, icasfac, fectime, repstcheck);
+        false, false, false, false, false, pasrand, yasrand, iaasrand, ibasrand,
+        icasrand, iaasfac, ibasfac, icasfac, fectime, repstcheck, interactions);
       
       String nocovs_rp0_proxy(as<StringVector>(nocovs_repst_prax[0]));
       nocovs_fullrepstmodel = nocovs_rp0_proxy;
@@ -2349,8 +3288,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
       historical, 7, String(suite(6)), approach, nojuvs, juvsize, indiv, patch,
       year, age, densitycol, indcova, indcovb, indcovc, sizebused, sizecused,
       grouptest(6), ageused(6), densityused(6), indcovaused(6), indcovbused(6),
-      indcovcused(6), pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac,
-      ibasfac, icasfac, fectime, repstcheck);
+      indcovcused(6), annucovaused(6), annucovbused(6), annucovcused(6),
+      pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac, ibasfac, icasfac,
+      fectime, repstcheck, interactions);
     
     String fc0_proxy(as<StringVector>(fec_prax[0]));
     fullfecmodel = fc0_proxy;
@@ -2360,8 +3300,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
       matstat, historical, 7, String(alt_suite(6)), approach, nojuvs, juvsize,
       indiv, patch, year, age, densitycol, indcova, indcovb, indcovc, sizebused,
       sizecused, grouptest(6), ageused(6), densityused(6), indcovaused(6),
-      indcovbused(6), indcovcused(6), pasrand, yasrand, iaasrand, ibasrand,
-      icasrand, iaasfac, ibasfac, icasfac, fectime, repstcheck);
+      indcovbused(6), indcovcused(6), annucovaused(6), annucovbused(6),
+      annucovcused(6), pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac,
+      ibasfac, icasfac, fectime, repstcheck, interactions);
     
     String alt_fc0_proxy(as<StringVector>(alt_fec_prax[0]));
     alt_fullfecmodel = alt_fc0_proxy;
@@ -2372,8 +3313,9 @@ List stovokor(const StringVector& surv, const StringVector& obs,
         matstat, historical, 7, String(suite(6)), "glm", nojuvs, juvsize, indiv,
         patch, year, age, densitycol, indcova, indcovb, indcovc, sizebused,
         sizecused, grouptest(6), ageused(6), densityused(6), indcovaused(6),
-        indcovbused(6), indcovcused(6), false, false, false, false, false,
-        iaasfac, ibasfac, icasfac, fectime, repstcheck);
+        indcovbused(6), indcovcused(6), annucovaused(6), annucovbused(6),
+        annucovcused(6), false, false, false, false, false, iaasfac, ibasfac,
+        icasfac, fectime, repstcheck, interactions);
       
       String glm_fc0_proxy(as<StringVector>(glm_fec_prax[0]));
       glm_fullfecmodel = glm_fc0_proxy;
@@ -2388,8 +3330,8 @@ List stovokor(const StringVector& surv, const StringVector& obs,
         matstat, historical, 7, String(suite(6)), approach, nojuvs, juvsize,
         indiv, patch, year, age, densitycol, indcova, indcovb, indcovc,
         sizebused, sizecused, grouptest(6), ageused(6), densityused(6), false,
-        false, false, pasrand, yasrand, iaasrand, ibasrand, icasrand, iaasfac,
-        ibasfac, icasfac, fectime, repstcheck);
+        false, false, false, false, false, pasrand, yasrand, iaasrand, ibasrand,
+        icasrand, iaasfac, ibasfac, icasfac, fectime, repstcheck, interactions);
       
       String nocovs_fc0_proxy(as<StringVector>(nocovs_fec_prax[0]));
       nocovs_fullfecmodel = nocovs_fc0_proxy;
@@ -2402,7 +3344,11 @@ List stovokor(const StringVector& surv, const StringVector& obs,
   int pm_varno = static_cast<int>(paramnames.nrows());
   StringVector mainparams = as<StringVector>(paramnames["mainparams"]);
   
-  StringVector modelparams (31);
+  StringVector modelparams (37);
+  
+  bool annca_used = is_true( any(annucovaused));
+  bool anncb_used = is_true( any(annucovbused));
+  bool anncc_used = is_true( any(annucovcused));
   
   for (int i = 0; i < pm_varno; i++) {
     modelparams(i) = "none"; // Default value
@@ -2444,11 +3390,16 @@ List stovokor(const StringVector& surv, const StringVector& obs,
     if (stringcompare_hard(as<std::string>(mainparams(i)), "matst3")) modelparams(i) = matstat(0);
     if (stringcompare_hard(as<std::string>(mainparams(i)), "matstat2")) modelparams(i) = matstat(1);
     if (stringcompare_hard(as<std::string>(mainparams(i)), "age")) modelparams(i) = age;
+    
     if (densityused && stringcompare_hard(as<std::string>(mainparams(i)), "density")) modelparams(i) = densitycol;
     if (grouptest && stringcompare_hard(as<std::string>(mainparams(i)), "group2")) modelparams(i) = "group2";
     if (indcovaused && stringcompare_hard(as<std::string>(mainparams(i)), "indcova2")) modelparams(i) = indcova(1);
     if (indcovbused && stringcompare_hard(as<std::string>(mainparams(i)), "indcovb2")) modelparams(i) = indcovb(1);
     if (indcovcused && stringcompare_hard(as<std::string>(mainparams(i)), "indcovc2")) modelparams(i) = indcovc(1);
+    
+    if (annca_used && stringcompare_hard(as<std::string>(mainparams(i)), "annucova2")) modelparams(i) = "annucova2";
+    if (anncb_used && stringcompare_hard(as<std::string>(mainparams(i)), "annucovb2")) modelparams(i) = "annucovb2";
+    if (anncc_used && stringcompare_hard(as<std::string>(mainparams(i)), "annucovc2")) modelparams(i) = "annucovc2";
     
     // Further historical terms, if used
     if (historical) {
@@ -2459,6 +3410,10 @@ List stovokor(const StringVector& surv, const StringVector& obs,
       if (indcovaused && stringcompare_hard(as<std::string>(mainparams(i)), "indcova1")) modelparams(i) = indcova(2);
       if (indcovbused && stringcompare_hard(as<std::string>(mainparams(i)), "indcovb1")) modelparams(i) = indcovb(2);
       if (indcovcused && stringcompare_hard(as<std::string>(mainparams(i)), "indcovc1")) modelparams(i) = indcovc(2);
+      
+      if (annca_used && stringcompare_hard(as<std::string>(mainparams(i)), "annucova1")) modelparams(i) = "annucova1";
+      if (anncb_used && stringcompare_hard(as<std::string>(mainparams(i)), "annucovb1")) modelparams(i) = "annucovb1";
+      if (anncc_used && stringcompare_hard(as<std::string>(mainparams(i)), "annucovc1")) modelparams(i) = "annucovc1";
     }
   }
   paramnames["modelparams"] = modelparams;

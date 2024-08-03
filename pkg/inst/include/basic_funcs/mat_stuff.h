@@ -512,25 +512,31 @@ namespace LefkoMats {
       "individual covariate a in time t", "individual covariate a in time t-1",
       "individual covariate b in time t", "individual covariate b in time t-1",
       "individual covariate c in time t", "individual covariate c in time t-1",
-      "stage group in time t", "stage group in time t-1"};
+      "stage group in time t", "stage group in time t-1",
+      "annual covariate a in time t", "annual covariate a in time t-1",
+      "annual covariate b in time t", "annual covariate b in time t-1",
+      "annual covariate c in time t", "annual covariate c in time t-1"};
     
     CharacterVector mainparams = {"year2", "individ", "patch", "surv3", "obs3",
       "size3", "sizeb3", "sizec3", "repst3", "fec3", "fec2", "size2", "size1",
       "sizeb2", "sizeb1", "sizec2", "sizec1", "repst2", "repst1", "matst3",
       "matst2", "age", "density", "indcova2", "indcova1", "indcovb2", "indcovb1",
-      "indcovc2", "indcovc1", "group2", "group1"};
+      "indcovc2", "indcovc1", "group2", "group1", "annucova2", "annucova1",
+      "annucovb2", "annucovb1", "annucovc2", "annucovc1"};
     
     CharacterVector modelparams = {"none", "none", "none", "none", "none",
       "none", "none", "none", "none", "none", "none", "none", "none", "none",
       "none", "none", "none", "none", "none", "none", "none", "none", "none",
-      "none", "none", "none", "none", "none", "none", "none", "none"};
+      "none", "none", "none", "none", "none", "none", "none", "none", "none",
+      "none", "none", "none", "none", "none"};
     
     CharacterVector modelparams_alt = {"year2", "individ", "patchid", "alive3",
       "obsstatus3", "sizea3", "sizeb3", "sizec3", "repstatus3", "feca3",
       "feca2", "sizea2", "sizea1", "sizeb2", "sizeb1", "sizec2", "sizec1",
       "repstatus2", "repstatus1", "matstatus3", "matstatus2", "obsage",
       "density", "indcova2", "indcova1", "indcovb2", "indcovb1", "indcovc2",
-      "indcovc1", "group2", "group1"};
+      "indcovc1", "group2", "group1", "annucova2", "annucova1", "annucovb2",
+      "annucovb1", "annucovc2", "annucovc1"};
     
     if (name_terms) modelparams = modelparams_alt;
     

@@ -1545,10 +1545,19 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
   }
   
   if (any(test.annucova) | any(test.annucovb) | any(test.annucovc)) {
-    found_years <- unique(data[,yearcol])
+    found_years <- sort(unique(data[,yearcol]))
     found_years_num <- length(found_years)
     
+    fy_column_order <- apply(as.matrix(data[,yearcol]), 1, function(X) {
+      return(which(found_years == X))
+    })
+    fy_column_order <- fy_column_order + 1
+    
     if (any(test.annucova)) {
+      if (any(is.na(annucova)) | any(is.null(annucova)) | !all(is.numeric(annucova))) {
+        stop("All values entered in vector annucova must be numeric.", call. = FALSE)
+      }
+      
       if (historical) {
         if (length(annucova) != (found_years_num + 1)) {
           stop("Length of vector annucova in historical models must be the number of years in the data plus one.",
@@ -1560,9 +1569,22 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
             call. = FALSE)
         }
       }
+      
+      annucova_adj <- c(annucova, NA)
+      if (!historical) {
+        annucova_adj <- c(NA, annucova_adj)
+      }
+      
+      data$annucova3 <- annucova_adj[(fy_column_order + 1)]
+      data$annucova2 <- annucova_adj[fy_column_order]
+      data$annucova1 <- annucova_adj[(fy_column_order - 1)]
     }
     
     if (any(test.annucovb)) {
+      if (any(is.na(annucovb)) | any(is.null(annucovb)) | !all(is.numeric(annucovb))) {
+        stop("All values entered in vector annucovb must be numeric.", call. = FALSE)
+      }
+      
       if (historical) {
         if (length(annucovb) != (found_years_num + 1)) {
           stop("Length of vector annucovb in historical models must be the number of years in the data plus one.",
@@ -1574,9 +1596,22 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
             call. = FALSE)
         }
       }
+      
+      annucovb_adj <- c(annucovb, NA)
+      if (!historical) {
+        annucovb_adj <- c(NA, annucovb_adj)
+      }
+      
+      data$annucovb3 <- annucovb_adj[(fy_column_order + 1)]
+      data$annucovb2 <- annucovb_adj[fy_column_order]
+      data$annucovb1 <- annucovb_adj[(fy_column_order - 1)]
     }
     
     if (any(test.annucovc)) {
+      if (any(is.na(annucovc)) | any(is.null(annucovc)) | !all(is.numeric(annucovc))) {
+        stop("All values entered in vector annucovc must be numeric.", call. = FALSE)
+      }
+      
       if (historical) {
         if (length(annucovc) != (found_years_num + 1)) {
           stop("Length of vector annucovc in historical models must be the number of years in the data plus one.",
@@ -1588,6 +1623,15 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
             call. = FALSE)
         }
       }
+      
+      annucovc_adj <- c(annucovc, NA)
+      if (!historical) {
+        annucovc_adj <- c(NA, annucovc_adj)
+      }
+      
+      data$annucovc3 <- annucovc_adj[(fy_column_order + 1)]
+      data$annucovc2 <- annucovc_adj[fy_column_order]
+      data$annucovc1 <- annucovc_adj[(fy_column_order - 1)]
     }
   }
   
@@ -1629,10 +1673,25 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     vitalrates, historical, suite, approach, is.na(juvestimate), juvsize, indiv,
     patch, year, age, density, indcova, indcovb, indcovc, sizeb_used,
     sizec_used, test.group, test.age, test.density, test.indcova, test.indcovb,
-    test.indcovc, patch.as.random, year.as.random, random.indcova,
-    random.indcovb, random.indcovc, indcova_fac, indcovb_fac, indcovc_fac,
-    fectime, size.zero, sizeb.zero, sizec.zero, jsize.zero, jsizeb.zero,
-    jsizec.zero)
+    test.indcovc, test.annucova, test.annucovb, test.annucovc, patch.as.random,
+    year.as.random, random.indcova, random.indcovb, random.indcovc, indcova_fac,
+    indcovb_fac, indcovc_fac, fectime, size.zero, sizeb.zero, sizec.zero,
+    jsize.zero, jsizeb.zero, jsizec.zero, interactions)
+  
+  for (i in c(1:14)) {
+    if (grepl(" +  + ", x = formulae$main[[i]], fixed = TRUE)) {
+      formulae$main[[i]] <- gsub(" +  + ", " + ", x = formulae$main[[i]], fixed = TRUE)
+    }
+    if (grepl(" +  + ", x = formulae$alternate[[i]], fixed = TRUE)) {
+      formulae$alternate[[i]] <- gsub(" +  + ", " + ", x = formulae$alternate[[i]], fixed = TRUE)
+    }
+    if (grepl(" +  + ", x = formulae$glm.alternate[[i]], fixed = TRUE)) {
+      formulae$glm.alternate[[i]] <- gsub(" +  + ", " + ", x = formulae$glm.alternate[[i]], fixed = TRUE)
+    }
+    if (grepl(" +  + ", x = formulae$nocovs.alternate[[i]], fixed = TRUE)) {
+      formulae$nocovs.alternate[[i]] <- gsub(" +  + ", " + ", x = formulae$nocovs.alternate[[i]], fixed = TRUE)
+    }
+  }
   
   vars_used_pm <- formulae$main$paramnames$modelparams[which(formulae$main$paramnames$modelparams != "none")]
   if (all(!test.group)) {
@@ -1740,7 +1799,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
   # Global model builds
   # Survival probability
   surv.data <- subset(adult.data, adult.data[,which(names(adult.data) == surv[2])] == 1)
-  surv.data <- surv.data[,vars_used_pm]
+  surv.data <- surv.data[,vars_used_pm] # vars_used_pm does not contain annucova!!!! /////
   surv.data <- surv.data[complete.cases(surv.data),]
   
   surv.ind <- length(unique(surv.data[, which(names(surv.data) == indiv)]))
@@ -3701,6 +3760,7 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
   juvobs.data <- juvsize.data <- juvrepst.data <- juvmatst.data <- NA
   sizeb.data <- sizec.data <- juvsizeb.data <- juvsizec.data <- NA
   core_func <- family_string <- global_call <- global_model <- NULL
+  global_model <- NA
   
   if (vrate == 1) {
     if (!quiet.mil) {
@@ -3714,13 +3774,16 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     surv.data <- subdata
     
     if (approach == "mixed" & !is.na(dist)) {
-      global_call <- rlang::expr(lme4::glmer(formula = usedformula, data = surv.data, family = "binomial"))
+      global_call <- rlang::expr(lme4::glmer(formula = stats::as.formula(usedformula),
+        data = surv.data, family = "binomial"))
     } else if (approach == "glm" & !is.na(dist)) {
-      global_call <- rlang::expr(stats::glm(formula = usedformula, data = surv.data, family = "binomial"))
+      global_call <- rlang::expr(stats::glm(formula = stats::as.formula(usedformula),
+        data = surv.data, family = "binomial"))
     } else {
       stop("Modeling approach not recognized.", call. = FALSE)
     }
-  } else   if (vrate == 2) {
+    
+  } else if (vrate == 2) {
     if (!quiet.mil) {
       if (usedformula != "none") {
         message("\nDeveloping global model of observation probability...\n");
@@ -3732,12 +3795,15 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     obs.data <- subdata
     
     if (approach == "mixed" & !is.na(dist)) {
-      global_call <- rlang::expr(lme4::glmer(formula = usedformula, data = obs.data, family = "binomial"))
+      global_call <- rlang::expr(lme4::glmer(formula = stats::as.formula(usedformula),
+        data = obs.data, family = "binomial"))
     } else if (approach == "glm" & !is.na(dist)) {
-      global_call <- rlang::expr(stats::glm(formula = usedformula, data = obs.data, family = "binomial"))
+      global_call <- rlang::expr(stats::glm(formula = stats::as.formula(usedformula),
+        data = obs.data, family = "binomial"))
     } else {
       stop("Modeling approach not recognized.", call. = FALSE)
     }
+    
   } else if (vrate == 3) {
     if (!quiet.mil) {
       if (usedformula != "none") {
@@ -3751,54 +3817,63 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     
     if (approach == "mixed" & !is.na(dist)) {
       if (dist == "gaussian") {
-        global_call <- rlang::expr(lme4::lmer(formula = usedformula, data = size.data))
+        global_call <- rlang::expr(lme4::lmer(formula = stats::as.formula(usedformula),
+          data = size.data))
       } else if (dist == "gamma") {
-        global_call <- rlang::expr(lme4::glmer(formula = usedformula, data = size.data, family = "Gamma"))
+        global_call <- rlang::expr(lme4::glmer(formula = stats::as.formula(usedformula),
+          data = size.data, family = "Gamma"))
       } else if (!truncz) {
         if (dist == "poisson" & !zero) {
-          global_call <- rlang::expr(lme4::glmer(formula = usedformula, data = size.data, family = "poisson"))
+          global_call <- rlang::expr(lme4::glmer(formula = stats::as.formula(usedformula),
+            data = size.data, family = "poisson"))
         } else if (dist == "poisson" & zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = size.data, ziformula=~., family = "poisson"))
         } else if (dist == "negbin" & !zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = size.data, ziformula=~0, family = glmmTMB::nbinom2))
         } else if (dist == "negbin" & zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = size.data, ziformula=~., family = glmmTMB::nbinom2))
         }
       } else if (truncz) {
         if (dist == "poisson" & !zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = size.data, family = glmmTMB::truncated_poisson))
         } else if (dist == "negbin" & !zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = size.data, family = glmmTMB::truncated_nbinom2))
         }
       }
     } else if (approach == "glm" & !is.na(dist)) {
         if (dist == "gaussian") {
-          global_call <- rlang::expr(stats::lm(formula = usedformula, data = size.data))
+          global_call <- rlang::expr(stats::lm(formula = stats::as.formula(usedformula),
+            data = size.data))
         } else if (dist == "gamma") {
-          global_call <- rlang::expr(stats::glm(formula = usedformula, data = size.data, family = "Gamma"))
+          global_call <- rlang::expr(stats::glm(formula = stats::as.formula(usedformula),
+            data = size.data, family = "Gamma"))
         } else if (!truncz) {
           if (dist == "poisson" & !zero) {
-            global_call <- rlang::expr(stats::glm(formula = usedformula, data = size.data, family = "poisson"))
+            global_call <- rlang::expr(stats::glm(formula = stats::as.formula(usedformula),
+              data = size.data, family = "poisson"))
           } else if (dist == "poisson" & zero) {
-            global_call <- rlang::expr(pscl::zeroinfl(formula = usedformula, data = size.data, family = "poisson"))
+            global_call <- rlang::expr(pscl::zeroinfl(formula = stats::as.formula(usedformula),
+              data = size.data, family = "poisson"))
           } else if (dist == "negbin" & !zero) {
-            global_call <- rlang::expr(MASS::glm.nb(formula = usedformula, data = size.data))
+            global_call <- rlang::expr(MASS::glm.nb(formula = stats::as.formula(usedformula),
+              data = size.data))
           } else if (dist == "negbin" & zero) {
-            global_call <- rlang::expr(pscl::zeroinfl(formula = usedformula, data = size.data, family = "negbin"))
+            global_call <- rlang::expr(pscl::zeroinfl(formula = stats::as.formula(usedformula),
+              data = size.data, family = "negbin"))
           }
         } else if (truncz) {
           usedformula <- gsub(" + 1", "", usedformula, fixed = TRUE)
           
           if (dist == "poisson" & !zero) {
-            global_call <- rlang::expr(VGAM::vglm(formula = usedformula,
+            global_call <- rlang::expr(VGAM::vglm(formula = stats::as.formula(usedformula),
               data = size.data, family = VGAM::pospoisson()))
           } else if (dist == "negbin" & !zero) {
-            global_call <- rlang::expr(VGAM::vglm(formula = usedformula,
+            global_call <- rlang::expr(VGAM::vglm(formula = stats::as.formula(usedformula),
               data = size.data, family = VGAM::posnegbinomial()))
           }
         }
@@ -3817,9 +3892,11 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     repst.data <- subdata
     
     if (approach == "mixed" & !is.na(dist)) {
-      global_call <- rlang::expr(lme4::glmer(formula = usedformula, data = repst.data, family = "binomial"))
+      global_call <- rlang::expr(lme4::glmer(formula = stats::as.formula(usedformula),
+        data = repst.data, family = "binomial"))
     } else if (approach == "glm" & !is.na(dist)) {
-      global_call <- rlang::expr(stats::glm(formula = usedformula, data = repst.data, family = "binomial"))
+      global_call <- rlang::expr(stats::glm(formula = stats::as.formula(usedformula),
+        data = repst.data, family = "binomial"))
     } else {
       stop("Modeling approach not recognized.", call. = FALSE)
     }
@@ -3836,56 +3913,63 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     
     if (approach == "mixed" & !is.na(dist)) {
       if (dist == "gaussian") {
-        global_call <- rlang::expr(lme4::lmer(formula = usedformula, data = fec.data))
+        global_call <- rlang::expr(lme4::lmer(formula = stats::as.formula(usedformula),
+          data = fec.data))
       } else if (dist == "gamma") {
-        global_call <- rlang::expr(lme4::glmer(formula = usedformula, data = fec.data, family = "Gamma"))
+        global_call <- rlang::expr(lme4::glmer(formula = stats::as.formula(usedformula),
+          data = fec.data, family = "Gamma"))
       } else if (!truncz) {
         if (dist == "poisson" & !zero) {
-          global_call <- rlang::expr(lme4::glmer(formula = usedformula, data = fec.data, family = "poisson"))
+          global_call <- rlang::expr(lme4::glmer(formula = stats::as.formula(usedformula),
+            data = fec.data, family = "poisson"))
         } else if (dist == "poisson" & zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = fec.data, ziformula=~., family = "poisson"))
         } else if (dist == "negbin" & !zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = fec.data, ziformula=~0, family = glmmTMB::nbinom2))
         } else if (dist == "negbin" & zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = fec.data, ziformula=~., family = glmmTMB::nbinom2))
         }
       } else if (truncz) {
         if (dist == "poisson" & !zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = fec.data, family = glmmTMB::truncated_poisson))
         } else if (dist == "negbin" & !zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = fec.data, family = glmmTMB::truncated_nbinom2))
         }
       }
     } else if (approach == "glm" & !is.na(dist)) {
         if (dist == "gaussian") {
-          global_call <- rlang::expr(stats::lm(formula = usedformula, data = fec.data))
+          global_call <- rlang::expr(stats::lm(formula = stats::as.formula(usedformula),
+            data = fec.data))
         } else if (dist == "gamma") {
-          global_call <- rlang::expr(stats::glm(formula = usedformula, data = fec.data, family = "Gamma"))
+          global_call <- rlang::expr(stats::glm(formula = stats::as.formula(usedformula),
+            data = fec.data, family = "Gamma"))
         } else if (!truncz) {
           if (dist == "poisson" & !zero) {
-            global_call <- rlang::expr(stats::glm(formula = usedformula, data = fec.data, family = "poisson"))
+            global_call <- rlang::expr(stats::glm(formula = stats::as.formula(usedformula),
+              data = fec.data, family = "poisson"))
           } else if (dist == "poisson" & zero) {
-            global_call <- rlang::expr(pscl::zeroinfl(formula = usedformula,
+            global_call <- rlang::expr(pscl::zeroinfl(formula = stats::as.formula(usedformula),
               data = fec.data, family = "poisson"))
           } else if (dist == "negbin" & !zero) {
-            global_call <- rlang::expr(MASS::glm.nb(formula = usedformula, data = fec.data))
+            global_call <- rlang::expr(MASS::glm.nb(formula = stats::as.formula(usedformula),
+              data = fec.data))
           } else if (dist == "negbin" & zero) {
-            global_call <- rlang::expr(pscl::zeroinfl(formula = usedformula,
+            global_call <- rlang::expr(pscl::zeroinfl(formula = stats::as.formula(usedformula),
               data = fec.data, family = "negbin"))
           }
         } else if (truncz) {
           usedformula <- gsub(" + 1", "", usedformula, fixed = TRUE)
           
           if (dist == "poisson" & !zero) {
-            global_call <- rlang::expr(VGAM::vglm(formula = usedformula,
+            global_call <- rlang::expr(VGAM::vglm(formula = stats::as.formula(usedformula),
               data = fec.data, family = VGAM::pospoisson()))
           } else if (dist == "negbin" & !zero) {
-            global_call <- rlang::expr(VGAM::vglm(formula = usedformula,
+            global_call <- rlang::expr(VGAM::vglm(formula = stats::as.formula(usedformula),
               data = fec.data, family = VGAM::posnegbinomial()))
           }
         }
@@ -3904,9 +3988,11 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     juvsurv.data <- subdata
     
     if (approach == "mixed" & !is.na(dist)) {
-      global_call <- rlang::expr(lme4::glmer(formula = usedformula, data = juvsurv.data, family = "binomial"))
+      global_call <- rlang::expr(lme4::glmer(formula = stats::as.formula(usedformula),
+        data = juvsurv.data, family = "binomial"))
     } else if (approach == "glm" & !is.na(dist)) {
-      global_call <- rlang::expr(stats::glm(formula = usedformula, data = juvsurv.data, family = "binomial"))
+      global_call <- rlang::expr(stats::glm(formula = stats::as.formula(usedformula),
+        data = juvsurv.data, family = "binomial"))
     } else {
       stop("Modeling approach not recognized.", call. = FALSE)
     }
@@ -3922,9 +4008,11 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     juvobs.data <- subdata
     
     if (approach == "mixed" & !is.na(dist)) {
-      global_call <- rlang::expr(lme4::glmer(formula = usedformula, data = juvobs.data, family = "binomial"))
+      global_call <- rlang::expr(lme4::glmer(formula = stats::as.formula(usedformula),
+        data = juvobs.data, family = "binomial"))
     } else if (approach == "glm" & !is.na(dist)) {
-      global_call <- rlang::expr(stats::glm(formula = usedformula, data = juvobs.data, family = "binomial"))
+      global_call <- rlang::expr(stats::glm(formula = stats::as.formula(usedformula),
+        data = juvobs.data, family = "binomial"))
     } else {
       stop("Modeling approach not recognized.", call. = FALSE)
     }
@@ -3941,60 +4029,63 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     
     if (approach == "mixed" & !is.na(dist)) {
       if (dist == "gaussian") {
-        global_call <- rlang::expr(lme4::lmer(formula = usedformula, data = juvsize.data))
+        global_call <- rlang::expr(lme4::lmer(formula = stats::as.formula(usedformula),
+          data = juvsize.data))
       } else if (dist == "gamma") {
-        global_call <- rlang::expr(lme4::glmer(formula = usedformula,
+        global_call <- rlang::expr(lme4::glmer(formula = stats::as.formula(usedformula),
           data = juvsize.data, family = "Gamma"))
       } else if (!truncz) {
         if (dist == "poisson" & !zero) {
-          global_call <- rlang::expr(lme4::glmer(formula = usedformula,
+          global_call <- rlang::expr(lme4::glmer(formula = stats::as.formula(usedformula),
             data = juvsize.data, family = "poisson"))
         } else if (dist == "poisson" & zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = juvsize.data, ziformula=~., family = "poisson"))
         } else if (dist == "negbin" & !zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = juvsize.data, ziformula=~0, family = glmmTMB::nbinom2))
         } else if (dist == "negbin" & zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = juvsize.data, ziformula=~., family = glmmTMB::nbinom2))
         }
       } else if (truncz) {
         if (dist == "poisson" & !zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = juvsize.data, family = glmmTMB::truncated_poisson))
         } else if (dist == "negbin" & !zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = juvsize.data, family = glmmTMB::truncated_nbinom2))
         }
       }
     } else if (approach == "glm" & !is.na(dist)) {
         if (dist == "gaussian") {
-          global_call <- rlang::expr(stats::lm(formula = usedformula, data = juvsize.data))
+          global_call <- rlang::expr(stats::lm(formula = stats::as.formula(usedformula),
+            data = juvsize.data))
         } else if (dist == "gamma") {
-          global_call <- rlang::expr(stats::glm(formula = usedformula,
+          global_call <- rlang::expr(stats::glm(formula = stats::as.formula(usedformula),
             data = juvsize.data, family = "Gamma"))
         } else if (!truncz) {
           if (dist == "poisson" & !zero) {
-            global_call <- rlang::expr(stats::glm(formula = usedformula,
+            global_call <- rlang::expr(stats::glm(formula = stats::as.formula(usedformula),
               data = juvsize.data, family = "poisson"))
           } else if (dist == "poisson" & zero) {
-            global_call <- rlang::expr(pscl::zeroinfl(formula = usedformula,
+            global_call <- rlang::expr(pscl::zeroinfl(formula = stats::as.formula(usedformula),
               data = juvsize.data, family = "poisson"))
           } else if (dist == "negbin" & !zero) {
-            global_call <- rlang::expr(MASS::glm.nb(formula = usedformula, data = juvsize.data))
+            global_call <- rlang::expr(MASS::glm.nb(formula = stats::as.formula(usedformula),
+              data = juvsize.data))
           } else if (dist == "negbin" & zero) {
-            global_call <- rlang::expr(pscl::zeroinfl(formula = usedformula,
+            global_call <- rlang::expr(pscl::zeroinfl(formula = stats::as.formula(usedformula),
               data = juvsize.data, family = "negbin"))
           }
         } else if (truncz) {
           usedformula <- gsub(" + 1", "", usedformula, fixed = TRUE)
           
           if (dist == "poisson" & !zero) {
-            global_call <- rlang::expr(VGAM::vglm(formula = usedformula,
+            global_call <- rlang::expr(VGAM::vglm(formula = stats::as.formula(usedformula),
               data = juvsize.data, family = VGAM::pospoisson()))
           } else if (dist == "negbin" & !zero) {
-            global_call <- rlang::expr(VGAM::vglm(formula = usedformula,
+            global_call <- rlang::expr(VGAM::vglm(formula = stats::as.formula(usedformula),
               data = juvsize.data, family = VGAM::posnegbinomial()))
           }
         }
@@ -4013,10 +4104,10 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     juvrepst.data <- subdata
     
     if (approach == "mixed" & !is.na(dist)) {
-      global_call <- rlang::expr(lme4::glmer(formula = usedformula,
+      global_call <- rlang::expr(lme4::glmer(formula = stats::as.formula(usedformula),
         data = juvrepst.data, family = "binomial"))
     } else if (approach == "glm" & !is.na(dist)) {
-      global_call <- rlang::expr(stats::glm(formula = usedformula,
+      global_call <- rlang::expr(stats::glm(formula = stats::as.formula(usedformula),
         data = juvrepst.data, family = "binomial"))
     } else {
       stop("Modeling approach not recognized.", call. = FALSE)
@@ -4034,60 +4125,63 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     
     if (approach == "mixed" & !is.na(dist)) {
       if (dist == "gaussian") {
-        global_call <- rlang::expr(lme4::lmer(formula = usedformula, data = sizeb.data))
+        global_call <- rlang::expr(lme4::lmer(formula = stats::as.formula(usedformula),
+          data = sizeb.data))
       } else if (dist == "gamma") {
-        global_call <- rlang::expr(lme4::glmer(formula = usedformula, data = sizeb.data, family = "Gamma"))
+        global_call <- rlang::expr(lme4::glmer(formula = stats::as.formula(usedformula),
+          data = sizeb.data, family = "Gamma"))
       } else if (!truncz) {
         if (dist == "poisson" & !zero) {
-          global_call <- rlang::expr(lme4::glmer(formula = usedformula, data = sizeb.data, family = "poisson"))
+          global_call <- rlang::expr(lme4::glmer(formula = stats::as.formula(usedformula),
+            data = sizeb.data, family = "poisson"))
         } else if (dist == "poisson" & zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = sizeb.data, ziformula=~., family = "poisson"))
         } else if (dist == "negbin" & !zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = sizeb.data, ziformula=~0, family = glmmTMB::nbinom2))
         } else if (dist == "negbin" & zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = sizeb.data, ziformula=~., family = glmmTMB::nbinom2))
         }
       } else if (truncz) {
         if (dist == "poisson" & !zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = sizeb.data, family = glmmTMB::truncated_poisson))
         } else if (dist == "negbin" & !zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = sizeb.data, family = glmmTMB::truncated_nbinom2))
         }
       }
     } else if (approach == "glm" & !is.na(dist)) {
         if (dist == "gaussian") {
-          global_call <- rlang::expr(stats::lm(formula = usedformula,
+          global_call <- rlang::expr(stats::lm(formula = stats::as.formula(usedformula),
             data = sizeb.data))
         } else if (dist == "gamma") {
-          global_call <- rlang::expr(stats::glm(formula = usedformula,
+          global_call <- rlang::expr(stats::glm(formula = stats::as.formula(usedformula),
             data = sizeb.data, family = "Gamma"))
         } else if (!truncz) {
           if (dist == "poisson" & !zero) {
-            global_call <- rlang::expr(stats::glm(formula = usedformula,
+            global_call <- rlang::expr(stats::glm(formula = stats::as.formula(usedformula),
               data = sizeb.data, family = "poisson"))
           } else if (dist == "poisson" & zero) {
-            global_call <- rlang::expr(pscl::zeroinfl(formula = usedformula,
+            global_call <- rlang::expr(pscl::zeroinfl(formula = stats::as.formula(usedformula),
               data = sizeb.data, family = "poisson"))
           } else if (dist == "negbin" & !zero) {
-            global_call <- rlang::expr(MASS::glm.nb(formula = usedformula,
+            global_call <- rlang::expr(MASS::glm.nb(formula = stats::as.formula(usedformula),
               data = sizeb.data))
           } else if (dist == "negbin" & zero) {
-            global_call <- rlang::expr(pscl::zeroinfl(formula = usedformula,
+            global_call <- rlang::expr(pscl::zeroinfl(formula = stats::as.formula(usedformula),
               data = sizeb.data, family = "negbin"))
           }
         } else if (truncz) {
           usedformula <- gsub(" + 1", "", usedformula, fixed = TRUE)
           
           if (dist == "poisson" & !zero) {
-            global_call <- rlang::expr(VGAM::vglm(formula = usedformula,
+            global_call <- rlang::expr(VGAM::vglm(formula = stats::as.formula(usedformula),
               data = sizeb.data, family = VGAM::pospoisson()))
           } else if (dist == "negbin" & !zero) {
-            global_call <- rlang::expr(VGAM::vglm(formula = usedformula,
+            global_call <- rlang::expr(VGAM::vglm(formula = stats::as.formula(usedformula),
               data = sizeb.data, family = VGAM::posnegbinomial()))
           }
         }
@@ -4107,63 +4201,63 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     
     if (approach == "mixed" & !is.na(dist)) {
       if (dist == "gaussian") {
-        global_call <- rlang::expr(lme4::lmer(formula = usedformula,
+        global_call <- rlang::expr(lme4::lmer(formula = stats::as.formula(usedformula),
           data = sizec.data))
       } else if (dist == "gamma") {
-        global_call <- rlang::expr(lme4::glmer(formula = usedformula,
+        global_call <- rlang::expr(lme4::glmer(formula = stats::as.formula(usedformula),
           data = sizec.data, family = "Gamma"))
       } else if (!truncz) {
         if (dist == "poisson" & !zero) {
-          global_call <- rlang::expr(lme4::glmer(formula = usedformula,
+          global_call <- rlang::expr(lme4::glmer(formula = stats::as.formula(usedformula),
             data = sizec.data, family = "poisson"))
         } else if (dist == "poisson" & zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = sizec.data, ziformula=~., family = "poisson"))
         } else if (dist == "negbin" & !zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = sizec.data, ziformula=~0, family = glmmTMB::nbinom2))
         } else if (dist == "negbin" & zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = sizec.data, ziformula=~., family = glmmTMB::nbinom2))
         }
       } else if (truncz) {
         if (dist == "poisson" & !zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = sizec.data, family = glmmTMB::truncated_poisson))
         } else if (dist == "negbin" & !zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = sizec.data, family = glmmTMB::truncated_nbinom2))
         }
       }
     } else if (approach == "glm" & !is.na(dist)) {
         if (dist == "gaussian") {
-          global_call <- rlang::expr(stats::lm(formula = usedformula,
+          global_call <- rlang::expr(stats::lm(formula = stats::as.formula(usedformula),
             data = sizec.data))
         } else if (dist == "gamma") {
-          global_call <- rlang::expr(stats::glm(formula = usedformula,
+          global_call <- rlang::expr(stats::glm(formula = stats::as.formula(usedformula),
             data = sizec.data, family = "Gamma"))
         } else if (!truncz) {
           if (dist == "poisson" & !zero) {
-            global_call <- rlang::expr(stats::glm(formula = usedformula,
+            global_call <- rlang::expr(stats::glm(formula = stats::as.formula(usedformula),
               data = sizec.data, family = "poisson"))
           } else if (dist == "poisson" & zero) {
-            global_call <- rlang::expr(pscl::zeroinfl(formula = usedformula,
+            global_call <- rlang::expr(pscl::zeroinfl(formula = stats::as.formula(usedformula),
               data = sizec.data, family = "poisson"))
           } else if (dist == "negbin" & !zero) {
-            global_call <- rlang::expr(MASS::glm.nb(formula = usedformula,
+            global_call <- rlang::expr(MASS::glm.nb(formula = stats::as.formula(usedformula),
               data = sizec.data))
           } else if (dist == "negbin" & zero) {
-            global_call <- rlang::expr(pscl::zeroinfl(formula = usedformula,
+            global_call <- rlang::expr(pscl::zeroinfl(formula = stats::as.formula(usedformula),
               data = sizec.data, family = "negbin"))
           }
         } else if (truncz) {
           usedformula <- gsub(" + 1", "", usedformula, fixed = TRUE)
           
           if (dist == "poisson" & !zero) {
-            global_call <- rlang::expr(VGAM::vglm(formula = usedformula,
+            global_call <- rlang::expr(VGAM::vglm(formula = stats::as.formula(usedformula),
               data = sizec.data, family = VGAM::pospoisson()))
           } else if (dist == "negbin" & !zero) {
-            global_call <- rlang::expr(VGAM::vglm(formula = usedformula,
+            global_call <- rlang::expr(VGAM::vglm(formula = stats::as.formula(usedformula),
               data = sizec.data, family = VGAM::posnegbinomial()))
           }
         }
@@ -4183,63 +4277,63 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     
     if (approach == "mixed" & !is.na(dist)) {
       if (dist == "gaussian") {
-        global_call <- rlang::expr(lme4::lmer(formula = usedformula,
+        global_call <- rlang::expr(lme4::lmer(formula = stats::as.formula(usedformula),
           data = juvsizeb.data))
       } else if (dist == "gamma") {
-        global_call <- rlang::expr(lme4::glmer(formula = usedformula,
+        global_call <- rlang::expr(lme4::glmer(formula = stats::as.formula(usedformula),
           data = juvsizeb.data, family = "Gamma"))
       } else if (!truncz) {
         if (dist == "poisson" & !zero) {
-          global_call <- rlang::expr(lme4::glmer(formula = usedformula,
+          global_call <- rlang::expr(lme4::glmer(formula = stats::as.formula(usedformula),
             data = juvsizeb.data, family = "poisson"))
         } else if (dist == "poisson" & zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = juvsizeb.data, ziformula=~., family = "poisson"))
         } else if (dist == "negbin" & !zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = juvsizeb.data, ziformula=~0, family = glmmTMB::nbinom2))
         } else if (dist == "negbin" & zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = juvsizeb.data, ziformula=~., family = glmmTMB::nbinom2))
         }
       } else if (truncz) {
         if (dist == "poisson" & !zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = juvsizeb.data, family = glmmTMB::truncated_poisson))
         } else if (dist == "negbin" & !zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = juvsizeb.data, family = glmmTMB::truncated_nbinom2))
         }
       }
     } else if (approach == "glm" & !is.na(dist)) {
         if (dist == "gaussian") {
-          global_call <- rlang::expr(stats::lm(formula = usedformula,
+          global_call <- rlang::expr(stats::lm(formula = stats::as.formula(usedformula),
             data = juvsizeb.data))
         } else if (dist == "gamma") {
-          global_call <- rlang::expr(stats::glm(formula = usedformula,
+          global_call <- rlang::expr(stats::glm(formula = stats::as.formula(usedformula),
             data = juvsizeb.data, family = "Gamma"))
         } else if (!truncz) {
           if (dist == "poisson" & !zero) {
-            global_call <- rlang::expr(stats::glm(formula = usedformula,
+            global_call <- rlang::expr(stats::glm(formula = stats::as.formula(usedformula),
               data = juvsizeb.data, family = "poisson"))
           } else if (dist == "poisson" & zero) {
-            global_call <- rlang::expr(pscl::zeroinfl(formula = usedformula,
+            global_call <- rlang::expr(pscl::zeroinfl(formula = stats::as.formula(usedformula),
               data = juvsizeb.data, family = "poisson"))
           } else if (dist == "negbin" & !zero) {
-            global_call <- rlang::expr(MASS::glm.nb(formula = usedformula,
+            global_call <- rlang::expr(MASS::glm.nb(formula = stats::as.formula(usedformula),
               data = juvsizeb.data))
           } else if (dist == "negbin" & zero) {
-            global_call <- rlang::expr(pscl::zeroinfl(formula = usedformula,
+            global_call <- rlang::expr(pscl::zeroinfl(formula = stats::as.formula(usedformula),
               data = juvsizeb.data, family = "negbin"))
           }
         } else if (truncz) {
           usedformula <- gsub(" + 1", "", usedformula, fixed = TRUE)
           
           if (dist == "poisson" & !zero) {
-            global_call <- rlang::expr(VGAM::vglm(formula = usedformula,
+            global_call <- rlang::expr(VGAM::vglm(formula = stats::as.formula(usedformula),
               data = juvsizeb.data, family = VGAM::pospoisson()))
           } else if (dist == "negbin" & !zero) {
-            global_call <- rlang::expr(VGAM::vglm(formula = usedformula,
+            global_call <- rlang::expr(VGAM::vglm(formula = stats::as.formula(usedformula),
               data = juvsizeb.data, family = VGAM::posnegbinomial()))
           }
         }
@@ -4259,62 +4353,63 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     
     if (approach == "mixed" & !is.na(dist)) {
       if (dist == "gaussian") {
-        global_call <- rlang::expr(lme4::lmer(formula = usedformula,
+        global_call <- rlang::expr(lme4::lmer(formula = stats::as.formula(usedformula),
           data = juvsizec.data))
       } else if (dist == "gamma") {
-        global_call <- rlang::expr(lme4::glmer(formula = usedformula,
+        global_call <- rlang::expr(lme4::glmer(formula = stats::as.formula(usedformula),
           data = juvsizec.data, family = "Gamma"))
       } else if (!truncz) {
         if (dist == "poisson" & !zero) {
-          global_call <- rlang::expr(lme4::glmer(formula = usedformula,
+          global_call <- rlang::expr(lme4::glmer(formula = stats::as.formula(usedformula),
             data = juvsizec.data, family = "poisson"))
         } else if (dist == "poisson" & zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = juvsizec.data, ziformula=~., family = "poisson"))
         } else if (dist == "negbin" & !zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = juvsizec.data, ziformula=~0, family = glmmTMB::nbinom2))
         } else if (dist == "negbin" & zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = juvsizec.data, ziformula=~., family = glmmTMB::nbinom2))
         }
       } else if (truncz) {
         if (dist == "poisson" & !zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = juvsizec.data, family = glmmTMB::truncated_poisson))
         } else if (dist == "negbin" & !zero) {
-          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = usedformula,
+          global_call <- rlang::expr(glmmTMB::glmmTMB(formula = stats::as.formula(usedformula),
             data = juvsizec.data, family = glmmTMB::truncated_nbinom2))
         }
       }
     } else if (approach == "glm" & !is.na(dist)) {
         if (dist == "gaussian") {
-          global_call <- rlang::expr(stats::lm(formula = usedformula, data = juvsizec.data))
+          global_call <- rlang::expr(stats::lm(formula = stats::as.formula(usedformula),
+            data = juvsizec.data))
         } else if (dist == "gamma") {
-          global_call <- rlang::expr(stats::glm(formula = usedformula,
+          global_call <- rlang::expr(stats::glm(formula = stats::as.formula(usedformula),
             data = juvsizec.data, family = "Gamma"))
         } else if (!truncz) {
           if (dist == "poisson" & !zero) {
-            global_call <- rlang::expr(stats::glm(formula = usedformula,
+            global_call <- rlang::expr(stats::glm(formula = stats::as.formula(usedformula),
               data = juvsizec.data, family = "poisson"))
           } else if (dist == "poisson" & zero) {
-            global_call <- rlang::expr(pscl::zeroinfl(formula = usedformula,
+            global_call <- rlang::expr(pscl::zeroinfl(formula = stats::as.formula(usedformula),
               data = juvsizec.data, family = "poisson"))
           } else if (dist == "negbin" & !zero) {
-            global_call <- rlang::expr(MASS::glm.nb(formula = usedformula,
+            global_call <- rlang::expr(MASS::glm.nb(formula = stats::as.formula(usedformula),
               data = juvsizec.data))
           } else if (dist == "negbin" & zero) {
-            global_call <- rlang::expr(pscl::zeroinfl(formula = usedformula,
+            global_call <- rlang::expr(pscl::zeroinfl(formula = stats::as.formula(usedformula),
               data = juvsizec.data, family = "negbin"))
           }
         } else if (truncz) {
           usedformula <- gsub(" + 1", "", usedformula, fixed = TRUE)
           
           if (dist == "poisson" & !zero) {
-            global_call <- rlang::expr(VGAM::vglm(formula = usedformula,
+            global_call <- rlang::expr(VGAM::vglm(formula = stats::as.formula(usedformula),
               data = juvsizec.data, family = VGAM::pospoisson()))
           } else if (dist == "negbin" & !zero) {
-            global_call <- rlang::expr(VGAM::vglm(formula = usedformula,
+            global_call <- rlang::expr(VGAM::vglm(formula = stats::as.formula(usedformula),
               data = juvsizec.data, family = VGAM::posnegbinomial()))
           }
         }
@@ -4333,10 +4428,10 @@ modelsearch <- function(data, stageframe = NULL, historical = TRUE,
     juvmatst.data <- subdata
     
     if (approach == "mixed" & !is.na(dist)) {
-      global_call <- rlang::expr(lme4::glmer(formula = usedformula,
+      global_call <- rlang::expr(lme4::glmer(formula = stats::as.formula(usedformula),
         data = juvmatst.data, family = "binomial"))
     } else if (approach == "glm" & !is.na(dist)) {
-      global_call <- rlang::expr(stats::glm(formula = usedformula,
+      global_call <- rlang::expr(stats::glm(formula = stats::as.formula(usedformula),
         data = juvmatst.data, family = "binomial"))
     } else {
       stop("Modeling approach not recognized.", call. = FALSE)
@@ -5197,24 +5292,28 @@ vrm_import <- function(years = NULL, patches = c(1), groups = c(0),
   
   main_effects <- c("intercept", "size2", "size1", "sizeb2", "sizeb1", "sizec2",
     "sizec1", "repst2", "repst1", "age", "density", "indcova2", "indcova1",
-    "indcovb2", "indcovb1", "indcovc2", "indcovc1")
+    "indcovb2", "indcovb1", "indcovc2", "indcovc1", "annucova2", "annucova1",
+    "annucovb2", "annucovb1", "annucovc2", "annucovc1")
   main_defined <- c("y-intercept", "sizea in time t", "sizea in time t-1",
     "sizeb in time t", "sizeb in time t-1", "sizec in time t", "sizec in time t-1",
     "reproductive status in time t", "reproductive status in time t-1",
     "age in time t", "density in time t", "individual covariate a in time t",
     "individual covariate a in time t-1", "individual covariate b in time t",
     "individual covariate b in time t-1", "individual covariate c in time t",
-    "individual covariate c in time t-1")
+    "individual covariate c in time t-1", "annual covariate a in time t",
+    "annual covariate a in time t-1", "annual covariate b in time t",
+    "annual covariate b in time t-1", "annual covariate c in time t",
+    "annual covariate c in time t-1")
   
   main1 <- main_effects
   main1_def <- main_defined
   
-  basic_length <- 17
+  basic_length <- 23
   if (interactions) {
-    main2 <- c("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
-    main2_def <- c("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
+    main2 <- rep("",  basic_length)
+    main2_def <- rep("",  basic_length)
     
-    basic_length <- basic_length + 111
+    #basic_length <- basic_length + 111
     
     extended_terms_1 <- c(main_effects[9], main_effects[3], main_effects[3],
       main_effects[2], main_effects[2], main_effects[3], main_effects[10],
@@ -5243,7 +5342,39 @@ vrm_import <- function(years = NULL, patches = c(1), groups = c(0),
       main_effects[17], main_effects[16], main_effects[16], main_effects[17],
       main_effects[12], main_effects[14], main_effects[16], main_effects[13],
       main_effects[15], main_effects[17], main_effects[12], main_effects[14],
-      main_effects[16], main_effects[13], main_effects[15], main_effects[17])
+      main_effects[16], main_effects[13], main_effects[15], main_effects[17],
+      main_effects[10], main_effects[10], main_effects[10], main_effects[10],
+      main_effects[10], main_effects[10], main_effects[18], main_effects[18],
+      main_effects[18], main_effects[18], main_effects[18], main_effects[18],
+      main_effects[18], main_effects[18], main_effects[18], main_effects[18],
+      main_effects[19], main_effects[19], main_effects[19], main_effects[19],
+      main_effects[19], main_effects[19], main_effects[19], main_effects[19],
+      main_effects[19], main_effects[19], main_effects[20], main_effects[20],
+      main_effects[20], main_effects[20], main_effects[20], main_effects[20],
+      main_effects[20], main_effects[20], main_effects[20], main_effects[20],
+      main_effects[21], main_effects[21], main_effects[21], main_effects[21],
+      main_effects[21], main_effects[21], main_effects[21], main_effects[21],
+      main_effects[21], main_effects[21], main_effects[22], main_effects[22],
+      main_effects[22], main_effects[22], main_effects[22], main_effects[22],
+      main_effects[22], main_effects[22], main_effects[22], main_effects[22],
+      main_effects[23], main_effects[23], main_effects[23], main_effects[23],
+      main_effects[23], main_effects[23], main_effects[23], main_effects[23],
+      main_effects[23], main_effects[23], main_effects[18], main_effects[18],
+      main_effects[18], main_effects[18], main_effects[18], main_effects[19],
+      main_effects[19], main_effects[19], main_effects[19], main_effects[20],
+      main_effects[20], main_effects[20], main_effects[21], main_effects[21],
+      main_effects[22], main_effects[12], main_effects[12], main_effects[12],
+      main_effects[12], main_effects[12], main_effects[12], main_effects[13],
+      main_effects[13], main_effects[13], main_effects[13], main_effects[13],
+      main_effects[13], main_effects[14], main_effects[14], main_effects[14],
+      main_effects[14], main_effects[14], main_effects[14], main_effects[15],
+      main_effects[15], main_effects[15], main_effects[15], main_effects[15],
+      main_effects[15], main_effects[16], main_effects[16], main_effects[16],
+      main_effects[16], main_effects[16], main_effects[16], main_effects[17],
+      main_effects[17], main_effects[17], main_effects[17], main_effects[17],
+      main_effects[17], main_effects[12], main_effects[14], main_effects[16])
+    
+    basic_length <- basic_length + length(extended_terms_1)
     
     extended_terms_2 <- c(main_effects[8], main_effects[2], main_effects[9],
       main_effects[8], main_effects[9], main_effects[8], main_effects[3],
@@ -5272,7 +5403,37 @@ vrm_import <- function(years = NULL, patches = c(1), groups = c(0),
       main_effects[6], main_effects[5], main_effects[7], main_effects[11],
       main_effects[3], main_effects[3], main_effects[3], main_effects[2],
       main_effects[2], main_effects[2], main_effects[9], main_effects[9],
-      main_effects[9], main_effects[8], main_effects[8], main_effects[8])
+      main_effects[9], main_effects[8], main_effects[8], main_effects[8],
+      main_effects[12], main_effects[13], main_effects[14], main_effects[15],
+      main_effects[16], main_effects[17], main_effects[2], main_effects[3],
+      main_effects[4], main_effects[5], main_effects[6], main_effects[7],
+      main_effects[8], main_effects[9], main_effects[10], main_effects[11],
+      main_effects[2], main_effects[3], main_effects[4], main_effects[5],
+      main_effects[6], main_effects[7], main_effects[8], main_effects[9],
+      main_effects[10], main_effects[11], main_effects[2], main_effects[3],
+      main_effects[4], main_effects[5], main_effects[6], main_effects[7],
+      main_effects[8], main_effects[9], main_effects[10], main_effects[11],
+      main_effects[2], main_effects[3], main_effects[4], main_effects[5],
+      main_effects[6], main_effects[7], main_effects[8], main_effects[9],
+      main_effects[10], main_effects[11], main_effects[2], main_effects[3],
+      main_effects[4], main_effects[5], main_effects[6], main_effects[7],
+      main_effects[8], main_effects[9], main_effects[10], main_effects[11],
+      main_effects[2], main_effects[3], main_effects[4], main_effects[5],
+      main_effects[6], main_effects[7], main_effects[8], main_effects[9],
+      main_effects[10], main_effects[11], main_effects[19], main_effects[20],
+      main_effects[21], main_effects[22], main_effects[23], main_effects[20],
+      main_effects[21], main_effects[22], main_effects[23], main_effects[21],
+      main_effects[22], main_effects[23], main_effects[22], main_effects[23],
+      main_effects[23], main_effects[18], main_effects[19], main_effects[20],
+      main_effects[21], main_effects[22], main_effects[23], main_effects[18],
+      main_effects[19], main_effects[20], main_effects[21], main_effects[22],
+      main_effects[23], main_effects[18], main_effects[19], main_effects[20],
+      main_effects[21], main_effects[22], main_effects[23], main_effects[18],
+      main_effects[19], main_effects[20], main_effects[21], main_effects[22],
+      main_effects[23], main_effects[18], main_effects[19], main_effects[20],
+      main_effects[21], main_effects[22], main_effects[23], main_effects[18],
+      main_effects[19], main_effects[20], main_effects[21], main_effects[22],
+      main_effects[23], main_effects[13], main_effects[15], main_effects[17])
     
     ext_terms_1_def <- c(main_defined[9], main_defined[3], main_defined[3],
       main_defined[2], main_defined[2], main_defined[3], main_defined[10],
@@ -5301,7 +5462,37 @@ vrm_import <- function(years = NULL, patches = c(1), groups = c(0),
       main_defined[17], main_defined[16], main_defined[16], main_defined[17],
       main_defined[12], main_defined[14], main_defined[16], main_defined[13],
       main_defined[15], main_defined[17], main_defined[12], main_defined[14],
-      main_defined[16], main_defined[13], main_defined[15], main_defined[17])
+      main_defined[16], main_defined[13], main_defined[15], main_defined[17],
+      main_defined[10], main_defined[10], main_defined[10], main_defined[10],
+      main_defined[10], main_defined[10], main_defined[18], main_defined[18],
+      main_defined[18], main_defined[18], main_defined[18], main_defined[18],
+      main_defined[18], main_defined[18], main_defined[18], main_defined[18],
+      main_defined[19], main_defined[19], main_defined[19], main_defined[19],
+      main_defined[19], main_defined[19], main_defined[19], main_defined[19],
+      main_defined[19], main_defined[19], main_defined[20], main_defined[20],
+      main_defined[20], main_defined[20], main_defined[20], main_defined[20],
+      main_defined[20], main_defined[20], main_defined[20], main_defined[20],
+      main_defined[21], main_defined[21], main_defined[21], main_defined[21],
+      main_defined[21], main_defined[21], main_defined[21], main_defined[21],
+      main_defined[21], main_defined[21], main_defined[22], main_defined[22],
+      main_defined[22], main_defined[22], main_defined[22], main_defined[22],
+      main_defined[22], main_defined[22], main_defined[22], main_defined[22],
+      main_defined[23], main_defined[23], main_defined[23], main_defined[23],
+      main_defined[23], main_defined[23], main_defined[23], main_defined[23],
+      main_defined[23], main_defined[23], main_defined[18], main_defined[18],
+      main_defined[18], main_defined[18], main_defined[18], main_defined[19],
+      main_defined[19], main_defined[19], main_defined[19], main_defined[20],
+      main_defined[20], main_defined[20], main_defined[21], main_defined[21],
+      main_defined[22], main_defined[12], main_defined[12], main_defined[12],
+      main_defined[12], main_defined[12], main_defined[12], main_defined[13],
+      main_defined[13], main_defined[13], main_defined[13], main_defined[13],
+      main_defined[13], main_defined[14], main_defined[14], main_defined[14],
+      main_defined[14], main_defined[14], main_defined[14], main_defined[15],
+      main_defined[15], main_defined[15], main_defined[15], main_defined[15],
+      main_defined[15], main_defined[16], main_defined[16], main_defined[16],
+      main_defined[16], main_defined[16], main_defined[16], main_defined[17],
+      main_defined[17], main_defined[17], main_defined[17], main_defined[17],
+      main_defined[17], main_defined[12], main_defined[14], main_defined[16])
     
     ext_terms_2_def <- c(main_defined[8], main_defined[2], main_defined[9],
       main_defined[8], main_defined[9], main_defined[8], main_defined[3],
@@ -5330,7 +5521,37 @@ vrm_import <- function(years = NULL, patches = c(1), groups = c(0),
       main_defined[6], main_defined[5], main_defined[7], main_defined[11],
       main_defined[3], main_defined[3], main_defined[3], main_defined[2],
       main_defined[2], main_defined[2], main_defined[9], main_defined[9],
-      main_defined[9], main_defined[8], main_defined[8], main_defined[8])
+      main_defined[9], main_defined[8], main_defined[8], main_defined[8],
+      main_defined[12], main_defined[13], main_defined[14], main_defined[15],
+      main_defined[16], main_defined[17], main_defined[2], main_defined[3],
+      main_defined[4], main_defined[5], main_defined[6], main_defined[7],
+      main_defined[8], main_defined[9], main_defined[10], main_defined[11],
+      main_defined[2], main_defined[3], main_defined[4], main_defined[5],
+      main_defined[6], main_defined[7], main_defined[8], main_defined[9],
+      main_defined[10], main_defined[11], main_defined[2], main_defined[3],
+      main_defined[4], main_defined[5], main_defined[6], main_defined[7],
+      main_defined[8], main_defined[9], main_defined[10], main_defined[11],
+      main_defined[2], main_defined[3], main_defined[4], main_defined[5],
+      main_defined[6], main_defined[7], main_defined[8], main_defined[9],
+      main_defined[10], main_defined[11], main_defined[2], main_defined[3],
+      main_defined[4], main_defined[5], main_defined[6], main_defined[7],
+      main_defined[8], main_defined[9], main_defined[10], main_defined[11],
+      main_defined[2], main_defined[3], main_defined[4], main_defined[5],
+      main_defined[6], main_defined[7], main_defined[8], main_defined[9],
+      main_defined[10], main_defined[11], main_defined[19], main_defined[20],
+      main_defined[21], main_defined[22], main_defined[23], main_defined[20],
+      main_defined[21], main_defined[22], main_defined[23], main_defined[21],
+      main_defined[22], main_defined[23], main_defined[22], main_defined[23],
+      main_defined[23], main_defined[18], main_defined[19], main_defined[20],
+      main_defined[21], main_defined[22], main_defined[23], main_defined[18],
+      main_defined[19], main_defined[20], main_defined[21], main_defined[22],
+      main_defined[23], main_defined[18], main_defined[19], main_defined[20],
+      main_defined[21], main_defined[22], main_defined[23], main_defined[18],
+      main_defined[19], main_defined[20], main_defined[21], main_defined[22],
+      main_defined[23], main_defined[18], main_defined[19], main_defined[20],
+      main_defined[21], main_defined[22], main_defined[23], main_defined[18],
+      main_defined[19], main_defined[20], main_defined[21], main_defined[22],
+      main_defined[23], main_defined[13], main_defined[15], main_defined[17])
     
     main1 <- c(main1, extended_terms_1)
     main2 <- c(main2, extended_terms_2)
