@@ -1,4 +1,4 @@
-# lefko3 6.3.0 (2024-XX-XX)
+# lefko3 6.3.0 (2024-08-05)
 
 ## NEW FEATURES
 
@@ -8,7 +8,7 @@
 * Function modelsearch() can now test three annual covariates in addition to the
   three individual covariates.
 
-* All function-based matrix estimation and projeciton functions can now handle
+* All function-based matrix estimation and projection functions can now handle
   values of three annual covariates.
 
 * Function modelsearch() now models fixed factor interactions separately from

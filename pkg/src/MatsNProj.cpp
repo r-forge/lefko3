@@ -2584,16 +2584,6 @@ List raymccooney(const DataFrame& listofyears, const List& modelsuite,
   double exp_tol = 700.0, double theta_tol = 1e8, bool cdf = true,
   bool err_check = false, bool simplicity = false, bool sparse = false) {
   
-  
-  
-  
-  
-  /////
-  
-  
-  
-  
-  
   // Dud dens_vr inputs
   Rcpp::DataFrame dvr_frame;
   
@@ -2666,7 +2656,7 @@ List raymccooney(const DataFrame& listofyears, const List& modelsuite,
     CharacterVector effects_names = clone(main_effect_1);
     
     CharacterVector main_effect_2;
-    if (main_effect_1.length() > 20) {
+    if (main_effect_1.length() > 23) {
       main_effect_2 = as<CharacterVector>(vrm_frame["main_effect_2"]);
       
       for (int i = 0; i < main_effect_1.length(); i++) {
@@ -3003,15 +2993,6 @@ List raymccooney(const DataFrame& listofyears, const List& modelsuite,
     NumericVector jsizec_indcovb1_zi;
     NumericVector jsizec_indcovc1_zi;
     
-    
-    
-    
-    
-    /////
-    
-    
-    
-    
     NumericVector surv_annucova2;
     NumericVector surv_annucovb2;
     NumericVector surv_annucovc2;
@@ -3141,17 +3122,6 @@ List raymccooney(const DataFrame& listofyears, const List& modelsuite,
     NumericVector jsizec_annucova1_zi;
     NumericVector jsizec_annucovb1_zi;
     NumericVector jsizec_annucovc1_zi;
-    
-    
-    
-    
-    
-    
-    /////
-    
-    
-    
-    
     
     int modelsuite_length = modelsuite.length();
     CharacterVector modelsuite_names = modelsuite.attr("names");
@@ -3988,16 +3958,6 @@ List raymccooney(const DataFrame& listofyears, const List& modelsuite,
     yearnumber = years(i);
     patchnumber = patches(i);
     
-    
-    
-    
-    
-    ///// mpm_create - Function-based matrix creation function
-    
-    
-    
-    
-    
     List madsexmadrigal_oneyear = jerzeibalowski(allstages, StageFrame,
       matrixformat, surv_proxy, obs_proxy, size_proxy, sizeb_proxy, sizec_proxy,
       repst_proxy, fec_proxy, jsurv_proxy, jobs_proxy, jsize_proxy,
@@ -4187,16 +4147,6 @@ List mothermccooney(const DataFrame& listofyears, const List& modelsuite,
   double theta_tol = 1e8, bool err_check = false,
   bool simplicity = false, bool sparse = false) {
   
-  
-  
-  
-  
-  /////
-  
-  
-  
-  
-  
   // Dud dens_vr inputs
   Rcpp::DataFrame dvr_frame;
   
@@ -4227,7 +4177,7 @@ List mothermccooney(const DataFrame& listofyears, const List& modelsuite,
     CharacterVector effects_names = clone(main_effect_1);
     
     CharacterVector main_effect_2;
-    if (main_effect_1.length() > 20) {
+    if (main_effect_1.length() > 23) {
       main_effect_2 = as<CharacterVector>(vrm_frame["main_effect_2"]);
       
       for (int i = 0; i < main_effect_1.length(); i++) {
@@ -4310,16 +4260,6 @@ List mothermccooney(const DataFrame& listofyears, const List& modelsuite,
     NumericVector fec_indcovb1_zi;
     NumericVector fec_indcovc1_zi;
     
-    
-    
-    
-    
-    
-    /////
-    
-    
-    
-    
     NumericVector surv_annucova2;
     NumericVector surv_annucovb2;
     NumericVector surv_annucovc2;
@@ -4343,17 +4283,6 @@ List mothermccooney(const DataFrame& listofyears, const List& modelsuite,
     NumericVector fec_annucova1_zi;
     NumericVector fec_annucovb1_zi;
     NumericVector fec_annucovc1_zi;
-    
-    
-    
-    
-    
-    
-    /////
-    
-    
-    
-    
     
     int modelsuite_length = modelsuite.length();
     CharacterVector modelsuite_names = modelsuite.attr("names");
@@ -4570,16 +4499,6 @@ List mothermccooney(const DataFrame& listofyears, const List& modelsuite,
   for (int i = 0; i < loy_length; i++) {
     yearnumber = years(i);
     patchnumber = patches(i);
-    
-    
-    
-    
-    
-    /////
-    
-    
-    
-    
     
     List madsexmadrigal_oneyear = motherbalowski(actualages, ageframe,
       surv_proxy, fec_proxy, f2_inda_num, f1_inda_num, f2_indb_num, f1_indb_num,
@@ -5126,17 +5045,6 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
   Nullable<RObject> tweights = R_NilValue, Nullable<RObject> density = R_NilValue,
   Nullable<RObject> density_vr = R_NilValue, Nullable<RObject> sparse = R_NilValue) {
   
-  
-  
-  
-  
-  
-  ///// New ann_terms object modeled on ind_terms
-  
-  
-  
-  
-  
   bool assume_markov {false};
   
   if (format < 1 || format > 5) pop_error("format", "", "", 5);
@@ -5277,7 +5185,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
       CharacterVector effects_names = clone(main_effect_1);
       
       CharacterVector main_effect_2;
-      if (main_effect_1.length() > 20) {
+      if (main_effect_1.length() > 23) {
         main_effect_2 = as<CharacterVector>(vrm_frame["main_effect_2"]);
         
         for (int i = 0; i < main_effect_1.length(); i++) {
@@ -7151,15 +7059,6 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     }
   }
   
-  
-  
-  
-  
-  /////
-  
-  
-  
-  
   // Ann_terms data frame
   NumericVector f2_anna_values(num_years);
   NumericVector f2_annb_values(num_years);
@@ -7264,17 +7163,6 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
         "Too few values of annual covariates have been supplied. Some will be cycled.");
     }
   }
-  
-  
-  
-  
-  
-  
-  /////
-  
-  
-  
-  
   
   // dev_terms data frame or matrix
   NumericVector sur_dev_values(times);
@@ -7471,29 +7359,9 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
   int rindb_counter {0};
   int rindc_counter {0};
   
-  
-  
-  
-  
-  /////
-  
-  
-  
-  
-  
   int fanna_counter {0};
   int fannb_counter {0};
   int fannc_counter {0};
-  
-  
-  
-  
-  
-  /////
-  
-  
-  
-  
   
   int dev_counter {0};
   
@@ -7507,29 +7375,9 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
   int rindb_limit = static_cast<int>(r_indb_topull.length());
   int rindc_limit = static_cast<int>(r_indc_topull.length());
   
-  
-  
-  
-  
-  /////
-  
-  
-  
-  
-  
   int fanna_limit = static_cast<int>(f_anna_topull.length());
   int fannb_limit = static_cast<int>(f_annb_topull.length());
   int fannc_limit = static_cast<int>(f_annc_topull.length());
-  
-  
-  
-  
-  
-  /////
-  
-  
-  
-  
   
   for (int i = 0; i < num_years; i++) {
     if (finda_counter >= finda_limit) finda_counter = 0;
@@ -7550,29 +7398,9 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     f2_indc_values(i) = f_indc_topull(findc_counter);
     r2_indc_values(i) = r_indc_topull(rindc_counter);
     
-    
-    
-    
-    
-    /////
-    
-    
-    
-    
-    
     f2_anna_values(i) = f_anna_topull(fanna_counter);
     f2_annb_values(i) = f_annb_topull(fanna_counter);
     f2_annc_values(i) = f_annc_topull(fanna_counter);
-    
-    
-    
-    
-    
-    /////
-    
-    
-    
-    
     
     if (i > 0) {
       f1_inda_values(i) = f2_inda_values(i-1);
@@ -7870,16 +7698,6 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
   if (format < 5) {
     NumericVector st_dvr_dens = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
       1.0, 1.0, 1.0, 1.0, 1.0};
-    
-    
-    
-    
-    
-    /////
-    
-    
-    
-    
     
     madsexmadrigal_oneyear = jerzeibalowski(allstages, new_stageframe,
       format, surv_proxy, obs_proxy, size_proxy, sizeb_proxy, sizec_proxy,
@@ -9232,16 +9050,6 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
   int last_age = NA_INTEGER, int fecage_min = NA_INTEGER, int fecage_max = NA_INTEGER,
   int fectime = 2, double fecmod = 1.0, bool cont = true, bool prebreeding = true,
   bool stage_NRasRep = false, bool sparse_output = false) {
-  
-  
-  
-  
-  
-  /////
-  
-  
-  
-  
   
   bool raw {true};
   bool nodata {true};
@@ -13246,17 +13054,6 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
     f2_indc_cat = clone(sub_r2);
   }
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  /////
-  
   // Annual covariate vectors for function-based MPMs
   // Annual covariate a
   NumericVector f1_annua_num; // Numeric values entered as input
@@ -13467,29 +13264,6 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
     f1_annuc_num = rep(0, no_mainyears);
     f2_annuc_num = rep(0, no_mainyears);
   }
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  /////
-  
-  
-  
-  
-  
   
   // Stageexpansions, data frame prep, MPM estimation
   DataFrame agestages;
@@ -14068,16 +13842,6 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
     }
   } else {
     // Function-based MPMs
-    
-    
-    
-    
-    
-    /////
-    
-    
-    
-    
     
     if (!historical) {
       if (stage && !age) {
