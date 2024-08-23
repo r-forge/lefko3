@@ -9746,7 +9746,8 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
         DataFrame mov_short = DataFrame::create(_["0"] = as<StringVector>(melchett_ovtable_[0]),
           _["1"] = as<StringVector>(melchett_ovtable_[1]),
           _["2"] = as<StringVector>(melchett_ovtable_[2]),
-          _["3"] = as<IntegerVector>(melchett_ovtable_[3]));
+          _["3"] = as<IntegerVector>(melchett_ovtable_[3]),
+          _["4"] = as<IntegerVector>(melchett_ovtable_[10]));
         
         if (LefkoUtils::df_duplicates(mov_short)) {
           Rf_warningcall(R_NilValue,
@@ -9814,7 +9815,8 @@ Rcpp::List mpm_create(bool historical = false, bool stage = true, bool age = fal
       
       DataFrame mov_short = DataFrame::create(_["0"] = as<StringVector>(melchett_ovtable_[0]),
         _["1"] = as<StringVector>(melchett_ovtable_[1]),
-        _["2"] = as<StringVector>(melchett_ovtable_[2]));
+        _["2"] = as<StringVector>(melchett_ovtable_[2]),
+        _["3"] = as<StringVector>(melchett_ovtable_[10]));
       
       if (LefkoUtils::df_duplicates(mov_short)) {
         Rf_warningcall(R_NilValue, "Supplement contains multiple entries for same transitions.");

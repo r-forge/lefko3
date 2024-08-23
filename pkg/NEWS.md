@@ -1,3 +1,19 @@
+# lefko3 6.3.1 (2024-08-20)
+
+## NEW FEATURES
+
+* Function hfv_qc() now checks the number of individuals with single transitions
+  in hfv datasets.
+
+## USER VISIBLE CHANGES
+
+* Eliminated warnings for multiple similar transitions in mpm_create()
+  when the transitions are of different types.
+
+## BUG FIXES
+
+* Corrected erroneous milepost messages in function modelsearch().
+
 # lefko3 6.3.0 (2024-08-05)
 
 ## NEW FEATURES
