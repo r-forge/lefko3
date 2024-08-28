@@ -5048,7 +5048,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
   bool assume_markov {false};
   
   if (format < 1 || format > 5) pop_error("format", "", "", 5);
-  if (substoch <0 || substoch > 2) pop_error("substoch", "0, 1, or 2.", "", 14);
+  if (substoch < 0 || substoch > 2) pop_error("substoch", "0, 1, or 2.", "", 14);
   
   if (nreps < 1) pop_error("nreps", "positive integer", "", 6);
   if (times < 1) pop_error("times", "positive integer", "", 6);

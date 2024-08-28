@@ -1,3 +1,15 @@
+# lefko3 6.3.2 (2024-XX-XX)
+
+## NEW FEATURES
+
+* Function hfv_qc() now checks the number of singleton categories in all random
+  variables.
+
+## BUG FIXES
+
+* Fixed incompatibility of lefkoMod objects created prior to version 6.3.0 with
+  all matrix creation and projection functions in newer versions.
+
 # lefko3 6.3.1 (2024-08-20)
 
 ## NEW FEATURES
