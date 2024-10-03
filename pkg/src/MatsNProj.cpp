@@ -6904,7 +6904,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
        }
     }
     
-    if (is<NumericVector>(inda_whatever)) {
+    if (is<NumericVector>(inda_whatever) || is<IntegerVector>(inda_whatever)) {
       if (random_inda) {
         if (!quiet) {
           Rf_warningcall(R_NilValue,
@@ -6949,7 +6949,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
       f_inda_topull = {0};
     }
     
-    if (is<NumericVector>(indb_whatever)) {
+    if (is<NumericVector>(indb_whatever) || is<IntegerVector>(indb_whatever)) {
       if (random_indb) {
         if (!quiet) {
           Rf_warningcall(R_NilValue,
@@ -6994,7 +6994,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
       f_indb_topull = {0};
     }
     
-    if (is<NumericVector>(indc_whatever)) {
+    if (is<NumericVector>(indc_whatever) || is<IntegerVector>(indc_whatever)) {
       if (random_indc) {
         if (!quiet) {
           Rf_warningcall(R_NilValue,

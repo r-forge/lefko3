@@ -10,6 +10,9 @@
 * Fixed incompatibility of lefkoMod objects created prior to version 6.3.0 with
   all matrix creation and projection functions in newer versions.
 
+* Fixed incompatibility between integer vector inputs supplied to individual
+  covariate arguments in function f_projection3().
+
 # lefko3 6.3.1 (2024-08-20)
 
 ## NEW FEATURES
