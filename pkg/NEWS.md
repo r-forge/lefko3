@@ -12,6 +12,9 @@
 
 * Fixed incompatibility between integer vector inputs supplied to individual
   covariate arguments in function f_projection3().
+  
+* Fixed error causing incompatibility between ipm classification and certain
+  combinations of minsize, maxsize, and halfbinwidths in sf_create().
 
 # lefko3 6.3.1 (2024-08-20)
 
