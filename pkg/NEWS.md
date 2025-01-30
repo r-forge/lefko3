@@ -1,4 +1,11 @@
-# lefko3 6.3.2 (2024-XX-XX)
+# lefko3 6.3.3 (2025-XX-XX)
+
+## BUG FIXES
+
+* Fixed error in projection3() resulting in shuffled starting frames under
+  some conditions in which stageframes are shuffled from their original state.
+
+# lefko3 6.3.2 (2025-01-06)
 
 ## NEW FEATURES
 

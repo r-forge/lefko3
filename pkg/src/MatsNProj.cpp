@@ -15804,6 +15804,7 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
   bool sparse_input {false};
   bool matrix_input {true};
   bool assume_markov {false};
+  bool agestage_format {false};
   
   if (theclairvoyant < 1) pop_error("times", "positive integer", "", 3);
   if (nreps < 1) pop_error("nreps", "positive integer", "", 3);
@@ -15885,6 +15886,10 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
     if (hstages.length() > 1) {
       historical = true;
     }
+    
+    if (agestages.length() > 1) {
+      agestage_format = true;
+    } 
     
     if (density.isNotNull()) {
       Rcpp::DataFrame dens_thru(density);
@@ -16260,9 +16265,66 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
       Rcpp::DataFrame start_thru(start_frame);
       startvec.set_size(meanmatrows);
       startvec.zeros();
+      
       arma::uvec start_elems = as<arma::uvec>(start_thru["row_num"]);
       start_elems = start_elems - 1;
       arma::vec start_values = as<arma::vec>(start_thru["value"]);
+      
+      // Here we will check to make sure the row designations are consistent
+      // with the stageframe, and if not, fix them
+      StringVector startframe_stage2 = as<StringVector>(start_thru["stage2"]);
+      StringVector startframe_stage1 = as<StringVector>(start_thru["stage1"]);
+      IntegerVector startframe_age2 = as<IntegerVector>(start_thru["age2"]);
+      int startframe_rows = startframe_stage2.length();
+      
+      if (agestage_format) {
+        StringVector agestages_stage = as<StringVector>(agestages["stage"]);
+        IntegerVector agestages_age = as<IntegerVector>(agestages["age"]);
+        int agestages_rows = agestages_stage.length();
+        
+        for (int i = 0; i < startframe_rows; i++) { 
+          for (int j = 0; j < agestages_rows; j++) {
+            for (int k = 0; k < agestages_rows; k++) {
+              if (LefkoUtils::stringcompare_simple(String(agestages_stage(j)),
+                    String(startframe_stage2(i)))) {
+                if (agestages_age(k) == startframe_age2(i)) {
+                  start_elems(i) = k;
+                }
+              }
+            }
+          }
+        }
+      } else if (historical) {
+        StringVector hstages_stage2 = as<StringVector>(hstages["stage_2"]);
+        StringVector hstages_stage1 = as<StringVector>(hstages["stage_1"]);
+        int hstages_rows = hstages_stage2.length();
+        
+        for (int i = 0; i < startframe_rows; i++) { 
+          for (int j = 0; j < hstages_rows; j++) {
+            for (int k = 0; k < hstages_rows; k++) {
+              if (LefkoUtils::stringcompare_simple(String(hstages_stage2(j)),
+                    String(startframe_stage2(i)))) {
+                if (LefkoUtils::stringcompare_simple(String(hstages_stage1(k)),
+                    String(startframe_stage1(i)))) {
+                  start_elems(i) = k;
+                }
+              }
+            }
+          }
+        }
+      } else {
+        StringVector stageframe_stage2 = as<StringVector>(stageframe["stage"]);
+        int stageframe_rows = stageframe_stage2.length();
+        
+        for (int i = 0; i < startframe_rows; i++) { 
+          for (int j = 0; j < stageframe_rows; j++) {
+            if (LefkoUtils::stringcompare_simple(String(stageframe_stage2(j)),
+                  String(startframe_stage2(i)))) {
+              start_elems(i) = j;
+            }
+          }
+        }
+      }
       
       if (static_cast<int>(start_elems.max()) > (meanmatrows - 1)) {
         throw Rcpp::exception("Start vector input frame includes element indices too high for this MPM.",
