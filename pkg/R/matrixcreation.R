@@ -3112,7 +3112,8 @@ rleslie <- function(data, start_age = NA, last_age = NA, continue = TRUE,
 #' the number of annual matrices, the number of estimated (non-zero) elements
 #' across all matrices and per matrix, the number of unique transitions in the
 #' dataset, the number of individuals, and summaries of the column sums of the
-#' survival-transition matrices. This function will also yield warnings if any
+#' survival-transition matrices. Stage discontinuities are also checked with
+#' function \code{cycle_check}. This function will also yield warnings if any
 #' survival-transition matrices include elements outside of the interval [0,1],
 #' if any fecundity matrices contain negative elements, and if any matrices
 #' include NA values.
@@ -3402,5 +3403,10 @@ summary.lefkoMat <- function(object, colsums = TRUE, ...) {
   if (any(dethintheurinal)) {
     warning("Some matrices include NA values.", call. = FALSE)
   }
+  
+  writeLines("\n")
+  
+  cycle_check(matrices)
+  
 }
 

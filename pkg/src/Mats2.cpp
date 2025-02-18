@@ -2232,3 +2232,366 @@ Rcpp::List add_stage (const RObject mpm, int add_before = 0,
   return true_output;;
 }
 
+//' Check Continuity of Life Cycle through Matrices in lefkoMat Objects
+//' 
+//' Function \code{cycle_check()} tests whether stages, stage-pairs, or
+//' age-stages connect in matrices within \code{lefkoMat} objects.
+//' 
+//' @name cycle_check
+//' 
+//' @param mats An object of class lefkoMat, a matrix, or a list of matrices.
+//' @param quiet A logical variable indicating whether to suppress diagnostic
+//' messages. Defaults to \code{FALSE}.
+//' 
+//' @return Returns a list with two elements, both of which are also lists.
+//' The first list, \code{no_in}, contains as many elements as matrices, with
+//' each element containing an integer vector showing the identification numbers
+//' of stages, stage-pairs, or age-stages, in each matrix that do not show any
+//' transitions leading to them. The second list, \code{no_out}, is structured
+//' similarly to the first, but shows stages, stage-pairs, or age-stages from
+//' which there are no transitions leading out.
+//' 
+//' @section Notes:
+//' This function tests whether stages, stage-pairs, and age-stages are
+//' connected to others in matrices used for projection. Whether stages,
+//' stage-pairs, or age-stages are shown depends on whether the MPM is
+//' ahistorical / age-based, historical stage-based, or age-by-stage,
+//' respectively. Checks are performed by testing whether each column in a
+//' matrix includes non-zero transitions to other columns, and by testing
+//' whether any columns have no transitions to them from other columns. If any
+//' such columns are found, then function \code{cycle_check}
+//' will export an integer vector giving the column numbers with problems.
+//' These column numbers may then be checked against the \code{stage_id} column
+//' of the associated stageframe in the case of a ahistorical or age-based MPM,
+//' against the row number of the associated \code{hstages} data frame in the
+//' case of a historical MPM, or against the row number of the associated
+//' \code{agestages} data frame in the case of an age-by-stage MPM.
+//' 
+//' @examples
+//' data(cypdata)
+//' 
+//' sizevector <- c(0, 0, 0, 0, 0, 0, 1, 2.5, 4.5, 8, 17.5)
+//' stagevector <- c("SD", "P1", "P2", "P3", "SL", "D", "XSm", "Sm", "Md", "Lg",
+//'   "XLg")
+//' repvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
+//' obsvector <- c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1)
+//' matvector <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
+//' immvector <- c(0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
+//' propvector <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+//' indataset <- c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1)
+//' binvec <- c(0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 2.5, 7)
+//' 
+//' cypframe_raw <- sf_create(sizes = sizevector, stagenames = stagevector,
+//'   repstatus = repvector, obsstatus = obsvector, matstatus = matvector,
+//'   propstatus = propvector, immstatus = immvector, indataset = indataset,
+//'   binhalfwidth = binvec)
+//' 
+//' cypraw_v1 <- verticalize3(data = cypdata, noyears = 6, firstyear = 2004,
+//'   patchidcol = "patch", individcol = "plantid", blocksize = 4,
+//'   sizeacol = "Inf2.04", sizebcol = "Inf.04", sizeccol = "Veg.04",
+//'   repstracol = "Inf.04", repstrbcol = "Inf2.04", fecacol = "Pod.04",
+//'   stageassign = cypframe_raw, stagesize = "sizeadded", NAas0 = TRUE,
+//'   NRasRep = TRUE)
+//' 
+//' cypsupp2r <- supplemental(stage3 = c("SD", "P1", "P2", "P3", "SL", "D", 
+//'     "XSm", "Sm", "SD", "P1"),
+//'   stage2 = c("SD", "SD", "P1", "P2", "P3", "SL", "SL", "SL", "rep",
+//'     "rep"),
+//'   eststage3 = c(NA, NA, NA, NA, NA, "D", "XSm", "Sm", NA, NA),
+//'   eststage2 = c(NA, NA, NA, NA, NA, "XSm", "XSm", "XSm", NA, NA),
+//'   givenrate = c(0.10, 0.20, 0.20, 0.20, 0.25, NA, NA, NA, NA, NA),
+//'   multiplier = c(NA, NA, NA, NA, NA, NA, NA, NA, 0.5, 0.5),
+//'   type =c(1, 1, 1, 1, 1, 1, 1, 1, 3, 3),
+//'   stageframe = cypframe_raw, historical = FALSE)
+//' 
+//' cypmatrix2r <- rlefko2(data = cypraw_v1, stageframe = cypframe_raw, 
+//'   year = "all", patch = "all", stages = c("stage3", "stage2", "stage1"),
+//'   size = c("size3added", "size2added"), supplement = cypsupp2r,
+//'   yearcol = "year2", patchcol = "patchid", indivcol = "individ")
+//' 
+//' cycle_check(cypmatrix2r)
+//' 
+//' @export cycle_check
+// [[Rcpp::export(cycle_check)]]
+List cycle_check(RObject mpm, Nullable<RObject> quiet = R_NilValue) {
+  
+  List lopv (2);
+  bool quiet_bool = false;
+  
+  if (is<RObject>(quiet)) {
+    quiet_bool = yesno_to_logic(as<RObject>(quiet), false);
+  }
+  
+  if (is<List>(mpm)) {
+    List mpm_list = as<List>(mpm);
+    int mat_type {0}; // 0: ahist/age; 1: hist; 2:agestage
+    // Need to include a test to determine if lefkoMat object or list of matrices
+    
+    CharacterVector stage_terms_caps = {"Stages", "Stage-pairs", "Age-stages"};
+    CharacterVector stage_terms_small = {"stage", "stage-pair", "age-stage"};
+    
+    CharacterVector list_names = mpm_list.attr("names");
+    int all_found {0};
+    for (int i = 0; i < list_names.length(); i++) {
+      if (list_names(i) == "A") all_found++;
+      if (list_names(i) == "ahstages") all_found++;
+      if (list_names(i) == "hstages") all_found++;
+      if (list_names(i) == "agestages") all_found++;
+      if (list_names(i) == "labels") all_found++;
+    }
+    if (all_found < 5) pop_error("mpm", "lefkoMat object, matrix, or list of matrices", "", 3);
+    
+    List amats = as<List>(mpm_list["A"]);
+    DataFrame stageframe = as<DataFrame>(mpm_list["ahstages"]);
+    DataFrame hstages = as<DataFrame>(mpm_list["hstages"]);
+    DataFrame labels = as<DataFrame>(mpm_list["labels"]);
+    DataFrame agestages = as<DataFrame>(mpm_list["agestages"]);
+    
+    StringVector poporder = as<StringVector>(labels["pop"]);
+    int loysize = poporder.length();
+    
+    StringVector stages = as<StringVector>(stageframe["stage"]);
+    IntegerVector stage_id = as<IntegerVector>(stageframe["stage_id"]);
+    int num_stages = stages.length();
+    
+    if (hstages.length() > 1) {
+      mat_type = 1;
+    } else if (agestages.length() > 1) mat_type = 2;
+    
+    if (mat_type == 1) {
+      IntegerVector sid2_hstages = as<IntegerVector>(hstages["stage_id_2"]);
+      num_stages = sid2_hstages.length();
+    } else if (mat_type == 2) {
+      IntegerVector sid_agestages = as<IntegerVector>(agestages["stage_id"]);
+      num_stages = sid_agestages.length();
+    }
+    
+    List list_of_no_in (loysize);
+    List list_of_no_out (loysize);
+    
+    arma::uvec mats_probs_a_arma (loysize, fill::zeros);
+    arma::uvec mats_probs_b_arma (loysize, fill::zeros);
+    
+    for (int mat = 0; mat < loysize; mat++) {
+      arma::uvec stage_check (num_stages, fill::zeros); // Stages without inward transitions (as 0)
+      arma::uvec problem_vector (num_stages, fill::zeros); // Stages without outward transitions (as 1)
+      
+      if (is<NumericMatrix>(amats(mat))) {
+        arma::mat current_mat = as<arma::mat>(amats(mat));
+        int num_cols = current_mat.n_cols;
+        
+        for (int current_col = 0; current_col < num_cols; current_col++) {
+          arma::vec check_col = current_mat.col(current_col);
+          arma::uvec nonzeros_vec = find(check_col);
+          
+          int nonzeros_num = nonzeros_vec.n_elem;
+          if (check_col(current_col) != 0.) nonzeros_num -= 1;
+          
+          if (nonzeros_num == 0) {
+            problem_vector(current_col) = 1; // No out}
+            mats_probs_a_arma(mat) = 1;
+          }
+          
+          arma::mat cmat_nocurrent = current_mat;
+          cmat_nocurrent.shed_col(current_col);
+          arma::vec cmat_nc_sums = sum(cmat_nocurrent, 1);
+          
+          if (cmat_nc_sums(current_col) > 0.) stage_check(current_col) += 1;
+          
+        }
+        
+      } else if (is<S4>(amats(mat))) {
+        arma::sp_mat current_mat = as<arma::sp_mat>(amats(mat));
+        int num_cols = current_mat.n_cols;
+        
+        if (num_cols != num_stages) {
+          pop_error("cycle_check", "ahistorical and age-based MPMs", "", 23);
+        }
+        
+        for (int current_col = 0; current_col < num_cols; current_col++) {
+          arma::vec check_col = arma::vec(current_mat.col(current_col));
+          arma::uvec nonzeros_vec = find(check_col);
+          
+          int nonzeros_num = nonzeros_vec.n_elem;
+          if (check_col(current_col) != 0.) nonzeros_num -= 1;
+          
+          if (nonzeros_num == 0) problem_vector(current_col) = 1; // No out
+          
+          arma::sp_mat cmat_nocurrent = current_mat;
+          cmat_nocurrent.shed_col(current_col);
+          arma::vec cmat_nc_sums = arma::vec(sum(cmat_nocurrent, 1));
+          
+          if (cmat_nc_sums(current_col) > 0.) {
+            stage_check(current_col) += 1;
+            mats_probs_b_arma(mat) = 1;
+          }
+          
+        }
+        
+      }
+      
+      arma::uvec probs_a_arma = find(problem_vector); // No out
+      arma::uvec probs_b_arma = find(stage_check == 0); // No in
+      
+      probs_a_arma += 1;
+      probs_b_arma += 1;
+      
+      IntegerVector unique_probs_a = as<IntegerVector>(wrap(probs_a_arma));
+      IntegerVector unique_probs_b = as<IntegerVector>(wrap(probs_b_arma));
+      
+      list_of_no_out(mat) = unique_probs_a;
+      list_of_no_in(mat) = unique_probs_b;
+    }
+    
+    if (!quiet_bool) {
+      arma::uvec find_em_a = find(mats_probs_a_arma);
+      arma::uvec find_em_b = find(mats_probs_b_arma);
+      
+      find_em_a += 1;
+      find_em_b += 1;
+      
+      if (find_em_a.n_elem > 0) {
+        Rcout << stage_terms_caps(mat_type)
+          << " without connections leading to the rest of the life cycle "
+          << "found in matrices: " << as<IntegerVector>(wrap(find_em_a)) << endl;
+      }
+      if (find_em_b.n_elem > 0) {
+        Rcout << stage_terms_caps(mat_type)
+          << " without connections leading to them found in matrices: "  
+          << as<IntegerVector>(wrap(find_em_b)) << endl;
+      }
+      
+      if (find_em_a.n_elem == 0 && find_em_b.n_elem == 0) {
+        Rcout << "All matrices have no " << stage_terms_small(mat_type)
+          << " discontinuities." << endl;
+      }
+    }
+    
+    lopv(0) = list_of_no_in;
+    lopv(1) = list_of_no_out;
+    
+  } else if (is<NumericMatrix>(mpm)) {
+    NumericMatrix mpm_matrix = as<NumericMatrix>(mpm);
+    int num_stages = mpm_matrix.ncol();
+    List list_of_no_in (1);
+    List list_of_no_out (1);
+    
+    arma::uvec stage_check (num_stages, fill::zeros); // Stages without inward transitions (as 0)
+    arma::uvec problem_vector (num_stages, fill::zeros); // Stages without outward transitions (as 1)
+    
+    arma::mat current_mat = as<arma::mat>(mpm_matrix);
+    int num_cols = current_mat.n_cols;
+    
+    for (int current_col = 0; current_col < num_cols; current_col++) {
+      arma::vec check_col = current_mat.col(current_col);
+      arma::uvec nonzeros_vec = find(check_col);
+      
+      int nonzeros_num = nonzeros_vec.n_elem;
+      if (check_col(current_col) != 0.) nonzeros_num -= 1;
+      
+      if (nonzeros_num == 0) problem_vector(current_col) = 1; // No out
+      
+      arma::mat cmat_nocurrent = current_mat;
+      cmat_nocurrent.shed_col(current_col);
+      arma::vec cmat_nc_sums = sum(cmat_nocurrent, 1);
+      
+      if (cmat_nc_sums(current_col) > 0.) stage_check(current_col) += 1;
+      
+    }
+    
+    arma::uvec probs_a_arma = find(problem_vector); // No out
+    arma::uvec probs_b_arma = find(stage_check == 0); // No in
+    
+    probs_a_arma += 1;
+    probs_b_arma += 1;
+    
+    IntegerVector unique_probs_a = as<IntegerVector>(wrap(probs_a_arma));
+    IntegerVector unique_probs_b = as<IntegerVector>(wrap(probs_b_arma));
+    
+    list_of_no_out(0) = unique_probs_a;
+    list_of_no_in(0) = unique_probs_b;
+    
+    if (!quiet_bool) {
+      if (probs_a_arma.n_elem > 0) {
+        Rcout << "Stages without connections leading to the rest of the "  
+          << "life cycle found in matrix" << endl;
+      }
+      if (probs_b_arma.n_elem > 0) {
+        Rcout << "Stages without connections leading to them found in matrix"
+          << endl;
+      }
+      
+      if (probs_a_arma.n_elem == 0 && probs_b_arma.n_elem == 0) {
+        Rcout << "Matrix has no stage discontinuities." << endl;
+      }
+    }
+    
+    lopv(0) = list_of_no_in;
+    lopv(1) = list_of_no_out;
+    
+  } else if (is<S4>(mpm)) {
+    arma::sp_mat current_mat = as<arma::sp_mat>(mpm);
+    int num_stages = current_mat.n_cols;
+    int num_cols = num_stages;
+    List list_of_no_in (1);
+    List list_of_no_out (1);
+    
+    arma::uvec stage_check (num_stages, fill::zeros); // Stages without inward transitions (as 0)
+    arma::uvec problem_vector (num_stages, fill::zeros); // Stages without outward transitions (as 1)
+    
+    for (int current_col = 0; current_col < num_cols; current_col++) {
+      arma::vec check_col = arma::vec(current_mat.col(current_col));
+      arma::uvec nonzeros_vec = find(check_col);
+      
+      int nonzeros_num = nonzeros_vec.n_elem;
+      if (check_col(current_col) != 0.) nonzeros_num -= 1;
+      
+      if (nonzeros_num == 0) problem_vector(current_col) = 1; // No out
+      
+      arma::sp_mat cmat_nocurrent = current_mat;
+      cmat_nocurrent.shed_col(current_col);
+      arma::vec cmat_nc_sums = arma::vec(sum(cmat_nocurrent, 1));
+      
+      if (cmat_nc_sums(current_col) > 0.) stage_check(current_col) += 1;
+      
+    }
+    
+    arma::uvec probs_a_arma = find(problem_vector); // No out
+    arma::uvec probs_b_arma = find(stage_check == 0); // No in
+    
+    probs_a_arma += 1;
+    probs_b_arma += 1;
+    
+    IntegerVector unique_probs_a = as<IntegerVector>(wrap(probs_a_arma));
+    IntegerVector unique_probs_b = as<IntegerVector>(wrap(probs_b_arma));
+    
+    list_of_no_out(0) = unique_probs_a;
+    list_of_no_in(0) = unique_probs_b;
+    
+    if (!quiet_bool) {
+      if (probs_a_arma.n_elem > 0) {
+        Rcout << "Stages without connections leading to the rest of the "  
+          << "life cycle found in matrix" << endl;
+      }
+      if (probs_b_arma.n_elem > 0) {
+        Rcout << "Stages without connections leading to them found in matrix" << endl;
+      }
+      
+      if (probs_a_arma.n_elem == 0 && probs_b_arma.n_elem == 0) {
+        Rcout << "Matrix has no stage discontinuities." << endl;
+      }
+    }
+    
+    lopv(0) = list_of_no_in;
+    lopv(1) = list_of_no_out;
+    
+  } else {
+    pop_error("mpm", "lefkoMat object, matrix, or list of matrices", "", 3);
+  }
+  
+  CharacterVector lopv_names {"no_in", "no_out"};
+  lopv.attr("names") = lopv_names;
+  
+  return lopv;
+}
+

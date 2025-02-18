@@ -1,5 +1,13 @@
 # lefko3 6.3.3 (2025-XX-XX)
 
+## NEW FEATURES
+
+* Function cycle_check() created to test for stage discontinuities in matrices.
+
+## USER VISIBLE CHANGES
+
+* Updated project URL.
+
 ## BUG FIXES
 
 * Fixed error in projection3() resulting in shuffled starting frames under

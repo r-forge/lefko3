@@ -348,6 +348,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cycle_check
+List cycle_check(RObject mpm, Nullable<RObject> quiet);
+RcppExport SEXP _lefko3_cycle_check(SEXP mpmSEXP, SEXP quietSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< RObject >::type mpm(mpmSEXP);
+    Rcpp::traits::input_parameter< Nullable<RObject> >::type quiet(quietSEXP);
+    rcpp_result_gen = Rcpp::wrap(cycle_check(mpm, quiet));
+    return rcpp_result_gen;
+END_RCPP
+}
 // sf_reassess
 Rcpp::List sf_reassess(const DataFrame& stageframe, Nullable<DataFrame> supplement, Nullable<DataFrame> overwrite, Nullable<NumericMatrix> repmatrix, bool agemat, bool historical, int format);
 RcppExport SEXP _lefko3_sf_reassess(SEXP stageframeSEXP, SEXP supplementSEXP, SEXP overwriteSEXP, SEXP repmatrixSEXP, SEXP agematSEXP, SEXP historicalSEXP, SEXP formatSEXP) {
@@ -1156,6 +1168,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_lefko3_hist_null", (DL_FUNC) &_lefko3_hist_null, 3},
     {"_lefko3_lmean", (DL_FUNC) &_lefko3_lmean, 3},
     {"_lefko3_add_stage", (DL_FUNC) &_lefko3_add_stage, 4},
+    {"_lefko3_cycle_check", (DL_FUNC) &_lefko3_cycle_check, 2},
     {"_lefko3_sf_reassess", (DL_FUNC) &_lefko3_sf_reassess, 7},
     {"_lefko3_f_projection3", (DL_FUNC) &_lefko3_f_projection3, 57},
     {"_lefko3_mpm_create", (DL_FUNC) &_lefko3_mpm_create, 59},

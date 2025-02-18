@@ -60,7 +60,7 @@ using namespace arma;
 // 47. int whichbrew  Assess if MPM is ahistorical, historical, age-by-stage, or Leslie
 // 48. bool df_compare  Check If Two Data Frames Are Equal
 // 49. void pop_error  Standardized Error Messages
-
+// 50. bool yesno_to_logic  Take Yes / No and Other Input to Yield a Boolean Value
 
 
 
@@ -9758,7 +9758,7 @@ namespace LefkoUtils {
     } else if (type == 3) {
       eat_my_shorts = "Argument ";
       eat_my_shorts += input1;
-      eat_my_shorts += " should be entered as a";
+      eat_my_shorts += " should be entered as a ";
       eat_my_shorts += input2;
       eat_my_shorts += ".";
       
@@ -9897,14 +9897,71 @@ namespace LefkoUtils {
       eat_my_shorts += input3;
       eat_my_shorts += ".";
       
+    } else if (type == 23) {
+      eat_my_shorts = "Function ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " currently only handles ";
+      eat_my_shorts += input2;
+      eat_my_shorts += ".";
+      
     }
     
     throw Rcpp::exception(eat_my_shorts.get_cstring(), false);
     
     return;
   }
-
-
+  
+  //' Take Yes / No and Other Input to Yield a Boolean Value
+  //' 
+  //' Function \code{yesno_to_logic()} takes a variety of inputs and interprets
+  //' them, creating a Boolean response.
+  //' 
+  //' @name yesno_to_logic
+  //' 
+  //' @param input RObject to be interpreted.
+  //' @param defval Default Boolean value for function.
+  //' 
+  //' @return Returns a simple Boolean value, or produces an error for
+  //' unintelligible input.
+  inline bool yesno_to_logic (RObject input, bool defval = false) {
+    bool final_result = false;
+    
+    if (is<StringVector>(input)) {
+      StringVector yesbits = {"y", "yes", "yea", "yeah", "t", "true", "ja", "tak"};
+      StringVector nobits = {"n", "no", "non", "nah", "f", "false", "nein", "nie"};
+      
+      StringVector input_check_vec = as<StringVector>(input);
+      String input_check = String(input_check_vec(0));
+      
+      int yes_check {0};
+      int no_check {0};
+      
+      for (int i = 0; i < 8; i++) {
+        if (LefkoUtils::stringcompare_simple(input_check, String(yesbits(i)))) yes_check++;
+        if (LefkoUtils::stringcompare_simple(input_check, String(nobits(i)))) no_check++;
+      }
+      
+      if (yes_check > 0) {
+        final_result = true;
+      } else if (no_check > 0) {
+        final_result = false;
+      } else {
+        final_result = defval;
+      }
+    } else if (is<LogicalVector>(input)) {
+        LogicalVector input_check_vec = as<LogicalVector>(input);
+        final_result = static_cast<bool>(input_check_vec(0));
+    } if (is<NumericVector>(input)) {
+        IntegerVector input_check_vec = as<IntegerVector>(input);
+        int input_first = static_cast<int>(input_check_vec(0));
+        
+        if (input_first == 1) final_result = true;
+    } else {
+      final_result = defval;
+    }
+    
+    return final_result;
+  }
   
 }
 
