@@ -7,10 +7,10 @@
 cycle_check(mpm, quiet = NULL)
 }
 \arguments{
+\item{mpm}{An object of class lefkoMat, a matrix, or a list of matrices.}
+
 \item{quiet}{A logical variable indicating whether to suppress diagnostic
 messages. Defaults to \code{FALSE}.}
-
-\item{mats}{An object of class lefkoMat, a matrix, or a list of matrices.}
 }
 \value{
 Returns a list with two elements, both of which are also lists.

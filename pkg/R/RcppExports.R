@@ -1135,7 +1135,7 @@ add_stage <- function(mpm, add_before = 0L, add_after = 0L, stage_name = NULL) {
 #' 
 #' @name cycle_check
 #' 
-#' @param mats An object of class lefkoMat, a matrix, or a list of matrices.
+#' @param mpm An object of class lefkoMat, a matrix, or a list of matrices.
 #' @param quiet A logical variable indicating whether to suppress diagnostic
 #' messages. Defaults to \code{FALSE}.
 #' 
