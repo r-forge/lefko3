@@ -2318,8 +2318,10 @@ List cycle_check(RObject mpm, Nullable<RObject> quiet = R_NilValue) {
   List lopv (2);
   bool quiet_bool = false;
   
-  if (is<RObject>(quiet)) {
-    quiet_bool = yesno_to_logic(as<RObject>(quiet), false);
+  if (quiet.isNotNull()) {
+    if (is<RObject>(quiet)) {
+      quiet_bool = yesno_to_logic(as<RObject>(quiet), "quiet");
+    }
   }
   
   if (is<List>(mpm)) {

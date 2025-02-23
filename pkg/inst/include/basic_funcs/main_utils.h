@@ -61,6 +61,7 @@ using namespace arma;
 // 48. bool df_compare  Check If Two Data Frames Are Equal
 // 49. void pop_error  Standardized Error Messages
 // 50. bool yesno_to_logic  Take Yes / No and Other Input to Yield a Boolean Value
+// 51. void yesnoauto_to_logic Take Yes / No and Other Input to Yield a Boolean Value
 
 
 
@@ -255,7 +256,8 @@ namespace LefkoUtils {
       }
     }
     
-    Rcpp::List output = Rcpp::List::create(_["contains"] = same, _["start_index"] = start_index);
+    Rcpp::List output = Rcpp::List::create(_["contains"] = same,
+      _["start_index"] = start_index);
     
     return output;
   }
@@ -278,7 +280,9 @@ namespace LefkoUtils {
   //' 
   //' @keywords internal
   //' @noRd
-  inline bool stringcompare_simple(std::string str1, std::string str2, bool lower = false) {
+  inline bool stringcompare_simple(std::string str1, std::string str2,
+    bool lower = false) {
+    
     int str1_length = str1.size();
     int str2_length = str2.size();
     int rem_check {0};
@@ -327,7 +331,9 @@ namespace LefkoUtils {
   //' 
   //' @keywords internal
   //' @noRd
-  inline bool stringcompare_x(std::string str1, std::string str2, std::string str3) {
+  inline bool stringcompare_x(std::string str1, std::string str2,
+    std::string str3) {
+    
     int str1_length = str1.size();
     int str2_length = str2.size();
     int str3_length = str3.size();
@@ -468,7 +474,8 @@ namespace LefkoUtils {
     
     for (int i = 0; i < vec_length; i++) {
       for (int j = 0; j < ref_length; j++) {
-        if (stringcompare_hard(as<std::string>(vec[i]), as<std::string>(ref[j]))) output[i] = j + 1;
+        if (stringcompare_hard(as<std::string>(vec[i]), 
+          as<std::string>(ref[j]))) output[i] = j + 1;
       }
     }
     
@@ -500,7 +507,8 @@ namespace LefkoUtils {
     
     for (int i = 0; i < vec_length; i++) {
       for (int j = 0; j < ref_length; j++) {
-        if (stringcompare_hard(as<std::string>(vec[i]), as<std::string>(ref[j]))) output[i] = j + 1;
+        if (stringcompare_hard(as<std::string>(vec[i]), 
+          as<std::string>(ref[j]))) output[i] = j + 1;
       }
     }
     
@@ -652,7 +660,10 @@ namespace LefkoUtils {
     bool equal = true, bool greater = false, bool less = false,
     bool c_ints = true, Nullable<RObject> var = R_NilValue) {
     
-    if (greater && less) throw Rcpp::exception("Criteria cannot include both less than and greater than.", false);
+    if (greater && less) {
+      throw Rcpp::exception("Criteria cannot include both less than and greater than.",
+        false);
+    }
     
     StringVector var_names = x.attr("names");
     StringVector df_class = x.attr("class");
@@ -676,7 +687,10 @@ namespace LefkoUtils {
       } else if (is<IntegerVector>(var_) || is<NumericVector>(var_)) {
         IntegerVector var_i_ = as<IntegerVector>(var_);
         
-        if (var_i_.length() != 1) throw Rcpp::exception("Please enter only a single variable to subset on.", false);
+        if (var_i_.length() != 1) {
+          throw Rcpp::exception("Please enter only a single variable to subset on.",
+            false);
+        }
         
         if (c_ints) {
           chosen_var_i = var_i_(0);
@@ -685,12 +699,15 @@ namespace LefkoUtils {
         }
         
         if (chosen_var_i < 0 || chosen_var_i > (no_vars - 1)) {
-          throw Rcpp::exception("Chosen variable number falls outside the range of the data frame.", false);
+          throw Rcpp::exception("Chosen variable number outside the range of the data frame.",
+            false);
         }
       }
     }
     
-    if (chosen_var_i == -1) throw Rcpp::exception("No valid variable chosen for subsetting.", false);
+    if (chosen_var_i == -1) {
+      throw Rcpp::exception("No valid variable chosen for subsetting.", false);
+    }
     
     RObject chosen_data = x[chosen_var_i];
     
@@ -740,7 +757,10 @@ namespace LefkoUtils {
     if (is<NumericVector>(chosen_data) || is<IntegerVector>(chosen_data)) {
       arma::vec chosen_data_ = as<arma::vec>(chosen_data);
       
-      if (string_used) throw Rcpp::exception("String levels cannot be used to subset numeric or integer variables.", false);
+      if (string_used) {
+        throw Rcpp::exception("String levels cannot be used to subset numeric/integer variables.",
+          false);
+      }
       
       if (cisNA) { 
         NumericVector chosen_data_n = as<NumericVector>(chosen_data);
@@ -765,7 +785,10 @@ namespace LefkoUtils {
     } else if (is<LogicalVector>(chosen_data)) {
       arma::uvec chosen_data_ = as<arma::uvec>(chosen_data);
       
-      if (string_used) throw Rcpp::exception("String levels cannot be used to subset logical variables.", false);
+      if (string_used) {
+        throw Rcpp::exception("String levels cannot be used to subset logical variables.",
+          false);
+      }
       
       arma::uvec level_vec = as<arma::uvec>(level);
       
@@ -799,7 +822,10 @@ namespace LefkoUtils {
       }
       useable_indices = find(cv_log); 
       
-    } else throw Rcpp::exception("Chosen variable is not a recognized subsettable type.", false);
+    } else {
+      throw Rcpp::exception("Chosen variable is not a recognized subsettable type.",
+        false);
+    }
     
     int new_rows = static_cast<int>(useable_indices.n_elem);
     List new_df (no_vars);
@@ -903,7 +929,10 @@ namespace LefkoUtils {
     bool equal = true, bool greater = false, bool less = false,
     bool c_ints = true, Nullable<RObject> var = R_NilValue) {
     
-    if (greater && less) throw Rcpp::exception("Criteria cannot include both less than and greater than.", false);
+    if (greater && less) {
+      throw Rcpp::exception("Criteria cannot include both less and greater than.",
+        false);
+    }
     
     StringVector var_names = x.attr("names");
     StringVector df_class = x.attr("class");
@@ -927,7 +956,10 @@ namespace LefkoUtils {
       } else if (is<IntegerVector>(var_) || is<NumericVector>(var_)) {
         IntegerVector var_i_ = as<IntegerVector>(var_);
         
-        if (var_i_.length() != 1) throw Rcpp::exception("Please enter only a single variable to subset on.", false);
+        if (var_i_.length() != 1) {
+          throw Rcpp::exception("Enter only a single variable to subset on.",
+            false);
+        }
         
         if (c_ints) {
           chosen_var_i = var_i_(0);
@@ -936,12 +968,15 @@ namespace LefkoUtils {
         }
         
         if (chosen_var_i < 0 || chosen_var_i > (no_vars - 1)) {
-          throw Rcpp::exception("Chosen variable number falls outside the range of the data frame.", false);
+          throw Rcpp::exception("Chosen variable number outside the range of the data frame.",
+            false);
         }
       }
     }
     
-    if (chosen_var_i == -1) throw Rcpp::exception("No valid variable chosen for subsetting.", false);
+    if (chosen_var_i == -1) {
+      throw Rcpp::exception("No valid variable chosen for subsetting.", false);
+    }
     
     RObject chosen_data = x[chosen_var_i];
     
@@ -991,7 +1026,10 @@ namespace LefkoUtils {
     if (is<NumericVector>(chosen_data) || is<IntegerVector>(chosen_data)) {
       arma::vec chosen_data_ = as<arma::vec>(chosen_data);
       
-      if (string_used) throw Rcpp::exception("String levels cannot be used to subset numeric or integer variables.", false);
+      if (string_used) {
+        throw Rcpp::exception("String levels cannot be used to subset numeric/integer variables.",
+          false);
+      }
       
       if (cisNA) { 
         NumericVector chosen_data_n = as<NumericVector>(chosen_data);
@@ -1016,7 +1054,10 @@ namespace LefkoUtils {
     } else if (is<LogicalVector>(chosen_data)) {
       arma::uvec chosen_data_ = as<arma::uvec>(chosen_data);
       
-      if (string_used) throw Rcpp::exception("String levels cannot be used to subset logical variables.", false);
+      if (string_used) {
+        throw Rcpp::exception("String levels cannot be used to subset logical variables.",
+          false);
+      }
       
       arma::uvec level_vec = as<arma::uvec>(level);
       
@@ -1050,7 +1091,9 @@ namespace LefkoUtils {
       }
       useable_indices = find(cv_log); 
       
-    } else throw Rcpp::exception("Chosen variable is not a recognized subsettable type.", false);
+    } else {
+      throw Rcpp::exception("Chosen variable is not a recognized subsettable type.", false);
+    }
     
     int new_rows = static_cast<int>(useable_indices.n_elem);
     List new_df (no_vars);
@@ -1604,7 +1647,8 @@ namespace LefkoUtils {
               if (StringVector::is_na(var_hold_str(k))) {
                 old_check(k) = false;
               } else {
-                if (stringcompare_hard(String(var_hold_str(i)), String(var_hold_str(k)))) {
+                if (stringcompare_hard(String(var_hold_str(i)),
+                  String(var_hold_str(k)))) {
                   old_check(k) = true;
                 } else {
                   old_check(k) = false;
@@ -1622,7 +1666,8 @@ namespace LefkoUtils {
               if (StringVector::is_na(var_hold_str(k))) {
                 new_check(k) = false;
               } else {
-                if (stringcompare_hard(String(var_hold_str(i)), String(var_hold_str(k)))) {
+                if (stringcompare_hard(String(var_hold_str(i)),
+                  String(var_hold_str(k)))) {
                   new_check(k) = true;
                 } else {
                   new_check(k) = false;
@@ -1911,11 +1956,11 @@ namespace LefkoUtils {
     
     Rcpp::List output = List::create(_["class"] = "vglm", _["family"] = resp_family,
       _["dist"] = dist, _["zero_inflated"] = false, _["zero_truncated"] = true,
-      _["all_vars"] = all_vars, _["fixed_vars"] = fixed_vars, _["fixed_slopes"] = fixed_slopes,
-      _["fixed_zi_vars"] = R_NilValue, _["fixed_zi_slopes"] = R_NilValue,
-      _["random_vars"] = R_NilValue, _["random_slopes"] = R_NilValue,
-      _["random_zi_vars"] = R_NilValue, _["random_zi_slopes"] = R_NilValue,
-      _["sigma"] = 1.0, _["theta"] = theta);
+      _["all_vars"] = all_vars, _["fixed_vars"] = fixed_vars,
+      _["fixed_slopes"] = fixed_slopes, _["fixed_zi_vars"] = R_NilValue,
+      _["fixed_zi_slopes"] = R_NilValue, _["random_vars"] = R_NilValue,
+      _["random_slopes"] = R_NilValue, _["random_zi_vars"] = R_NilValue,
+      _["random_zi_slopes"] = R_NilValue, _["sigma"] = 1.0, _["theta"] = theta);
     
     return output;
   }
@@ -2003,11 +2048,11 @@ namespace LefkoUtils {
     
     List output = List::create(_["class"] = "zeroinfl", _["family"] = model_family,
       _["dist"] = dist, _["zero_inflated"] = zi, _["zero_truncated"] = false,
-      _["all_vars"] = all_vars, _["fixed_vars"] = fixed_terms, _["fixed_slopes"] = fixed_slopes,
-      _["fixed_zi_vars"] = zi_terms, _["fixed_zi_slopes"] = zi_slopes,
-      _["random_vars"] = R_NilValue, _["random_slopes"] = R_NilValue,
-      _["random_zi_vars"] = R_NilValue, _["random_zi_slopes"] = R_NilValue,
-      _["sigma"] = 1.0, _["theta"] = theta);
+      _["all_vars"] = all_vars, _["fixed_vars"] = fixed_terms,
+      _["fixed_slopes"] = fixed_slopes, _["fixed_zi_vars"] = zi_terms,
+      _["fixed_zi_slopes"] = zi_slopes, _["random_vars"] = R_NilValue,
+      _["random_slopes"] = R_NilValue, _["random_zi_vars"] = R_NilValue,
+      _["random_zi_slopes"] = R_NilValue, _["sigma"] = 1.0, _["theta"] = theta);
     
     return output;
   }
@@ -2180,11 +2225,11 @@ namespace LefkoUtils {
     
     Rcpp::List output = List::create(_["class"] = object_class, _["family"] = resp_family,
       _["dist"] = dist, _["zero_inflated"] = false, _["zero_truncated"] = false,
-      _["all_vars"] = all_var_names, _["fixed_vars"] = coef_names, _["fixed_slopes"] = coefs,
-      _["fixed_zi_vars"] = R_NilValue, _["fixed_zi_slopes"] = R_NilValue,
-      _["random_vars"] = ran_index_list, _["random_slopes"] = ran_term_list,
-      _["random_zi_vars"] = R_NilValue, _["random_zi_slopes"] = R_NilValue,
-      _["sigma"] = sigma, _["theta"] = theta);
+      _["all_vars"] = all_var_names, _["fixed_vars"] = coef_names,
+      _["fixed_slopes"] = coefs, _["fixed_zi_vars"] = R_NilValue,
+      _["fixed_zi_slopes"] = R_NilValue, _["random_vars"] = ran_index_list,
+      _["random_slopes"] = ran_term_list, _["random_zi_vars"] = R_NilValue,
+      _["random_zi_slopes"] = R_NilValue, _["sigma"] = sigma, _["theta"] = theta);
     
     return output;
   }
@@ -2262,7 +2307,7 @@ namespace LefkoUtils {
     List variance_crap = object["sdr"];
     NumericVector random_values = variance_crap["par.random"];
     CharacterVector random_values_tags = random_values.attr("names");
-    int no_random_values = random_values.length(); // This has ALL random coefficients
+    int no_random_values = random_values.length(); // Has ALL random coefficients
     LogicalVector random_b(no_random_values);
     LogicalVector random_bzi(no_random_values);
     int no_ranb {0};
@@ -2458,11 +2503,12 @@ namespace LefkoUtils {
     
     List output = List::create(_["class"] = class_thistime, _["family"] = model_family,
       _["dist"] = dist, _["zero_inflated"] = zi, _["zero_truncated"] = trunc,
-      _["all_vars"] = all_vars, _["fixed_vars"] = fixed_terms, _["fixed_slopes"] = fixed_slopes,
-      _["fixed_zi_vars"] = zi_terms, _["fixed_zi_slopes"] = zi_slopes,
-      _["random_vars"] = ran_term_list, _["random_slopes"] = ran_slope_list,
-      _["random_zi_vars"] = ran_zi_term_list, _["random_zi_slopes"] = ran_zi_slope_list,
-      _["sigma"] = sigma, _["theta"] = theta);
+      _["all_vars"] = all_vars, _["fixed_vars"] = fixed_terms,
+      _["fixed_slopes"] = fixed_slopes, _["fixed_zi_vars"] = zi_terms,
+      _["fixed_zi_slopes"] = zi_slopes, _["random_vars"] = ran_term_list,
+      _["random_slopes"] = ran_slope_list, _["random_zi_vars"] = ran_zi_term_list,
+      _["random_zi_slopes"] = ran_zi_slope_list, _["sigma"] = sigma,
+      _["theta"] = theta);
     
     return output;
   }
@@ -2524,7 +2570,7 @@ namespace LefkoUtils {
   //' @noRd
   inline Rcpp::List S3_extractor(List object) {
     StringVector model_class = object.attr("class");
-    int model_type {0}; // 0 = unrecognized, 1 = lm/glm/negbin, 2 = zeroinfl, 3 = glmmTMB
+    int model_type {0}; // 0 = unknown, 1 = lm/glm/negbin, 2 = zeroinfl, 3 = glmmTMB
     
     List output;
     
@@ -3081,15 +3127,17 @@ namespace LefkoUtils {
       add3 = 10;
     }
     
-    double parti = maincoefs(0 + add1) + (maincoefs(1 + add1) * fl1_i) + (maincoefs(2 + add1) * fl2n_i) +
-      (maincoefs(3 + add1) * sz1_i) + (maincoefs(4 + add1) * sz2o_i) + (maincoefs(5 + add1) * fl2n_i * fl1_i) + 
+    double parti = maincoefs(0 + add1) + (maincoefs(1 + add1) * fl1_i) +
+      (maincoefs(2 + add1) * fl2n_i) + (maincoefs(3 + add1) * sz1_i) +
+      (maincoefs(4 + add1) * sz2o_i) + (maincoefs(5 + add1) * fl2n_i * fl1_i) + 
       (maincoefs(6 + add1) * sz2o_i * sz1_i) + (maincoefs(7 + add1) * sz1_i * fl1_i) +
       (maincoefs(8 + add1) * sz2o_i * fl2n_i) + (maincoefs(9 + add1) * sz2o_i * fl1_i) + 
       (maincoefs(10 + add1) * sz1_i * fl2n_i) + (maincoefs(11 + add1) * aage2_i) + 
       (maincoefs(12 + add1) * aage2_i * sz1_i) + (maincoefs(13 + add1) * aage2_i * sz2o_i) + 
       (maincoefs(14 + add1) * aage2_i * fl1_i) + (maincoefs(15 + add1) * aage2_i * fl2n_i) + 
-      (maincoefs(16 + add1) * inda_2) + (maincoefs(17 + add1) * indb_2) + (maincoefs(18 + add1) * indc_2) + 
-      (maincoefs(19 + add1) * inda_1) + (maincoefs(20 + add1) * indb_1) + (maincoefs(21 + add1) * indc_1) + 
+      (maincoefs(16 + add1) * inda_2) + (maincoefs(17 + add1) * indb_2) +
+      (maincoefs(18 + add1) * indc_2) + (maincoefs(19 + add1) * inda_1) +
+      (maincoefs(20 + add1) * indb_1) + (maincoefs(21 + add1) * indc_1) + 
       (maincoefs(22 + add1) * inda_2 * sz2o_i) + (maincoefs(23 + add1) * indb_2 * sz2o_i) + 
       (maincoefs(24 + add1) * indc_2 * sz2o_i) + (maincoefs(25 + add1) * inda_2 * fl2n_i) + 
       (maincoefs(26 + add1) * indb_2 * fl2n_i) + (maincoefs(27 + add1) * indc_2 * fl2n_i) + 
@@ -4055,14 +4103,16 @@ namespace LefkoUtils {
     
     for (int i = 0; i < no_fixed_vars; i++) {
       for (int j = 0; j < no_years; j++) {
-        if (stringcompare_simple(as<std::string>(fixed_vars(i)), as<std::string>(mainyears_text(j)), false)) {
+        if (stringcompare_simple(as<std::string>(fixed_vars(i)),
+          as<std::string>(mainyears_text(j)), false)) {
           year_coefs(j) = fixed_slopes(i);
         }
       }
       
       for (int j = 0; j < no_patches; j++) {
         if (stringcompare_simple(as<std::string>(fixed_vars(i)), patchvar, false)) {
-          if (stringcompare_simple(as<std::string>(fixed_vars(i)), as<std::string>(mainpatches(j)), false)) {
+          if (stringcompare_simple(as<std::string>(fixed_vars(i)),
+            as<std::string>(mainpatches(j)), false)) {
             patch_coefs(j) = fixed_slopes(i);
           }
         }
@@ -4070,14 +4120,16 @@ namespace LefkoUtils {
       
       for (int j = 0; j < no_groups; j++) {
         if (stringcompare_simple(as<std::string>(fixed_vars(i)), group2var, false)) {
-          if (stringcompare_simple(as<std::string>(fixed_vars(i)), as<std::string>(maingroups_text(j)), false)) {
+          if (stringcompare_simple(as<std::string>(fixed_vars(i)),
+            as<std::string>(maingroups_text(j)), false)) {
             group2_coefs(j) = fixed_slopes(i);
           }
         }
       }
       for (int j = 0; j < no_groups; j++) {
         if (stringcompare_simple(as<std::string>(fixed_vars(i)), group1var, false)) {
-          if (stringcompare_simple(as<std::string>(fixed_vars(i)), as<std::string>(maingroups_text(j)), false)) {
+          if (stringcompare_simple(as<std::string>(fixed_vars(i)),
+            as<std::string>(maingroups_text(j)), false)) {
             group1_coefs(j) = fixed_slopes(i);
           }
         }
@@ -4915,13 +4967,15 @@ namespace LefkoUtils {
     
     for (int i = 0; i < no_fixed_zi_slopes; i++) {
       for (int j = 0; j < no_years; j++) {
-        if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)), as<std::string>(mainyears_text(j)), false)) {
+        if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)),
+          as<std::string>(mainyears_text(j)), false)) {
           zeroyear_coefs(j) = fixed_zi_slopes(i);
         }
       }
       for (int j = 0; j < no_patches; j++) {
         if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)), patchvar, false)) {
-          if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)), as<std::string>(mainpatches(j)), false)) {
+          if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)),
+            as<std::string>(mainpatches(j)), false)) {
             zeropatch_coefs(j) = fixed_zi_slopes(i);
           }
         }
@@ -4929,14 +4983,16 @@ namespace LefkoUtils {
       
       for (int j = 0; j < no_groups; j++) {
         if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)), group2var, false)) {
-          if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)), as<std::string>(maingroups_text(j)), false)) {
+          if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)),
+            as<std::string>(maingroups_text(j)), false)) {
             zerogroup2_coefs(j) = fixed_zi_slopes(i);
           }
         }
       }
       for (int j = 0; j < no_groups; j++) {
         if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)), group1var, false)) {
-          if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)), as<std::string>(maingroups_text(j)), false)) {
+          if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)),
+            as<std::string>(maingroups_text(j)), false)) {
             zerogroup1_coefs(j) = fixed_zi_slopes(i);
           }
         }
@@ -4945,12 +5001,14 @@ namespace LefkoUtils {
       if (no_indcova_names > 0) {
         for (int j = 0; j < no_indcova_names; j++) {
           if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)), indcova2var, false)) {
-            if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)), as<std::string>(indcova_names(j)), false)) {
+            if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)),
+              as<std::string>(indcova_names(j)), false)) {
               zeroindcova2s(j) = fixed_zi_slopes(i);
             }
           }
           if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)), indcova1var, false)) {
-            if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)), as<std::string>(indcova_names(j)), false)) {
+            if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)),
+              as<std::string>(indcova_names(j)), false)) {
               zeroindcova1s(j) = fixed_zi_slopes(i);
             }
           }
@@ -4960,12 +5018,14 @@ namespace LefkoUtils {
       if (no_indcovb_names > 0) {
         for (int j = 0; j < no_indcovb_names; j++) {
           if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)), indcovb2var, false)) {
-            if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)), as<std::string>(indcovb_names(j)), false)) {
+            if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)),
+              as<std::string>(indcovb_names(j)), false)) {
               zeroindcovb2s(j) = fixed_zi_slopes(i);
             }
           }
           if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)), indcovb1var, false)) {
-            if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)), as<std::string>(indcovb_names(j)), false)) {
+            if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)),
+              as<std::string>(indcovb_names(j)), false)) {
               zeroindcovb1s(j) = fixed_zi_slopes(i);
             }
           }
@@ -4975,12 +5035,14 @@ namespace LefkoUtils {
       if (no_indcovc_names > 0) {
         for (int j = 0; j < no_indcovc_names; j++) {
           if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)), indcovc2var, false)) {
-            if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)), as<std::string>(indcovc_names(j)), false)) {
+            if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)),
+              as<std::string>(indcovc_names(j)), false)) {
               zeroindcovc2s(j) = fixed_zi_slopes(i);
             }
           }
           if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)), indcovc1var, false)) {
-            if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)), as<std::string>(indcovc_names(j)), false)) {
+            if (stringcompare_simple(as<std::string>(fixed_zi_vars(i)),
+              as<std::string>(indcovc_names(j)), false)) {
               zeroindcovc1s(j) = fixed_zi_slopes(i);
             }
           }
@@ -5755,6 +5817,12 @@ namespace LefkoUtils {
       }
     }
     
+    LogicalVector coef_vec_nacheck_long = is_na(coef_vec);
+    LogicalVector coef_vec_nacheck = any(coef_vec_nacheck_long);
+    if (coef_vec_nacheck(0) != 0) {
+      Rf_warningcall(R_NilValue, "Some model coefficients are NA values. Matrices may contain NAs.");
+    }
+    
     // Random slopes
     Nullable<List> random_vars_ = core_components["random_vars"];
     Nullable<List> random_zi_vars_ = core_components["random_zi_vars"];
@@ -5777,7 +5845,8 @@ namespace LefkoUtils {
           
           for (int j = 0; j < no_ran_year_slopes; j++) {
             for (int k = 0; k < no_years; k++) {
-              if (stringcompare_hard(as<std::string>(ran_year_names(j)), as<std::string>(mainyears_text(k)))) {
+              if (stringcompare_hard(as<std::string>(ran_year_names(j)),
+                as<std::string>(mainyears_text(k)))) {
                 year_coefs(k) = ran_year_slopes(j);
               }
             }
@@ -5791,7 +5860,8 @@ namespace LefkoUtils {
           
           for (int j = 0; j < no_ran_patch_slopes; j++) {
             for (int k = 0; k < no_patches; k++) {
-              if (stringcompare_hard(as<std::string>(ran_patch_names(j)), as<std::string>(mainpatches(k)))) {
+              if (stringcompare_hard(as<std::string>(ran_patch_names(j)),
+                as<std::string>(mainpatches(k)))) {
                 patch_coefs(k) = ran_patch_slopes(j);
               }
             }
@@ -5805,7 +5875,8 @@ namespace LefkoUtils {
         
           for (int j = 0; j < no_ran_inda2_slopes; j++) {
             for (int k = 0; k < no_indcova_names; k++) {
-              if (stringcompare_hard(as<std::string>(ran_inda2_names(j)), as<std::string>(indcova_names(k)))) {
+              if (stringcompare_hard(as<std::string>(ran_inda2_names(j)),
+                as<std::string>(indcova_names(k)))) {
                 indcova2s(k) = ran_inda2_slopes(j);
               }
             }
@@ -5818,7 +5889,8 @@ namespace LefkoUtils {
         
           for (int j = 0; j < no_ran_inda1_slopes; j++) {
             for (int k = 0; k < no_indcova_names; k++) {
-              if (stringcompare_hard(as<std::string>(ran_inda1_names(j)), as<std::string>(indcova_names(k)))) {
+              if (stringcompare_hard(as<std::string>(ran_inda1_names(j)),
+                as<std::string>(indcova_names(k)))) {
                 indcova1s(k) = ran_inda1_slopes(j);
               }
             }
@@ -5831,7 +5903,8 @@ namespace LefkoUtils {
         
           for (int j = 0; j < no_ran_indb2_slopes; j++) {
             for (int k = 0; k < no_indcovb_names; k++) {
-              if (stringcompare_hard(as<std::string>(ran_indb2_names(j)), as<std::string>(indcovb_names(k)))) {
+              if (stringcompare_hard(as<std::string>(ran_indb2_names(j)),
+                as<std::string>(indcovb_names(k)))) {
                 indcovb2s(k) = ran_indb2_slopes(j);
               }
             }
@@ -5844,7 +5917,8 @@ namespace LefkoUtils {
         
           for (int j = 0; j < no_ran_indb1_slopes; j++) {
             for (int k = 0; k < no_indcovb_names; k++) {
-              if (stringcompare_hard(as<std::string>(ran_indb1_names(j)), as<std::string>(indcovb_names(k)))) {
+              if (stringcompare_hard(as<std::string>(ran_indb1_names(j)),
+                as<std::string>(indcovb_names(k)))) {
                 indcovb1s(k) = ran_indb1_slopes(j);
               }
             }
@@ -5857,7 +5931,8 @@ namespace LefkoUtils {
         
           for (int j = 0; j < no_ran_indc2_slopes; j++) {
             for (int k = 0; k < no_indcovc_names; k++) {
-              if (stringcompare_hard(as<std::string>(ran_indc2_names(j)), as<std::string>(indcovc_names(k)))) {
+              if (stringcompare_hard(as<std::string>(ran_indc2_names(j)),
+                as<std::string>(indcovc_names(k)))) {
                 indcovc2s(k) = ran_indc2_slopes(j);
               }
             }
@@ -5870,7 +5945,8 @@ namespace LefkoUtils {
         
           for (int j = 0; j < no_ran_indc1_slopes; j++) {
             for (int k = 0; k < no_indcovc_names; k++) {
-              if (stringcompare_hard(as<std::string>(ran_indc1_names(j)), as<std::string>(indcovc_names(k)))) {
+              if (stringcompare_hard(as<std::string>(ran_indc1_names(j)),
+                as<std::string>(indcovc_names(k)))) {
                 indcovc1s(k) = ran_indc1_slopes(j);
               }
             }
@@ -6071,12 +6147,13 @@ namespace LefkoUtils {
     output(26) = as<NumericVector>(core_components["sigma"]);
     output(27) = as<NumericVector>(core_components["theta"]);
   
-    CharacterVector output_names = {"coefficients", "years", "zeroyear", "patches",
-      "zeropatch", "groups2", "groups1", "zerogroups2", "zerogroups1", "indcova2s",
-      "indcova1s", "indcovb2s", "indcovb1s", "indcovc2s", "indcovc1s",
-      "zeroindcova2s", "zeroindcova1s", "zeroindcovb2s", "zeroindcovb1s",
-      "zeroindcovc2s", "zeroindcovc1s", "class", "family", "dist", "zero_inflated",
-      "zero_truncated", "sigma", "theta"};
+    CharacterVector output_names = {"coefficients", "years", "zeroyear",
+      "patches", "zeropatch", "groups2", "groups1", "zerogroups2",
+      "zerogroups1", "indcova2s", "indcova1s", "indcovb2s", "indcovb1s",
+      "indcovc2s", "indcovc1s", "zeroindcova2s", "zeroindcova1s",
+      "zeroindcovb2s", "zeroindcovb1s", "zeroindcovc2s", "zeroindcovc1s",
+      "class", "family", "dist", "zero_inflated", "zero_truncated", "sigma",
+      "theta"};
     output.attr("names") = output_names;
     
     return output;
@@ -6551,14 +6628,16 @@ namespace LefkoUtils {
           if (upper_boundary_int > 0.0) {
             sizefac = upper_boundary_int * tgamma(upper_boundary_int);
           }
-          double main_out = boost::math::tgamma((upper_boundary_int + 1), lambda) / sizefac;
+          double main_out = boost::math::tgamma((upper_boundary_int + 1), lambda) /
+            sizefac;
           
           if (upper_boundary_int > lower_boundary_int) {
             double sizefac_low {1.0};
             if (lower_boundary_int > 0.0) {
               sizefac_low = lower_boundary_int * tgamma(lower_boundary_int);
             }
-            all_out = main_out - boost::math::tgamma((lower_boundary_int + 1), lambda) / sizefac_low;
+            all_out = main_out - boost::math::tgamma((lower_boundary_int + 1), lambda) /
+              sizefac_low;
           } else {
             all_out = main_out;
           }
@@ -6594,7 +6673,8 @@ namespace LefkoUtils {
               den_corr = 1.0 / (exp_tol * exp_tol);
             }
             
-            current_prob += ((pow(lambda, Used_size3) * exp(-1.0 * lambda)) / sizefac) / den_corr;
+            current_prob += ((pow(lambda, Used_size3) * exp(-1.0 * lambda)) / sizefac) /
+              den_corr;
           }
           all_out = current_prob;
           
@@ -6646,9 +6726,11 @@ namespace LefkoUtils {
         for (int summed_size = (y0 + 1); summed_size <= y; summed_size++) {
           double log_leftie = 0.0;
           for (int j = 0; j < summed_size; j++) {
-            log_leftie = log(static_cast<double>(j) + theta) - log(static_cast<double>(j) + 1.0) + log_leftie;
+            log_leftie = log(static_cast<double>(j) + theta) -
+              log(static_cast<double>(j) + 1.0) + log_leftie;
           }
-          double log_rightie = static_cast<double>(summed_size) * (log_amu - log(1.0 + (alpha * mu)));
+          double log_rightie = static_cast<double>(summed_size) *
+            (log_amu - log(1.0 + (alpha * mu)));
           
           double raw_prob = log_leftie + log_mid + log_rightie;
           
@@ -6694,7 +6776,7 @@ namespace LefkoUtils {
           
           all_out = (exp(-1 * (pow((Used_size3 - preout), 2) / (2.0 * sigma2))) / 
             ((pow((2 * M_PI), 0.5)) * sigma));
-          all_out = all_out * Used_binwidth3; // This is the midpoint integration
+          all_out = all_out * Used_binwidth3; // Midpoint integration
           
           // Rcout << "Gaussian mid: Used_size3: " << Used_size3 << " Used_binwidth3: " <<
           //   Used_binwidth3 << " sigma: " << sigma << " preout: " <<
@@ -6724,7 +6806,7 @@ namespace LefkoUtils {
           
           all_out = pow(beta, alpha) * (1.0 / tgamma(alpha)) * 
             pow(Used_size3, (alpha - 1.0)) * exp(-1.0 * beta * Used_size3);
-          all_out = all_out * Used_binwidth3; // This is the midpoint integration
+          all_out = all_out * Used_binwidth3; // Midpoint integration
           
           // Rcout << "Gamma mid: Used_size3: " << Used_size3 << " Used_binwidth3: " <<
           //   Used_binwidth3 << " alpha: " << alpha << " beta: " << beta <<
@@ -6741,7 +6823,8 @@ namespace LefkoUtils {
           
           if (zi_processing) {
             
-            all_out = (1.0 - (exp(preout_zi) / (1.0 + exp(preout_zi)))) * (exp(preout) * fecmod * repentry_i);
+            all_out = (1.0 - (exp(preout_zi) / (1.0 + exp(preout_zi)))) *
+              (exp(preout) * fecmod * repentry_i);
             
           } else {
             
@@ -6767,7 +6850,8 @@ namespace LefkoUtils {
           if (preout > exp_tol) preout = exp_tol;
               
           if (zi_processing) {
-            all_out = (1.0 - (exp(preout_zi) / (1.0 + exp(preout_zi)))) * (exp(preout) * fecmod * repentry_i);
+            all_out = (1.0 - (exp(preout_zi) / (1.0 + exp(preout_zi)))) *
+              (exp(preout) * fecmod * repentry_i);
             
           } else {
             all_out = exp(preout) * fecmod * repentry_i;
@@ -7356,7 +7440,8 @@ namespace LefkoUtils {
     int properindex {0};
     int proxyindex {0};
     
-    // Determination of choices of fixed and random individual covariates, and annual covariates
+    // Determination of choices of fixed and random individual covariates,
+    // and annual covariates
     double inda1 = f1_inda(yearnumber);
     double indb1 = f1_indb(yearnumber);
     double indc1 = f1_indc(yearnumber);
@@ -7600,7 +7685,7 @@ namespace LefkoUtils {
     }
     
     // Matrix out collects conditional probabilities
-    // It is a zero matrix with n rows and 7 columns: 0 surv, 1 obs, 2 repst,
+    // Zero matrix with n rows and 7 columns: 0 surv, 1 obs, 2 repst,
     // 3 size, 4 size_b, 5 size_c, 6 matst, >6 are test variables
     if (err_check) {
       NumericMatrix zeroform(n, 7);
@@ -7635,7 +7720,7 @@ namespace LefkoUtils {
     double mat_predicted {0.0};
     unsigned int k {0};
     
-    // Loop runs through each line of AllStages, calculating each estimable matrix element
+    // Loop runs through each line of AllStages, calculates each estimable matrix element
     for(int i = 0; i < n; i++) {
       out_vec = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0};
       k = aliveandequal(i);
@@ -7653,16 +7738,6 @@ namespace LefkoUtils {
           
           // Adult survival transitions
           if (survdist < 5) {
-            
-            
-            
-            
-            
-            /////
-            
-            
-            
-            
             
             out_vec(0) = preouterator(survproxy, survcoefs, rand_index, dev_terms,
               vital_year, vital_patch, chosen_r2inda, chosen_r1inda, chosen_r2indb,
@@ -8216,7 +8291,7 @@ namespace LefkoUtils {
     return output_final;
   }
   
-  //' Estimate All Elements of Function-based Leslie Population Projection Matrix
+  //' Estimate All Elements of Function-based Leslie Projection Matrix
   //' 
   //' Function \code{motherbalowski()} swiftly calculates matrix elements in
   //' function-based Leslie population projection matrices. Used in
@@ -8449,7 +8524,7 @@ namespace LefkoUtils {
     StringVector fecind_rownames = bootson(fecproxy);
     StringVector fecind_rownames_zi = zero_bootson(fecproxy);
     
-    // Determination of choices of fixed and random individual covariates, and annual covariates
+    // Determination of choices of fixed and random ind covs, and annual covs
     double inda1 = f1_inda(yearnumber);
     double indb1 = f1_indb(yearnumber);
     double indc1 = f1_indc(yearnumber);
@@ -8498,7 +8573,7 @@ namespace LefkoUtils {
       fectransmat_sp = fectransmat_chuck;
     }
     
-    // The following loop runs through each age, and so runs through
+    // Following loop runs through each age, and runs through
     // each estimable element in the matrix
     double fec_addedcoefs = sum(feccoefs);
     for(int i = 0; i < noages; i++) {
@@ -8621,15 +8696,6 @@ namespace LefkoUtils {
             }
           }
         }
-        
-        
-        
-        
-        
-        /////
-        
-        
-        
         
         double mainsum = rimeotam(survcoefs, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
           0.0, static_cast<double>(actualages(i)), inda1, inda2, indb1, indb2,
@@ -9159,7 +9225,8 @@ namespace LefkoUtils {
     StringVector yearorder;
     
     if (!labels.hasAttribute("names")) {
-      throw Rcpp::exception("This lefkoMat object lacks variable names in its labels element. Processing cannot proceed.", false);
+      throw Rcpp::exception("This lefkoMat object lacks variable names in element labels.",
+        false);
     }
     
     StringVector labels_vars = as<StringVector>(labels.attr("names"));
@@ -9193,7 +9260,8 @@ namespace LefkoUtils {
       Rf_warningcall(R_NilValue, "This lefkoMat object lacks annual matrices.\n");
     }
     if (found_vars < 2) {
-      throw Rcpp::exception("Unusual labels element missing pop, patch, and/or year2 vectors.", false);
+      throw Rcpp::exception("Unusual labels element missing pop, patch, and/or year2 vectors.",
+        false);
     }
     
     if (!found_pop) {
@@ -9552,7 +9620,7 @@ namespace LefkoUtils {
   inline int whichbrew (Rcpp::DataFrame& ahstages, Rcpp::DataFrame& hstages,
     Rcpp::DataFrame& agestages) {
     
-    int current_brew {1}; // 0 - historical; 1 - ahistorical; 2 - agestage; 3 - age
+    int current_brew {1}; // 0 - hist; 1 - ahist; 2 - agestage; 3 - age
     
     int hst_cols = static_cast<int>(hstages.length());
     int ast_cols = static_cast<int>(agestages.length());
@@ -9919,11 +9987,11 @@ namespace LefkoUtils {
   //' @name yesno_to_logic
   //' 
   //' @param input RObject to be interpreted.
-  //' @param defval Default Boolean value for function.
+  //' @param arg_name Name of argument that is being tested.
   //' 
   //' @return Returns a simple Boolean value, or produces an error for
   //' unintelligible input.
-  inline bool yesno_to_logic (RObject input, bool defval = false) {
+  inline bool yesno_to_logic (RObject input, String arg_name) {
     bool final_result = false;
     
     if (is<StringVector>(input)) {
@@ -9937,8 +10005,8 @@ namespace LefkoUtils {
       int no_check {0};
       
       for (int i = 0; i < 8; i++) {
-        if (LefkoUtils::stringcompare_simple(input_check, String(yesbits(i)))) yes_check++;
-        if (LefkoUtils::stringcompare_simple(input_check, String(nobits(i)))) no_check++;
+        if (LefkoUtils::stringcompare_simple(input_check, String(yesbits(i)), true)) yes_check++;
+        if (LefkoUtils::stringcompare_simple(input_check, String(nobits(i)), true)) no_check++;
       }
       
       if (yes_check > 0) {
@@ -9946,21 +10014,105 @@ namespace LefkoUtils {
       } else if (no_check > 0) {
         final_result = false;
       } else {
-        final_result = defval;
+        String err_out = "Argument ";
+        err_out += arg_name;
+        err_out += " is invalid.";
+        
+        throw Rcpp::exception(err_out.get_cstring(), false);
       }
     } else if (is<LogicalVector>(input)) {
         LogicalVector input_check_vec = as<LogicalVector>(input);
         final_result = static_cast<bool>(input_check_vec(0));
-    } if (is<NumericVector>(input)) {
+    } else if (is<NumericVector>(input)) {
         IntegerVector input_check_vec = as<IntegerVector>(input);
         int input_first = static_cast<int>(input_check_vec(0));
         
         if (input_first == 1) final_result = true;
     } else {
-      final_result = defval;
+      String err_out = "Argument ";
+      err_out += arg_name;
+      err_out += " is invalid.";
+      
+      throw Rcpp::exception(err_out.get_cstring(), false);
     }
     
     return final_result;
+  }
+  
+  //' Take Yes / No and Other Input to Yield a Boolean Value
+  //' 
+  //' Function \code{yesnoauto_to_logic()} takes a variety of inputs and
+  //' interprets them, altering two Boolean responses that are input as
+  //' arguments.
+  //' 
+  //' @name yesnoauto_to_logic
+  //' 
+  //' @param input RObject to be interpreted.
+  //' @param arg_name Name of the function argument being tested.
+  //' @param yesno_only A Boolean variable holding the yes / no value.
+  //' @param auto_only A Boolean variable holding whether "auto" was chosen.
+  //' 
+  //' @return Alters two Boolean variables on memory based on the input.
+  //' 
+  //' @export yesnoauto_to_logic
+  // [[Rcpp::export(yesnoauto_to_logic)]]
+  inline void yesnoauto_to_logic (RObject input, String arg_name,
+    bool &yesno_only, bool &auto_only) {
+    
+    bool yesno_result = false;
+    bool auto_result = false;
+    
+    if (is<StringVector>(input)) {
+      StringVector yesbits = {"y", "yes", "yea", "yeah", "t", "true", "ja", "tak"};
+      StringVector nobits = {"n", "no", "non", "nah", "f", "false", "nein", "nie"};
+      StringVector autobits = {"au", "aut", "auto", "both", "jidou"};
+      
+      StringVector input_check_vec = as<StringVector>(input);
+      String input_check = String(input_check_vec(0));
+      
+      int auto_check {0};
+      int yes_check {0};
+      int no_check {0};
+      
+      for (int i = 0; i < 8; i++) {
+        if (i < 5) {
+          if (LefkoUtils::stringcompare_simple(input_check, String(autobits(i)), true)) auto_check++;
+        }
+        if (LefkoUtils::stringcompare_simple(input_check, String(yesbits(i)), true)) yes_check++;
+        if (LefkoUtils::stringcompare_simple(input_check, String(nobits(i)), true)) no_check++;
+      }
+      
+      if (auto_check > 0) { 
+        auto_result = true;
+      } else if (yes_check > 0) {
+        yesno_result = true;
+      } else if (no_check > 0) {
+        yesno_result = false;
+      } else {
+        String err_out = "Argument ";
+        err_out += arg_name;
+        err_out += " is invalid.";
+        
+        throw Rcpp::exception(err_out.get_cstring(), false);
+      }
+    } else if (is<LogicalVector>(input)) {
+        LogicalVector input_check_vec = as<LogicalVector>(input);
+        yesno_result = static_cast<bool>(input_check_vec(0));
+    } else if (is<NumericVector>(input)) {
+        IntegerVector input_check_vec = as<IntegerVector>(input);
+        int input_first = static_cast<int>(input_check_vec(0));
+        
+        if (input_first == 1) yesno_result = true;
+    } else {
+      String err_out = "Argument ";
+      err_out += arg_name;
+      err_out += " is invalid.";
+      
+      throw Rcpp::exception(err_out.get_cstring(), false);
+    }
+    
+    yesno_only = yesno_result;
+    auto_only = auto_result;
   }
   
 }

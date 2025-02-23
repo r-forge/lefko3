@@ -3106,6 +3106,8 @@ rleslie <- function(data, start_age = NA, last_age = NA, continue = TRUE,
 #' @param colsums A logical value indicating whether column sums should be shown
 #' for U matrices, allowing users to check stage survival probabilities.
 #' Defaults to TRUE.
+#' @param check_cycle A logical value indicating whether to test matrices for
+#' stage discontinuities in the life cycle. Defaults to \code{TRUE}.
 #' @param ... Other parameters.
 #' 
 #' @return A summary of the object, showing the number of each type of matrix,
@@ -3173,7 +3175,7 @@ rleslie <- function(data, start_age = NA, last_age = NA, continue = TRUE,
 #' summary(cypmatrix2r)
 #' 
 #' @export
-summary.lefkoMat <- function(object, colsums = TRUE, ...) {
+summary.lefkoMat <- function(object, colsums = TRUE, check_cycle = TRUE, ...) {
   
   matrices <- object
   
@@ -3406,7 +3408,6 @@ summary.lefkoMat <- function(object, colsums = TRUE, ...) {
   
   writeLines("\n")
   
-  cycle_check(matrices)
-  
+  if (check_cycle) invisible(cycle_check(matrices))
 }
 

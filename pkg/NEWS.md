@@ -4,9 +4,14 @@
 
 * Function cycle_check() created to test for stage discontinuities in matrices.
 
+* Function-based matrix building procedures now test for NA values of model
+  coefficients, and display warnings if found.
+
 ## USER VISIBLE CHANGES
 
 * Updated project URL.
+
+* Function summary.lefkoMat() now also checks for stage discontinuities.
 
 ## BUG FIXES
 

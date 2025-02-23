@@ -4,7 +4,7 @@
 \alias{summary.lefkoMat}
 \title{Summary of Class "lefkoMat"}
 \usage{
-\method{summary}{lefkoMat}(object, colsums = TRUE, ...)
+\method{summary}{lefkoMat}(object, colsums = TRUE, check_cycle = TRUE, ...)
 }
 \arguments{
 \item{object}{An object of class \code{lefkoMat}.}
@@ -12,6 +12,9 @@
 \item{colsums}{A logical value indicating whether column sums should be shown
 for U matrices, allowing users to check stage survival probabilities.
 Defaults to TRUE.}
+
+\item{check_cycle}{A logical value indicating whether to test matrices for
+stage discontinuities in the life cycle. Defaults to \code{TRUE}.}
 
 \item{...}{Other parameters.}
 }

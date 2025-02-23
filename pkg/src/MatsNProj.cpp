@@ -5070,48 +5070,11 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
   
   int sparse_switch {0};
   bool sparse_auto {true};
+  bool sparse_bool = false;
   
   if (sparse.isNotNull()) {
-    if (is<LogicalVector>(sparse)) {
-      LogicalVector sparse_check_vec = as<LogicalVector>(sparse);
-      bool sparse_check = static_cast<bool>(sparse_check_vec(0));
-      sparse_auto = false;
-      
-      if (sparse_check) { 
-        sparse_switch = 1;
-      } else {
-        sparse_switch = 0;
-      }
-    } else if (is<StringVector>(sparse)) {
-      StringVector yesbits = {"y", "yes", "yea", "yeah", "t", "true", "ja", "tak"};
-      StringVector nobits = {"n", "no", "non", "nah", "f", "false", "nein", "nie"};
-      StringVector autobits = {"au", "aut", "auto", "both", "jidou"};
-      
-      StringVector sparse_check_vec = as<StringVector>(sparse);
-      String sparse_check = String(sparse_check_vec(0));
-      
-      int auto_check {0};
-      int yes_check {0};
-      int no_check {0};
-      
-      for (int i = 0; i < 8; i++) {
-        if (i < 5) {
-          if (LefkoUtils::stringcompare_simple(sparse_check, String(autobits(i)))) auto_check++;
-        }
-        if (LefkoUtils::stringcompare_simple(sparse_check, String(yesbits(i)))) yes_check++;
-        if (LefkoUtils::stringcompare_simple(sparse_check, String(nobits(i)))) no_check++;
-      }
-      
-      if (auto_check > 0) { 
-        sparse_auto = true;
-      } else if (yes_check > 0) { 
-        sparse_auto = false;
-        sparse_switch = 1;
-      } else if (no_check > 0) { 
-        sparse_auto = false;
-        sparse_switch = 0;
-      } else throw Rcpp::exception("Argument sparse is not valid.", false);
-    }
+    yesnoauto_to_logic(as<RObject>(sparse), "sparse", sparse_bool, sparse_auto);
+    if (sparse_bool) sparse_switch = 1;
   }
   
   if (sparse_auto) {
@@ -7677,9 +7640,11 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
           double summed_stuff = dvr_alpha_(i) + dvr_beta_(i);
           
           if (summed_stuff > exp_tol) {
-            Rf_warningcall(R_NilValue, "Alpha and beta used in Usher function may be too high.");
+            Rf_warningcall(R_NilValue,
+              "Alpha and beta used in Usher function may be too high.");
           } else if (summed_stuff < (-1.0 * exp_tol)) {
-            Rf_warningcall(R_NilValue, "Alpha and beta used in Usher function may be too low.");
+            Rf_warningcall(R_NilValue,
+              "Alpha and beta used in Usher function may be too low.");
           }
         }
       }
@@ -7805,7 +7770,9 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
     
   } else if (start_vec.isNotNull()) {
     startvec = as<arma::vec>(start_vec);
-    if (static_cast<int>(startvec.n_elem) != meanmatrows) pop_error("start_vec", "rows", "MPM matrices", 19);
+    if (static_cast<int>(startvec.n_elem) != meanmatrows) {
+      pop_error("start_vec", "rows", "MPM matrices", 19);
+    }
     
   } else {
     startvec.set_size(meanmatrows);
@@ -7984,9 +7951,11 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
         double summed_stuff = dyn_alpha(i) + dyn_beta(i);
         
         if (summed_stuff > exp_tol) {
-            Rf_warningcall(R_NilValue, "Alpha and beta used in Usher function may be too high.");
+            Rf_warningcall(R_NilValue,
+              "Alpha and beta used in Usher function may be too high.");
         } else if (summed_stuff < (-1.0 * exp_tol)) {
-            Rf_warningcall(R_NilValue, "Alpha and beta used in Usher function may be too high.");
+            Rf_warningcall(R_NilValue,
+              "Alpha and beta used in Usher function may be too high.");
         }
       }
     }
@@ -8045,9 +8014,10 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
         yearnumber = years_int(i, rep) - 1;
         patchnumber = patches_int(i) - 1;
         
-        used_devs = {sur_dev_values(i), obs_dev_values(i), siz_dev_values(i), sib_dev_values(i),
-          sic_dev_values(i), rep_dev_values(i), fec_dev_values(i), jsur_dev_values(i),
-          jobs_dev_values(i), jsiz_dev_values(i), jsib_dev_values(i), jsic_dev_values(i),
+        used_devs = {sur_dev_values(i), obs_dev_values(i), siz_dev_values(i), 
+          sib_dev_values(i), sic_dev_values(i), rep_dev_values(i),
+          fec_dev_values(i), jsur_dev_values(i), jobs_dev_values(i),
+          jsiz_dev_values(i), jsib_dev_values(i), jsic_dev_values(i),
           jrep_dev_values(i), jmat_dev_values(i)};
         
         if (dens_vr) {
@@ -8165,7 +8135,8 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
               warn_trigger_1 = true;
               if (!quiet) Rf_warningcall(R_NilValue,
                 "Some probabilities with value > 1.0 produced during density adjustment.");
-            } else if ((Umat(dyn_index321(j)) < 0.0 || Fmat(dyn_index321(j)) < 0.0) && !warn_trigger_neg) {
+            } else if ((Umat(dyn_index321(j)) < 0.0 || Fmat(dyn_index321(j)) < 0.0) && 
+              !warn_trigger_neg) {
               warn_trigger_neg = true;
               if (!quiet) Rf_warningcall(R_NilValue,
                 "Some matrix elements with value < 0.0 produced during density adjustment.");
@@ -8195,7 +8166,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
         if (!growthonly) {
           wpopproj.col(i+1) = popproj.col(i+1) / Rvecmat(i+1);
           
-          if (repvalue && !dens_vr) { // Currently does not handle density dependent reproductive value
+          if (repvalue && !dens_vr) { // Currently does not handle den dep repvalue
             NumericVector second_devs = {sur_dev_values(times - (i+1)),
               obs_dev_values(times - (i+1)), siz_dev_values(times - (i+1)),
               sib_dev_values(times - (i+1)), sic_dev_values(times - (i+1)),
@@ -8414,7 +8385,7 @@ Rcpp::List f_projection3(int format, bool prebreeding = true, int start_age = NA
         if (!growthonly) {
           wpopproj.col(i+1) = popproj.col(i+1) / Rvecmat(i+1);
           
-          if (repvalue && !dens_vr) { // Currently does not handle density dependent reproductive values
+          if (repvalue && !dens_vr) { // Currently does not handle dens dep repvalue
             NumericVector second_devs = {sur_dev_values(times - (i+1)),
               obs_dev_values(times - (i+1)), siz_dev_values(times - (i+1)),
               sib_dev_values(times - (i+1)), sic_dev_values(times - (i+1)),
@@ -15797,6 +15768,7 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
   int theclairvoyant = times;
   int dens_switch {0};
   int sparse_switch {0};
+  bool sparse_bool {false};
   bool sparse_auto {true};
   int used_matsize {0};
   int total_projrows {0};
@@ -15818,46 +15790,8 @@ Rcpp::List projection3(const List& mpm, int nreps = 1, int times = 10000,
   arma::mat projection;
   
   if (sparse.isNotNull()) {
-    if (is<LogicalVector>(sparse)) {
-      LogicalVector sparse_check_vec = as<LogicalVector>(sparse);
-      bool sparse_check = static_cast<bool>(sparse_check_vec(0));
-      sparse_auto = false;
-      
-      if (sparse_check) { 
-        sparse_switch = 1;
-      } else {
-        sparse_switch = 0;
-      }
-    } else if (is<StringVector>(sparse)) {
-      StringVector yesbits = {"y", "yes", "yea", "yeah", "t", "true", "ja", "tak"};
-      StringVector nobits = {"n", "no", "non", "nah", "f", "false", "nein", "nie"};
-      StringVector autobits = {"au", "aut", "auto", "both", "jidou"};
-      
-      StringVector sparse_check_vec = as<StringVector>(sparse);
-      String sparse_check = String(sparse_check_vec(0));
-      
-      int auto_check {0};
-      int yes_check {0};
-      int no_check {0};
-      
-      for (int i = 0; i < 8; i++) {
-        if (i < 5) {
-          if (LefkoUtils::stringcompare_simple(sparse_check, String(autobits(i)))) auto_check++;
-        }
-        if (LefkoUtils::stringcompare_simple(sparse_check, String(yesbits(i)))) yes_check++;
-        if (LefkoUtils::stringcompare_simple(sparse_check, String(nobits(i)))) no_check++;
-      }
-      
-      if (auto_check > 0) { 
-        sparse_auto = true;
-      } else if (yes_check > 0) { 
-        sparse_auto = false;
-        sparse_switch = 1;
-      } else if (no_check > 0) { 
-        sparse_auto = false;
-        sparse_switch = 0;
-      } else throw Rcpp::exception("Value entered for argument sparse not understood.", false);
-    }
+    yesnoauto_to_logic(as<RObject>(sparse), "sparse", sparse_bool, sparse_auto);
+    if (sparse_bool) sparse_switch = 1;
   }
   
   if (!is<NumericMatrix>(mpm(0)) && !is<S4>(mpm(0))) {
@@ -16960,6 +16894,7 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
   
   int theclairvoyant {0};
   int sparse_switch {0};
+  bool sparse_bool {false};
   bool sparse_auto {true};
   bool assume_markov {false};
   
@@ -16968,46 +16903,9 @@ DataFrame slambda3(const List& mpm, int times = 10000, bool historical = false,
   if (theclairvoyant < 1) pop_error("times", "positive integer.", "", 6);
   
   if (force_sparse.isNotNull()) {
-    if (is<LogicalVector>(force_sparse)) {
-      LogicalVector sparse_check_vec = as<LogicalVector>(force_sparse);
-      bool sparse_check = static_cast<bool>(sparse_check_vec(0));
-      sparse_auto = false;
-      
-      if (sparse_check) { 
-        sparse_switch = 1;
-      } else {
-        sparse_switch = 0;
-      }
-    } else if (is<StringVector>(force_sparse)) {
-      StringVector yesbits = {"y", "yes", "yea", "yeah", "t", "true", "ja", "tak"};
-      StringVector nobits = {"n", "no", "non", "nah", "f", "false", "nein", "nie"};
-      StringVector autobits = {"au", "aut", "auto", "both", "jidou"};
-      
-      StringVector sparse_check_vec = as<StringVector>(force_sparse);
-      String sparse_check = String(sparse_check_vec(0));
-      
-      int auto_check {0};
-      int yes_check {0};
-      int no_check {0};
-      
-      for (int i = 0; i < 8; i++) {
-        if (i < 5) {
-          if (LefkoUtils::stringcompare_simple(sparse_check, String(autobits(i)))) auto_check++;
-        }
-        if (LefkoUtils::stringcompare_simple(sparse_check, String(yesbits(i)))) yes_check++;
-        if (LefkoUtils::stringcompare_simple(sparse_check, String(nobits(i)))) no_check++;
-      }
-      
-      if (auto_check > 0) { 
-        sparse_auto = true;
-      } else if (yes_check > 0) { 
-        sparse_auto = false;
-        sparse_switch = 1;
-      } else if (no_check > 0) { 
-        sparse_auto = false;
-        sparse_switch = 0;
-      } else throw Rcpp::exception("Argument sparse is not valid.", false);
-    }
+    yesnoauto_to_logic(as<RObject>(force_sparse), "force_sparse", sparse_bool,
+      sparse_auto);
+    if (sparse_bool) sparse_switch = 1;
   }
   
   bool matrix_class_input {false};
