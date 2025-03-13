@@ -7,6 +7,64 @@ using namespace arma;
 using namespace LefkoUtils;
 using namespace LefkoMats;
 
+
+
+// Index of functions
+// 
+// 1. List sf_reassess  Standardize Stageframe For MPM Analysis
+// 2. DataFrame sf_skeleton  Create Skeleton Stageframe
+// 3. List thefifthhousemate  Create Historically Structured Version of ahMPM
+// 4. hist_null  Create Historical MPMs Assuming No Influence of Individual History
+// 5. List lmean  Estimate Mean Projection Matrices
+// 6. List add_stage  Add a New Stage to an Existing LefkoMat Object
+// 7. List cycle_check  Check Continuity of Life Cycle through Matrices in lefkoMat Objects
+
+
+//' Standardize Stageframe For MPM Analysis
+//' 
+//' Function \code{sf_reassess()} takes a stageframe as input, and uses
+//' information supplied there and through the supplement, reproduction and
+//' overwrite tables to rearrange this into a format usable by the matrix
+//' creation functions, \code{mpm_create()}, \code{flefko3()},
+//' \code{flefko2()}, \code{aflefko2()}, \code{rlefko3()}, and \code{rlefko2()}.
+//' This is performed through a call to \code{sf_reassess_internal()}.
+//' 
+//' @name .sf_reassess
+//' 
+//' @param stageframe The original stageframe.
+//' @param supplement The original supplemental data input (class
+//' \code{lefkoSD}). Can also equal NA.
+//' @param overwrite An overwrite table.
+//' @param repmatrix The original reproduction matrix. Can also equal \code{NA},
+//' \code{0}, or \code{NULL} (the last value by default).
+//' @param agemat A logical value indicating whether MPM is age-by-stage.
+//' @param historical A logical value indicating whether MPM is historical.
+//' @param format An integer indicating whether matrices will be in Ehrlen
+//' format (if set to 1), or deVries format (if set to 2). Setting to deVries
+//' format adds one extra stage to account for the prior status of newborns.
+//' 
+//' @return This function returns a list with a modified \code{stageframe}
+//' usable in MPM construction, an associated \code{repmatrix}, and a general
+//' \code{supplement} table that takes over for any input \code{supplement} or
+//' \code{overwrite} table. Note that if a \code{supplement} is provided and a
+//' \code{repmatrix} is not, or if \code{repmatrix} is set to 0, then it will be
+//' assumed that a \code{repmatrix} should not be used.
+//' 
+//' @keywords internal
+//' @noRd
+// [[Rcpp::export(.sf_reassess)]]
+Rcpp::List sf_reassess(const DataFrame& stageframe,
+  Nullable<DataFrame> supplement = R_NilValue,
+  Nullable<DataFrame> overwrite = R_NilValue,
+  Nullable<NumericMatrix> repmatrix = R_NilValue,
+  bool agemat = false, bool historical = false, int format = 1) {
+  
+  List sf_output = LefkoMats::sf_reassess_internal(stageframe, supplement,
+    overwrite, repmatrix, agemat, historical, format);
+  
+  return sf_output;
+}
+
 //' Create Skeleton Stageframe
 //' 
 //' Function \code{sf_skeleton()} creates a skeleton \code{stageframe} object.
@@ -2341,7 +2399,7 @@ List cycle_check(RObject mpm, Nullable<RObject> quiet = R_NilValue) {
       if (list_names(i) == "agestages") all_found++;
       if (list_names(i) == "labels") all_found++;
     }
-    if (all_found < 5) pop_error("mpm", "lefkoMat object, matrix, or list of matrices", "", 3);
+    if (all_found < 5) pop_error("mpm", "a lefkoMat object, matrix, or list of matrices", "", 1);
     
     List amats = as<List>(mpm_list["A"]);
     DataFrame stageframe = as<DataFrame>(mpm_list["ahstages"]);
@@ -2588,7 +2646,7 @@ List cycle_check(RObject mpm, Nullable<RObject> quiet = R_NilValue) {
     lopv(1) = list_of_no_out;
     
   } else {
-    pop_error("mpm", "lefkoMat object, matrix, or list of matrices", "", 3);
+    pop_error("mpm", "a lefkoMat object, matrix, or list of matrices", "", 1);
   }
   
   CharacterVector lopv_names {"no_in", "no_out"};

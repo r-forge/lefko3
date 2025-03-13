@@ -6877,23 +6877,27 @@ namespace LefkoUtils {
   
   //' Estimate All Elements of Function-based Population Projection Matrix
   //' 
-  //' Function \code{jerzeibalowski()} swiftly calculates matrix elements in
+  //' Function \code{jerzeibalowski()} calculates matrix elements in
   //' function-based population projection matrices involving stages. Used in
   //' \code{mpm_create()}, and through that function in \code{flefko3()},
   //' \code{flefko2()}, and \code{aflefko2()}.
   //' 
   //' @name jerzeibalowski
   //' 
-  //' @param AllStages A large data frame giving all required inputs for vital
-  //' rate estimation other than the vital rate model coefficients themselves.
-  //' Contains a row for each ultimate matrix element.
-  //' @param stageframe The modified stageframe used in matrix calculations.
-  //' @param matrixformat An integer representing the style of matrix to develop.
+  //' @param AllStages Data frame with all required inputs for vital rate
+  //' estimation other than the vital rate model coefficients themselves.
+  //' Contains a row for each matrix element.
+  //' @param stageframe Modified stageframe used in matrix calculations.
+  //' @param matrixformat Integer representing the style of matrix to develop.
   //' Options include Ehrlen-format hMPM (1), deVries-format hMPM (2), ahMPM (3),
   //' and age-by-stage MPM (4).
   //' @param survproxy List of coefficients estimated in model of survival.
   //' @param obsproxy List of coefficients estimated in model of observation.
-  //' @param sizeproxy List of coefficients estimated in model of size.
+  //' @param sizeproxy List of coefficients estimated in model of primary size.
+  //' @param sizebproxy List of coefficients estimated in model of secondary
+  //' size.
+  //' @param sizecproxy List of coefficients estimated in model of tertiary
+  //' size.
   //' @param repstproxy List of coefficients estimated in model of reproductive 
   //' status.
   //' @param fecproxy List of coefficients estimated in model of fecundity.
@@ -6901,7 +6905,12 @@ namespace LefkoUtils {
   //' survival.
   //' @param jobsproxy List of coefficients estimated in model of juvenile
   //' observation.
-  //' @param jsizeproxy List of coefficients estimated in model of juvenile size.
+  //' @param jsizeproxy List of coefficients estimated in model of juvenile
+  //' primary size.
+  //' @param jsizebproxy List of coefficients estimated in model of juvenile
+  //' secondary size.
+  //' @param jsizecproxy List of coefficients estimated in model of juvenile
+  //' tertiary size.
   //' @param jrepstproxy List of coefficients estimated in model of juvenile
   //' reproductive status.
   //' @param jmatstproxy List of coefficients estimated in model of juvenile
@@ -7034,7 +7043,7 @@ namespace LefkoUtils {
   //' matrices outined in \code{simplicity}, or just the \code{A} matrix.
   //' 
   //' @return A list with 2, 3, or 4 elements. If \code{simplicity} is set to
-  //' \code{FALSE}, then the first 3 elements are matrices, including the main MPM
+  //' \code{FALSE}, then first 3 elements are matrices, including the main MPM
   //' (A), the survival-transition matrix (U), and a fecundity matrix (F). If
   //' simplicity is set to \code{TRUE}, then only the survival-transition matrix
   //' (U) and fecundity matrix (F) are output. If \code{err_check} is set to
@@ -7400,15 +7409,20 @@ namespace LefkoUtils {
     Rcpp::NumericVector grp2o = as<NumericVector>(AllStages["group2o"]);
     Rcpp::NumericVector grp1 = as<NumericVector>(AllStages["group1"]);
     
+    Rcpp::NumericVector indata = as<NumericVector>(AllStages["indata"]);
+    
+    Rcpp::NumericVector ovgivent = as<NumericVector>(AllStages["ovgiven_t"]);
+    Rcpp::NumericVector ovgivenf = as<NumericVector>(AllStages["ovgiven_f"]);
+    Rcpp::NumericVector ovoffsett = as<NumericVector>(AllStages["ovoffset_t"]);
+    Rcpp::NumericVector ovoffsetf = as<NumericVector>(AllStages["ovoffset_f"]);
+    arma::vec ovostt = as<arma::vec>(ovoffsett);
+    arma::vec ovostf = as<arma::vec>(ovoffsetf);
+    
     Rcpp::NumericVector ovestt_num = as<NumericVector>(AllStages["ovest_t"]);
     arma::vec ovestt = as<arma::vec>(ovestt_num);
     
     Rcpp::NumericVector ovestf_num = as<NumericVector>(AllStages["ovest_f"]);
     arma::vec ovestf = as<arma::vec>(ovestf_num);
-    
-    Rcpp::NumericVector indata = as<NumericVector>(AllStages["indata"]);
-    Rcpp::NumericVector ovgivent = as<NumericVector>(AllStages["ovgiven_t"]);
-    Rcpp::NumericVector ovgivenf = as<NumericVector>(AllStages["ovgiven_f"]);
     
     Rcpp::NumericVector ovsurvmult = as<NumericVector>(AllStages["ovsurvmult"]);
     Rcpp::NumericVector ovfecmult = as<NumericVector>(AllStages["ovfecmult"]);
@@ -7422,8 +7436,13 @@ namespace LefkoUtils {
     
     int n = static_cast<int>(stage3.n_elem);
     
-    arma::uvec replacetvec = find(ovestt != -1.0);
-    arma::uvec replacefvec = find(ovestf != -1.0);
+    arma::uvec offsettvec = find(ovostt != 0.);
+    arma::uvec offsetfvec = find(ovostf != 0.);
+    int offsetst = static_cast<int>(offsettvec.n_elem);
+    int offsetsf = static_cast<int>(offsetfvec.n_elem);
+    
+    arma::uvec replacetvec = find(ovestt != -1.);
+    arma::uvec replacefvec = find(ovestf != -1.);
     int replacementst = static_cast<int>(replacetvec.n_elem);
     int replacementsf = static_cast<int>(replacefvec.n_elem);
     
@@ -8189,6 +8208,32 @@ namespace LefkoUtils {
       }
     }
     
+    if (offsetst > 0) {
+      for(int i = 0; i < n; i++) {
+        if (ovoffsett(i) != 0.) {
+          k = aliveandequal(i);
+          if (!sparse) {
+            survtransmat(k) = survtransmat(k) + ovoffsett(i);
+          } else {
+            survtransmat_sp(k) = survtransmat_sp(k) + ovoffsett(i);
+          }
+        }
+      }
+    }
+    
+    if (offsetsf > 0) {
+      for(int i = 0; i < n; i++) {
+        if (ovoffsetf(i) != 0.) {
+          k = aliveandequal(i);
+          if (!sparse) {
+            fectransmat(k) = fectransmat(k) + ovoffsetf(i);
+          } else {
+            fectransmat_sp(k) = fectransmat_sp(k) + ovoffsetf(i);
+          }
+        }
+      }
+    }
+    
     if (tmults_only_st > 0) {
       for (int i = 0; i < tmults_only_st; i++) {
         repindex = tmults_only(i);
@@ -8458,6 +8503,7 @@ namespace LefkoUtils {
     IntegerVector ov_age2;
     IntegerVector ov_estage2;
     NumericVector ov_givenrate;
+    NumericVector ov_offset;
     NumericVector ov_multiplier;
     IntegerVector ov_convtype;
     int supp_length {0};
@@ -8470,6 +8516,7 @@ namespace LefkoUtils {
         ov_age2 = clone(as<IntegerVector>(supplement_["age2"]));
         ov_estage2 = clone(as<IntegerVector>(supplement_["estage2"]));
         ov_givenrate = as<NumericVector>(supplement_["givenrate"]);
+        ov_offset = as<NumericVector>(supplement_["offset"]);
         ov_multiplier = as<NumericVector>(supplement_["multiplier"]);
         ov_convtype = as<IntegerVector>(supplement_["convtype"]);
         
@@ -9084,6 +9131,19 @@ namespace LefkoUtils {
             survtransmat_sp(target_row, target_col) = ov_givenrate(l);
           }
         }
+        
+        if (!NumericVector::is_na(ov_offset(l))) {
+          if (ov_offset(l) != 0.) {
+            if (!sparse) {
+              survtransmat(target_row, target_col) =
+                survtransmat(target_row, target_col) + ov_offset(l);
+            } else {
+              survtransmat_sp(target_row, target_col) =
+                survtransmat_sp(target_row, target_col) + ov_offset(l);
+            }
+          }
+        }
+        
         if (!IntegerVector::is_na(ov_estage2(l))) {
           proxy_col = ov_estage2(l);
           
@@ -9105,6 +9165,7 @@ namespace LefkoUtils {
             survtransmat_sp(target_row, target_col) = survtransmat_sp(proxy_row, proxy_col);
           }
         }
+        
         if (!NumericVector::is_na(ov_multiplier(l))) {
           if (!sparse) {
             survtransmat(target_row, target_col) *= ov_multiplier(l);
@@ -9122,6 +9183,19 @@ namespace LefkoUtils {
             fectransmat_sp(target_row, target_col) = ov_givenrate(l);
           }
         }
+        
+        if (!NumericVector::is_na(ov_offset(l))) {
+          if (ov_offset(l) != 0.) {
+            if (!sparse) {
+              fectransmat(target_row, target_col) =
+                fectransmat(target_row, target_col) + ov_offset(l);
+            } else {
+              fectransmat_sp(target_row, target_col) =
+                fectransmat_sp(target_row, target_col) + ov_offset(l);
+            }
+          }
+        }
+        
         if (!IntegerVector::is_na(ov_estage2(l))) {
           proxy_col = ov_estage2(l);
           
@@ -9139,6 +9213,7 @@ namespace LefkoUtils {
             fectransmat_sp(target_row, target_col) = fectransmat_sp(proxy_row, proxy_col);
           }
         }
+        
         if (!NumericVector::is_na(ov_multiplier(l))) {
           if (!sparse) {
             fectransmat(target_row, target_col) *= ov_multiplier(l);
@@ -9803,14 +9878,17 @@ namespace LefkoUtils {
   //' 
   //' @return Stops R and produces an error message.
   //' 
+  //' @section Notes:
+  //' Pop errors 3 and 6 were merged with 1.
+  //' 
   //' @keywords internal
   //' @noRd
   inline void pop_error (String input1, String input2, String input3, int type = 1) {
     String eat_my_shorts;
-    if (type == 1) {
+    if (type == 1) { // Very useful
       eat_my_shorts = "Argument ";
       eat_my_shorts += input1;
-      eat_my_shorts += " should be entered as a list of ";
+      eat_my_shorts += " should be entered as ";
       eat_my_shorts += input2;
       eat_my_shorts += ".";
       
@@ -9823,14 +9901,7 @@ namespace LefkoUtils {
       eat_my_shorts += input3;
       eat_my_shorts += ".";
       
-    } else if (type == 3) {
-      eat_my_shorts = "Argument ";
-      eat_my_shorts += input1;
-      eat_my_shorts += " should be entered as a ";
-      eat_my_shorts += input2;
-      eat_my_shorts += ".";
-      
-    } else if (type == 4) {
+    } else if (type == 4) { // Very useful
       eat_my_shorts = "Matrix ";
       eat_my_shorts += input1;
       eat_my_shorts += " must be square.";
@@ -9840,13 +9911,7 @@ namespace LefkoUtils {
       eat_my_shorts += input1;
       eat_my_shorts += " is not recognized.";
       
-    } else if (type == 6) {
-      eat_my_shorts = "Argument ";
-      eat_my_shorts += input1;
-      eat_my_shorts += " must be a ";
-      eat_my_shorts += input2;
-      
-    } else if (type == 7) {
+    } else if (type == 7) { // Should eliminate
       eat_my_shorts = "Argument ";
       eat_my_shorts += input1;
       eat_my_shorts += " must be set to a ";
@@ -9867,10 +9932,10 @@ namespace LefkoUtils {
     } else if (type == 9) {
       eat_my_shorts = "Variable names designating ";
       eat_my_shorts += input1;
-      eat_my_shorts += " do not match variables in entered ";
+      eat_my_shorts += " do not match variables names in input ";
       eat_my_shorts += input2;
       
-    } else if (type == 10) {
+    } else if (type == 10) { // Seems useful. Used many times
       eat_my_shorts = "Argument ";
       eat_my_shorts += input1;
       eat_my_shorts += " must be entered as a string vector showing ";
@@ -9881,45 +9946,30 @@ namespace LefkoUtils {
     } else if (type == 11) {
       eat_my_shorts = "Argument ";
       eat_my_shorts += input1;
-      eat_my_shorts += " must be entered if using a";
+      eat_my_shorts += " must be entered if using ";
       eat_my_shorts += input2;
       eat_my_shorts += " object.";
-      
-    } else if (type == 12) {
-      eat_my_shorts = "Argument ";
-      eat_my_shorts += input1;
-      eat_my_shorts += " must be a";
-      eat_my_shorts += input2;
-      eat_my_shorts += " created with function ";
-      eat_my_shorts += input3;
-      eat_my_shorts += "().";
       
     } else if (type == 13) { 
       eat_my_shorts = input1;
       eat_my_shorts += " is not recognized in arguments ";
       eat_my_shorts += input2;
-      eat_my_shorts += " or ";
+      eat_my_shorts += " and ";
       eat_my_shorts += input3;
       
-    } else if (type == 14) { 
-      eat_my_shorts = "Argument ";
-      eat_my_shorts += input1;
-      eat_my_shorts += " must equal ";
-      eat_my_shorts += input2;
-      
-    } else if (type == 15) { 
+    } else if (type == 15) { // Very useful
       eat_my_shorts = "Argument ";
       eat_my_shorts += input1;
       eat_my_shorts += " is required if ";
       eat_my_shorts += input2;
       eat_my_shorts += " is not provided.";
       
-    } else if (type == 16) {
+    } else if (type == 16) { // Very useful
       eat_my_shorts = "Variable(s) coding for ";
       eat_my_shorts += input1;
       eat_my_shorts += " not found in dataset.";
       
-    } else if (type == 17) {
+    } else if (type == 17) { // Could this be removed? Used several times
       eat_my_shorts = "Some input ";
       eat_my_shorts += input1;
       eat_my_shorts += " values are not found in the ";
@@ -9951,7 +10001,7 @@ namespace LefkoUtils {
       eat_my_shorts += input3;
       eat_my_shorts += ".";
       
-    } else if (type == 21) {
+    } else if (type == 21) { // Seems useful
       eat_my_shorts = "Some ";
       eat_my_shorts += input1;
       eat_my_shorts += " are not in an accepted style.";
@@ -9972,6 +10022,60 @@ namespace LefkoUtils {
       eat_my_shorts += input2;
       eat_my_shorts += ".";
       
+    } else if (type == 24) {
+      eat_my_shorts = "Do not use arguments ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " and ";
+      eat_my_shorts += input2;
+      eat_my_shorts += " if ";
+      eat_my_shorts += input3;
+      eat_my_shorts += ".";
+      
+    } else if (type == 25) {
+      eat_my_shorts = input1;
+      eat_my_shorts += " are not allowed in argument ";
+      eat_my_shorts += input2;
+      eat_my_shorts += ".";
+      
+    } else if (type == 26) {
+      eat_my_shorts = "Argument ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " is required to ";
+      eat_my_shorts += input2;
+      eat_my_shorts += ".";
+      
+    } else if (type == 27) {
+      eat_my_shorts = "Arguments ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " and ";
+      eat_my_shorts += input2;
+      eat_my_shorts += " must be ";
+      eat_my_shorts += input3;
+      eat_my_shorts += ".";
+      
+    } else if (type == 28) {
+      eat_my_shorts = "Arguments ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " can only be used in ";
+      eat_my_shorts += input2;
+      eat_my_shorts += ".";
+      
+    } else if (type == 29) {
+      eat_my_shorts = "Vector ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " must be the same length as ";
+      eat_my_shorts += input2;
+      eat_my_shorts += ".";
+      
+    } else if (type == 30) {
+      eat_my_shorts = "Elements in argument ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " may not be negative";
+      eat_my_shorts += ".";
+    } else if (type == 31) {
+      eat_my_shorts = "Elements in argument ";
+      eat_my_shorts += input1;
+      eat_my_shorts += " may not be NA.";
     }
     
     throw Rcpp::exception(eat_my_shorts.get_cstring(), false);

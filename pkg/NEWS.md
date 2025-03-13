@@ -1,4 +1,4 @@
-# lefko3 6.3.3 (2025-XX-XX)
+# lefko3 6.4.0 (2025-XX-XX)
 
 ## NEW FEATURES
 
@@ -6,6 +6,9 @@
 
 * Function-based matrix building procedures now test for NA values of model
   coefficients, and display warnings if found.
+  
+* Function supplemental() now allows additive offsets to transition elements in
+  MPMs and projections.
 
 ## USER VISIBLE CHANGES
 
@@ -13,10 +16,17 @@
 
 * Function summary.lefkoMat() now also checks for stage discontinuities.
 
+* Updated and standardized error messages.
+
+* Vignette 1 updated with offset info.
+
 ## BUG FIXES
 
 * Fixed error in projection3() resulting in shuffled starting frames under
   some conditions in which stageframes are shuffled from their original state.
+  
+* Fixed error in function f_projection3() coming from handling of tertiary
+  individual covariate.
 
 # lefko3 6.3.2 (2025-01-06)
 
